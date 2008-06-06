@@ -12,7 +12,7 @@ Author URI: http://gbellucci.us
 
 #$navt_plugindir = dirname(plugin_basename(__FILE__));
 $navt_plugindir = 'navt';
-$navt_root_dir = get_option('siteurl') . '/wp-content/vip-plugins/'.$navt_plugindir;
+$navt_root_dir = get_option('siteurl') . '/wp-content/themes/vip/plugins/'.$navt_plugindir;
 @define('NAVT_PLUGINPATH', (DIRECTORY_SEPARATOR != '/') ? str_replace(DIRECTORY_SEPARATOR, '/', dirname(__FILE__)) : dirname(__FILE__));
 
 require_once('includes/navtinc.php');
