@@ -20,15 +20,9 @@
 Plugin Name: ShareThis
 Plugin URI: http://alexking.org/projects/share-this
 Description: Let your visitors share a post/page with others. Supports e-mail and posting to social bookmarking sites. <a href="options-general.php?page=share-this.php">Configuration options are here</a>. Questions on configuration, etc.? Make sure to read the README.
-Version: 1.5.2 - WordPress.com VIP
-Author: ShareThis and Crowd Favorite (crowdfavorite.com)
+Version: 1.5.2 - VIP
+Author: ShareThis, Crowd Favorite (crowdfavorite.com) - modified by Automattic
 Author URI: http://sharethis.com
-*/
-
-/*
-add_option('simple_post_first', 'text');
-$simple_post_first = get_option('simple_post_first');
-update_option('simple_post_first', $_REQUEST['simple_post_title']);
 */
 
 function akst_addtocontent() {
@@ -212,11 +206,9 @@ $social_sites = array(
 
 $akst_limit_mail_recipients = 5;
 
-// NO NEED TO EDIT BELOW THIS LINE
-// ============================================================
-
-@define('AK_WPROOT', '../../../');
-@define('AKST_FILEPATH', '/wp-content/plugins/share-this/share-this.php');
+$akst_path = '/wp-content/themes/vip/plugins/share-this';
+$akst_root_dir = get_option('siteurl') . $akst_path;
+@define('AKST_FILEPATH', $akst_path . '/share-this.php');
 
 if (function_exists('load_plugin_textdomain')) {
 	load_plugin_textdomain('share-this', PLUGINDIR.'/share-this');
@@ -468,7 +460,7 @@ foreach ($social_sites as $key => $data) {
 	if (akst_disp_socialweb($key))
 		print(
 '#akst_'.$key.' {
-	background-image: url('.get_bloginfo('wpurl').'/wp-content/vip-plugins/share-this/'.$key.'.gif) !important;
+	background-image: url('.$akst_root_dir.'/'.$key.'.gif) !important;
 }
 ');
 }
@@ -514,7 +506,7 @@ foreach ($social_sites as $key => $data) {
 if (akst_showicon()) {
 ?>
 .akst_share_link {
-	background: 1px 0 url(<?php bloginfo('wpurl'); ?>/wp-content/vip-plugins/share-this/share-icon-16x16.gif) no-repeat !important;
+	background: 1px 0 url(<?php echo $akst_root_dir; ?>/share-icon-16x16.gif) no-repeat !important;
 	padding: 1px 0 3px 22px;
 }
 <?php
@@ -790,7 +782,7 @@ function akst_share_form() {
 ?>
 		<div id="akst_credit">
 			<a href="http://sharethis.com">
-				<img src="<?php bloginfo('wpurl'); ?>/wp-content/vip-plugins/share-this/powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
+				<img src="<?php echo $akst_root_dir; ?>/powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
 			</a>
 		</div>
 	</div>
@@ -1045,7 +1037,7 @@ function akst_options_form() {
 		<p>
 		<?php 	foreach ($social_sites as $key => $data) { ?>
 			<label><input name="akst_socialwebs[]" id="akst_socialwebs_<?php echo $key ?>" value="<?php echo $key ?>" type="checkbox" <?php if(akst_disp_socialweb($key)) echo $checked; ?> /> 
-			<img alt='<?php _e($data['name'], 'share-this') ?>' src="<?php bloginfo('wpurl') ?>/wp-content/vip-plugins/share-this/<?php echo $key; ?>.gif" height='16' width='16' /> 	
+			<img alt='<?php _e($data['name'], 'share-this') ?>' src="<?php echo $akst_root_dir; ?>/<?php echo $key; ?>.gif" height='16' width='16' /> 	
 			<?php _e($data['name'], 'share-this') ?></label><br />
 		<?php } ?>
 		</p>
@@ -1134,7 +1126,7 @@ function akst_page() {
 	}
 	
 	body {
-		background: #fff url(<?php bloginfo('wpurl'); ?>/wp-content/vip-plugins/share-this/page_back.gif) repeat-x;
+		background: #fff url(<?php echo $akst_root_dir; ?>/page_back.gif) repeat-x;
 		font: 11px Verdana, sans-serif;
 		padding: 20px;
 		text-align: center;
@@ -1323,7 +1315,7 @@ function akst_page() {
 	<div id="footer">
 		<p>
 			<a href="http://sharethis.com">
-				<img src="<?php bloginfo('wpurl'); ?>/wp-content/vip-plugins/share-this/powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
+				<img src="<?php echo $akst_root_dir; ?>/powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
 			</a>
 		</p>
 	</div>
