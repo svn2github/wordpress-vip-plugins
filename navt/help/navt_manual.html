@@ -1,0 +1,181 @@
+<!--
+  Plugin Name: NAVT Word Press Plugin
+  Plugin URI: http://www.gbellucci.us
+  File: navt_manual.html
+  Author: Greg A. Bellucci
+  Author URI: http://www.gbellucci.us
+
+  NAVT Word Press Plugin
+  Copyright (c) 2007 Greg A. Bellucci/Atalaya Studio
+ 
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+  and associated documentation files (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:
+ 
+ The above copyright notice and this permission notice shall be included in all copies or substantial
+ portions of the Software.
+ 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+ LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ 
+ @package NAVT Word Press Plugin
+ @author Greg A. Bellucci <greg[AT]gbellucci[DOT]us
+ @copyright Copyright &copy; 2006-2007 Greg A. Bellucci
+ @license http://www.opensource.org/licenses/mit-license.php The MIT License
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+<style type="text/css">
+
+* {
+	padding: 0;
+	margin: 0;
+	}
+
+body {
+	font-family: Georgia, "Times New Roman", Times, serif;
+	color: #333;
+	background: #EDEDED;
+	text-align: center;
+	font-size: 70%;
+	}
+	
+#page {
+	background: #fff;
+	margin: 0 auto;
+	padding: 20px 0 10px;
+	position: relative;
+	border-style: none;
+	}
+	
+.dent {
+	padding-left: 30px;
+	}
+	
+#primary {
+	width: 780px;
+	padding: 10px;
+	text-align: left;
+	}
+	
+#primary p {
+	letter-spacing: 0.1em;
+	line-height: 1.4em;
+	text-align: justify;
+	padding-top: 1em;
+	}
+	
+h2, h3, h4 {
+	font-size: 1.5em;
+	color: #333333;
+	padding-top: 1em;
+}
+
+.codeblock h4 {
+	font: 1.1em Tahoma, Verdana, Arial, sans-serif;
+}
+
+code {
+	color: #990000;
+	font: 1em 'Courier New', Courier, Monospace;
+	}
+
+.arg {
+	color:#000000;
+	}
+
+
+#page #primary h1 {
+	text-align: center;
+}
+#page #primary .author {
+	text-align: center;
+	color: #999999;
+	font-weight: normal;
+	font-size: 1em;
+}
+#page #primary ul {
+	padding: .5em .5em .5em 2em;
+}
+#page #primary li {
+	padding-top: .3em;
+}
+</style>
+<title>NAVT Plugin For WordPress Manual</title>
+</head>
+<body>
+<div id="page">
+    <div id="primary">
+		<h1>NAVT Plugin For WordPress</h1>
+		<h2 class="author">By Greg Bellucci, April 2007 </h2
+		><h3>Introduction</h3>
+        <p>The information in this document is not intended to teach the basics of the PHP programming language, programming logic or WordPress template construction. It is designed to provide sensible help to the &quot;do it yourselfer&quot; who would like to use the NAVT Plugin for WordPress and isn't afraid to do a little template hacking to make it happen. </p>
+        <p>Template 'hacking' is the very thing I hope to avoid by supplying you with this information. Adding the necessary function call to your WordPress template for the NAVT plugin doesn&rsquo;t take very long to do. You need to understand the following three things: </p>
+        <ul>
+        	<li>Where the NAVT PHP interface function call needs to be placed in your WordPress template, </li>
+        	<li>How to correctly write the function call and, </li>
+        	<li>How to style the resulting navigation list. </li>
+       	</ul>
+        <h3>WordPress Theme Basics  </h3>
+        <p>WordPress templates are not a mystery if you understand what is going on. The content of your WordPress theme directory is composed of one large PHP script. The script is divided into small files and each file name provides a clue for its intended use. </p>
+        <p>The typical WordPress theme usually contains (at a minimum) the following four files: </p>
+        <ul>
+        	<li>Index.php</li>
+        	<li>Header.php </li>
+        	<li>Sidebar.php </li>
+        	<li>Footer.php </li>
+		</ul>
+		<p>The <code>Index.php</code> file contains the PHP scripting that is responsible for assembling all of the information that produces the pages of your WordPress blog. <code>Index.php</code> calls the PHP function <code>get_header()</code> and the scripting code for the <code>get_header</code> function is in your <code>header.php</code> file. It also calls the PHP function <code>get_sidebar()</code> and, as luck would have it, the scripting code for the sidebar is contained in the <code>sidebar.php</code> file. Index.php also calls the function <code>get_footer()</code> and guess where the scripting code for the footer is? That&rsquo;s right, in your <code>footer.php</code>file.</p>
+		<p>Index.php also contains the logic necessary to fetch the pages, articles and comments from your database and display them between the header and the footer of each page. Your theme's stylesheet (the file called style.css) contains the instructions your browser needs to display each of your web blog pages. </p>
+		<h3>Where are the Menus?</h3>
+		<p>Depending on how your theme was constructed, the scripting for the navigation lists that appear in your theme can theoretically be located anywhere. We can narrow down the possible location by making an educated guess. If your theme has a <strong>horizontal navigation bar</strong> then the scripting code is probably located in the file: <code>header.php</code> If your theme uses a <strong>vertical navigation list</strong>, then the code  is probably located in the file: <code>sidebar.php</code>These are the two standard locations for theme navigation lists. </p>
+		<p>To locate the actual line of PHP code in <code>header.php</code>, <code>sidebar.php</code> or in <strong>any file</strong> of your theme, do the following: </p>
+		<ul>
+			<li>Open the PHP file with any simple text editor (<em>Win users should use WordPad</em>) </li>
+			<li>Using the editor's <strong>Find</strong> or <strong>Search</strong> command, look for the word <code>wp_list_pages</code></li>
+		</ul>
+		<p><code>wp_list_pages</code> is a core WordPress PHP function call so it will appear in the file with between: <code>&lt;?php</code> and <code>?&gt;</code> . The entire line may look similar to: <code>  &lt;?php wp_list_pages('title_li=' . __('Pages:')); ?&gt; </code></p>
+		<p>PHP script is executed on the server in a top-down fashion; beginning with the very first line of PHP code at the top of the file and continuing to the last line at the bottom. At the point where the <code>wp_list_pages</code>  is encountered on the page, the function call produces all of the necessary HTML code  to display the navigation list. </p>
+		<p>&nbsp; </p>
+		<h3>&nbsp;</h3>
+        <h3>NAVT Plugin For Word Press</h3>
+        <p>PHP Interface function call syntax:</p>
+		<div class="codeblock">
+        <h4>navt_getlist($sNavGroupName, $bEcho=true, $sTitle='', $sBefore='ul', $sAfter='/ul', $sBeforeItem='li', $sAfterItem='/li')</h4>
+        <p>Where:</p>
+		<div class="dent">
+        <p><span class="arg">string $sNavGroupName</span> (<strong>no default</strong> - note: you cannot specify the 'unassigned' menu group)<br />
+            The name of the requested navigation group- Note: <strong>the name *must* match the group name you defined when the group was created.</strong></p>
+        <p><span class="arg">boolean $bEcho (default = true)</span><br />
+            Instructs the function to echo the html output. If set to false, the output is returned<em><strong>.</strong></em></p>
+        <p><span class="arg">string $sTitle (default='')</span><br />
+            An optional title to appear before the menu. You may specify tags/class (example:<code>&quot;&lt;h3 class=&quot;cls&quot;&gt;Menu Title&lt;/h3&gt;&quot;</code> )</p>
+        <p><span class="arg">string $sBefore (default = 'ul')</span><br />
+            The opening tag(s) that encapsulates the menu (<em>without the beginning or ending angle brackets</em>) Combinations of tags can be used as in:<br />
+            <code>&quot;ul&gt;&lt;div class=&quot;my_menu_class&quot;</code><br />
+            (Note that the beginning and ending angle brackets are not included<em><strong>.</strong></em></p>
+        <p><span class="arg">string $sAfter (default = '/ul')<br />
+            </span>The closing tag(s) that match the $sBefore tag (<em>without the beginning or ending angle brackets</em>) Use the closing tag combinations for<br />
+            multiple tags as in:<code> &quot;/div&gt;&lt;/ul&quot; </code>(for the <strong>$sBefore</strong> example above.)</p>
+        <p><span class="arg">string $sBeforeItem (default = 'li')</span><br />
+            The opening tag(s) that encapsulates each menu item (<em>without the beginning or ending angle brackets</em>)<em><strong>.</strong></em></p>
+        <p><span class="arg">string $sAfterItem (default = '/li')</span><br />
+            The closing tag(s) that matches the tags used in <strong>$sBeforeItem </strong>(<em>without the beginning or ending angle brackets</em>).</p>
+			<p><span class="arg">return HTML formatted output or <em>NULL if $bEcho = true</em></span></p>
+        </div>
+		</div>
+		<hr />
+		<p>NAVT Navigation Tool for Word Press<br />
+		Copyright &copy; 2006-2007 <a href="http://gbellucci.us" title="Author's Home Page" target="_blank">Greg A. Bellucci</a><br />
+		The MIT License</p>
+    </div>
+</div>
+</body>
+</html>

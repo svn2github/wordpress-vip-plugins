@@ -1,0 +1,1706 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: NAVT Plugin for Word Press\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2008-04-03 08:22+0300\n"
+"PO-Revision-Date: 2008-04-03 08:22+0300\n"
+"Last-Translator: Greg Bellucci <greg@gbellucci.us>\n"
+"Language-Team:  <greg@gbellucci.us>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: English\n"
+"X-Poedit-Country: UNITED STATES\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-Basepath: c:/www/wpsvn/wp-content/plugins/navt/app\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: ../js\n"
+
+# identifies the group of pages listed in the Asset SELECT box
+#: navt-display.php:119
+msgid "pages"
+msgstr ""
+
+# identifies the group of categories listed in the Asset SELECT box
+#: navt-display.php:121
+msgid "categories"
+msgstr ""
+
+# identifies the group of users listed in the Asset SELECT box
+#: navt-display.php:123
+msgid "users"
+msgstr ""
+
+# identifies the group of misc items listed in the Asset SELECT box
+#: navt-display.php:125
+msgid "other"
+msgstr ""
+
+#: navt-display.php:143
+msgid "assets"
+msgstr ""
+
+# anchor title
+#: navt-display.php:145
+msgid "asset panel help"
+msgstr ""
+
+# Name of the 'unassigned' group of items
+#: navt-display.php:149
+msgid "unassigned"
+msgstr ""
+
+# Asset instructions
+#: navt-display.php:150
+msgid "Move unassigned elements into a navigation group."
+msgstr ""
+
+# Asset instructions
+#: navt-display.php:156
+msgid "To create a new item, click an element from one of the groups listed below."
+msgstr ""
+
+# anchor title
+#: navt-display.php:214
+msgid "group options"
+msgstr ""
+
+# anchor title
+#: navt-display.php:217
+msgid "remove group"
+msgstr ""
+
+# anchor title
+#: navt-display.php:220
+msgid "click to lock/unlock group"
+msgstr ""
+
+# refers to one of the divider option types
+#: navt-display.php:314
+#: navtajx.php:1618
+#: navtajx.php:1844
+#: ../js/navtadmin.js.php:1394
+msgid "empty space"
+msgstr ""
+
+# refers to one of the divider option types
+#: navt-display.php:317
+#: navtajx.php:1615
+#: navtajx.php:1841
+#: ../js/navtadmin.js.php:1390
+msgid "horizontal rule"
+msgstr ""
+
+# anchor title for the right arrow hierarchy button
+#: navt-display.php:338
+msgid "move higher"
+msgstr ""
+
+# anchor title for the left arrow hierarchy button
+#: navt-display.php:342
+msgid "move lower"
+msgstr ""
+
+#: navt-display.php:347
+msgid "click to connect/disconnect item from list"
+msgstr ""
+
+#: navt-display.php:351
+msgid "click to remove item"
+msgstr ""
+
+#: navt-display.php:460
+msgid "WordPress Navigation Management"
+msgstr ""
+
+#: navt-display.php:461
+msgid "Navigation Tool for WordPress v"
+msgstr ""
+
+#: navt-display.php:466
+#: navt_sbm_module.php:67
+msgid "Navigation Group"
+msgstr ""
+
+#: navt-display.php:470
+msgid "group help"
+msgstr ""
+
+#: navt-display.php:475
+msgid "group name"
+msgstr ""
+
+#: navt-display.php:478
+msgid "create new group"
+msgstr ""
+
+#: navt-display.php:478
+msgid "create"
+msgstr ""
+
+#: navt-display.php:484
+msgid "Backup-Restore"
+msgstr ""
+
+#: navt-display.php:488
+msgid "backup/restore help"
+msgstr ""
+
+#: navt-display.php:493
+msgid "backup/restore navigation groups"
+msgstr ""
+
+#: navt-display.php:494
+msgid "restore"
+msgstr ""
+
+#: navt-display.php:495
+msgid "backup"
+msgstr ""
+
+#: navt-display.php:500
+msgid "Change Log"
+msgstr ""
+
+#: navt-display.php:556
+msgid "copyright"
+msgstr ""
+
+#: navt-display.php:557
+msgid "navt forum"
+msgstr ""
+
+#: navt-display.php:558
+msgid "atalaya studio"
+msgstr ""
+
+#: navt-display.php:559
+msgid "the mit license"
+msgstr ""
+
+#: navt.php:170
+msgid "NAVT Lists"
+msgstr ""
+
+#: navt.php:330
+#: navt.php:594
+#: navt.php:596
+#: navtajx.php:1481
+msgid "User defined URI"
+msgstr ""
+
+#: navt.php:335
+#: navt.php:336
+#: navt.php:600
+#: navt.php:601
+#: navt.php:603
+msgid "List divider"
+msgstr ""
+
+#: navt.php:341
+#: navt.php:342
+#: navt.php:607
+#: navt.php:608
+#: navt.php:610
+msgid "Home"
+msgstr ""
+
+#: navt.php:347
+#: navt.php:348
+#: navt.php:614
+#: navt.php:615
+#: navt.php:617
+msgid "Sign in"
+msgstr ""
+
+#: navt.php:661
+#: navt.php:691
+msgid "no title"
+msgstr ""
+
+#: navt.php:910
+msgid " - Sets all NAVT created database options to their default values. This will cause any previously created Navigation Groups to be removed."
+msgstr ""
+
+#: navt.php:911
+msgid " - Removes all NAVT created database options and automatically deactivates the plugin."
+msgstr ""
+
+#: navt.php:919
+msgid "Reset this plugin"
+msgstr ""
+
+#: navt.php:919
+msgid "Reset"
+msgstr ""
+
+#: navt.php:920
+msgid "Uninstall this plugin"
+msgstr ""
+
+#: navt.php:920
+msgid "Uninstall"
+msgstr ""
+
+#: navtajx.php:34
+msgid "unknown request"
+msgstr ""
+
+#: navtajx.php:228
+msgid "** Help does not exist for that subject **"
+msgstr ""
+
+#: navtajx.php:236
+msgid "NAVT Assets"
+msgstr ""
+
+#: navtajx.php:239
+msgid "The Asset Panel"
+msgstr ""
+
+#: navtajx.php:239
+msgid "The NAVT asset panel gives you the ability to create navigation items from the various resources you've created in Word Press. NAVT refers to your pages, categories, user's and other items as assets. The panel places each resource into the appropriate asset group. Groups are identified by type."
+msgstr ""
+
+#: navtajx.php:239
+msgid "The location where unassigned assets are created. This area is typically grayed out until one or more navigation items are created. All newly created items will appear in this section."
+msgstr ""
+
+#: navtajx.php:239
+msgid "Icons indicate the type of resource contained in the listbox below it. Icons and listboxes exist for Pages, Categories, User's and Other items."
+msgstr ""
+
+#: navtajx.php:239
+msgid "The list of assets of the type indicated. Clicking an item within the listbox will create a copy of the item and place it in the unassigned area at the top."
+msgstr ""
+
+#: navtajx.php:242
+msgid "Creating Assets"
+msgstr ""
+
+#: navtajx.php:242
+msgid "This example illustrates what happened when the About page entry was selected."
+msgstr ""
+
+#: navtajx.php:242
+msgid "About Page selected by clicking the name in the listbox."
+msgstr ""
+
+#: navtajx.php:242
+msgid "A copy of the About Page navigation item is created."
+msgstr ""
+
+#: navtajx.php:242
+msgid "The navigation item appears in the unassigned area."
+msgstr ""
+
+#: navtajx.php:242
+msgid "The About Page navigation item can be deleted by clicking the item's delete button."
+msgstr ""
+
+#: navtajx.php:242
+msgid "The navigation item can be dragged and dropped to a navigation group by moving the item from the unassigned group."
+msgstr ""
+
+#: navtajx.php:242
+msgid "Any number of the same navigation items may be created and placed into different navigation groups. Each item (even if they represent identicle items) have separately configurable options. Item option setting for one item will not effect the option settings for another."
+msgstr ""
+
+#: navtajx.php:247
+msgid "NAVT Groups and Items"
+msgstr ""
+
+#: navtajx.php:250
+msgid "Navigation Groups"
+msgstr ""
+
+#: navtajx.php:250
+msgid "NAVT groups are a simple collection of navigation items composed from the pages, categories, users and other items that you've created in your WordPress blog. All available items are shown in the assets panel on the left side of the screen (see asset help). Items are divided into types and appear within separate lists."
+msgstr ""
+
+#: navtajx.php:250
+msgid "Creating Groups"
+msgstr ""
+
+#: navtajx.php:250
+msgid "Navigation groups are created by entering a group name into the group name textbox in the NAVT toolbar at the top of the screen. After entering the name, click the create button. The group name you enter must begin with an alphabetic character and it cannot contain spaces. Group names are limited in size to no more than 10 characters. All group names must be unique. After creating the group, a new (and empty) group container will appear to the right of the assets panel. The group name will appear at the top of the group container."
+msgstr ""
+
+#: navtajx.php:250
+msgid "Group Toolbar"
+msgstr ""
+
+#: navtajx.php:250
+msgid "The group toolbar (shown on the right) contains three icons in addition to the area for the group name:"
+msgstr ""
+
+#: navtajx.php:250
+msgid "<strong>A lock icon</strong> - used to prevent group changes."
+msgstr ""
+
+#: navtajx.php:250
+msgid "The name of the navigation group."
+msgstr ""
+
+#: navtajx.php:250
+msgid "<strong>A trashcan</strong> - used to delete the entire group."
+msgstr ""
+
+#: navtajx.php:250
+msgid "<strong>A gear icon</strong> - used for setting group options."
+msgstr ""
+
+#: navtajx.php:250
+msgid "group toolbar"
+msgstr ""
+
+#: navtajx.php:253
+msgid "Creating Items"
+msgstr ""
+
+#: navtajx.php:253
+msgid "Navigation items are created by clicking on the name of an item listed in the Pages, Categories, User's and Others listboxes in the assets panel. When you select and item, a copy of the item will appear in unassigned section at the top of the assets panel. The item may then be dragged and dropped into any one of the group containers you previously created."
+msgstr ""
+
+#: navtajx.php:253
+msgid "More than one of the same item may be created and placed into the same or into a different group. Every item (even the same items) may be configured to have different options."
+msgstr ""
+
+#: navtajx.php:253
+msgid "Item Tools"
+msgstr ""
+
+#: navtajx.php:253
+msgid "Each item contains a number of management tools."
+msgstr ""
+
+#: navtajx.php:253
+msgid "item tools"
+msgstr ""
+
+#: navtajx.php:253
+msgid "<strong>The item alias</strong> - the name of the item as it will appear in the navigation list. Click the item alias to open the item's option box."
+msgstr ""
+
+#: navtajx.php:253
+msgid "<strong>The item icon</strong> - represents the type of item (page, category, user or other). The icon is used to move the item from group to group."
+msgstr ""
+
+#: navtajx.php:253
+msgid "<strong>Connect/Disconnect icon</strong> - disconnecting the item means that the item remains in the group, however, the item will not be included in the output navigation list created for the web site. Connecting the item means that the item will be included in the output navigation list. This feature is used for temporarily eliminating an item without removing it from the group."
+msgstr ""
+
+#: navtajx.php:253
+msgid "<strong>Item removal icon</strong> - this icon is used to delete the item from the group."
+msgstr ""
+
+#: navtajx.php:253
+msgid "<strong>Hierarchical control arrows</strong> - used for moving the item to the left or right to indicate parent/child relationships."
+msgstr ""
+
+#: navtajx.php:258
+#: navtajx.php:261
+msgid "Backup/Restore"
+msgstr ""
+
+#: navtajx.php:261
+msgid "Selecting the <strong>Backup</strong> button will cause NAVT to create a XML file containing the configuration information for all of your navigation groups. The XML backup file is stored on your local computer. Restore the backup by selecting the <strong>Restore</strong> button. The restore function merges your current navigation groups with the contents of the backup file; restore can be used to create placeholders for missing categories, pages or users if they were removed after the backup was created. Full instructions are provided on the restore page."
+msgstr ""
+
+#: navtajx.php:267
+msgid "Configuring Group Options"
+msgstr ""
+
+#: navtajx.php:270
+msgid "Show only top-level anchors on page"
+msgstr ""
+
+#: navtajx.php:270
+msgid "When checked, the option Show only top-level anchors on page (hide hierarchy) will display only the links to the child pages of the current page. If a child page contains children of it's own, those anchors will only be shown when the child page is viewed. For example, if you created the following navigation group:"
+msgstr ""
+
+#: navtajx.php:270
+#: navtajx.php:273
+msgid "Item 1"
+msgstr ""
+
+#: navtajx.php:270
+msgid "Item 1a"
+msgstr ""
+
+#: navtajx.php:270
+msgid "Item 1b"
+msgstr ""
+
+#: navtajx.php:270
+#: navtajx.php:273
+msgid "Item 2"
+msgstr ""
+
+#: navtajx.php:270
+msgid "Item 2a"
+msgstr ""
+
+#: navtajx.php:270
+msgid "The Home Page would only display a navigation list containing Item 1 and Item 2. Their respective child links would not be visible. If you clicked Item 1, the newly displayed blog page would show the navigation links for Item 1a and Item 1b. The navigation list shown for Item 2 would contain only Item 2a."
+msgstr ""
+
+#: navtajx.php:270
+msgid "The option has an additional feature: Add page return to list. If this is checked, NAVT will add an additional link to the child navigation list allowing the user to return to the parent page."
+msgstr ""
+
+#: navtajx.php:270
+#: navtajx.php:1351
+msgid "Show breadcrumb navigation"
+msgstr ""
+
+#: navtajx.php:270
+msgid "Selecting this option will cause NAVT to add a breadcrumb path to the currently displayed page above the navigation list. For example, a user currently viewing blog page Item 1a would see the breadcrumb trail Home  &raquo; Item 1 &raquo; Item 1a. Selecting a link in the breadcrumb trail will take the user to the previously viewed blog page. The path can be easily styled (using CSS) to appear anywhere on the page using absolute positioning."
+msgstr ""
+
+#: navtajx.php:273
+msgid "Create navigation list using HTML select"
+msgstr ""
+
+#: navtajx.php:273
+msgid "Selecting this option will turn your navigation list into a Drop Down list of navigation items constructed using a HTML SELECT statement. This should not be confused with Drop Down lists produced by CSS. A typical Drop Down would appear as:"
+msgstr ""
+
+#: navtajx.php:273
+msgid "Item 3"
+msgstr ""
+
+#: navtajx.php:273
+msgid "Item 4"
+msgstr ""
+
+#: navtajx.php:273
+msgid "Item 5"
+msgstr ""
+
+#: navtajx.php:273
+msgid "Item 6"
+msgstr ""
+
+#: navtajx.php:273
+msgid "This option has the additional feature:  Display: 'N' item(s) in list. This is used to force the SELECT to show a maximum number of entries. The default is 1. For example, entering the number 3 in the box will cause the Drop Down to appear as:"
+msgstr ""
+
+#: navtajx.php:273
+msgid "Here we can see the first three available selections. In this case, the box contains more than three items so the browser adds a scrollbar on the right. This Drop Down box does not support multiple selections."
+msgstr ""
+
+#: navtajx.php:273
+msgid "Set navigation group to private"
+msgstr ""
+
+#: navtajx.php:273
+msgid "This option enables you to hide all navigation items from casual viewing if the viewer is not signed into your web site. Hiding the members of navigation lists can also be done by selecting the individual privacy option for each of the navigation items. Selecting this option will also change the color of the group heading (only in the NAVT List Page) to indicate the group is set to private."
+msgstr ""
+
+#: navtajx.php:278
+msgid "Configuring Display Options"
+msgstr ""
+
+#: navtajx.php:281
+msgid "Controlling Where Navigation Groups are Displayed"
+msgstr ""
+
+#: navtajx.php:281
+msgid "The display of any Navigation group can be controlled by specifying the page types where the navigation group should appear. The Show navigation group on... area allows you to indicate whether or not the navigation group is to appear on:"
+msgstr ""
+
+#: navtajx.php:281
+msgid "The Home Page"
+msgstr ""
+
+#: navtajx.php:281
+msgid "A Static Front Page (if configured)"
+msgstr ""
+
+#: navtajx.php:281
+msgid "An archive page (categories, user pages, date pages, etc)"
+msgstr ""
+
+#: navtajx.php:281
+msgid "The search results page"
+msgstr ""
+
+#: navtajx.php:281
+msgid "The 'page not found' page (404 errors)"
+msgstr ""
+
+#: navtajx.php:281
+msgid "Settings for Available Posts/Pages"
+msgstr ""
+
+#: navtajx.php:281
+msgid "Navigation groups can also be displayed (or not displayed) on all or on individually selected posts and/or pages. To display a navigation group on one or more selected posts or pages:"
+msgstr ""
+
+#: navtajx.php:281
+msgid "Check Settings for available posts and/or Settings for available pages. If these options are not checked, the navigation group will be displayed on all single pages and single post pages."
+msgstr ""
+
+#: navtajx.php:281
+msgid "Select Display this navigation group only on selected posts (or pages) or Do Not Display this navigation group only on selected posts (or pages). Selecting one of these radio buttons determines whether or not the Navigation group is to be shown on or not shown on the posts or pages that you select in the relevant list box."
+msgstr ""
+
+#: navtajx.php:281
+msgid "Pages and posts are listed by their respective titles."
+msgstr ""
+
+#: navtajx.php:286
+msgid "Styling Navigation Groups"
+msgstr ""
+
+#: navtajx.php:289
+msgid "CSS Styles"
+msgstr ""
+
+#: navtajx.php:289
+msgid "NAVT provides several CSS classes to the HTML it creates for your web site. Classes are used to assist you in styling your navigation groups. In addition, you have the choice of either applying native Word Press styles or not using any styles at all. Your own styles can exclusively used by selecting 'Do not apply CSS classes' and adding 'Apply the CSS information below to this navigation group"
+msgstr ""
+
+#: navtajx.php:289
+msgid "User Styles"
+msgstr ""
+
+#: navtajx.php:289
+msgid "By default, NAVT constructs navigation groups for your web site by building one or more unordered lists from the contents of the group. The number of unordered tag groups is dependent on whether or not parent/child relationships exist amoung the various navigation items in the list. Lists begin with a standard UL tag followed by one or more LI tags or nested UL tags contained within an LI tag."
+msgstr ""
+
+#: navtajx.php:289
+msgid "To add CSS classes, enter the class names in the textboxes provided. Multiple class names can be entered (per tag) by separating each class name with a space. No more than one selector name can be entered into the UL Selector ID textbox."
+msgstr ""
+
+#: navtajx.php:289
+msgid "<strong>UL selector ID</strong> - The selector ID given to the parent UL tag."
+msgstr ""
+
+#: navtajx.php:289
+msgid "<strong>UL tag CSS class</strong> - The class applied to the parent UL tag."
+msgstr ""
+
+#: navtajx.php:289
+msgid "<strong>LI tag CSS class</strong> - The class applied to all LI tags."
+msgstr ""
+
+#: navtajx.php:289
+msgid "<strong>LI active page CSS class</strong> - The class applied to the active LI tag."
+msgstr ""
+
+#: navtajx.php:289
+msgid "<strong>LI tag parent container</strong> - The class applied to the LI parent of a nested UL tag."
+msgstr ""
+
+#: navtajx.php:289
+msgid "<strong>LI tag parent container (active)</strong> - The class applied to the parent container of the active LI tag."
+msgstr ""
+
+#: navtajx.php:294
+#: navtajx.php:297
+#: navtajx.php:1295
+msgid "Theme Integration"
+msgstr ""
+
+#: navtajx.php:297
+msgid "This section enables you to integrate navigation groups into a Word Press theme by combining an <a class='definition' href='http://docs.jquery.com/DOM/Traversing/Selectors' title='xpath expressions'>xpath expression</a> with one of the actions from the action list.</p><p>For example, if you wanted to insert the navigation group above a division in your theme where the id of the division were named <strong>header</strong> then you would enter: <strong>#header</strong> into the xpath textbox. A hash character <strong>must proceed the id</strong> to indicate that the xpath contains a selector id. The navigation group can be inserted above, below, at the top or at the bottom of the location expressed in the xpath text box.</p><p>The navigation group can be preceeded by any number of additional HTML tags. HTML tags can contain an id and/or CSS classes. Selector ids and class names <strong>must be enclosed within double quotes</strong>. Ending tags must be entered if beginning tags are used."
+msgstr ""
+
+#: navtajx.php:302
+msgid "Configuring Page Options"
+msgstr ""
+
+#: navtajx.php:305
+#: navtajx.php:314
+#: navtajx.php:322
+#: navtajx.php:330
+#: navtajx.php:338
+#: navtajx.php:346
+#: navtajx.php:354
+msgid "Item Alias"
+msgstr ""
+
+#: navtajx.php:305
+msgid "The label that is given to a link is called a menu item alias. The alias is what the user sees in the navigation list on the web page. The alias may differ from the title of a page. In the diagram, A points to the item alias and B points to the item's title. The title is the name you gave the page when it was created. Changing the title will not change the alias you assigned nor will changing the alias change the page title. Item C is the icon used to signify a page."
+msgstr ""
+
+#: navtajx.php:305
+msgid "Options for Pages"
+msgstr ""
+
+#: navtajx.php:311
+msgid "Configuring Category Options"
+msgstr ""
+
+#: navtajx.php:314
+msgid "The label that is given to a link is called a menu item alias. The alias is what the user sees in the navigation list on the web page. The alias may differ from the category name. In the diagram, A points to the item alias and B points to the item's title. The title is the name you gave the category when it was created. Changing the title will not change the alias you assigned nor will changing the alias change the category title. Item C is the icon used to signify a category."
+msgstr ""
+
+#: navtajx.php:314
+msgid "Options for Categories"
+msgstr ""
+
+#: navtajx.php:314
+msgid "Show in WP category list. By default NAVT will prevent a category that has been used in a NAVT navigation list from also appearing in a category list generated by Word Press. Check this option if you want the category displayed in both locations."
+msgstr ""
+
+#: navtajx.php:314
+msgid "<strong>Append post count</strong> - NAVT appends the number of posts contained in the category to the category name."
+msgstr ""
+
+#: navtajx.php:314
+msgid "<strong>Show if Empty</strong> - causes the category link to appear even if it doesn't contain any posts."
+msgstr ""
+
+#: navtajx.php:314
+msgid "<strong>Use description as tooltip</strong> - Uses the description of the category as the mouse hover tooltip."
+msgstr ""
+
+#: navtajx.php:319
+msgid "Configuring Home Page Options"
+msgstr ""
+
+#: navtajx.php:322
+msgid "The label that is given to a link is called a menu item alias. The alias is what the user sees in the navigation list on the web page. The alias may differ from the Home title. In the diagram, A points to the item alias and B points to the Home title.  Item C is the icon used to signify the Home navigation item."
+msgstr ""
+
+#: navtajx.php:322
+#: navtajx.php:787
+msgid "Options"
+msgstr ""
+
+#: navtajx.php:322
+#: navtajx.php:338
+#: navtajx.php:346
+msgid "home options"
+msgstr ""
+
+#: navtajx.php:327
+msgid "Configuring SignIn Options"
+msgstr ""
+
+#: navtajx.php:330
+msgid "Sign in/Register Item"
+msgstr ""
+
+#: navtajx.php:330
+msgid "This item is equivalent to the Word Press sign-on/register anchors as part of the Word Press meta data. The anchor presented depends on whether or not the user has signed into the web site. When signed in, the anchor allows them to sign out; if not signed in and the Word Press Membership option: anyone can register is checked, the anchor will allow the user to register or sign in."
+msgstr ""
+
+#: navtajx.php:330
+msgid "The label that is given to a link is called a menu item alias. The alias is what the user sees in the navigation list on the web page. The alias may differ from the sign-in title. In the diagram, A points to the item alias and B points to the sign-in title. Item C is the icon used to signify the sign-in administration item."
+msgstr ""
+
+#: navtajx.php:330
+msgid "Options for Site Administration"
+msgstr ""
+
+#: navtajx.php:330
+msgid "sign-in options"
+msgstr ""
+
+#: navtajx.php:330
+msgid "<strong>Create sign-in form</strong> - selecting this will create a small sign-in form on the web site."
+msgstr ""
+
+#: navtajx.php:330
+msgid "<strong>Use referral page redirect</strong> - After signing in, the user remains on the page where they signed in."
+msgstr ""
+
+#: navtajx.php:330
+msgid "<strong>Use URL redirect</strong> - When checked, the user is redirected to the URL that is contained in the redirect URL textbox."
+msgstr ""
+
+#: navtajx.php:330
+msgid "<strong>Redirect URL text box </strong>- enables you to send the signed in user to another page on your web site. Enter a complete URL in this box."
+msgstr ""
+
+#: navtajx.php:335
+msgid "Configuring Divider Options"
+msgstr ""
+
+#: navtajx.php:338
+msgid "Divider Items"
+msgstr ""
+
+#: navtajx.php:338
+msgid "A divider is primarily designed to separate navigation lists into groups of related items. A divider can be inserted between elements to provide an empty space, a horizontal line or a plain text title. The menu item alias serves as the title when the divider type is set to 'plain text'."
+msgstr ""
+
+#: navtajx.php:338
+msgid "The label that is given to a link is called a menu item alias. The alias is what the user sees in the navigation list on the web page. The alias is used as a title or header when the divider type is set to plain text. No alias is displayed when the divider type is set to either empty space horizontal rule. In the diagram, A points to the item alias and B points to the List Divider title. Item C is the icon used to signify the dvider navigation item."
+msgstr ""
+
+#: navtajx.php:338
+msgid "Divider Options"
+msgstr ""
+
+#: navtajx.php:338
+msgid "<strong>Divider type</strong> - the type of divider to create."
+msgstr ""
+
+#: navtajx.php:343
+msgid "Configuring URI Options"
+msgstr ""
+
+#: navtajx.php:346
+msgid "URI Items"
+msgstr ""
+
+#: navtajx.php:346
+msgid "A Uniform Resource Identifier (URI), is a compact string of characters used to identify or name a resource. The main purpose of this identification is to enable interaction with representations of the resource over a network, typically the World Wide Web, using specific protocols. URIs are defined in schemes defining a specific syntax and associated protocols. URI's supported by NAVT are limited to: http:// for identifying both internal or extern web site pages and mailto: for providing an anchor for sending email."
+msgstr ""
+
+#: navtajx.php:346
+msgid "The label that is given to a link is called a menu item alias. The alias is what the user sees in the navigation list on the web page. In the diagram, A points to the item alias and B points to the item's title. The title will always be User defined URI. Item C is the icon used to signify a URI item."
+msgstr ""
+
+#: navtajx.php:346
+msgid "URI Options"
+msgstr ""
+
+#: navtajx.php:346
+msgid "<strong>URL text box</strong> - a complete resource identifier (i.e. http:// or mailto:)"
+msgstr ""
+
+#: navtajx.php:346
+msgid "<strong>Open in same window</strong> - Opens in the same window, otherwise opens the resource in a new window."
+msgstr ""
+
+#: navtajx.php:351
+msgid "Configuring Registered User Options"
+msgstr ""
+
+#: navtajx.php:354
+msgid "The label that is given to a link is called a menu item alias. The alias is what the user sees in the navigation list on the web page. The alias may differ from the user display name. In the diagram, A points to the item alias and B points to the user's signin name. Changing the user's display name will not change the alias you assigned nor will changing the alias change the display name. Item C is the icon used to signify a registered user. "
+msgstr ""
+
+#: navtajx.php:354
+msgid "Options for Users"
+msgstr ""
+
+#: navtajx.php:354
+msgid "category options"
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Show avatar</strong> - select this to place an avatar next to the user name"
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Use default avatar</strong> - allows you to use one of the default avatars in the drop down list."
+msgstr ""
+
+#: navtajx.php:354
+msgid "A list of default avatars to choose from. The selected avatar is displayed above the drop down box."
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>User avatar URI</strong> - this is active only if use default avatar is not checked. Enter a qualified URI for the avatar to be used for this user."
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Show if no posts</strong> - When selected, NAVT will show this user if the user has not posted on the web site."
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Append author post count</strong> - Appends the number of posts to the users anchor."
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Include web site</strong> - If you have entered a web site address to the user's profile, it will be included as an anchor."
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Include user bio</strong> - If you have entered a bio for this user, the text will be included."
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Include user email</strong> - selecting this will add the user's email address (mailto:) format."
+msgstr ""
+
+#: navtajx.php:354
+msgid "<strong>Hide link text</strong> - Available only if you are using an avatar. Selecting this will hide all user anchor text."
+msgstr ""
+
+#: navtajx.php:373
+msgid "go to next page"
+msgstr ""
+
+#: navtajx.php:375
+msgid "Next"
+msgstr ""
+
+#: navtajx.php:380
+msgid "go to previous page"
+msgstr ""
+
+#: navtajx.php:381
+msgid "Previous"
+msgstr ""
+
+#: navtajx.php:403
+msgid "The item alias edit box. Use this to change the name that appears in the navigation menu."
+msgstr ""
+
+#: navtajx.php:406
+msgid "<strong>Anchor type</strong> - Choose the type of link you want to appear on the web page. The choices are:"
+msgstr ""
+
+#: navtajx.php:406
+msgid "<strong>Standard Text Link</strong> - a link that only contains text."
+msgstr ""
+
+#: navtajx.php:406
+msgid "<strong>Text over Graphic</strong> - a link that contains text over a graphic background."
+msgstr ""
+
+#: navtajx.php:406
+msgid "<strong>Text with Side Graphic</strong> - a link that is accompanied by a graphic. Usually used with icons."
+msgstr ""
+
+#: navtajx.php:406
+msgid "<strong>Graphic link</strong> - a link that is represented by a graphic (no text). Usually used for creating buttons."
+msgstr ""
+
+#: navtajx.php:406
+msgid "All links that contain graphics require a CSS class that will be applied to the graphic container."
+msgstr ""
+
+#: navtajx.php:409
+msgid "<strong>CSS class for graphic</strong> - used only with anchors that use graphics. Enter the name of the class to be used."
+msgstr ""
+
+#: navtajx.php:412
+msgid "<strong>Add rel=nofollow</strong> - nofollow is a non-standard HTML attribute value used to instruct search engines that a hyperlink should not influence the link target's ranking in the search engine's index."
+msgstr ""
+
+#: navtajx.php:412
+msgid "NoFollow Definition"
+msgstr ""
+
+#: navtajx.php:412
+msgid "see definition"
+msgstr ""
+
+#: navtajx.php:415
+msgid "<strong>Set to private</strong> - if checked, the anchor is visible only to those that are signed into your web site."
+msgstr ""
+
+#: navtajx.php:436
+msgid "add group error"
+msgstr ""
+
+#: navtajx.php:443
+#: navtajx.php:450
+#: navtajx.php:507
+#: navtajx.php:514
+msgid "invalid name"
+msgstr ""
+
+#: navtajx.php:456
+#: navtajx.php:520
+msgid "duplicate name"
+msgstr ""
+
+#: navtajx.php:501
+msgid "Problem renaming group"
+msgstr ""
+
+#: navtajx.php:576
+msgid "Delete this group?"
+msgstr ""
+
+#: navtajx.php:579
+msgid "Select Ok to remove group"
+msgstr ""
+
+#: navtajx.php:581
+#: navtajx.php:1647
+#: navtajx.php:2052
+msgid "Ok"
+msgstr ""
+
+#: navtajx.php:582
+#: navtajx.php:1649
+#: navtajx.php:2053
+msgid "Cancel"
+msgstr ""
+
+#: navtajx.php:779
+msgid "Options for group "
+msgstr ""
+
+#: navtajx.php:780
+msgid "help"
+msgstr ""
+
+#: navtajx.php:781
+msgid "close"
+msgstr ""
+
+#: navtajx.php:784
+msgid "options"
+msgstr ""
+
+#: navtajx.php:789
+msgid "display"
+msgstr ""
+
+#: navtajx.php:792
+#: navtajx.php:1355
+msgid "Display"
+msgstr ""
+
+#: navtajx.php:794
+msgid "group css styles"
+msgstr ""
+
+#: navtajx.php:797
+msgid "CSS"
+msgstr ""
+
+#: navtajx.php:799
+msgid "theme integration"
+msgstr ""
+
+#: navtajx.php:802
+msgid "Theme"
+msgstr ""
+
+#: navtajx.php:831
+msgid "save options"
+msgstr ""
+
+#: navtajx.php:832
+msgid "save"
+msgstr ""
+
+#: navtajx.php:835
+msgid "save options and close"
+msgstr ""
+
+#: navtajx.php:836
+msgid "save/close"
+msgstr ""
+
+#: navtajx.php:1147
+msgid "Settings for available posts"
+msgstr ""
+
+#: navtajx.php:1151
+msgid "Display this navigation group only on selected posts"
+msgstr ""
+
+#: navtajx.php:1154
+msgid "Do not display this navigation group on selected posts"
+msgstr ""
+
+#: navtajx.php:1194
+msgid "Settings for available pages"
+msgstr ""
+
+#: navtajx.php:1197
+msgid "Display this navigation group only on selected pages"
+msgstr ""
+
+#: navtajx.php:1200
+msgid "Do not display this navigation group on selected pages"
+msgstr ""
+
+#: navtajx.php:1234
+msgid "Group CSS Class Selection"
+msgstr ""
+
+#: navtajx.php:1238
+msgid "Apply NAVT CSS classes"
+msgstr ""
+
+#: navtajx.php:1240
+msgid "Apply WordPress default CSS classes"
+msgstr ""
+
+#: navtajx.php:1242
+msgid "Do not apply CSS classes"
+msgstr ""
+
+#: navtajx.php:1244
+msgid "Apply the CSS information below to this navigation group:"
+msgstr ""
+
+#: navtajx.php:1247
+msgid "UL tag selector id"
+msgstr ""
+
+#: navtajx.php:1251
+msgid "UL tag CSS class"
+msgstr ""
+
+#: navtajx.php:1255
+msgid "LI tag CSS class"
+msgstr ""
+
+#: navtajx.php:1259
+msgid "LI active page CSS class"
+msgstr ""
+
+#: navtajx.php:1263
+msgid "LI tag parent container"
+msgstr ""
+
+#: navtajx.php:1267
+msgid "LI tag parent container (active)"
+msgstr ""
+
+#: navtajx.php:1296
+msgid "Theme xpath"
+msgstr ""
+
+#: navtajx.php:1299
+msgid "Action"
+msgstr ""
+
+#: navtajx.php:1301
+msgid "Insert Before"
+msgstr ""
+
+#: navtajx.php:1302
+msgid "Insert After"
+msgstr ""
+
+#: navtajx.php:1303
+msgid "Insert at top"
+msgstr ""
+
+#: navtajx.php:1304
+msgid "Insert at bottom"
+msgstr ""
+
+#: navtajx.php:1305
+msgid "Replace With"
+msgstr ""
+
+#: navtajx.php:1308
+msgid "Add tags before navigation group"
+msgstr ""
+
+#: navtajx.php:1311
+msgid "Add tags after navigation group"
+msgstr ""
+
+#: navtajx.php:1339
+msgid "Group Name"
+msgstr ""
+
+#: navtajx.php:1345
+msgid "Show only top-level anchors on page (hide hierarchy)"
+msgstr ""
+
+#: navtajx.php:1347
+msgid "Add page return to list"
+msgstr ""
+
+#: navtajx.php:1354
+msgid "Create navigation list using HTML select."
+msgstr ""
+
+#: navtajx.php:1357
+msgid "item(s) in list"
+msgstr ""
+
+#: navtajx.php:1361
+msgid "Set navigation group to private (visible only when users are signed in)"
+msgstr ""
+
+#: navtajx.php:1394
+msgid "Show navigation group on"
+msgstr ""
+
+#: navtajx.php:1396
+msgid "Home Page"
+msgstr ""
+
+#: navtajx.php:1399
+msgid "Static Front Page"
+msgstr ""
+
+#: navtajx.php:1402
+msgid "Archive Pages"
+msgstr ""
+
+#: navtajx.php:1405
+msgid "Search Pages"
+msgstr ""
+
+#: navtajx.php:1408
+msgid "Error Pages"
+msgstr ""
+
+#: navtajx.php:1460
+#: navtajx.php:1683
+#: navtajx.php:1719
+#: navtajx.php:1946
+msgid "item not found"
+msgstr ""
+
+#: navtajx.php:1487
+msgid "Menu item alias"
+msgstr ""
+
+#: navtajx.php:1493
+msgid "Anchor type"
+msgstr ""
+
+#: navtajx.php:1495
+msgid "Standard text link"
+msgstr ""
+
+#: navtajx.php:1496
+msgid "Text over graphic"
+msgstr ""
+
+#: navtajx.php:1497
+msgid "Text with side graphic"
+msgstr ""
+
+#: navtajx.php:1498
+msgid "Graphic link"
+msgstr ""
+
+#: navtajx.php:1499
+msgid "CSS class for graphic"
+msgstr ""
+
+#: navtajx.php:1517
+msgid "show in WP category list"
+msgstr ""
+
+#: navtajx.php:1519
+msgid "append post count"
+msgstr ""
+
+#: navtajx.php:1521
+msgid "show if empty"
+msgstr ""
+
+#: navtajx.php:1523
+msgid "use description as tooltip"
+msgstr ""
+
+#: navtajx.php:1542
+msgid "user avatar"
+msgstr ""
+
+#: navtajx.php:1544
+msgid "show avatar"
+msgstr ""
+
+#: navtajx.php:1548
+msgid "use default avatar"
+msgstr ""
+
+#: navtajx.php:1550
+msgid "use gravatar"
+msgstr ""
+
+#: navtajx.php:1552
+msgid "use my avatar"
+msgstr ""
+
+#: navtajx.php:1554
+msgid "Avatar list"
+msgstr ""
+
+#: navtajx.php:1556
+msgid "User avatar URI"
+msgstr ""
+
+#: navtajx.php:1559
+msgid "show if no posts"
+msgstr ""
+
+#: navtajx.php:1561
+msgid "append author post count"
+msgstr ""
+
+#: navtajx.php:1563
+msgid "include web site"
+msgstr ""
+
+#: navtajx.php:1565
+msgid "include user bio"
+msgstr ""
+
+#: navtajx.php:1567
+msgid "include user email"
+msgstr ""
+
+#: navtajx.php:1569
+msgid "hide link text"
+msgstr ""
+
+#: navtajx.php:1578
+msgid "URI"
+msgstr ""
+
+#: navtajx.php:1581
+msgid "open in same window"
+msgstr ""
+
+#: navtajx.php:1595
+msgid "create sign-in form"
+msgstr ""
+
+#: navtajx.php:1597
+msgid "use referral page redirect"
+msgstr ""
+
+#: navtajx.php:1599
+msgid "use URL redirect"
+msgstr ""
+
+#: navtajx.php:1600
+msgid "redirect URL"
+msgstr ""
+
+#: navtajx.php:1622
+msgid "Plain text divider"
+msgstr ""
+
+#: navtajx.php:1623
+msgid "Horizontal rule divider"
+msgstr ""
+
+#: navtajx.php:1624
+msgid "Empty space divider"
+msgstr ""
+
+#: navtajx.php:1627
+msgid "Divider type"
+msgstr ""
+
+#: navtajx.php:1634
+msgid "set to private"
+msgstr ""
+
+#: navtajx.php:1640
+msgid "add"
+msgstr ""
+
+#: navtajx.php:1647
+msgid "Click to save"
+msgstr ""
+
+#: navtajx.php:1649
+msgid "Click to cancel and close"
+msgstr ""
+
+#: navtajx.php:1655
+msgid "Help"
+msgstr ""
+
+#: navtajx.php:1655
+msgid "Click for help"
+msgstr ""
+
+#: navtajx.php:1789
+msgid "invalid alias name"
+msgstr ""
+
+#: navtajx.php:1874
+msgid "avatar is missing"
+msgstr ""
+
+#: navtajx.php:1893
+msgid "URI is missing"
+msgstr ""
+
+#: navtajx.php:1906
+msgid "URL is missing"
+msgstr ""
+
+#: navtajx.php:1923
+msgid "CSS class is missing"
+msgstr ""
+
+#: navtajx.php:2048
+msgid "Delete This Item?"
+msgstr ""
+
+#: navtajx.php:2050
+msgid "Select Ok to remove"
+msgstr ""
+
+#: navtajx.php:2050
+msgid "from the group."
+msgstr ""
+
+#: navt_fe.php:345
+msgid "Return to "
+msgstr ""
+
+#: navt_fe.php:353
+msgid "Return to Home page"
+msgstr ""
+
+#: navt_fe.php:994
+msgid "Send comments to"
+msgstr ""
+
+#: navt_fe.php:996
+msgid "email"
+msgstr ""
+
+#: navt_fe.php:1010
+msgid "Visit this web site"
+msgstr ""
+
+#: navt_fe.php:1012
+msgid "Web Site"
+msgstr ""
+
+#: navt_fe.php:1025
+msgid "View all entries by"
+msgstr ""
+
+#: navt_fe.php:1138
+#: navt_fe.php:1408
+msgid "Site Admin"
+msgstr ""
+
+#: navt_fe.php:1154
+msgid "Username"
+msgstr ""
+
+#: navt_fe.php:1155
+msgid "Password"
+msgstr ""
+
+#: navt_fe.php:1157
+msgid "Remember me"
+msgstr ""
+
+#: navt_fe.php:1158
+msgid "Lost your password?"
+msgstr ""
+
+#: navt_fe.php:1162
+msgid "Register"
+msgstr ""
+
+#: navt_fe.php:1182
+msgid "Sign out"
+msgstr ""
+
+#: navt_restore.php:43
+msgid "no error [0]"
+msgstr ""
+
+#: navt_restore.php:44
+msgid "Restore file is too large. [1]"
+msgstr ""
+
+#: navt_restore.php:45
+msgid "Restore file is too large. [2]"
+msgstr ""
+
+#: navt_restore.php:46
+msgid "Restore file was only partially uploaded."
+msgstr ""
+
+#: navt_restore.php:47
+msgid "Please select a restore file."
+msgstr ""
+
+#: navt_restore.php:48
+msgid "Unknown Error. [5]"
+msgstr ""
+
+#: navt_restore.php:49
+msgid "A temp directory is missing on your server."
+msgstr ""
+
+#: navt_restore.php:50
+msgid "Cannot write to temporary directory on server."
+msgstr ""
+
+#: navt_restore.php:51
+msgid "File upload failed. Restore could not be performed."
+msgstr ""
+
+#: navt_restore.php:56
+msgid "Restore completed"
+msgstr ""
+
+#: navt_restore.php:57
+msgid "Incorrect file type. File must be an XML file."
+msgstr ""
+
+#: navt_restore.php:58
+msgid "Restore file is empty."
+msgstr ""
+
+#: navt_restore.php:59
+msgid "Restore failed, file is corrupt."
+msgstr ""
+
+#: navt_restore.php:60
+msgid "Restore failed, file is incomplete."
+msgstr ""
+
+#: navt_restore.php:106
+#: navt_restore.php:188
+msgid "NAVT Restore"
+msgstr ""
+
+#: navt_restore.php:107
+msgid "Restoring"
+msgstr ""
+
+#: navt_restore.php:167
+msgid "New groups:"
+msgstr ""
+
+#: navt_restore.php:171
+msgid "Updated items:"
+msgstr ""
+
+#: navt_restore.php:174
+msgid "The configuration was not changed."
+msgstr ""
+
+#: navt_restore.php:176
+msgid "Restore Complete"
+msgstr ""
+
+#: navt_restore.php:190
+msgid "NAVT Backup Restoration enables you to reconstruct a set of previously created navigation groups by loading a backup file created by the NAVT plugin. The information stored in the backup is merged with your current set of navigation items. The data merge is controlled by selecting one of the options in Step Two."
+msgstr ""
+
+#: navt_restore.php:193
+msgid "Duplicate Items in the same Group"
+msgstr ""
+
+#: navt_restore.php:194
+msgid "If you merge a backup with existing navigation groups it is possible for a single item to appear multiple times within the same group. To avoid duplicating items, delete your current configuration before restoring the backup file or select the option to discard duplicates within the same group in Step Two."
+msgstr ""
+
+#: navt_restore.php:196
+msgid "Terminology"
+msgstr ""
+
+#: navt_restore.php:197
+msgid "A <strong>matched</strong> item is defined on this page as a navigation item that exists in both the backup and within your current configuration. For example, a page or a category that is now in use on your web site that also existed at the time the backup was created. An <strong>unmatched</strong> item is a page, category or other item that exists in the backup but no longer exists on your web site. "
+msgstr ""
+
+#: navt_restore.php:199
+msgid "Please backup any existing navigation groups before proceeding"
+msgstr ""
+
+#: navt_restore.php:202
+msgid "Step One"
+msgstr ""
+
+#: navt_restore.php:203
+msgid "Select the file from your computer that contains the NAVT backup you wish to restore. This must be a backup file in XML format that was created by the NAVT plugin."
+msgstr ""
+
+#: navt_restore.php:204
+msgid "File Name"
+msgstr ""
+
+#: navt_restore.php:206
+msgid "Step Two"
+msgstr ""
+
+#: navt_restore.php:207
+msgid "Select one of the merge options below."
+msgstr ""
+
+#: navt_restore.php:209
+msgid "Ignore unmatched items"
+msgstr ""
+
+#: navt_restore.php:209
+msgid "Default setting"
+msgstr ""
+
+#: navt_restore.php:210
+msgid "Matched items are merged with existing navigation groups. Unmatched items are discarded."
+msgstr ""
+
+#: navt_restore.php:211
+msgid "Create unmatched items."
+msgstr ""
+
+#: navt_restore.php:212
+msgid "Pages, categories or users are automatically created for unmatched items."
+msgstr ""
+
+#: navt_restore.php:212
+msgid "(Useful for creating new web sites from a backup)"
+msgstr ""
+
+#: navt_restore.php:213
+msgid "Publish pages created from restored page items."
+msgstr ""
+
+#: navt_restore.php:213
+msgid "Default is to create a draft"
+msgstr ""
+
+#: navt_restore.php:214
+msgid "Discard duplicates in the same group"
+msgstr ""
+
+#: navt_restore.php:214
+msgid "Default is checked"
+msgstr ""
+
+#: navt_restore.php:218
+msgid "Step Three"
+msgstr ""
+
+#: navt_restore.php:219
+msgid "Item matching is primarily determined by the identifier assigned to an item by the database when the item was created. For example, a page item in the backup that has an identifier that is equal to a page identifier in your current set of pages is considered loosely matched. However, you can indicate that stricter matching be used by checking the option below."
+msgstr ""
+
+#: navt_restore.php:220
+msgid "Backup item title must also equal matched item title."
+msgstr ""
+
+#: navt_restore.php:221
+msgid "Additional Options"
+msgstr ""
+
+#: navt_restore.php:222
+msgid "Use the alias name in the backup as the preferred alias name"
+msgstr ""
+
+#: navt_restore.php:222
+msgid "Default is current alias"
+msgstr ""
+
+#: navt_restore.php:223
+msgid "Begin Restore &raquo;"
+msgstr ""
+
+#: navt_sbm_module.php:31
+msgid "NAVT Module"
+msgstr ""
+
+#: navt_widget.php:34
+#: ../js/navtadmin.js.php:356
+#: ../js/navtadmin.js.php:500
+#: ../js/navtadmin.js.php:567
+#: ../js/navtadmin.js.php:696
+#: ../js/navtadmin.js.php:728
+#: ../js/navtadmin.js.php:852
+#: ../js/navtadmin.js.php:897
+msgid "group"
+msgstr ""
+
+#: navt_widget.php:35
+msgid "title"
+msgstr ""
+
+#: navt_widget.php:51
+msgid "NAVT Widget"
+msgstr ""
+
+#: navt_widget.php:109
+msgid "NAVT Plugin is not activated/installed"
+msgstr ""
+
+#: navt_widget.php:139
+msgid "Title"
+msgstr ""
+
+#: navt_widget.php:141
+msgid "Select Navigation Group:"
+msgstr ""
+
+#: navt_widget.php:146
+msgid "Navigation Lists have not been created."
+msgstr ""
+
+#: ../js/navtadmin.js.php:86
+msgid "** plugin ready **"
+msgstr ""
+
+#: ../js/navtadmin.js.php:129
+msgid "item"
+msgstr ""
+
+#: ../js/navtadmin.js.php:129
+#: ../js/navtadmin.js.php:567
+msgid "was created"
+msgstr ""
+
+#: ../js/navtadmin.js.php:357
+msgid "is locked"
+msgstr ""
+
+#: ../js/navtadmin.js.php:472
+msgid "** cancelled ** (group remove)"
+msgstr ""
+
+#: ../js/navtadmin.js.php:501
+#: ../js/navtadmin.js.php:1599
+msgid "was removed"
+msgstr ""
+
+#: ../js/navtadmin.js.php:697
+msgid "is now unlocked"
+msgstr ""
+
+#: ../js/navtadmin.js.php:729
+msgid "is now locked"
+msgstr ""
+
+#: ../js/navtadmin.js.php:853
+msgid "options were saved"
+msgstr ""
+
+# <old group name> 'was renamed to' <new group name>
+#: ../js/navtadmin.js.php:898
+msgid "was renamed to"
+msgstr ""
+
+#: ../js/navtadmin.js.php:937
+#: ../js/navtadmin.js.php:1150
+#: ../js/navtadmin.js.php:1598
+#: ../js/navtadmin.js.php:1657
+msgid "in group"
+msgstr ""
+
+# Refers to a item as 'disconnected' or 'connected' from the group. Disconnected items are not displayed in the group when the final HTML is created
+#: ../js/navtadmin.js.php:938
+#: ../js/navtadmin.js.php:1645
+msgid "is disconnected"
+msgstr ""
+
+#: ../js/navtadmin.js.php:1149
+msgid "item options saved for"
+msgstr ""
+
+#: ../js/navtadmin.js.php:1175
+msgid "** cancelled ** (item save)"
+msgstr ""
+
+#: ../js/navtadmin.js.php:1560
+msgid "unassigned item was removed"
+msgstr ""
+
+#: ../js/navtadmin.js.php:1609
+msgid "** cancelled ** (item remove)"
+msgstr ""
+
+# Refers to a item as 'connected' or 'disconnected' from the group. Disconnected items are not displayed in the group when the final HTML is created
+#: ../js/navtadmin.js.php:1654
+msgid "is connected"
+msgstr ""
+
