@@ -206,9 +206,8 @@ $social_sites = array(
 
 $akst_limit_mail_recipients = 5;
 
-$akst_path = '/wp-content/themes/vip/plugins/share-this';
-$akst_root_dir = get_option('siteurl') . $akst_path;
-@define('AKST_FILEPATH', $akst_path . '/share-this.php');
+@define('AKST_PATH', get_bloginfo('wpurl') . '/wp-content/themes/vip/plugins/share-this/');
+@define('AKST_FILE', get_bloginfo('wpurl') . '/wp-content/share-this.php');
 
 if (function_exists('load_plugin_textdomain')) {
 	load_plugin_textdomain('share-this', PLUGINDIR.'/share-this');
@@ -316,7 +315,6 @@ if (!empty($_REQUEST['akst_action'])) {
 	switch ($_REQUEST['akst_action']) {
 		case 'js':
 			header("Content-type: text/javascript");
-			echo 'var akst_tracking = false;';
 ?>
 function akst_share(id, url, title, html_id, pubid) {
 	var form = $('akst_form');
@@ -460,7 +458,7 @@ foreach ($social_sites as $key => $data) {
 	if (akst_disp_socialweb($key))
 		print(
 '#akst_'.$key.' {
-	background-image: url('.$akst_root_dir.'/'.$key.'.gif) !important;
+	background-image: url('.AKST_PATH.$key.'.gif) !important;
 }
 ');
 }
@@ -506,7 +504,7 @@ foreach ($social_sites as $key => $data) {
 if (akst_showicon()) {
 ?>
 .akst_share_link {
-	background: 1px 0 url(<?php echo $akst_root_dir; ?>/share-icon-16x16.gif) no-repeat !important;
+	background: 1px 0 url(<?php print AKST_PATH; ?>share-icon-16x16.gif) no-repeat !important;
 	padding: 1px 0 3px 22px;
 }
 <?php
@@ -598,12 +596,10 @@ function akst_init() {
 add_action('init', 'akst_init');			
 
 function akst_head() {
-	$wp = get_bloginfo('wpurl');
-	$url = $wp.AKST_FILEPATH;
 	ak_prototype();
 	print('
-	<script type="text/javascript" src="'.$url.'?akst_action=js&amp;st_tracking=no"></script>
-	<link rel="stylesheet" type="text/css" href="'.$url.'?akst_action=css" />
+	<script type="text/javascript" src="'.AKST_FILE.'?akst_action=js"></script>
+	<link rel="stylesheet" type="text/css" href="'.AKST_FILE.'?akst_action=css" />
 	');
 }
 add_action('wp_head', 'akst_head');
@@ -782,7 +778,7 @@ function akst_share_form() {
 ?>
 		<div id="akst_credit">
 			<a href="http://sharethis.com">
-				<img src="<?php echo $akst_root_dir; ?>/powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
+				<img src="<?php print AKST_PATH; ?>powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
 			</a>
 		</div>
 	</div>
@@ -1037,7 +1033,7 @@ function akst_options_form() {
 		<p>
 		<?php 	foreach ($social_sites as $key => $data) { ?>
 			<label><input name="akst_socialwebs[]" id="akst_socialwebs_<?php echo $key ?>" value="<?php echo $key ?>" type="checkbox" <?php if(akst_disp_socialweb($key)) echo $checked; ?> /> 
-			<img alt='<?php _e($data['name'], 'share-this') ?>' src="<?php echo $akst_root_dir; ?>/<?php echo $key; ?>.gif" height='16' width='16' /> 	
+			<img alt='<?php _e($data['name'], 'share-this') ?>' src="<?php print AKST_PATH.$key; ?>.gif" height='16' width='16' /> 	
 			<?php _e($data['name'], 'share-this') ?></label><br />
 		<?php } ?>
 		</p>
@@ -1106,7 +1102,7 @@ function akst_page() {
 <head>
 	<title><?php _e('Share This : ', 'share-this'); the_title(); ?></title>
 	<meta name="robots" content="noindex, noarchive" />
-	<link rel="stylesheet" type="text/css" href="<?php bloginfo('wpurl'); print(AKST_FILEPATH); ?>?akst_action=css" />
+	<link rel="stylesheet" type="text/css" href="<?php print AKST_FILE; ?>?akst_action=css" />
 	<style type="text/css">
 	
 	#akst_social ul li {
@@ -1126,7 +1122,7 @@ function akst_page() {
 	}
 	
 	body {
-		background: #fff url(<?php echo $akst_root_dir; ?>/page_back.gif) repeat-x;
+		background: #fff url(<?php print AKST_PATH; ?>page_back.gif) repeat-x;
 		font: 11px Verdana, sans-serif;
 		padding: 20px;
 		text-align: center;
@@ -1315,7 +1311,7 @@ function akst_page() {
 	<div id="footer">
 		<p>
 			<a href="http://sharethis.com">
-				<img src="<?php echo $akst_root_dir; ?>/powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
+				<img src="<?php print AKST_PATH; ?>powered-by.gif" alt="<?php _e('Powered by ShareThis', 'share-this'); ?>" />
 			</a>
 		</p>
 	</div>
