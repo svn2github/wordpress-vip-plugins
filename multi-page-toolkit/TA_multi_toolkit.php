@@ -4,7 +4,7 @@
 Plugin Name: Multi-page Toolkit
 Plugin URI:  http://www.tarkan.info/20080106/tutorials/wordpress-plugin-multipage-tool-kit/
 Description: Multipage posts with page titling. Fully featured quick jump and navigation options. Easy to use with Visual editor integration.
-Version: 2.1
+Version: 2.1-WPCOM
 Author: Tarkan Akdam
 Author URI: http://www.tarkan.info
 
