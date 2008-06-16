@@ -7,8 +7,7 @@ Description: Adds Youtube and Brightcove shortcodes as found on WordPress.com
 */
 
 /*
-This is the code used on WordPress.com.  It's out of date, though.  It should be using WordPress' new Shortcode API: http://codex.wordpress.org/Shortcode_API
-We'll get that transitioned eventually.
+This is the code used on WordPress.com.  It needs to be updated though. It should be using WordPress' new Shortcode API: http://codex.wordpress.org/Shortcode_API We'll get that transitioned eventually.
 */
 
 // around 2008-06-06 youtube changed their old embed code to this:
