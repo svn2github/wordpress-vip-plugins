@@ -10,6 +10,9 @@ Description: Adds Youtube and Brightcove shortcodes as found on WordPress.com
 This is the code used on WordPress.com.  It needs to be updated though. It should be using WordPress' new Shortcode API: http://codex.wordpress.org/Shortcode_API We'll get that transitioned eventually.
 */
 
+if ( !function_exists( 'youtube_embed_to_short_code' ) ) {
+// these functions already exist on wp.com 
+
 // around 2008-06-06 youtube changed their old embed code to this:
 //<object width="425" height="344"><param name="movie" value="http://www.youtube.com/v/M1D30gS7Z8U&hl=en"></param><embed src="http://www.youtube.com/v/M1D30gS7Z8U&hl=en" type="application/x-shockwave-flash" width="425" height="344"></embed></object>
 // old style was:
@@ -18,12 +21,10 @@ This is the code used on WordPress.com.  It needs to be updated though. It shoul
 function youtube_embed_to_short_code($content) {
 	if ( preg_match('!\<object width="\d+" height="\d+"\>\<param name="movie" value="http://www.youtube.com/v/(.+?)"\>\</param\>(?:\<param name="wmode" value="transparent"\>\</param\>)?\<embed src="http://www.youtube.com/v/(.+)" type="application/x-shockwave-flash"(?: wmode="transparent")? width="\d+" height="\d+"\>\</embed\>\</object\>!i', $content, $match) )  {
 		$content = preg_replace("!{$match[0]}!", "[youtube=http://www.youtube.com/watch?v={$match[1]}]", $content);
-		bump_daily_stats('embed_youtube_convert');
 	}
 
 	if ( preg_match('!&lt;object width="\d+" height="\d+"&gt;&lt;param name="movie" value="http://www.youtube.com/v/(.+?)"&gt;&lt;/param&gt;(?:&lt;param name="wmode" value="transparent"&gt;&lt;/param&gt;)?&lt;embed src="http://www.youtube.com/v/(.+)" type="application/x-shockwave-flash"(?: wmode="transparent")? width="\d+" height="\d+"&gt;&lt;/embed&gt;&lt;/object&gt;!i', $content, $match) ) {
 		$content = preg_replace("!{$match[0]}!", "[youtube=http://www.youtube.com/watch?v={$match[1]}]", $content);
-		bump_daily_stats('embed_youtube_convert');
 	}
 
 	return $content;
@@ -35,9 +36,6 @@ function youtube_markup($content) {
 }
 
 function youtube_id($url) {
-	if ( faux_faux() )
-		return '[YouTube]';
-
 	$url = trim($url, ' "');
 	$url = str_replace( '/v/', '/?v=', $url ); // new format - http://www.youtube.com/v/jF-kELmmvgA
 	$url = str_replace( '&amp;', '&', $url );
@@ -71,14 +69,18 @@ function youtube_id($url) {
 add_filter('the_content', 'youtube_markup');
 add_filter('the_content_rss', 'youtube_markup');
 
+} // end of if !function_exists youtube
+
+
+if ( !function_exists( 'brightcove_markup' ) ) {
+// these functions already exist on wp.com 
+
 // [brightcove exp=627045696&vid=1415670151]
+
 function brightcove_markup($content) {
 	return preg_replace('|\[brightcove (.+?)]|ie', 'brightcove_src("$1")', $content);
 }
 function brightcove_src($params) {
-	if ( faux_faux() )
-		return '[brightcove]';
-
 	$params = str_replace('&amp;', '&', $params);
 	parse_str($params, $arrrrrghs);
 
@@ -133,3 +135,5 @@ function brightcove_src($params) {
 	return "<embed src='$src' bgcolor='#FFFFFF' flashvars='$flashvars' base='http://admin.brightcove.com' name='$name' width='$width' height='$height' allowFullScreen='true' allowScriptAccess='always' seamlesstabbing='false' type='application/x-shockwave-flash' swLiveConnect='true' pluginspage='http://www.macromedia.com/shockwave/download/index.cgi?P1_Prod_Version=ShockwaveFlash' />";
 }
 add_filter('the_content', 'brightcove_markup');
+
+} // end if !function_exists brightcove
