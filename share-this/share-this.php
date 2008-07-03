@@ -641,7 +641,7 @@ function akst_add_share_link_to_content($content) {
 		$doit = true;
 	}
 	if ($doit) {
-		$content .= '<span class="akst_link snap_nopreview">'.akst_share_link('return').'</span>';
+		$content .= '<p class="akst_link snap_nopreview">'.akst_share_link('return').'</p>';
 	}
 	return $content;
 }
