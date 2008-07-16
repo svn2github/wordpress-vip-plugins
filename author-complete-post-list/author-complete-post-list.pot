@@ -1,0 +1,39 @@
+# translation of author-complete-post-list.po to
+# Jose Lopes <jose.lopes@paxjulia.com>, 2007.
+msgid ""
+msgstr ""
+"Project-Id-Version: author-complete-post-list\n"
+"POT-Creation-Date: 2007-11-06 00:42+0100\n"
+"PO-Revision-Date: 2007-11-06 01:33+0200\n"
+"Last-Translator: Jose Lopes <jose.lopes@paxjulia.com>\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: __;_e\n"
+"X-Generator: KBabel 1.10.2\n"
+
+#: author-complete-post-list.php:45
+msgid "The author posts are:"
+msgstr ""
+
+#: author-complete-post-list.php:46
+msgid "The author has"
+msgstr ""
+
+#: author-complete-post-list.php:47
+msgid "post(s):"
+msgstr ""
+
+#: author-complete-post-list.php:89
+msgid "The author has no post."
+msgstr ""
+
+#: author-complete-post-list.php:90
+msgid "stored in"
+msgstr ""
+
+#: author-complete-post-list.php:91
+msgid "on"
+msgstr ""
+
