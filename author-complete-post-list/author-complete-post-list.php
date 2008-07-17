@@ -112,7 +112,7 @@ function full_post_list ($presentAuthor='', $loginAuthor='', $lang='') {
 			echo '</a> ', $time, ' ';
 			echo the_time('d/m/Y');
 			echo ', ', $stored, ' ';
-			echo the_category('&');
+			echo the_category(' &');
 			echo '</p>';
 			echo "\n";
 			echo "\n";
