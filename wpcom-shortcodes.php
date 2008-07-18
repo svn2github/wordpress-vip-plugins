@@ -75,13 +75,21 @@ add_filter('the_content_rss', 'youtube_markup');
 if ( !function_exists( 'brightcove_markup' ) ) {
 // these functions already exist on wp.com 
 
-// [brightcove exp=627045696&vid=1415670151]
-
+/*
+ * [brightcove exp=627045696&vid=1415670151] for older player and backward compatibility
+ * [brightcove exp=1463233149&vref=1601200825] for new player
+ */
 function brightcove_markup($content) {
 	return preg_replace('|\[brightcove (.+?)]|ie', 'brightcove_src("$1")', $content);
 }
 function brightcove_src($params) {
+	if ( faux_faux() )
+		return '[brightcove]';
+
 	$params = str_replace('&amp;', '&', $params);
+		
+	$params = apply_filters( 'brightcove_dimensions',  $params ); 
+	
 	parse_str($params, $arrrrrghs);
 
 	if ( empty($arrrrrghs) )
@@ -106,6 +114,9 @@ function brightcove_src($params) {
 		$name = 'flashObj';
 		if ( $vid )
 			$fv['videoId'] = $vid;
+		else if ( $vref )
+			$fv['videoRef'] = $vref; 
+			
 		$fv['playerId'] = $exp;
 		$fv['domain'] = 'embed';
 	}
