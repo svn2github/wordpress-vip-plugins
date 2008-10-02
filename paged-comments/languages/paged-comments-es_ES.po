@@ -1,0 +1,25 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Paged Comments Plugin 2.x\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2007-08-03 21:26-0000\n"
+"Last-Translator: Jorge\n"
+"Language-Team: Jorge\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-Country: ARGENTINA\n"
+
+#: ../paged-comments.php:357
+msgid "Older Comments"
+msgstr "Comentarios más viejos"
+
+#: ../paged-comments.php:357
+msgid "Newer Comments"
+msgstr "Nuevos Comentarios"
+
+#: ../paged-comments.php:366
+msgid "Show All"
+msgstr "Mostrar todos"
+

@@ -1,0 +1,22 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Paged Comments Plugin 2.x\n"
+"POT-Creation-Date: \n"
+"PO-Revision-Date: 2007-05-04 01:57-0000\n"
+"Last-Translator: Keyvan Minoukadeh <keyvan@k1m.com>\n"
+"Language-Team: Keyvan Minoukadeh <keyvan@k1m.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../paged-comments.php:357
+msgid "Older Comments"
+msgstr ""
+
+#: ../paged-comments.php:357
+msgid "Newer Comments"
+msgstr ""
+
+#: ../paged-comments.php:366
+msgid "Show All"
+msgstr ""
