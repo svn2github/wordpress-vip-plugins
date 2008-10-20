@@ -313,13 +313,9 @@ function amt_get_all_categories($no_uncategorized = TRUE) {
 	*/
 	global $wpdb;
 
-	if ( version_compare( get_bloginfo('version'), '2.3', '>=' ) ) {
-		$cat_field = "name";
-		$sql = "SELECT name FROM $wpdb->terms LEFT OUTER JOIN $wpdb->term_taxonomy ON ($wpdb->terms.term_id = $wpdb->term_taxonomy.term_id) WHERE $wpdb->term_taxonomy.taxonomy = 'category' ORDER BY name ASC";
-	} else {
-		$cat_field = "cat_name";
-		$sql = "SELECT cat_name FROM $wpdb->categories ORDER BY cat_name ASC";
-	}
+	$cat_field = "name";
+	$sql = "SELECT name FROM $wpdb->terms LEFT OUTER JOIN $wpdb->term_taxonomy ON ($wpdb->terms.term_id = $wpdb->term_taxonomy.term_id) WHERE $wpdb->term_taxonomy.taxonomy = 'category' ORDER BY name ASC";
+
 	$categories = $wpdb->get_results($sql);
 	if ( empty( $categories ) ) {
 		return "";
