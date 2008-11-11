@@ -968,7 +968,7 @@ function akst_options_form() {
 		<td>
 			<p><label>
 			<input name="akst_addtocontent" id="akst_addtocontent" value="1" type="checkbox" <?php checked(1, akst_addtocontent()); ?> />
-			<?php _e('ShareThis link on posts and pages', 'share-this') ?></p>
+			<?php _e('ShareThis link on posts and pages. <em>If disabled, &lt;php akst_share_link(); ?&gt; can be used in your theme templates.</em>', 'share-this') ?></p>
 			</label>
 			</p>
 	
