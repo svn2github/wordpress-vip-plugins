@@ -21,6 +21,9 @@ color: #fff;
 text-indent: 0;
 overflow: hidden;
 }
+.imageElement {
+visibility: hidden;
+}
 </style>
 	<script type="text/javascript">
         function startGallery() {
