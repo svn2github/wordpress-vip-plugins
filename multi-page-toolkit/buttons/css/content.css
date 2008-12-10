@@ -1,0 +1,19 @@
+.mceNextPage {
+	border: 0px;
+	border-top: 1px dotted #cccccc;
+	display: block;
+	width: 100%;
+	height: 12px;
+	margin-top: 15px;
+	background: #ffffff url(../img/nextpage.gif) no-repeat right top;
+}
+
+.mcePageTitle {
+	border: 0px;
+	border-top: 1px dotted #cccccc;
+	display: block;
+	width: 100%;
+	height: 12px;
+	margin-top: 15px;
+	background: #ffffff url(../img/pagetitle.gif) no-repeat right top;
+}
