@@ -48,8 +48,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
          
  		<h3><?php the_title(); ?></h3>
 		 								
-		<?php if( get_post_meta($post->ID, "dfcg-desc", true) ): ?>
-			<p><?php echo get_post_meta($post->ID, "dfcg-desc", true); ?></p>
+		<?php if( get_post_meta($post->ID, "dfcg_desc", true) ): ?>
+			<p><?php echo get_post_meta($post->ID, "dfcg_desc", true); ?></p>
 		<?php elseif (empty($dfcg_category->category_description)): ?>
 			<p><?php echo $dfcg_imgdefdesc; ?></p>
 		<?php else: ?>
@@ -57,8 +57,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
 		<?php endif; ?>
 					
        	<a href="<?php the_permalink() ?>" title="Read More" class="open"></a>
-		<?php if( get_post_meta($post->ID, "dfcg-image", true) ): ?>
-			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg-image", true); ?>
+		<?php if( get_post_meta($post->ID, "dfcg_image", true) ): ?>
+			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg_image", true); ?>
         	<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="full" />
         	<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="thumbnail" />
 		<?php else: ?>
@@ -81,8 +81,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
          
  		<h3><?php the_title(); ?></h3>
 		 								
-		<?php if ( get_post_meta($post->ID, "dfcg-desc", true ) ): ?>
-			<p><?php echo get_post_meta($post->ID, "dfcg-desc", true); ?></p>
+		<?php if ( get_post_meta($post->ID, "dfcg_desc", true ) ): ?>
+			<p><?php echo get_post_meta($post->ID, "dfcg_desc", true); ?></p>
 		<?php elseif (empty($dfcg_category->category_description)): ?>
 			<p><?php echo $dfcg_imgdefdesc; ?></p>
 		<?php else: ?>
@@ -90,8 +90,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
 		<?php endif; ?>
 					
    		<a href="<?php the_permalink() ?>" title="Read More" class="open"></a>
-		<?php if( get_post_meta($post->ID, "dfcg-image", true) ): ?>
-			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg-image", true); ?>
+		<?php if( get_post_meta($post->ID, "dfcg_image", true) ): ?>
+			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg_image", true); ?>
        		<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="full" />
        		<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="thumbnail" />
 		<?php else: ?>
@@ -114,8 +114,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
          
  		<h3><?php the_title(); ?></h3>
 		 								
-		<?php if( get_post_meta($post->ID, "dfcg-desc", true) ): ?>
-			<p><?php echo get_post_meta($post->ID, "dfcg-desc", true); ?></p>
+		<?php if( get_post_meta($post->ID, "dfcg_desc", true) ): ?>
+			<p><?php echo get_post_meta($post->ID, "dfcg_desc", true); ?></p>
 		<?php elseif (empty($dfcg_category->category_description)): ?>
 			<p><?php echo $dfcg_imgdefdesc; ?></p>
 		<?php else: ?>
@@ -123,8 +123,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
 		<?php endif; ?>
 					
         <a href="<?php the_permalink() ?>" title="Read More" class="open"></a>
-		<?php if( get_post_meta($post->ID, "dfcg-image", true) ): ?>
-			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg-image", true); ?>
+		<?php if( get_post_meta($post->ID, "dfcg_image", true) ): ?>
+			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg_image", true); ?>
          	<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="full" />
          	<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="thumbnail" />
 		<?php else: ?>
@@ -147,8 +147,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
          
  		<h3><?php the_title(); ?></h3>
 		 								
-		<?php if( get_post_meta($post->ID, "dfcg-desc", true) ): ?>
-			<p><?php echo get_post_meta($post->ID, "dfcg-desc", true); ?></p>
+		<?php if( get_post_meta($post->ID, "dfcg_desc", true) ): ?>
+			<p><?php echo get_post_meta($post->ID, "dfcg_desc", true); ?></p>
 		<?php elseif (empty($dfcg_category->category_description)): ?>
 			<p><?php echo $dfcg_imgdefdesc; ?></p>
 		<?php else: ?>
@@ -156,8 +156,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
 		<?php endif; ?>
 					
    		<a href="<?php the_permalink() ?>" title="Read More" class="open"></a>
-		<?php if( get_post_meta($post->ID, "dfcg-image", true) ): ?>
-			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg-image", true); ?>
+		<?php if( get_post_meta($post->ID, "dfcg_image", true) ): ?>
+			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg_image", true); ?>
        		<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="full" />
        		<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="thumbnail" />
 		<?php else: ?>
@@ -180,8 +180,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
          
 		<h3><?php the_title(); ?></h3>
 		 								
-		<?php if( get_post_meta($post->ID, "dfcg-desc", true) ): ?>
-			<p><?php echo get_post_meta($post->ID, "dfcg-desc", true); ?></p>
+		<?php if( get_post_meta($post->ID, "dfcg_desc", true) ): ?>
+			<p><?php echo get_post_meta($post->ID, "dfcg_desc", true); ?></p>
 		<?php elseif (empty($dfcg_category->category_description)): ?>
 			<p><?php echo $dfcg_imgdefdesc; ?></p>
 		<?php else: ?>
@@ -189,8 +189,8 @@ if ( $recent ) : while($recent->have_posts()) : $recent->the_post(); ?>
 		<?php endif; ?>
 					
         <a href="<?php the_permalink() ?>" title="Read More" class="open"></a>
-		<?php if( get_post_meta($post->ID, "dfcg-image", true) ): ?>
-			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg-image", true); ?>
+		<?php if( get_post_meta($post->ID, "dfcg_image", true) ): ?>
+			<?php $dfcg_imgname = get_post_meta($post->ID, "dfcg_image", true); ?>
         	<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="full" />
         	<img src="<?php echo $dfcg_imghome . $dfcg_imgpath . $dfcg_imgname; ?>" alt="<?php the_title(); ?>" class="thumbnail" />
 		<?php else: ?>

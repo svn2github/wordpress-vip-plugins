@@ -89,15 +89,15 @@ dfcg_load_textdomain();
 				<p>Go to Admin > Write Post as if you were going to create a new Post. There is no need to type anything in this Post - it is being used simply to access the Media Uploader. Click the Add Media icon. When the Media Uploader pop-up appears, select "Choose Files to Upload" and browse to your chosen image. Once the Media Uploader screen has uploaded your file, make a note of the URL shown in the "Link URL" box. Make sure that you click the File URL button before noting down the Link URL. Ignore the "Insert into Post" button and simply click "Save all changes" to exit the Uploader. Exit the Write Post screen without saving.</p>
 				<p>To assign an uploaded image to a Post and have this displayed in the gallery, create two Custom Post fields when writing a new post (or when editing an existing one):</p> 
 				<ul>
-					<li>Key = <strong>dfcg-image</strong> <?php _e('with a Value =', DFCG_DOMAIN); ?> <strong><?php _e('Full path to the Image file as per the "Link URL" that you made a note of when uploading the image', DFCG_DOMAIN); ?></strong> <?php _e('eg.', DFCG_DOMAIN); ?> <em>http://myblog.blogs.com/files/2008/11/myImage.jpg</em></li>
-					<li>Key = <strong>dfcg-desc</strong> with a Value = <strong>Description text</strong> eg. <em>Here's our latest news!</em></li>
+					<li>Key = <strong>dfcg_image</strong> <?php _e('with a Value =', DFCG_DOMAIN); ?> <strong><?php _e('Full path to the Image file as per the "Link URL" that you made a note of when uploading the image', DFCG_DOMAIN); ?></strong> <?php _e('eg.', DFCG_DOMAIN); ?> <em>http://myblog.blogs.com/files/2008/11/myImage.jpg</em></li>
+					<li>Key = <strong>dfcg_desc</strong> with a Value = <strong>Description text</strong> eg. <em>Here's our latest news!</em></li>
 				</ul>
 				<p>Don't forget to Save (and/or Publish) the Post when you are finished.</p>
 			</div>
 					
 			<div class="dfcginfo">
 				<h3>2. Select the Categories and Posts (REQUIRED):</h3>
-				<p>The gallery is designed to display 5 images.  For each of the 5 gallery image "slots", the plugin will display the image specified in the Custom Field <strong>dfcg-image</strong>, the description specified in the Custom Field <strong>dfcg-desc</strong>, and the Post Title, in accordance with the combination of Category ID and Post Select that you enter in the boxes below.</p>
+				<p>The gallery is designed to display 5 images.  For each of the 5 gallery image "slots", the plugin will display the image specified in the Custom Field <strong>dfcg_image</strong>, the description specified in the Custom Field <strong>dfcg_desc</strong>, and the Post Title, in accordance with the combination of Category ID and Post Select that you enter in the boxes below.</p>
 				<p>For the Post Select: enter <strong>1</strong> for the latest post, <strong>2</strong> for the last-but-one post, <strong>3</strong> for the post before that, and so on. Possible schemes are:</p>
 				<ul>
 					<li>To display the latest Post from 5 Categories: Enter a different ID number in each <strong>Category ID</strong> and enter <strong>1</strong> in each <strong>Post Select</strong> box.</li>
@@ -148,7 +148,7 @@ dfcg_load_textdomain();
 				<h3>3. Default image description (OPTIONAL):</h3>
 				<p>By default the Dynamic Content Gallery plugin displays a description for each image displayed. The plugin looks for the image description in this sequence:</p>
 				<ul>
-					<li>First, it checks the Post for a Custom Field with the Key of <strong>dfcg-desc</strong>, or if this doesn't exist =></li>
+					<li>First, it checks the Post for a Custom Field with the Key of <strong>dfcg_desc</strong>, or if this doesn't exist =></li>
 					<li>Pulls in the Category Description set up in WP Admin>Manage>Categories, or if this doesn't exist =></li>
 					<li>Shows the description below.</li>
 				</ul>
