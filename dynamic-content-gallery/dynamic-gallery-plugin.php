@@ -57,19 +57,8 @@ if (!defined('ABSPATH')) {
 }
 
 
-/* Pre-2.6 compatibility to find directories */
-if ( ! defined( 'WP_CONTENT_URL' ) )
-	define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content' );
-if ( ! defined( 'WP_CONTENT_DIR' ) )
-	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
-if ( ! defined( 'WP_PLUGIN_URL' ) )
-	define( 'WP_PLUGIN_URL', WP_CONTENT_URL. '/themes/vip/plugins' );
-if ( ! defined( 'WP_PLUGIN_DIR' ) )
-	define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR . '/themes/vip/plugins' );
-
-
 /* Set constant for plugin directory */
-define( 'DFCG_URL', WP_PLUGIN_URL.'/dynamic-content-gallery-plugin' );
+define( 'DFCG_URL', 'http://s.wordpress.com/wp-content/themes/vip/plugins/dynamic-content-gallery-plugin' );
 
 
 /* Set constant for plugin version number */
@@ -84,7 +73,7 @@ function dfcg_load_textdomain() {
 	global $dfcg_text_loaded;
    	if($dfcg_text_loaded) return;
 
-   	load_plugin_textdomain(DFCG_DOMAIN, WP_PLUGIN_DIR.'/'.dirname(plugin_basename(__FILE__)), dirname(plugin_basename(__FILE__)));
+   	load_plugin_textdomain(DFCG_DOMAIN, ABSPATH . 'wp-content/themes/vip/plugins/' . dirname(plugin_basename(__FILE__)), dirname(plugin_basename(__FILE__)));
    	$dfcg_text_loaded = true;
 }
 

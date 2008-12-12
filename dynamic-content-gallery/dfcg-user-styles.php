@@ -19,7 +19,7 @@ visibility: hidden;
 	width: <?php echo $options['gallery-width']; ?>px;
 	height: <?php echo $options['gallery-height']; ?>px;
 	border: <?php echo $options['gallery-border-thick']; ?>px solid <?php echo $options['gallery-border-colour']; ?>;
-	background: #000 url('<?php echo WP_PLUGIN_URL; ?>/dynamic-content-gallery-plugin/css/img/loading-bar-black.gif') no-repeat center;
+	background: #000 url('<?php echo DFCG_URL; ?>/css/img/loading-bar-black.gif') no-repeat center;
 }
 .jdGallery .slideInfoZone
 {
