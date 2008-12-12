@@ -58,7 +58,7 @@ if (!defined('ABSPATH')) {
 
 
 /* Set constant for plugin directory */
-define( 'DFCG_URL', 'http://s.wordpress.com/wp-content/themes/vip/plugins/dynamic-content-gallery-plugin' );
+define( 'DFCG_URL', 'http://s.wordpress.com/wp-content/themes/vip/plugins/dynamic-content-gallery' );
 
 
 /* Set constant for plugin version number */
