@@ -14,10 +14,10 @@ function wp_page_numbers_stylesheet()
 	$head_stylesheet = $settings["head_stylesheetsheet"];
 	$head_stylesheet_folder_name = $settings["head_stylesheetsheet_folder_name"];
 	$style_theme = $settings["style_theme"];
-	
+
 	if($head_stylesheet == "on" || $head_stylesheet == "" && (is_archive() || is_search() || is_home() ||is_page()))
 	{
-		echo '<link rel="stylesheet" href="https://s.wordpress.com/wp-content/themes/vip/plugins/wp-page-numbers/';
+		echo '<link rel="stylesheet" href="http://s.wordpress.com/wp-content/themes/vip/plugins/wp-page-numbers/';
 		if($head_stylesheet_folder_name == "")
 		{
 			if($style_theme == "default")
