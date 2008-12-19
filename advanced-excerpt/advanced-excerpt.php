@@ -110,7 +110,7 @@ class AdvancedExcerpt
 					return $text;
 				
 				$n_chars = 0;
-				for($i = 0; $n_chars < $length || $in_tag; $i++)
+				for($i = 0; ($n_chars < $length && $i < $length) || $in_tag; $i++)
 				{
 					// Is the character worth counting (ie. not part of an HTML tag)
 					if(substr($text, $i, 1) == '<')
