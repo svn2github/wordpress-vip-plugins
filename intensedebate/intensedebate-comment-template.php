@@ -15,9 +15,9 @@ else //output new ID comments
 	<script type='text/javascript' src='http://www.intensedebate.com/js/wordpressTemplateCommentWrapper2.php?acct=<?php echo get_option("id_blogAcct");?>&amp;postid=<?php echo $id;?>&amp;title=<?php echo urlencode($post->post_title);?>&amp;url=<?php echo urlencode(the_permalink($id));?>&amp;posttime=<?php echo urlencode($post->post_date_gmt);?>&amp;postauthor=<?php echo urlencode(get_author_name($post->post_author));?>&amp;guid=<?php echo urlencode($post->guid);?>'></script>
 	<noscript>
 
-<?php
+<?php	
 	$old_template = file_get_contents(get_option("id_comment_template_file"));
-	if(!preg_match("/<noscript>(.|\n|\r)*?<\/noscript>/i", $old_template, $matches)) //check if the file contains any <noscript> tags...if it does we can't use it
+	if ( $old_template && !preg_match("/<noscript>(.|\n|\r)*?<\/noscript>/i", $old_template, $matches) ) //check if the file contains any <noscript> tags...if it does we can't use it
 	{
 		include(get_option("id_comment_template_file"));
 	}
