@@ -16,10 +16,14 @@ else //output new ID comments
 	<noscript>
 
 <?php	
-	$old_template = file_get_contents(get_option("id_comment_template_file"));
+	$old_template_file = get_options( "id_comment_template_file" );
+	$old_template = '';
+	if ( file_exists( $old_template_file ) ) {
+		$old_template = file_get_contents( $old_template_file );
+	}
 	if ( $old_template && !preg_match("/<noscript>(.|\n|\r)*?<\/noscript>/i", $old_template, $matches) ) //check if the file contains any <noscript> tags...if it does we can't use it
 	{
-		include(get_option("id_comment_template_file"));
+		include( $old_template_file );
 	}
 	else //if we can't use theirs, use the default theme to output comments
 	{
