@@ -16,7 +16,7 @@ else //output new ID comments
 	<noscript>
 
 <?php	
-	$old_template_file = get_options( "id_comment_template_file" );
+	$old_template_file = get_option( "id_comment_template_file" );
 	$old_template = '';
 	if ( file_exists( $old_template_file ) ) {
 		$old_template = file_get_contents( $old_template_file );
