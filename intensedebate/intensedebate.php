@@ -65,10 +65,10 @@ if (!function_exists('wp_notify_moderator')) {
 }
 
 //Debug logging
-function id_debug_log($text)
-{
-	$newLogData = get_option("id_debug_log")."\n\n".gmdate("Y-m-d H:i:s")." - $text\n\n\n";
-	id_save_option("id_debug_log", substr($newLogData, max(strlen($newLogData) - 1048576, 0)));
+function id_debug_log($text) {
+	//DISABLE ON WPCOM
+	//$newLogData = get_option("id_debug_log")."\n\n".gmdate("Y-m-d H:i:s")." - $text\n\n\n";
+	//id_save_option("id_debug_log", substr($newLogData, max(strlen($newLogData) - 1048576, 0)));
 }
 	
 // HOOK ASSIGNMENT
