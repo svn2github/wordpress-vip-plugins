@@ -35,7 +35,7 @@ class bcn_breadcrumb
 		//Setting array
 		$this->opt = array(
 				'static_frontpage' => 'false',
-			//*** only used if 'static_frontpage' => true
+			// *** only used if 'static_frontpage' => true
 			//Relative URL for your blog's address that is used for the Weblog link. 
 			//Use it if your blog is available at http://www.site.com/myweblog/, 
 			//and at http://www.site.com/ a Wordpress page is being displayed:
