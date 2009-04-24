@@ -1,0 +1,447 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: breadcrumb-navxt\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/breadcrumb-navxt\n"
+"POT-Creation-Date: 2009-01-22 15:21+0000\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Laurent Grabielle <infos@3w3t.com>\n"
+"Language-Team: 3w3t\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: French\n"
+"X-Poedit-Country: FRANCE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: _e;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: D:\\3w3t.com\\wordpress2.6.3\\wp-content\\plugins\\breadcrumb-navxt\n"
+
+#: breadcrumb_navxt_admin.php:81
+msgid "Insufficient privileges to proceed."
+msgstr "Vos droits sont insuffisants pour cette fonction."
+
+#: breadcrumb_navxt_admin.php:316
+msgid "Settings"
+msgstr "Réglages"
+
+#: breadcrumb_navxt_admin.php:360
+msgid "Warning, your version of Breadcrumb NavXT does not match the version supported by this administrative interface. As a result, settings may not work as expected."
+msgstr "Attention !!! votre version de Breadcrumb NavXT ne correspond pas à la version supportée par votre interface d'administration. En conséquence les paramétrages pourraient ne pas fonctionner comme souhaité."
+
+#: breadcrumb_navxt_admin.php:361
+msgid "Your Breadcrumb NavXT Administration interface version is "
+msgstr "La version de votre interface d'Administration de Breadcrumb NavXT est "
+
+#: breadcrumb_navxt_admin.php:362
+msgid "Your Breadcrumb NavXT version is "
+msgstr "Votre version de Breadcrumb NavXT est "
+
+#: breadcrumb_navxt_admin.php:366
+msgid "Breadcrumb NavXT Settings"
+msgstr "Paramétrages de Breadcrumb NavXT"
+
+#: breadcrumb_navxt_admin.php:368
+#, php-format
+msgid "Tips for the settings are located below select options. Please refer to the %sdocumentation%s for more information."
+msgstr "Des explications pour le paramétrage sont affichées en dessous de chaque option. Veuillez vous référer à la %sdocumentation%s pour plus d'informations."
+
+#: breadcrumb_navxt_admin.php:369
+msgid "Go to the Breadcrumb NavXT online documentation."
+msgstr "Aller à la documentation en ligne de Breadcrumb NavXT"
+
+#: breadcrumb_navxt_admin.php:375
+msgid "General"
+msgstr "Général"
+
+#: breadcrumb_navxt_admin.php:379
+msgid "Home Breadcrumb"
+msgstr "Origine du fil d'ariane"
+
+#: breadcrumb_navxt_admin.php:385
+msgid "Leave the home breadcrumb out of the trail."
+msgstr "Ne pas inclure la page d'accueil dans le fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:391
+msgid "Place the home breadcrumb in the trail."
+msgstr "Inclure la page d'accueil dans le fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:396
+msgid "Home Title: "
+msgstr "Titre de la page d'accueil:"
+
+#: breadcrumb_navxt_admin.php:406
+msgid "Breadcrumb Separator"
+msgstr "Séparateur du fil d'ariane"
+
+#: breadcrumb_navxt_admin.php:410
+msgid "Placed in between each breadcrumb."
+msgstr "Placé entre chaque élément du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:415
+msgid "Breadcrumb Max Title Length"
+msgstr "Longueur maximum du titre "
+
+#: breadcrumb_navxt_admin.php:423
+msgid "Home Prefix"
+msgstr "Préfixe de la page d'accueil"
+
+#: breadcrumb_navxt_admin.php:431
+msgid "Home Suffix"
+msgstr "Suffixe de la page d'accueil"
+
+#: breadcrumb_navxt_admin.php:439
+msgid "Home Anchor"
+msgstr "Ancre pour la page d'accueil"
+
+#: breadcrumb_navxt_admin.php:443
+msgid "The anchor template for the home breadcrumb."
+msgstr "Modèle de l'ancre pour l'élement origine du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:452
+msgid "Blog Anchor"
+msgstr "Ancre pour le blog"
+
+#: breadcrumb_navxt_admin.php:456
+msgid "The anchor template for the blog breadcrumb, used only in static front page environments."
+msgstr "Modèle de l'ancre pour le fil d'ariane, utilisé uniquement quand l'accueil est une page statique."
+
+#: breadcrumb_navxt_admin.php:463
+msgid "Current Item"
+msgstr "Elément courant"
+
+#: breadcrumb_navxt_admin.php:467
+msgid "Link Current Item"
+msgstr "Faire un lien avec l'élément courant"
+
+#: breadcrumb_navxt_admin.php:472
+msgid "Yes"
+msgstr "Oui"
+
+#: breadcrumb_navxt_admin.php:478
+msgid "Current Item Prefix"
+msgstr "Préfixe pour l'élément courant"
+
+#: breadcrumb_navxt_admin.php:482
+msgid "This is always placed in front of the last breadcrumb in the trail, before any other prefixes for that breadcrumb."
+msgstr "Toujours placé au début du dernier élément du fil d'ariane, avant tout autre préfixe."
+
+#: breadcrumb_navxt_admin.php:487
+msgid "Current Item Suffix"
+msgstr "Suffixe pour l'élément courant"
+
+#: breadcrumb_navxt_admin.php:491
+msgid "This is always placed after the last breadcrumb in the trail, and after any other prefixes for that breadcrumb."
+msgstr "Toujours placé en fin dernier élément du fil d'ariane, et après tout autre suffixe."
+
+#: breadcrumb_navxt_admin.php:496
+msgid "Current Item Anchor"
+msgstr "Ancre pour l'élément courant"
+
+#: breadcrumb_navxt_admin.php:500
+msgid "The anchor template for current item breadcrumbs."
+msgstr "Modèle de l'ancre pour l'élement courant du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:505
+msgid "Paged Breadcrumb"
+msgstr "Fil d'ariane avec pagination."
+
+#: breadcrumb_navxt_admin.php:510
+msgid "Include the paged breadcrumb in the breadcrumb trail."
+msgstr "Inclus la pagination dans le fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:512
+msgid "Indicates that the user is on a page other than the first on paginated posts/pages."
+msgstr "Indique que l'utilisateur se trouve dans une autre page/article  que le première en pagination."
+
+#: breadcrumb_navxt_admin.php:517
+msgid "Paged Prefix"
+msgstr "Préfixe pour la pagination"
+
+#: breadcrumb_navxt_admin.php:525
+msgid "Paged Suffix"
+msgstr "Suffixe pour la pagination"
+
+#: breadcrumb_navxt_admin.php:534
+msgid "Posts &amp; Pages"
+msgstr "Articles &amp; Pages"
+
+#: breadcrumb_navxt_admin.php:538
+msgid "Post Prefix"
+msgstr "Préfixe des articles"
+
+#: breadcrumb_navxt_admin.php:546
+msgid "Post Suffix"
+msgstr "Suffixe des articles"
+
+#: breadcrumb_navxt_admin.php:554
+msgid "Post Anchor"
+msgstr "Ancre des articles"
+
+#: breadcrumb_navxt_admin.php:558
+msgid "The anchor template for post breadcrumbs."
+msgstr "Modèle de l'ancre pour le fil d'ariane des articles"
+
+#: breadcrumb_navxt_admin.php:563
+msgid "Post Taxonomy Display"
+msgstr "Affichage de la taxonomie des articles"
+
+#: breadcrumb_navxt_admin.php:568
+msgid "Show the taxonomy leading to a post in the breadcrumb trail."
+msgstr "Montrer la taxonomie dans le fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:574
+msgid "Post Taxonomy"
+msgstr "Taxonomie des articles"
+
+#: breadcrumb_navxt_admin.php:580
+#: breadcrumb_navxt_admin.php:638
+msgid "Categories"
+msgstr "Catégories"
+
+#: breadcrumb_navxt_admin.php:586
+#: breadcrumb_navxt_admin.php:688
+msgid "Tags"
+msgstr "Tags"
+
+#: breadcrumb_navxt_admin.php:590
+msgid "The taxonomy which the breadcrumb trail will show."
+msgstr "Le type d'élément de taxonomie qui sera affiché dans le fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:596
+msgid "Page Prefix"
+msgstr "Préfixe pour les pages"
+
+#: breadcrumb_navxt_admin.php:604
+msgid "Page Suffix"
+msgstr "Suffixe pour les pages"
+
+#: breadcrumb_navxt_admin.php:612
+msgid "Page Anchor"
+msgstr "Ancre des pages"
+
+#: breadcrumb_navxt_admin.php:616
+msgid "The anchor template for page breadcrumbs."
+msgstr "Modèle de l'ancre pour un élément page du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:621
+msgid "Attachment Prefix"
+msgstr "Préfixe pour les attachements"
+
+#: breadcrumb_navxt_admin.php:629
+msgid "Attachment Suffix"
+msgstr "Suffixe pour les attachements"
+
+#: breadcrumb_navxt_admin.php:642
+msgid "Archive by Category Prefix"
+msgstr "Préfixe pour les archives par catégorie"
+
+#: breadcrumb_navxt_admin.php:646
+msgid "Applied before the title of the current item breadcrumb on an archive by cateogry page."
+msgstr "Appliqué avant chaque item du fil d'ariane sur une page d'archive par catégorie."
+
+#: breadcrumb_navxt_admin.php:651
+msgid "Archive by Category Suffix"
+msgstr "Suffixe pour les archive par catégorie"
+
+#: breadcrumb_navxt_admin.php:655
+msgid "Applied after the title of the current item breadcrumb on an archive by cateogry page."
+msgstr "Appliqué après chaque item du fil d'ariane sur une page d'archive par catégorie."
+
+#: breadcrumb_navxt_admin.php:660
+msgid "Category Prefix"
+msgstr "Préfixe pour catégorie"
+
+#: breadcrumb_navxt_admin.php:664
+msgid "Applied before the anchor on all category breadcrumbs."
+msgstr "Appliqué avant chaque ancre pour tous les éléments catégorie du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:669
+msgid "Category Suffix"
+msgstr "Suffixe pour catégorie"
+
+#: breadcrumb_navxt_admin.php:673
+msgid "Applied after the anchor on all category breadcrumbs."
+msgstr "Appliqué après chaque ancre pour tous les éléments catégorie du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:678
+msgid "Category Anchor"
+msgstr "Ancre pour les catégories"
+
+#: breadcrumb_navxt_admin.php:682
+msgid "The anchor template for category breadcrumbs."
+msgstr "Modèle de l'ancre pour les éléments catégorie du fil d'ariane"
+
+#: breadcrumb_navxt_admin.php:692
+msgid "Archive by Tag Prefix"
+msgstr "Préfixe pour archive par tag"
+
+#: breadcrumb_navxt_admin.php:696
+msgid "Applied before the title of the current item breadcrumb on an archive by tag page."
+msgstr "Appliqué avant chaque item du fil d'ariane sur une page d'archive par tag."
+
+#: breadcrumb_navxt_admin.php:701
+msgid "Archive by Tag Suffix"
+msgstr "Suffixe pour archive par tag"
+
+#: breadcrumb_navxt_admin.php:705
+msgid "Applied after the title of the current item breadcrumb on an archive by tag page."
+msgstr "Appliqué après chaque item du fil d'ariane sur une page d'archive par tag."
+
+#: breadcrumb_navxt_admin.php:710
+msgid "Tag Prefix"
+msgstr "Préfixe pour les tag"
+
+#: breadcrumb_navxt_admin.php:714
+msgid "Applied before the anchor on all tag breadcrumbs."
+msgstr "Appliqué avant l'ancre de tous les éléments tag du fil d'ariane. "
+
+#: breadcrumb_navxt_admin.php:719
+msgid "Tag Suffix"
+msgstr "Suffixe pour les tags"
+
+#: breadcrumb_navxt_admin.php:723
+msgid "Applied after the anchor on all tag breadcrumbs."
+msgstr "Appliqué après l'ancre de tous les éléments tag du fil d'ariane. "
+
+#: breadcrumb_navxt_admin.php:728
+msgid "Tag Anchor"
+msgstr "Ancre pour les tags"
+
+#: breadcrumb_navxt_admin.php:732
+msgid "The anchor template for tag breadcrumbs."
+msgstr "Modèle de l'ancre pour les élément du fil d'ariane tag."
+
+#: breadcrumb_navxt_admin.php:738
+msgid "Date Archives"
+msgstr "Archives par date"
+
+#: breadcrumb_navxt_admin.php:742
+msgid "Archive by Date Prefix"
+msgstr "Préfixe pour les archives par date"
+
+#: breadcrumb_navxt_admin.php:746
+msgid "Applied before the anchor on all date breadcrumbs."
+msgstr "Appliqué avant l'ancre de chaque élément date du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:751
+msgid "Archive by Date Suffix"
+msgstr "Suffixe pour archive par date"
+
+#: breadcrumb_navxt_admin.php:755
+msgid "Applied after the anchor on all date breadcrumbs."
+msgstr "Appliqué après l'ancre de chaque élément date du fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:760
+msgid "Date Anchor"
+msgstr "Ancre pour archive par date"
+
+#: breadcrumb_navxt_admin.php:764
+msgid "The anchor template for date breadcrumbs."
+msgstr "Modèle de l'ancre pour la date dans le fil d'ariane."
+
+#: breadcrumb_navxt_admin.php:770
+msgid "Miscellaneous"
+msgstr "Divers"
+
+#: breadcrumb_navxt_admin.php:774
+msgid "Author Prefix"
+msgstr "Préfixe pour auteur"
+
+#: breadcrumb_navxt_admin.php:782
+msgid "Author Suffix"
+msgstr "Suffixe pour auteur"
+
+#: breadcrumb_navxt_admin.php:790
+msgid "Author Display Format"
+msgstr "Format d'affichage de l'auteur"
+
+#: breadcrumb_navxt_admin.php:796
+msgid "display_name uses the name specified in \"Display name publicly as\" under the user profile the others correspond to options in the user profile."
+msgstr "display_name utilise le nom spécifié \"Nom à afficher publiquement\" dans le profil utilisateur. Les autres choix correspondent aux différentes options disponibles dans profil utilisateur."
+
+#: breadcrumb_navxt_admin.php:801
+msgid "Search Prefix"
+msgstr "Préfixe pour la recherche"
+
+#: breadcrumb_navxt_admin.php:809
+msgid "Search Suffix"
+msgstr "Suffixe pour la recherche"
+
+#: breadcrumb_navxt_admin.php:817
+msgid "Search Anchor"
+msgstr "Ancre de recherche"
+
+#: breadcrumb_navxt_admin.php:821
+msgid "The anchor template for search breadcrumbs, used only when the search results span several pages."
+msgstr "Modèle de l'ancre pour le fil d'ariane, utilisé uniquement quand le résultat de recherche comprend plusieurs pages."
+
+#: breadcrumb_navxt_admin.php:826
+msgid "404 Title"
+msgstr "Titre erreur 404"
+
+#: breadcrumb_navxt_admin.php:834
+msgid "404 Prefix"
+msgstr "Préfixe erreur 404"
+
+#: breadcrumb_navxt_admin.php:842
+msgid "404 Suffix"
+msgstr "Suffixe erreur 404"
+
+#: breadcrumb_navxt_admin.php:851
+msgid "Save Changes"
+msgstr "Sauvegarder les changements"
+
+#: breadcrumb_navxt_class.php:100
+msgid "Blog"
+msgstr "Accueil"
+
+#: breadcrumb_navxt_class.php:102
+#: breadcrumb_navxt_class.php:104
+#: breadcrumb_navxt_class.php:128
+#: breadcrumb_navxt_class.php:142
+msgid "<a title=\"Go to %title%.\" href=\"%link%\">"
+msgstr "<a title=\"Aller à %title%.\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:117
+msgid "<a title=\"Reload the current page.\" href=\"%link%\">"
+msgstr "<a title=\"recharger la page courante. \" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:158
+msgid "404"
+msgstr "404"
+
+#: breadcrumb_navxt_class.php:161
+msgid "Search results for &#39;"
+msgstr "Résultat de recherche pour &#39;"
+
+#: breadcrumb_navxt_class.php:165
+msgid "<a title=\"Go to the first page of search results for %title%.\" href=\"%link%\">"
+msgstr "<a title=\"Aller à la première page des résultats pour %title%.\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:172
+msgid "<a title=\"Go to the %title% tag archives.\" href=\"%link%\">"
+msgstr "<a title=\"Aller aux archives du tag %title%.\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:175
+msgid "Articles by: "
+msgstr "Articles par:"
+
+#: breadcrumb_navxt_class.php:186
+msgid "<a title=\"Go to the %title% category archives.\" href=\"%link%\">"
+msgstr "<a title=\"Aller aux archives de la catégorie %title%.\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:189
+msgid "Archive by category &#39;"
+msgstr "Archive par categorie &#39;"
+
+#: breadcrumb_navxt_class.php:193
+msgid "Archive by tag &#39;"
+msgstr "Archive par tag &#39;"
+
+#: breadcrumb_navxt_class.php:196
+msgid "<a title=\"Go to the %title% archives.\" href=\"%link%\">"
+msgstr "<a title=\"Aller aux archives %title%.\" href=\"%link%\">"
+
+#~ msgid "breadcrumb"
+#~ msgstr "fil d'ariane :"
+

@@ -1,0 +1,579 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Breadcrumb NavXT\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/breadcrumb-navxt\n"
+"POT-Creation-Date: 2009-01-22 15:21+0000\n"
+"PO-Revision-Date: 2009-01-22 10:05-0600\n"
+"Last-Translator: Karin Sequen <karin.sequen@bumerang180.com>\n"
+"Language-Team: John Havlik <mtekkmonkey@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Spanish\n"
+"X-Poedit-KeywordsList: __;_es\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Country: GUATEMALA\n"
+"X-Poedit-SearchPath-0: C:\\Documents and Settings\\mtekk\\My Documents\\Aptana Studio\\Breadcrumb NavXT\\trunk\n"
+
+#: breadcrumb_navxt_admin.php:81
+msgid "Insufficient privileges to proceed."
+msgstr "No tiene privilegios para proceder."
+
+#: breadcrumb_navxt_admin.php:316
+msgid "Settings"
+msgstr "Configuraciones"
+
+#: breadcrumb_navxt_admin.php:360
+msgid "Warning, your version of Breadcrumb NavXT does not match the version supported by this administrative interface. As a result, settings may not work as expected."
+msgstr "Advertencia, la versión de Breadcrumb NavXT que usted posee no es compatible con la versión proveída por la iinterfaz de administración. Como resultado, las configuraciones pueden no funcionar apropiadamente."
+
+#: breadcrumb_navxt_admin.php:361
+msgid "Your Breadcrumb NavXT Administration interface version is "
+msgstr "La versión de su interfaz de Administración Breadcrumb NavXT es "
+
+#: breadcrumb_navxt_admin.php:362
+msgid "Your Breadcrumb NavXT version is "
+msgstr "La versión de Breadcrubm NavXT que posee es "
+
+#: breadcrumb_navxt_admin.php:366
+msgid "Breadcrumb NavXT Settings"
+msgstr "Opciones de Configuración de Breadcrumb NavXT"
+
+#: breadcrumb_navxt_admin.php:368
+#, php-format
+msgid "Tips for the settings are located below select options. Please refer to the %sdocumentation%s for more information."
+msgstr "Encontrará tips para las configuraciones debajo de cada opción. Por favor lea la %sdocumentación%s para más información (en inglés)."
+
+#: breadcrumb_navxt_admin.php:369
+msgid "Go to the Breadcrumb NavXT online documentation."
+msgstr "Ir a la documentación en línea de Breadcrumb NavXT"
+
+#: breadcrumb_navxt_admin.php:375
+msgid "General"
+msgstr "General"
+
+#: breadcrumb_navxt_admin.php:379
+msgid "Home Breadcrumb"
+msgstr "Opción de Navegación Inicio"
+
+#: breadcrumb_navxt_admin.php:385
+msgid "Leave the home breadcrumb out of the trail."
+msgstr "Excluir la página de inicio en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:391
+msgid "Place the home breadcrumb in the trail."
+msgstr "Colocar un link a la página de inicio en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:396
+msgid "Home Title: "
+msgstr "Título de Página de Inicio:"
+
+#: breadcrumb_navxt_admin.php:406
+msgid "Breadcrumb Separator"
+msgstr "Separador de Navegación"
+
+#: breadcrumb_navxt_admin.php:410
+msgid "Placed in between each breadcrumb."
+msgstr "Colocado en medio de cada opción de navegación."
+
+#: breadcrumb_navxt_admin.php:415
+msgid "Breadcrumb Max Title Length"
+msgstr "Largo Máximo del Título en la Ruta"
+
+#: breadcrumb_navxt_admin.php:423
+msgid "Home Prefix"
+msgstr "Prefijo de Página de Inicio"
+
+#: breadcrumb_navxt_admin.php:431
+msgid "Home Suffix"
+msgstr "Sufijo de Página de Inicio"
+
+#: breadcrumb_navxt_admin.php:439
+msgid "Home Anchor"
+msgstr "Vínculo a la Página de Inicio"
+
+#: breadcrumb_navxt_admin.php:443
+msgid "The anchor template for the home breadcrumb."
+msgstr "Plantilla del vínculo para la página de inicio en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:452
+msgid "Blog Anchor"
+msgstr "Vínculo a Blog"
+
+#: breadcrumb_navxt_admin.php:456
+msgid "The anchor template for the blog breadcrumb, used only in static front page environments."
+msgstr "Plantilla del vínculo al blog en la ruta de navegación, utilizado sólo en páginas estáticas."
+
+#: breadcrumb_navxt_admin.php:463
+msgid "Current Item"
+msgstr "Item Actual"
+
+#: breadcrumb_navxt_admin.php:467
+msgid "Link Current Item"
+msgstr "Vincular Item Actual"
+
+#: breadcrumb_navxt_admin.php:472
+msgid "Yes"
+msgstr "Sí"
+
+#: breadcrumb_navxt_admin.php:478
+msgid "Current Item Prefix"
+msgstr "Prefijo de Item Actual"
+
+#: breadcrumb_navxt_admin.php:482
+msgid "This is always placed in front of the last breadcrumb in the trail, before any other prefixes for that breadcrumb."
+msgstr "Esto se coloca siempre antes de la última opción de la ruta de navegación, antes que cualquier otro prefijo para esa opción."
+
+#: breadcrumb_navxt_admin.php:487
+msgid "Current Item Suffix"
+msgstr "Sufijo de Item Actual"
+
+#: breadcrumb_navxt_admin.php:491
+msgid "This is always placed after the last breadcrumb in the trail, and after any other prefixes for that breadcrumb."
+msgstr "Esto se coloca siempre después del último item de la ruta de navegación y después de cualquier otro sufijo para ese item."
+
+#: breadcrumb_navxt_admin.php:496
+msgid "Current Item Anchor"
+msgstr "Vínculo de Item Actual"
+
+#: breadcrumb_navxt_admin.php:500
+msgid "The anchor template for current item breadcrumbs."
+msgstr "Plantilla del vínculo para el item actual en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:505
+msgid "Paged Breadcrumb"
+msgstr "Ruta de Navegación Paginada"
+
+#: breadcrumb_navxt_admin.php:510
+msgid "Include the paged breadcrumb in the breadcrumb trail."
+msgstr "Incluir la navegación paginada en la ruta de navegación"
+
+#: breadcrumb_navxt_admin.php:512
+msgid "Indicates that the user is on a page other than the first on paginated posts/pages."
+msgstr "Mostrar que el usuario está en una página distinta a la primera de una entrada/archivo con multiples páginas."
+
+#: breadcrumb_navxt_admin.php:517
+msgid "Paged Prefix"
+msgstr "Prefijo para Paginado"
+
+#: breadcrumb_navxt_admin.php:525
+msgid "Paged Suffix"
+msgstr "Sufijo para Paginado"
+
+#: breadcrumb_navxt_admin.php:534
+msgid "Posts &amp; Pages"
+msgstr "Entradas &amp; Páginas"
+
+#: breadcrumb_navxt_admin.php:538
+msgid "Post Prefix"
+msgstr "Prefijo de Entrada"
+
+#: breadcrumb_navxt_admin.php:546
+msgid "Post Suffix"
+msgstr "Sufijo de Entrada"
+
+#: breadcrumb_navxt_admin.php:554
+msgid "Post Anchor"
+msgstr "Vínculo de Entrada"
+
+#: breadcrumb_navxt_admin.php:558
+msgid "The anchor template for post breadcrumbs."
+msgstr "Plantilla del vínculo para entradas en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:563
+msgid "Post Taxonomy Display"
+msgstr "Visualización de Clasificación de Entradas"
+
+#: breadcrumb_navxt_admin.php:568
+msgid "Show the taxonomy leading to a post in the breadcrumb trail."
+msgstr "Mostrar la ruta de navegación con la clasificación que lleva la entrada."
+
+#: breadcrumb_navxt_admin.php:574
+msgid "Post Taxonomy"
+msgstr "Clasificación de Entradas"
+
+#: breadcrumb_navxt_admin.php:580
+#: breadcrumb_navxt_admin.php:638
+msgid "Categories"
+msgstr "Categorías"
+
+#: breadcrumb_navxt_admin.php:586
+#: breadcrumb_navxt_admin.php:688
+msgid "Tags"
+msgstr "Etiquetas"
+
+#: breadcrumb_navxt_admin.php:590
+msgid "The taxonomy which the breadcrumb trail will show."
+msgstr "El tipo de clasificación que se mostrará en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:596
+msgid "Page Prefix"
+msgstr "Prefijo de Página"
+
+#: breadcrumb_navxt_admin.php:604
+msgid "Page Suffix"
+msgstr "Sufijo de Página"
+
+#: breadcrumb_navxt_admin.php:612
+msgid "Page Anchor"
+msgstr "Vínculo de Página"
+
+#: breadcrumb_navxt_admin.php:616
+msgid "The anchor template for page breadcrumbs."
+msgstr "Plantilla del vínculo para páginas en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:621
+msgid "Attachment Prefix"
+msgstr "Prefijo Archivo Adjunto"
+
+#: breadcrumb_navxt_admin.php:629
+msgid "Attachment Suffix"
+msgstr "Sufijo de Archivo Adjunto"
+
+#: breadcrumb_navxt_admin.php:642
+msgid "Archive by Category Prefix"
+msgstr "Archivar por Categoría Prefijo"
+
+#: breadcrumb_navxt_admin.php:646
+msgid "Applied before the title of the current item breadcrumb on an archive by cateogry page."
+msgstr "Aplicado antes del título del item actual en un archivo por categoría."
+
+#: breadcrumb_navxt_admin.php:651
+msgid "Archive by Category Suffix"
+msgstr "Archivar por Categoría Sufijo"
+
+#: breadcrumb_navxt_admin.php:655
+msgid "Applied after the title of the current item breadcrumb on an archive by cateogry page."
+msgstr "Aplicado después del título del item actual en un archivo por categoría."
+
+#: breadcrumb_navxt_admin.php:660
+msgid "Category Prefix"
+msgstr "Prefijo de Categoría"
+
+#: breadcrumb_navxt_admin.php:664
+msgid "Applied before the anchor on all category breadcrumbs."
+msgstr "Aplicado antes del vínculo de todas las opciones de categoría en la ruta."
+
+#: breadcrumb_navxt_admin.php:669
+msgid "Category Suffix"
+msgstr "Sufijo de Categoría"
+
+#: breadcrumb_navxt_admin.php:673
+msgid "Applied after the anchor on all category breadcrumbs."
+msgstr "Aplicado después del vínculo de todas las opciones de categoría en la ruta."
+
+#: breadcrumb_navxt_admin.php:678
+msgid "Category Anchor"
+msgstr "Vínculo de Categoría"
+
+#: breadcrumb_navxt_admin.php:682
+msgid "The anchor template for category breadcrumbs."
+msgstr "Plantilla del vínculo para categorías en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:692
+msgid "Archive by Tag Prefix"
+msgstr "Archivar por Etiqueta de Prefijo"
+
+#: breadcrumb_navxt_admin.php:696
+msgid "Applied before the title of the current item breadcrumb on an archive by tag page."
+msgstr "Aplicado antes del título del item actual en un archivo por etiqueta."
+
+#: breadcrumb_navxt_admin.php:701
+msgid "Archive by Tag Suffix"
+msgstr "Archivar por Etiqueta de Sufijo"
+
+#: breadcrumb_navxt_admin.php:705
+msgid "Applied after the title of the current item breadcrumb on an archive by tag page."
+msgstr "Aplicado después del título del item actual en un archivo por etiqueta."
+
+#: breadcrumb_navxt_admin.php:710
+msgid "Tag Prefix"
+msgstr "Prefijo de Etiqueta"
+
+#: breadcrumb_navxt_admin.php:714
+msgid "Applied before the anchor on all tag breadcrumbs."
+msgstr "Aplicado antes del vínculo de todas las opciones de etiqueta en la ruta."
+
+#: breadcrumb_navxt_admin.php:719
+msgid "Tag Suffix"
+msgstr "Sufijo de Etiqueta"
+
+#: breadcrumb_navxt_admin.php:723
+msgid "Applied after the anchor on all tag breadcrumbs."
+msgstr "Aplicado después del vínculo de todas las opciones de etiqueta en la ruta."
+
+#: breadcrumb_navxt_admin.php:728
+msgid "Tag Anchor"
+msgstr "Vínculo de Etiqueta"
+
+#: breadcrumb_navxt_admin.php:732
+msgid "The anchor template for tag breadcrumbs."
+msgstr "Plantilla del vínculo para etiquetas en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:738
+msgid "Date Archives"
+msgstr "Archivos por Fecha"
+
+#: breadcrumb_navxt_admin.php:742
+msgid "Archive by Date Prefix"
+msgstr "Archivar por Fecha de Prefijo"
+
+#: breadcrumb_navxt_admin.php:746
+msgid "Applied before the anchor on all date breadcrumbs."
+msgstr "Aplicado antes del vínculo de todas las opciones de fecha en la ruta."
+
+#: breadcrumb_navxt_admin.php:751
+msgid "Archive by Date Suffix"
+msgstr "Archivar por Fecha de Sufijo"
+
+#: breadcrumb_navxt_admin.php:755
+msgid "Applied after the anchor on all date breadcrumbs."
+msgstr "Aplicado después del vínculo de todas las opciones de fecha en la ruta."
+
+#: breadcrumb_navxt_admin.php:760
+msgid "Date Anchor"
+msgstr "Vínculo de Fecha"
+
+#: breadcrumb_navxt_admin.php:764
+msgid "The anchor template for date breadcrumbs."
+msgstr "Plantilla del vínculo para fechas en la ruta de navegación."
+
+#: breadcrumb_navxt_admin.php:770
+msgid "Miscellaneous"
+msgstr "Misceláneos"
+
+#: breadcrumb_navxt_admin.php:774
+msgid "Author Prefix"
+msgstr "Prefijo de Autor"
+
+#: breadcrumb_navxt_admin.php:782
+msgid "Author Suffix"
+msgstr "Sufijo de Autor"
+
+#: breadcrumb_navxt_admin.php:790
+msgid "Author Display Format"
+msgstr "Formato de Visualización de Autor"
+
+#: breadcrumb_navxt_admin.php:796
+msgid "display_name uses the name specified in \"Display name publicly as\" under the user profile the others correspond to options in the user profile."
+msgstr "display_name utiliza el nombre especificado en \"Mostrar este nombre públicamente\" en el perfil del usuario, la otras opciones corresponden a los campos nombre (first_name), apellido (last_name) y alias (nickname) en el perfil del usuario."
+
+#: breadcrumb_navxt_admin.php:801
+msgid "Search Prefix"
+msgstr "Buscar Prefijo"
+
+#: breadcrumb_navxt_admin.php:809
+msgid "Search Suffix"
+msgstr "Buscar Sufijo"
+
+#: breadcrumb_navxt_admin.php:817
+msgid "Search Anchor"
+msgstr "Vínculo de Búsqueda"
+
+#: breadcrumb_navxt_admin.php:821
+msgid "The anchor template for search breadcrumbs, used only when the search results span several pages."
+msgstr "Plantilla del vínculo a la primera página de resultados de búsqueda en la ruta de navegación, utilizado sólo cuando éstos ocupan más de una página."
+
+#: breadcrumb_navxt_admin.php:826
+msgid "404 Title"
+msgstr "Título 404"
+
+#: breadcrumb_navxt_admin.php:834
+msgid "404 Prefix"
+msgstr "Prefijo de Error 404"
+
+#: breadcrumb_navxt_admin.php:842
+msgid "404 Suffix"
+msgstr "Sufijo de Error 404"
+
+#: breadcrumb_navxt_admin.php:851
+msgid "Save Changes"
+msgstr "Guardar Cambios"
+
+#: breadcrumb_navxt_class.php:100
+msgid "Blog"
+msgstr "Inicio"
+
+#: breadcrumb_navxt_class.php:102
+#: breadcrumb_navxt_class.php:104
+#: breadcrumb_navxt_class.php:128
+#: breadcrumb_navxt_class.php:142
+msgid "<a title=\"Go to %title%.\" href=\"%link%\">"
+msgstr "<a title=\"Ir a %title%.\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:117
+msgid "<a title=\"Reload the current page.\" href=\"%link%\">"
+msgstr "<a title=\"Cargar de Nuevo\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:158
+msgid "404"
+msgstr "Página no encontrada"
+
+#: breadcrumb_navxt_class.php:161
+msgid "Search results for &#39;"
+msgstr "Resultados de búsqueda para &#39;"
+
+#: breadcrumb_navxt_class.php:165
+msgid "<a title=\"Go to the first page of search results for %title%.\" href=\"%link%\">"
+msgstr "<a title=\"Ir a la primera página de los resultados de búsqueda para %title%.\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:172
+msgid "<a title=\"Go to the %title% tag archives.\" href=\"%link%\">"
+msgstr "<a title=\"Ir a los archivos de la etiqueta %title%\" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:175
+msgid "Articles by: "
+msgstr "Artículos por: "
+
+#: breadcrumb_navxt_class.php:186
+msgid "<a title=\"Go to the %title% category archives.\" href=\"%link%\">"
+msgstr "<a title=\"Ir a los archivos de la categoría %title% \" href=\"%link%\">"
+
+#: breadcrumb_navxt_class.php:189
+msgid "Archive by category &#39;"
+msgstr "Archivo por Categoría &#39;"
+
+#: breadcrumb_navxt_class.php:193
+msgid "Archive by tag &#39;"
+msgstr "Archivo por Etiqueta &#39;"
+
+#: breadcrumb_navxt_class.php:196
+msgid "<a title=\"Go to the %title% archives.\" href=\"%link%\">"
+msgstr "<a title=\"Ir a los archivos de %title%\" href=\"%link%\">"
+
+#~ msgid ""
+#~ "<strong>Aborting: WordPress API Malfunction</strong><br /> For some "
+#~ "reason the \n"
+#~ "\t\t\t\tfunction get_currentuserinfo() did not behave as expected. Your "
+#~ "user_level seems to be null.\n"
+#~ "\t\t\t\tThis can be resolved by navigationg to the Users section of the "
+#~ "WordPress administrative interface.\n"
+#~ "\t\t\t\tIn this section check the user that you use for administrative "
+#~ "purposes. Then under the drop down\n"
+#~ "\t\t\t\tlabled \"change role to...\" select administrator. Now click the "
+#~ "change button. Should you still \n"
+#~ "\t\t\t\trecieve this error please report this bug to the plug-in author. "
+#~ "In your report please specify \n"
+#~ "\t\t\t\tyour WordPress version, PHP version, Apache (or whatever HTTP "
+#~ "server you are using) verion, and \n"
+#~ "\t\t\t\tthe version of the plug-in you are using.<br />"
+#~ msgstr ""
+#~ "<strong>Abortando: Malfuncionamiento del API de WordPress</strong><br /> "
+#~ "Por alguna razón la \n"
+#~ "\t\t\t\tfunción get_currentuserinfo() no funcionó como debía. Su nivel de "
+#~ "usuario (user_level) parece estar nula.\n"
+#~ "\t\t\t\tEsto puede resolverse navegando en la sección Usuarios de la "
+#~ "Interfaz administrativa de WordPress. \n"
+#~ "\t\t\t\tEn esta sección, chequee que el usuario que usted utiliza con "
+#~ "propósitos de administración. Luego, debajo de \n"
+#~ "\t\t\t\tlabled \"cambiar rol a...\" seleccione administrador. Luego haga "
+#~ "click en el botón cambiar. Si aún recibe \n"
+#~ "\t\t\t\teste error, por favor reporte esta falla al autor de la "
+#~ "aplicación. En su reporte, por favor especifique \n"
+#~ "\t\t\t\tla versión de WordPress, Versión de PHP, Versión de Apache (o "
+#~ "cual sea el servidor HTTP que está utilizando) y \n"
+#~ "\t\t\t\tla versión de la aplicación que está utilizando.<br />"
+#~ msgid "WordPress version: "
+#~ msgstr "WordPress versión:"
+#~ msgid "PHP version: "
+#~ msgstr "PHP versión:"
+#~ msgid "Plug-in version: "
+#~ msgstr "Plug-In versión:"
+#~ msgid ""
+#~ "<strong>Aborting: Insufficient Privleges</strong><br /> Your User Level: "
+#~ msgstr ""
+#~ "<strong>Abortando: Restricción de Privilegios </strong><br /> Su Nivel de "
+#~ "Usuario es:"
+#~ msgid "<br /> Required User Level: "
+#~ msgstr "<br /> Nivel de Usuario Requerido:"
+#~ msgid ""
+#~ "This administration interface allows the full customization of the "
+#~ "breadcrumb output with no loss\n"
+#~ "\tof functionality when compared to manual configuration. Each setting is "
+#~ "the same as the corresponding\n"
+#~ "\tclass option, please refer to the \n"
+#~ "\t%sdocumentation%s \n"
+#~ "\tfor more detailed explanation of each setting."
+#~ msgstr ""
+#~ "Esta interfaz de administración permite que se personalize las opciones "
+#~ "de la ruta de navegación sin perdida \n"
+#~ "\talguna de la funcionalidad, en cuanto a configuración manual. Cada "
+#~ "configuración es igual a la opción de su clase \n"
+#~ "\tcorrespondiente, puede obtener referencia en \n"
+#~ "\t%sdocumentation%s \n"
+#~ "\tpara una explicación más detallada de cada configuración."
+#~ msgid "Blog Title"
+#~ msgstr "Título del Blog"
+#~ msgid ""
+#~ "Will be displayed on the home page (when not using a static front page), "
+#~ "always links to the main post page."
+#~ msgstr ""
+#~ "Se mostrará en la página inicio (cuando no utilice una página frontal "
+#~ "estática), siempre se enlaza a la página principal de entradas."
+#~ msgid "URL Title Prefix"
+#~ msgstr "Prefijo del Título URL"
+#~ msgid ""
+#~ "The prefix applied globally to the title field in the breadcrumb links."
+#~ msgstr ""
+#~ "El prefijo será aplicado globalmente al campo de título en los en los "
+#~ "enlaces de la ruta de navegación."
+#~ msgid "URL Title Suffix"
+#~ msgstr "Sufijo del Título URL"
+#~ msgid ""
+#~ "The suffix applied globally to the title field in the breadcrumb links."
+#~ msgstr ""
+#~ "El suijo será aplicado globalmente al campo de título en los en los "
+#~ "enlaces de la ruta de navegación."
+#~ msgid "Front Page"
+#~ msgstr "Página Frontal"
+#~ msgid "Static Front Page"
+#~ msgstr "Página Frontal Estática"
+#~ msgid "Relative Blog URL"
+#~ msgstr "URL Pariente del Blog"
+#~ msgid ""
+#~ "The location of the page that contains posts relative to the WordPress "
+#~ "Blog address."
+#~ msgstr ""
+#~ "Ubicación de la página que contiene entradas relacionadas con la "
+#~ "dirección del Blog WordPress."
+#~ msgid "Is in trail"
+#~ msgstr "se incluirá en la ruta."
+#~ msgid "Links to Homepage"
+#~ msgstr "está enlazado a la Página Inicio."
+#~ msgid "Should the Home crumb link to the home page?"
+#~ msgstr "¿Hacer la opción de Inicio un enlace a la Página de Inicio?"
+#~ msgid "URL of the Homepage is %s"
+#~ msgstr "URL de la Página de Inicio es %s"
+#~ msgid "The title applied to the link to the static home page."
+#~ msgstr "El título es aplicado al enlace de la página estática de inicio."
+#~ msgid "Author Page"
+#~ msgstr "Página de Autor"
+#~ msgid "Archive Display"
+#~ msgstr "Visualización de Archivo"
+#~ msgid "Archive by Date Format"
+#~ msgstr "Archivar por Formato de Fecha"
+#~ msgid "e.g. EU: 14 May 2008, US: May 14, 2008, ISO: 2008 May 14"
+#~ msgstr "Ejemplo: EU 14 Mayo 2008. US: Mayo 14, 2008, ISO: 2008 Mayo"
+#~ msgid "Current Item URL Title"
+#~ msgstr "Título de URL de Item Actual"
+#~ msgid "Display Paged Text"
+#~ msgstr "Mostrar Texto Paginado"
+#~ msgid "Single Post"
+#~ msgstr "Entrada Individual"
+#~ msgid "Single Blogpost Prefix"
+#~ msgstr "Prefijo de entrada individual"
+#~ msgid "Single Blogpost Suffix"
+#~ msgstr "Sufijo de entrada individual"
+#~ msgid "Post Title Max Length"
+#~ msgstr "Tamáño máximo del título de la entrada"
+#~ msgid "Single Blog Post Taxonomy"
+#~ msgstr "Clasificación de Entrada Individual del Blog"
+#~ msgid "Single Blog Post Category Prefix"
+#~ msgstr "Categoría de Prefijo de Entrada individual del Blog"
+#~ msgid "Single Blog Post Category Suffix"
+#~ msgstr "Categoría de Sufijo de Entrada individual del Blog"
+#~ msgid "Single Blog Post Tag Prefix"
+#~ msgstr "Etiqueta de Prefijo de Entrada individual del Blog"
+#~ msgid "Single Blog Post Tag Suffix"
+#~ msgstr "Etiqueta de Sufijo de Entrada individual del Blog"
+
