@@ -39,7 +39,7 @@ class Flag_Comments {
 		// set the markup for the flag comment link
 		$flag_comments_flag_markup = get_option('flag_comments_flag_markup');
 		$flag_comments_flagged_markup = get_option('flag_comments_flagged_markup');
-		$this->flag_comments_flag_markup = ( empty( $flag_comments_flag_markup ) ) ? '<a href="%1$s">' . $this->__('Flag this comment') . '</a>' : $flag_comments_flag_markup;
+		$this->flag_comments_flag_markup = ( empty( $flag_comments_flag_markup ) ) ? '<a href="%1$s" onclick="return false;">' . $this->__('Flag this comment') . '</a>' : $flag_comments_flag_markup;
 		$this->flag_comments_flagged_markup = ( empty( $flag_comments_flagged_markup ) ) ? $this->__('Comment already flagged')  : $flag_comments_flagged_markup;
 		$this->flag_comments_throttle_count = ( 1 > (int) get_option('flag_comments_throttle_count') ) ? 5 : (int) get_option('flag_comments_throttle_count'); 
 		$this->flag_comments_throttle_minutes = ( 1 > (int) get_option('flag_comments_throttle_minutes') ) ? 1 : (int) get_option('flag_comments_throttle_minutes');
