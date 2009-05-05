@@ -635,12 +635,13 @@ function mt_seo_style() {
 
 function mt_seo_rewrite_title( $title, $sep, $seplocation ) {
 	global $posts, $include_keywords_in_single_posts, $mt_seo_fields;
-    if ( !is_single() && !is_page() )
+
+    if ( !is_single() && !is_page())
         return $title;
 
     $mt_seo_title = (string) get_post_meta( $posts[0]->ID, 'mt_seo_title', true );
     if ( empty( $mt_seo_title ) )
-        return;
+        return $title;
     
     $mt_seo_title = str_replace("%title%", $title, $mt_seo_title);
     $mt_seo_title = strip_tags( $mt_seo_title );
