@@ -40,7 +40,7 @@ if(!function_exists('str2bool'))
  *
  * Removes Faulty Adding Slashes and Preserves leading and trailing spaces
  *
- * Wordpress adds slashes to Request Variables by Default (before
+ * WordPress adds slashes to Request Variables by Default (before
  * removing those added by PHP) - This re-invents the wheel
  * and mimicks all the problems with magic_quotes_gpc.
  * The faulty adding slashes is done in wp-settings.php.

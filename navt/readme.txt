@@ -1,4 +1,4 @@
-=== Wordpress Navigation List Plugin NAVT ===
+=== WordPress Navigation List Plugin NAVT ===
 Contributors: gbellucci, et_ux
 Donate link: http://atalatastudio.com
 Tags: navigation, menu, breadcrumb, lists, pages, categories, links, navbar, widget, dropdown, avatars, gravatars, graphic links

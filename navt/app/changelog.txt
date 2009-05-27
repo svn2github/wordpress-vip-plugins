@@ -55,7 +55,7 @@ Changelog (applies to all files in the plugin)
      group containers to use left floats. Vertical dragging of menu items between groups is not the best way to
      do this. Made the interface more compact by using icons. An icon implies the menu type (page or category).
 
-   v.65 01/25/2006 - gab: small changes needed for support of Wordpress 2.1 but I don't think I'm done - it was too easy.
+   v.65 01/25/2006 - gab: small changes needed for support of WordPress 2.1 but I don't think I'm done - it was too easy.
 
    v.70 02/01/2007 - gab: extensive changes to draggables. Completed menu group menus and item alias rename menus.
      fixed a multitude of problems associated with IE7. (see notation on cloning nodes in NAVT_display.php). Upgraded
@@ -135,7 +135,7 @@ Changelog (applies to all files in the plugin)
 
      Moved the api call into its own file: navtapi.php
 
-     Improved Wordpress Widget - the widget now supports up to 5 instances of itself - this makes it far more useful - one navigation list is not enough.
+     Improved WordPress Widget - the widget now supports up to 5 instances of itself - this makes it far more useful - one navigation list is not enough.
 
      Navigation lists that are designated as 'dropdown' style can now be 'split' by adding a divider in the navigation list. The divider will end the
      select statement and begin a new one. This makes it possibe to create multiple-dropdowns using a single navigation list of items. A split will occur
@@ -170,7 +170,7 @@ Changelog (applies to all files in the plugin)
     11. Added page/category 'filtering' on the unassigned group for those with long lists of navigation items.
     12. Added a feature that will 'hide' unused navigation items from the NAVT selections - this is called "Do not use".
     13. Added "rel=nofollow" and "target=_blank" to external link options.
-    14. Fixed 'private' for pages - this is no longer tied to the 'private' page as defined by Wordpress  it doesn't work the way I would expect.
+    14. Fixed 'private' for pages - this is no longer tied to the 'private' page as defined by WordPress  it doesn't work the way I would expect.
     15. Added help tips for each of the navigation items. Access by rolling over the question mark inside the item's option box.
     16. Navigation lists can now be embedded in posts and pages by adding:
         [NAVT group=groupname, title=titlename] in the content. title is optional and may contain tags

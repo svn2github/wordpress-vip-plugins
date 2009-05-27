@@ -44,7 +44,7 @@ Replace the the 'next_posts_link()' and 'previous_posts_link()' with the code be
 
 = How do I report a bug? =
 
-Contact me <a href="http://www.jenst.se/2008/03/29/wp-page-numbers">here</a>. Describe the problem as good as you can, your plugin version, Wordpress version and possible conflicting plugins and so on.
+Contact me <a href="http://www.jenst.se/2008/03/29/wp-page-numbers">here</a>. Describe the problem as good as you can, your plugin version, WordPress version and possible conflicting plugins and so on.
 
 = How can I support this plugin? =
 

@@ -1001,7 +1001,7 @@ class bcn_admin
 	/**
 	 * Tabbed Admin Page (CSS)
 	 * 
-	 * @see Breadcrumb NavXT (Wordpress Plugin)
+	 * @see Breadcrumb NavXT (WordPress Plugin)
 	 * @author Tom Klingenberg 
 	 * @colordef #c6d9e9 light-blue (older tabs border color, obsolete)
 	 * @colordef #dfdfdf light-grey (tabs border color)
@@ -1022,7 +1022,7 @@ class bcn_admin
 	 * unobtrusive approach to add tabbed forms into
 	 * the wordpress admin panel
 	 *
-	 * @see Breadcrumb NavXT (Wordpress Plugin)
+	 * @see Breadcrumb NavXT (WordPress Plugin)
 	 * @author Tom Klingenberg
 	 * @uses jQuery
 	 * @uses ui.core

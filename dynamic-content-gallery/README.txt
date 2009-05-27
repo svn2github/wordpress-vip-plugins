@@ -16,7 +16,7 @@ Creates a dynamic gallery of images for latest and/or featured posts.
 
 This plugin creates a dynamic gallery of images for latest and/or featured posts using the excellent JonDesign SmoothGallery script.  By associating your gallery images with individual posts, using Post Custom Fields, the plugin dynamically creates the gallery from your latest and/or featured posts. Additionally, default images can be assigned to categories in the event that the necessary Post Custom Fields have not been set up. An Admin Settings page enables you to select which categories and posts are linked to the gallery images. 
 
-Compatible with Wordpress Mu but with some differences in features compared with the Wordpress version.
+Compatible with WordPress Mu but with some differences in features compared with the WordPress version.
 
 **Key Features**
 ----------------
@@ -25,8 +25,8 @@ Compatible with Wordpress Mu but with some differences in features compared with
 * Displays 5 custom images, titles and descriptions for the 5 latest posts from your choice of categories. For example, the last 5 posts from one category or the latest post from 5 categories or any other combination in-between.
 * Highly configurable.
 * Valid xhtml output.
-* Tested to be compatible with Wordpress 2.5 to 2.7 beta 2
-* Compatible with Wordpress Mu to 2.6.3 (note that some Settings are not available when used with Wordpress Mu)
+* Tested to be compatible with WordPress 2.5 to 2.7 beta 2
+* Compatible with WordPress Mu to 2.6.3 (note that some Settings are not available when used with WordPress Mu)
 
 **Further information**
 -----------------------
@@ -35,8 +35,8 @@ Comprehensive information on installing, configuring and using the plugin can be
 
 == Installation ==
 
-* If you are installing this plugin in a Wordpress installation, follow the instructions marked **WORDPRESS**.
-* If you are installing this plugin in a Wordpress Mu installation, follow the instructions marked **WPMU**.
+* If you are installing this plugin in a WordPress installation, follow the instructions marked **WORDPRESS**.
+* If you are installing this plugin in a WordPress Mu installation, follow the instructions marked **WPMU**.
 
 **WORDPRESS: Installing for the FIRST TIME**
 --------------------------------------------
@@ -51,7 +51,7 @@ Comprehensive information on installing, configuring and using the plugin can be
 
 **AUTOMATIC UPGRADE**
 
-You can use the Wordpress Automatic Plugin upgrade link in the Admin Plugins menu to automatically upgrade the plugin. However, if you have made edits to your existing jd.gallery.css and jd.gallery.js files, and do not want to lose this edits during the automatic upgrade process, it is recommended that you follow the manual upgrade instructions below.
+You can use the WordPress Automatic Plugin upgrade link in the Admin Plugins menu to automatically upgrade the plugin. However, if you have made edits to your existing jd.gallery.css and jd.gallery.js files, and do not want to lose this edits during the automatic upgrade process, it is recommended that you follow the manual upgrade instructions below.
 
 **MANUAL UPGRADE**
 
@@ -116,8 +116,8 @@ The plugin is now loaded and activated, but needs to have its configuration and 
 2. Create and name the default images (not applicable when used in WPMU)
 3. Create default descriptions
 
-* If you are installing this plugin in a Wordpress installation, follow the instructions marked **WORDPRESS**.
-* If you are installing this plugin in a Wordpress Mu installation, follow the instructions marked **WPMU**.
+* If you are installing this plugin in a WordPress installation, follow the instructions marked **WORDPRESS**.
+* If you are installing this plugin in a WordPress Mu installation, follow the instructions marked **WPMU**.
 
 
 **Configuring the Options page**
@@ -132,9 +132,9 @@ The plugin is now loaded and activated, but needs to have its configuration and 
 * Display latest 5 posts regardless of category: Blank out the ID numbers in each "Category ID" field and enter "1", "2", "3", "4", "5" in the "Post Select" boxes. 
 * Or you can specify any combination of Category ID and Post Select depending on your requirements and imagination.
 
-3. WORDPRESS ONLY: Enter the relative path to the folder which contains the images that are referenced in the post custom field Key "dfcg-image". This path should be relative to the root of your Wordpress blog. For example, if your images are stored in your Uploads folder, the relative path will be: /wp-content/uploads/. This is a required field.
+3. WORDPRESS ONLY: Enter the relative path to the folder which contains the images that are referenced in the post custom field Key "dfcg-image". This path should be relative to the root of your WordPress blog. For example, if your images are stored in your Uploads folder, the relative path will be: /wp-content/uploads/. This is a required field.
 
-4. WORDPRESS ONLY: Enter the relative path to the folder which contains the default images which will be pulled into the gallery. These default images are only used by the plugin in the event that the post does not have an image specified in the post custom field Key "dfcg-image". This path should be relative to the root of your Wordpress blog. For example, if your default images are stored in your Uploads folder, the relative path will be: /wp-content/uploads/. This is a required field.
+4. WORDPRESS ONLY: Enter the relative path to the folder which contains the default images which will be pulled into the gallery. These default images are only used by the plugin in the event that the post does not have an image specified in the post custom field Key "dfcg-image". This path should be relative to the root of your WordPress blog. For example, if your default images are stored in your Uploads folder, the relative path will be: /wp-content/uploads/. This is a required field.
 
 5. WORDPRESS and WPMU: Default description.  By default the Dynamic Content Gallery plugin displays a description for each image displayed. The plugin looks for the image description in this sequence:
    1. Checks the post for a custom field with the Key of "dfcg-desc" and if this doesn't exist =>
@@ -171,7 +171,7 @@ The Dynamic Content Gallery plugin uses post custom fields to pull in images and
 ---------------------
 Very simply. For each of the gallery's 5 image "slots" the plugin checks to see if, for the latest posts in your specified categories, post custom fields exist for an image filename and its description.  If so, these are displayed in the gallery.  If an image or its description has not been specified in the post custom fields, the plugin displays a default image or default description for the these posts.
 
-To get the best out of this plugin, it is necessary to create a default image for each of the categories that will be displayed in the gallery.  These are used as "fall-backs" in the event that a post does not have the necessary custom field set up, and thereby ensures that the gallery will always display images.  (Note that this functionality is not available when used in Wordpress Mu).
+To get the best out of this plugin, it is necessary to create a default image for each of the categories that will be displayed in the gallery.  These are used as "fall-backs" in the event that a post does not have the necessary custom field set up, and thereby ensures that the gallery will always display images.  (Note that this functionality is not available when used in WordPress Mu).
 
 There are a number of configuration options for the plugin, readily available via a Settings Page in the Dashboard.  Normally you will set these options once, then forget about them. The underlying javascript file also gives a number of further configuration options relating to how the gallery displays images, arrows, an in-built menu carousel and other options - for those who are not afraid to make minor edits to a javascript file.  
 
@@ -235,8 +235,8 @@ Thanks for downloading the plugin.  Enjoy!
 
 == Technical Notes ==
 
-* The plugin has been tested for compatibility with Wordpress 2.7 RC1.
-* The plugin is coded so that it automatically detects whether it has been installed on a Wordpress or Wordpress Mu system.  
+* The plugin has been tested for compatibility with WordPress 2.7 RC1.
+* The plugin is coded so that it automatically detects whether it has been installed on a WordPress or WordPress Mu system.  
 * Language Support: This is not yet fully implemented in version 2.2 but is scheduled for a future release. (Sorry, ran out of time for this release!)  
 
 

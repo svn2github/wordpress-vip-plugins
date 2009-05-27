@@ -1818,7 +1818,7 @@ function id_debug_log($text) {
 									<th scope="row" style="white-space: nowrap;" ><?php _e('Comment Links', 'intensedebate'); ?> <span style="cursor:pointer;" onclick="document.getElementById('divCommentLinkInfo').className='';"><img src="http://intensedebate.com/images1/wp-info.png" /></span></th>
 									<td>
 										<input type="radio" name="id_jsCommentLinks" value=0 <?php if(get_option('id_jsCommentLinks')==0) echo "checked"; ?> > <?php _e('IntenseDebate Enhanced Comment Links', 'intensedebate'); ?> (<a href="http://www.intensedebate.com/editacct/<?php echo get_option('id_blogID');?>" target="_blank" title="Customize Comment Links"><?php _e('Customize Them', 'intensedebate'); ?></a>)<br>
-										<input type="radio" name="id_jsCommentLinks" value=1 <?php if(get_option('id_jsCommentLinks')==1) echo "checked"; ?> > <?php _e('Wordpress Standard Comment Links', 'intensedebate'); ?>
+										<input type="radio" name="id_jsCommentLinks" value=1 <?php if(get_option('id_jsCommentLinks')==1) echo "checked"; ?> > <?php _e('WordPress Standard Comment Links', 'intensedebate'); ?>
 										<span class="idwp-clear"></span>                            
 										<p id="divCommentLinkInfo" class="hidden"><?php _e('Use customized comment link text by enabling IntenseDebate Enhanced Comment Links.  <a href="http://www.intensedebate.com/faq#li181">Learn more</a> about customizing your comment links.', 'intensedebate'); ?></p>
 									</td>
@@ -1827,7 +1827,7 @@ function id_debug_log($text) {
 									<th scope="row" style="white-space: nowrap;" ><?php _e('Moderation Page', 'intensedebate'); ?> <span style="cursor:pointer;" onclick="document.getElementById('divModPageInfo').className='';"><img src="http://intensedebate.com/images1/wp-info.png" /></span></th>
 									<td>
 										<input type="radio" name="id_moderationPage" value=0 <?php if(get_option('id_moderationPage')==0) echo "checked"; ?> > <?php _e('IntenseDebate Enhanced Moderation', 'intensedebate'); ?> <br>
-										<input type="radio" name="id_moderationPage" value=1 <?php if(get_option('id_moderationPage')==1) echo "checked"; ?> > <?php _e('Wordpress Standard Moderation', 'intensedebate'); ?> 
+										<input type="radio" name="id_moderationPage" value=1 <?php if(get_option('id_moderationPage')==1) echo "checked"; ?> > <?php _e('WordPress Standard Moderation', 'intensedebate'); ?> 
 										<span class="idwp-clear"></span>                            
 										<p id="divModPageInfo" class="hidden"><?php _e('Moderate and reply to IntenseDebate comments from your WordPress admin panel using our custom moderation page that mirrors the WordPress page that you\'re already used to.  The only difference is the extra IntenseDebate zest we\'ve added by including IntenseDebate avatars, reputation points, profile links and all of our other metadata gravy that you\'ll love.', 'intensedebate'); ?></p>
 									</td>
@@ -1836,7 +1836,7 @@ function id_debug_log($text) {
 									<th scope="row" style="white-space: nowrap;" ><?php _e('Comment System', 'intensedebate'); ?> <span style="cursor:pointer;" onclick="document.getElementById('divCommentSystemInfo').className='';"><img src="http://intensedebate.com/images1/wp-info.png" /></span></th>
 									<td>
 										<input type="radio" name="id_useIDComments" value=0 <?php if(get_option('id_useIDComments')==0) echo "checked"; ?> > <?php _e('IntenseDebate Enhanced Comments', 'intensedebate'); ?> <br>
-										<input type="radio" name="id_useIDComments" value=1 <?php if(get_option('id_useIDComments')==1) echo "checked"; ?> > <?php _e('Wordpress Standard Comments', 'intensedebate'); ?> 				
+										<input type="radio" name="id_useIDComments" value=1 <?php if(get_option('id_useIDComments')==1) echo "checked"; ?> > <?php _e('WordPress Standard Comments', 'intensedebate'); ?> 				
 										<span class="idwp-clear"></span>                            
 										<p id="divCommentSystemInfo" class="hidden"><?php _e('By enabling WordPress Comments you can disable your IntenseDebate Comment system without deactivating the plugin.', 'intensedebate'); ?></p>			
 									</td>
@@ -1874,7 +1874,7 @@ function id_debug_log($text) {
 										<input type="radio" name="id_revertMobile" value=0 <?php if(get_option('id_revertMobile')==0) echo "checked"; ?> > <?php _e('Revert to WordPress comments for visitors on mobile devices', 'intensedebate'); ?> <br>
 										<input type="radio" name="id_revertMobile" value=1 <?php if(get_option('id_revertMobile')==1) echo "checked"; ?> > <?php _e('Use IntenseDebate comments for visitors on mobile devices', 'intensedebate'); ?>
 										<span class="idwp-clear"></span>                            
-										<p id="divRevertMobileInfo" class="hidden"><?php _e('This setting will determine if we show IntenseDebate comments or Wordpress comments when a reader on a mobile device visits your blog.  Because IntenseDebate is not yet fully compatible with all mobile devices, we suggest reverting to the standard WordPress comments when mobile devices access your blog.', 'intensedebate'); ?></p>
+										<p id="divRevertMobileInfo" class="hidden"><?php _e('This setting will determine if we show IntenseDebate comments or WordPress comments when a reader on a mobile device visits your blog.  Because IntenseDebate is not yet fully compatible with all mobile devices, we suggest reverting to the standard WordPress comments when mobile devices access your blog.', 'intensedebate'); ?></p>
 									</td>
 								</tr>									
 							</tbody>

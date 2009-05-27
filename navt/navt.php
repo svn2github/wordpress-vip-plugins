@@ -1,7 +1,7 @@
 <?php
 /**
 
-Plugin Name: Wordpress Navigation List Plugin NAVT
+Plugin Name: WordPress Navigation List Plugin NAVT
 Plugin URI: http://atalayastudio.com
 Description: Create, organize and manage your web site navigation by logically grouping your pages, categories and user's via a drag'n drop interface. Manage your navigation lists from the NAVT Lists menu tab in the Manage menu.
 Version: 1.0.12

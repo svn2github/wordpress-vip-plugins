@@ -3,7 +3,7 @@
 **********************************************************************
 Copyright 2008  Ade WALKER  (email : info@studiograsshopper.ch)
 
-Options Page for Wordpress MU
+Options Page for WordPress MU
 */
 
 dfcg_load_textdomain();
@@ -69,7 +69,7 @@ dfcg_load_textdomain();
 		?>
 		
 		<div class="dfcginfo">
-			<p><em>You are using Dynamic Content Gallery version <?php echo DFCG_VER; ?> for Wordpress Mu.</em></p>
+			<p><em>You are using Dynamic Content Gallery version <?php echo DFCG_VER; ?> for WordPress Mu.</em></p>
 			<p><?php _e("This is where you set up the selection of Categories and Posts, the paths to the locations of the gallery images, and the styling options for the gallery.", DFCG_DOMAIN); ?></p>
 			<p><?php _e("For further information, see the README.txt document supplied with the plugin or visit the", DFCG_DOMAIN); ?> <a href="http://www.studiograsshopper.ch/dynamic-content-gallery-configuration/">Dynamic Content Gallery configuration</a> page.</p>
 			<p><strong><?php _e('IMPORTANT: You must follow the instructions in sections 1 and 2 below and configure this page before using the plugin.', DFCG_DOMAIN); ?></strong></p>
@@ -248,9 +248,9 @@ dfcg_load_textdomain();
 	
 	<div class="dfcgcredits">
 		<p>For further information please read the README document included in the plugin download, or visit the <a href="http://www.studiograsshopper.ch/dynamic-content-gallery-mu-configuration/">Dynamic Content Gallery MU configuration</a> page.</p>
-		<p>The Dynamic Content Gallery plugin uses the SmoothGallery script developed by <a href="http://smoothgallery.jondesign.net/">Jonathan Schemoul</a>, and is inspired by Jason Schuller's Featured Content Gallery plugin. Grateful acknowledgements to Jonathan's wonderful script and Jason's popular Wordpress plugin implementation.</p> 
-		<p>Dynamic Content Gallery plugin for Wordpress and Wordpress Mu by <a href="http://www.studiograsshopper.ch/">Ade Walker</a></p>
-		<p>You are using the Wordpress Mu version of the Dynamic Content Gallery <strong>Version: <?php echo DFCG_VER; ?></strong></p>      
+		<p>The Dynamic Content Gallery plugin uses the SmoothGallery script developed by <a href="http://smoothgallery.jondesign.net/">Jonathan Schemoul</a>, and is inspired by Jason Schuller's Featured Content Gallery plugin. Grateful acknowledgements to Jonathan's wonderful script and Jason's popular WordPress plugin implementation.</p> 
+		<p>Dynamic Content Gallery plugin for WordPress and WordPress Mu by <a href="http://www.studiograsshopper.ch/">Ade Walker</a></p>
+		<p>You are using the WordPress Mu version of the Dynamic Content Gallery <strong>Version: <?php echo DFCG_VER; ?></strong></p>      
 		<p>If you have found this plugin useful, please consider making a donation to help support future development. Your support will be much appreciated. Thank you!</p>
 	</div>
 </div>

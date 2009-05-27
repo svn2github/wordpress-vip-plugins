@@ -16,7 +16,7 @@ It solves two problems with the author page:
 2. It counts the posts where the user is co-author, even if he's not the original poster.
 
 The plugin was created in reference to the <a href="http://codex.wordpress.org/Author_Templates#Sample_Template_File">author.php</a>
-example on the Wordpress.
+example on the WordPress.
 
 = Usage =
 

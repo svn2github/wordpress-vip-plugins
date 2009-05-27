@@ -14,7 +14,7 @@ The Attached Image is a simple plugin that packs quite a punch. It shows the fir
 
 Features include an options page to easily customise how the plugin works, the ability to override those options through the use of legacy parameters entered via a fairly friendly query string system. All the plugin requires is that you call it within the loop.
 
-There are limited instructions of how to install this plugin here on Wordpress.org under the installation tab. It is however advisable to check the detailed installation instructions provided a my [website](http://return-true.com/2008/12/wordpress-plugin-the-attached-image/ "Full installation instructions & more info")
+There are limited instructions of how to install this plugin here on WordPress.org under the installation tab. It is however advisable to check the detailed installation instructions provided a my [website](http://return-true.com/2008/12/wordpress-plugin-the-attached-image/ "Full installation instructions & more info")
 
 Please report all bugs by visiting my [website](http://return-true.com/2008/12/wordpress-plugin-the-attached-image/ "Report bugs here.") & dropping me a comment or by sending me an email to pablorobinson[at]gmail[dot]com. Thank you.
 

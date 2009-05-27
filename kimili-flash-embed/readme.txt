@@ -10,9 +10,9 @@ Provides a WordPress friendly interface for Geoff Stearns' excellent standards c
 
 == Description ==
 
-Kimili Flash Embed is a plugin for Wordpress that allows you to easily place Flash movies on your site. Built upon Geoff Stearns' [SWFObject](http://blog.deconcept.com/swfobject) javascript code, it is standards compliant, search engine friendly, highly flexible and full featured, as well as easy to use.
+Kimili Flash Embed is a plugin for WordPress that allows you to easily place Flash movies on your site. Built upon Geoff Stearns' [SWFObject](http://blog.deconcept.com/swfobject) javascript code, it is standards compliant, search engine friendly, highly flexible and full featured, as well as easy to use.
 
-Kimili Flash Embed utilizes SWFObject 1.5, is fully compatible with Wordpress 2.x and plays well with most other plugins.
+Kimili Flash Embed utilizes SWFObject 1.5, is fully compatible with WordPress 2.x and plays well with most other plugins.
 
 == Installation ==
 
@@ -24,7 +24,7 @@ Once the plugin is installed and activated, you can add Flash content to your pa
 
 > `[kml_flashembed movie="filename.swf" height="150" width="300" /]`
 
-If you’re using the WYSIWYG editor in Wordpress 2.0 - 2.3 to write your posts, you should see a new button on the right end of the toolbar with a Flash player logo. Click it, and a basic KFE tag will be dropped into your post editor, ready to be populated with the SWF URL, width and height.
+If you’re using the WYSIWYG editor in WordPress 2.0 - 2.3 to write your posts, you should see a new button on the right end of the toolbar with a Flash player logo. Click it, and a basic KFE tag will be dropped into your post editor, ready to be populated with the SWF URL, width and height.
 
 The only required attributes in a KFE tag are movie, height, and width. See the the following sections all available attributes and advanced usage.
 
@@ -151,7 +151,7 @@ So I can maintain them in one place, please see the Kimili Flash Embed FAQs at t
 
 == Version History ==
 
-> **Note:** Because this plugin has been around for a while and numerous older versions exist, yet version 1.4 is the first version to actually be included in the Wordpress Plugin Repository, any older versions are NOT available here.  If you'd like to download an older version, you can do so at the [Kimili Flash Embed for Wordpress Home Page](http://kimili.com/plugins/kml_flashembed/wp).
+> **Note:** Because this plugin has been around for a while and numerous older versions exist, yet version 1.4 is the first version to actually be included in the WordPress Plugin Repository, any older versions are NOT available here.  If you'd like to download an older version, you can do so at the [Kimili Flash Embed for WordPress Home Page](http://kimili.com/plugins/kml_flashembed/wp).
 
 = Version 1.4.3 =
 
@@ -164,7 +164,7 @@ So I can maintain them in one place, please see the Kimili Flash Embed FAQs at t
 = Version 1.4.1 =
 
 * Fixed an incompatibility with other plugins that were using the buttonsnap.php library
-* Updated Toolbar buttons to work with TinyMCE 3, used in Wordpress 3
+* Updated Toolbar buttons to work with TinyMCE 3, used in WordPress 3
 
 = Version 1.4 =
 

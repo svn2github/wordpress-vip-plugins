@@ -1,5 +1,5 @@
 // Outbrain 2008 
-// Wordpress js support file
+// WordPress js support file
 
 var langs_div = "langs_list";
 var user_lang_div = "user_lang_div";
@@ -44,7 +44,7 @@ var outbrainConsole 			= function(){
 		var str ="";
 		obPluginsVersion = document.getElementById("obVersion").value;
 		obCurrentKey	 = document.getElementById("obCurrentKey").value;
-		str += "Outbrain Wordpress Plugins version: "	+obPluginsVersion 	+"\n";
+		str += "Outbrain WordPress Plugins version: "	+obPluginsVersion 	+"\n";
 		str += "Outbrain Current(saved) Claim Key: "		 	+obCurrentKey 		+"\n";
 		str += "plugins location: " + location.href + "\n";
 		str +  "start time:" + Date(); 
