@@ -90,7 +90,8 @@ function dfcg_addheader_scripts() {
 	echo '<script type="text/javascript" src="' . DFCG_URL . '/scripts/mootools.v1.11.js"></script>' ."\n";
 	}
 	/* Add gallery javascript file */
-	echo '<script type="text/javascript" src="' . DFCG_URL . '/scripts/jd.gallery.js"></script>' ."\n";
+	$jd_gallery_js_file = DFCG_URL . '/scripts/jd.gallery.js';
+	echo '<script type="text/javascript" src="' . apply_filters('dynamic-gallery-js-config-file', $jd_gallery_js_file) . '"></script>' ."\n";
 	/* Add user defined CSS */
 	include_once('dfcg-user-styles.php');
 	echo '<!-- End of Dynamic Content Gallery scripts -->' ."\n";
