@@ -91,6 +91,7 @@ function mostpopular_order_by_views( $orderby ) {
 }
 
 function mostpopular_feed() {
+    global $post;
     do_action( "mostpopular_adjust" );
 
     add_filter( "mostpopular_max_duration", "mostpopular_max_duration", 0, 1 );
