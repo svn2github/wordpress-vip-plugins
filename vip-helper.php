@@ -1,6 +1,8 @@
 <?php
 /*
 	VIP Helper Functions
+
+	Put include(ABSPATH . '/wp-content/themes/vip/plugins/vip-helper.php'); in the theme's functions.php to use this
  */
 
 /*
