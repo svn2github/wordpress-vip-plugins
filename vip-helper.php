@@ -21,14 +21,3 @@ function vip_redirects( $vip_redirects_array = array() ) {
 		}
 	}
 }
-
-/*
- * Disable the WordPress.com filter that prevents orphans in titles
- * http://en.blog.wordpress.com/2006/12/24/no-orphans-in-titles/
- *
- * @author mtdewvirus
- */
-
-function vip_allow_title_orphans() {
-	remove_filter('the_title', 'widont');
-}
