@@ -22,3 +22,20 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
 function vip_allow_title_orphans() {
 	remove_filter('the_title', 'widont');
 }
+
+/*
+ * Only display related posts from own blog
+ * make sure 'Hide related links on this blog' option at Appearance->Extras is not checked
+ * Place vip_related_posts in functions.php and vip_display_related_posts in the loop
+ *
+ * @author mtdewvirus
+ */
+function vip_related_posts($before = '', $after = '') {
+	remove_filter('the_content', 'sphere_inline');
+	if ( !empty($before) ) add_filter('sphere_inline_before', returner($before));
+	if ( !empty($after) ) add_filter('sphere_inline_after', returner($after));
+}
+
+function vip_display_related_posts( $limit_to_same_domain = true ) {
+	echo sphere_inline('', $limit_to_same_domain);
+}
