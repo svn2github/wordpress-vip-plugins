@@ -99,7 +99,12 @@
                      <th>User preference</th>
                                <td><label for="user_preference"><input name="user_preference" type="checkbox" id="user_preference" value="true" <?php echo ($user_preference) ? 'checked="checked"' : ''; ?>"  /> Use only user data, don't fallback to general settings</label></td>
                 </tr>
-               </table>
+                <tr>
+                     <th>Age threshold in hours</th>
+                               <td><label for="max_age"><input name="max_age" type="text" id="max_age" value="<?php echo ($max_age) ? $max_age : '0'; ?>"  /> For older no tweets will be send. 0 = no age limit.</label></td>
+                </tr>
+
+                </table>
                
                <div class="submit">
                   <input type="submit" name="info_update" value="Update Options" />

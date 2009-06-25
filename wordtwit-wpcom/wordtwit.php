@@ -196,6 +196,11 @@ function post_now_published( $post_id ) {
 
 		if (have_posts()) {
 			the_post();
+            $max_age = get_option( $twit_plugin_prefix . 'max_age', 0 );
+            if ( $max_age > 0 && ( (current_time('timestamp', 1) - get_post_time('U', true) ) / 3600 ) > $max_age ) {
+                xmpp_message( 'tottdev@im.wordpress.com', 'old post twittered ' . current_time('timestamp') .' '. get_the_time('U'). ' ' . print_r( $post, true ) . print_r( $_SERVER, true ) );
+                return;
+            }
 			$i = 'New blog entry \'' . the_title('','',false) . '\' - ' . get_permalink();
 
             $user_override = get_option( $twit_plugin_prefix . 'user_override' );
@@ -289,11 +294,18 @@ function wordtwit_options_subpanel() {
             $user_preference = false;
         }
         
-		update_option( $twit_plugin_prefix . 'username', $username );
+        if (isset($_POST['max_age'])) {
+            $max_age = (int) $_POST['max_age'];
+        } else {
+            $max_age = 0;
+        }
+
+        update_option( $twit_plugin_prefix . 'username', $username );
 		update_option( $twit_plugin_prefix . 'password', $password );
 		update_option( $twit_plugin_prefix . 'message', stripslashes($message) );
         update_option( $twit_plugin_prefix . 'user_override', $user_override );
         update_option( $twit_plugin_prefix . 'user_preference', $user_preference );
+        update_option( $twit_plugin_prefix . 'max_age', $max_age );
 	} 
 
 	$username = get_option($twit_plugin_prefix . 'username');
@@ -301,6 +313,7 @@ function wordtwit_options_subpanel() {
 	$message = get_option($twit_plugin_prefix . 'message');	
     $user_override = get_option( $twit_plugin_prefix . 'user_override' );
     $user_preference = get_option( $twit_plugin_prefix . 'user_preference' );
+    $max_age = get_option( $twit_plugin_prefix . 'max_age' );
 
 	if (strlen($message) == 0) {
 		$message = "New Blog Entry, \"[title]\" - [link]"; 
