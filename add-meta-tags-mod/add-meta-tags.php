@@ -79,6 +79,8 @@ function amt_options_page() {
 			"site_description"	=> $_POST["site_description"],
 			"site_keywords"		=> $_POST["site_keywords"],
 			"site_wide_meta"	=> $_POST["site_wide_meta"],
+            "post_options"      => ( is_array( $_POST["post_options"] ) ) ? $_POST["post_options"] : array(),
+            "page_options"      => ( is_array( $_POST["page_options"] ) ) ? $_POST["page_options"] : array(),
 			);
 		update_option("add_meta_tags_opts", $options);
 		amt_show_info_msg(__('Add-Meta-Tags options saved.', 'add-meta-tags'));
@@ -102,6 +104,16 @@ function amt_options_page() {
 
 	}
 
+    $post_options = $options['post_options'];
+    $page_options = $options['page_options'];
+    
+    // good defaults is the hallmark of good software
+    if ( !is_array( $post_options ) )
+        $post_options = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+    if ( !is_array( $page_options ) )
+        $page_options = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+    
+    
 	/*
 	Configuration Page
 	*/
@@ -114,10 +126,11 @@ function amt_options_page() {
 		<p>'.__("For more information about the plugin's default behaviour and how you could customize the metatag generation can be found in detail in the sections that follow.", "add-meta-tags").'</p>
 	</div>
 
+
+    <form name="formamt" method="post" action="' . $_SERVER['REQUEST_URI'] . '">
+
 	<div class="wrap">
 		<h2>'.__('Configuration', 'add-meta-tags').'</h2>
-
-		<form name="formamt" method="post" action="' . $_SERVER['REQUEST_URI'] . '">
 
 			<fieldset class="options">
 				<legend>'.__('Site Description', 'add-meta-tags').'<br />
@@ -146,7 +159,6 @@ function amt_options_page() {
 				<input type="submit" name="info_update" value="'.__('Update Options', 'add-meta-tags').' &raquo;" />
 			</p>
 
-		</form>
 	</div>
 
 	<div class="wrap"> 
@@ -162,21 +174,43 @@ function amt_options_page() {
 		<p>'.__('It is possible to override them by providing a custom description in a custom field named "<strong>description</strong>" and a custom comma-delimited list of keywords by providing it in a custom field named "<strong>keywords</strong>".', 'add-meta-tags').'</p>
 		<p>'.__("Furthermore, when overriding the post's keywords, but you need to include the post's categories too, you don't need to type them, but the tag <code>%cats%</code> can be used. In the same manner you can also include your tags in this custom field by adding the word <code>%tags%</code>, which will be replaced by your post's tags.", "add-meta-tags").'</p>
 		<p><strong>'.__('Example', 'add-meta-tags').':</strong> <code>'.__('keyword1, keyword2, %cats%, keyword3, %tags%, keyword4', 'add-meta-tags').'</code></p>
-	</div>
+
+        <p><strong>' . __('Enable the following options for posts:', 'add-meta-tags') . '</strong>
+        ' . __( 'Title', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_title]" value="true" ' . ( ( $post_options["mt_seo_title"] ) ? 'checked="checked"' : '' ) . ' /> , 
+        ' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_description]" value="true" ' . ( ( $post_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> , 
+        ' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_keywords]" value="true" ' . ( ( $post_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> , 
+        ' . __( 'Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_meta]" value="true" ' . ( ( $post_options["mt_seo_meta"] ) ? 'checked="checked"' : '' ) . ' />
+        </p>
+        <p class="submit">
+			<input type="submit" name="info_update" value="'.__('Update Options', 'add-meta-tags').' &raquo;" />
+		</p>
+
+    </div>
 
 	<div class="wrap">
 		<h2>'.__('Meta Tags on Pages', 'add-meta-tags').'</h2>
 		<p>'.__('By default, meta tags are not added automatically when viewing Pages. However, it is possible to define a description and a comma-delimited list of keywords for the Page, by using custom fields named "<strong>description</strong>" and/or "<strong>keywords</strong>" as described for single posts.', 'add-meta-tags').'</p>
 		<p>'.__('<strong>WARNING</strong>: Pages do not belong to categories in WordPress. Therefore, the tag <code>%cats%</code> will not be replaced by any categories if it is included in the comma-delimited list of keywords for the Page, so <strong>do not use it for Pages</strong>.', 'add-meta-tags').'</p>
-	</div>
 
+        <p><strong>' . __('Enable the following options for pages:', 'add-meta-tags') . '</strong>
+        ' . __( 'Title', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_title]" value="true" ' . ( ( $page_options["mt_seo_title"] ) ? 'checked="checked"' : '' ) . ' /> , 
+        ' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_description]" value="true" ' . ( ( $page_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> , 
+        ' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_keywords]" value="true" ' . ( ( $page_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> , 
+        ' . __( 'Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_meta]" value="true" ' . ( ( $page_options["mt_seo_meta"] ) ? 'checked="checked"' : '' ) . ' />
+        </p>
+        <p class="submit">
+			<input type="submit" name="info_update" value="'.__('Update Options', 'add-meta-tags').' &raquo;" />
+		</p>
+
+    </div>
+    </form>
 	<div class="wrap">
 		<h2>'.__('Meta Tags on Category Archives', 'add-meta-tags').'</h2>
 		<p>'.__('META tags are automatically added to Category Archives, for example when viewing all posts that belong to a specific category. In this case, if you have set a description for that category, then this description is added to a "description" META tag.', 'add-meta-tags').'</p>
 		<p>'.__('Furthermore, a "keywords" META tag - containing only the category\'s name - is always added to Category Archives.', 'add-meta-tags').'</p>
-	</div>
+    </div>
 
-	<div class="wrap">
+    <div class="wrap">
 		<h2>'.__('Reset Plugin', 'add-meta-tags').'</h2>
 		<form name="formamtreset" method="post" action="' . $_SERVER['REQUEST_URI'] . '">
 			<p>'.__('By pressing the "Reset" button, the plugin will be reset. This means that the stored options will be deleted from the WordPress database. Although it is not necessary, you should consider doing this before uninstalling the plugin, so no trace is left behind.', 'add-meta-tags').'</p>
@@ -364,8 +398,20 @@ function amt_add_meta_tags() {
 	$options = get_option("add_meta_tags_opts");
 	$site_wide_meta = $options["site_wide_meta"];
 
+    if ( 'page' == $posts[0]->post_type )
+        $cmpvalues = $options['page_options'];
+    elseif ( 'post' == $posts[0]->post_type )
+        $cmpvalues = $options['post_options'];
+
+    if ( !is_array( $cmpvalues ) )
+        $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+
 	$my_metatags = "";
 
+    // nothing allowed so just return
+    if ( empty( $cmpvalues ) )
+        return;
+    
 	if ( is_single() || is_page() ) {
 		/*
 		Add META tags to Single Page View or Page
@@ -378,23 +424,25 @@ function amt_add_meta_tags() {
 		Description
 		Custom post field "description" overrides post's excerpt in Single Post View.
 		*/
-        if ( !empty($mt_seo_description) ) {
-			/*
-			If there is a custom field, use it
-			*/
-			$my_metatags .= "\n<meta name=\"description\" content=\"" . amt_clean_desc($mt_seo_description) . "\" />";
-		} elseif ( is_single() ) {
-			/*
-			Else, use the post's excerpt. Only for Single Post View (not valid for Pages)
-			*/
-			$my_metatags .= "\n<meta name=\"description\" content=\"" . amt_clean_desc(amt_get_the_excerpt()) . "\" />";
-		}
+        if ( 'true' == $cmpvalues['mt_seo_description'] ) {    
 
+            if ( !empty($mt_seo_description) ) {
+                /*
+                  If there is a custom field, use it
+                */
+                $my_metatags .= "\n<meta name=\"description\" content=\"" . amt_clean_desc($mt_seo_description) . "\" />";
+            } elseif ( is_single() ) {
+                /*
+                  Else, use the post's excerpt. Only for Single Post View (not valid for Pages)
+                */
+                                                                    $my_metatags .= "\n<meta name=\"description\" content=\"" . amt_clean_desc(amt_get_the_excerpt()) . "\" />";
+            }
+        }
         /*
 		Meta
 		Custom post field "mt-seo-meta" adds additional meta tags
 		*/
-        if ( !empty($mt_seo_meta) ) {
+        if ( !empty($mt_seo_meta) && 'true' == $cmpvalues['mt_seo_meta'] ) {
 			/*
 			If there is a custom field, use it
 			*/
@@ -419,39 +467,40 @@ function amt_add_meta_tags() {
 		NOTE: if $include_keywords_in_single_posts is FALSE, then keywords
 		metatag is not added to single posts.
 		*/
-		if ( ($include_keywords_in_single_posts && is_single()) || is_page() ) {
-			if ( !empty($mt_seo_keywords) ) {
-				/*
-				If there is a custom field, use it
-				*/
-				if ( is_single() ) {
-					/*
-					For single posts, the %cat% tag is replaced by the post's categories
-					*/
-					$mt_seo_keywords = str_replace("%cats%", amt_get_keywords_from_post_cats(), $mt_seo_keywords);
-					/*
-					Also, the %tags% tag is replaced by the post's tags (WordPress 2.3 or newer)
-					*/
-					if ( version_compare( get_bloginfo('version'), '2.3', '>=' ) || 'MU' == get_bloginfo('version') ) {
-						$mt_seo_keywords = str_replace("%tags%", amt_get_post_tags(), $mt_seo_keywords);
-					}
-				}
-				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower($mt_seo_keywords) . "\" />";
-			} elseif ( is_single() ) {
-				/*
-				Add keywords automatically.
-				Keywords consist of the post's categories and the post's tags (tags exist in WordPress 2.3 or newer).
-				Only for Single Post View (not valid for Pages)
-				*/
-				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower(amt_get_keywords_from_post_cats());
-				$post_tags = strtolower(amt_get_post_tags());
-				if ( $post_tags ) {
-					$my_metatags .= ", " . $post_tags;
-				}
-				$my_metatags .= "\" />";
-			}
-		}
-
+        if ( 'true' == $cmpvalues['mt_seo_keywords'] ) {                                                       
+            if ( ($include_keywords_in_single_posts && is_single()) || is_page() ) {
+                if ( !empty($mt_seo_keywords) ) {
+                    /*
+                      If there is a custom field, use it
+                    */
+                    if ( is_single() ) {
+                        /*
+                          For single posts, the %cat% tag is replaced by the post's categories
+                        */
+                            $mt_seo_keywords = str_replace("%cats%", amt_get_keywords_from_post_cats(), $mt_seo_keywords);
+                        /*
+                          Also, the %tags% tag is replaced by the post's tags (WordPress 2.3 or newer)
+                        */
+                            if ( version_compare( get_bloginfo('version'), '2.3', '>=' ) || 'MU' == get_bloginfo('version') ) {
+                                $mt_seo_keywords = str_replace("%tags%", amt_get_post_tags(), $mt_seo_keywords);
+                            }
+                    }
+                    $my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower($mt_seo_keywords) . "\" />";
+                } elseif ( is_single() ) {
+                    /*
+                      Add keywords automatically.
+                      Keywords consist of the post's categories and the post's tags (tags exist in WordPress 2.3 or newer).
+                      Only for Single Post View (not valid for Pages)
+                    */
+                    $my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower(amt_get_keywords_from_post_cats());
+                    $post_tags = strtolower(amt_get_post_tags());
+                    if ( $post_tags ) {
+                        $my_metatags .= ", " . $post_tags;
+                    }
+                    $my_metatags .= "\" />";
+                }
+            }
+        }
 	} elseif ( is_home() ) {
 		/*
 		Add META tags to Home Page
@@ -521,7 +570,7 @@ function amt_add_meta_tags() {
 SEO Write panel
 */
 function mt_seo_meta_box( $post, $meta_box ) {
-    global $mt_seo_fields;
+    global $mt_seo_fields, $pagenow;
 	if ( $post_id = (int) $post->ID ) {
         foreach( (array) $mt_seo_fields as $field_name => $field_data ) 
             ${$field_name} = (string) get_post_meta( $post_id, $field_name, true );
@@ -529,8 +578,22 @@ function mt_seo_meta_box( $post, $meta_box ) {
         foreach( (array) $mt_seo_fields as $field_name => $field_data ) 
             ${$field_name} = '';
     }
-    $tabindex = 5000;
+    $tabindex = $tabindex_start = 5000;
+
+    $options = get_option("add_meta_tags_opts");
+
+    if ( stristr( $pagenow, 'page' ) )
+        $cmpvalues = $options['page_options'];
+    elseif ( stristr( $pagenow, 'post' ) )
+        $cmpvalues = $options['post_options'];
+
+    if ( !is_array( $cmpvalues ) )
+        $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+
     foreach( (array) $mt_seo_fields as $field_name => $field_data ) {
+        if ( 'true' != $cmpvalues[$field_name] )
+            continue;
+        
         ${$field_name} = format_to_edit( ${$field_name} );
         if( 'textarea' == $field_data[1] ) {
             echo '<p><label for="' . $field_name . '">' . $field_data[0] . '</label><br />';
@@ -543,7 +606,10 @@ function mt_seo_meta_box( $post, $meta_box ) {
             echo $field_data[2] . "</p>\n";
         }
         $tabindex++;
-    }                                           
+    }
+    if ( $tabindex == $tabindex_start )
+        echo '<p>' . __( 'No SEO fields were enabled. Please enable post fields in the Meta Tags options page', 'add-meta-tags' )  . '</p>';
+    
 	wp_nonce_field( 'mt-seo', 'mt_seo_nonce', false );
 }
 
@@ -639,6 +705,19 @@ function mt_seo_rewrite_title( $title, $sep, $seplocation ) {
     if ( !is_single() && !is_page())
         return $title;
 
+    $options = get_option("add_meta_tags_opts");
+	
+    if ( 'page' == $posts[0]->post_type )
+        $cmpvalues = $options['page_options'];
+    elseif ( 'post' == $posts[0]->post_type )
+        $cmpvalues = $options['post_options'];
+
+    if ( !is_array( $cmpvalues ) )
+        $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+
+    if ( 'true' != $cmpvalues['mt_seo_title'] )
+        return $title;
+    
     $mt_seo_title = (string) get_post_meta( $posts[0]->ID, 'mt_seo_title', true );
     if ( empty( $mt_seo_title ) )
         return $title;
