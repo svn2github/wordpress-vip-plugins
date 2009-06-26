@@ -3,8 +3,8 @@
 Plugin Name: WordTwit
 Plugin URI: http://www.bravenewcode.com/wordtwit
 Description: Generates Twitter Updates from Blog Postings
-Author: Duane Storey and Dale Mugford, BraveNewCode Inc.
-Version: 1.3
+Author: Duane Storey and Dale Mugford, BraveNewCode Inc., Modified and extended for WordPress.com by Thorsten Ott
+Version: 1.3-mod
 Author URI: http://www.bravenewcode.com
 */
 
@@ -21,7 +21,7 @@ require_once( 'xml.php' );
 
 $twit_plugin_name = 'WordTwit';
 $twit_plugin_prefix = 'wordtwit_';
-$wordtwit_version = '1.3-wpcom';
+$wordtwit_version = '1.3-mod';
 
 // set up hooks for WordPress
 add_action( 'publish_post', 'post_now_published' );
