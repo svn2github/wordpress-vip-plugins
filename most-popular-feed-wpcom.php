@@ -64,7 +64,7 @@ function mostpopular_feed_query( $args = array() ) {
         wp_cache_add( $cacheid, $filtered_post_ids, 'output', $args['cachelife'] );
 	}
 
-    query_posts( array( "post__in" => $filtered_post_ids, "orderby" => "none" ) );
+    query_posts( array( "post__in" => $filtered_post_ids, "orderby" => "none", "feed" => 1 ) );
     
 }
 
