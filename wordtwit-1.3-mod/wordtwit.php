@@ -297,7 +297,7 @@ function wordtwit_options_subpanel() {
         if (isset($_POST['max_age'])) {
             $max_age = (int) $_POST['max_age'];
         } else {
-            $max_age = 0;
+            $max_age = 24;
         }
 
         update_option( $twit_plugin_prefix . 'username', $username );
