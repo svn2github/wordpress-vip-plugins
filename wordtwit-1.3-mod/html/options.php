@@ -101,7 +101,7 @@
                 </tr>
                 <tr>
                      <th>Age threshold in hours</th>
-                               <td><label for="max_age"><input name="max_age" type="text" id="max_age" value="<?php echo ($max_age) ? $max_age : '0'; ?>"  /> For older no tweets will be send. 0 = no age limit.</label></td>
+                               <td><label for="max_age"><input name="max_age" type="text" id="max_age" value="<?php echo isset($max_age) ? $max_age : '24'; ?>"  /> For older no tweets will be send. 0 = no age limit.</label></td>
                 </tr>
 
                 </table>
