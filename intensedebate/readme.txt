@@ -1,21 +1,27 @@
 === IntenseDebate Comments ===
-Contributors: Jon Fox, Crowd Favorite
-Tags: widget, profile, community, avatars, spam, notification, email, threaded, comments
-Requires at least: 2.0
-Tested up to: 2.7
+Contributors: IntenseDebate
+Tags: widget, profile, community, avatars, spam, notification, email, threaded, comments, intense debate, intensedebate, intense, debate, comment system, moderation
+Requires at least: 2.5
+Tested up to: 2.8
 Stable tag: trunk
 
 IntenseDebate comments enhance and encourage conversation on your blog.  Build your reader community, increase your comments, & boost pageviews.
 
 == Description ==
 
-IntenseDebate Comments enhance and encourage conversation on your blog or website. Full comment and account data sync between IntenseDebate and WordPress ensures that you will always have your comments. Custom integration with your WordPress admin panel makes moderation a piece of cake. Comment threading, reply-by-email, user accounts and reputations, comment voting, along with Twitter and friendfeed integrations enrich your readers' experience and make more of the internet aware of your blog and comments which drives traffic to you! 
+IntenseDebate Comments enhance and encourage conversation on your blog or website. Custom integration with your WordPress admin panel makes moderation a piece of cake. Comment threading, reply-by-email, user accounts and reputations, comment voting, along with Twitter and friendfeed integrations enrich your readers' experience and make more of the internet aware of your blog and comments which drives traffic to you!
+
+Full comment and account data sync between Intense Debate and WordPress ensures that you will always have your comments.
 
 == Installation ==
 
 *Note: As is the case when installing any new plugin, it's always a good idea to backup your blog data before installing.*
 
-1. After downloading the IntenseDebate plugin, unpack and upload the file to the wp-content/plugins folder on your blog. Make sure to leave the directory structure of the archive intact so that all of the IntenseDebate files are located in 'wp-content/plugins/intensedebate/'2. You will need to activate the IntenseDebate plugin in order to see your new comment system. Go to the Plugins tab and find IntenseDebate Comments in the list and click **Activate**.3. After activating proceed to your plugin settings page to configure your plugin. Don't forget to visit your account at [IntenseDebate.com](http://intensedebate.com) for *additional customization options*.
+1. After downloading the IntenseDebate plugin, unpack and upload the file to the wp-content/plugins folder on your blog. Make sure to leave the directory structure of the archive intact so that all of the IntenseDebate files are located in 'wp-content/plugins/intensedebate/'
+
+2. You will need to activate the IntenseDebate plugin in order to see your new comment system. Go to the Plugins tab and find IntenseDebate Comments in the list and click **Activate**.
+
+3. After activating proceed to the plugin settings page (under Settings > IntenseDebate) to configure your plugin. Don't forget to visit your account at [IntenseDebate.com](http://intensedebate.com) for *additional customization options*.
 
 == Frequently Asked Questions ==
 
@@ -38,3 +44,36 @@ After installing and activating the IntenseDebate plugin you will need to update
 
 **Please Note:**
 Your comments may take several hours to import. The time of your import is dependent on how many other import requests we are receiving in addition to how many comments are currently being imported. 
+
+== Screenshots ==
+
+1. An example of the comment system itself.  Notice all the extra goodies like user profile information, reputation, threaded comments, comment voting, RSS feeds for everything, and more!
+2. This is the enhanced moderation screen.  Note the extra information about the commenter (same drop down menu for each user from the previous screenshot is available here).
+3. The settings page for the IntenseDebate plugin.  There are many ways to customize IntenseDebate to do just as much as you want it to.
+4. First step in the registration process - syncing up your IntenseDebate account with your WordPress blog.
+5. Second step of the registration process - the import to convert all your existing comments into IntenseDebate goodness.
+6. Final step of the registration process - a few helpful links to get you started getting the most out of your new IntenseDebate comment system.
+
+== Changelog ==
+
+= v2.2 =
+* Fixed bug where versions of WP < 2.7 would turn off comment threading when saving Discussion Settings
+* Improved performance of queue system (reduced DB hits)
+* Improved overall compatibility with WPMU (props to Israel S. for contributed code!)
+* Improved debugging/logging options/output
+* Cleaned up/standardized use of constants
+* Improved initial import process
+* Improved security of the options page
+* Fixed WP 2.8 JavaScript compatibility bug
+* Improved syncing of comment moderations
+* Improved translatability
+
+= v2.1.1 =
+* Fixed bug with initial import process introduced in 2.1
+
+= v2.1 =
+* Introduced moderation/discussion settings sync
+* Improved integration of moderation panel
+* Optimized moderation panel to load faster
+* Fixed bug where you were logged out of ID if you saved your WP profile page
+* Moved to WordPress coding style
