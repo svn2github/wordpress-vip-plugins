@@ -25,8 +25,10 @@ function vip_allow_title_orphans() {
 
 /*
  * Only display related posts from own blog
- * make sure 'Hide related links on this blog' option at Appearance->Extras is not checked
- * Place vip_related_posts in functions.php and vip_display_related_posts in the loop
+ *
+ * 1. Make sure Appearance -> Extras: 'Hide related links on this blog' is NOT checked
+ * 2. Add  vip_related_posts() to functions.php 
+ * 3. Add vip_display_related_posts() in the loop where you want them displayed
  *
  * @author mtdewvirus
  */
