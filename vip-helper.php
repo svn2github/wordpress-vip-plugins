@@ -27,3 +27,27 @@ function vip_redirects( $vip_redirects_array = array() ) {
 		}
 	}
 }
+
+/*
+ * PHP func file_get_contents() w/ WP_CACHE integration
+ * @author based on code by CNN
+ */
+function vip_wp_file_get_content( $url, $echo_content = true ) {
+        $key = md5( $url );
+        if ( $out = wp_cache_get( $key , 'vip') ) {
+                if ( $echo_content ) {
+                        echo $out;
+                        return;
+                } else
+                        return $out;
+        }
+
+        $page = @file_get_contents( $url );
+        wp_cache_set( $key, $page, 'vip', 600 );
+
+        if ( $echo_content ) {
+                echo $page;
+                return;
+        } else
+                return $page;
+}
