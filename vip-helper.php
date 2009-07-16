@@ -51,3 +51,16 @@ function vip_wp_file_get_content( $url, $echo_content = true ) {
         } else
                 return $page;
 }
+
+/*
+ * Disable tag suggest on post screen
+ * @author mdawaffe
+ */
+function vip_disable_tag_suggest() {
+        add_action( 'admin_init', '_vip_disable_tag_suggest' );
+}
+function _vip_disable_tag_suggest() {
+       if ( !@constant( 'DOING_AJAX' ) || empty( $_GET['action'] ) || 'ajax-tag-search' != $_GET['action'] )
+               return;
+       die( '' );
+}
