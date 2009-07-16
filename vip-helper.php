@@ -64,3 +64,15 @@ function _vip_disable_tag_suggest() {
                return;
        die( '' );
 }
+
+/*
+ * Disable autosave
+ * @author mdawaffe
+ */
+
+function disable_autosave() {
+        add_action( 'init', '_disable_autosave' );
+}
+function _disable_autosave() {
+        wp_deregister_script( 'autosave' );
+}
