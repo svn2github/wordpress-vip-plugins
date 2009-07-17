@@ -19,6 +19,7 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
  *
  * @author mtdewvirus
  */
+
 function vip_allow_title_orphans() {
 	remove_filter('the_title', 'widont');
 }
@@ -32,6 +33,7 @@ function vip_allow_title_orphans() {
  *
  * @author mtdewvirus
  */
+
 function vip_related_posts($before = '', $after = '') {
 	remove_filter('the_content', 'sphere_inline');
 	if ( !empty($before) ) add_filter('sphere_inline_before', returner($before));
@@ -40,4 +42,26 @@ function vip_related_posts($before = '', $after = '') {
 
 function vip_display_related_posts( $limit_to_same_domain = true ) {
 	echo sphere_inline('', $limit_to_same_domain);
+}
+
+/*
+ * Allows users of contributor role to be able to upload media.
+ * Contrib users still can't publish.
+ * @author mdawaffe
+ */
+
+function vip_contrib_add_upload_cap() {
+        add_action( 'init', '_vip_contrib_add_upload_cap');
+}
+function _vip_contrib_add_upload_cap() {
+        global $wp_user_roles, $wp_roles, $current_user;
+
+        if ( !is_admin() || !strpos($_SERVER['SERVER_NAME'], 'wordpress.com') )
+                return; // only works on wp.com, not wp.org
+
+        $wp_user_roles['contributor']['capabilities']['upload_files'] = true;
+        $wp_roles = new WP_Roles;
+        $id = $current_user->ID;
+        unset( $GLOBALS['current_user'] );
+        wp_set_current_user( $id );
 }
