@@ -65,3 +65,20 @@ function _vip_contrib_add_upload_cap() {
         unset( $GLOBALS['current_user'] );
         wp_set_current_user( $id );
 }
+
+/*
+ * Un-hide the extra size and alignment options in the gallery tab of the media upload box
+ * @author tellyworth
+ */
+
+function vip_admin_gallery_css_extras() {
+        add_action('admin_print_styles', '_vip_admin_gallery_css_extras');
+}
+function _vip_admin_gallery_css_extras() {
+?>
+<style type="text/css">
+#gallery-form tr.url, #gallery-form tr.align, #gallery-form tr.image-size { display: table-row; }
+#gallery-form tr.submit input.button { display: table-row; }
+</style>
+<?php
+}
