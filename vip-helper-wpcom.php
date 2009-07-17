@@ -95,3 +95,14 @@ function vip_remove_enhanced_feed_images() {
         remove_filter('add_to_feed', 'add_reddit_to_feed');
         remove_filter('add_to_feed', 'add_commentcount_to_feed');
 }
+
+/*
+ * Override default colors of audio player. Colors specified in the shortcode still can override
+ * @author mtdewvirus
+ */
+
+function wpcom_vip_audio_player_colors( $colors ) {
+	$default_colors = array("bg" => "0xf8f8f8", "leftbg" => "0xeeeeee", "lefticon" => "0x666666", "rightbg" => "0xcccccc", "rightbghover" => "0x999999", "righticon" => "0x666666", "righticonhover" => "0xffffff", "text" => "0x666666", "slider" => "0x666666", "track" => "0xFFFFFF", "border" => "0x666666", "loader" => "0x9FFFB8");
+
+	add_filter('audio_player_default_colors', returner(array_merge($default_colors, $colors)));
+}
