@@ -116,3 +116,13 @@ function _vip_crossdomain_redirect() {
                 exit;
         }
 }
+
+/*
+ * Send moderation emails to multiple addresses
+ * @author mtdewvirus
+ */
+
+function vip_multiple_moderators($emails) {
+        $email_headers = "From: donotreply@wordpress.com" . "\n" . "CC: " . implode(', ', $emails);
+        add_filter('comment_moderation_headers', returner($email_headers));
+}
