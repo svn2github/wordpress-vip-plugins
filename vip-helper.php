@@ -32,6 +32,7 @@ function vip_redirects( $vip_redirects_array = array() ) {
  * PHP func file_get_contents() w/ WP_CACHE integration
  * @author based on code by CNN
  */
+
 function vip_wp_file_get_content( $url, $echo_content = true ) {
         $key = md5( $url );
         if ( $out = wp_cache_get( $key , 'vip') ) {
@@ -56,6 +57,7 @@ function vip_wp_file_get_content( $url, $echo_content = true ) {
  * Disable tag suggest on post screen
  * @author mdawaffe
  */
+
 function vip_disable_tag_suggest() {
         add_action( 'admin_init', '_vip_disable_tag_suggest' );
 }
@@ -82,6 +84,7 @@ function _disable_autosave() {
  * ex. vip_main_feed_redirect( 'http://feeds.feedburner.com/ourfeeds/thefeed' );
  * @author lloydbudd
  */
+
 function vip_main_feed_redirect( $target ) {
         define('FEEDURL', '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i');
         $request = $_SERVER['REQUEST_URI'];
@@ -92,5 +95,24 @@ function vip_main_feed_redirect( $target ) {
                         wp_redirect( $target, '302' );
                         die;
                 }
+        }
+}
+
+/*
+ * For flash hosted elsewhere to work it looks for crossdomain.xml in 
+ * the host's * web root. If requested, this function echos 
+ * the crossdomain.xml file in the theme's root directory
+ * @author lloydbudd
+ */
+
+function vip_crossdomain_redirect() {
+        add_action( 'init', '_vip_crossdomain_redirect');
+}
+function _vip_crossdomain_redirect() {
+        $request = $_SERVER['REQUEST_URI'];
+        if ( '/crossdomain.xml' == $request ) {
+                header( 'Content-Type: text/xml' );
+                echo file_get_contents( get_stylesheet_directory() . $request );
+                exit;
         }
 }
