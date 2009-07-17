@@ -76,3 +76,21 @@ function disable_autosave() {
 function _disable_autosave() {
         wp_deregister_script( 'autosave' );
 }
+
+/*
+ * Redirect http://blog.wordpress.com/feed/ to $target URL
+ * ex. vip_main_feed_redirect( 'http://feeds.feedburner.com/ourfeeds/thefeed' );
+ * @author lloydbudd
+ */
+function vip_main_feed_redirect( $target ) {
+        define('FEEDURL', '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i');
+        $request = $_SERVER['REQUEST_URI'];
+        $agent = $_SERVER['HTTP_USER_AGENT'];
+
+        if ( preg_match( FEEDURL, $request ) || '/feed' == $request ) {
+                if ( !preg_match( '#feedburner|feedvalidator|MediafedMetrics#i', $agent ) ) {
+                        wp_redirect( $target, '302' );
+                        die;
+                }
+        }
+}
