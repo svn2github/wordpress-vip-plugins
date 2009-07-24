@@ -35,6 +35,40 @@ if ( true == get_option( $twit_plugin_prefix . 'user_override' ) ) {
 }
 
 
+/*
+ * make sure so far unencrypted passwords get encrypted
+ */
+add_action( 'init', 'twit_encrypt_passwords' );
+function twit_encrypt_passwords() {
+	global $wpdb, $twit_plugin_prefix;
+	if ( empty( $wpdb->blogid ) )
+		return;
+	
+	$encryption_status = get_option( $twit_plugin_prefix . 'encryption_status' );
+	if ( 'complete' == $encryption_status )
+		return;
+	else if ( 'intermediate' != $encryption_status ) {
+		update_option( $twit_plugin_prefix . 'encryption_status', 'intermediate' );
+		
+		$user_options = get_option($twit_plugin_prefix . 'user_options');
+		if( is_array( $user_options) && !empty( $user_options) ) {
+			foreach( $user_options as $key => $values ) {
+				if( isset( $values['twitter_password'] ) && !empty( $values['twitter_password'] ) ) 
+					$user_options[$key]['twitter_password'] = wp_encrypt($user_options[$key]['twitter_password']);
+			}
+			update_option( $twit_plugin_prefix . 'user_options', $user_options);
+		}
+		
+		$twitpw = get_option( $twit_plugin_prefix . 'password', 0 );
+		if( !empty( $twitpw ) )
+			update_option( $twit_plugin_prefix . 'password', wp_encrypt( $twitpw ) );
+		
+		xmpp_message( 'tottdev@im.wordpress.com', 'encrypted passwords for blog_id ' . $wpdb->blogid );	
+		update_option( $twit_plugin_prefix . 'encryption_status', 'complete' );
+	}
+}
+
+
 function twit_show_user_profile( $user ) {
 	global $wpdb, $twit_plugin_prefix;
 	if ( empty( $wpdb->blogid ) )
@@ -45,7 +79,7 @@ function twit_show_user_profile( $user ) {
 	if ( isset( $user_options[ $user->ID ] ) ) {
 		$twit_options = $user_options[ $user->ID ];
 		$twitter_username = $twit_options[ 'twitter_username' ];
-		$twitter_password = $twit_options[ 'twitter_password' ];
+		$twitter_password = wp_decrypt( $twit_options[ 'twitter_password' ] );
 		$twitter_message = $twit_options[ 'twitter_message' ];
 	} else {
 		$twitter_username = $twitter_password = $twitter_message = '';
@@ -117,9 +151,9 @@ function twit_personal_options_update( $user_id ) {
 	$user_options = get_option($twit_plugin_prefix . 'user_options');
 	
 	$user_options[ $user_id ] = array(
-									  'twitter_username' => esc_sql( $_POST[ 'twitter_username' ] ),
-									  'twitter_password' => esc_sql( $_POST[ 'twitter_password' ] ),
-									  'twitter_message' => esc_sql( $_POST[ 'twitter_message' ] ),
+									  'twitter_username' => $_POST[ 'twitter_username' ],
+									  'twitter_password' => wp_encrypt( $_POST[ 'twitter_password' ] ),
+									  'twitter_message' => $_POST[ 'twitter_message' ],
 									  );
    
 	update_option( $twit_plugin_prefix . 'user_options', $user_options );
@@ -172,7 +206,6 @@ function twit_update_status( $username, $password, $new_status ) {
 
 function twit_verify_credentials( $username, $password, &$cred ) {
    $output = '';
-   
    $result = twit_hit_server( 'http://twitter.com/account/verify_credentials.xml', $username, $password, $output );	 
    if ( $result ) {
 		$cred = wordtwit_parsexml( $output );
@@ -185,6 +218,21 @@ function twit_get_tiny_url( $link ) {
    $result = twit_hit_server( 'http://tinyurl.com/api-create.php?url=' . $link, '', '', $output );
    
    return $output;
+}
+
+function twit_get_bitly_url( $link ) {
+	global $twit_plugin_prefix;
+	$bitly_user_name = get_option( $twit_plugin_prefix . 'bitly_user_name' );
+	$bitly_api_key = get_option( $twit_plugin_prefix . 'bitly_api_key' );
+	$output = false;
+	$result = twit_hit_server( 'http://api.bit.ly/shorten?version=2.0.1&longUrl=' . urlencode( $link ) . '&format=xml&login=' . $bitly_user_name . '&apiKey=' . $bitly_api_key, '', '', $output );
+	preg_match( '#<shortUrl>(.*)</shortUrl>#iUs', $output, $url );
+	
+	if ( isset( $url[1] ) ) {
+		return $url[1];	
+	} else {
+		return false;
+	}
 }
 
 function post_now_published( $post_id ) {
@@ -211,7 +259,7 @@ function post_now_published( $post_id ) {
 			if ( $user_override && isset( $user_options[ $post->post_author ] ) ) {
 				$twit_options = $user_options[ $post->post_author ];
 				$twit_username = $twit_options[ 'twitter_username' ];
-				$twit_password = $twit_options[ 'twitter_password' ];
+				$twit_password = wp_decrypt( $twit_options[ 'twitter_password' ] ) ;
 				$message = $twit_options[ 'twitter_message' ];
 				
 				if ( empty( $message ) ) {
@@ -225,14 +273,21 @@ function post_now_published( $post_id ) {
 				 || false == $user_override ) {
 					$message = get_option( $twit_plugin_prefix . 'message' );
 					$twit_username = get_option( $twit_plugin_prefix . 'username', 0 );
-					$twit_password = get_option( $twit_plugin_prefix . 'password', 0 );
+					$twit_password = wp_decrypt ( get_option( $twit_plugin_prefix . 'password', 0 ) );
 			}
 
 			if ( empty( $twit_username ) || empty( $twit_password ) )
 				return;
 			
 			$message = str_replace( '[title]', get_the_title(), $message );
-			$message = str_replace( '[link]', twit_get_tiny_url( get_permalink() ), $message );
+			
+			
+			$wordtwit_url_type = get_option( $twit_plugin_prefix . 'wordtwit_url_type' );
+		
+			if( 'tinyurl' == $wordtwit_url_type )
+				$message = str_replace( '[link]', twit_get_tiny_url( get_permalink() ), $message );
+			elseif( 'bitly' == $wordtwit_url_type )
+				$message = str_replace( '[link]', twit_get_bitly_url( get_permalink() ), $message );
 			twit_update_status( $twit_username, $twit_password, $message );
 	
 			add_post_meta( $post_id, 'has_been_twittered', 'yes' );
@@ -260,9 +315,9 @@ function bnc_stripslashes_deep( $value ) {
 function wordtwit_options_subpanel() {
 	if (get_magic_quotes_gpc()) {
 		$_POST = array_map( 'bnc_stripslashes_deep', $_POST );
-		 $_GET = array_map( 'bnc_stripslashes_deep', $_GET );
-		 $_COOKIE = array_map( 'bnc_stripslashes_deep', $_COOKIE );
-		 $_REQUEST = array_map( 'bnc_stripslashes_deep', $_REQUEST );
+		$_GET = array_map( 'bnc_stripslashes_deep', $_GET );
+		$_COOKIE = array_map( 'bnc_stripslashes_deep', $_COOKIE );
+		$_REQUEST = array_map( 'bnc_stripslashes_deep', $_REQUEST );
 	}
 
 	global $twit_plugin_name;
@@ -276,7 +331,7 @@ function wordtwit_options_subpanel() {
 		}
 
 		if (isset($_POST['password'])) {
-			$password = $_POST['password'];
+			$password = wp_encrypt( $_POST['password'] );
 		} else {
 			$password = '';
 		}
@@ -299,6 +354,20 @@ function wordtwit_options_subpanel() {
 			$user_preference = false;
 		}
 		
+		if (isset($_POST['wordtwit_url_type'])) {
+			$wordtwit_url_type = ( $_POST['wordtwit_url_type'] == "bitly" ) ? 'bitly' : 'tinyurl';
+			
+		} else {
+			$wordtwit_url_type = 'tinyurl';
+		}
+		
+		if ( 'bitly' === $wordtwit_url_type ) {
+			if( isset( $_POST['bitly_user_name'] ) && isset( $_POST['bitly_api_key'] ) ) {
+				$bitly_user_name = $_POST['bitly_user_name'];
+				$bitly_api_key = $_POST['bitly_api_key'];
+			}	
+		}
+		
 		if (isset($_POST['max_age'])) {
 			$max_age = (int) $_POST['max_age'];
 		} else {
@@ -311,17 +380,24 @@ function wordtwit_options_subpanel() {
 		update_option( $twit_plugin_prefix . 'user_override', $user_override );
 		update_option( $twit_plugin_prefix . 'user_preference', $user_preference );
 		update_option( $twit_plugin_prefix . 'max_age', $max_age );
+		update_option( $twit_plugin_prefix . 'wordtwit_url_type', $wordtwit_url_type );
+		update_option( $twit_plugin_prefix . 'bitly_user_name', $bitly_user_name );
+		update_option( $twit_plugin_prefix . 'bitly_api_key', $bitly_api_key );
 	} 
 
 	$username = get_option($twit_plugin_prefix . 'username');
-	$password = get_option($twit_plugin_prefix . 'password');
+	$password = wp_decrypt ( get_option($twit_plugin_prefix . 'password' ) );
 	$message = get_option($twit_plugin_prefix . 'message');	
 	$user_override = get_option( $twit_plugin_prefix . 'user_override' );
 	$user_preference = get_option( $twit_plugin_prefix . 'user_preference' );
 	$max_age = get_option( $twit_plugin_prefix . 'max_age' );
-
+	$wordtwit_url_type = get_option( $twit_plugin_prefix . 'wordtwit_url_type' );
+	$bitly_user_name = get_option( $twit_plugin_prefix . 'bitly_user_name' );
+	$bitly_api_key = get_option( $twit_plugin_prefix . 'bitly_api_key' );
+	
+	
 	if (strlen($message) == 0) {
-		$message = "New Blog Entry, \"[title]\" - [link]"; 
+		$message = 'New Blog Entry, "[title]" - [link]'; 
 		update_option($twit_plugin_prefix . 'message', $message);
 	}
 
