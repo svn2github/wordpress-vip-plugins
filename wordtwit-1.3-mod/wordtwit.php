@@ -284,7 +284,7 @@ function post_now_published( $post_id ) {
 			
 			$wordtwit_url_type = get_option( $twit_plugin_prefix . 'wordtwit_url_type' );
 		
-			if( 'tinyurl' == $wordtwit_url_type )
+			if( 'tinyurl' == $wordtwit_url_type || empty( $wordtwit_url_type ) )
 				$message = str_replace( '[link]', twit_get_tiny_url( get_permalink() ), $message );
 			elseif( 'bitly' == $wordtwit_url_type )
 				$message = str_replace( '[link]', twit_get_bitly_url( get_permalink() ), $message );
