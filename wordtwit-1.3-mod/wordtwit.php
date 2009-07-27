@@ -231,6 +231,7 @@ function twit_get_bitly_url( $link ) {
 	if ( isset( $url[1] ) ) {
 		return $url[1];	
 	} else {
+		xmpp_message( "tottdev@im.wordpress.com", "bit.ly trouble! shortening $link via " . 'http://api.bit.ly/shorten?version=2.0.1&longUrl=' . urlencode( $link ) . '&format=xml&login=' . $bitly_user_name . '&apiKey=' . $bitly_api_key . " resulted in :" . $output );
 		return false;
 	}
 }
