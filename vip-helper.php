@@ -126,3 +126,33 @@ function vip_multiple_moderators($emails) {
         $email_headers = "From: donotreply@wordpress.com" . "\n" . "CC: " . implode(', ', $emails);
         add_filter('comment_moderation_headers', returner($email_headers));
 }
+
+/*
+ * Add a mtime query string to a filename URL
+ * Do not use for style.css - mtime query string is automatically added on WordPress.com
+ * @author mtdewvirus
+ */
+
+function wpcom_vip_cache_buster( $url, $mtime = null ) {
+	if ( strpos($url, '?m=') )
+		return $url;
+
+	if ( is_null($mtime) ) {
+	        $parts = parse_url( $url );
+
+	        if ( !isset($parts['path']) || empty($parts['path']) ) {
+			$mtime = false;
+		} else {
+			$file = ABSPATH . ltrim( $parts['path'], '/' );
+
+			if ( !$mtime = @filemtime( $file ) )
+	        	        $mtime = false;
+		}
+	}
+
+	if ( !$mtime )
+		return $url;
+
+	list($url, $q) = explode( '?', $url, 2); //Get rid of any query string
+	return "$url?m=$mtime";
+}
