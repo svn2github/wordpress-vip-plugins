@@ -106,3 +106,35 @@ function wpcom_vip_audio_player_colors( $colors ) {
 
 	add_filter('audio_player_default_colors', returner(array_merge($default_colors, $colors)));
 }
+
+/*
+ * Outputs the title of the most popular blog post
+ * @author mtdewvirus
+ */
+
+function wpcom_vip_top_post_title( $days = 2 ) {
+		global $wpdb;
+	$title = wp_cache_get("wpcom_vip_top_post_title_$days", 'output');
+	if ( empty($title) ) {
+		if ( $days < 2 || !is_int($days) ) $days = 2; // minimum is 2 because of how stats rollover for a new day
+
+		$topposts = array_shift(stats_get_daily_history(false, $wpdb->blogid, 'postviews', 'post_id', false, $days, '', 11, true));
+		if ( $topposts ) {
+			get_posts(array('include' => join(', ', array_keys($topposts))));
+			$posts = 0;
+			foreach ( $topposts as $id => $views ) {
+				$post = get_post($id);
+				if ( empty( $post ) )
+					$post = get_page($id);
+				if ( empty( $post ) )
+					continue;
+				$title .= $post->post_title;
+				break;
+			}
+		} else {
+			$title .= '';
+		}
+		wp_cache_add("wpcom_vip_top_post_title_$days", $title, 'output', 1200);
+	}
+	echo $title;
+}
