@@ -128,8 +128,17 @@ function vip_multiple_moderators($emails) {
 }
 
 /*
- * Add a mtime query string to a filename URL
- * Do not use for style.css - mtime query string is automatically added on WordPress.com
+ * Add a mtime query string to a filename URL.
+ *
+ * CSS, JS and images hosted in WordPress.com themes are served from our CDNs.
+ * For theme files loaded from s?.wordpress.com checking in a new copy of the file will not (currently) result in the CDN cache being flushed.
+ * For style.css we automatically work around this by appending a mtime query string, ?m=[date] in the source.
+ * This function can be used so the filename or query string do not have to be manually updated each time a file is modified.
+ *
+ * Examples:
+ * <?php echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/print.css' ); ?>
+ * <?php echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/images/rss-icon.jpg' ); ?>
+ * 
  * @author mtdewvirus
  */
 
