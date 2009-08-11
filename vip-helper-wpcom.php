@@ -138,3 +138,14 @@ function wpcom_vip_top_post_title( $days = 2 ) {
 	}
 	echo $title;
 }
+
+/*
+ * Keeps category and tag links local to the blog instead of linking to http://en.wordpress.com/tags/
+ */
+if ( !function_exists('make_tags_local') ) {
+function make_tags_local() {
+	remove_filter( 'the_category', 'globalize_tags' );
+	remove_filter( 'the_tags', 'globalize_taxonomy' );
+	remove_filter( 'term_links-post_tag', 'globalize_taxonomy' );
+}
+}
