@@ -1,9 +1,9 @@
 === IntenseDebate Comments ===
-Contributors: IntenseDebate
-Tags: widget, profile, community, avatars, spam, notification, email, threaded, comments, intense debate, intensedebate, intense, debate, comment system, moderation
+Contributors: IntenseDebate, beaulebens
+Tags: widget, profile, community, avatars, spam, notification, email, threaded, comments, intense debate, intensedebate, intense, debate, comment system, moderation, wpmu
 Requires at least: 2.5
-Tested up to: 2.8
-Stable tag: trunk
+Tested up to: 2.8.4
+Stable tag: 2.4.1
 
 IntenseDebate comments enhance and encourage conversation on your blog.  Build your reader community, increase your comments, & boost pageviews.
 
@@ -11,7 +11,7 @@ IntenseDebate comments enhance and encourage conversation on your blog.  Build y
 
 IntenseDebate Comments enhance and encourage conversation on your blog or website. Custom integration with your WordPress admin panel makes moderation a piece of cake. Comment threading, reply-by-email, user accounts and reputations, comment voting, along with Twitter and friendfeed integrations enrich your readers' experience and make more of the internet aware of your blog and comments which drives traffic to you!
 
-Full comment and account data sync between Intense Debate and WordPress ensures that you will always have your comments.
+Full comment and account data sync between Intense Debate and WordPress ensures that you will always have your comments stored locally on your own server.
 
 == Installation ==
 
@@ -56,7 +56,37 @@ Your comments may take several hours to import. The time of your import is depen
 
 == Changelog ==
 
-= v2.2 =
+= 2.4.2 =
+* Stopped using the onload JS event to load ID because some people had other plugins/widgets that were clobbering it
+* Fixed invalid path on Loading image
+* Changed Facebook xd_receiver path to be root-relative
+* Fixed 2 NOTICE errors, props Anilo.
+
+= 2.4.1 =
+* Lots of optimizations on when/where to load ID resources (CSS/JS) to improve page load times
+* Switched to inline JS/CSS in the admin to prevent loading the WP engine again
+* Now loading ID comment UI via the script object method, rather than direct <script> inclusion
+* Removed some unnecessary options and just used smart defaults
+* Changed so that there is no backup comments template -- your theme MUST have something available, even if it's very simple
+* Made the option to reset the plugin available before import was completed
+* Added the ability to reset your import any time during the installation process if you're having problems
+* Standardized on no-www for URLs
+* Reversed the order of comment imports (starts oldest first now)
+* Added Ping/Pong for network diagnostics
+* Cleaned up translatable strings and now shipping with a POT file for translations
+* Improved comment count links within wp-admin
+* Updated some screenshots
+* Now using a stable tag, rather than trunk, in the wp.org plugins directory
+* Made syncing more flexible when handling different timezones
+* Now packaging Facebook xd_receiver ready for future functionality
+
+= 2.3 =
+* Fixed bug where a blank blog title would prevent authentication with ID
+* Switched to using PHP native json_* functions where available to increase performance
+* Limited size of outgoing requests to speed up comms and avoid maxing out request/response sizes
+* Added tag to error_log info for easier debugging
+
+= 2.2 =
 * Fixed bug where versions of WP < 2.7 would turn off comment threading when saving Discussion Settings
 * Improved performance of queue system (reduced DB hits)
 * Improved overall compatibility with WPMU (props to Israel S. for contributed code!)
@@ -68,10 +98,10 @@ Your comments may take several hours to import. The time of your import is depen
 * Improved syncing of comment moderations
 * Improved translatability
 
-= v2.1.1 =
+= 2.1.1 =
 * Fixed bug with initial import process introduced in 2.1
 
-= v2.1 =
+= 2.1 =
 * Introduced moderation/discussion settings sync
 * Improved integration of moderation panel
 * Optimized moderation panel to load faster
