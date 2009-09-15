@@ -17,7 +17,7 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
  * Disable the WordPress.com filter that prevents orphans in titles
  * http://en.blog.wordpress.com/2006/12/24/no-orphans-in-titles/
  *
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function vip_allow_title_orphans() {
@@ -31,7 +31,7 @@ function vip_allow_title_orphans() {
  * 2. Add  vip_related_posts() to functions.php 
  * 3. Add vip_display_related_posts() in the loop where you want them displayed
  *
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function vip_related_posts($before = '', $after = '') {
@@ -85,7 +85,7 @@ function _vip_admin_gallery_css_extras() {
 
 /*
  * Do not display the images in enhanced feeds
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function vip_remove_enhanced_feed_images() {
@@ -98,7 +98,7 @@ function vip_remove_enhanced_feed_images() {
 
 /*
  * Override default colors of audio player. Colors specified in the shortcode still can override
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function wpcom_vip_audio_player_colors( $colors ) {
@@ -109,7 +109,7 @@ function wpcom_vip_audio_player_colors( $colors ) {
 
 /*
  * Outputs the title of the most popular blog post
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function wpcom_vip_top_post_title( $days = 2 ) {

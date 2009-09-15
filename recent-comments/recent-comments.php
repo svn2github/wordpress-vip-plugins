@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Recent Comments
-Plugin URI: http://mtdewvirus.com/code/wordpress-plugins/
+Plugin URI: http://nickmomrik.com/code/
 Description: Retrieves a list of the most recent comments.
 Version: 1.2
 Author: Nick Momrik
-Author URI: http://mtdewvirus.com/
+Author URI: http://nickmomrik.com/
 */
 
 function most_recent_comments($no_comments = 5, $comment_lenth = 5, $before = '<li>', $after = '</li>', $show_pass_post = false, $comment_style = 0, $hide_pingbacks_trackbacks = false) {

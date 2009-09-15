@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Most Commented
-Plugin URI: http://mtdewvirus.com/code/wordpress-plugins/
+Plugin URI: http://nickmomrik.com/code/
 Description: Retrieves a list of the posts with the most comments. Modified for Last X days -- by DJ Chuang www.djchuang.com 
 Version: 1.6
 Author: Nick Momrik
-Author URI: http://mtdewvirus.com/
+Author URI: http://nickmomrik.com/
 */
 
 function mdv_most_commented( $no_posts = 5, $before = '<li>', $after = '</li>', $show_pass_post = false, $duration = '', $echo = true ) {

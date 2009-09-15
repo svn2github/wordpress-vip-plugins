@@ -14,7 +14,7 @@ include(ABSPATH . 'wp-content/themes/vip/plugins/vip-helper.php');
  * array elements should be in the form of:
  * '/old' => 'http://wordpress.com/new/'
  *
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function vip_redirects( $vip_redirects_array = array() ) {
@@ -119,7 +119,7 @@ function _vip_crossdomain_redirect() {
 
 /*
  * Send moderation emails to multiple addresses
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function vip_multiple_moderators($emails) {
@@ -139,7 +139,7 @@ function vip_multiple_moderators($emails) {
  * <?php echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/print.css' ); ?>
  * <?php echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/images/rss-icon.jpg' ); ?>
  * 
- * @author mtdewvirus
+ * @author nickmomrik
  */
 
 function wpcom_vip_cache_buster( $url, $mtime = null ) {
