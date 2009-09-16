@@ -17,6 +17,8 @@ if ( ABSPATH ) {
    require_once( '../../../wp-config.php' );
    require_once( '../../../wp-includes/class-snoopy.php' );
 }
+
+
 require_once( 'xml.php' );
 
 $twit_plugin_name = 'WordTwit';
@@ -245,6 +247,7 @@ function post_now_published( $post_id ) {
 
 		if (have_posts()) {
 			the_post();
+			global $post;
 			$max_age = get_option( $twit_plugin_prefix . 'max_age', 0 );
 			if ( $max_age > 0 && ( (current_time('timestamp', 1) - get_post_time('U', true) ) / 3600 ) > $max_age ) {
 				xmpp_message( 'tottdev@im.wordpress.com', 'old post twittered ' . current_time('timestamp') .' '. get_the_time('U'). ' ' . print_r( $post, true ) . print_r( $_SERVER, true ) );
@@ -280,7 +283,7 @@ function post_now_published( $post_id ) {
 			if ( empty( $twit_username ) || empty( $twit_password ) )
 				return;
 			
-			$message = str_replace( '[title]', get_the_title(), $message );
+			$message = str_replace( '[title]', $post->post_title, $message );
 			
 			
 			$wordtwit_url_type = get_option( $twit_plugin_prefix . 'wordtwit_url_type' );
@@ -298,11 +301,11 @@ function post_now_published( $post_id ) {
 
 function wordtwit_admin_css() {
 	$url = get_bloginfo('wpurl');
-	echo '<link rel="stylesheet" type="text/css" href="' . get_bloginfo('wpurl') . '/wp-content/themes/vip/plugins/wordtwit/css/admin.css" />';
+	echo '<link rel="stylesheet" type="text/css" href="' . get_bloginfo('wpurl') . '/wp-content/themes/vip/plugins/wordtwit-1.3-mod/css/admin.css" />';
 }
 
 function wordtwit_plugin_url( $str = '' ) {
-	$dir_name = '/wp-content/themes/vip/plugins/wordtwit';
+	$dir_name = '/wp-content/themes/vip/plugins/wordtwit-1.3-mod';
 	echo($dir_name . $str);
 }
 

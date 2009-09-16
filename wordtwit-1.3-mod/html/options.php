@@ -31,14 +31,7 @@ function showshortenersettings() {
          <div class="section-info">
             <div id="news-area">
                &nbsp;
-            </div>
-            <script type="text/javascript">
-            	jQuery.ajax({
-            		url: "<?php bloginfo('wpurl'); ?>/wp-content/themes/vip/plugins/wordtwit/load-news.php",
-            		success: function(data) {
-            			jQuery("#news-area").html(data).fadeIn();
-            		}});
-            </script>            
+            </div>       
          </div>
          
          <div class="section-info">
