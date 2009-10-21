@@ -256,18 +256,20 @@ function amt_get_the_excerpt($excerpt_max_len = 300, $desc_avg_length = 250, $de
 
 	if ( empty($posts[0]->post_excerpt) ) {
 
+		$post_content = strip_tags( strip_shortcodes( $posts[0]->post_content ) );
+
 		/*
 		Get the initial data for the excerpt
 		*/
-		$amt_excerpt = strip_tags(substr($posts[0]->post_content, 0, $excerpt_max_len));
+		$amt_excerpt = substr( $post_content, 0, $excerpt_max_len );
 
 		/*
 		If this was not enough, try to get some more clean data for the description (nasty hack)
 		*/
 		if ( strlen($amt_excerpt) < $desc_avg_length ) {
-			$amt_excerpt = strip_tags(substr($posts[0]->post_content, 0, (int) ($excerpt_max_len * 1.5)));
+			$amt_excerpt = substr( $post_content, 0, (int) ($excerpt_max_len * 1.5) );
 			if ( strlen($amt_excerpt) < $desc_avg_length ) {
-				$amt_excerpt = strip_tags(substr($posts[0]->post_content, 0, (int) ($excerpt_max_len * 2)));
+				$amt_excerpt = substr( $post_content, 0, (int) ($excerpt_max_len * 2) );
 			}
 		}
 
