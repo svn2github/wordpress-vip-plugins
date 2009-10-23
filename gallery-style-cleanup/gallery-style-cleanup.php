@@ -3,7 +3,7 @@
 **************************************************************************
 
 Plugin Name:  Gallery Style Cleanup
-Description:  This plugin replaces the default gallery feature with a valid XHTML solution.
+Description:  This plugin replaces the default [gallery] shortcode with a valid XHTML version. The only drawback is that the gallery CSS always gets outputted, even if there isn't a gallery in the page.
 Author:       Alex M. of Automattic
 Author URI:   http://automattic.com/
 
@@ -22,7 +22,7 @@ class Gallery_Style_Cleanup {
 	function __construct() {
 
 		// Replace the [gallery] shortcode output
-		add_filter( 'post_gallery', array(&$this, 'gallery_shortcode') );
+		add_filter( 'post_gallery', array(&$this, 'gallery_shortcode'), 10, 2 );
 
 		// CSS is moved to the head (always outputted as there's no reliable way to look forward at $posts)
 		add_action( 'wp_head', array(&$this, 'gallery_style') );
