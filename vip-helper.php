@@ -33,7 +33,7 @@ function vip_redirects( $vip_redirects_array = array() ) {
  * @author based on code by CNN
  */
 
-function vip_wp_file_get_content( $url, $echo_content = true ) {
+function vip_wp_file_get_content( $url, $echo_content = true, $timeout=3 ) {
         $key = md5( $url );
         if ( $out = wp_cache_get( $key , 'vip') ) {
                 if ( $echo_content ) {
@@ -43,7 +43,17 @@ function vip_wp_file_get_content( $url, $echo_content = true ) {
                         return $out;
         }
 
-        $page = @file_get_contents( $url );
+		// Don't accept timeouts of 0 (no timeout), or over 3 seconds
+		$new_timeout = min( 3, max( 1, (int)$timeout ) );
+		// Record the previous default timeout value
+		$old_timeout = ini_get( 'default_socket_timeout' );
+		// Set the timeout value to avoid holding up php
+		ini_set( 'default_socket_timeout', $new_timeout );
+		// Make our request
+		$page = @file_get_contents( $url );
+		// Reset the default timeout to its old value
+		ini_set( 'default_socket_timeout', $old_timeout );
+
         wp_cache_set( $key, $page, 'vip', 600 );
 
         if ( $echo_content ) {
