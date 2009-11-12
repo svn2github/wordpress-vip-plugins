@@ -31,6 +31,9 @@ function vip_allow_title_orphans() {
  * 2. Call vip_related_posts() in functions.php
  * 3. Call vip_display_related_posts() in the loop where you want them displayed
  *
+ * $before and $after can be used to control the HTML that wraps around the entire related posts list
+ * ex. vip_related_posts( '<div class="related-posts">', '</div>' );
+ *
  * @author nickmomrik
  */
 
