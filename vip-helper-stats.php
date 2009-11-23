@@ -31,7 +31,7 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
 function vip_get_stats_array( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 5, $summarize = NULL ) {
 	global $wpdb;
 	$cache_id = md5( 'array' . $wpdb->blogid . $table . $end_date . $num_days . $end . $limit . $summarize );
-	//$arr = wp_cache_get( $cache_id, 'vip_stats' );
+	$arr = wp_cache_get( $cache_id, 'vip_stats' );
 	if ( !$arr ) {
 		$stat_result = _vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
 		$arr = vip_stats_csv_print( $stat_result, $table, $limit, $summarize, true );
@@ -154,7 +154,12 @@ function vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $return_
 		$_rows = array_slice( $_rows, 0, $limit + 1 );
 
 	if ( true === $return_array ) {
-		return $_rows;
+		$mapping = array_shift( $_rows );
+		$out = array();
+		foreach( $_rows as $key => $values ) {
+			$out[] = array( 'date' => $values[0], 'post_id' => $values[1][0], 'post_title' => $values[1][1], 'post_permalink' => $values[1][2], 'views' => $values[2] );
+		}
+		return $out;
 	}
 	
 	foreach ( $_rows as $row ) {
