@@ -94,7 +94,6 @@ function vip_get_stats_xml( $table = 'views', $end_date = false, $num_days = 1, 
  */
  
 function vip_csv_expand_post( $post ) {
-error_log( print_r($post,true));
 	return array( $post->ID, $post->post_title, $post->post_permalink ? $post->post_permalink : global_permalink( $GLOBALS['blog_id'], $post->ID ) );
 }
 
