@@ -2321,7 +2321,7 @@ Author URI: http://intensedebate.com
 	}
 	
 	function id_reset_plugin_form() {
-		if ( get_option( 'id_signup_step' ) > 0 ) :
+		if ( get_option( 'id_signup_step' ) > 0 && is_site_admin() ) :
 		?>
 		<form id="id_plugin_reset" action="options-general.php?page=id_settings" method="POST">
 			<input type="hidden" name="id_settings_action" value="settings_reset" />
@@ -2372,11 +2372,11 @@ Author URI: http://intensedebate.com
 		id_clear_blog_settings();
 		
 		global $wpdb;
-		$users = $wpdb->get_results( "SELECT * FROM $wpdb->users" );
+		$users = get_users_of_blog();
 		$meta = array( 'id_username', 'id_userID', 'id_userKey' );
 		foreach ( $users as $user ) {
 			foreach ( $meta as $key ) {
-				delete_usermeta( $user->ID, $key );
+				delete_usermeta( $user->user_id, $key );
 			}
 		}
 
