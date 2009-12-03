@@ -150,3 +150,21 @@ function make_tags_local() {
 	remove_filter( 'the_tags', 'globalize_taxonomy' );
 	remove_filter( 'term_links-post_tag', 'globalize_taxonomy' );
 }
+
+/*
+
+Our Top Posts widget ( http://en.support.wordpress.com/widgets/top-posts-widget/ ) uses a display_top_posts() function to display a list of popular posts.
+You can use this function in your themes. The function uses data from WordPress.com Stats ( http://en.support.wordpress.com/stats/ ) to generate the list.
+
+The default parameters from the function definition are:
+
+display_top_posts($number = 10, $days = 2, $before_list = '', $after_list = '', $before_item = '', $after_item = '', $show_comment_count = false)
+
+Notes:
+ - The function will echo the output.
+ - $days = how many days of stats should be used in the calculation.
+   Ex. If you wanted to show the most popular posts for the last week you would use 7.
+   The minimum # you can use is 2 because of the way days roll over is our stats.
+ - Output is cached for 20 minutes. Each $number value uses a different cache.
+
+*/
