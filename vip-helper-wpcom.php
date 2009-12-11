@@ -13,6 +13,10 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
  * have any unconditional dependencies on the WordPress.com environment.
  */
 
+// temp debug to find out where this is file is loading twice
+if ( function_exists( 'viphelperwpcom_debug' ) )
+	viphelperwpcom_debug();
+
 /*
  * Disable the WordPress.com filter that prevents orphans in titles
  * http://en.blog.wordpress.com/2006/12/24/no-orphans-in-titles/
