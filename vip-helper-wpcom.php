@@ -156,7 +156,7 @@ function make_tags_local() {
  * You can use this image URL directly -- it's cached and such by our servers
  * You should run this through htmlspecialchars() before using it in your theme to make it validate
  */
-function vip_get_resized_remote_image_url( $url, $width, $height ) {
+function wpcom_vip_get_resized_remote_image_url( $url, $width, $height ) {
 	$width = (int) $width;
 	$height = (int) $height;
 	return staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
