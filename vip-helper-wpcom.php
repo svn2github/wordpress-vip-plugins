@@ -152,6 +152,17 @@ function make_tags_local() {
 }
 
 /*
+ * Returns the raw URL to an image resized and cropped to the given dimensions
+ * You can use this image URL directly -- it's cached and such by our servers
+ * You should run this through htmlspecialchars() before using it in your theme to make it validate
+ */
+function vip_get_resized_remote_image_url( $url, $width, $height ) {
+	$width = (int) $width;
+	$height = (int) $height;
+	return staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
+}
+
+/*
 
 Our Top Posts widget ( http://en.support.wordpress.com/widgets/top-posts-widget/ ) uses a display_top_posts() function to display a list of popular posts.
 You can use this function in your themes. The function uses data from WordPress.com Stats ( http://en.support.wordpress.com/stats/ ) to generate the list.
