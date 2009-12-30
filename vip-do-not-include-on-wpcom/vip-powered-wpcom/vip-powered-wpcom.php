@@ -93,9 +93,9 @@ function vip_powered_wpcom_img_html( $image ) {
 
 		if ( array_key_exists( $image, $vip_powered_wpcom_images ) )
 			if ( function_exists( 'staticize_subdomain' ) )
-				return '<a href="' . vip_powered_wpcom_url() . '" rel="generator"><img src="' . staticize_subdomain( 'http://en.wordpress.com/wp-content/themes/vip/plugins/vip-do-not-use-on-wpcom/vip-powered-wpcom/images/' . $vip_powered_wpcom_images[$image][0] ) . '" width="' . $vip_powered_wpcom_images[$image][1] . '" height="' . $vip_powered_wpcom_images[$image][2] . '" /></a>';
+				return '<a href="' . vip_powered_wpcom_url() . '" rel="generator"><img src="' . staticize_subdomain( 'http://en.wordpress.com/wp-content/themes/vip/plugins/vip-do-not-include-on-wpcom/vip-powered-wpcom/images/' . $vip_powered_wpcom_images[$image][0] ) . '" width="' . $vip_powered_wpcom_images[$image][1] . '" height="' . $vip_powered_wpcom_images[$image][2] . '" /></a>';
 			else
-				return '<a href="' . vip_powered_wpcom_url() . '" rel="generator"><img src="' . get_bloginfo('url') . '/wp-content/themes/vip/plugins/vip-do-not-use-on-wpcom/vip-powered-wpcom/images/' . $vip_powered_wpcom_images[$image][0] . '" width="' . $vip_powered_wpcom_images[$image][1] . '" height="' . $vip_powered_wpcom_images[$image][2] . '" /></a>';
+				return '<a href="' . vip_powered_wpcom_url() . '" rel="generator"><img src="' . get_bloginfo('url') . '/wp-content/themes/vip/plugins/vip-do-not-include-on-wpcom/vip-powered-wpcom/images/' . $vip_powered_wpcom_images[$image][0] . '" width="' . $vip_powered_wpcom_images[$image][1] . '" height="' . $vip_powered_wpcom_images[$image][2] . '" /></a>';
 		else
 			return '';
 }

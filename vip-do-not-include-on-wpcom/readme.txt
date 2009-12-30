@@ -1,4 +1,4 @@
-The files in this vip-do-not-use-on-wpcom folder are provided for VIP clients to use in your development environments.
+The files in this vip-do-not-include-on-wpcom folder are provided for VIP clients to use in your development environments.
 
 Please do not include the files or declare functions or classes in your themes on WordPress.com. We do this for you.
 
