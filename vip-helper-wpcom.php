@@ -179,3 +179,16 @@ Notes:
  - Output is cached for 20 minutes. Each $number value uses a different cache.
 
 */
+
+
+/*
+ * Prevent Youtube embeds in comments
+ * Feature: http://en.support.wordpress.com/videos/youtube/#comment-embeds
+ *
+ * @author nickmomrik
+ */
+
+function wpcom_vip_disable_youtube_comment_embeds() {
+	remove_filter( 'comment_text', 'youtube_link', 5 );
+	remove_filter( 'comment_text', 'youtube_markup' );
+}
