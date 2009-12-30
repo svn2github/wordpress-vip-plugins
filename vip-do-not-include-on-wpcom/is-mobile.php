@@ -2,6 +2,12 @@
 /*
  * is_mobile() checks the user agent to determine if the browser is a mobile device
  *
+ * An is_mobile() visitor will have the page directly generated. This is different from regular (not logged in)
+ * visitors, where the web page is served from cache (batcache) (php code is not rerun for each visitor).
+ *
+ * By default, is_mobile() visitors get a mobile theme: http://en.support.wordpress.com/themes/mobile-themes/
+ * VIP sites can use their own mobile theme by contacting VIP Support.
+ *
  * Many of the user agents came from http://www.russellbeattie.com/blog/mobile-browser-detection-in-php
  */
 
