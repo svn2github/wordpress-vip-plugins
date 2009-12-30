@@ -140,14 +140,15 @@ function vip_multiple_moderators($emails) {
 /*
  * Add an mtime query string to a filename URL.
  *
- * CSS, JS and images hosted in WordPress.com themes are served from our CDNs.
+ * CSS, JS and images hosted in WordPress.com themes are served 
+ * through a content delivery network (CDN) for improved visitor experience.
  * For theme files loaded from s?.wordpress.com checking in 
- * an update/modification of f the file will not (currently) result 
+ * an update/modification of the file will not (currently) result 
  * in the CDN cache being flushed.
  * 
  * For style.css and other CSS stylesheet links in index.php header
  * WordPress sitewide automatically appends 
- * an mtime query string, ?m=[date] in the source. 
+ * an mtime query string, ?m=[date] in the source (wp_head hook).
  *
  * This function can be used so the filename or query string do not have to be manually updated each time a file is modified.
  *
