@@ -1,3 +1,7 @@
-The files in vip-do-not-use-on-wpcom are provided for VIP clients to use in your development environments.
+The files in this vip-do-not-use-on-wpcom folder are provided for VIP clients to use in your development environments.
 
-Please do not include any of this code in your themes for WordPress.com because we already run it for you.
+Please do not include the files or declare functions or classes in your themes on WordPress.com. We do this for you.
+
+You can use the functions in your themes but use the following example to be safe:
+if ( function_exists( 'function_name' ) )
+	function_name();
