@@ -155,6 +155,7 @@ function make_tags_local() {
  * Returns the raw URL to an image resized and cropped to the given dimensions
  * You can use this image URL directly -- it's cached and such by our servers
  * You should run this through htmlspecialchars() before using it in your theme to make it validate
+ * Please use this function rather than the URL directly as staticize_subdomain() makes it serve off our CDN network
  */
 function wpcom_vip_get_resized_remote_image_url( $url, $width, $height ) {
 	$width = (int) $width;
