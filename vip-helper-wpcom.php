@@ -152,15 +152,21 @@ function make_tags_local() {
 }
 
 /*
- * Returns the raw URL to an image resized and cropped to the given dimensions
+ * Returns the URL to an image resized and cropped to the given dimensions
  * You can use this image URL directly -- it's cached and such by our servers
- * You should run this through htmlspecialchars() before using it in your theme to make it validate
  * Please use this function rather than the URL directly as staticize_subdomain() makes it serve off our CDN network
+ *
+ * $url = the image to the URL (URLs that redirect are currently not supported with the exception of http://blogname.wordpress.com/files/ type URLs)
+ * $width = the desired width of the final image
+ * $height = the desired height of the final image
+ * $escape = if true, the URL will be escaped for direct HTML usage (& to &amp; for example). Set this to false if you need the raw URL.
  */
-function wpcom_vip_get_resized_remote_image_url( $url, $width, $height ) {
+function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape = true ) {
 	$width = (int) $width;
 	$height = (int) $height;
-	return staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
+	$url = staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
+
+	return ( $escape ) ? esc_html( $url ) : $url;
 }
 
 /*
