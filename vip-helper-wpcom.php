@@ -166,9 +166,7 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	$height = (int) $height;
 
 	// ImgPress doesn't currently support redirects, so help it out by doing http://foobar.wordpress.com/files/ to http://foobar.files.wordpress.com/
-	//$url = new_file_urls( $url );
-
-	$url = preg_replace( '#^(https|http)://([^.]+)\.wordpress\.com/files/#i', '$1://$2.files.wordpress.com/', $url ); 
+	$url = new_file_urls( $url );
 
 	// staticize_subdomain() converts the URL to a random one of our CDN's
 	$thumburl = staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
