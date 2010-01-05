@@ -168,7 +168,7 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	// ImgPress doesn't currently support redirects, so help it out by doing http://foobar.wordpress.com/files/ to http://foobar.files.wordpress.com/
 	$url = new_file_urls( $url );
 
-	// staticize_subdomain() converts the URL to a random one of our CDN's
+	// staticize_subdomain() converts the URL to a one of our CDN's (the main reason to use this function)
 	$thumburl = staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
 
 	return ( $escape ) ? esc_attr( $thumburl ) : $thumburl;
