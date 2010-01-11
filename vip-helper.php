@@ -283,3 +283,64 @@ function wpcom_vip_meta_desc() {
 		echo "\n<meta name=\"description\" content=\"$text\" />\n";
 	}
 }
+
+
+/**
+ * Get random posts optimized for speed on large tables.
+ * as MySQL queries that use ORDER BY RAND() can be pretty challenging and slow on large dataset
+ * this function gives and alternative method for getting random posts.
+ * @usage
+ * $random_posts = vip_get_random_posts( $amount=50 ); // gives 50 random published posts
+ * // sometimes you can also add your own where condition
+ * $random_posts = vip_get_random_posts( $amount=50, "AND post_status='publish' AND post_type='post' AND post_date_gmt > '2009-01-01 00:00:00' ); // would only consider posts after Jan 1st 2009
+ * // if you imported your blog or for some other reason you know that your interesting post ids start at a certain value you can be sure that only those are queried.
+ * $random_posts = vip_get_random_posts( $amount=50, NULL, NULL, 50000 ); // create only random numbers > 50000
+ * // by default you can also get a list of post_ids instead of their objects
+ * $random_posts = vip_get_random_posts( $amount=50, NULL, true ); // will return 50 random post ids for published posts.
+ * @author tottdev
+ */
+function vip_get_random_posts( $amount = 1, $where_add = "AND post_status='publish' AND post_type='post'", $return_ids = false, $min_id = 1 ) {
+	global $wpdb, $vip_get_random_posts_rnd_ids, $vip_get_random_posts_current_rnd_ids;
+	$random_posts = array();
+	
+	$max_id_query = "SELECT MAX(ID) AS max_id FROM $wpdb->posts";
+	$max_id_query = apply_filters( 'vip_get_random_posts_max_id_query', $max_id_query );
+	$max_id = $wpdb->get_var( $max_id_query );
+
+	if ( !$max_id ) 
+		return false;
+	
+	$seed = hexdec( substr( md5( microtime() ), -8 ) ) & 0x7fffffff;
+	mt_srand( $seed );
+		
+	do {
+		$random_id = mt_rand( $min_id, $max_id );
+		
+		if ( isset( $vip_get_random_posts_rnd_ids[$random_id] ) )
+			continue;
+			
+		$vip_get_random_posts_rnd_ids[$random_id] = 1;
+
+		if ( $return_ids ) {
+			$post_query = "SELECT ID FROM $wpdb->posts WHERE ID>$random_id $where_add LIMIT 1";
+			$post_query = apply_filters( 'vip_get_random_posts_post_query', $post_query );
+			$rnd_post = $wpdb->get_var( $post_query );
+			if ( $rnd_post && !isset( $vip_get_random_posts_current_rnd_ids[$rnd_post] ) ) {
+				$vip_get_random_posts_current_rnd_ids[$rnd_post] = 1;
+				$random_posts[$random_id] = $rnd_post;
+			}
+		} else {
+			$post_query = "SELECT * FROM $wpdb->posts WHERE ID>$random_id $where_add LIMIT 1";
+			$post_query = apply_filters( 'vip_get_random_posts_post_query', $post_query );
+			$rnd_post = $wpdb->get_row( $post_query, OBJECT );
+			if ( $rnd_post && !isset( $vip_get_random_posts_current_rnd_ids[$rnd_post->ID] ) ) {
+				$random_posts[$random_id] = $rnd_post;
+				$vip_get_random_posts_current_rnd_ids[$rnd_post->ID] = 1;
+			}
+		}
+		
+	} while( count( $random_posts ) < $amount );
+	
+	$random_posts = apply_filters( 'vip_get_random_posts_random_posts', $random_posts );
+	return $random_posts;
+}
