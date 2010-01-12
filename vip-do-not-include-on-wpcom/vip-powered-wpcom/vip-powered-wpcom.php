@@ -100,10 +100,10 @@ function vip_powered_wpcom_img_html( $image ) {
 			return '';
 }
 
-function vip_powered_wpcom( $display = 'text' ) {
+function vip_powered_wpcom( $display = 'text', $before_text = 'Powered by ' ) {
 	switch ($display) {
 		case 'text':
-			$output = 'Powered by <a href="' . vip_powered_wpcom_url() . '" rel="generator">WordPress.com VIP</a>';
+			$output = $before_text . '<a href="' . vip_powered_wpcom_url() . '" rel="generator">WordPress.com VIP</a>';
 			break;
 		case 1:
 		case 2:
