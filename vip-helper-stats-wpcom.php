@@ -272,7 +272,7 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 	if ( $table == 'postviews' && !empty($post_id) )
 		$and = "AND post_id = $post_id";
 
-	$args = array( $blog_id, $end, $days, $and, $limit );
+	$args = array( $blog_id, $end, $num_days, $and, $limit );
 
 	$result = array();
 
