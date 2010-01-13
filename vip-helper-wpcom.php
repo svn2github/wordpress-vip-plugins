@@ -204,3 +204,31 @@ function wpcom_vip_disable_youtube_comment_embeds() {
 	remove_filter( 'comment_text', 'youtube_link', 5 );
 	remove_filter( 'comment_text', 'youtube_markup' );
 }
+
+/*
+ * When using $content_width in a theme, Full size images are constrained to the width.
+ * Use wpcom_vip_allow_full_size_images_for_real() to use actual full size images.
+ *
+ * @author nickmomrik
+ */
+
+function wpcom_vip_allow_full_size_images_for_real() {
+	remove_filter( 'image_downsize', 'wpcom_resize', 10, 3 );
+	add_filter( 'image_downsize', '_wpcom_vip_allow_full_size_images_for_real', 10, 3 );
+}
+
+function _wpcom_vip_allow_full_size_images_for_real( $ignore, $id, $size ) {
+	if ( 'full' == $size ) {
+		$img_url = wp_get_attachment_url( $id );
+		$imagedata = wp_get_attachment_metadata( $id );
+
+		if ( $imagedata ) {
+			$h = $imagedata['height'];
+			$w = $imagedata['width'];
+		}
+
+		return array( $img_url, $w, $h, false );
+	} else {
+		return wpcom_resize( $ignore, $id, $size );
+	}
+}
