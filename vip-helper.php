@@ -344,3 +344,72 @@ function vip_get_random_posts( $amount = 1, $where_add = "AND post_status='publi
 	$random_posts = apply_filters( 'vip_get_random_posts_random_posts', $random_posts );
 	return $random_posts;
 }
+
+/** 
+ * An extended version of wp_remote_get() 
+ * This function prevents interruption of service due to slow 3rd party providers.
+ * Once the timeout is hit an error counter is increased up to a threshold value. Once this value
+ * is reached a fallback value or error object is returned until a retry time is reached.
+ * Then the remote call is executed again and based on the result the counter is decreased or the latest timeout value
+ * is increased which causes an other retry to happen after an other retry time period passed.
+ * If the call is successful the error counter is decreased and the result returned. If the error counter hits 0 the option is removed
+ * @usage
+ * // get a url with 1 second timeout, cancel remote calls for 20 seconds after 3 failed attempts in 20 seconds occured
+ * $response = vip_safe_wp_remote_get( $url );
+ * if ( is_wp_error( $response ) )
+ * 		echo 'no value available';
+ * else 
+ * 		echo wp_remote_retrieve_body( $response );
+ * 
+ * // get a url with 1 second timeout, cancel remote calls for 60 seconds after 1 failed attempts in 60 seconds occured
+ * // display 'n/a' on failure
+ * $response = vip_safe_wp_remote_get( $url, 'n/a', 1, 1, 60 );
+ * echo $response;
+ * 
+ * @see http://codex.wordpress.org/HTTP_API
+ * @author tottdev
+ */
+function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeout=1, $retry=20 ) {
+	// valid url
+	if ( empty( $url ) || !parse_url( $url ) )
+		return ( $fallback_value ) ? $fallback_value : new WP_Error('invalid_url', $url );
+
+	// timeouts > 3 seconds are just not reasonable for production usage
+	$timeout = ( (int) $timeout > 3 ) ? 3 : (int) $timeout;
+	// retry time < 10 seconds will default to 10 seconds.
+	$retry =  ( (int) $retry < 10 ) ? 10 : (int) $retry;
+	// more than 10 faulty hits seem to be to much
+	$threshold = ( (int) $threshold > 10 ) ? 10 : (int) $threshold;
+		
+	$option = get_option( 'disable_remote_get' );
+	
+	// check if the timeout was hit in the last 2 minutes and obey the option and return the fallback value 
+	if ( false !== $option && time() - $option['time'] < $retry ) { 
+		if ( $option['hits'] >= $threshold )
+			return ( $fallback_value ) ? $fallback_value : new WP_Error('remote_get_disabled', $option );
+	}
+
+	$start = microtime( true );	
+	$response = wp_remote_get( $url, array( 'timeout' => $timeout ) );
+	$end = microtime( true );
+
+	$elapsed = ( $end - $start ) > $timeout; 
+	if ( true === $elapsed ) {
+		if ( false !== $option && $option['hits'] < $threshold ) 
+			update_option( 'disable_remote_get', array( 'time' => floor( $end ), 'hits' => $option['hits']+1 ) );
+		else if ( false !== $option && $option['hits'] == $threshold ) 
+			update_option( 'disable_remote_get', array( 'time' => floor( $end ), 'hits' => $threshold ) );
+		else
+			update_option( 'disable_remote_get', array( 'time' => floor( $end ), 'hits' => 1 ) );
+	}
+	else {
+		if ( false !== $option && $option['hits'] > 0 && time() - $option['time'] < $retry ) 
+			update_option( 'disable_remote_get', array( 'time' => $option['time'], 'hits' => $option['hits']-1 ) );
+		else 
+			delete_option( 'disable_remote_get' );
+	}
+	
+	if( is_wp_error( $response ) )
+		return ( $fallback_value ) ? $fallback_value : $response;
+	return $response;
+}
