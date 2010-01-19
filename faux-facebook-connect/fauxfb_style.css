@@ -1,0 +1,25 @@
+#fb-user { 
+	border: 1px dotted #C0C0C0; 
+	padding: 5px; 
+	display: block; 
+	height: 48px; 
+}
+
+.FB_profile_pic {
+	display: none;
+}
+
+.FB_profile_pic .FB_ElementReady {
+	display: block;
+}
+
+#fb-msg { 
+	float: right; 
+}
+
+#fb-user a.FB_Link img {
+	display: block;
+	float: left; 
+	margin-right: 10px;
+}
+
