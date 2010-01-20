@@ -370,6 +370,11 @@ function vip_get_random_posts( $amount = 1, $where_add = "AND post_status='publi
  * @author tottdev
  */
 function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeout=1, $retry=20 ) {
+	global $blog_id;
+	
+	$cache_group = "$blog_id:vip_safe_wp_remote_get";
+	$cache_key = 'disable_remote_get_' . md5( parse_url( $url, PHP_URL_HOST ) );
+	
 	// valid url
 	if ( empty( $url ) || !parse_url( $url ) )
 		return ( $fallback_value ) ? $fallback_value : new WP_Error('invalid_url', $url );
@@ -381,9 +386,9 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	// more than 10 faulty hits seem to be to much
 	$threshold = ( (int) $threshold > 10 ) ? 10 : (int) $threshold;
 		
-	$option = get_option( 'disable_remote_get' );
+	$option = wp_cache_get( $cache_key, $cache_group );
 	
-	// check if the timeout was hit in the last 2 minutes and obey the option and return the fallback value 
+	// check if the timeout was hit and obey the option and return the fallback value 
 	if ( false !== $option && time() - $option['time'] < $retry ) { 
 		if ( $option['hits'] >= $threshold )
 			return ( $fallback_value ) ? $fallback_value : new WP_Error('remote_get_disabled', $option );
@@ -396,17 +401,17 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	$elapsed = ( $end - $start ) > $timeout; 
 	if ( true === $elapsed ) {
 		if ( false !== $option && $option['hits'] < $threshold ) 
-			update_option( 'disable_remote_get', array( 'time' => floor( $end ), 'hits' => $option['hits']+1 ) );
+			wp_cache_set( $cache_key, array( 'time' => floor( $end ), 'hits' => $option['hits']+1 ), $cache_group, $retry );
 		else if ( false !== $option && $option['hits'] == $threshold ) 
-			update_option( 'disable_remote_get', array( 'time' => floor( $end ), 'hits' => $threshold ) );
+			wp_cache_set( $cache_key, array( 'time' => floor( $end ), 'hits' => $threshold ), $cache_group, $retry );
 		else
-			update_option( 'disable_remote_get', array( 'time' => floor( $end ), 'hits' => 1 ) );
+			wp_cache_set( $cache_key, array( 'time' => floor( $end ), 'hits' => 1 ), $cache_group, $retry );
 	}
 	else {
 		if ( false !== $option && $option['hits'] > 0 && time() - $option['time'] < $retry ) 
-			update_option( 'disable_remote_get', array( 'time' => $option['time'], 'hits' => $option['hits']-1 ) );
+			wp_cache_set( $cache_key, array( 'time' => $option['time'], 'hits' => $option['hits']-1 ), $cache_group, $retry );
 		else 
-			delete_option( 'disable_remote_get' );
+			wp_cache_delete( $cache_key, $cache_group);
 	}
 	
 	if( is_wp_error( $response ) )
