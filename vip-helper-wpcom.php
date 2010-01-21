@@ -152,11 +152,12 @@ function make_tags_local() {
 }
 
 /*
- * Returns the URL to an image resized and cropped to the given dimensions
- * You can use this image URL directly -- it's cached and such by our servers
- * Please use this function rather than the URL directly as staticize_subdomain() makes it serve off our CDN network
+ * Returns the URL to an image resized and cropped to the given dimensions.
+ * You can use this image URL directly -- it's cached and such by our servers.
+ * Please use this function to generate the URL rather than doing it yourself as
+ * this function uses staticize_subdomain() makes it serve off our CDN network.
  *
- * $url = the image to the URL (URLs that redirect are currently not supported with the exception of http://blogname.wordpress.com/files/ type URLs)
+ * $url = the raw URL to the image (URLs that redirect are currently not supported with the exception of http://foobar.wordpress.com/files/ type URLs)
  * $width = the desired width of the final image
  * $height = the desired height of the final image
  * $escape = if true, the URL will be escaped for direct HTML usage (& to &amp; for example). Set this to false if you need the raw URL.
@@ -168,7 +169,8 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	// ImgPress doesn't currently support redirects, so help it out by doing http://foobar.wordpress.com/files/ to http://foobar.files.wordpress.com/
 	$url = new_file_urls( $url );
 
-	// staticize_subdomain() converts the URL to a one of our CDN's (the main reason to use this function)
+	// staticize_subdomain() converts the URL to use one of our CDN's (the main reason to use this function)
+	// The "en" is there as staticize_subdomain() expects the passed URL to be something.wordpress.com
 	$thumburl = staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
 
 	return ( $escape ) ? esc_attr( $thumburl ) : $thumburl;
