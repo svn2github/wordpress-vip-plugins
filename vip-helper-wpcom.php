@@ -157,6 +157,9 @@ function make_tags_local() {
  * Please use this function to generate the URL rather than doing it yourself as
  * this function uses staticize_subdomain() makes it serve off our CDN network.
  *
+ * Somewhat contrary to the function's name, it can be used for ANY image URL, hosted by us or not.
+ * So even though it says "remote", you can use it for attachments hosted by us, etc.
+ *
  * $url = the raw URL to the image (URLs that redirect are currently not supported with the exception of http://foobar.wordpress.com/files/ type URLs)
  * $width = the desired width of the final image
  * $height = the desired height of the final image
