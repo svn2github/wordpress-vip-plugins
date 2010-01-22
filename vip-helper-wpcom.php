@@ -237,3 +237,21 @@ function _wpcom_vip_allow_full_size_images_for_real( $ignore, $id, $size ) {
 		return wpcom_resize( $ignore, $id, $size );
 	}
 }
+
+/**
+ * Looks up the country by $ip address
+ * 
+ * @return string ISO 3166-1 alpha-2 country code: http://www.iso.org/iso/country_codes.htm
+ * @return false if a country couldn't be found
+ *
+ * This Geo feature is being tested and is free for VIP right now. It may be a paid service in the future.
+ */
+
+function wpcom_vip_ip2country( $ip = '' ) {
+	require_once dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/plugins/lang-guess/class-guess-lang.php';
+
+	if ( '' == $ip )
+		$ip = $_SERVER['REMOTE_ADDR'];
+
+	return ip2country_sql( addslashes( $ip ) );
+}
