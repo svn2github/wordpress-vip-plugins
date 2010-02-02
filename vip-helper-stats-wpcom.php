@@ -255,8 +255,8 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 	if ( ! in_array( $table, array( 'views', 'postviews', 'referrers', 'searchterms', 'clicks' ) ) )
 		$table = 'views';
 	
-	if ( ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end ) )
-		$end = $GLOBAL['today'];
+	if ( ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date ) )
+		$end_date = $GLOBAL['today'];
 	
 	if ( $limit > 100 )
 		$limit = 100;
@@ -272,7 +272,7 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 	if ( $table == 'postviews' && !empty($post_id) )
 		$and = "AND post_id = $post_id";
 
-	$args = array( $blog_id, $end, $num_days, $and, $limit );
+	$args = array( $blog_id, $end_date, $num_days, $and, $limit );
 
 	$result = array();
 
