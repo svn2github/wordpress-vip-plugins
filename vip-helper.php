@@ -127,6 +127,19 @@ function _vip_crossdomain_redirect() {
         }
 }
 
+function vip_doubleclick_dartiframe_redirect() {
+	add_action( 'init', '_vip_doubleclick_dartiframe_redirect');
+}
+function _vip_doubleclick_dartiframe_redirect() {
+	$request = $_SERVER['REQUEST_URI'];
+
+	if ( '/doubleclick/DARTIframe.html' == $request ) {
+		header( 'Content-Type: text/html' );
+		echo file_get_contents( get_stylesheet_directory() . '/DARTIframe.html' );
+		exit;
+	}
+}
+
 /*
  * Send moderation emails to multiple addresses
  * @author nickmomrik
