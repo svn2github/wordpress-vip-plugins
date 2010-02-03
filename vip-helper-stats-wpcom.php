@@ -179,7 +179,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
 	if ( empty( $rows ) )
 		return "Error: zero rows returned.";
 
-	$return = '';
+	$return .= '<' . $table . '>' . "\n";
 	
 	switch ( $table ) {
 		case 'views' :
