@@ -62,7 +62,7 @@ function most_recent_comments($no_comments = 5, $comment_lenth = 5, $before = '<
 		}
 
 		$most_recent_comments = $output;
-		wp_cache_set('most_recent_comments', $most_recent_comments);
+		wp_cache_add('most_recent_comments', $most_recent_comments, 'most_recent_comments', 3600);
 	}
 
 	echo $most_recent_comments;
