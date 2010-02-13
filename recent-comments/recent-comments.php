@@ -67,4 +67,15 @@ function most_recent_comments($no_comments = 5, $comment_lenth = 5, $before = '<
 
 	echo $most_recent_comments;
 }
+
+function most_recent_comments_invalidate() {
+	if ( false === wp_cache_get( 'most_recent_comments_recently_cleared' ) ) {
+		wp_cache_delete( 'most_recent_comments' );
+		wp_cache_add( 'most_recent_comments_recently_cleared', true, '', 60 );
+	}
+}
+
+add_action( 'wp_set_comment_status', 'most_recent_comments_invalidate' );
+add_action( 'wp_insert_comment', 'most_recent_comments_invalidate' );
+
 ?>
