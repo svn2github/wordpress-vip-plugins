@@ -8,6 +8,18 @@ Version: 1.3-mod
 Author URI: http://www.bravenewcode.com
 */
 
+/*
+ *	You can use the following filters to change the twitter message to your needs.
+ *
+ *	$message = apply_filters( 'wordtwit_pre_proc_message', $message, $post->ID );
+ *	this filter is executed before the message string is parsed and replacements for [title] and [link] are done
+ * 
+ *	$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
+ *	is applied after the replacements for [title] and [link] are processed.
+ *
+ */
+
+
 // Some ideas taken from http://twitter.slawcup.com/twitter.class.phps
 
 if ( ABSPATH ) {
@@ -65,7 +77,6 @@ function twit_encrypt_passwords() {
 		if( !empty( $twitpw ) )
 			update_option( $twit_plugin_prefix . 'password', wp_encrypt( $twitpw ) );
 		
-		xmpp_message( 'tottdev@im.wordpress.com', 'encrypted passwords for blog_id ' . $wpdb->blogid );	
 		update_option( $twit_plugin_prefix . 'encryption_status', 'complete' );
 	}
 }
@@ -233,8 +244,15 @@ function twit_get_bitly_url( $link ) {
 	if ( isset( $url[1] ) ) {
 		return $url[1];	
 	} else {
-		xmpp_message( "tottdev@im.wordpress.com", "bit.ly trouble! shortening $link via " . 'http://api.bit.ly/shorten?version=2.0.1&longUrl=' . urlencode( $link ) . '&format=xml&login=' . $bitly_user_name . '&apiKey=' . $bitly_api_key . " resulted in :" . $output );
-		return false;
+		return $link;
+	}
+}
+
+// workaround for local tests
+if ( !function_exists( 'get_shortlink' ) ) {
+	function get_shortlink( $post_id ) {
+		$post = get_post( $post_id );
+		return $post->guid;
 	}
 }
 
@@ -250,7 +268,6 @@ function post_now_published( $post_id ) {
 			global $post;
 			$max_age = get_option( $twit_plugin_prefix . 'max_age', 0 );
 			if ( $max_age > 0 && ( (current_time('timestamp', 1) - get_post_time('U', true) ) / 3600 ) > $max_age ) {
-				xmpp_message( 'tottdev@im.wordpress.com', 'old post twittered ' . current_time('timestamp') .' '. get_the_time('U'). ' ' . print_r( $post, true ) . print_r( $_SERVER, true ) );
 				return;
 			}
 			$i = 'New blog entry \'' . the_title('','',false) . '\' - ' . get_permalink();
@@ -283,15 +300,23 @@ function post_now_published( $post_id ) {
 			if ( empty( $twit_username ) || empty( $twit_password ) )
 				return;
 			
+			$message = apply_filters( 'wordtwit_pre_proc_message', $message, $post->ID );
+			
 			$message = str_replace( '[title]', $post->post_title, $message );
 			
-			
 			$wordtwit_url_type = get_option( $twit_plugin_prefix . 'wordtwit_url_type' );
-		
-			if( 'tinyurl' == $wordtwit_url_type || empty( $wordtwit_url_type ) )
-				$message = str_replace( '[link]', twit_get_tiny_url( get_permalink() ), $message );
-			elseif( 'bitly' == $wordtwit_url_type )
-				$message = str_replace( '[link]', twit_get_bitly_url( get_permalink() ), $message );
+			
+			if ( strstr( $message, "[link]" ) ) {
+				if( 'tinyurl' == $wordtwit_url_type || empty( $wordtwit_url_type ) )
+					$message = str_replace( '[link]', twit_get_tiny_url( get_permalink() ), $message );
+				elseif( 'bitly' == $wordtwit_url_type )
+					$message = str_replace( '[link]', twit_get_bitly_url( get_permalink() ), $message );
+				elseif( 'wpme' == $wordtwit_url_type )
+					$message = str_replace( '[link]', get_shortlink( $post->ID ), $message );
+			}
+			
+			$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
+			
 			twit_update_status( $twit_username, $twit_password, $message );
 	
 			add_post_meta( $post_id, 'has_been_twittered', 'yes' );
@@ -359,10 +384,10 @@ function wordtwit_options_subpanel() {
 		}
 		
 		if (isset($_POST['wordtwit_url_type'])) {
-			$wordtwit_url_type = ( $_POST['wordtwit_url_type'] == "bitly" ) ? 'bitly' : 'tinyurl';
+			$wordtwit_url_type = ( in_array( $_POST['wordtwit_url_type'], array( 'bitly', 'tinyurl', 'wpme' ) ) ) ? $_POST['wordtwit_url_type'] : 'wpme';
 			
 		} else {
-			$wordtwit_url_type = 'tinyurl';
+			$wordtwit_url_type = 'wpme';
 		}
 		
 		if ( 'bitly' === $wordtwit_url_type ) {

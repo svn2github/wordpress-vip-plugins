@@ -113,8 +113,9 @@ function showshortenersettings() {
                 	<th>Shortening Method</th>
                 	<td>
 	     				<select id="wordtwit_url_type" name="wordtwit_url_type" onChange="showshortenersettings()">
-	     					<option value="tinyurl"<?php if ( $wordtwit_url_type == 'tinyurl' || empty( $wordtwit_url_type ) ) echo " selected"; ?>>Tinyurl - (http://tinyurl.com)</option>
+	     					<option value="tinyurl"<?php if ( $wordtwit_url_type == 'tinyurl' ) echo " selected"; ?>>Tinyurl - (http://tinyurl.com)</option>
 	     					<option value="bitly"<?php if ( $wordtwit_url_type == 'bitly' ) echo " selected"; ?>>Bit.ly - (http://bit.ly)</option>
+	     					<option value="wpme"<?php if ( $wordtwit_url_type == 'wpme' || empty( $wordtwit_url_type ) ) echo " selected"; ?>>wp.me - (http://wp.me/sf2B5-shorten)</option>
 	     				</select>
 					</td>
 				</tr>
