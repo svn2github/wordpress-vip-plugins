@@ -54,19 +54,19 @@ function vip_display_related_posts( $limit_to_same_domain = true ) {
  */
 
 function vip_contrib_add_upload_cap() {
-        add_action( 'init', '_vip_contrib_add_upload_cap');
+	add_action( 'init', '_vip_contrib_add_upload_cap');
 }
 function _vip_contrib_add_upload_cap() {
-        global $wp_user_roles, $wp_roles, $current_user;
+	global $wp_user_roles, $wp_roles, $current_user;
 
-        if ( !is_admin() || !strpos($_SERVER['SERVER_NAME'], 'wordpress.com') )
-                return; // only works on wp.com, not wp.org
+	if ( !is_admin() || !strpos($_SERVER['SERVER_NAME'], 'wordpress.com') )
+		return; // only works on wp.com, not wp.org
 
-        $wp_user_roles['contributor']['capabilities']['upload_files'] = true;
-        $wp_roles = new WP_Roles;
-        $id = $current_user->ID;
-        unset( $GLOBALS['current_user'] );
-        wp_set_current_user( $id );
+	$wp_user_roles['contributor']['capabilities']['upload_files'] = true;
+	$wp_roles = new WP_Roles;
+	$id = $current_user->ID;
+	unset( $GLOBALS['current_user'] );
+	wp_set_current_user( $id );
 }
 
 /*
@@ -75,7 +75,7 @@ function _vip_contrib_add_upload_cap() {
  */
 
 function vip_admin_gallery_css_extras() {
-        add_action('admin_print_styles', '_vip_admin_gallery_css_extras');
+	add_action('admin_print_styles', '_vip_admin_gallery_css_extras');
 }
 function _vip_admin_gallery_css_extras() {
 ?>
@@ -92,11 +92,11 @@ function _vip_admin_gallery_css_extras() {
  */
 
 function vip_remove_enhanced_feed_images() {
-        remove_filter('add_to_feed', 'add_delicious_to_feed');
-        remove_filter('add_to_feed', 'add_stumbleupon_to_feed');
-        remove_filter('add_to_feed', 'add_digg_to_feed');
-        remove_filter('add_to_feed', 'add_reddit_to_feed');
-        remove_filter('add_to_feed', 'add_commentcount_to_feed');
+	remove_filter('add_to_feed', 'add_delicious_to_feed');
+	remove_filter('add_to_feed', 'add_stumbleupon_to_feed');
+	remove_filter('add_to_feed', 'add_digg_to_feed');
+	remove_filter('add_to_feed', 'add_reddit_to_feed');
+	remove_filter('add_to_feed', 'add_commentcount_to_feed');
 }
 
 /*
@@ -237,6 +237,16 @@ function _wpcom_vip_allow_full_size_images_for_real( $ignore, $id, $size ) {
 		return wpcom_resize( $ignore, $id, $size );
 	}
 }
+
+/*
+ * Makes the smallest sized thumbnails (i.e. the ones used in [gallery]) be cropped.
+ * We've removed the checkbox from Settings -> Media, so this re-enables the feature.
+ */
+
+function wpcom_vip_crop_thumbnails() {
+	add_filter( 'pre_option_thumbnail_crop', create_function('', 'return 1;'), 11 );
+}
+
 
 /**
  * Looks up the country by $ip address
