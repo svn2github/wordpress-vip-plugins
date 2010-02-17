@@ -243,7 +243,7 @@ function _wpcom_vip_allow_full_size_images_for_real( $ignore, $id, $size ) {
  * We've removed the checkbox from Settings -> Media, so this re-enables the feature.
  */
 
-function wpcom_vip_crop_thumbnails() {
+function wpcom_vip_crop_small_thumbnail() {
 	add_filter( 'pre_option_thumbnail_crop', create_function('', 'return 1;'), 11 );
 }
 
