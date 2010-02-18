@@ -226,7 +226,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
 						continue;
 					$return .= "\t\t" . '<post id="' . attribute_escape( $k ) . '" title="' . attribute_escape( $posts[$k][1] ) . '" url="' . attribute_escape( $posts[$k][2] ) . '">' . (int) $v . '</post>' . "\n";
 				}
-				if ( !is_null( $summarize ) )
+				if ( is_null( $summarize ) )
 					$return .= "\t" . '</day>' . "\n";
 			}
 			break;
