@@ -4,13 +4,17 @@
 Plugin Name: SEO Friendly Images
 Plugin URI: http://www.prelovac.com/vladimir/wordpress-plugins/seo-friendly-images
 Description: Automatically adds alt and title attributes to all your images. Improves traffic from search results and makes them W3C/xHTML valid as well.
-Version: 2.4.4
+Version: 2.4.4-mod
 Author: Vladimir Prelovac
 Author URI: http://www.prelovac.com/vladimir
 
 To-Do: 
 - localization
 
+Changes for WordPress.com VIP integrations:
+- utilizing settings_fields()
+- removing images and cleaning up information section in options page
+- disabling version notifications
 
 Copyright 2008	Vladimir Prelovac  vprelovac@gmail.com
 
