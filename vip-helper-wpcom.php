@@ -186,7 +186,7 @@ You can use this function in your themes. The function uses data from WordPress.
 
 The default parameters from the function definition are:
 
-display_top_posts($number = 10, $days = 2, $before_list = '', $after_list = '', $before_item = '', $after_item = '', $show_comment_count = false)
+display_top_posts( $number = 10, $days = 2, $before_list = '', $after_list = '', $before_item = '', $after_item = '', $show_comment_count = false, $echo = true )
 
 Notes:
  - The function will echo the output.
