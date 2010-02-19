@@ -305,26 +305,39 @@ function wpcom_vip_meta_desc() {
  * @usage
  * $random_posts = vip_get_random_posts( $amount=50 ); // gives 50 random published posts
  * // sometimes you can also add your own where condition
- * $random_posts = vip_get_random_posts( $amount=50, "AND post_status='publish' AND post_type='post' AND post_date_gmt > '2009-01-01 00:00:00' ); // would only consider posts after Jan 1st 2009
- * // if you imported your blog or for some other reason you know that your interesting post ids start at a certain value you can be sure that only those are queried.
- * $random_posts = vip_get_random_posts( $amount=50, NULL, NULL, 50000 ); // create only random numbers > 50000
+ * global $vip_get_random_post_ids_where_add;
+ * $vip_get_random_post_ids_where_add = "AND post_status='publish' AND post_type='post' AND post_date_gmt > '2009-01-01 00:00:00';
+ * $random_posts = vip_get_random_posts( $amount=50 ); // would only consider posts after Jan 1st 2009
  * // by default you can also get a list of post_ids instead of their objects
- * $random_posts = vip_get_random_posts( $amount=50, NULL, true ); // will return 50 random post ids for published posts.
+ * $random_posts = vip_get_random_posts( $amount=50, true ); // will return 50 random post ids for published posts.
+ * // To enable caching and avoid querying all posts add the following action
+ * global $vip_get_random_post_ids_where_add; // make sure we use the same where condition
+ * add_action( 'save_post', 'vip_refresh_random_posts_all_ids', 1 ); // add this to functions.php
  * @author tottdev
  */
-function vip_get_random_posts( $amount = 1, $where_add = "AND post_status='publish' AND post_type='post'", $return_ids = false, $min_id = 1 ) {
-	global $wpdb, $vip_get_random_posts_rnd_ids, $vip_get_random_posts_current_rnd_ids;
+function vip_get_random_posts( $amount = 1, $return_ids = false ) {
+	global $wpdb, $vip_get_random_posts_rnd_ids, $vip_get_random_posts_current_rnd_ids, $vip_get_random_post_ids_where_add;
+	
+	if ( empty( $vip_get_random_post_ids_where_add ) )
+		$where_add = "AND post_status='publish' AND post_type='post'";
+	else 
+		$where_add = $vip_get_random_post_ids_where_add;
+		
 	$random_posts = array();
 	
-	$max_id_query = "SELECT MAX(ID) AS max_id FROM $wpdb->posts";
-	$max_id_query = apply_filters( 'vip_get_random_posts_max_id_query', $max_id_query );
-	$max_id = $wpdb->get_var( $max_id_query );
-
-	if ( !$max_id ) 
+	if ( !has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) || !$all_ids = wp_cache_get( 'vip_random_posts_ids_' . md5( $where_add ), 'vip_get_random_posts_all_ids' ) ) {
+		$all_ids = vip_refresh_random_posts_all_ids();
+	}
+	
+	if ( empty( $all_ids ) || is_wp_error( $all_ids ) ) 
 		return false;
 	
 	$seed = hexdec( substr( md5( microtime() ), -8 ) ) & 0x7fffffff;
 	mt_srand( $seed );
+
+	$min_id = 0;
+	$max_id = count( $all_ids );
+	$vip_get_random_posts_rnd_ids = array();
 		
 	do {
 		$random_id = mt_rand( $min_id, $max_id );
@@ -332,30 +345,37 @@ function vip_get_random_posts( $amount = 1, $where_add = "AND post_status='publi
 		if ( isset( $vip_get_random_posts_rnd_ids[$random_id] ) )
 			continue;
 			
-		$vip_get_random_posts_rnd_ids[$random_id] = 1;
-
-		if ( $return_ids ) {
-			$post_query = "SELECT ID FROM $wpdb->posts WHERE ID>$random_id $where_add LIMIT 1";
-			$post_query = apply_filters( 'vip_get_random_posts_post_query', $post_query );
-			$rnd_post = $wpdb->get_var( $post_query );
-			if ( $rnd_post && !isset( $vip_get_random_posts_current_rnd_ids[$rnd_post] ) ) {
-				$vip_get_random_posts_current_rnd_ids[$rnd_post] = 1;
-				$random_posts[$random_id] = $rnd_post;
-			}
-		} else {
-			$post_query = "SELECT * FROM $wpdb->posts WHERE ID>$random_id $where_add LIMIT 1";
-			$post_query = apply_filters( 'vip_get_random_posts_post_query', $post_query );
-			$rnd_post = $wpdb->get_row( $post_query, OBJECT );
-			if ( $rnd_post && !isset( $vip_get_random_posts_current_rnd_ids[$rnd_post->ID] ) ) {
-				$random_posts[$random_id] = $rnd_post;
-				$vip_get_random_posts_current_rnd_ids[$rnd_post->ID] = 1;
-			}
-		}
-		
-	} while( count( $random_posts ) < $amount );
+		$vip_get_random_posts_rnd_ids[$random_id] = $all_ids[$random_id]->ID;
+	} while( count( $vip_get_random_posts_rnd_ids ) < $amount );
 	
+	if ( $return_ids )
+		return (array) $vip_get_random_posts_rnd_ids;
+
+	$random_posts = get_posts( array( 'post__in' => $vip_get_random_posts_rnd_ids ) );
 	$random_posts = apply_filters( 'vip_get_random_posts_random_posts', $random_posts );
 	return $random_posts;
+}
+
+/**
+ * Helper function for vip_get_random_posts()
+ */
+function vip_refresh_random_posts_all_ids() {
+	global $wpdb, $vip_get_random_post_ids_where_add;
+	if ( empty( $vip_get_random_post_ids_where_add ) )
+		$where_add = "AND post_status='publish' AND post_type='post'";
+	else 
+		$where_add = $vip_get_random_post_ids_where_add;
+		
+	$all_ids_query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE 1 $where_add" );
+	$all_ids_query = apply_filters( 'vip_get_random_posts_all_ids_query', $all_ids_query );
+	$all_ids = $wpdb->get_results( $all_ids_query );
+	if ( empty( $all_ids ) || is_wp_error( $all_ids ) ) 
+		return false;
+	
+	if ( has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) )
+		wp_cache_set( 'vip_random_posts_ids_' . md5( $where_add ), $all_ids, 'vip_get_random_posts_all_ids' );
+	
+	return $all_ids;
 }
 
 /** 
