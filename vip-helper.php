@@ -21,7 +21,7 @@ function vip_redirects( $vip_redirects_array = array() ) {
 	$uri = $_SERVER['REQUEST_URI'];
 
 	foreach( (array) $vip_redirects_array as $orig => $new ) {
-		if ( $orig == untrailingslashit($uri) ) {
+		if ( untrailingslashit( $orig ) == untrailingslashit( $uri ) ) {
 			wp_redirect($new, 301);
 			exit;
 		}
