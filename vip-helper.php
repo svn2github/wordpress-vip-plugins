@@ -18,10 +18,10 @@ include(ABSPATH . 'wp-content/themes/vip/plugins/vip-helper.php');
  */
 
 function vip_redirects( $vip_redirects_array = array() ) {
-	$uri = $_SERVER['REQUEST_URI'];
+	$uri = untrailingslashit( $_SERVER['REQUEST_URI'] );
 
 	foreach( (array) $vip_redirects_array as $orig => $new ) {
-		if ( untrailingslashit( $orig ) == untrailingslashit( $uri ) ) {
+		if ( untrailingslashit( $orig ) == $uri ) {
 			wp_redirect($new, 301);
 			exit;
 		}
