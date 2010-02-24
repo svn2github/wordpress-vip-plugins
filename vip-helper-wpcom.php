@@ -195,8 +195,33 @@ Notes:
    The minimum # you can use is 2 because of the way days roll over is our stats.
  - Output is cached for 20 minutes. Each $number value uses a different cache.
 
+If you would like more control over the output of display_top_posts() use the get_top_posts() function below and loop through the array
+
+get_top_posts() returns an array of post_ID -> views.
+
+post_ID 0 is used to track home page views.
+
 */
 
+function get_top_posts( $number = 10, $days = 2 ) {
+	global $wpdb;
+
+	$top_posts = wp_cache_get( "get_top_posts_{$number}_{$days}" );
+
+	if ( !$top_posts ) {
+		if ( $number < 1 || $number > 20 || !is_int( $number ) )
+			$number = 10;
+
+		if ( $days < 2 || !is_int( $days ) )
+			$days = 2; // minimum is 2 because of how stats rollover for a new day
+                
+		$top_posts = array_shift( stats_get_daily_history( false, $wpdb->blogid, 'postviews', 'post_id', false, $days, '', $number + 10, true ) );
+
+		wp_cache_add( "get_top_posts_{$number}_{$days}", $top_posts, '', 1200 );
+	}
+
+	return $top_posts;
+}
 
 /*
  * Prevent Youtube embeds in comments
