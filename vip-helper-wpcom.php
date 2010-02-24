@@ -195,11 +195,13 @@ Notes:
    The minimum # you can use is 2 because of the way days roll over is our stats.
  - Output is cached for 20 minutes. Each $number value uses a different cache.
 
-If you would like more control over the output of display_top_posts() use the get_top_posts() function below and loop through the array
+If you would like more control over the output of display_top_posts() use the get_top_posts() function below and loop through the array.
 
 get_top_posts() returns an array of post_ID -> views.
 
-post_ID 0 is used to track home page views.
+ - post_ID 0 is used to track home page views.
+ - Posts and pages are included.
+ - The array will contain 10 + $number elements.
 
 */
 
