@@ -149,7 +149,7 @@ class WPcom_Watermark_Uploads {
 	function watermark( $image ) {
 
 		// Load the watermark into $watermark
-		$watermark_path = STYLESHEETPATH . '/images/watermark.png';
+		$watermark_path = STYLESHEETPATH . '/images/upload-watermark.png';
 		if ( !file_exists( $watermark_path ) || !$watermark = @imagecreatefrompng( $watermark_path ) ) {
 			$this->error( 'Watermark: Failed to load watermark image file.' );
 			return $image;
