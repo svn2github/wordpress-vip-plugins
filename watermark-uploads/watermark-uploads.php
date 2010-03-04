@@ -2,8 +2,8 @@
 /*
  * Watermarks all future JPEG and PNG uploads to your site.
  *
- * Uses /your-theme/images/upload-watermark.png as the watermark. A PNG is required
- * so that you can have watermark transparency if you wish.
+ * Uses /your-theme/images/upload-watermark.png as the watermark. A PNG is
+ * required so that you can have watermark transparency if you wish.
  *
  * By default, the watermark is placed in the bottom-right of the original
  * image with a 5px padding. However you can use the two filters to move
