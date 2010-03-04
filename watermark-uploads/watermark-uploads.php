@@ -25,45 +25,135 @@
  * include_once( WP_CONTENT_DIR . '/themes/vip/plugins/watermark-uploads/watermark-uploads.php' );
  *
  * @author Alex M.
+ *
+ * Plugin Name: WordPress.com Watermark Uploads
  */
 
-add_filter( 'wp_handle_upload_prefilter', 'wpcom_watermark_uploads', 100 );
+class WPcom_Watermark_Uploads {
 
-function wpcom_watermark_uploads( $file ) {
+	// Class initialization
+	function __construct() {
+		add_filter( 'wp_handle_upload_prefilter', array(&$this, 'handle_file'), 100 );
+		add_filter( 'wp_upload_bits_data',        array(&$this, 'handle_bits'), 10, 2 );
+	}
 
-	// Make sure the upload is valid
-	if ( 0 == $file['error'] && is_uploaded_file( $file['tmp_name'] ) ) {
+	// For filters that pass a $_FILES array
+	function handle_file( $file ) {
+		// Make sure the upload is valid
+		if ( 0 == $file['error'] && is_uploaded_file( $file['tmp_name'] ) ) {
 
-		// Load the image into $image
-		switch ( $file['type'] ) {
-			case 'image/jpeg':
-				if ( !$image = @imagecreatefromjpeg( $file['tmp_name'] ) )
+			// Load the image into $image
+			switch ( $file['type'] ) {
+				case 'image/jpeg':
+					if ( !$image = @imagecreatefromjpeg( $file['tmp_name'] ) ) {
+						$this->error( '[File] Watermark: Failed to load JPEG image.' );
+						return $file;
+					}
+
+					// Get the JPEG quality setting of the original image
+					if ( $imagecontent = @file_get_contents( $file['tmp_name'] ) )
+						$quality = $this->get_jpeg_quality_wrapper( $imagecontent );
+					if ( empty($quality) )
+						$quality = 100;
+
+					break;
+
+				case 'image/png':
+					if ( !$image = @imagecreatefrompng( $file['tmp_name'] ) ) {
+						$this->error( '[File] Watermark: Failed to load PNG image.' );
+						return $file;
+					}
+					break;
+
+				// Only JPEGs and PNGs are supported
+				default;
+					$this->error( '[File] Watermark: Not a PNG or JPEG.' );
 					return $file;
+			}
 
-				// Get the JPEG quality setting of the original image
-				// See http://blog.apokalyptik.com/2009/09/16/quality-time-with-your-jpegs/
-				if ( !function_exists('get_jpeg_quality') )
-					include_once( WP_PLUGIN_DIR . '/wpcom-images/libjpeg.php' );
-				if ( function_exists('get_jpeg_quality') && $imagecontent = file_get_contents( $file['tmp_name'] ) )
-					$quality = get_jpeg_quality( $imagecontent );
-				if ( empty($quality) )
-					$quality = 100;
-				break;
+			// Run the $image through the watermarker
+			$image = $this->watermark( $image );
 
-			case 'image/png':
-				if ( !$image = @imagecreatefrompng( $file['tmp_name'] ) )
-					return $file;
-				break;
+			// Save the new watermarked image
+			switch ( $file['type'] ) {
+				case 'image/jpeg':
+					imagejpeg( $image, $file['tmp_name'], $quality );
+				case 'image/png':
+					imagepng( $image, $file['tmp_name'] );
+			}
 
-			// Only JPEGs and PNGs are supported
-			default;
-				return $file;
+			imagedestroy( $image );
+		} else {
+			$this->error( '[File] Watermark: Invalid tmp file.' );
 		}
+
+		return $file;
+	}
+
+	// For filters that pass the image as a string
+	function handle_bits( $bits, $file ) {
+
+		// Figure out image type based on filename
+		$wp_filetype = wp_check_filetype( $file );
+		switch ( $wp_filetype['ext'] ) {
+			case 'png':
+				$type = 'png';
+				break;
+			case 'jpg':
+			case 'jpeg':
+				$type = 'jpg';
+				break;
+			default;
+				$this->error( '[Bits] Watermark: Invalid extension.' );
+				return $bits;
+		}
+
+		// Convert the $bits into an $image
+		if ( !$image = imagecreatefromstring( $bits ) ) {
+			$this->error( '[Bits] Watermark: Failed to convert bits to image.' );
+			return $bits;
+		}
+
+		// Run the $image through the watermarker
+		$image = $this->watermark( $image );
+
+		// Get the $image back into a string
+		ob_start();
+		if ( 'png' == $type ) {
+			if ( !imagepng( $image ) ) {
+				ob_end_clean();
+				$this->error( '[Bits] Watermark: Failed to output PNG.' );
+				return $bits;
+			}
+		} elseif ( 'jpg' == $type ) {
+			// Get the JPEG quality setting of the original image
+			$quality = $this->get_jpeg_quality_wrapper( $bits );
+			if ( empty($quality) )
+				$quality = 100;
+
+			if ( !imagejpeg( $image, null, $quality ) ) {
+				ob_end_clean();
+				$this->error( '[Bits] Watermark: Failed to output JPEG.' );
+				return $bits;
+			}
+		}
+		$bits = ob_get_contents();
+		ob_end_clean();
+
+		imagedestroy( $image );
+
+		return $bits;
+	}
+
+	// Watermarks an $image
+	function watermark( $image ) {
 
 		// Load the watermark into $watermark
 		$watermark_path = STYLESHEETPATH . '/images/watermark.png';
-		if ( !file_exists( $watermark_path ) || !$watermark = @imagecreatefrompng( $watermark_path ) )
-			return $file;
+		if ( !file_exists( $watermark_path ) || !$watermark = @imagecreatefrompng( $watermark_path ) ) {
+			$this->error( 'Watermark: Failed to load watermark image file.' );
+			return $image;
+		}
 
 		// Get the original image dimensions
 		$image_width  = imagesx( $image );
@@ -82,18 +172,35 @@ function wpcom_watermark_uploads( $file ) {
 
 		imagedestroy( $watermark );
 
-		// Save the new watermarked image
-		switch ( $file['type'] ) {
-			case 'image/jpeg':
-				imagejpeg( $image, $file['tmp_name'], $quality );
-			case 'image/png':
-				imagepng( $image, $file['tmp_name'] );
-		}
-
-		imagedestroy( $image );
+		return $image;
 	}
 
-	return $file;
+	// Safety wrapper for our get_jpeg_quality() function
+	// See http://blog.apokalyptik.com/2009/09/16/quality-time-with-your-jpegs/
+	function get_jpeg_quality_wrapper( $imagecontent ) {
+
+		if ( !function_exists('get_jpeg_quality') )
+			@include_once( WP_PLUGIN_DIR . '/wpcom-images/libjpeg.php' );
+		if ( function_exists('get_jpeg_quality') )
+			$quality = get_jpeg_quality( $imagecontent );
+		if ( empty($quality) )
+			$quality = 100;
+
+		return $quality;
+	}
+
+	// Report any errors to me, but only while on my sandbox. Does nothing otherwise.
+	function error( $message ) {
+		if ( function_exists('im') && defined('VIPER_SANDBOX') && VIPER_SANDBOX )
+			im( '[' . STYLESHEETPATH . '] ' . $message );
+	}
+}
+
+// Start this plugin once everything else is loaded up
+add_action( 'init', 'WPcom_Watermark_Uploads', 5 );
+function WPcom_Watermark_Uploads() {
+	global $WPcom_Watermark_Uploads;
+	$WPcom_Watermark_Uploads = new WPcom_Watermark_Uploads();
 }
 
 ?>
