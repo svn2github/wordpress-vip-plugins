@@ -179,12 +179,12 @@ class WPcom_Watermark_Uploads {
 	// See http://blog.apokalyptik.com/2009/09/16/quality-time-with-your-jpegs/
 	function get_jpeg_quality_wrapper( $imagecontent ) {
 
+		$quality = false;
+
 		if ( !function_exists('get_jpeg_quality') )
 			@include_once( WP_PLUGIN_DIR . '/wpcom-images/libjpeg.php' );
 		if ( function_exists('get_jpeg_quality') )
 			$quality = get_jpeg_quality( $imagecontent );
-		if ( empty($quality) )
-			$quality = 100;
 
 		return $quality;
 	}
