@@ -221,9 +221,7 @@ class WPcom_Watermark_Uploads {
 
 	// Report any errors to me, but only while on my sandbox. Does nothing otherwise.
 	function debug( $message ) {
-		global $blog_id;
-
-		if ( function_exists('im') && ( defined('ALEXM_SANDBOX') && ALEXM_SANDBOX || 11259434 == $blog_id ) ) {
+		if ( function_exists('im') && defined('ALEXM_SANDBOX') && ALEXM_SANDBOX ) {
 			im( '[' . $blog_id . '] ' . $message );
 		}
 	}
