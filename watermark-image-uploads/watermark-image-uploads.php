@@ -46,7 +46,7 @@ class WPcom_Watermark_Uploads {
 			switch ( $file['type'] ) {
 				case 'image/jpeg':
 					if ( !$image = @imagecreatefromjpeg( $file['tmp_name'] ) ) {
-						$this->error( '[File] Watermark: Failed to load JPEG image.' );
+						$this->debug( '[File] Watermark: Failed to load JPEG image.' );
 						return $file;
 					}
 
@@ -60,14 +60,14 @@ class WPcom_Watermark_Uploads {
 
 				case 'image/png':
 					if ( !$image = @imagecreatefrompng( $file['tmp_name'] ) ) {
-						$this->error( '[File] Watermark: Failed to load PNG image.' );
+						$this->debug( '[File] Watermark: Failed to load PNG image.' );
 						return $file;
 					}
 					break;
 
 				// Only JPEGs and PNGs are supported
 				default;
-					$this->error( '[File] Watermark: Not a PNG or JPEG.' );
+					$this->debug( '[File] Watermark: Not a PNG or JPEG.' );
 					return $file;
 			}
 
@@ -84,7 +84,7 @@ class WPcom_Watermark_Uploads {
 
 			imagedestroy( $image );
 		} else {
-			$this->error( '[File] Watermark: Invalid tmp file.' );
+			$this->debug( '[File] Watermark: Invalid tmp file.' );
 		}
 
 		return $file;
@@ -104,13 +104,13 @@ class WPcom_Watermark_Uploads {
 				$type = 'jpg';
 				break;
 			default;
-				$this->error( '[Bits] Watermark: Invalid extension.' );
+				$this->debug( '[Bits] Watermark: Invalid extension.' );
 				return $bits;
 		}
 
 		// Convert the $bits into an $image
 		if ( !$image = imagecreatefromstring( $bits ) ) {
-			$this->error( '[Bits] Watermark: Failed to convert bits to image.' );
+			$this->debug( '[Bits] Watermark: Failed to convert bits to image.' );
 			return $bits;
 		}
 
@@ -122,7 +122,7 @@ class WPcom_Watermark_Uploads {
 		if ( 'png' == $type ) {
 			if ( !imagepng( $image ) ) {
 				ob_end_clean();
-				$this->error( '[Bits] Watermark: Failed to output PNG.' );
+				$this->debug( '[Bits] Watermark: Failed to output PNG.' );
 				return $bits;
 			}
 		} elseif ( 'jpg' == $type ) {
@@ -133,7 +133,7 @@ class WPcom_Watermark_Uploads {
 
 			if ( !imagejpeg( $image, null, $quality ) ) {
 				ob_end_clean();
-				$this->error( '[Bits] Watermark: Failed to output JPEG.' );
+				$this->debug( '[Bits] Watermark: Failed to output JPEG.' );
 				return $bits;
 			}
 		}
@@ -151,7 +151,7 @@ class WPcom_Watermark_Uploads {
 		// Load the watermark into $watermark
 		$watermark_path = STYLESHEETPATH . '/images/upload-watermark.png';
 		if ( !file_exists( $watermark_path ) || !$watermark = @imagecreatefrompng( $watermark_path ) ) {
-			$this->error( 'Watermark: Failed to load watermark image file.' );
+			$this->debug( 'Watermark: Failed to load watermark image file.' );
 			return $image;
 		}
 
@@ -190,8 +190,8 @@ class WPcom_Watermark_Uploads {
 	}
 
 	// Report any errors to me, but only while on my sandbox. Does nothing otherwise.
-	function error( $message ) {
-		if ( function_exists('im') && defined('VIPER_SANDBOX') && VIPER_SANDBOX )
+	function debug( $message ) {
+		if ( function_exists('im') && defined('ALEXM_SANDBOX') && ALEXM_SANDBOX )
 			im( '[' . STYLESHEETPATH . '] ' . $message );
 	}
 }
