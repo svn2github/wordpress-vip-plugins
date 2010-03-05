@@ -72,6 +72,9 @@ class WPcom_Watermark_Uploads {
 						return $file;
 					}
 					break;
+
+				default;
+					return $file;
 			}
 
 			// Run the $image through the watermarker
@@ -117,23 +120,30 @@ class WPcom_Watermark_Uploads {
 
 		// Get the $image back into a string
 		ob_start();
-		if ( 'png' == $type ) {
-			if ( !imagepng( $image ) ) {
-				ob_end_clean();
-				$this->debug( '[Bits] Watermark: Failed to output PNG.' );
-				return $bits;
-			}
-		} elseif ( 'jpg' == $type ) {
-			// Get the JPEG quality setting of the original image
-			$quality = $this->get_jpeg_quality_wrapper( $bits );
-			if ( empty($quality) )
-				$quality = 100;
+		switch ( $type ) {
+			case 'png':
+				if ( !imagepng( $image ) ) {
+					ob_end_clean();
+					$this->debug( '[Bits] Watermark: Failed to output PNG.' );
+					return $bits;
+				}
+				break;
+			case 'jpg':
+				// Get the JPEG quality setting of the original image
+				$quality = $this->get_jpeg_quality_wrapper( $bits );
+				if ( empty($quality) )
+					$quality = 100;
 
-			if ( !imagejpeg( $image, null, $quality ) ) {
+				if ( !imagejpeg( $image, null, $quality ) ) {
+					ob_end_clean();
+					$this->debug( '[Bits] Watermark: Failed to output JPEG.' );
+					return $bits;
+				}
+				break;
+
+			default;
 				ob_end_clean();
-				$this->debug( '[Bits] Watermark: Failed to output JPEG.' );
 				return $bits;
-			}
 		}
 		$bits = ob_get_contents();
 		ob_end_clean();
