@@ -22,11 +22,11 @@
  *
  * To use this plugin, add the following to your theme's functions.php file:
  *
- * include_once( WP_CONTENT_DIR . '/themes/vip/plugins/watermark-uploads/watermark-uploads.php' );
+ * include_once( WP_CONTENT_DIR . '/themes/vip/plugins/watermark-image-uploads/watermark-image-uploads.php' );
  *
  * @author Alex M.
  *
- * Plugin Name: WordPress.com Watermark Uploads
+ * Plugin Name: WordPress.com Watermark Image Uploads
  */
 
 class WPcom_Watermark_Uploads {
@@ -39,12 +39,20 @@ class WPcom_Watermark_Uploads {
 
 	// For filters that pass a $_FILES array
 	function handle_file( $file ) {
+		$this->debug( '[File] Watermark: Filter started.' );
+
 		// Make sure the upload is valid
 		if ( 0 == $file['error'] && is_uploaded_file( $file['tmp_name'] ) ) {
 
+			// Check file extension (can't use $file['type'] due to Flash uploader sending application/octet-stream)
+			if ( !$type = $this->get_type( $file['name'] ) ) {
+				$this->debug( '[File] Watermark: ' . $file['name'] . ' not a PNG or JPEG.' );
+				return $file;
+			}
+
 			// Load the image into $image
-			switch ( $file['type'] ) {
-				case 'image/jpeg':
+			switch ( $type ) {
+				case 'jpeg':
 					if ( !$image = @imagecreatefromjpeg( $file['tmp_name'] ) ) {
 						$this->debug( '[File] Watermark: Failed to load JPEG image.' );
 						return $file;
@@ -58,29 +66,26 @@ class WPcom_Watermark_Uploads {
 
 					break;
 
-				case 'image/png':
+				case 'png':
 					if ( !$image = @imagecreatefrompng( $file['tmp_name'] ) ) {
 						$this->debug( '[File] Watermark: Failed to load PNG image.' );
 						return $file;
 					}
 					break;
-
-				// Only JPEGs and PNGs are supported
-				default;
-					$this->debug( '[File] Watermark: Not a PNG or JPEG.' );
-					return $file;
 			}
 
 			// Run the $image through the watermarker
 			$image = $this->watermark( $image );
 
 			// Save the new watermarked image
-			switch ( $file['type'] ) {
-				case 'image/jpeg':
+			switch ( $type ) {
+				case 'jpeg':
 					imagejpeg( $image, $file['tmp_name'], $quality );
-				case 'image/png':
+				case 'png':
 					imagepng( $image, $file['tmp_name'] );
 			}
+
+			$this->debug( '[File] Watermark: Successfully completed.' );
 
 			imagedestroy( $image );
 		} else {
@@ -93,19 +98,12 @@ class WPcom_Watermark_Uploads {
 	// For filters that pass the image as a string
 	function handle_bits( $bits, $file ) {
 
-		// Figure out image type based on filename
-		$wp_filetype = wp_check_filetype( $file );
-		switch ( $wp_filetype['ext'] ) {
-			case 'png':
-				$type = 'png';
-				break;
-			case 'jpg':
-			case 'jpeg':
-				$type = 'jpg';
-				break;
-			default;
-				$this->debug( '[Bits] Watermark: Invalid extension.' );
-				return $bits;
+		$this->debug( '[Bits] Watermark: Filter started.' );
+
+		// Check file extension
+		if ( !$type = $this->get_type( $file ) ) {
+			$this->debug( "[Bits] Watermark: $file not a PNG or JPEG." );
+			return $bits;
 		}
 
 		// Convert the $bits into an $image
@@ -142,6 +140,8 @@ class WPcom_Watermark_Uploads {
 
 		imagedestroy( $image );
 
+		$this->debug( '[Bits] Watermark: Successfully completed.' );
+
 		return $bits;
 	}
 
@@ -151,7 +151,7 @@ class WPcom_Watermark_Uploads {
 		// Load the watermark into $watermark
 		$watermark_path = STYLESHEETPATH . '/images/upload-watermark.png';
 		if ( !file_exists( $watermark_path ) || !$watermark = @imagecreatefrompng( $watermark_path ) ) {
-			$this->debug( 'Watermark: Failed to load watermark image file.' );
+			$this->debug( "Watermark: Failed to load watermark image file: {$watermark_path}" );
 			return $image;
 		}
 
@@ -168,7 +168,10 @@ class WPcom_Watermark_Uploads {
 		$dest_y = (int) apply_filters( 'wpcom_watermark_uploads_desty', $image_height - $watermark_height - 5, $image_height, $watermark_height );
 
 		// Copy the watermark onto the original image
-		imagecopy( $image, $watermark, $dest_x, $dest_y, 0, 0, $watermark_width, $watermark_height );
+		if ( !imagecopy( $image, $watermark, $dest_x, $dest_y, 0, 0, $watermark_width, $watermark_height ) )
+			$this->debug( "Watermark: Failed to apply watermark at {$dest_x}x{$dest_y}." );
+		else
+			$this->debug( "Watermark: Successfully applied watermark at {$dest_x}x{$dest_y}." );
 
 		imagedestroy( $watermark );
 
@@ -186,13 +189,33 @@ class WPcom_Watermark_Uploads {
 		if ( function_exists('get_jpeg_quality') )
 			$quality = get_jpeg_quality( $imagecontent );
 
+		$this->debug( "Watermark: JPEG quality is {$quality}." );
+
 		return $quality;
 	}
 
+	// Figure out image type based on filename
+	function get_type( $filename ) {
+		$wp_filetype = wp_check_filetype( $filename );
+		switch ( $wp_filetype['ext'] ) {
+			case 'png':
+				return 'png';
+			case 'jpg':
+			case 'jpeg':
+				return 'jpg';
+			default;
+				return false;
+		}
+	}
+
+
 	// Report any errors to me, but only while on my sandbox. Does nothing otherwise.
 	function debug( $message ) {
-		if ( function_exists('im') && defined('ALEXM_SANDBOX') && ALEXM_SANDBOX )
-			im( '[' . STYLESHEETPATH . '] ' . $message );
+		global $blog_id;
+
+		if ( function_exists('im') && ( defined('ALEXM_SANDBOX') && ALEXM_SANDBOX || 11259434 == $blog_id ) ) {
+			im( '[' . $blog_id . '] ' . $message );
+		}
 	}
 }
 
