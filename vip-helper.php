@@ -131,7 +131,9 @@ function vip_doubleclick_dartiframe_redirect() {
 	add_action( 'init', '_vip_doubleclick_dartiframe_redirect');
 }
 function _vip_doubleclick_dartiframe_redirect() {
-	if( strpos( $_SERVER[ 'REQUEST_URI' ], 'DARTIframe.html' ) ) {
+	$request = $_SERVER['REQUEST_URI'];
+
+	if ( '/doubleclick/DARTIframe.html' == $request ) {
 		header( 'Content-Type: text/html' );
 		echo file_get_contents( get_stylesheet_directory() . '/DARTIframe.html' );
 		exit;
