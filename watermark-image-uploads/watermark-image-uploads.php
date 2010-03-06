@@ -36,7 +36,7 @@ class WPcom_Watermark_Uploads {
 		add_filter( 'wp_handle_upload_prefilter', array(&$this, 'handle_file'), 100 );
 		add_filter( 'wp_upload_bits_data',        array(&$this, 'handle_bits'), 10, 2 );
 
-		$this->debug( 'Watermark: Filters registered.' );
+		// $this->debug( 'Watermark: Filters registered.' );
 	}
 
 	// For filters that pass a $_FILES array
@@ -48,7 +48,7 @@ class WPcom_Watermark_Uploads {
 
 			// Check file extension (can't use $file['type'] due to Flash uploader sending application/octet-stream)
 			if ( !$type = $this->get_type( $file['name'] ) ) {
-				$this->debug( '[File] Watermark: ' . $file['name'] . ' not a PNG or JPEG.' );
+				$this->debug( '[File] Watermark: ' . $file['name'] . ' is not a PNG or JPEG.' );
 				return $file;
 			}
 
@@ -76,6 +76,7 @@ class WPcom_Watermark_Uploads {
 					break;
 
 				default;
+					$this->debug( '[File] Watermark: ' . $file['name'] . ' is still not a PNG or JPEG.' );
 					return $file;
 			}
 
@@ -102,12 +103,11 @@ class WPcom_Watermark_Uploads {
 
 	// For filters that pass the image as a string
 	function handle_bits( $bits, $file ) {
-
 		$this->debug( '[Bits] Watermark: Filter started.' );
 
 		// Check file extension
 		if ( !$type = $this->get_type( $file ) ) {
-			$this->debug( "[Bits] Watermark: $file not a PNG or JPEG." );
+			$this->debug( "[Bits] Watermark: $file is not a PNG or JPEG." );
 			return $bits;
 		}
 
@@ -123,14 +123,7 @@ class WPcom_Watermark_Uploads {
 		// Get the $image back into a string
 		ob_start();
 		switch ( $type ) {
-			case 'png':
-				if ( !imagepng( $image ) ) {
-					ob_end_clean();
-					$this->debug( '[Bits] Watermark: Failed to output PNG.' );
-					return $bits;
-				}
-				break;
-			case 'jpg':
+			case 'jpeg':
 				// Get the JPEG quality setting of the original image
 				$quality = $this->get_jpeg_quality_wrapper( $bits );
 				if ( empty($quality) )
@@ -142,9 +135,17 @@ class WPcom_Watermark_Uploads {
 					return $bits;
 				}
 				break;
+			case 'png':
+				if ( !imagepng( $image ) ) {
+					ob_end_clean();
+					$this->debug( '[Bits] Watermark: Failed to output PNG.' );
+					return $bits;
+				}
+				break;
 
 			default;
 				ob_end_clean();
+				$this->debug( "[Bits] Watermark: $file is still not a PNG or JPEG." );
 				return $bits;
 		}
 		$bits = ob_get_contents();
@@ -159,6 +160,7 @@ class WPcom_Watermark_Uploads {
 
 	// Watermarks an $image
 	function watermark( $image ) {
+		$this->debug( "Watermark: Beginning watermark." );
 
 		// Load the watermark into $watermark
 		$watermark_path = STYLESHEETPATH . '/images/upload-watermark.png';
@@ -214,7 +216,7 @@ class WPcom_Watermark_Uploads {
 				return 'png';
 			case 'jpg':
 			case 'jpeg':
-				return 'jpg';
+				return 'jpeg';
 			default;
 				return false;
 		}
