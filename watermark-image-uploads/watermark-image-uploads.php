@@ -35,6 +35,8 @@ class WPcom_Watermark_Uploads {
 	function __construct() {
 		add_filter( 'wp_handle_upload_prefilter', array(&$this, 'handle_file'), 100 );
 		add_filter( 'wp_upload_bits_data',        array(&$this, 'handle_bits'), 10, 2 );
+
+		$this->debug( 'Watermark: Filters registered.' );
 	}
 
 	// For filters that pass a $_FILES array
@@ -223,7 +225,7 @@ class WPcom_Watermark_Uploads {
 	function debug( $message ) {
 		global $blog_id;
 
-		if ( function_exists('xmpp_message') && ( defined('ALEXM_SANDBOX') && ALEXM_SANDBOX ) || 11259434 == $blog_id ) {
+		if ( function_exists('xmpp_message') && defined('ALEXM_SANDBOX') && ALEXM_SANDBOX ) {
 			xmpp_message( 'viper007bond@im.wordpress.com', '[' . $blog_id . '] ' . $message );
 		}
 	}
