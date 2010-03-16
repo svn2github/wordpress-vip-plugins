@@ -9,8 +9,11 @@ Author URI: http://nickmomrik.com/
 */
 
 class Most_Commented_Widget extends WP_Widget {
+	var $duration_choices = array();
+
 	function Most_Commented_Widget() {
-		parent::WP_Widget( false, $name = 'Most Commented' );	
+		parent::WP_Widget( false, $name = 'Most Commented' );
+		$this->duration_choices = apply_filters( 'most_commented_duration_choices', array( 1 => __( '1 Day' ), 7 => __( '7 Days' ), 30 => __( '30 Days' ), 365 => __( '365 Days' ), 0 => __( 'All Time' ) ) );
 	}
 
 	function widget( $args, $instance ) {
@@ -18,7 +21,7 @@ class Most_Commented_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		$show_pass_post = (bool)$instance['show_pass_post'];
 		$duration = intval( $instance['duration'] );
-		if ( !in_array( $duration, array( 0, 1, 7, 30, 365 ) ) )
+		if ( !isset( $this->duration_choices[ $duration ] ) )
 			$duration = 0;
 		$num_posts = intval( $instance['num_posts'] );
 		if ( $num_posts < 1 )
@@ -96,7 +99,7 @@ class Most_Commented_Widget extends WP_Widget {
 		$title = esc_attr( $instance['title'] );
 		$show_pass_post = (bool)$instance['show_pass_post'];
 		$duration = intval( $instance['duration'] );
-		if ( !in_array( $duration, array( 0, 1, 7, 30, 365 ) ) )
+		if ( !isset( $this->duration_choices[ $duration ] ) )
 			$duration = 0;
 		$num_posts = intval( $instance['num_posts'] );
 		if ( $num_posts < 1 )
@@ -128,8 +131,7 @@ class Most_Commented_Widget extends WP_Widget {
 		<p><label for="<?php echo $this->get_field_id( 'duration' ); ?>"><?php _e( 'Limit to:' ); ?>
 		<select id="<?php echo $this->get_field_id( 'duration' ); ?>" name="<?php echo $this->get_field_name( 'duration' ); ?>">
 		<?php
-			$duration_choices = array( 1 => __( '1 Day' ), 7 => __( '7 Days' ), 30 => __( '30 Days' ), 365 => __( '365 Days' ), 0 => __( 'All Time' ) );
-			foreach ( $duration_choices as $duration_num => $duration_text ) {
+			foreach ( $this->duration_choices as $duration_num => $duration_text ) {
 				echo "<option value='$duration_num' " . ( $duration == $duration_num ? "selected='selected'" : '' ) . ">$duration_text</option>\n";
 			}
 		?>
@@ -157,7 +159,7 @@ if ( !function_exists( 'mdv_most_commented' ) ) {
 			);
 		$args = array( 'widget_id' => 'most_commented_widget_' . md5( var_export( $options, true ) ) );
 		$most_commented = new Most_Commented_Widget();
-
+		
 		if ( $echo )
 			$most_commented->widget( $args, $options );
 		else
