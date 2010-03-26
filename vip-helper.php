@@ -151,7 +151,7 @@ function vip_multiple_moderators($emails) {
 /*
  * DEPRECATED *
  * This function is no longer necessary. On 3/26/2010 we deployed code that automatically adds the mtime query string to
- * all css|gif|jpeg|jpg|js|png|swf files serverd from the CDN that occur before wp_footer(). This invalidates the browser cache.
+ * all css|gif|jpeg|jpg|js|png|swf|ico files serverd from the CDN that occur before wp_footer(). This invalidates the browser cache.
  * We also recently made changes that invalidate the file at the CDN when a new copy is committed to SVN.
  *
  * Add an mtime query string to a filename URL.
