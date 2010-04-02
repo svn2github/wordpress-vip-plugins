@@ -2,10 +2,8 @@
 /*
  * VIP Helper Functions
  * 
- * These functions can all be used in your local WordPress environment.
- *
- *	Add 
-include(ABSPATH . 'wp-content/themes/vip/plugins/vip-helper.php');
+ * These functions can all be used in your local WordPress environment. Add 
+require_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper.php' );
  * in the theme's functions.php to use this
  */
 
