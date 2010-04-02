@@ -6,7 +6,7 @@
  * filters, and actions that are enabled across all of WordPress.com.
  *
  * To add these functions to your theme add
-include_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-wpcom.php' );
+require_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-wpcom.php' );
  * in the theme's 'functions.php'. This should be wrapped in a 
 if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
  * so you don't load it in your local environment. This will help alert you if
