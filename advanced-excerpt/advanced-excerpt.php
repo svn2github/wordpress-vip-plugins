@@ -56,7 +56,7 @@ class AdvancedExcerpt
 			$use_words = (!is_null($use_words)) ? (int) (bool) $use_words : get_option($this->name . '_use_words');
 			$ellipsis = (!is_null($ellipsis)) ? $ellipsis : get_option($this->name . '_ellipsis');
 			
-			$allowed_tags = (is_array($allowed_tags)) ? $allowed_tags : get_option($this->name . '_allowed_tags');
+			$allowed_tags = (is_array($allowed_tags)) ? $allowed_tags : (array) get_option($this->name . '_allowed_tags');
 			$allowed_tags = implode('><', $allowed_tags);
 			$allowed_tags = '<' . $allowed_tags . '>';
 			
