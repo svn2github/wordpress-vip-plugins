@@ -49,6 +49,7 @@ function id_is_mobile() {
 	 $isMobile = strpos( $ac, 'application/vnd.wap.xhtml+xml' ) !== false
         || $op != ''
         || strpos( $ua, 'sony' ) !== false 
+		|| strpos( $ua, 'webos/' ) !== false 
         || strpos( $ua, 'symbian' ) !== false 
         || strpos( $ua, 'nokia' ) !== false 
         || strpos( $ua, 'samsung' ) !== false 

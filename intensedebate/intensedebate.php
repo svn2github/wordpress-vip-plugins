@@ -1,9 +1,11 @@
 <?php
+// error_reporting( E_ALL );
+// ini_set( 'display_errors', 'on' );
 /*
 Plugin Name: IntenseDebate
 Plugin URI: http://intensedebate.com/wordpress
 Description: <a href="http://www.intensedebate.com">IntenseDebate Comments</a> enhance and encourage conversation on your blog or website.  Full comment and account data sync between IntenseDebate and WordPress ensures that you will always have your comments.  Custom integration with your WordPress admin panel makes moderation a piece of cake. Comment threading, reply-by-email, user accounts and reputations, comment voting, along with Twitter and friendfeed integrations enrich your readers' experience and make more of the internet aware of your blog and comments which drives traffic to you!  To get started, please activate the plugin and adjust your  <a href="./options-general.php?page=id_settings">IntenseDebate settings</a> .
-Version: 2.5
+Version: 2.7
 Author: IntenseDebate & Automattic
 Author URI: http://intensedebate.com
 */
@@ -11,7 +13,7 @@ Author URI: http://intensedebate.com
 // CONSTANTS
 	
 	// This plugin's version 
-	define( 'ID_PLUGIN_VERSION', '2.5' );
+	define( 'ID_PLUGIN_VERSION', '2.7' );
 	
 	// API Endpoints
 	define( 'ID_BASEURL', 'http://intensedebate.com' );
@@ -43,15 +45,11 @@ Author URI: http://intensedebate.com
 	
 	// Load textdomain for internationalization
 	load_plugin_textdomain( 'intensedebate' );
-	
-	// Loads JSON lib if we don't have native support
-	if ( !function_exists( 'json_encode' ) && !class_exists( 'Services_JSON' ) )
-		include_once( dirname( __FILE__ ) . '/class.json.php' );
-	
+		
 	// Global var to ensure link wrapper script only outputs once	
 	$id_link_wrapper_output = false;
 
-// OVERRIDE MAIL FUNCTIONS
+// Override core mail notification functions with stubs
 
 	if ( !function_exists( 'wp_notify_postauthor' ) ) {
 		function wp_notify_postauthor() { }
@@ -62,16 +60,30 @@ Author URI: http://intensedebate.com
 
 // JSON support
 
-	// Future-friendly json_encode
-	if ( !function_exists( 'json_encode' ) ) {
+	function id_got_json() {			
+		// WP 2.9+ handles everything for us
+		if ( version_compare( get_bloginfo( 'version' ), '2.9', '>=' ) )
+			return true;
+		
+		// Functions exists already, assume they're good to go
+		if ( function_exists( 'json_encode' ) && function_exists( 'json_decode' ) )
+			return true;
+		
+		// Load Services_JSON if we need it at this point
+		if ( !class_exists( 'Services_JSON' ) )
+			include_once( dirname( __FILE__ ) . '/class.json.php' );
+		
+		// This indicates that we need to define the functions.
+		// Services_JSON *is* available one way or another at this point
+		return false;
+	}
+
+	if ( !id_got_json() ) {
 		function json_encode( $data ) {
 	        $json = new Services_JSON();
 	        return( $json->encode( $data ) );
 	    }
-	}
 
-	// Future-friendly json_decode
-	if ( !function_exists( 'json_decode' ) ) {
 		function json_decode( $data ) {
 	        $json = new Services_JSON();
 	        return( $json->decode( $data ) );
@@ -94,6 +106,9 @@ Author URI: http://intensedebate.com
 			add_action( 'admin_head', 'id_wordpress_version_warning' );
 			return;
 		}
+		
+		// hooks onto incoming requests
+		add_action( 'init', 'id_request_handler' );
 		
 		// IntenseDebate individual settings
 		add_action( 'admin_notices', 'id_admin_notices' );
@@ -127,9 +142,6 @@ Author URI: http://intensedebate.com
 		}
 		
 		if ( id_is_active() ) {
-			// hooks onto incoming requests
-			add_action( 'init', 'id_request_handler' );
-
 			// crud hooks
 			add_action( 'comment_post', 'id_save_comment' );
 			add_action( 'trackback_post', 'id_save_comment' );
@@ -151,7 +163,11 @@ Author URI: http://intensedebate.com
 			// Load ID comment template
 			if ( 0 == get_option( 'id_useIDComments') )
 				add_filter( 'comments_template', 'id_comments_template' );
-						
+			
+			// Disable email notifications properly
+			add_filter( 'option_moderation_notify', create_function( '$a', 'return 0;' ) );
+			add_filter( 'option_comments_notify', create_function( '$a', 'return 0;' ) );
+			
 			// swap out the comment count links
 			add_filter( 'comments_number', 'id_get_comment_number' );
 			add_action( 'wp_footer', 'id_get_comment_footer_script', 21 );
@@ -495,7 +511,7 @@ Author URI: http://intensedebate.com
 	}
 
 	// callbacks return true to remove from queue
-	function id_generic_callback( &$result, &$response, &$operation ) {
+	function id_generic_callback( $result, $response, $operation ) {
 		$args = func_get_args();
 		if ( $result ) return true;
 		if ( $response['attempt_retry'] ) return false;
@@ -938,7 +954,7 @@ Author URI: http://intensedebate.com
 					if ( isset( $operation->callback ) && function_exists( $operation->callback ) ) {
 						// callback returns true == remove from queue
 						// callback returns false == add back to queue
-						$finished = call_user_func_array( $operation->callback, array( "result" => $result->result, "response" => $result->response, "operation" => $operation ) );
+						$finished = call_user_func_array( $operation->callback, array( "result" => &$result->result, "response" => &$result->response, "operation" => &$operation ) );
 						
 						$operation->success = $finished;
 						$operation->response = $result->response;
@@ -1005,6 +1021,10 @@ Author URI: http://intensedebate.com
 			return;
 		}
 		
+		if ( 'id_REST_test_connection' == $fn ) {
+			id_response_render( call_user_func( $fn ) );
+		}
+		
 		// token key
 		$token = id_param( 'id_token' );
 		if ( $token !== get_option( 'id_import_token' ) ) {
@@ -1034,7 +1054,7 @@ Author URI: http://intensedebate.com
 	}
 	
 	function id_response_render( $result, $contentType = "application/json" ) {
-		ob_end_clean();
+		while ( ob_end_clean() ) {} // Clear all buffers
 		$charSet = get_bloginfo( 'charset' );
 		header( "Content-Type: {$contentType}; charset={$charSet}" );
 		die( json_encode( $result ) );
@@ -1042,6 +1062,13 @@ Author URI: http://intensedebate.com
 	
 	function id_REST_ping() {
 		return array( 'id_plugin_version' => ID_PLUGIN_VERSION, 'wp_version' => ( !empty( $wpmu_version ) ? 'WPMU/' : '' ) . get_bloginfo( 'version' ) );
+	}
+	
+	function id_REST_test_connection() {
+		if ( !empty( $_POST['hash'] ) )
+			return array( 'hash' => preg_replace( '/[^a-f0-9]/', '', $_POST['hash'] ), 'random' => md5( mt_rand( 0, 1000 ) ) );
+		else
+			wp_redirect( get_option( 'siteurl' ) );
 	}
 	
 	function id_REST_get_comments_by_user() {
@@ -1973,9 +2000,6 @@ Author URI: http://intensedebate.com
 					height: 51px;
 					width: 252px;
 				}
-				/* * html .idwp-install-logo {
-					margin-right: 0;
-				}*/
 
 				/* Steps */
 				.idwp-install-steps {
@@ -2018,9 +2042,9 @@ Author URI: http://intensedebate.com
 					border-radius: 2px; /* For future native implementations */
 				}
 				.idwp-install-main form h4 {
-					clear: none;
+					clear: left;
 					float: left;
-					line-height: 28px;
+					line-height: 20px;
 					margin: 0;
 					width: 160px;
 				}
@@ -2164,13 +2188,18 @@ Author URI: http://intensedebate.com
 					</ul>
 					<div class="idwp-install-main">
 						<?php if ( get_option( 'id_signup_step' ) == 0 ) : // first step (login/signup) ?>
-							<h3 class="idwp-nomargin"><?php _e( 'Please login to your IntenseDebate account', 'intensedebate' ); ?></h3>
+							<h3 class="idwp-nomargin"><?php _e( 'Please log in to your IntenseDebate account', 'intensedebate' ); ?></h3>
 							<p style="margin-top: 4px;"><?php _e( "Don't have an account?", 'intensedebate' ); ?> <a href="<?php echo ID_BASEURL ?>/signup" target="_blank"><?php _e( 'Sign up here', 'intensedebate' ); ?></a>. </p>
 							<p <?php if ( !id_param( 'login_msg' ) ) echo 'style="display:none"'; ?> class="idwp-message_error"><span class="idwp-message_error-symbol"></span> Login failed. Please check your credentials and try again.</p>
 							<?php $username = id_param( 'username' ); ?>
 							<form id="id_user_login" action="options-general.php?page=id_settings" method="POST">
 								<input type="hidden" name="id_settings_action" value="user_login" />							
 								<div class="idwp-install-form_elements form-table">
+									<h4><label for="txtType"><?php _e( 'Log in using...', 'intensedebate' ); ?></label></h4>
+									<div class="idwp-input-text-wrap">
+								    	<input type="radio" name="id_remote_fields[account_type]" value="ID" id="radioTypeID" checked="checked" /> <label for="radioTypeID"><?php printf( __( '%s Account', 'intensedebate' ), 'IntenseDebate' ); ?></label>
+								    	<input type="radio" name="id_remote_fields[account_type]" value="WPC" id="radioTypeWP" /> <label for="radioTypeWP"> <?php printf( __( '%s Account' ), '<a href="http://wordpress.com/">WordPress.com</a>' ); ?></label>
+									</div>
 									<h4><label for="txtEmail"><?php _e( 'Email/Username', 'intensedebate' ); ?></label></h4>
 									<div class="idwp-input-text-wrap">
 								    	<input id="txtEmail" autocomplete="off" type="text" class="required regular-text" name="id_remote_fields[username]" value="<?php echo $username; ?>" />
@@ -2181,11 +2210,15 @@ Author URI: http://intensedebate.com
 										<input id="txtPassword" autocomplete="off" type="password" class="required regular-text" name="id_remote_fields[password]" value="" /><a href='#' style="text-decoration:none" onclick='document.getElementById("useOpenID").style.display="block";'><img style="padding-left: 5px; padding-right: 2px" src="<?php echo ID_BASEURL ?>/images/icon-openid.png" /> Signed up with OpenID? </a>
 										<p class="idwp-fade"><a href="<?php echo ID_BASEURL ?>/forgot" target="_blank"><?php _e( 'Forgot your IntenseDebate password?', 'intensedebate' ); ?></a></p>
 									</div>
-									<span style="display:none" id="useOpenID"><?php printf( __( 'Unfortunately IntenseDebate and WordPress account syncing with OpenID is currently not directly available.  Please use your IntenseDebate username and user key to sync your account.  You can obtain your username and user key <a href="%s" target="_blank">here</a>.', 'intensedebate' ), ID_BASEURL . '/userkey' ); ?></span>
+									<span style="display:none" id="useOpenID"><?php printf( __( 'Unfortunately IntenseDebate and WordPress account syncing with OpenID is currently not directly available.  Please use your IntenseDebate username and user key to sync your account.  You can obtain your username and user key <a href="%s" target="_blank">here</a>.', 'intensedebate' ), ID_BASEURL . '/edit-user-account' ); ?></span>
 							    </div><!--/ idwp-install-form_elements -->
-							    <input type="submit" value="<?php _e( 'Login to IntenseDebate', 'intensedebate' ); ?>" class="idwp-bigbutton" />
+								<p>
+								    <input type="submit" value="<?php _e( 'Login to IntenseDebate', 'intensedebate' ); ?>" class="idwp-bigbutton" />
+									<span id="test-connection"><img src="<?php echo ID_BASEURL ?>/images/ajax-loader.gif" align="absmiddle" alt="*" border="0" /> Testing connection to IntenseDebate.com...</span>
+								</p>
 							    <p><strong><?php _e( 'Note:', 'intensedebate' ); ?></strong> <?php printf( __( "As is the case when installing any plugin, it's always a good idea to <a href=\"%s\">backup</a> your blog data before proceeding.", 'intensedebate' ), 'export.php' ); ?></p>
 						    </form>
+							<script src="<?php echo ID_BASEURL; ?>/js/wordpress-test-connection.php?url=<?php echo urlencode( get_option( 'siteurl' ) ); ?>" type="text/javascript" charset="utf-8"></script>
 						<?php elseif ( get_option( 'id_signup_step' ) == 1 ) : //second step (start import) ?>
 							<h3 class="idwp-nomargin"><?php _e( 'Import your WordPress comments into IntenseDebate', 'intensedebate' ); ?></h3>
 							<div class="idwp-shortline">				
@@ -2321,7 +2354,7 @@ Author URI: http://intensedebate.com
 	}
 	
 	function id_reset_plugin_form() {
-		if ( get_option( 'id_signup_step' ) > 0 && is_site_admin() ) :
+		if ( get_option( 'id_signup_step' ) > 0 ) :
 		?>
 		<form id="id_plugin_reset" action="options-general.php?page=id_settings" method="POST">
 			<input type="hidden" name="id_settings_action" value="settings_reset" />
@@ -2447,7 +2480,7 @@ Author URI: http://intensedebate.com
 		$fields['blog_rss'] = get_bloginfo( 'rss_url' );
 		$fields['blog_title'] = id_get_blog_name();
 		$fields['blog_sitetype'] = "wordpress";
-		$fields['rest_service'] = $fields['blog_url'] . '/index.php?id_action=import'; 
+		$fields['rest_service'] = $fields['blog_url'] . '/index.php?id_action=import';
 		$fields['token'] = id_generate_token( $fields );
 		$fields['wp_userID'] = $userdata->ID;
 		$fields['start_import'] = "false";
