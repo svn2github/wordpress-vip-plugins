@@ -292,3 +292,13 @@ function wpcom_vip_ip2country( $ip = '' ) {
 
 	return ip2country_sql( addslashes( $ip ) );
 }
+
+/*
+ * Do not display the Polldaddy rating. Usually used for a page or post where ratings are not wanted.
+ *
+ * @author nickmomrik
+ */
+
+function wpcom_vip_remove_polldaddy_rating() {
+	remove_filter( 'the_content', 'polldaddy_show_rating', 5 );
+}
