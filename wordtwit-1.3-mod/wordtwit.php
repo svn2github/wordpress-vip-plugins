@@ -7,17 +7,60 @@ Author: Duane Storey and Dale Mugford, BraveNewCode Inc., Modified and extended 
 Version: 1.3-mod
 Author URI: http://www.bravenewcode.com
 */
-
 /*
- *	You can use the following filters to change the twitter message to your needs.
- *
- *	$message = apply_filters( 'wordtwit_pre_proc_message', $message, $post->ID );
- *	this filter is executed before the message string is parsed and replacements for [title] and [link] are done
- * 
- *	$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
- *	is applied after the replacements for [title] and [link] are processed.
- *
- */
+Reason for Mod:
+
+As newer versions of WordTwit introduce database alterations this version was created to implement various feature enhancements and modifications.
+
+Changes to original WordTwit version 1.3:
+
+Added two new checkmarks in plugin configuration
+- user_override enables User/Blog based inputs which are stored in the blog options
+- user_preference setting controls if the plugin should fall back to the general options in case the user did not provide any settings. 
+The user preferences can be done in the Profile page of the user. 
+Implemented functionality to encrypt twitter access data
+Added bit.ly and wp.me url shorteners
+Added some optimizations to ensure that posts are not tweeted twice
+Added threshold option to avoid tweeting out old posts
+
+Usage:
+
+This plugin can all enabled in your WordPress theme by adding this line to your theme's functions.php
+
+require_once( WP_CONTENT_DIR . '/themes/vip/plugins/wordtwit-1.3-mod/wordtwit.php' );
+
+Advanced usage:
+
+You can use the following filters to change the twitter message to your needs.
+
+$message = apply_filters( 'wordtwit_pre_proc_message', $message, $post->ID );
+
+this filter is executed before the message string is parsed and replacements for [title] and [link] are done
+
+$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
+
+is applied after the replacements for [title] and [link] are processed.
+
+The example use case for this filters shown below adds a twitter username based on a mapping array.
+
+add_filter( 'wordtwit_pre_proc_message', 'adjust_twit_msg', 10, 2 );
+
+$twitter_usernames = array( 1234567 => 'twitteruser' ); // wordpress.com userid => twitter user
+
+function adjust_twit_msg( $message, $post_id ) {
+	global $twitter_usernames;
+	$short_url = get_post_meta($post_id, 'short_url', true);
+	if ( !empty( $short_url ) )
+		$message = str_replace( '[link]', $short_url, $message );
+	$post = get_post( $post_id );
+	if ( isset( $twitter_usernames[ $post->post_author ] ) )
+		$message = str_replace( '[twitname]', '@' . $twitter_usernames[ $post->post_author ], $message );
+	else
+		$message = str_replace( '[twitname]', '', $message );
+	return $message;
+}
+
+*/
 
 
 // Some ideas taken from http://twitter.slawcup.com/twitter.class.phps
@@ -195,7 +238,7 @@ function twit_hit_server( $location, $username, $password, &$output, $post = fal
 	  // need to do the actual post
 	  $result = $snoopy->submit( $location, $post_fields );
 	  if ( $result ) {
-		 return $true;	
+		 return true;	
 	  }
    } else {
 	  $result = $snoopy->fetch( $location );
@@ -318,7 +361,7 @@ function post_now_published( $post_id ) {
 			$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
 			
 			twit_update_status( $twit_username, $twit_password, $message );
-	
+			
 			add_post_meta( $post_id, 'has_been_twittered', 'yes' );
 		}
 	}
