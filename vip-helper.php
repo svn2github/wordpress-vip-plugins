@@ -318,7 +318,7 @@ function wpcom_vip_meta_desc() {
  */
 function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 	global $wpdb, $vip_get_random_posts_rnd_ids, $vip_get_random_posts_current_rnd_ids, $vip_get_random_post_ids_where_add;
-	
+
 	if ( empty( $vip_get_random_post_ids_where_add ) )
 		$where_add = "AND post_status='publish' AND post_type='post'";
 	else 
@@ -329,7 +329,7 @@ function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 	if ( !has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) || !$all_ids = wp_cache_get( 'vip_random_posts_ids_' . md5( $where_add ), 'vip_get_random_posts_all_ids' ) ) {
 		$all_ids = vip_refresh_random_posts_all_ids();
 	}
-	
+
 	if ( empty( $all_ids ) || is_wp_error( $all_ids ) ) 
 		return false;
 	
@@ -348,11 +348,11 @@ function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 			
 		$vip_get_random_posts_rnd_ids[$random_id] = $all_ids[$random_id]->ID;
 	} while( count( $vip_get_random_posts_rnd_ids ) < $amount );
-	
+
 	if ( $return_ids )
 		return (array) $vip_get_random_posts_rnd_ids;
 
-	$random_posts = get_posts( array( 'post__in' => $vip_get_random_posts_rnd_ids ) );
+	$random_posts = get_posts( array( 'post__in' => $vip_get_random_posts_rnd_ids, 'numberposts' => count( $vip_get_random_posts_rnd_ids ) ) );
 	$random_posts = apply_filters( 'vip_get_random_posts_random_posts', $random_posts );
 	return $random_posts;
 }
