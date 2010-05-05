@@ -94,7 +94,7 @@ function _disable_autosave() {
  */
 
 function vip_main_feed_redirect( $target ) {
-		header( "X-Accel-Expires: 0" );
+	header( "X-Accel-Expires: 0" );
         define('FEEDURL', '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i');
         $request = $_SERVER['REQUEST_URI'];
         $agent = $_SERVER['HTTP_USER_AGENT'];
