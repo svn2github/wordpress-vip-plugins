@@ -143,7 +143,7 @@ function _vip_doubleclick_dartiframe_redirect() {
 
 function vip_multiple_moderators($emails) {
         $email_headers = "From: donotreply@wordpress.com" . "\n" . "CC: " . implode(', ', $emails);
-        add_filter('comment_moderation_headers', returner($email_headers));
+        add_filter('comment_moderation_headers', create_function( '', 'return '.var_export( $email_headers, true ).';') );
 }
 
 /*

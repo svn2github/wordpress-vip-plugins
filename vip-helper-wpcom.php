@@ -39,8 +39,8 @@ function vip_allow_title_orphans() {
 
 function vip_related_posts($before = '', $after = '') {
 	remove_filter('the_content', 'sphere_inline');
-	if ( !empty($before) ) add_filter('sphere_inline_before', returner($before));
-	if ( !empty($after) ) add_filter('sphere_inline_after', returner($after));
+	if ( !empty($before) ) add_filter('sphere_inline_before', create_function( '', 'return '.var_export( $before, true ).';') );
+	if ( !empty($after) ) add_filter('sphere_inline_after', create_function( '', 'return '.var_export( $after, true ).';') );
 }
 
 function vip_display_related_posts( $limit_to_same_domain = true ) {
@@ -107,7 +107,7 @@ function vip_remove_enhanced_feed_images() {
 function wpcom_vip_audio_player_colors( $colors ) {
 	$default_colors = array("bg" => "0xf8f8f8", "leftbg" => "0xeeeeee", "lefticon" => "0x666666", "rightbg" => "0xcccccc", "rightbghover" => "0x999999", "righticon" => "0x666666", "righticonhover" => "0xffffff", "text" => "0x666666", "slider" => "0x666666", "track" => "0xFFFFFF", "border" => "0x666666", "loader" => "0x9FFFB8");
 
-	add_filter('audio_player_default_colors', returner(array_merge($default_colors, $colors)));
+	add_filter('audio_player_default_colors', create_function( '', 'return '.var_export( array_merge($default_colors, $colors), true ).';') );
 }
 
 /*
