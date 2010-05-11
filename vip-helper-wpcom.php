@@ -302,3 +302,11 @@ function wpcom_vip_ip2country( $ip = '' ) {
 function wpcom_vip_remove_polldaddy_rating() {
 	remove_filter( 'the_content', 'polldaddy_show_rating', 5 );
 }
+
+
+/*
+ * Do not wrap post contents in a mShots/Snap <div>
+ */
+function wpcom_vip_remove_snap_preview_div() {
+	remove_filter( 'the_content', 'wrap_snap_div', 8888 );
+}
