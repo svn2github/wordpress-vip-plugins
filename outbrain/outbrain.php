@@ -4,7 +4,7 @@ Plugin Name: outbrain
 Plugin URI: http://wordpress.org/extend/plugins/outbrain/
 Description: A WordPress plugin to deal with the <a href="http://www.outbrain.com">Outbrain</a> blog posting rating system.
 Author: outbrain
-Version: 3.7.8.0
+Version: 6.2.0.0
 Author URI: http://www.outbrain.com
 */
 
@@ -27,7 +27,7 @@ if ($userType == "Partners"){
 }
 
 
-$outbrain_plugin_version = "3.6.2.0_". $userType;
+$outbrain_plugin_version = "6.2.0.0_". $userType;
 
 
 // consts
@@ -374,13 +374,22 @@ function outbrain_display ($content)
 	}
 
 	$installation_time_string			=	get_option('installation_time');
+	$raterMode							      =	get_option('outbrain_raterMode');
+	$recMode							        =	get_option('outbrain_recMode');
 
 
 	if (! isset($installation_time_string) || (isset($installation_time_string) &&  empty($installation_time_string))){
-			$installation_time_string =   time();
-			update_option("installation_time",$installation_time_string);
-		}
-
+		$installation_time_string =   time();
+		update_option("installation_time",$installation_time_string);
+	}
+	if (! isset($raterMode) || (isset($raterMode) &&  empty($raterMode))){
+  	$raterMode =   "stars";
+		update_option("outbrain_raterMode",$raterMode);
+	}
+  if (! isset($recMode) || (isset($recMode) &&  empty($recMode))){
+  	$recMode =   "rec";
+		update_option("outbrain_recMode",$recMode);
+	}
 
 		$content .= '<script type=\'text/javascript\'>
 		<!--
@@ -389,14 +398,16 @@ function outbrain_display ($content)
 		if(typeof(OB_Script)!=\'undefined\'){
 			OutbrainStart();
 		} else {
-			var OB_demoMode			=	false;
-			' . $recommendations_string . '
-			' . $self_recommendations_string . '
 			var OB_PlugInVer		=	"' . $outbrain_plugin_version . '";
+      ' . $recommendations_string . '
+			' . $self_recommendations_string . '
+			var OB_raterMode			=	"' . $raterMode . '";
+      var OB_recMode				=	"' . $recMode . '";
 			var OBITm				=	"' . $installation_time_string . '";
 			var OB_Script			=	true;
 			var OB_langJS			=	"' . get_option("outbrain_lang") . '";
-			document.write ("<script src=\'http://widgets.outbrain.com/OutbrainRater.js\' type=\'text/javascript\'><\/script>");
+      document.write(unescape("%3Cscript src=\'http://widgets.outbrain.com/OutbrainRater.js\' type=\'text/javascript\'%3E%3C/script%3E"));
+
 		}
 		' . $outbrain_end_comment . '
 		//-->
@@ -492,7 +503,7 @@ function outbrain_mostPopular_widget_control(){
 		$new_options['title'] = trim(strip_tags(stripslashes($_POST["outbrain_widget_title"])));
 		$new_options['postsCount'] = $_POST["outbrain_widget_postsCount"];
 		$new_options['dontShowVotersCount'] = $_POST["outbrain_widget_VotersCount"];
-
+		
 		if (!is_numeric($new_options['postsCount'])){
 			$new_options['postsCount'] = $curr_options['postsCount'];
 		}
@@ -639,7 +650,6 @@ outbrain_globals_init();
 // add filters
 
 
-
 add_filter('the_content'	, 'outbrain_display');
 add_filter('the_excerpt'	, 'outbrain_display_excerpt');
 add_filter('wp_head'		, 'outbrain_addClaimCode', 1);
@@ -651,6 +661,8 @@ add_option('outbrain_pages_recs',array(0,1,2,3,4));
 add_option('outbrain_claim_key','');
 add_option('outbrain_claim_status_num','');
 add_option('outbrain_claim_status_string','');
+add_option('outbrain_raterMode',$raterMode);
+add_option('outbrain_recMode',$recMode);
 
 add_option('outbrain_rater_show_recommendations',false);
 add_option('outbrain_rater_self_recommendations',false);
