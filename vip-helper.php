@@ -28,6 +28,7 @@ function vip_redirects( $vip_redirects_array = array() ) {
 
 /*
  * PHP func file_get_contents() w/ WP_CACHE integration
+ * and echos by default
  * @author based on code by CNN
  */
 
