@@ -1,11 +1,9 @@
 <?php
-// error_reporting( E_ALL );
-// ini_set( 'display_errors', 'on' );
 /*
 Plugin Name: IntenseDebate
 Plugin URI: http://intensedebate.com/wordpress
 Description: <a href="http://www.intensedebate.com">IntenseDebate Comments</a> enhance and encourage conversation on your blog or website.  Full comment and account data sync between IntenseDebate and WordPress ensures that you will always have your comments.  Custom integration with your WordPress admin panel makes moderation a piece of cake. Comment threading, reply-by-email, user accounts and reputations, comment voting, along with Twitter and friendfeed integrations enrich your readers' experience and make more of the internet aware of your blog and comments which drives traffic to you!  To get started, please activate the plugin and adjust your  <a href="./options-general.php?page=id_settings">IntenseDebate settings</a> .
-Version: 2.7
+Version: 2.9
 Author: IntenseDebate & Automattic
 Author URI: http://intensedebate.com
 */
@@ -13,7 +11,7 @@ Author URI: http://intensedebate.com
 // CONSTANTS
 	
 	// This plugin's version 
-	define( 'ID_PLUGIN_VERSION', '2.7' );
+	define( 'ID_PLUGIN_VERSION', '2.9' );
 	
 	// API Endpoints
 	define( 'ID_BASEURL', 'http://intensedebate.com' );
@@ -28,7 +26,7 @@ Author URI: http://intensedebate.com
 	define( 'ID_APPKEY', 'wpplugin' );
 	
 	// IntenseDebate is not supported (at all) prior to WordPress 2.0
-	define( 'ID_MIN_WP_VERSION', '2.5' );
+	define( 'ID_MIN_WP_VERSION', '2.9' );
 	
 	// URLs for linkage
 	define( 'ID_COMMENT_MODERATION_PAGE', ID_BASEURL . '/wpIframe.php?acctid=' );
@@ -220,7 +218,7 @@ Author URI: http://intensedebate.com
 					'moderate_comments',
 					'intensedebate',
 					'id_moderate_comments',
-					'../wp-content/themes/vip/plugins/intensedebate/comments.png'
+					'../wp-content/plugins/intensedebate/comments.png'
 				);
 			} else { // < WP 2.7
 				unset( $menu[20] );
@@ -651,20 +649,18 @@ Author URI: http://intensedebate.com
 				$this->comment_date = get_date_from_gmt( $this->comment_date_gmt );
 
 			$result = 0;
-			if ( $this->comment_ID ) { // Added by duplicateCheck() if matched against existing comment					
-				remove_action( 'edit_comment', 'id_save_comment' );
+			remove_action( 'edit_comment', 'id_save_comment' );
+			if ( $this->comment_ID && get_comment( $this->comment_ID ) ) { // Added by duplicateCheck() if matched against existing comment
 				$result = wp_update_comment( $this->props() );
-				add_action( 'edit_comment', 'id_save_comment' );
 			} else {
-				remove_action( 'comment_post', 'id_save_comment' );
 				$result = wp_insert_comment( $this->props() );
 				if ( !$result ) {
 					add_action( 'comment_post', 'id_save_comment' );
 					return false;
 				}
 				$this->comment_ID = $result;
-				add_action( 'comment_post', 'id_save_comment' );
 			}
+			add_action( 'comment_post', 'id_save_comment' );
 			return true;
 		}
 		
@@ -1256,10 +1252,16 @@ Author URI: http://intensedebate.com
 		id_debug_log( "Receive Comment: $rawComment" );
 		$comment = new id_comment();
 		$comment->loadFromRemoteJson( $rawComment );
-		return array(
+		$result = array(
 			'success' => $comment->save(),
 			'comment' => $comment->export()
 		);
+		if ( 'delete' == $comment->comment_status ) {
+			remove_action( 'wp_set_comment_status', 'id_comment_status', 10, 2 );
+			wp_delete_comment( $comment->comment_ID );
+			add_action( 'wp_set_comment_status', 'id_comment_status', 10, 2 );
+		}
+		return $result;
 	}
 
 	
@@ -1269,6 +1271,27 @@ Author URI: http://intensedebate.com
 	function id_REST_set_comment_status() {
 		$newStatus = id_param( 'status', '' );
 		$comment_id = id_param( 'comment_id', 0 );
+		$rawComment = stripslashes( id_param( 'comment_data' ) );
+		
+		if ( !$comment_id ) {
+			if ( !$rawComment )
+				return false;
+			
+			$comment = new id_comment();
+			$comment->loadFromRemoteJson( $rawComment );
+			$comment->duplicateCheck(); // Will locate a match and update with the WP id
+			
+			if ( $comment->comment_ID ) {
+				// Found it, carry on
+				$comment_id = $comment->comment_ID;
+			} else {
+				// No match
+				if ( 'delete' == $newStatus )
+					return true; // We were going to delete it anyway
+				else
+					return false;				
+			}
+		}
 		
 		id_debug_log( "Receive Comment Status: $newStatus $comment_id" );
 		
@@ -2654,7 +2677,134 @@ Author URI: http://intensedebate.com
 			}
 		}
 	}
-
+	
+	// Add ID blog stats widget
+	function widget_id_blog_stats($args) {
+		extract($args);
+		echo $before_widget;
+		echo "<script type='text/javascript' src='http://www.intensedebate.com/widgets/blogStats/" . get_option( "id_blogID" ) . "'></script>";
+		echo $after_widget;
+	}
+ 
+	function id_blog_stats_init() {
+		register_sidebar_widget(__('IntenseDebate - Site Stats'), 'widget_id_blog_stats');
+	}
+	
+	add_action("plugins_loaded", "id_blog_stats_init");
+	
+	// Add ID recent comments widget
+	function widget_id_recent_comments($args) {
+		extract($args);
+		echo $before_widget;
+		$count = intval( get_option('id_recent_comments_count') );
+		if ( $count <= 0 )
+			$count = 5;
+		echo "<script type='text/javascript' src='http://www.intensedebate.com/widgets/acctComment/" . get_option( "id_blogID" ) . "/$count'></script>";
+		echo $after_widget;
+	}
+	
+	function widget_id_recent_comments_control() {
+		$count = get_option('id_recent_comments_count');
+		?>
+		<p><label>Number of comments to display:<input name="id_recent_comments_count" type="text" value="<?php echo $count; ?>" /></label></p>
+		<?php
+		if ( isset( $_POST['id_recent_comments_count'] ) ) {
+			if ( !is_numeric( $_POST['id_recent_comments_count'] ) ) {
+				echo "Please enter a number";
+				return;
+			}
+			
+			$count = intval( $_POST['id_recent_comments_count'] );
+			if ( $count <= 0 ) {
+				echo "Please enter an integer greater than zero.";
+				return;
+			}
+			update_option( 'id_recent_comments_count', attribute_escape($_POST['id_recent_comments_count']) );
+		}
+	}
+ 
+	function id_recent_comments_init() {
+		register_sidebar_widget(__('IntenseDebate - Recent Comments'), 'widget_id_recent_comments');
+		register_widget_control(__('IntenseDebate - Recent Comments'), 'widget_id_recent_comments_control');
+	}
+	
+	add_action("plugins_loaded", "id_recent_comments_init");
+	
+	// Add ID top commenters widget
+	function widget_id_top_commenters($args) {
+		extract($args);
+		echo $before_widget;
+		$count = intval( get_option('id_top_commenters_count') );
+		if ( $count <= 0 )
+			$count = 10;
+		echo "<script type='text/javascript' src='http://www.intensedebate.com/widgets/topCommenters/" . get_option( "id_blogID" ) . "/$count'></script>";
+		echo $after_widget;
+	}
+	
+	function widget_id_top_commenters_control() {
+		$count = get_option('id_top_commenters_count');
+		?>
+		<p><label>Number of commenters to display:<input name="id_top_commenters_count" type="text" value="<?php echo $count; ?>" /></label></p>
+		<?php
+		if ( isset( $_POST['id_top_commenters_count'] ) ) {
+			if ( !is_numeric( $_POST['id_top_commenters_count'] ) ) {
+				echo "Please enter a number";
+				return;
+			}
+			
+			$count = intval( $_POST['id_top_commenters_count'] );
+			if ( $count <= 0 ) {
+				echo "Please enter an integer greater than zero.";
+				return;
+			}
+			update_option( 'id_top_commenters_count', attribute_escape($_POST['id_top_commenters_count']) );
+		}
+	}
+ 
+	function id_top_commenters_init() {
+		register_sidebar_widget(__('IntenseDebate - Top Commenters'), 'widget_id_top_commenters');
+		register_widget_control(__('IntenseDebate - Top Commenters'), 'widget_id_top_commenters_control');
+	}
+	
+	add_action("plugins_loaded", "id_top_commenters_init");
+	
+	// Add ID most commented posts widget
+	function widget_id_most_commented_posts($args) {
+		extract($args);
+		echo $before_widget;
+		$count = intval( get_option('id_most_commented_posts_count') );
+		if ( $count <= 0 )
+			$count = 10;
+		echo "<script type='text/javascript' src='http://www.intensedebate.com/widgets/mostComments/" . get_option( "id_blogID" ) . "/$count'></script>";
+		echo $after_widget;
+	}
+	
+	function widget_id_most_commented_posts_control() {
+		$count = get_option('id_most_commented_posts_count');
+		?>
+		<p><label>Number of posts to display:<input name="id_most_commented_posts_count" type="text" value="<?php echo $count; ?>" /></label></p>
+		<?php
+		if ( isset( $_POST['id_most_commented_posts_count'] ) ) {
+			if ( !is_numeric( $_POST['id_most_commented_posts_count'] ) ) {
+				echo "Please enter a number";
+				return;
+			}
+			
+			$count = intval( $_POST['id_most_commented_posts_count'] );
+			if ( $count <= 0 ) {
+				echo "Please enter an integer greater than zero.";
+				return;
+			}
+			update_option( 'id_most_commented_posts_count', attribute_escape($_POST['id_most_commented_posts_count']) );
+		}
+	}
+ 
+	function id_most_commented_posts_init() {
+		register_sidebar_widget(__('IntenseDebate - Most Commented Posts'), 'widget_id_most_commented_posts');
+		register_widget_control(__('IntenseDebate - Most Commented Posts'), 'widget_id_most_commented_posts_control');
+	}
+	
+	add_action("plugins_loaded", "id_most_commented_posts_init");
 
 // ACTIVATE HOOKS
 
