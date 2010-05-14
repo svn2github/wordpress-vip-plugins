@@ -31,7 +31,7 @@ else :
 	idc_ld.id = 'idc-loading-comments'; idc_ld.style.verticalAlign='middle';
 	idc_ld.innerHTML = "<img src='<?php echo WP_CONTENT_URL; ?>/themes/vip/plugins/intensedebate/loading.gif' alt='Loading' border='0' align='absmiddle' /> <?php _e( 'Loading IntenseDebate Comments...', 'intensedebate' ); ?>";
 	idc_ns.parentNode.insertBefore(idc_ld, idc_ns);
-	setTimeout( IDC_revert, 5000 );
+	setTimeout( IDC_revert, 10000 );
 	/* ]]> */
 	</script>
 <?php
