@@ -46,6 +46,9 @@ function id_is_mobile() {
 	$ac = !empty( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( $_SERVER['HTTP_ACCEPT'] ) : '';
 	$ip = $_SERVER['REMOTE_ADDR'];
 
+	if ( strpos( $ua, 'ipad' ) )
+		return false;
+
 	 $isMobile = strpos( $ac, 'application/vnd.wap.xhtml+xml' ) !== false
         || $op != ''
         || strpos( $ua, 'sony' ) !== false 
