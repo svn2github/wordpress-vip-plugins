@@ -159,17 +159,20 @@ Author URI: http://intensedebate.com
 			add_action( 'load-options.php', 'id_discussion_settings_page' );
 	
 			// Load ID comment template
-			if ( 0 == get_option( 'id_useIDComments') )
-				add_filter( 'comments_template', 'id_comments_template' );
+			if ( 0 == get_option( 'id_useIDComments') ) {
+				if ( !id_is_mobile() || ( id_is_mobile() && 0 != get_option( 'id_revertMobile' ) ) ) {
+					add_filter( 'comments_template', 'id_comments_template' );
+					
+					// swap out the comment count links
+					add_filter( 'comments_number', 'id_get_comment_number' );
+					add_action( 'wp_footer', 'id_get_comment_footer_script', 21 );
+					add_action( 'get_footer', 'id_get_comment_footer_script', 100 );
+				}
+			}
 			
 			// Disable email notifications properly
 			add_filter( 'option_moderation_notify', create_function( '$a', 'return 0;' ) );
 			add_filter( 'option_comments_notify', create_function( '$a', 'return 0;' ) );
-			
-			// swap out the comment count links
-			add_filter( 'comments_number', 'id_get_comment_number' );
-			add_action( 'wp_footer', 'id_get_comment_footer_script', 21 );
-			add_action( 'get_footer', 'id_get_comment_footer_script', 100 );
 		}
 		
 		if ( id_is_active() || id_queue_not_empty() ) {
@@ -2805,6 +2808,66 @@ Author URI: http://intensedebate.com
 	}
 	
 	add_action("plugins_loaded", "id_most_commented_posts_init");
+
+	// Detect if this is a mobile client based on the user agent
+	function id_is_mobile() {
+		$op = !empty( $_SERVER['HTTP_X_OPERAMINI_PHONE'] ) ? strtolower( $_SERVER['HTTP_X_OPERAMINI_PHONE'] ) : '';
+		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		$ac = !empty( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( $_SERVER['HTTP_ACCEPT'] ) : '';
+		$ip = $_SERVER['REMOTE_ADDR'];
+
+		if ( strpos( $ua, 'ipad' ) )
+			return false;
+
+		 $isMobile = strpos( $ac, 'application/vnd.wap.xhtml+xml' ) !== false
+	        || $op != ''
+	        || strpos( $ua, 'sony' ) !== false 
+			|| strpos( $ua, 'webos/' ) !== false 
+	        || strpos( $ua, 'symbian' ) !== false 
+	        || strpos( $ua, 'nokia' ) !== false 
+	        || strpos( $ua, 'samsung' ) !== false 
+	        || strpos( $ua, 'mobile' ) !== false
+	        || strpos( $ua, 'windows ce' ) !== false
+	        || strpos( $ua, 'epoc' ) !== false
+	        || strpos( $ua, 'opera mini' ) !== false
+	        || strpos( $ua, 'nitro' ) !== false
+	        || strpos( $ua, 'j2me' ) !== false
+	        || strpos( $ua, 'midp-' ) !== false
+	        || strpos( $ua, 'cldc-' ) !== false
+	        || strpos( $ua, 'netfront' ) !== false
+	        || strpos( $ua, 'mot' ) !== false
+	        || strpos( $ua, 'up.browser' ) !== false
+	        || strpos( $ua, 'up.link' ) !== false
+	        || strpos( $ua, 'audiovox' ) !== false
+	        || strpos( $ua, 'blackberry' ) !== false
+	        || strpos( $ua, 'ericsson,' ) !== false
+	        || strpos( $ua, 'panasonic' ) !== false
+	        || strpos( $ua, 'philips' ) !== false
+	        || strpos( $ua, 'sanyo' ) !== false
+	        || strpos( $ua, 'sharp' ) !== false
+	        || strpos( $ua, 'sie-' ) !== false
+	        || strpos( $ua, 'portalmmm' ) !== false
+	        || strpos( $ua, 'blazer' ) !== false
+	        || strpos( $ua, 'avantgo' ) !== false
+	        || strpos( $ua, 'danger' ) !== false
+	        || strpos( $ua, 'palm' ) !== false
+	        || strpos( $ua, 'series60' ) !== false
+	        || strpos( $ua, 'palmsource' ) !== false
+	        || strpos( $ua, 'pocketpc' ) !== false
+	        || strpos( $ua, 'smartphone' ) !== false
+	        || strpos( $ua, 'rover' ) !== false
+	        || strpos( $ua, 'ipaq' ) !== false
+	        || strpos( $ua, 'au-mic,' ) !== false
+	        || strpos( $ua, 'alcatel' ) !== false
+	        || strpos( $ua, 'ericy' ) !== false
+	        || strpos( $ua, 'up.link' ) !== false
+	        || strpos( $ua, 'vodafone/' ) !== false
+	        || strpos( $ua, 'wap1.' ) !== false
+	        || strpos( $ua, 'wap2.' ) !== false;
+
+		return $isMobile;
+	}
+
 
 // ACTIVATE HOOKS
 

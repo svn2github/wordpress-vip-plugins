@@ -3,7 +3,7 @@
 // Loads comments from the WordPress database using your own comments template,
 // loads IntenseDebate UI for users with Javascript enabled.
 
-if ( get_option( 'id_revertMobile' ) == 0 && id_is_mobile() ) :
+if ( 0 == get_option( 'id_revertMobile' ) && id_is_mobile() ) :
 	// Display the comments template from the active theme
 	include( get_option( 'id_comment_template_file' ) );
 else :
@@ -40,61 +40,4 @@ id_postload_js( ID_BASEURL . '/js/wordpressTemplateCommentWrapper2.php?acct=' . 
 
 endif; // revertMobile
 
-function id_is_mobile() {
-	$op = !empty( $_SERVER['HTTP_X_OPERAMINI_PHONE'] ) ? strtolower( $_SERVER['HTTP_X_OPERAMINI_PHONE'] ) : '';
-	$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-	$ac = !empty( $_SERVER['HTTP_ACCEPT'] ) ? strtolower( $_SERVER['HTTP_ACCEPT'] ) : '';
-	$ip = $_SERVER['REMOTE_ADDR'];
-
-	if ( strpos( $ua, 'ipad' ) )
-		return false;
-
-	 $isMobile = strpos( $ac, 'application/vnd.wap.xhtml+xml' ) !== false
-        || $op != ''
-        || strpos( $ua, 'sony' ) !== false 
-		|| strpos( $ua, 'webos/' ) !== false 
-        || strpos( $ua, 'symbian' ) !== false 
-        || strpos( $ua, 'nokia' ) !== false 
-        || strpos( $ua, 'samsung' ) !== false 
-        || strpos( $ua, 'mobile' ) !== false
-        || strpos( $ua, 'windows ce' ) !== false
-        || strpos( $ua, 'epoc' ) !== false
-        || strpos( $ua, 'opera mini' ) !== false
-        || strpos( $ua, 'nitro' ) !== false
-        || strpos( $ua, 'j2me' ) !== false
-        || strpos( $ua, 'midp-' ) !== false
-        || strpos( $ua, 'cldc-' ) !== false
-        || strpos( $ua, 'netfront' ) !== false
-        || strpos( $ua, 'mot' ) !== false
-        || strpos( $ua, 'up.browser' ) !== false
-        || strpos( $ua, 'up.link' ) !== false
-        || strpos( $ua, 'audiovox' ) !== false
-        || strpos( $ua, 'blackberry' ) !== false
-        || strpos( $ua, 'ericsson,' ) !== false
-        || strpos( $ua, 'panasonic' ) !== false
-        || strpos( $ua, 'philips' ) !== false
-        || strpos( $ua, 'sanyo' ) !== false
-        || strpos( $ua, 'sharp' ) !== false
-        || strpos( $ua, 'sie-' ) !== false
-        || strpos( $ua, 'portalmmm' ) !== false
-        || strpos( $ua, 'blazer' ) !== false
-        || strpos( $ua, 'avantgo' ) !== false
-        || strpos( $ua, 'danger' ) !== false
-        || strpos( $ua, 'palm' ) !== false
-        || strpos( $ua, 'series60' ) !== false
-        || strpos( $ua, 'palmsource' ) !== false
-        || strpos( $ua, 'pocketpc' ) !== false
-        || strpos( $ua, 'smartphone' ) !== false
-        || strpos( $ua, 'rover' ) !== false
-        || strpos( $ua, 'ipaq' ) !== false
-        || strpos( $ua, 'au-mic,' ) !== false
-        || strpos( $ua, 'alcatel' ) !== false
-        || strpos( $ua, 'ericy' ) !== false
-        || strpos( $ua, 'up.link' ) !== false
-        || strpos( $ua, 'vodafone/' ) !== false
-        || strpos( $ua, 'wap1.' ) !== false
-        || strpos( $ua, 'wap2.' ) !== false;
-
-	return $isMobile;
-}
 ?>
