@@ -429,7 +429,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 					return $post->ID;
 				
 				// Is the user allowed to edit the post or page?
-				if ( !current_user_can( $post_type_object->edit_cap ) )
+				if ( !current_user_can( $post_type_object->cap->edit_posts ) )
 					return $post->ID;
 				
 				// Add values of $my_data as custom fields
