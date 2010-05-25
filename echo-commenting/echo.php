@@ -6,6 +6,13 @@ Description: Echo is a fully-featured commenting system with powerful pre- and p
 Author: Echo team <support@js-kit.com>
 Version: 2.6.0-wpcom-vip
 Author URI: http://js-kit.com/
+
+WPCOM VIP Mods
+-get_wpsite_url() modified to work with domain mapping
+-plugin debug logic removed because it wrote to the file system
+-plugin activation items removed because we don't "activate" plugins
+-code to set memory and time limits removed
+
 */
 
 include_once(ABSPATH . WPINC . '/class-IXR.php');
