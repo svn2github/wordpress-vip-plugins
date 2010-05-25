@@ -356,8 +356,6 @@ class EchoPlugin {
     function get_wpsite_url() {
 	global $current_blog;
 	return 'http://' . $current_blog->primary_redirect . '/';
-//im(get_bloginfo('wpurl'));
-//return get_bloginfo('wpurl');
     }
 
     function get_blog_url() {
