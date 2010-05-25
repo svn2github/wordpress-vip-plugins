@@ -24,8 +24,9 @@ class Email_Post_Changes {
 
 	function __construct() {
 		$this->defaults = array(
-			'emails' => array( get_option( 'admin_email' ) ),
-			'post_types' => array( 'post', 'page' )
+			'emails'     => array( get_option( 'admin_email' ) ),
+			'post_types' => array( 'post', 'page' ),
+			'drafts'     => 0,
 		);
 
 		add_action( 'wp_insert_post', array( &$this, 'wp_insert_post' ), 10, 2 );
@@ -43,12 +44,17 @@ class Email_Post_Changes {
 		if ( $just_defaults )
 			return $this->defaults;
 
-		return get_option( 'email_post_changes', $this->defaults );
+		$options = (array) get_option( 'email_post_changes' );
+
+		return wp_parse_args( $options, $this->defaults );
 	}
 
 	// The meat of the plugin
 	function wp_insert_post( $post_id, $post ) {
 		$options = $this->get_options();
+
+		if ( ! $options['drafts'] && 'draft' == $post->post_status )
+			return;
 
 		if ( 'revision' == $post->post_type ) { // Revision is saved first
 			if ( wp_is_post_autosave( $post ) )
@@ -204,6 +210,7 @@ class Email_Post_Changes {
 		add_settings_section( self::ADMIN_PAGE, __( 'Email Post Changes' ), array( &$this, 'settings_section' ), self::ADMIN_PAGE );
 		add_settings_field( self::ADMIN_PAGE . '_emails', __( 'Email Addresses' ), array( &$this, 'emails_setting' ), self::ADMIN_PAGE, self::ADMIN_PAGE );
 		add_settings_field( self::ADMIN_PAGE . '_post_types', __( 'Post Types' ), array( &$this, 'post_types_setting' ), self::ADMIN_PAGE, self::ADMIN_PAGE );
+		add_settings_field( self::ADMIN_PAGE . '_drafts', __( 'Drafts' ), array( &$this, 'drafts_setting' ), self::ADMIN_PAGE, self::ADMIN_PAGE );
 
 		add_options_page( __( 'Email Post Changes' ), __( 'Email Post Changes' ), 'manage_options', self::ADMIN_PAGE, array( &$this, 'admin_page' ) );
 
@@ -234,6 +241,8 @@ class Email_Post_Changes {
 			$post_types = array_intersect( $options['post_types'], $this->get_post_types() );
 			$return['post_types'] = $post_types ? $post_types : $this->defaults['post_types'];
 		}
+
+		$return['drafts'] = ( empty( $options['drafts'] ) ) ? 0 : 1;
 
 		return $return;
 	}
@@ -289,6 +298,14 @@ class Email_Post_Changes {
 		</ul>
 		<p class="description"><?php _e( 'Send emails when a post of these post types changes.' ); ?></p>
 		<p class="description"><?php _e( 'If none are selected, &#8220;post&#8221; and &#8220;page&#8221; will be checked by default.' ); ?></p>
+<?php
+	}
+
+	function drafts_setting() {
+		$options = $this->get_options();
+?>
+
+		<p><label><input type="checkbox" name="email_post_changes[drafts]" value="1"<?php checked( $options['drafts'], 1 ); ?> /> <?php _e( 'Email changes to drafts, not just published items.' ); ?></p>
 <?php
 	}
 

@@ -31,6 +31,10 @@ This plugin requires PHP 5.2 or greater.
 
 == Changelog ==
 
+= 0.6 =
+* ???
+* Changes to drafts are now ignored by default. New checkbox on settings page to re-enable.
+
 = 0.5 =
 * Fix htmlencoding in email subjects.
 
