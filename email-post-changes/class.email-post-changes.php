@@ -305,7 +305,7 @@ class Email_Post_Changes {
 		$options = $this->get_options();
 ?>
 
-		<p><label><input type="checkbox" name="email_post_changes[drafts]" value="1"<?php checked( $options['drafts'], 1 ); ?> /> <?php _e( 'Email changes to drafts, not just published items.' ); ?></p>
+		<p><label><input type="checkbox" name="email_post_changes[drafts]" value="1"<?php checked( $options['drafts'], 1 ); ?> /> <?php _e( 'Email changes to drafts, not just published items.' ); ?></label></p>
 <?php
 	}
 
