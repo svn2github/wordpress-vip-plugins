@@ -440,4 +440,9 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 
 if ( !defined( 'no_autostart_safe_report_comments' ) )
 	$safe_report_comments = new Safe_Report_Comments;
+
+add_action( 'safe_report_comments_mark_flagged', 'debug_it_tott' );
+function debug_it_tott( $comment_id ) {
+	xmpp_message('tottdev@im.wordpress.com', 'comment flagged :' . $comment_id . ' - ' . esc_attr( $_SERVER['REMOTE_ADDR'] . " - " . $_SERVER['HTTP_USER_AGENT'] ) );
+}
 ?>
