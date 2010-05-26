@@ -2,7 +2,7 @@
 
 /*
 Plugin Name: VIP Local Development Helper
-Description: Helps you test your <a href="http://vip.wordpress.com/hosting/">WordPress.com VIP</a> theme in your local development environment by replicating some VIP-specific functionality.
+Description: Helps you test your <a href="http://vip.wordpress.com/hosting/">WordPress.com VIP</a> theme in your local development environment by defining some functions that are always loaded on WordPress.com
 Plugin URI:  http://viphostingtech.wordpress.com/getting-started/development-environment/
 Version:     31276
 Author:      Automattic
@@ -10,8 +10,7 @@ Author URI:  http://vip.wordpress.com/
 
 For help with this plugin, please see http://wp.me/PPtWC-2T or contact VIP support at vip-support@wordpress.com
 
-Functions in this plugin are not neccessarily identical code wise to those on WordPress.com,
-but the idea is that they function the same as their WordPress.com counterparts.
+This plugin is enabled automatically on WordPress.com for VIPs.
 */
 
 
@@ -25,32 +24,50 @@ but the idea is that they function the same as their WordPress.com counterparts.
  * @param string $folder Optional. Folder to include from. Useful for when you have multiple themes and your own shared plugins folder.
  * @return boolean True if the include was successful, false if it failed.
 */
-function vip_load_plugin( $plugin, $folder = 'plugins' ) {
+if ( !function_exists('vip_load_plugin') ) :
+function vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
-	// Sanitize $plugin and $folder
+	if ( empty($plugin) ) {
+		// On WordPress.com, message Alex M. about the bad call to this function
+		if ( function_exists('xmpp_message') ) {
+			xmpp_message( 'viper007bond@im.wordpress.com', 'vip_load_plugin() was called without a $plugin parameter on ' . get_bloginfo('url') );
+			return false;
+		}
+		// die() in non-WordPress.com environments so you know you made a mistake
+		else {
+			die( 'vip_load_plugin() was called without a first parameter!' );
+		}
+	}
+
+	// Make sure $plugin is valid
 	$plugin = _vip_load_plugin_sanitizer( $plugin );
 	if ( 'plugins' !== $folder )
 		$folder = _vip_load_plugin_sanitizer( $folder );
 
-	// This is the location that matches our environment
-	// i.e. /wp-content/themes/vip/plugins/example-plugin/example-plugin.php
-	$fullpath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
-	if ( file_exists( $fullpath ) ) {
-		include_once( $fullpath );
+	// On WordPress.com, shared plugins are located at /wp-content/themes/vip/plugins/example-plugin/example-plugin.php
+	$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
+	if ( file_exists( $includepath ) ) {
+		include_once( $includepath );
 		return true;
+	} elseif ( function_exists('xmpp_message') ) {
+		xmpp_message( 'viper007bond@im.wordpress.com', "vip_load_plugin() tried to load a non-existent file ( $fullpath ) on " . get_bloginfo('url') );
+		return false;
 	}
 
-	// However for your development environment, you can also opt to have it in a more standard location
+	// However if you wish, you can store your plugins in the normal location in your development environment
 	// i.e. /wp-content/plugins/example-plugin/example-plugin.php
-	// This is not a part of the WordPress.com version of the function
-	$fullpath = WP_CONTENT_DIR . "/plugins/$plugin/$plugin.php";
-	if ( file_exists( $fullpath ) ) {
-		include_once( $fullpath );
-		return true;
+	if ( ! function_exists('wpcom_is_vip') ) {
+		$fullpath = WP_CONTENT_DIR . "/plugins/$plugin/$plugin.php";
+		if ( file_exists( $fullpath ) ) {
+			include_once( $fullpath );
+			return true;
+		} else {
+			die( "Unable to load $plugin using vip_load_plugin()!" );
+		}
 	}
 
-	// This would normally return false, but we'll die() since we're in a development environment
-	die( "Unable to load $plugin using vip_load_plugin()!" );
+	// The function should never get to this point
+	return false;
 }
 
 /*
@@ -58,7 +75,10 @@ function vip_load_plugin( $plugin, $folder = 'plugins' ) {
  * You shouldn't use this function.
  */
 function _vip_load_plugin_sanitizer( $folder ) {
+	$folder = str_replace( '..', '', $folder ); // To prevent going up directories
 	$folder = preg_replace( '#([^a-zA-Z0-9-_.]+)#', '', $folder );
 
 	return $folder;
 }
+
+endif;
