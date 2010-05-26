@@ -303,9 +303,23 @@ function wpcom_vip_remove_polldaddy_rating() {
 	remove_filter( 'the_content', 'polldaddy_show_rating', 5 );
 }
 
+/*
+ * Forcably disables mShots, cannot be re-enabled via Appearance -> Extras with this function called
+ */
+function wpcom_vip_disable_mshots() {
+	// Filter the option to disable regardless of it's true setting
+	add_filter( 'pre_option_snap_anywhere', '_wpcom_vip_disable_mshots_option' );
+
+	// Remove the mShots wrapper <div>
+	wpcom_vip_remove_snap_preview_div();
+}
+function _wpcom_vip_disable_mshots_option() {
+	return 'nosnap';
+}
 
 /*
  * Do not wrap post contents in a mShots/Snap <div>
+ * You don't need this function if you are calling wpcom_vip_disable_mshots()
  */
 function wpcom_vip_remove_snap_preview_div() {
 	remove_filter( 'the_content', 'wrap_snap_div', 8888 );
