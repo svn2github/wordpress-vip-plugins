@@ -24,7 +24,6 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * @param string $folder Optional. Folder to include from. Useful for when you have multiple themes and your own shared plugins folder.
  * @return boolean True if the include was successful, false if it failed.
 */
-if ( !function_exists('vip_load_plugin') ) :
 function vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
 	if ( empty($plugin) ) {
@@ -81,4 +80,4 @@ function _vip_load_plugin_sanitizer( $folder ) {
 	return $folder;
 }
 
-endif;
+?>
