@@ -340,8 +340,8 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 				$this->cond_die( __( $this->already_flagged_message ) );
 				
 			$nonce = $_REQUEST[ 'sc_nonce' ];
-			// checking nonces only for logged in users. we don't want to mess with batcache and such
-			if ( is_user_logged_in() && ! wp_verify_nonce( $nonce, $this->_plugin_prefix . '_' . $this->_nonce_key ) ) 
+			// checking if nonces help
+			if ( ! wp_verify_nonce( $nonce, $this->_plugin_prefix . '_' . $this->_nonce_key ) ) 
 				$this->cond_die( __( $this->invalid_nonce_message ) );
 			else {
 				$this->mark_flagged( $comment_id );
