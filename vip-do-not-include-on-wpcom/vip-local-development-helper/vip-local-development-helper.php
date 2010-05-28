@@ -4,7 +4,6 @@
 Plugin Name: VIP Local Development Helper
 Description: Helps you test your <a href="http://vip.wordpress.com/hosting/">WordPress.com VIP</a> theme in your local development environment by defining some functions that are always loaded on WordPress.com
 Plugin URI:  http://viphostingtech.wordpress.com/getting-started/development-environment/
-Version:     31276
 Author:      Automattic
 Author URI:  http://vip.wordpress.com/
 
@@ -24,24 +23,24 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * @param string $folder Optional. Folder to include from. Useful for when you have multiple themes and your own shared plugins folder.
  * @return boolean True if the include was successful, false if it failed.
 */
-function vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
+function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
 	if ( empty($plugin) ) {
 		// On WordPress.com, message Alex M. about the bad call to this function
 		if ( function_exists('xmpp_message') ) {
-			xmpp_message( 'viper007bond@im.wordpress.com', 'vip_load_plugin() was called without a $plugin parameter on ' . get_bloginfo('url') );
+			xmpp_message( 'viper007bond@im.wordpress.com', 'wpcom_vip_load_plugin() was called without a $plugin parameter on ' . get_bloginfo('url') );
 			return false;
 		}
 		// die() in non-WordPress.com environments so you know you made a mistake
 		else {
-			die( 'vip_load_plugin() was called without a first parameter!' );
+			die( 'wpcom_vip_load_plugin() was called without a first parameter!' );
 		}
 	}
 
 	// Make sure $plugin is valid
-	$plugin = _vip_load_plugin_sanitizer( $plugin );
+	$plugin = _wpcom_vip_load_plugin_sanitizer( $plugin );
 	if ( 'plugins' !== $folder )
-		$folder = _vip_load_plugin_sanitizer( $folder );
+		$folder = _wpcom_vip_load_plugin_sanitizer( $folder );
 
 	// On WordPress.com, shared plugins are located at /wp-content/themes/vip/plugins/example-plugin/example-plugin.php
 	$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
@@ -49,7 +48,7 @@ function vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 		include_once( $includepath );
 		return true;
 	} elseif ( function_exists('xmpp_message') ) {
-		xmpp_message( 'viper007bond@im.wordpress.com', "vip_load_plugin() tried to load a non-existent file ( $fullpath ) on " . get_bloginfo('url') );
+		xmpp_message( 'viper007bond@im.wordpress.com', "wpcom_vip_load_plugin() tried to load a non-existent file ( $fullpath ) on " . get_bloginfo('url') );
 		return false;
 	}
 
@@ -61,7 +60,7 @@ function vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 			include_once( $fullpath );
 			return true;
 		} else {
-			die( "Unable to load $plugin using vip_load_plugin()!" );
+			die( "Unable to load $plugin using wpcom_vip_load_plugin()!" );
 		}
 	}
 
@@ -70,10 +69,10 @@ function vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 }
 
 /*
- * Helper function for vip_load_plugin()
+ * Helper function for wpcom_vip_load_plugin()
  * You shouldn't use this function.
  */
-function _vip_load_plugin_sanitizer( $folder ) {
+function _wpcom_vip_load_plugin_sanitizer( $folder ) {
 	$folder = str_replace( '..', '', $folder ); // To prevent going up directories
 	$folder = preg_replace( '#([^a-zA-Z0-9-_.]+)#', '', $folder );
 
