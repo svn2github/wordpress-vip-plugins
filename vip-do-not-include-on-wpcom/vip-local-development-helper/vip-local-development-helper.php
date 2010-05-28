@@ -73,8 +73,8 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
  * You shouldn't use this function.
  */
 function _wpcom_vip_load_plugin_sanitizer( $folder ) {
-	$folder = str_replace( '..', '', $folder ); // To prevent going up directories
 	$folder = preg_replace( '#([^a-zA-Z0-9-_.]+)#', '', $folder );
+	$folder = str_replace( '..', '', $folder ); // To prevent going up directories
 
 	return $folder;
 }
