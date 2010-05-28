@@ -11,6 +11,7 @@ Author URI: http://blog.webzappr.com
 */
 
 if ( !class_exists( "Safe_Report_Comments" ) ) {
+
 	class Safe_Report_Comments {
 
 		private $_plugin_prefix = 'srcmnt';
@@ -389,10 +390,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 				return __( $this->already_flagged_note );
 			
 			return apply_filters( 'safe_report_comments_flagging_link', '
-			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a>
-			<a class="hide-if-js" href="' . add_query_arg( $params, admin_url( 'admin-ajax.php' ) ) . '">' . __( $text ) . '</a>
-			</span>
-			' );
+			<span id="' . $result_id . '"><a class="hide-if-no-js" href="javascript:void(0);" onclick="safe_report_comments_flag_comment( \'' . $comment_id . '\', \'' . $nonce . '\', \'' . $result_id . '\');">' . __( $text ) . '</a></span>' );
 			
 			
 		}
