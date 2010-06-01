@@ -25,6 +25,7 @@ This plugin is enabled automatically on WordPress.com for VIPs.
 */
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
+	// Make sure there's a plugin to load
 	if ( empty($plugin) ) {
 		// On WordPress.com, message Alex M. about the bad call to this function
 		if ( function_exists('xmpp_message') ) {
@@ -37,35 +38,51 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 		}
 	}
 
-	// Make sure $plugin is valid
+	// Make sure $plugin and $folder are valid
 	$plugin = _wpcom_vip_load_plugin_sanitizer( $plugin );
 	if ( 'plugins' !== $folder )
 		$folder = _wpcom_vip_load_plugin_sanitizer( $folder );
 
-	// On WordPress.com, shared plugins are located at /wp-content/themes/vip/plugins/example-plugin/example-plugin.php
+	// Shared plugins are located at /wp-content/themes/vip/plugins/example-plugin/
+	// You should keep your local copies of the plugins in the same location
 	$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
 	if ( file_exists( $includepath ) ) {
-		include_once( $includepath );
-		return true;
-	} elseif ( function_exists('xmpp_message') ) {
-		xmpp_message( 'viper007bond@im.wordpress.com', "wpcom_vip_load_plugin() tried to load a non-existent file ( $fullpath ) on " . get_bloginfo('url') );
-		return false;
-	}
 
-	// However if you wish, you can store your plugins in the normal location in your development environment
-	// i.e. /wp-content/plugins/example-plugin/example-plugin.php
-	if ( ! function_exists('wpcom_is_vip') ) {
-		$fullpath = WP_CONTENT_DIR . "/plugins/$plugin/$plugin.php";
-		if ( file_exists( $fullpath ) ) {
-			include_once( $fullpath );
-			return true;
-		} else {
+		// Since we're going to be include()'ing inside of a function,
+		// we need to do some hackery to get the variable scope we want.
+		// See http://www.php.net/manual/en/language.variables.scope.php#91982
+
+		// Start by marking down the currently defined variables (so we can exclude them later)
+		$pre_include_variables = get_defined_vars();
+
+		// Now include
+		include_once( $includepath );
+
+		// Blacklist out some variables
+		$blacklist = array( 'blacklist' => 0, 'pre_include_variables' => 0, 'new_variables' => 0 );
+
+		// Let's find out what's new by comparing the current variables to the previous ones
+		$new_variables = array_diff_key( get_defined_vars(), $GLOBALS, $blacklist, $pre_include_variables );
+
+		// global each new variable
+		foreach ( $new_variables as $new_variable => $devnull )
+			global $$new_variable;
+
+		// Set the values again on those new globals
+		extract( $new_variables );
+
+		return true;
+	} else {
+		// On WordPress.com, message Alex M. about the bad call to this function
+		if ( function_exists('xmpp_message') ) {
+			xmpp_message( 'viper007bond@im.wordpress.com', "wpcom_vip_load_plugin() tried to load a non-existent file ( $fullpath ) on " . get_bloginfo('url') );
+			return false;
+		}
+		// die() in non-WordPress.com environments so you know you made a mistake
+		else {
 			die( "Unable to load $plugin using wpcom_vip_load_plugin()!" );
 		}
 	}
-
-	// The function should never get to this point
-	return false;
 }
 
 /*
