@@ -13,6 +13,9 @@ WPCOM VIP Mods
 -plugin activation items removed because we don't "activate" plugins
 -code to set memory and time limits removed
 
+This version won't work well in WordPress.org environments.
+For local development and testing please use
+http://wordpress.org/extend/plugins/echo/
 */
 
 include_once(ABSPATH . WPINC . '/class-IXR.php');
