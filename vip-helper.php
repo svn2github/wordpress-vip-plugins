@@ -341,15 +341,16 @@ function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 	$min_id = 0;
 	$max_id = count( $all_ids );
 	$vip_get_random_posts_rnd_ids = array();
-		
+	$cycles = 0;
+	$max_cycles = 5 * count( $all_ids );
 	do {
+		$cycles++;
 		$random_id = mt_rand( $min_id, $max_id );
-		
 		if ( isset( $vip_get_random_posts_rnd_ids[$random_id] ) )
 			continue;
 			
 		$vip_get_random_posts_rnd_ids[$random_id] = $all_ids[$random_id]->ID;
-	} while( count( $vip_get_random_posts_rnd_ids ) < $amount );
+	} while( count( $vip_get_random_posts_rnd_ids ) < $amount && $cycles <= $max_cycles );
 
 	if ( $return_ids )
 		return (array) $vip_get_random_posts_rnd_ids;
