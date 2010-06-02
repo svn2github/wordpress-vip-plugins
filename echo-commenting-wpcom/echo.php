@@ -4,7 +4,7 @@ Plugin Name: Echo
 Plugin URI: http://js-kit.com/
 Description: Echo is a fully-featured commenting system with powerful pre- and post- moderation capabilities, automatic spam blocking, RSS feeds, threading, pagination and sorting of comments, and much more. This plugin enables seamless integration with Echo by exporting existing WordPress comments into Echo and instantly synchronizing new comments.
 Author: Echo team <support@js-kit.com>
-Version: 2.6.0-wpcom-vip
+Version: 2.6.3-wpcom-vip
 Author URI: http://js-kit.com/
 
 WPCOM VIP Mods
@@ -22,7 +22,7 @@ include_once(ABSPATH . WPINC . '/class-IXR.php');
 include_once(dirname(__FILE__) . '/wp-compat.php');
 
 class EchoPlugin {
-    var $version = '2.6.0';
+    var $version = '2.6.3';
     var $debug;
     var $echo_site_url;
 
@@ -104,7 +104,7 @@ class EchoPlugin {
         # like /blog/p=123 or just /p=123.
         $comment_post_id = $this->get_comment_post_id($comment);
         if ($comment_post_id == 0) {
-            return -1;
+            return -2;
         }
 
         $comment['post_ID'] = $comment_post_id;
@@ -537,7 +537,16 @@ class EchoPlugin {
         }
 
         $uniq = $this->get_post_uniq_value($post->ID);
-        $number = '<span id="jskit-commentCountSpan" class="js-kit-comments-count" uniq="' . esc_attr($uniq) . '">0</span> ' .
+        $stream_type = get_option('jskit-streamType');
+
+        $filter = "";
+        if ($stream_type == 'comments') {
+            $filter = ' include-sources="Comments"';
+        } elseif ($stream_type == 'reactions') {
+            $filter = ' exclude-sources="Comments"';
+        }
+
+        $number = '<span id="jskit-commentCountSpan" class="js-kit-comments-count" uniq="' . esc_attr($uniq) . '"' . $filter . '>0</span> ' .
             str_replace("%", "", __("% Comments"));
 
         return $number;
