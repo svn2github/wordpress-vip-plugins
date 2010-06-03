@@ -101,7 +101,7 @@ function _wpcom_vip_load_plugin_sanitizer( $folder ) {
  *
 */
 function wpcom_vip_load_helper() {
-	$includepath = WP_CONTENT_DIR . '/themes/vip/vip-helper.php';
+	$includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper.php';
 
 	if ( file_exists( $includepath ) ) {
 		require_once( $includepath );
@@ -116,7 +116,7 @@ function wpcom_vip_load_helper() {
  *
 */
 function wpcom_vip_load_helper_wpcom() {
-	$includepath = WP_CONTENT_DIR . '/themes/vip/vip-helper-wpcom.php';
+	$includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-wpcom.php';
 
 	if ( function_exists( 'wpcom_is_vip' ) ) {
 		require_once( $includepath );
