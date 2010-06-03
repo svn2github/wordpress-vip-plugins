@@ -84,7 +84,6 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 		}
 	}
 }
-
 /*
  * Helper function for wpcom_vip_load_plugin()
  * You shouldn't use this function.
@@ -94,6 +93,36 @@ function _wpcom_vip_load_plugin_sanitizer( $folder ) {
 	$folder = str_replace( '..', '', $folder ); // To prevent going up directories
 
 	return $folder;
+}
+
+
+/*
+ * Loads the shared VIP helper file which defines some helpful functions.
+ *
+*/
+function wpcom_vip_load_helper() {
+	$includepath = WP_CONTENT_DIR . '/themes/vip/vip-helper.php';
+
+	if ( file_exists( $includepath ) ) {
+		require_once( $includepath );
+	} else {
+		die( "Unable to load vip-helper.php using wpcom_vip_load_helper(). The file doesn't exist!" );
+	}
+}
+
+
+/*
+ * Loads the WordPress.com-only VIP helper file which defines some helpful functions.
+ *
+*/
+function wpcom_vip_load_helper_wpcom() {
+	$includepath = WP_CONTENT_DIR . '/themes/vip/vip-helper-wpcom.php';
+
+	if ( function_exists( 'wpcom_is_vip' ) ) {
+		require_once( $includepath );
+	} else {
+		die( "wpcom_vip_load_helper_wpcom() should only be called on WordPress.com as it contains WordPress.com-specific code." );
+	}
 }
 
 ?>
