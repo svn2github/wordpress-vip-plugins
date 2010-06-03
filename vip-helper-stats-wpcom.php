@@ -121,7 +121,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 				
 			array_unshift( $_rows, array( 'date', 'views' ) );
 			break;
-			
+
 		case 'postviews' :
 			$posts = array();
 			if ( isset( $GLOBALS['post_id'] ) && $GLOBALS['post_id'] ) {
@@ -180,7 +180,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
 		return "Error: zero rows returned.";
 
 	$return .= '<' . $table . '>' . "\n";
-	
+
 	switch ( $table ) {
 		case 'views' :
 			if ( is_null( $summarize ) ) {
@@ -250,25 +250,25 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
 function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 400 ) {
 	global $post_id, $wpdb;
 	$blog_id = $wpdb->blogid;
-	
+
 	// adjust parameters
 	if ( ! in_array( $table, array( 'views', 'postviews', 'referrers', 'searchterms', 'clicks' ) ) )
 		$table = 'views';
-	
+
 	if ( ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date ) )
 		$end_date = $GLOBAL['today'];
-	
+
 	if ( $limit > 100 )
 		$limit = 100;
 	else 
 		$limit = (int) $limit;
-	
+
 	if ( $num_days > 90 )
 		$num_days = 90;
 	else
 		$num_days = (int) $num_days;
-	
-	
+
+
 	if ( $table == 'postviews' && !empty($post_id) )
 		$and = "AND post_id = $post_id";
 
@@ -283,3 +283,4 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 	return $result;
 }
 
+?>

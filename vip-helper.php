@@ -33,33 +33,34 @@ function vip_redirects( $vip_redirects_array = array() ) {
  */
 
 function vip_wp_file_get_content( $url, $echo_content = true, $timeout=3 ) {
-        $key = md5( $url );
-        if ( $out = wp_cache_get( $key , 'vip') ) {
-                if ( $echo_content ) {
-                        echo $out;
-                        return;
-                } else
-                        return $out;
-        }
+	$key = md5( $url );
+	if ( $out = wp_cache_get( $key , 'vip') ) {
+			if ( $echo_content ) {
+					echo $out;
+					return;
+			} else
+					return $out;
+	}
 
-		// Don't accept timeouts of 0 (no timeout), or over 3 seconds
-		$new_timeout = min( 3, max( 1, (int)$timeout ) );
-		// Record the previous default timeout value
-		$old_timeout = ini_get( 'default_socket_timeout' );
-		// Set the timeout value to avoid holding up php
-		ini_set( 'default_socket_timeout', $new_timeout );
-		// Make our request
-		$page = @file_get_contents( $url );
-		// Reset the default timeout to its old value
-		ini_set( 'default_socket_timeout', $old_timeout );
+	// Don't accept timeouts of 0 (no timeout), or over 3 seconds
+	$new_timeout = min( 3, max( 1, (int)$timeout ) );
+	// Record the previous default timeout value
+	$old_timeout = ini_get( 'default_socket_timeout' );
+	// Set the timeout value to avoid holding up php
+	ini_set( 'default_socket_timeout', $new_timeout );
+	// Make our request
+	$page = @file_get_contents( $url );
+	// Reset the default timeout to its old value
+	ini_set( 'default_socket_timeout', $old_timeout );
 
-        wp_cache_set( $key, $page, 'vip', 600 );
+	wp_cache_set( $key, $page, 'vip', 600 );
 
-        if ( $echo_content ) {
-                echo $page;
-                return;
-        } else
-                return $page;
+	if ( $echo_content ) {
+		echo $page;
+		return;
+	} else {
+		return $page;
+	}
 }
 
 /*
@@ -68,12 +69,12 @@ function vip_wp_file_get_content( $url, $echo_content = true, $timeout=3 ) {
  */
 
 function vip_disable_tag_suggest() {
-        add_action( 'admin_init', '_vip_disable_tag_suggest' );
+	add_action( 'admin_init', '_vip_disable_tag_suggest' );
 }
 function _vip_disable_tag_suggest() {
-       if ( !@constant( 'DOING_AJAX' ) || empty( $_GET['action'] ) || 'ajax-tag-search' != $_GET['action'] )
-               return;
-       die( '' );
+	if ( !@constant( 'DOING_AJAX' ) || empty( $_GET['action'] ) || 'ajax-tag-search' != $_GET['action'] )
+		return;
+	exit();
 }
 
 /*
@@ -82,10 +83,10 @@ function _vip_disable_tag_suggest() {
  */
 
 function disable_autosave() {
-        add_action( 'init', '_disable_autosave' );
+	add_action( 'init', '_disable_autosave' );
 }
 function _disable_autosave() {
-        wp_deregister_script( 'autosave' );
+	wp_deregister_script( 'autosave' );
 }
 
 /*
@@ -96,16 +97,16 @@ function _disable_autosave() {
 
 function vip_main_feed_redirect( $target ) {
 	header( "X-Accel-Expires: 0" );
-        define('FEEDURL', '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i');
-        $request = $_SERVER['REQUEST_URI'];
-        $agent = $_SERVER['HTTP_USER_AGENT'];
+	define('FEEDURL', '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i');
+	$request = $_SERVER['REQUEST_URI'];
+	$agent = $_SERVER['HTTP_USER_AGENT'];
 
-        if ( preg_match( FEEDURL, $request ) || '/feed' == $request ) {
-                if ( !preg_match( '#feedburner|feedvalidator|MediafedMetrics#i', $agent ) ) {
-                        wp_redirect( $target, '302' );
-                        die;
-                }
-        }
+	if ( preg_match( FEEDURL, $request ) || '/feed' == $request ) {
+		if ( !preg_match( '#feedburner|feedvalidator|MediafedMetrics#i', $agent ) ) {
+			wp_redirect( $target, '302' );
+			die;
+		}
+	}
 }
 
 /*
@@ -116,22 +117,22 @@ function vip_main_feed_redirect( $target ) {
  */
 
 function vip_crossdomain_redirect() {
-        add_action( 'init', '_vip_crossdomain_redirect');
+	add_action( 'init', '_vip_crossdomain_redirect');
 }
 function _vip_crossdomain_redirect() {
-        $request = $_SERVER['REQUEST_URI'];
-        if ( '/crossdomain.xml' == $request ) {
-                header( 'Content-Type: text/xml' );
-                echo file_get_contents( get_stylesheet_directory() . $request );
-                exit;
-        }
+	$request = $_SERVER['REQUEST_URI'];
+	if ( '/crossdomain.xml' == $request ) {
+		header( 'Content-Type: text/xml' );
+		echo file_get_contents( get_stylesheet_directory() . $request );
+		exit();
+	}
 }
 
 function vip_doubleclick_dartiframe_redirect() {
 	add_action( 'init', '_vip_doubleclick_dartiframe_redirect');
 }
 function _vip_doubleclick_dartiframe_redirect() {
-	if( strpos( $_SERVER[ 'REQUEST_URI' ], 'DARTIframe.html' ) ) {
+	if ( strpos( $_SERVER[ 'REQUEST_URI' ], 'DARTIframe.html' ) ) {
 		header( 'Content-Type: text/html' );
 		echo file_get_contents( get_stylesheet_directory() . '/DARTIframe.html' );
 		exit;
@@ -144,8 +145,8 @@ function _vip_doubleclick_dartiframe_redirect() {
  */
 
 function vip_multiple_moderators($emails) {
-        $email_headers = "From: donotreply@wordpress.com" . "\n" . "CC: " . implode(', ', $emails);
-        add_filter('comment_moderation_headers', create_function( '', 'return '.var_export( $email_headers, true ).';') );
+	$email_headers = "From: donotreply@wordpress.com" . "\n" . "CC: " . implode(', ', $emails);
+	add_filter('comment_moderation_headers', create_function( '', 'return '.var_export( $email_headers, true ).';') );
 }
 
 /*
@@ -180,15 +181,15 @@ function wpcom_vip_cache_buster( $url, $mtime = null ) {
 		return $url;
 
 	if ( is_null($mtime) ) {
-	        $parts = parse_url( $url );
+		$parts = parse_url( $url );
 
-	        if ( !isset($parts['path']) || empty($parts['path']) ) {
+		if ( !isset($parts['path']) || empty($parts['path']) ) {
 			$mtime = false;
 		} else {
 			$file = ABSPATH . ltrim( $parts['path'], '/' );
 
 			if ( !$mtime = @filemtime( $file ) )
-	        	        $mtime = false;
+				$mtime = false;
 		}
 	}
 
@@ -220,68 +221,68 @@ function wpcom_vip_cache_buster( $url, $mtime = null ) {
  */
 function wpcom_vip_meta_desc() {
 	$default_settings = array(	
-								'length' => 25, // amount of length units to use for the meta description
-								'length_unit' => 'word', // the length unit can be either "word" or "char"
-								'use_excerpt' => true, // if the post/page has an excerpt it will overwrite the generated description if this is set to true
-								'add_category_desc' => true, // add the category description to category views if this value is true
-								'add_tag_desc' => true, // add the category description to category views if this value is true
-								'add_other_desc' => true, // add the blog description/tagline to all other pages if this value is true
-								'default_description' => '', // in case no description is defined use this as a default description
-								'custom_field_key' => '', // if a custom field key is set we try to use the value of this field as description
-								);
-								
+		'length' => 25,              // amount of length units to use for the meta description
+		'length_unit' => 'word',     // the length unit can be either "word" or "char"
+		'use_excerpt' => true,       // if the post/page has an excerpt it will overwrite the generated description if this is set to true
+		'add_category_desc' => true, // add the category description to category views if this value is true
+		'add_tag_desc' => true,      // add the category description to category views if this value is true
+		'add_other_desc' => true,    // add the blog description/tagline to all other pages if this value is true
+		'default_description' => '', // in case no description is defined use this as a default description
+		'custom_field_key' => '',    // if a custom field key is set we try to use the value of this field as description
+	);
+
 	$settings = apply_filters( 'wpcom_vip_meta_desc_settings', $default_settings );
-	
+
 	extract( shortcode_atts( $default_settings, $settings ) );
-	
+
 	global $wp_query;
-	
+
 	if( is_single() || is_page() ) {
 		$post = $wp_query->post;
-		
+
 		// check for a custom field holding a description
 		if ( !empty( $custom_field_key ) ) {
 			$post_custom = get_post_custom_values( $custom_field_key, $post->ID );
 			if ( !empty( $post_custom ) ) 
 				$text = $post_custom[0];
-		} 
+		}
 		// check for an excerpt we can use
-		else if( $use_excerpt && !empty( $post->post_excerpt ) ) {
+		elseif ( $use_excerpt && !empty( $post->post_excerpt ) ) {
 			$text = $post->post_excerpt;
-		} 
+		}
 		// otherwise use the content
 		else {
 			$text = $post->post_content;
 		}
-		
+
 		$text = str_replace( array( "\r\n", "\r", "\n", "  " ), " ", $text ); // get rid of all line breaks
 		$text = strip_shortcodes( $text ); // make sure to get rid of shortcodes
 		$text = apply_filters( 'the_content', $text ); // make sure it's save
 		$text = trim( strip_tags( $text ) ); // get rid of tags and html fragments
 		if ( empty( $text ) && !empty( $default_description ) )
 			$text = $default_description;	
-			
+
 	} else if( is_category() && true == $add_category_desc ) {
 		$category = $wp_query->get_queried_object();
 		$text = trim( strip_tags( $category->category_description ) );
 		if ( empty( $text ) && !empty( $default_description ) )
 			$text = $default_description;
-			
+
 	} else if( is_tag() && true == $add_tag_desc ) {
 		$tag = $wp_query->get_queried_object();
 		$text = trim( strip_tags( $tag->description ) );
 		if ( empty( $text ) && !empty( $default_description ) )
 			$text = $default_description;
-			
+
 	} else if ( true == $add_other_desc ) {
 		$text = trim( strip_tags( get_bloginfo('description') ) );
 		if ( empty( $text ) && !empty( $default_description ) )
 			$text = $default_description;
 	}
-	
+
 	if ( empty( $text ) )
 		return;
-		
+
 	if ( 'word' == $length_unit ) {
 		$words = explode(' ', $text, $length + 1);
 		if ( count( $words ) > $length ) {
@@ -294,7 +295,7 @@ function wpcom_vip_meta_desc() {
 			$text = mb_strimwidth( $text, 0, $length, '...' );
 		}
 	}
-		
+
 	if ( !empty( $text ) ) {
 		echo "\n<meta name=\"description\" content=\"$text\" />\n";
 	}
@@ -325,7 +326,7 @@ function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 		$where_add = "AND post_status='publish' AND post_type='post'";
 	else 
 		$where_add = $vip_get_random_post_ids_where_add;
-		
+
 	$random_posts = array();
 	
 	if ( !has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) || !$all_ids = wp_cache_get( 'vip_random_posts_ids_' . md5( $where_add ), 'vip_get_random_posts_all_ids' ) ) {
@@ -369,16 +370,16 @@ function vip_refresh_random_posts_all_ids() {
 		$where_add = "AND post_status='publish' AND post_type='post'";
 	else 
 		$where_add = $vip_get_random_post_ids_where_add;
-		
+
 	$all_ids_query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE 1 $where_add" );
 	$all_ids_query = apply_filters( 'vip_get_random_posts_all_ids_query', $all_ids_query );
 	$all_ids = $wpdb->get_results( $all_ids_query );
 	if ( empty( $all_ids ) || is_wp_error( $all_ids ) ) 
 		return false;
-	
+
 	if ( has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) )
 		wp_cache_set( 'vip_random_posts_ids_' . md5( $where_add ), $all_ids, 'vip_get_random_posts_all_ids' );
-	
+
 	return $all_ids;
 }
 
@@ -453,5 +454,8 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	
 	if( is_wp_error( $response ) )
 		return ( $fallback_value ) ? $fallback_value : $response;
+
 	return $response;
 }
+
+?>

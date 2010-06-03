@@ -216,7 +216,7 @@ function get_top_posts( $number = 10, $days = 2 ) {
 
 		if ( $days < 2 || !is_int( $days ) )
 			$days = 2; // minimum is 2 because of how stats rollover for a new day
-                
+
 		$top_posts = array_shift( stats_get_daily_history( false, $wpdb->blogid, 'postviews', 'post_id', false, $days, '', $number + 10, true ) );
 
 		wp_cache_add( "get_top_posts_{$number}_{$days}", $top_posts, '', 1200 );
@@ -324,3 +324,5 @@ function _wpcom_vip_disable_mshots_option() {
 function wpcom_vip_remove_snap_preview_div() {
 	remove_filter( 'the_content', 'wrap_snap_div', 8888 );
 }
+
+?>
