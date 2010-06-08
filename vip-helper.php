@@ -91,22 +91,41 @@ function _disable_autosave() {
 
 /*
  * Redirect http://blog.wordpress.com/feed/ to $target URL
+ * Don't redirect if a feed service user agent, because that could result 
+ * in a loop.
  * ex. vip_main_feed_redirect( 'http://feeds.feedburner.com/ourfeeds/thefeed' );
  * @author lloydbudd
  */
-
 function vip_main_feed_redirect( $target ) {
-	header( "X-Accel-Expires: 0" );
-	define('FEEDURL', '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i');
-	$request = $_SERVER['REQUEST_URI'];
-	$agent = $_SERVER['HTTP_USER_AGENT'];
-
-	if ( preg_match( FEEDURL, $request ) || '/feed' == $request ) {
-		if ( !preg_match( '#feedburner|feedvalidator|MediafedMetrics#i', $agent ) ) {
-			wp_redirect( $target, '302' );
-			die;
-		}
+	if ( wpcom_vip_is_main_feed_requested() && !wpcom_vip_is_feedservice_ua() ) {
+		header( "X-Accel-Expires: 0" );
+		wp_redirect( $target, '302' );
+		die;
 	}
+}
+
+/*
+ * True if any of the formats of the main feed are requested
+ * @author lloydbudd
+ */ 
+function wpcom_vip_is_main_feed_requested() {
+	$toMatch = '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i';
+	$request = $_SERVER['REQUEST_URI'];
+	return (bool) preg_match( $toMatch, $request );
+}
+
+/*
+ * True if feed service user agent
+ * batcache aware so that does not serve matched user agents from cache
+ * @author lloydbudd
+ */ 
+function wpcom_vip_is_feedservice_ua() {
+	if ( function_exists( 'vary_cache_on_function' ) ) { // batcache variant
+		vary_cache_on_function(
+			'return (bool) preg_match("/feedburner|feedvalidator|MediafedMetrics/i", $_SERVER["HTTP_USER_AGENT"]);'
+    	);
+	}
+	return (bool) preg_match("/feedburner|feedvalidator|MediafedMetrics/i", $_SERVER["HTTP_USER_AGENT"]);
 }
 
 /*
@@ -457,5 +476,3 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 
 	return $response;
 }
-
-?>
