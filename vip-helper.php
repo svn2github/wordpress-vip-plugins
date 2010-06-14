@@ -109,7 +109,7 @@ function vip_main_feed_redirect( $target ) {
  * @author lloydbudd
  */ 
 function wpcom_vip_is_main_feed_requested() {
-	$toMatch = '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed)/?$#i';
+	$toMatch = '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed|rss)/?$#i';
 	$request = $_SERVER['REQUEST_URI'];
 	return (bool) preg_match( $toMatch, $request );
 }
