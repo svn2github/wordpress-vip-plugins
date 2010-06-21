@@ -200,7 +200,7 @@ $social_sites = array(
 $akst_limit_mail_recipients = 5;
 
 @define('AKST_PATH', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
-@define('AKST_FILE', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic/share-this.php');
+@define('AKST_FILE', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php');
 
 $akst_action = '';
 
