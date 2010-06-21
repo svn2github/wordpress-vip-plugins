@@ -199,8 +199,8 @@ $social_sites = array(
 
 $akst_limit_mail_recipients = 5;
 
-@define('AKST_PATH', get_bloginfo('wpurl') . '/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
-@define('AKST_FILE', get_bloginfo('wpurl') . '/wp-content/share-this.php');
+@define('AKST_PATH', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
+@define('AKST_FILE', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic/share-this.php');
 
 $akst_action = '';
 
@@ -258,7 +258,7 @@ if (!function_exists('ak_prototype')) {
 			global $ak_prototype;
 			if (!isset($ak_prototype) || !$ak_prototype) {
 				print('
-		<script type="text/javascript" src="'.get_bloginfo('wpurl').'/wp-includes/js/prototype.js"></script>
+		<script type="text/javascript" src="http://s1.wordpress.com/wp-includes/js/prototype.js"></script>
 				');
 			}
 			$ak_prototype = true;
