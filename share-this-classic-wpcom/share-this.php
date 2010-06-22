@@ -86,12 +86,17 @@ function akst_tabs() {
 }
 
 function akst_socialwebs() {
+/* WPCOM this wpcom feature was never fully implmented, if demand for customizing can revisit
+ * The problem is that this php file is called directly and Wordpress env is therefore not loaded
+ * causing fatal error when loading JS
+ * /wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php?akst_action=js
 	$socialwebs = get_option('akst_socialwebs');
 	if ($socialwebs == '') {
 		$socialwebs = 'twitter,facebook,digg,stumbleupon,delicious,reddit,blinklist,newsvine,furl,tailrank,magnolia';
 		add_option('akst_socialwebs', $socialwebs);
 	}
-	
+*/
+	$socialwebs = 'twitter,facebook,digg,stumbleupon,delicious,reddit';
 	return $socialwebs;
 }
 
@@ -199,6 +204,7 @@ $social_sites = array(
 
 $akst_limit_mail_recipients = 5;
 
+// WPCOM ghetto
 @define('AKST_PATH', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
 @define('AKST_FILE', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php');
 
@@ -1015,6 +1021,7 @@ function akst_options_form() {
 			</p>
 		</td>
 		</tr>
+<?php	/*  WPCOM this wpcom feature was never not implmented fully, if demand for customizing can revisit
 		<tr valign="top">
 		<th scope="row"><?php _e('Social web sites', 'share-this'); ?></th>
 		<td>
@@ -1028,6 +1035,7 @@ function akst_options_form() {
 		</p>
 		</td>
 		</tr>
+	*/ ?>
 	</table>
 	<p class="submit">
 		<input type="submit" name="submit_button" value="<?php _e('Save Changes ', 'share-this') ?>" />
