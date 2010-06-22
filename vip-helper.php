@@ -189,8 +189,8 @@ function vip_multiple_moderators($emails) {
  * This function can be used so the filename or query string do not have to be manually updated each time a file is modified.
  *
  * Examples:
- * <?php echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/print.css' ); ?>
- * <?php echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/images/rss-icon.jpg' ); ?>
+ * echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/print.css' );
+ * echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/images/rss-icon.jpg' );
  * 
  * @author nickmomrik
  */
@@ -435,6 +435,11 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	// valid url
 	if ( empty( $url ) || !parse_url( $url ) )
 		return ( $fallback_value ) ? $fallback_value : new WP_Error('invalid_url', $url );
+
+	// Ensure positive values
+	$timeout   = abs( $timeout );
+	$retry     = abs( $retry );
+	$threshold = abs( $threshold );
 
 	// timeouts > 3 seconds are just not reasonable for production usage
 	$timeout = ( (int) $timeout > 3 ) ? 3 : (int) $timeout;
