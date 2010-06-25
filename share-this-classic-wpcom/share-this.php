@@ -205,7 +205,7 @@ $social_sites = array(
 $akst_limit_mail_recipients = 5;
 
 // WPCOM ghetto
-@define('AKST_PATH', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
+@define('AKST_PATH', 'http://s.wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
 @define('AKST_FILE', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php');
 
 $akst_action = '';
@@ -307,6 +307,11 @@ if (!function_exists('ak_can_update_options')) {
 }
 
 if (!empty($_REQUEST['akst_action'])) {
+
+	// When this file is called directly, load WordPress
+	if ( !function_exists('get_option') )
+		require_once( '../../../../../wp-load.php' );
+
 	switch ($_REQUEST['akst_action']) {
 		case 'js':
 			header("Content-type: text/javascript");
