@@ -205,7 +205,7 @@ $social_sites = array(
 $akst_limit_mail_recipients = 5;
 
 // WPCOM ghetto
-@define('AKST_PATH', 'http://s.wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
+@define('AKST_PATH', 'http://s0.wp.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
 @define('AKST_FILE', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php');
 
 $akst_action = '';
