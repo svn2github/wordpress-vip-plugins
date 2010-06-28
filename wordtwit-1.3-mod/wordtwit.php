@@ -60,6 +60,11 @@ function adjust_twit_msg( $message, $post_id ) {
 	return $message;
 }
 
+If you want to limit the posts for which updates are sent you can do this by attaching a function to the following filter:
+
+$post_update = apply_filters( 'wordtwit_post_update', true, $post_id );
+
+In this way you could simply limit your updates on posts with a certain category, tag or author by attaching a function that returns false if the posting condition is not meet.
 */
 
 
@@ -302,8 +307,10 @@ if ( !function_exists( 'get_shortlink' ) ) {
 function post_now_published( $post_id ) {
 	global $twit_plugin_prefix, $post;
 
+	$post_update = apply_filters( 'wordtwit_post_update', true, $post_id );
+	
 	$has_been_twittered = get_post_meta( $post_id, 'has_been_twittered', true );
-	if (!($has_been_twittered == 'yes')) {
+	if ( true == $post_update && !($has_been_twittered == 'yes')) {
 		query_posts('p=' . $post_id);
 
 		if (have_posts()) {
