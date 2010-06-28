@@ -60,14 +60,7 @@ if (!class_exists('wp_lightboxplus')) {
 
     /*---- Retrieves the options from the database.  @return array ----*/
     function getAdminOptions($optionsName) {
-      $savedOptions = get_option($optionsName);
-      if (!empty($savedOptions)) {
-        foreach ($savedOptions as $key => $option) {
-          $theOptions[$key] = $option;
-        }
-      }
-      update_option($optionsName, $theOptions);
-      return $theOptions;
+      return (array) get_option($optionsName);
     }
 
     /*---- Saves the admin options to the database. ----*/
