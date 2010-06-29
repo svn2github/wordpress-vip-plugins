@@ -310,7 +310,7 @@ if (!empty($_REQUEST['akst_action'])) {
 
 	// When this file is called directly, load WordPress
 	if ( !function_exists('get_option') )
-		require_once( '../../../../../wp-load.php' );
+		require_once( dirname( dirname( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) ) ) . '/wp-load.php' );
 
 	switch ($_REQUEST['akst_action']) {
 		case 'js':
