@@ -856,7 +856,6 @@ Author URI: http://intensedebate.com
 		}
 		
 		function store() {
-			return;
 			if ( $this->needs_save )
 				id_save_option( $this->queueName, $this->operations );
 		}
