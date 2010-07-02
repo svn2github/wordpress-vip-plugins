@@ -25,6 +25,15 @@ Author: ShareThis, Crowd Favorite (crowdfavorite.com) - modified by Automattic
 Author URI: http://sharethis.com
 */
 
+
+// WPCOM this is not the way should load WordPress. Just doing the minimum work to maintain this old script
+if ( !function_exists('get_option') )
+	require_once( dirname( dirname( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) ) ) . '/wp-load.php' );
+
+// WPCOM ghetto
+@define( 'AKST_PATH', 'http://s0.wp.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/' );
+@define( 'AKST_FILE', get_bloginfo('url') . '/wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php' );
+
 function akst_addtocontent() {
 	$addtocontent = get_option('akst_addtocontent');
 	if($addtocontent == '') {
@@ -204,9 +213,6 @@ $social_sites = array(
 
 $akst_limit_mail_recipients = 5;
 
-// WPCOM ghetto
-@define('AKST_PATH', 'http://s0.wp.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/');
-@define('AKST_FILE', 'http://wordpress.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php');
 
 $akst_action = '';
 
@@ -264,7 +270,7 @@ if (!function_exists('ak_prototype')) {
 			global $ak_prototype;
 			if (!isset($ak_prototype) || !$ak_prototype) {
 				print('
-		<script type="text/javascript" src="http://s1.wordpress.com/wp-includes/js/prototype.js"></script>
+		<script type="text/javascript" src="http://s0.wp.com/wp-includes/js/prototype.js"></script>
 				');
 			}
 			$ak_prototype = true;
@@ -307,10 +313,6 @@ if (!function_exists('ak_can_update_options')) {
 }
 
 if (!empty($_REQUEST['akst_action'])) {
-
-	// When this file is called directly, load WordPress
-	if ( !function_exists('get_option') )
-		require_once( dirname( dirname( dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) ) ) . '/wp-load.php' );
 
 	switch ($_REQUEST['akst_action']) {
 		case 'js':
