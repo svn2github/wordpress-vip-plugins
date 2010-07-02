@@ -15,7 +15,6 @@ else :
 ?>
 	<div id='idc-container'></div>
 	<div id="idc-noscript">
-		<p id="idc-unavailable"><?php _e( 'This website uses <a href="http://intensedebate.com/">IntenseDebate comments</a>, but they are not currently loaded because either your browser doesn\'t support JavaScript, or they didn\'t load fast enough.', 'intensedebate' ); ?></p>
 		<?php
 		// Include your theme's comemnt template
 		if ( is_readable( get_option( "id_comment_template_file" ) ) )

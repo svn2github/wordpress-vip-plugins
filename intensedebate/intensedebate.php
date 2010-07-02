@@ -851,13 +851,22 @@ Author URI: http://intensedebate.com
 
 		function create() {
 			$this->operations = array();
-			$this->needs_save = true;
-			$this->store();
 		}
 		
 		function store() {
-			if ( $this->needs_save )
+			if ( $this->needs_save ) {
+				$this->compact_operations();
 				id_save_option( $this->queueName, $this->operations );
+			}
+		}
+		
+		function compact_operations() {
+			$num_ops = count( $this->operations );
+			for ( $o = 0; $o < $num_ops; $o++ ) {
+				if ( in_array( $this->operations[ $o ]->action, array( 'save_comment', 'comment_status' ) ) && isset( $this->operations[ $o ]->data['comment_id'] ) ) {
+					$this->operations[ $o ]->data = array( 'comment_id' => $this->operations[ $o ]->data['comment_id'] );
+				}
+			}
 		}
 		
 		function add( $action, $data, $callback = null ) {
@@ -867,6 +876,8 @@ Author URI: http://intensedebate.com
 		
 		function queue( $operation ) {
 			$this->needs_save = true;
+			if ( in_array( $operation->action, array( 'save_comment', 'comment_status' ) ) && isset( $operation->data['comment_id']) )
+				$operation->data = array( 'comment_id' => $operation->data['comment_id'] );
 			$this->operations[] = $operation;				
 			return $operation;
 		}
@@ -903,7 +914,7 @@ Author URI: http://intensedebate.com
 					&& in_array( $op->action, array( 'save_comment', 'comment_status' ) ) 
 					&& !empty( $op->data ) 
 					&& isset( $op->data[ 'comment_id' ] )
-					&& substr( gmdate( 'Y-m-d H:i:s' ), 0, 18 ) != substr( $op->time_gmt, 0, 18 ) ) {
+					&& ( substr( gmdate( 'Y-m-d H:i:s' ), 0, 18 ) != substr( $op->time_gmt, 0, 18 ) || empty( $op->data['comment_text'] ) ) ) { // Reload if not from this minute or if no comment text
 						$comment = new id_comment( array( 'comment_ID' => $op->data[ 'comment_id' ] ) );
 						$comment->loadFromWP();
 						$data = $comment->export();
@@ -918,15 +929,14 @@ Author URI: http://intensedebate.com
 			
 			// Update queue to save timestamps
 			$this->needs_save = true;
-			$this->operations = array_merge( $hold, $send );
-			$this->store();
-			
+			$this->operations = array_merge( $hold, $send );			
 			$fields = array(
 				'appKey' => ID_APPKEY,
 				'blogKey' => get_option( 'id_blogKey' ),
 				'blogid' => get_option( 'id_blogID' ),
 				'operations' => json_encode( $send )
 			);
+			$this->store();
 			
 			return id_http_query( $this->url . '?blogid=' . urlencode( get_option( 'id_blogID' ) ), $fields, 'POST' );
 		}
@@ -1001,7 +1011,10 @@ Author URI: http://intensedebate.com
 		global $wpmu_version;
 		
 		// Blanket protection against accidental access to edit-comments.php
-		if ( 0 == get_option( 'id_moderationPage') && 'edit-comments.php' == basename( $_SERVER['REQUEST_URI'] ) )
+		$basename = basename( $_SERVER['REQUEST_URI'] );
+		if ( stristr( $basename, '?' ) )
+			$basename = substr( $basename, 0, strpos( $basename, '?' ) );
+		if ( 0 == get_option( 'id_moderationPage') && 'edit-comments.php' == $basename )
 			wp_redirect( get_bloginfo( 'wpurl' ) . '/wp-admin/admin.php?page=intensedebate' );
 
 		// determine requested action
