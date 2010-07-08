@@ -29,7 +29,11 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 	if ( empty($plugin) ) {
 		// On WordPress.com, message Alex M. about the bad call to this function
 		if ( function_exists('xmpp_message') ) {
-			xmpp_message( 'viper007bond@im.wordpress.com', 'wpcom_vip_load_plugin() was called without a $plugin parameter on ' . get_bloginfo('url') );
+			// Use an expiring cache value to avoid spamming messages
+			if ( ! wp_cache_get( 'noplugin', 'wpcom_vip_load_plugin' ) ) {
+				xmpp_message( 'viper007bond@im.wordpress.com', 'wpcom_vip_load_plugin() was called without a $plugin parameter on ' . get_bloginfo('url') );
+				wp_cache_set( 'noplugin', 1, 'wpcom_vip_load_plugin', 3600 );
+			}
 			return false;
 		}
 		// die() in non-WordPress.com environments so you know you made a mistake
@@ -75,7 +79,11 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 	} else {
 		// On WordPress.com, message Alex M. about the bad call to this function
 		if ( function_exists('xmpp_message') ) {
-			xmpp_message( 'viper007bond@im.wordpress.com', "wpcom_vip_load_plugin() tried to load a non-existent file ( $fullpath ) on " . get_bloginfo('url') );
+			// Use an expiring cache value to avoid spamming messages
+			if ( ! wp_cache_get( 'notfound_' . $folder . '|' . $plugin, 'wpcom_vip_load_plugin' ) ) {
+				xmpp_message( 'viper007bond@im.wordpress.com', "wpcom_vip_load_plugin() tried to load a non-existent file ( $includepath ) on " . get_bloginfo('url') );
+				wp_cache_set( 'notfound_' . $folder . '|' . $plugin, 1, 'wpcom_vip_load_plugin', 3600 );
+			}
 			return false;
 		}
 		// die() in non-WordPress.com environments so you know you made a mistake
