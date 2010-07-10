@@ -363,9 +363,9 @@ function WPCom_BackType_Tweetcount() {
 
 // Template function for manual placement
 if ( ! function_exists( 'backtype_tweetcount' ) ) {
-	function backtype_tweetcount( $src = null, $via = null, $links = null, $size = null, $style = null, $background = null, $border = null, $text = null, $shortener = null, $api_key = null, $login = null ) {
+	function backtype_tweetcount( $src = null, $via = null, $links = null, $size = null, $style = null, $background = null, $border = null, $text = null, $shortener = null, $api_key = null, $login = null, $shorturl = null ) {
 		global $WPCom_BackType_Tweetcount;
-		return $WPCom_BackType_Tweetcount->button( $src, $via, $links, $size, $style, $background, $border, $text, $shortener, $api_key, $login );
+		return $WPCom_BackType_Tweetcount->button( $src, $via, $links, $size, $style, $background, $border, $text, $shortener, $api_key, $login, $shorturl );
 	}
 }
 
