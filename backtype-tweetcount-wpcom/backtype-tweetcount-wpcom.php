@@ -187,7 +187,7 @@ class WPCom_BackType_Tweetcount {
 
 				// Default to using WordPress' internal shortlink API
 				default;
-					$shorturl = wp_get_shortlink( $post->ID, $post->post_type );
+					$shorturl = wp_get_shortlink( $post->ID, $post->post_type, false );
 					break;
 			}
 		}
