@@ -196,7 +196,7 @@ class WPCom_BackType_Tweetcount {
 		$button = '';
 
 		if ( $style )
-			$button .= "<div style='$style'>\n";
+			$button .= "<div style='" . esc_attr( $style ) . "'>\n";
 
 		$button = '	<script type="text/javascript">
 	<!--
