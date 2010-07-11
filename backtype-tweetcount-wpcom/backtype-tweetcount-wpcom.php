@@ -263,7 +263,7 @@ class WPCom_BackType_Tweetcount {
 
 				// Failed reponse, try again in a bit
 				if ( is_wp_error( $response ) || ! $data = json_decode( wp_remote_retrieve_body( $response ) ) || empty( $data['results'] ) ) {
-					set_transient( 'backtype_shorurl_fail_' . $service, 1, mt_rand( 800, 1000 ) );
+					set_transient( 'backtype_shorurl_fail_bitly', 1, mt_rand( 800, 1000 ) );
 					return false;
 				}
 
@@ -273,22 +273,44 @@ class WPCom_BackType_Tweetcount {
 				elseif ( !empty($data['results'][$keys[0]]['shortUrl'] ) )
 					return $data['results'][$keys[0]]['shortUrl'];
 
-				set_transient( 'backtype_shorurl_fail_' . $service, 1, mt_rand( 800, 1000 ) );
+				set_transient( 'backtype_shorurl_fail_bitly', 1, mt_rand( 800, 1000 ) );
 				return false;
 
 			case 'tinyurl':
 				$response = wp_remote_get( 'http://tinyurl.com/api-create.php?url=' . urlencode( $url ) );
 
 				if ( is_wp_error( $response ) ) {
-					set_transient( 'backtype_shorurl_fail_' . $service, 1, mt_rand( 800, 1000 ) );
+					set_transient( 'backtype_shorurl_fail_tinyurl', 1, mt_rand( 800, 1000 ) );
 					return false;
 				}
 
 				return wp_remote_retrieve_body( $response );
 
 			case 'digg':
-				// send user agent, etc.
+				$response = wp_remote_get( 'http://services.digg.com/url/short/create?type=php&url=' . urlencode( $url ) . '&appkey=http%3A%2F%2Fwww.backtype.com%2Fplugins%2Ftweetcount', array( 'user-agent' => 'BackType-Tweetcount' ) );
+
+				if ( is_wp_error( $response ) || !$data = unserialize( wp_remote_retrieve_body( $response ) ) || empty( $data->shorturls[0]->short_url ) ) {
+					set_transient( 'backtype_shorurl_fail_digg', 1, mt_rand( 800, 1000 ) );
+					return false;
+				}
+
+				return $data->shorturls[0]->short_url;
+
+			case 'supr':
+				if ( empty( $api_key ) || empty( $login ) )
+					return false;
+
+				$response = wp_remote_get( 'http://su.pr/api?url=' . urlencode( $url ) . '&login=' . $login . '&apiKey=' .$api_key );
+
+				if ( is_wp_error( $response ) ) {
+					set_transient( 'backtype_shorurl_fail_supr', 1, mt_rand( 800, 1000 ) );
+					return false;
+				}
+
+				return wp_remote_retrieve_body( $response );
 		}
+
+		return false;
 	}
 
 
