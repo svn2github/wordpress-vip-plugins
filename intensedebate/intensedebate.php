@@ -2656,8 +2656,7 @@ Author URI: http://intensedebate.com
 			$posttitle  = urlencode( $post->post_title );
 			$posttime   = urlencode( $post->post_date_gmt );
 			$postauthor = urlencode( get_author_name( $post->post_author ) );
-			$permalink  = get_permalink( $id );
-			$permalinkEncoded = urlencode( $permalink );
+			$permalink  = urlencode( $post->guid );
 			
 			return "<span class='IDCommentsReplace' style='display:none'>$id</span>$comment_text<span style='display:none' id='IDCommentPostInfoPermalink$id'>$permalink</span><span style='display:none' id='IDCommentPostInfoTitle$id'>$posttitle</span><span style='display:none' id='IDCommentPostInfoTime$id'>$posttime</span><span style='display:none' id='IDCommentPostInfoAuthor$id'>$postauthor</span>";
 		} else {
