@@ -157,7 +157,23 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 		$mapping = array_shift( $_rows );
 		$out = array();
 		foreach( $_rows as $key => $values ) {
-			$out[] = array( 'date' => $values[0], 'post_id' => $values[1][0], 'post_title' => $values[1][1], 'post_permalink' => $values[1][2], 'views' => $values[2] );
+			switch( $table ) {
+				case "postviews":
+					$out[] = array( 'date' => $values[0], 'post_id' => $values[1][0], 'post_title' => $values[1][1], 'post_permalink' => $values[1][2], 'views' => $values[2] );
+					break;
+				case "views": 
+					$out[] = array( 'date' => $values['date'], 'views' => $values['views'] );
+					break;
+				case "referrers": 
+					$out[] = array( 'date' => $values[0], 'referrer' => $values[1], 'views' => $values[2] );
+					break;
+				case "searchterms":
+					$out[] = array( 'date' => $values[0], 'searchterm' => $values[1], 'views' => $values[2] );
+					break;
+				case "clicks":
+					$out[] = array( 'date' => $values[0], 'url' => $values[1], 'clicks' => $values[2] );
+					break;
+			}
 		}
 		return $out;
 	}
