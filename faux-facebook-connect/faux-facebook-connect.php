@@ -123,7 +123,7 @@ if ( !class_exists( "FauxFacebook" ) ) {
 		
 		public function backend_init() {
 			// make sure to hook in validation prior to updating the options
-			if ( $this->plugin_prefix . '-settings' == $_POST['option_page']  ) {
+			if ( !empty($_POST['option_page']) && $this->plugin_prefix . '-settings' == $_POST['option_page']  ) {
 				// submitted data, verify it.
 				if ( 'update' == $_POST['action'] ) {
 					check_admin_referer( $_POST['option_page'] . '-options' );
