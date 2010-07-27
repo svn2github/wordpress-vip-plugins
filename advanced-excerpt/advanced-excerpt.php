@@ -194,7 +194,7 @@ class AdvancedExcerpt
 			if(1 == $i / 4) : ?><tr><?php endif;
 			$i++;
 		?>
-					<td><input name="<?php echo $this->name ?>_allowed_tags[]" type="checkbox" id="<?php echo $this->name ?>_allow_<?php echo $tag; ?>" value="<?php echo $tag; ?>" <?php echo (in_array($tag, $allowed_tags)) ? 'checked="checked" ': ''; ?>/> <?php echo $tag; ?></td><?php if(1 == $i / 4) : $i = 0; ?></tr><?php endif;?>
+					<td><input name="<?php echo $this->name ?>_allowed_tags[]" type="checkbox" id="<?php echo $this->name ?>_allow_<?php echo $tag; ?>" value="<?php echo $tag; ?>" <?php echo ( in_array( $tag, (array) $allowed_tags) ) ? 'checked="checked" ': ''; ?>/> <?php echo $tag; ?></td><?php if(1 == $i / 4) : $i = 0; ?></tr><?php endif;?>
 <?php
 		endforeach;
 		if(1 != $i / 4) : ?><td colspan="<?php echo (4 - $i); ?>">&nbsp;</td></tr><?php endif;?>
