@@ -404,6 +404,8 @@ function amt_add_meta_tags() {
         $cmpvalues = $options['page_options'];
     elseif ( 'post' == $posts[0]->post_type )
         $cmpvalues = $options['post_options'];
+	else 
+		$cmpvalues = array();
 
     if ( !is_array( $cmpvalues ) )
         $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
@@ -713,7 +715,9 @@ function mt_seo_rewrite_title( $title, $sep, $seplocation ) {
         $cmpvalues = $options['page_options'];
     elseif ( 'post' == $posts[0]->post_type )
         $cmpvalues = $options['post_options'];
-
+	else
+		$cmpvalues = array();
+		
     if ( !is_array( $cmpvalues ) )
         $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
 
