@@ -14,7 +14,6 @@ require_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper.php' );
  *
  * @author nickmomrik
  */
-
 function vip_redirects( $vip_redirects_array = array() ) {
 	$uri = untrailingslashit( $_SERVER['REQUEST_URI'] );
 
@@ -27,47 +26,60 @@ function vip_redirects( $vip_redirects_array = array() ) {
 }
 
 /*
- * PHP func file_get_contents() w/ WP_CACHE integration
- * and echos by default
- * @author based on code by CNN
+ * Fetch a remote URL and cache the result for a certain period of time
+ * See http://wp.me/PPtWC-8e for more details
  */
+function vip_wp_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
+	$cache_key = md5( $url );
 
-function vip_wp_file_get_content( $url, $echo_content = true, $timeout=3 ) {
-	$key = md5( $url );
-	if ( $out = wp_cache_get( $key , 'vip') ) {
-			if ( $echo_content ) {
-					echo $out;
-					return;
-			} else
-					return $out;
+	if ( $cache = wp_cache_get( $cache_key , 'vip') ) {
+		return $cache;
 	}
 
-	// Don't accept timeouts of 0 (no timeout), or over 3 seconds
-	$new_timeout = min( 3, max( 1, (int)$timeout ) );
+	// The timeout can be 1, 2, or 3 seconds
+	$new_timeout = min( 3, max( 1, (int) $timeout ) );
+
 	// Record the previous default timeout value
 	$old_timeout = ini_get( 'default_socket_timeout' );
+
 	// Set the timeout value to avoid holding up php
 	ini_set( 'default_socket_timeout', $new_timeout );
+
 	// Make our request
-	$page = @file_get_contents( $url );
+	$content = @file_get_contents( $url );
+
 	// Reset the default timeout to its old value
 	ini_set( 'default_socket_timeout', $old_timeout );
 
-	wp_cache_set( $key, $page, 'vip', 600 );
+	// The cache time shouldn't be less than a minute
+	// Please try and keep this as high as possible though
+	// It'll make your site faster if you do
+	$new_timeout = abs( intval( $cache_time ) );
+	if ( $cache_time < 60 )
+		$cache_time = 60;
 
-	if ( $echo_content ) {
-		echo $page;
-		return;
-	} else {
-		return $page;
-	}
+	wp_cache_set( $cache_key, $content, 'vip', $cache_time );
+
+	return $content;
+}
+
+/*
+ * This is the old deprecated version of vip_wp_file_get_contents()
+ * Please don't use this function in any new code
+ */
+function vip_wp_file_get_content( $url, $echo_content = true, $timeout = 3 ) {
+	$output = vip_wp_file_get_contents( $url, false, $timeout );
+
+	if ( $echo_content )
+		echo $output;
+	else
+		return $output;
 }
 
 /*
  * Disable tag suggest on post screen
  * @author mdawaffe
  */
-
 function vip_disable_tag_suggest() {
 	add_action( 'admin_init', '_vip_disable_tag_suggest' );
 }
@@ -81,7 +93,6 @@ function _vip_disable_tag_suggest() {
  * Disable autosave
  * @author mdawaffe
  */
-
 function disable_autosave() {
 	add_action( 'init', '_disable_autosave' );
 }
@@ -123,7 +134,7 @@ function wpcom_vip_is_feedservice_ua() {
 	if ( function_exists( 'vary_cache_on_function' ) ) { // batcache variant
 		vary_cache_on_function(
 			'return (bool) preg_match("/feedburner|feedvalidator|MediafedMetrics/i", $_SERVER["HTTP_USER_AGENT"]);'
-    	);
+		);
 	}
 	return (bool) preg_match("/feedburner|feedvalidator|MediafedMetrics/i", $_SERVER["HTTP_USER_AGENT"]);
 }
@@ -134,7 +145,6 @@ function wpcom_vip_is_feedservice_ua() {
  * the crossdomain.xml file in the theme's root directory
  * @author lloydbudd
  */
-
 function vip_crossdomain_redirect() {
 	add_action( 'init', '_vip_crossdomain_redirect');
 }
@@ -162,7 +172,6 @@ function _vip_doubleclick_dartiframe_redirect() {
  * Send moderation emails to multiple addresses
  * @author nickmomrik
  */
-
 function vip_multiple_moderators($emails) {
 	$email_headers = "From: donotreply@wordpress.com" . "\n" . "CC: " . implode(', ', $emails);
 	add_filter('comment_moderation_headers', create_function( '', 'return '.var_export( $email_headers, true ).';') );
@@ -194,7 +203,6 @@ function vip_multiple_moderators($emails) {
  * 
  * @author nickmomrik
  */
-
 function wpcom_vip_cache_buster( $url, $mtime = null ) {
 	if ( strpos($url, '?m=') )
 		return $url;
