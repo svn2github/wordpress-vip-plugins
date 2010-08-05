@@ -29,7 +29,7 @@ function vip_redirects( $vip_redirects_array = array() ) {
  * Fetch a remote URL and cache the result for a certain period of time
  * See http://wp.me/PPtWC-8e for more details
  */
-function vip_wp_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
+function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
 	$cache_key = md5( $url );
 
 	if ( $cache = wp_cache_get( $cache_key , 'vip') ) {
@@ -64,11 +64,11 @@ function vip_wp_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
 }
 
 /*
- * This is the old deprecated version of vip_wp_file_get_contents()
+ * This is the old deprecated version of wpcom_vip_file_get_contents()
  * Please don't use this function in any new code
  */
 function vip_wp_file_get_content( $url, $echo_content = true, $timeout = 3 ) {
-	$output = vip_wp_file_get_contents( $url, false, $timeout );
+	$output = wpcom_vip_file_get_contents( $url, false, $timeout );
 
 	if ( $echo_content )
 		echo $output;
