@@ -160,6 +160,9 @@ function dsq_manage_dialog($message, $error = false) {
 
 function dsq_sync_comments($post, $comments) {
 	global $wpdb;
+	
+	wp_set_current_user(0);
+	
 	// Get last_comment_date id for $post with Disqus metadata
 	// (This is the date that is stored in the Disqus DB.)
 	$last_comment_date = $wpdb->get_var($wpdb->prepare('SELECT max(comment_date) FROM ' . $wpdb->comments . ' WHERE comment_post_ID = %d AND comment_agent LIKE \'Disqus/%%\'', $post->ID));
@@ -184,7 +187,7 @@ function dsq_sync_comments($post, $comments) {
 				'comment_post_ID' => $post->ID,
 				'comment_date' => $comment->created_at,
 				'comment_date_gmt' => $comment->created_at,
-				'comment_content' => $comment->message,
+				'comment_content' => apply_filters('pre_comment_content', $comment->message),
 				'comment_approved' => 1,
 				'comment_agent' => 'Disqus/1.0:' . intval($comment->id),
 				'comment_type' => '',
@@ -201,7 +204,7 @@ function dsq_sync_comments($post, $comments) {
 				$commentdata['comment_author_url'] = $comment->author->url;
 				$commentdata['comment_author_IP'] = $comment->author->ip_address;
 			}
-
+			$commentdata = wp_filter_comment($commentdata);
 			wp_insert_comment($commentdata);
 		}
 	}

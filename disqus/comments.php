@@ -3,35 +3,26 @@
 ?>
 
 <div id="disqus_thread">
-	<?php
-	if (is_file(TEMPLATEPATH . '/comments.php')) {
-		include(TEMPLATEPATH . '/comments.php');
-	}
-	else {
-		?>
-		<div id="dsq-content">
-			<ul id="dsq-comments">
+	<div id="dsq-content">
+		<ul id="dsq-comments">
 	<?php foreach ($comments as $comment) : ?>
-				<li id="dsq-comment-<?php echo comment_ID(); ?>">
-					<div id="dsq-comment-header-<?php echo comment_ID(); ?>" class="dsq-comment-header">
-						<cite id="dsq-cite-<?php echo comment_ID(); ?>">
+			<li id="dsq-comment-<?php echo comment_ID(); ?>">
+				<div id="dsq-comment-header-<?php echo comment_ID(); ?>" class="dsq-comment-header">
+					<cite id="dsq-cite-<?php echo comment_ID(); ?>">
 	<?php if(comment_author_url()) : ?>
-							<a id="dsq-author-user-<?php echo comment_ID(); ?>" href="<?php echo comment_author_url(); ?>" target="_blank" rel="nofollow"><?php echo comment_author(); ?></a>
+						<a id="dsq-author-user-<?php echo comment_ID(); ?>" href="<?php echo comment_author_url(); ?>" target="_blank" rel="nofollow"><?php echo comment_author(); ?></a>
 	<?php else : ?>
-							<span id="dsq-author-user-<?php echo comment_ID(); ?>"><?php echo comment_author(); ?></span>
+						<span id="dsq-author-user-<?php echo comment_ID(); ?>"><?php echo comment_author(); ?></span>
 	<?php endif; ?>
-						</cite>
-					</div>
-					<div id="dsq-comment-body-<?php echo comment_ID(); ?>" class="dsq-comment-body">
-						<div id="dsq-comment-message-<?php echo comment_ID(); ?>" class="dsq-comment-message"><?php comment_text(); ?></div>
-					</div>
-				</li>
+					</cite>
+				</div>
+				<div id="dsq-comment-body-<?php echo comment_ID(); ?>" class="dsq-comment-body">
+					<div id="dsq-comment-message-<?php echo comment_ID(); ?>" class="dsq-comment-message"><?php wp_filter_kses(comment_text()); ?></div>
+				</div>
+			</li>
 	<?php endforeach; ?>
-			</ul>
-		</div>
-		<?
-	}
-	?>
+		</ul>
+	</div>
 </div>
 
 <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
