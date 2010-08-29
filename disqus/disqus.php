@@ -255,7 +255,7 @@ function dsq_request_handler() {
 				}
 				// schedule the event for 30 seconds from now in case they
 				// happen to make a quick post
-				wp_schedule_single_event(time(), 'dsq_sync_post', array($post_id));
+				// wp_schedule_single_event(time(), 'dsq_sync_post', array($post_id));
 				die('OK');
 			break;
 			case 'export_comments':
