@@ -27,9 +27,11 @@ function vip_redirects( $vip_redirects_array = array() ) {
 
 /*
  * Fetch a remote URL and cache the result for a certain period of time
- * See http://wp.me/PPtWC-8e for more details
+ * See http://lobby.vip.wordpress.com/best-practices/fetching-remote-data/ for more details
  */
 function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
+	// $url = esc_url_raw( $url ); // Safety
+
 	$cache_key = md5( $url );
 
 	if ( $cache = wp_cache_get( $cache_key , 'vip') ) {
