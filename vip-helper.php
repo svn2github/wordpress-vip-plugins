@@ -70,7 +70,7 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
  * Please don't use this function in any new code
  */
 function vip_wp_file_get_content( $url, $echo_content = true, $timeout = 3 ) {
-	$output = wpcom_vip_file_get_contents( $url, false, $timeout );
+	$output = wpcom_vip_file_get_contents( $url, $timeout );
 
 	if ( $echo_content )
 		echo $output;
