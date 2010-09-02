@@ -48,6 +48,35 @@ function vip_display_related_posts( $limit_to_same_domain = true ) {
 }
 
 /*
+ * Retrieves an array of possibly related posts
+ *
+ * 1. Make sure Appearance -> Extras: 'Hide related links on this blog' is NOT checked
+ * 2. Call vip_related_posts() in functions.php to prevent related links from being automatically displayed
+ * 3. Use this function to get the related posts into an array.
+ *
+ * Returns an array of related posts:
+ * array =>
+ *     array
+ *       'url' => string
+ *       'title' => string
+ *       'timestamp' => string (YYYY-MM-DD)
+ *       'host' => string, ie 'blog.wordpress.com' 
+ *       'source' => 
+ *         array
+ *           'sourcename' => string (site name)
+ *           'sourceurl' => string (site url)
+ *           'sourcetype' => string (site source: same_domain, wpcom, partners)
+ *
+ * @author yoavf
+ */
+
+function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true ){
+	$permalink = get_permalink();
+	stats_extra( 'related_links', 'vip_get' );
+ 	return get_sphere_results( $permalink, $max_num, $limit_to_same_domain );
+}
+
+/*
  * Allows users of contributor role to be able to upload media.
  * Contrib users still can't publish.
  * @author mdawaffe
