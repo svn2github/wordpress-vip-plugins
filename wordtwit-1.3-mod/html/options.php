@@ -42,40 +42,11 @@ function showshortenersettings() {
          
          <div class="wordtwit-clearer"></div>
       </div>
-      
-      <?php if ( $username ) { ?>
-      <div class="plugin-section bottom-spacer">
-         <div class="section-info">
-            <h3>Twitter Profile</h3>
-            The following information is associated with the Twitter credentials supplied below.
-         </div>
-         
-         <div id="twitter-profile" class="editable-area">
-            <?php $ok = twit_verify_credentials( $username, $password, $result );  ?>
-            <?php if ( $ok ) { ?>
-               <div class="avatar">
-                  <img src="<?php echo $result['user']['profile_image_url']; ?>" alt="Profile Image" />
-               </div>
-               
-               <div class="info">
-                  <h4><?php echo $result['user']['name']; ?>, <?php echo $result['user']['followers_count'] . ' ' . __('followers'); ?></h4>
-                  <h5><?php if ( is_array( $result['user']['description'] ) ) _e('No Description On Account'); else echo $result['user']['description']; ?></h5>
-               </div>
-            <?php } else { ?>
-               <div class="sorry">
-                  <?php _e('Sorry, the credentials you have supplied are invalid.  <br />Please re-enter them again below.'); ?>
-               </div>
-            <?php } ?> 
-         </div>
-         
-         <div class="wordtwit-clearer"></div>
-      </div>
-      <?php } ?>
          
       <div class="plugin-section bottom-spacer">
          <div class="section-info">
          <h3>General Options</h3>       
-            WordTwit allows you to publish a Twitter tweet whenever a new blog entry is published.  To enable it, simply enter your Twitter username and password.<br /><br />
+            WordTwit allows you to publish a Twitter tweet whenever a new blog entry is published.  To enable it, simply authorize your Twitter account.<br /><br />
             
             You can also customize the message Twitter posts to your account by using the "message" field below.  You can use [title] to represent the title of the blog entry, and [link] to represent the permalink.
          </div>
@@ -84,14 +55,9 @@ function showshortenersettings() {
             <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
                <table class="form-table" cols="2">
                	<tr>
-                     <th>Username</th>
-                     <td><input type="text" name="username" value="<?php echo($username); ?>" /></td>
-                     
-                  </tr>
-               	<tr>
-                     <th>Password</th>
-                     <td><input type="password" name="password" value="<?php echo($password); ?>" /></td>
-                  </tr>
+               		<th>Authorization</th>
+               		<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo $twitter_status; ?></label></td>
+               	</tr>
                	<tr>
                      <th>Message</th>
                      <td><input type="text" name="message" value="<?php echo(htmlentities($message)); ?>" size="70" /></td>

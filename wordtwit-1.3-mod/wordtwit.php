@@ -69,7 +69,7 @@ In this way you could simply limit your updates on posts with a certain category
 
 
 // Some ideas taken from http://twitter.slawcup.com/twitter.class.phps
-
+;
 if ( ABSPATH ) {
    require_once( ABSPATH . 'wp-config.php' );
    require_once( ABSPATH . 'wp-includes/class-snoopy.php' );
@@ -78,12 +78,15 @@ if ( ABSPATH ) {
    require_once( '../../../wp-includes/class-snoopy.php' );
 }
 
-
 require_once( 'xml.php' );
+require_once( 'twitter_oauth/twitteroauth.php' );
 
 $twit_plugin_name = 'WordTwit';
 $twit_plugin_prefix = 'wordtwit_';
 $wordtwit_version = '1.3-mod';
+
+define( 'WORDTWIT_CONSUMER_KEY', '10vBDgzOLPzKxk8lKFNtyA' );
+define( 'WORDTWIT_CONSUMER_SECRET', 'u7cZaOr69ox8AioB09mLJUeeEWO5w6FcrcW8wOmTTM' );
 
 // set up hooks for WordPress
 add_action( 'publish_post', 'post_now_published' );
@@ -98,16 +101,16 @@ if ( true == get_option( $twit_plugin_prefix . 'user_override' ) ) {
 
 
 /*
- * make sure so far unencrypted passwords get encrypted
+ * make sure to delete passwords
  */
-add_action( 'init', 'twit_encrypt_passwords' );
-function twit_encrypt_passwords() {
+add_action( 'init', 'twit_delete_passwords' );
+function twit_delete_passwords() {
 	global $wpdb, $twit_plugin_prefix;
 	if ( empty( $wpdb->blogid ) )
 		return;
 	
 	$encryption_status = get_option( $twit_plugin_prefix . 'encryption_status' );
-	if ( 'complete' == $encryption_status )
+	if ( 'delete' == $encryption_status )
 		return;
 	else if ( 'intermediate' != $encryption_status ) {
 		update_option( $twit_plugin_prefix . 'encryption_status', 'intermediate' );
@@ -115,17 +118,17 @@ function twit_encrypt_passwords() {
 		$user_options = get_option($twit_plugin_prefix . 'user_options');
 		if( is_array( $user_options) && !empty( $user_options) ) {
 			foreach( $user_options as $key => $values ) {
-				if( isset( $values['twitter_password'] ) && !empty( $values['twitter_password'] ) ) 
-					$user_options[$key]['twitter_password'] = wp_encrypt($user_options[$key]['twitter_password']);
+				if ( isset( $values['twitter_password'] ) ) 
+					unset( $user_options[$key]['twitter_password'] );
+				if ( isset( $values['twitter_username'] ) ) 
+					unset( $user_options[$key]['twitter_username'] );
 			}
 			update_option( $twit_plugin_prefix . 'user_options', $user_options);
 		}
 		
-		$twitpw = get_option( $twit_plugin_prefix . 'password', 0 );
-		if( !empty( $twitpw ) )
-			update_option( $twit_plugin_prefix . 'password', wp_encrypt( $twitpw ) );
+		delete_option( $twit_plugin_prefix . 'password', 0 );
 		
-		update_option( $twit_plugin_prefix . 'encryption_status', 'complete' );
+		update_option( $twit_plugin_prefix . 'encryption_status', 'delete' );
 	}
 }
 
@@ -139,57 +142,73 @@ function twit_show_user_profile( $user ) {
    
 	if ( isset( $user_options[ $user->ID ] ) ) {
 		$twit_options = $user_options[ $user->ID ];
-		$twitter_username = $twit_options[ 'twitter_username' ];
-		$twitter_password = wp_decrypt( $twit_options[ 'twitter_password' ] );
 		$twitter_message = $twit_options[ 'twitter_message' ];
+		$oauth_token = $twit_options[ 'oauth_token' ];
+		$oauth_token_secret = $twit_options[ 'oauth_token_secret' ];
 	} else {
-		$twitter_username = $twitter_password = $twitter_message = '';
+		$twitter_message = $oauth_token = $oauth_token_secret = '';
 	}
+	
+	
+	
+	// get new authorization
+	if ( isset( $_POST['reauthorize'] ) ) {
+		if ( $_POST['reauthorize'] == 'Connect to Twitter account' ) {
+			$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET );
+			$request_token = $twit_connection->getRequestToken( admin_url( 'users.php?page=grofiles-user-settings' ) );
+			$redirect_url = $twit_connection->getAuthorizeURL( $request_token, FALSE );
+			
+			// save token values
+			$user_options[ $user->ID ]['oauth_token'] = $request_token['oauth_token'];
+			$user_options[ $user->ID ]['oauth_token_secret'] = $request_token['oauth_token_secret'];
+			update_option( $twit_plugin_prefix . 'user_options', $user_options );
+
+			wp_redirect( $redirect_url );
+		}
+	} 
+	
+	$oauth_token = $user_options[ $user->ID ]['oauth_token'];
+	$oauth_token_secret = $user_options[ $user->ID ]['oauth_token_secret'];
+	$twitter_status = 'not authorized';
+	
+	// handle callback of authorization
+	if ( isset( $_GET['oauth_token'] ) && isset( $_GET['oauth_verifier'] ) && $oauth_token == $_GET['oauth_token'] ) {		
+		// open new connection
+		$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET, $oauth_token, $oauth_token_secret );
+		// get access token
+		$token_credentials = $twit_connection->getAccessToken( $_GET['oauth_verifier'] );
+		// reconnect with new credentials 
+		$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET, $token_credentials['oauth_token'], $token_credentials['oauth_token_secret'] );
+		$content = $twit_connection->get( 'account/verify_credentials' );
+		if ( is_object( $content ) && !empty( $content->screen_name ) ) {
+			$screen_name = $content->screen_name;
+			$twitter_status = 'authorized to ' . $screen_name;
+			$user_options[ $user->ID ]['oauth_token'] = $token_credentials['oauth_token'];
+			$user_options[ $user->ID ]['oauth_token_secret'] = $token_credentials['oauth_token_secret'];
+			update_option( $twit_plugin_prefix . 'user_options', $user_options );
+		}
+		// set authorized flag
+	} else {
+		$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET, $oauth_token, $oauth_token_secret );
+		$content = $twit_connection->get( 'account/verify_credentials' );
+		if ( is_object( $content ) && !empty( $content->screen_name ) ) {
+			$screen_name = $content->screen_name;
+			$twitter_status = 'authorized to ' . $screen_name;
+		}
+	}
+	
 	?>
 	
 	<div class="section-info">
 	<h3>WordTwit Twitter Info</h3>
-		WordTwit allows you to publish a Twitter tweet whenever a new blog entry is published.	To enable it, simply enter your Twitter username and password.<br /><br />You can also customize the message Twitter posts to your account by using the "message" field below.	You can use [title] to represent the title of the blog entry, and [link] to represent the permalink.
+		WordTwit allows you to publish a Twitter tweet whenever a new blog entry is published.	To enable it, simply authorize your Twitter account.<br /><br />You can also customize the message Twitter posts to your account by using the "message" field below.	You can use [title] to represent the title of the blog entry, and [link] to represent the permalink.
 		<br /><br /><b>Note:</b> These options are stored on a per blog basis to allow different settings for each of your blogs.<br /><br />
 	</div>
 																													   
-	<?php if ( $twitter_username ) { ?>
-	  <div class="wrap" id="wordtwit">									 
-	  <div class="plugin-section bottom-spacer">
-		 <div class="section-info">
-			<h3>Twitter Profile</h3>
-			The following information is associated with the Twitter credentials supplied below.
-		 </div>
-		 
-		 <div id="twitter-profile" class="editable-area">
-			<?php $ok = twit_verify_credentials( $twitter_username, $twitter_password, $result );  ?>
-			<?php if ( $ok ) { ?>
-			   <div class="avatar">
-				  <img src="<?php echo $result['user']['profile_image_url']; ?>" alt="Profile Image" />
-			   </div>
-			   
-			   <div class="info">
-				  <h4><?php echo $result['user']['name']; ?>, <?php echo $result['user']['followers_count'] . ' ' . __('followers'); ?></h4>
-				  <h5><?php if ( is_array( $result['user']['description'] ) ) _e('No Description On Account'); else echo $result['user']['description']; ?></h5>
-			   </div>
-			<?php } else { ?>
-			   <div class="sorry">
-				  <?php _e('Sorry, the credentials you have supplied are invalid.  <br />Please re-enter them again below.'); ?>
-			   </div>
-			<?php } ?> 
-		 </div>
-		</div>
-	  </div>							   
-	  <?php } ?>
-
 	<table class="form-table">
 		<tr>
-			<th><label for="twitter_username">Twitter Username <span class="description"> (required)</span></label></th>
-			<td><input type="text" name="twitter_username" id="twitter_username" value="<?php echo esc_attr($twitter_username) ?>" class="regular-text" /></td>
-		</tr>
-		<tr>
-			<th><label for="twitter_password">Twitter Password <span class="description"> (required)</span></label></th>
-			<td><input type="password" name="twitter_password" id="twitter_password" value="<?php echo esc_attr($twitter_password) ?>" class="regular-text" /></td>
+			<th>Authorization</th>
+			<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo $twitter_status; ?></label></td>
 		</tr>
 		<tr>
 			<th><label for="twitter_message">Twitter Message</label></th>
@@ -211,12 +230,8 @@ function twit_personal_options_update( $user_id ) {
 	
 	$user_options = get_option($twit_plugin_prefix . 'user_options');
 	
-	$user_options[ $user_id ] = array(
-									  'twitter_username' => $_POST[ 'twitter_username' ],
-									  'twitter_password' => wp_encrypt( $_POST[ 'twitter_password' ] ),
-									  'twitter_message' => $_POST[ 'twitter_message' ],
-									  );
-   
+	$user_options[ $user_id ]['twitter_message'] = $_POST[ 'twitter_message' ];
+
 	update_option( $twit_plugin_prefix . 'user_options', $user_options );
 }
 
@@ -260,18 +275,17 @@ function twit_hit_server( $location, $username, $password, &$output, $post = fal
    }
 }
 
-function twit_update_status( $username, $password, $new_status ) {
-   $output = '';
-   return twit_hit_server( 'http://twitter.com/statuses/update.xml', $username, $password, $output, true, array( 'status' => $new_status, 'source' => 'wordtwit' ) );
-}
-
-function twit_verify_credentials( $username, $password, &$cred ) {
-   $output = '';
-   $result = twit_hit_server( 'http://twitter.com/account/verify_credentials.xml', $username, $password, $output );	 
-   if ( $result ) {
-		$cred = wordtwit_parsexml( $output );
-   } 
-   return $result;
+function twit_update_status( $oauth_token, $oauth_token_secret, $new_status ) {
+	$output = '';
+	$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET, $oauth_token, $oauth_token_secret );
+	$content = $twit_connection->get( 'account/verify_credentials' );
+	if ( is_object( $content ) && !empty( $content->screen_name ) ) {
+		$result = $twit_connection->post( 'statuses/update', array( 'status' => $new_status, 'source' => 'wordtwit' ) );
+		if ( is_object( $result ) && !empty( $result->id ) )
+			return true;
+		return false;
+	}
+	return false;
 }
 
 function twit_get_tiny_url( $link ) {
@@ -329,8 +343,8 @@ function post_now_published( $post_id ) {
 			// get user settings
 			if ( $user_override && isset( $user_options[ $post->post_author ] ) ) {
 				$twit_options = $user_options[ $post->post_author ];
-				$twit_username = $twit_options[ 'twitter_username' ];
-				$twit_password = wp_decrypt( $twit_options[ 'twitter_password' ] ) ;
+				$oauth_token =  $twit_options[ 'oauth_token' ];
+				$oauth_token_secret =  $twit_options[ 'oauth_token_secret' ];
 				$message = $twit_options[ 'twitter_message' ];
 				
 				if ( empty( $message ) ) {
@@ -340,14 +354,14 @@ function post_now_published( $post_id ) {
 			}
 
 			// no user settings available or allowed then use global settings 
-			if ( ( ( empty( $twit_username ) || empty( $twit_password ) ) && false == $user_preference )
+			if ( ( ( empty( $oauth_token ) || empty( $oauth_token_secret ) ) && false == $user_preference )
 				 || false == $user_override ) {
 					$message = get_option( $twit_plugin_prefix . 'message' );
-					$twit_username = get_option( $twit_plugin_prefix . 'username', 0 );
-					$twit_password = wp_decrypt ( get_option( $twit_plugin_prefix . 'password', 0 ) );
+					$oauth_token = get_option( $twit_plugin_prefix . 'oauth_token' );
+					$oauth_token_secret = get_option( $twit_plugin_prefix . 'oauth_token_secret' );
 			}
 
-			if ( empty( $twit_username ) || empty( $twit_password ) )
+			if ( empty( $oauth_token ) || empty( $oauth_token_secret ) )
 				return;
 			
 			$message = apply_filters( 'wordtwit_pre_proc_message', $message, $post->ID );
@@ -367,7 +381,7 @@ function post_now_published( $post_id ) {
 			
 			$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
 			
-			twit_update_status( $twit_username, $twit_password, $message );
+			twit_update_status( $oauth_token, $oauth_token_secret, $message );
 			
 			add_post_meta( $post_id, 'has_been_twittered', 'yes' );
 		}
@@ -403,18 +417,6 @@ function wordtwit_options_subpanel() {
 	global $twit_plugin_prefix;
 
   	if (isset($_POST['info_update'])) {
-		if (isset($_POST['username'])) {
-			$username = $_POST['username'];
-		} else {
-			$username = '';
-		}
-
-		if (isset($_POST['password'])) {
-			$password = wp_encrypt( $_POST['password'] );
-		} else {
-			$password = '';
-		}
-
 		if (isset($_POST['message'])) {
 			$message = $_POST['message'];
 		} else {
@@ -453,8 +455,6 @@ function wordtwit_options_subpanel() {
 			$max_age = 24;
 		}
 
-		update_option( $twit_plugin_prefix . 'username', $username );
-		update_option( $twit_plugin_prefix . 'password', $password );
 		update_option( $twit_plugin_prefix . 'message', stripslashes($message) );
 		update_option( $twit_plugin_prefix . 'user_override', $user_override );
 		update_option( $twit_plugin_prefix . 'user_preference', $user_preference );
@@ -463,9 +463,50 @@ function wordtwit_options_subpanel() {
 		update_option( $twit_plugin_prefix . 'bitly_user_name', $bitly_user_name );
 		update_option( $twit_plugin_prefix . 'bitly_api_key', $bitly_api_key );
 	} 
-
-	$username = get_option($twit_plugin_prefix . 'username');
-	$password = wp_decrypt ( get_option($twit_plugin_prefix . 'password' ) );
+	
+	// get new authorization
+	if ( isset( $_POST['reauthorize'] ) ) {
+		if ( $_POST['reauthorize'] == 'Connect to Twitter account' ) {
+			$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET );
+			$request_token = $twit_connection->getRequestToken( admin_url( 'options-general.php?page=wordtwit.php' ) );
+			$redirect_url = $twit_connection->getAuthorizeURL( $request_token, FALSE );
+			
+			// save token values
+			update_option( $twit_plugin_prefix . 'oauth_token', $request_token['oauth_token'] );
+			update_option( $twit_plugin_prefix . 'oauth_token_secret', $request_token['oauth_token_secret'] );
+			
+			wp_redirect( $redirect_url );
+		}
+	} 
+	
+	$oauth_token = get_option( $twit_plugin_prefix . 'oauth_token' );
+	$oauth_token_secret = get_option( $twit_plugin_prefix . 'oauth_token_secret' );
+	$twitter_status = 'not authorized';
+	
+	// handle callback of authorization
+	if ( isset( $_GET['oauth_token'] ) && isset( $_GET['oauth_verifier'] ) && $oauth_token == $_GET['oauth_token'] ) {		
+		// open new connection
+		$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET, $oauth_token, $oauth_token_secret );
+		// get access token
+		$token_credentials = $twit_connection->getAccessToken( $_GET['oauth_verifier'] );
+		// reconnect with new credentials 
+		$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET, $token_credentials['oauth_token'], $token_credentials['oauth_token_secret'] );
+		$content = $twit_connection->get( 'account/verify_credentials' );
+		if ( is_object( $content ) && !empty( $content->screen_name ) ) {
+			$screen_name = $content->screen_name;
+			$twitter_status = 'authorized to ' . $screen_name;
+			update_option( $twit_plugin_prefix . 'oauth_token', $token_credentials['oauth_token'] );
+			update_option( $twit_plugin_prefix . 'oauth_token_secret', $token_credentials['oauth_token_secret'] );
+		}
+		// set authorized flag
+	} else {
+		$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET, $oauth_token, $oauth_token_secret );
+		$content = $twit_connection->get( 'account/verify_credentials' );
+		if ( is_object( $content ) && !empty( $content->screen_name ) ) {
+			$screen_name = $content->screen_name;
+			$twitter_status = 'authorized to ' . $screen_name;
+		}
+	}
 	$message = get_option($twit_plugin_prefix . 'message');	
 	$user_override = get_option( $twit_plugin_prefix . 'user_override' );
 	$user_preference = get_option( $twit_plugin_prefix . 'user_preference' );
@@ -491,5 +532,3 @@ function wordtwit_add_plugin_option() {
 }
 
 add_action('admin_menu', 'wordtwit_add_plugin_option');
-
-?>
