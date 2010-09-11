@@ -78,7 +78,7 @@ class Most_Commented_Widget extends WP_Widget {
 				$output = $posts;
 			}
 
-			wp_cache_set( widget_id, $output, '', 600 );
+			wp_cache_set( $widget_id, $output, '', 600 );
 		}
 
 		if ( $echo )
