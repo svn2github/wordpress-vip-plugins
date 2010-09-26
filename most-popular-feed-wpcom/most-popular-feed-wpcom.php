@@ -2,6 +2,7 @@
 /*
 Plugin Name: MostPopular Feed
 Description: This plugin adds a most popular feed. It attaches to the rss2_head hook and alters the query according to the needs. It uses the WordPress.com stats system to determine top posts. Alterations of the feedoutput can be done using one of the various hooks provided in wp-includes/feed-rss2.php (see example below). This plugin is coded for WordPress.com VIP setups. $_GET - parameters "includepages", "limit" (limit <=100 ) and "duration" (days < 90) exist to alter content of rss feed. To match the content to the most-popular sidebar widget use duration=2. For site admins ( Automattic - staff ) the $_GET - paramter "forceupdate=1" updates the rewrite_rules option and "printrules=1" provides output of the existing rewrite rules for siteadmins so they can be copied easily.
+Version: 1.01
 Author: Thorsten Ott
 */
 
@@ -116,7 +117,7 @@ function add_mostpopular_feed() {
     }
 
     // we don't want users to see this
-    if ( ! is_site_admin() )
+    if ( ! is_super_admin() )
         return;
 
     // but site admins should see the rewrite rules on request or if they differ to what might be hardcoded
