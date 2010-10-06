@@ -703,7 +703,7 @@ function mt_seo_style() {
     <?php
 }
 
-function mt_seo_rewrite_title( $title, $sep, $seplocation ) {
+function mt_seo_rewrite_title( $title ) {
 	global $posts, $include_keywords_in_single_posts, $mt_seo_fields;
 
     if ( !is_single() && !is_page())
@@ -745,6 +745,6 @@ add_action( 'admin_menu', 'amt_add_pages' );
 add_action( 'admin_menu', 'add_mt_seo_box' );
 add_action( 'wp_head', 'amt_add_meta_tags', 0 );
 add_action( 'admin_head', 'mt_seo_style' );
-add_filter( 'wp_title', 'mt_seo_rewrite_title', 9999, 3 );
+add_filter( 'wp_title', 'mt_seo_rewrite_title', 9999);
 
 ?>
