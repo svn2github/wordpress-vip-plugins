@@ -239,7 +239,7 @@ Author URI: http://intensedebate.com
 					'moderate_comments',
 					'intensedebate',
 					'id_moderate_comments',
-					WP_CONTENT_URL . '/plugins/intensedebate/comments.png'
+					WP_CONTENT_URL . '/themes/vip/plugins/intensedebate/comments.png'
 				);
 			} else { // < WP 2.7
 				unset( $menu[20] );
