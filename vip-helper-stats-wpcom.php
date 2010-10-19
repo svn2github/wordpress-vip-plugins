@@ -18,6 +18,29 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
  */
 
 /*
+ * Return top posts as array
+ * Reproduces the result of /wp-admin/index.php?page=stats&blog=<blogid>&view=postviews&numdays=30&summarize returning the top 10 posts if called with default params
+ * @param integer $num_days The length of the desired time frame. Default is 1. Maximum 90 days
+ * @param integer $limit The maximum number of records to return. Default is 5. Maximum 100.
+ * @param string $end_date The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01) and default is UTC date.
+ * @param string $and possibility to refine the query with additional AND condition. usually unused
+ * @return array Result as array.
+ * @author tott
+ */
+function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = false ) {
+	global $wpdb;
+	$cache_id = md5( 'top' . $wpdb->blogid . 'postviews' . $end_date . $num_days . $limit );
+	//$arr = wp_cache_get( $cache_id, 'vip_stats' );
+	if ( !$arr ) {
+		$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', 200 );
+		$arr = wpcom_vip_stats_csv_print( $stat_result, 'postviews', $limit, true, true );
+		wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
+	}
+	return $arr;
+}
+
+
+/*
  * Return stats as array
  * @param string $table table for stats can be views, postviews, referrers, searchterms, clicks. Default is views.
  * @param string $end_data The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01) and default is UTC date.
@@ -99,7 +122,7 @@ function wpcom_vip_csv_expand_post( $post ) {
 
 function wpcom_vip_csv_quote( $v ) {
 	if ( is_array( $v ) )
-		return join(',', array_map( 'vip_csv_quote', $v ));
+		return join(',', array_map( 'wpcom_vip_csv_quote', $v ));
 	if ( strstr( $v, '"' ) || strstr( $v, ',' ) || strstr( $v, "\n" ) )
 		return '"' . str_replace( '"', '""', $v ) . '"';
 	return "$v";
@@ -136,9 +159,25 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 					if ( $k < 1 )
 						continue;
 					$posts[$k] = true;
-					$_rows[] = array( $date, &$posts[$k], $v );
+					if ( !is_null( $summarize ) )
+						$_rows[$k] = array( $date, &$posts[$k], $_rows[$k][2] + $v );
+					else 
+						$_rows[] = array( $date, &$posts[$k], $v );
 				}
 			}
+			
+			// sort by views
+			if ( !is_null( $summarize ) ) {
+				$_head = array_shift( $_rows );
+				foreach( $_rows as $key => $vals ) {
+					$_srows[$vals[2]] = $vals;
+				}
+				$_rows = $_srows;
+				unset( $_srows );
+				krsort( $_rows );
+				array_unshift( $_rows, $_head );
+			}
+			
 			foreach ( stats_get_posts( array_keys( $posts ), $GLOBALS['blog_id'] ) as $id => $post )
 				$posts[$id] = wpcom_vip_csv_expand_post( $post );
 			break;
@@ -150,9 +189,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 						$_rows[] = array( $date, $k, $v );
 	}
 
-	if ( $limit > 0 && count( $_rows ) > $limit + 1 )
-		$_rows = array_slice( $_rows, 0, $limit + 1 );
-
+	
 	if ( true === $return_array ) {
 		$mapping = array_shift( $_rows );
 		$out = array();
@@ -175,8 +212,22 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 					break;
 			}
 		}
+		
+		if ( $limit > 0 && count( $out ) > $limit + 1 )
+			$out = array_slice( $out, 0, $limit + 1 );
+		
+		// Remove date col from summarized data
+		if ( !is_null( $summarize ) ) {
+			foreach ( $out as $key => $row ) {
+				array_shift( $row );
+				$out[$key] = $row;
+			}
+		}
 		return $out;
 	}
+
+	if ( $limit > 0 && count( $_rows ) > $limit + 1 )
+		$_rows = array_slice( $_rows, 0, $limit + 1 );
 	
 	foreach ( $_rows as $row ) {
 		// Remove date col from summarized data
