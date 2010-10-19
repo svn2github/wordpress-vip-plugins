@@ -30,7 +30,7 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
 function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = false ) {
 	global $wpdb;
 	$cache_id = md5( 'top' . $wpdb->blogid . 'postviews' . $end_date . $num_days . $limit );
-	//$arr = wp_cache_get( $cache_id, 'vip_stats' );
+	$arr = wp_cache_get( $cache_id, 'vip_stats' );
 	if ( !$arr ) {
 		$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', 200 );
 		$arr = wpcom_vip_stats_csv_print( $stat_result, 'postviews', $limit, true, true );
