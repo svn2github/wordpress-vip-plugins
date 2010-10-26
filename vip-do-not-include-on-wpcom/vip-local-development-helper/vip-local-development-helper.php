@@ -27,12 +27,14 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
 	// Make sure there's a plugin to load
 	if ( empty($plugin) ) {
-		// On WordPress.com, message Alex M. about the bad call to this function
-		if ( function_exists('xmpp_message') ) {
-			// Use an expiring cache value to avoid spamming messages
-			if ( ! wp_cache_get( 'noplugin', 'wpcom_vip_load_plugin' ) ) {
-				xmpp_message( 'viper007bond@im.wordpress.com', 'wpcom_vip_load_plugin() was called without a $plugin parameter on ' . get_bloginfo('url') );
-				wp_cache_set( 'noplugin', 1, 'wpcom_vip_load_plugin', 3600 );
+		// On WordPress.com, use an internal function to message VIP about the bad call to this function
+		if ( function_exists( 'wpcom_is_vip' ) ) {
+			if ( function_exists( 'send_vip_team_debug_message' ) ) {
+				// Use an expiring cache value to avoid spamming messages
+				if ( ! wp_cache_get( 'noplugin', 'wpcom_vip_load_plugin' ) ) {
+					send_vip_team_debug_message( 'WARNING: wpcom_vip_load_plugin() is being called without a $plugin parameter on ' . get_bloginfo('url') );
+					wp_cache_set( 'noplugin', 1, 'wpcom_vip_load_plugin', 3600 );
+				}
 			}
 			return false;
 		}
@@ -77,12 +79,15 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
 		return true;
 	} else {
-		// On WordPress.com, message Alex M. about the bad call to this function
-		if ( function_exists('xmpp_message') ) {
-			// Use an expiring cache value to avoid spamming messages
-			if ( ! wp_cache_get( 'notfound_' . $folder . '|' . $plugin, 'wpcom_vip_load_plugin' ) ) {
-				xmpp_message( 'viper007bond@im.wordpress.com', "wpcom_vip_load_plugin() tried to load a non-existent file ( /$folder/$plugin/$plugin.php ) on " . get_bloginfo('url') );
-				wp_cache_set( 'notfound_' . $folder . '|' . $plugin, 1, 'wpcom_vip_load_plugin', 3600 );
+		// On WordPress.com, use an internal function to message VIP about the bad call to this function
+		if ( function_exists( 'wpcom_is_vip' ) ) {
+			if ( function_exists( 'send_vip_team_debug_message' ) ) {
+				// Use an expiring cache value to avoid spamming messages
+				$cachekey = md5( $folder . '|' . $plugin );
+				if ( ! wp_cache_get( "notfound_$cachekey", 'wpcom_vip_load_plugin' ) ) {
+					send_vip_team_debug_message( "WARNING: wpcom_vip_load_plugin() is trying to load a non-existent file ( /$folder/$plugin/$plugin.php ) on " . get_bloginfo('url') );
+					wp_cache_set( "notfound_$cachekey", 1, 'wpcom_vip_load_plugin', 3600 );
+				}
 			}
 			return false;
 		}
