@@ -77,6 +77,37 @@ function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true
 }
 
 /*
+ * Experimental: VIP Related posts using WordPress.com search
+ *  Returns an HTML list of related posts from the same blog.
+*/
+
+function wpcom_vip_flaptor_related_posts( $max_num = 5 ){
+ 	return flaptor_related_inline( $max_num );
+}
+
+/*
+ * Experimental: VIP Related posts using WordPress.com search
+ *
+ * Returns an array of related posts:
+ * array =>
+ *     array
+ *       'url' => string
+ *       'title' => string
+ *       'timestamp' => string (YYYY-MM-DD)
+ *       'host' => string, ie 'blog.wordpress.com' 
+ *       'source' => 
+ *         array
+ *           'sourcename' => string (site name)
+ *           'sourceurl' => string (site url)
+ *           'sourcetype' => string (site source: same_domain, wpcom, partners)
+ *
+*/
+
+function wpcom_vip_get_flaptor_related_posts( $max_num = 5 ){
+ 	return get_flaptor_related( $max_num );
+}
+
+/*
  * Allows users of contributor role to be able to upload media.
  * Contrib users still can't publish.
  * @author mdawaffe
