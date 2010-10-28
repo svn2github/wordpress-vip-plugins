@@ -118,7 +118,7 @@ function st_widget_head() {
 	if ($widget == '') {
 	}
 	else{
-		$widget = st_widget_add_wp_version($widget);
+		//$widget = st_widget_add_wp_version($widget);
 		$widget = st_widget_fix_domain($widget);
 		$widget = preg_replace("/\&/", "&amp;", $widget);		
 	}
