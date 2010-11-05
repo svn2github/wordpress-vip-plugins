@@ -385,4 +385,14 @@ function wpcom_vip_remove_snap_preview_div() {
 	remove_filter( 'the_content', 'wrap_snap_div', 8888 );
 }
 
+/*
+ * Removes the <media:content> tags from the RSS2 feed
+ * You should really call this when creating a custom feed (best to leave them in your normal feed)
+ * For details on creating a custom feed, see:
+ * http://lobby.vip.wordpress.com/custom-made/altering-feeds/
+ */
+function wpcom_vip_remove_mediacontent_from_rss2_feed() {
+	remove_action( 'rss2_item', 'mrss_item' );
+}
+
 ?>
