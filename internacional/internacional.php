@@ -65,9 +65,6 @@ class Internacional {
 
 			// Add filter dropdown to manage posts page in the admin area
 			add_action( 'restrict_manage_posts',      array( &$this, 'filter_by_language_dropdown' ) );
-
-			// A hacky way to replace some admin strings with alternate text
-			add_filter( 'gettext',                    array( &$this, 'change_some_default_strings' ), 10, 3 );
 		}
 
 		// Frontend-only stuff
@@ -529,14 +526,7 @@ class Internacional {
 			</select>
 		</p>
 
-		<?php
-
-		/*
-		var_dump( get_option( 'internacional_default_language' ) );
-		var_dump( $this->default_language );
-		var_dump( get_term( $this->default_language, $this->taxonomy_name ) );
-		var_dump( $recent_posts );
-		/**/
+<?php
 	}
 
 	/**
@@ -692,37 +682,6 @@ class Internacional {
 		}
 
 		echo "</select>\n";
-
-		/*
-		foreach ( $this->languages as $lang_slug => $language )
-			var_dump( get_term_by( 'slug', 'internacional-' . $lang_slug, $this->taxonomy_name ) );
-		/**/
-	}
-
-	/**
-	 * If at Posts -> Languages, modify the text of some default strings to provide a better user experience
-	 * 
-	 * @param string $translated A potentially translated string.
-	 * @param string $original The untranslated original string.
-	 * @param string $domain The translation domain.
-	 * @return string A potentially modified version of the original string.
-	 */
-	public function change_some_default_strings( $translated, $original, $domain ) {
-		if ( ! empty( $_GET['taxonomy'] ) && $this->taxonomy_name == $_GET['taxonomy'] ) {
-			switch ( $original ) {
-				case 'The name is how it appears on your site.':
-					$translated = __( "The full name of the language. It should probably be spelled in it's own language instead of English.", 'internacional' );
-					break;
-				case 'The &#8220;slug&#8221; is the URL-friendly version of the name. It is usually all lowercase and contains only letters, numbers, and hyphens.':
-					$translated = __( "The &#8220;slug&#8221; should be the language's 2-letter code, such as &#8220;en&#8221; for English.", 'internacional' );
-					break;
-				case 'The description is not prominent by default; however, some themes may show it.':
-					$translated = __( "This isn't used anywhere. You can just leave it blank.", 'internacional' );
-					break;
-			}
-		}
-
-		return $translated;
 	}
 
 	/**
