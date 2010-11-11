@@ -140,6 +140,7 @@ class Internacional {
 		// Since this runs so early (for now), it can't be filtered
 		// A better solution will come in a future version
 		$this->languages = array(
+			'ca' => 'Catalan',
 			'en' => 'English',
 			'de' => 'Deutsch',
 			'es' => 'Español',
@@ -513,8 +514,7 @@ class Internacional {
 			<select name="internacional_parent_post" id="internacional_translation_dropdown" style="width:100%">
 <?php
 				$recent_posts = get_posts( array(
-					// $this->taxonomy_name => get_term( $this->default_language, $this->taxonomy_name )->slug, // Needs to be the real slug
-					$this->taxonomy_name => 'internacional-en', // Hard code this for now, get_term() is having issues
+					 $this->taxonomy_name => 'internacional-' . get_term( $this->default_language, $this->taxonomy_name )->slug, // Needs to be the real slug
 					'posts_per_page' => 50,
 					'exclude' => $post->ID,
 				) );
