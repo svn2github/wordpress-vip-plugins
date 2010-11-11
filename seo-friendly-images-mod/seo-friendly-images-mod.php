@@ -223,8 +223,11 @@ function seo_friendly_images_process($matches) {
 			
 			$key=array_search('alt=',$pieces);
 			
-			if ((trim($pieces[$key+1])=='""') || (strpos($saved, str_replace('"','',trim($pieces[$key+1]))) && $override==1))
-			{
+			if ( ( trim( $pieces[$key+1] ) == '""' ) 
+			|| ( str_replace('"','',trim($pieces[$key+1])) // making sure not an empty delimiter (needle) for strpos 
+				&& strpos( $saved, str_replace('"','',trim($pieces[$key+1])) )
+				&& $override==1 )
+			) {
 				
 				$alttext_rep=str_replace("%title", $post->post_title, $alttext_rep);
 				$alttext_rep=str_replace("%name", $source[0], $alttext_rep);
