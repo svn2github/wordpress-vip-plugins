@@ -11,7 +11,7 @@ Author URI: http://blog.webzappr.com/
 if ( function_exists('wpcom_is_vip') ) {
 	add_filter( 'fauxfb_plugin_url', 'fauxfb_plugin_url' );
 	function fauxfb_plugin_url() {
-		return get_bloginfo('home') . '/wp-content/themes/vip/plugins/faux-facebook-connect';
+		return get_bloginfo('url') . '/wp-content/themes/vip/plugins/faux-facebook-connect';
 	}
 }
 
@@ -322,10 +322,10 @@ if ( !class_exists( "FauxFacebook" ) ) {
 		}
 		
 		public function frontend_header() {
-			$current_url = esc_url( get_bloginfo('home') . $_SERVER['REQUEST_URI'] );
+			$current_url = esc_url( get_bloginfo('url') . $_SERVER['REQUEST_URI'] );
 			$fauxfb_api_key = $this->get_api_key();
 			$fauxfb_template_bundle = $this->get_template_bundle();
-			$blog_link = '<a href="' .  get_bloginfo('home') . '">' . addslashes( get_bloginfo( 'name' ) ) . '</a>';
+			$blog_link = '<a href="' .  get_bloginfo('url') . '">' . addslashes( get_bloginfo( 'name' ) ) . '</a>';
 			$current_link = '<a href="' . $current_url . '">' . addslashes( get_the_title() ) . '</a>';
 			$xd_receiver = apply_filters( $this->plugin_prefix . '_xd_receiver_url', $this->get_plugin_url() . '/xd_receiver.php' );
 			echo <<<EOF
