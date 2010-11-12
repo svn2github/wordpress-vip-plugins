@@ -67,6 +67,9 @@ class Internacional {
 		// Prevent redirects to the real current URL (WordPress won't realize it's doing it due to the URL hackery)
 		add_filter( 'redirect_canonical',             array( &$this, 'cancel_redirect_to_self' ), 2 );
 
+		// Language changing widget
+		add_action( 'widgets_init',                   array( &$this, 'register_sidebar_widget' ) );
+
 		// Admin-only stuff
 		if ( is_admin() ) {
 			// Meta box stuff for the Write screen in the admin area
@@ -94,9 +97,6 @@ class Internacional {
 			// List out what other languages a post is available in
 			// This is temporary and will be replaced with a template function probably
 			add_filter( 'the_content',                array( &$this, 'list_translations' ), 99 );
-
-			// Language changing widget
-			add_action( 'widgets_init',               array( &$this, 'register_sidebar_widget' ) );
 
 			// Limit posts to the current language on the front end
 			add_filter( 'posts_join',                 array( &$this, 'join_in_taxonomy_table' ) );
