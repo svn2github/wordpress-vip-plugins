@@ -28,20 +28,22 @@ Author URI:   http://automattic.com/
 **************************************************************************/
 
 class Internacional {
-	public $taxonomy_name      = 'internacional_language'; // Bad idea to change this after plugin usage
-	public $cookie_name        = 'internacional_language'; // See $use_cookie var below
+	public $taxonomy_name        = 'internacional_language'; // Bad idea to change this after plugin usage
+	public $cookie_name          = 'internacional_language'; // See $use_cookie var below
 
-	private $language_detection = false; // Attempt to display posts in the user's browser language by default
-	private $use_cookie         = false; // Uses a cookie to keep the user's language preference
-	private $debug              = false; // Output debug text?
+	private $language_detection   = false; // Attempt to display posts in the user's browser language by default
+	private $use_cookie           = false; // Uses a cookie to keep the user's language preference
+	private $debug                = false; // Output debug text?
 
 	// These will be set later
-	public $default_language   = 0; // Term ID, not an object
+	public $default_language     = 0; // Term ID, not an object
 	public $fake_all_term;
-	public $current_language   = false; // This one's an object
-	public $current_url_parts  = array();
+	public $current_language     = false; // This one's an object
+	public $current_url_parts    = array();
 	public $real_request_uri;
-	public $languages          = array(); // Don't modify this directly
+	public $languages            = array(); // Don't modify this directly
+	public $first_query          = true;
+	public $display_query_filter = false;
 
 
 	/**
@@ -50,15 +52,32 @@ class Internacional {
 	public function __construct() {
 		add_action( 'wp_loaded',                      array( &$this, 'wp_loaded' ) );
 
+		// Add the language to all generated links so we don't have to redirect to add it
+		add_filter( 'post_link',                      array( &$this, 'add_language_to_post_link'), 10, 2 );
+		add_filter( 'page_link',                      array( &$this, 'add_language_to_post_link'), 10, 2 );
+		add_filter( 'year_link',                      array( &$this, 'add_language_to_url' ) );
+		add_filter( 'month_link',                     array( &$this, 'add_language_to_url' ) );
+		add_filter( 'day_link',                       array( &$this, 'add_language_to_url' ) );
+		add_filter( 'feed_link',                      array( &$this, 'add_language_to_url' ) );
+		add_filter( 'get_pagenum_link',               array( &$this, 'add_language_to_url' ) );
+		// Limiting a category/tag/etc. archive to a single language only works in WP 3.1+
+		if ( $this->is_wp31plus() )
+			add_filter( 'term_link',                  array( &$this, 'add_language_to_url' ) );
+
+		// Prevent redirects to the real current URL (WordPress won't realize it's doing it due to the URL hackery)
+		add_filter( 'redirect_canonical',             array( &$this, 'cancel_redirect_to_self' ), 2 );
+
 		// Admin-only stuff
 		if ( is_admin() ) {
 			// Meta box stuff for the Write screen in the admin area
 			add_action( 'add_meta_boxes',             array( &$this, 'add_meta_boxes' ) );
 			add_action( 'save_post',                  array( &$this, 'save_meta_box_results' ), 10, 2 );
 
-			// Additional columns to the manage posts page in the admin area
+			// Additional columns to the posts/pages tables the admin area
 			add_filter( 'manage_posts_columns',       array( &$this, 'add_custom_columns' ) );
 			add_action( 'manage_posts_custom_column', array( &$this, 'output_custom_columns_content' ), 10, 2 );
+			add_filter( 'manage_pages_columns',       array( &$this, 'add_custom_columns' ) );
+			add_action( 'manage_pages_custom_column', array( &$this, 'output_custom_columns_content' ), 10, 2 );
 
 			// Register a new settings section
 			add_action( 'admin_init',                 array( &$this, 'register_setting_section' ) );
@@ -88,25 +107,12 @@ class Internacional {
 			add_filter( 'get_previous_post_where',    array( &$this, 'limit_where_by_language' ) );
 			add_filter( 'get_next_post_join',         array( &$this, 'join_in_taxonomy_table_p' ) );
 			add_filter( 'get_next_post_where',        array( &$this, 'limit_where_by_language' ) );
-
-			// Add the language to all generated links so we don't have to redirect to add it
-			add_filter( 'post_link',                  array( &$this, 'add_language_to_post_link'), 10, 2 );
-			add_filter( 'year_link',                  array( &$this, 'add_language_to_url' ) );
-			add_filter( 'month_link',                 array( &$this, 'add_language_to_url' ) );
-			add_filter( 'day_link',                   array( &$this, 'add_language_to_url' ) );
-			add_filter( 'feed_link',                  array( &$this, 'add_language_to_url' ) );
-			add_filter( 'get_pagenum_link',           array( &$this, 'add_language_to_url' ) );
-			// Limiting a category/tag/etc. archive to a single language only works in WP 3.1+
-			if ( $this->is_wp31plus() )
-				add_filter( 'term_link',              array( &$this, 'add_language_to_url' ) );
-
-			// Prevent redirects to the real current URL (WordPress won't realize it's doing it due to the URL hackery)
-			add_filter( 'redirect_canonical',         array( &$this, 'cancel_redirect_to_self' ), 2 );
 		}
 
 		// Debug
 		if ( $this->debug ) {
-			//add_filter( 'posts_request',              array( &$this, 'debug_var_dump' ) );
+			add_filter( 'posts_request',              array( &$this, 'debug_var_dump' ) );
+			//add_filter( 'posts_request',              array( &$this, 'debug_query' ) );
 			//add_filter( 'wp_redirect',                array( &$this, 'debug_wp_redirect' ) );
 		}
 
@@ -272,7 +278,7 @@ class Internacional {
 			setcookie( $this->cookie_name, $this->current_language->slug, time() + 2592000, COOKIEPATH, COOKIE_DOMAIN );
 
 		//$this->debug_var_dump( $this->current_language );
-		//$this->debug_var_dump( 'INTERNAL REQUEST_URI: ' . $_SERVER['REQUEST_URI'] );
+		$this->debug_var_dump( 'INTERNAL REQUEST_URI: ' . $_SERVER['REQUEST_URI'] );
 		$this->debug_var_dump( get_locale() );
 	}
 
@@ -324,12 +330,15 @@ class Internacional {
 	 * The language slug will be the post's language if it has one, otherwise it'll be the default language
 	 *
 	 * @param string $url The existing post URL.
-	 * @param object $post A post object.
+	 * @param object|int $post A post object or ID.
 	 * @return string The post URL with a language slug added into it.
 	 */
 	public function add_language_to_post_link( $url, $post ) {
+		if ( ! $post = get_post( $post ) )
+			return $url;
+
 		if ( ! $language = $this->get_post_language( $post->ID ) )
-			return $url; //$language = $this->current_language;
+			$language = $this->get_term( $this->default_language );
 
 		return $this->add_language_to_url( $url, $language->slug );
 	}
@@ -373,8 +382,20 @@ class Internacional {
 	 * @return boolean Whether or not the database queries should be modified
 	 */
 	public function should_modify_query() {
-		if ( ! $this->current_language || $this->current_language === $this->fake_all_term || is_page() || is_preview() )
+		global $wp;
+
+		if (
+			   $this->display_query_filter // Used internally to disable the language filters
+			|| ! $this->current_language // No language? Then there's no way we can filter out posts
+			|| $this->current_language === $this->fake_all_term // The "all" language means show all posts, so don't filter
+			|| is_preview() // Leave previews alone so they'll always work
+			|| ( $this->first_query && ( ! empty( $wp->query_vars['name'] ) || ! empty( $wp->query_vars['pagename'] ) ) ) // If post or page, skip the first query (lets old no-language items not 404)
+		) {
+			$this->first_query = false;
 			return false;
+		}
+
+		$this->first_query = false;
 
 		// The queries in 3.1+ were rewritten to use a big ID list instead of filtering it down to a specific taxonmy
 		// Without this new query method, it's not easy to filter the SQL to be tax(cat)=123&tax(lang)=456, so don't bother
@@ -393,9 +414,6 @@ class Internacional {
 	 */
 	public function join_in_taxonomy_table( $join, $post_table_name = null ) {
 		global $wpdb;
-
-		// Just the once
-		remove_filter( 'posts_join', array( &$this, 'join_in_taxonomy_table' ) );
 
 		if ( ! $this->should_modify_query()  )
 			return $join;
@@ -429,9 +447,6 @@ class Internacional {
 	public function limit_where_by_language( $where ) {
 		global $wpdb;
 
-		// Just the once
-		remove_filter( 'posts_where', array( &$this, 'limit_where_by_language' ) );
-
 		if ( ! $this->should_modify_query() )
 			return $where;
 
@@ -446,15 +461,16 @@ class Internacional {
 	 * Removes a default taxonomy meta box, replaces it with another one, and adds an additional meta box
 	 */
 	public function add_meta_boxes() {
-		// Remove default language taxonomy meta box as we want to add our own that allows only a single language to be selected
-		//remove_meta_box( 'tagsdiv-' . $this->taxonomy_name, 'post', 'side' );
-
-		// Language picker
-		add_meta_box( 'internacional-language-picker', _x( 'Post Language', 'title of language meta box on write screen', 'internacional' ), array( &$this, 'language_picker_meta_box' ), 'post', 'side' );
-
-		// Post relationship picker (mark a post as either being new or a translation of another)
-		add_meta_box( 'internacional-relationship-picker', _x( 'Post Relationship', 'title of relationship meta box on write screen', 'internacional' ), array( &$this, 'relationship_picker_meta_box' ), 'post', 'normal', 'high' );
+		// Already done for the admin area, but let's be really sure (some type of front end UI or something?)
 		wp_enqueue_script( 'jquery' );
+
+		foreach ( array( 'post', 'page' ) as $type ) {
+			// Language picker
+			add_meta_box( 'internacional-language-picker', _x( 'Post Language', 'title of language meta box on write screen', 'internacional' ), array( &$this, 'language_picker_meta_box' ), $type, 'side' );
+
+			// Post relationship picker (mark a post as either being new or a translation of another)
+			add_meta_box( 'internacional-relationship-picker', _x( 'Post Relationship', 'title of relationship meta box on write screen', 'internacional' ), array( &$this, 'relationship_picker_meta_box' ), $type, 'normal', 'high' );
+		}
 	}
 
 	/**
@@ -506,15 +522,16 @@ class Internacional {
 			});
 		</script>
 
-		<p><label><input type="radio" name="internacional_relationship_type" value="new"<?php checked( 'new', $relationship_type ); ?> /><?php _e( "This is new content. It's not a translation of an existing post.", 'internacional' ); ?></label></p>
+		<p><label><input type="radio" name="internacional_relationship_type" value="new"<?php checked( 'new', $relationship_type ); ?> /><?php _e( "This is new content. It's not a translation of something else.", 'internacional' ); ?></label></p>
 
-		<p><label><input type="radio" name="internacional_relationship_type" id="internacional_translation_radio" value="translation"<?php checked( 'translation', $relationship_type ); ?> /><?php _e( 'This is a translation of the following existing post:', 'internacional' ); ?></label></p>
+		<p><label><input type="radio" name="internacional_relationship_type" id="internacional_translation_radio" value="translation"<?php checked( 'translation', $relationship_type ); ?> /><?php _e( 'This is a translation of the following existing item:', 'internacional' ); ?></label></p>
 
 		<p>
 			<select name="internacional_parent_post" id="internacional_translation_dropdown" style="width:100%">
 <?php
 				$recent_posts = get_posts( array(
-					$this->taxonomy_name => 'internacional-' . get_term( $this->default_language, $this->taxonomy_name )->slug, // Needs to be the real slug
+					$this->taxonomy_name => get_term( $this->default_language, $this->taxonomy_name )->slug, // Needs to be the real slug
+					'post_type' => $post->post_type,
 					'posts_per_page' => 50,
 					'exclude' => $post->ID,
 				) );
@@ -534,8 +551,8 @@ class Internacional {
 	 */
 	public function save_meta_box_results( $post_ID, $post ) {
 
-		// For now, we only support posts and non-AJAX updates
-		if ( 'post' != $post->post_type || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
+		// For now, we only support posts/pages and non-AJAX updates
+		if ( ! in_array( $post->post_type, array( 'post', 'page' ) ) || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) )
 			return;
 
 
@@ -605,7 +622,11 @@ class Internacional {
 		switch ( $column_name ) {
 			case 'internacional_language':
 				if ( $language = $this->get_post_language( $post_ID ) ) {
-					echo '<a href="' . esc_url( add_query_arg( $this->taxonomy_name, $language->slug, admin_url( 'edit.php' ) ) ) . '">' . esc_html( $language->name ) . '</a>';
+					$post = get_post( $post_ID );
+					$url = admin_url( 'edit.php' );
+					$url = add_query_arg( 'post_type', $post->post_type, $url );
+					$url = add_query_arg( $this->taxonomy_name, $language->slug, $url );
+					echo '<a href="' . esc_url( $url ) . '">' . esc_html( $language->name ) . '</a>';
 				} else {
 					echo _x( 'Unknown', 'for the "Language" post column', 'internacional' );
 				}
@@ -720,7 +741,7 @@ class Internacional {
 
 		uksort( $links, 'strcasecmp' );
 
-		$translation_links = '<p>' . sprintf( __( 'This post is  available in: %s', 'internacional' ), implode( ', ', $links ) ) . '</p>';
+		$translation_links = '<p>' . sprintf( __( 'Read this in: %s', 'internacional' ), implode( ', ', $links ) ) . '</p>';
 
 		return $content . $translation_links;
 	}
@@ -732,35 +753,41 @@ class Internacional {
 	 * @return array|false False if the post is not a translation, otherwise an array in the format language term ID => translated post ID
 	 */
 	public function get_translations( $post_ID ) {
-		if ( false === ( $this_post_relationship = get_post_meta( $post_ID, '_internacional_relationship', true ) ) )
+		if ( ! $post = get_post( $post_ID ) )
+			return false;
+
+		if ( false === ( $this_post_relationship = get_post_meta( $post->ID, '_internacional_relationship', true ) ) )
 			return false;
 
 		// If it's 0, then it's not a translation
 		if ( 0 == $this_post_relationship ) {
-			$master_post = $post_ID;
+			$master_post = $post->ID;
 
 			// Add this master post to the list of translations
-			if ( ! $language = $this->get_post_language( $post_ID ) )
+			if ( ! $language = $this->get_post_language( $post->ID ) )
 				return false;
-			$translations[$language->term_id] = $post_ID;
+			$translations[$language->term_id] = $post->ID;
 		} else {
-			if ( ! $master_post = get_post_meta( $post_ID, '_internacional_relationship', true ) ) 
+			if ( ! $master_post = get_post_meta( $post->ID, '_internacional_relationship', true ) ) 
 				return false;
 
 			// Add the master post to the list of translations
-			// $post_ID will get added below from the get_posts() call
+			// $post->ID will get added below from the get_posts() call
 			if ( ! $language = $this->get_post_language( $master_post ) )
 				return false;
 			$translations[$language->term_id] = $master_post;
 		}
 
 		// Get all translations
+		$this->display_query_filter = true;
 		$translations_of_this_post = get_posts( array(
 			'numberposts'      => -1,
+			'post_type'        => $post->post_type,
 			'meta_key'         => '_internacional_relationship',
 			'meta_value'       => $master_post,
 			'suppress_filters' => false,
 		) );
+		$this->display_query_filter = false;
 
 		foreach ( $translations_of_this_post as $a_translation ) {
 			if ( ! $language = $this->get_post_language( $a_translation->ID ) )
@@ -871,14 +898,29 @@ class Internacional {
 	}
 
 	/**
-	 * Output some text about where a redirect attempt was made to
+	 * Output some text for debugging queries
+	 *
+	 * @param string $query The query
+	 * @return string The exact value passed to the function
+	 */
+	public function debug_query( $query ) {
+		if ( $this->debug ) {
+			$this->debug_var_dump( $query );
+			var_dump( xdebug_get_function_stack() );
+		}
+
+		return $query;
+	}
+
+	/**
+	 * Output some text about where a redirect attempt was made to for debugging purposes
 	 *
 	 * @param string $redirect_to The URL that will be redirected to
 	 * @return string|null If debug is off then the original URL will be returned, otherwise this function will exit()
 	 */
 	public function debug_wp_redirect( $redirect_to ) {
 		if ( $this->debug ) {
-			echo "Redirect: <a href='$redirect_to'>$redirect_to</a>";
+			echo "<p>Redirect: <a href='$redirect_to'>$redirect_to</a></p>";
 			var_dump( xdebug_get_function_stack() );
 			exit();
 		}
