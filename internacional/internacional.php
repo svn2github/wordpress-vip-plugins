@@ -742,7 +742,7 @@ class Internacional {
 
 		uksort( $links, 'strcasecmp' );
 
-		$translation_links = '<p>' . sprintf( __( 'Read this in: %s', 'internacional' ), implode( ', ', $links ) ) . '</p>';
+		$translation_links = '<p class="translations-list">' . sprintf( __( 'Read this in: %s', 'internacional' ), implode( ', ', $links ) ) . '</p>';
 
 		return $content . $translation_links;
 	}
