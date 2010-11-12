@@ -43,7 +43,7 @@ class Internacional {
 	public $real_request_uri;
 	public $languages            = array(); // Don't modify this directly
 	public $first_query          = true;
-	public $display_query_filter = false;
+	public $disable_query_filter = false;
 
 
 	/**
@@ -385,7 +385,7 @@ class Internacional {
 		global $wp;
 
 		if (
-			   $this->display_query_filter // Used internally to disable the language filters
+			   $this->disable_query_filter // Used internally to disable the language filters
 			|| ! $this->current_language // No language? Then there's no way we can filter out posts
 			|| $this->current_language === $this->fake_all_term // The "all" language means show all posts, so don't filter
 			|| is_preview() // Leave previews alone so they'll always work
@@ -780,7 +780,7 @@ class Internacional {
 		}
 
 		// Get all translations
-		$this->display_query_filter = true;
+		$this->disable_query_filter = true;
 		$translations_of_this_post = get_posts( array(
 			'numberposts'      => -1,
 			'post_type'        => $post->post_type,
@@ -788,7 +788,7 @@ class Internacional {
 			'meta_value'       => $master_post,
 			'suppress_filters' => false,
 		) );
-		$this->display_query_filter = false;
+		$this->disable_query_filter = false;
 
 		foreach ( $translations_of_this_post as $a_translation ) {
 			if ( ! $language = $this->get_post_language( $a_translation->ID ) )
