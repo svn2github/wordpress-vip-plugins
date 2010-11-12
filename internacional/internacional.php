@@ -274,6 +274,7 @@ class Internacional {
 		}
 
 		// Store the current language in a cookie for 30 days
+		// TODO: I think this needs fixing (currently WP.com wide I think). Fix domain or use blogid.
 		if ( $this->use_cookie )
 			setcookie( $this->cookie_name, $this->current_language->slug, time() + 2592000, COOKIEPATH, COOKIE_DOMAIN );
 
