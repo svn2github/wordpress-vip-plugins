@@ -530,7 +530,8 @@ class Internacional {
 			<select name="internacional_parent_post" id="internacional_translation_dropdown" style="width:100%">
 <?php
 				$recent_posts = get_posts( array(
-					$this->taxonomy_name => get_term( $this->default_language, $this->taxonomy_name )->slug, // Needs to be the real slug
+					// get_term() works as expected on WP.org, but for some reason on WP.com the "internacional-" prefix can be missing (weird caching?)
+					$this->taxonomy_name => str_replace( 'internacional-internacional-', 'internacional-', 'internacional-' . get_term( $this->default_language, $this->taxonomy_name )->slug ),
 					'post_type' => $post->post_type,
 					'posts_per_page' => 50,
 					'exclude' => $post->ID,
