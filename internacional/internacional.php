@@ -44,12 +44,17 @@ class Internacional {
 	public $languages            = array(); // Don't modify this directly
 	public $first_query          = true;
 	public $disable_query_filter = false;
+	public $tax_sql_cache        = array();
 
 
 	/**
 	 * Plugin setup
 	 */
 	public function __construct() {
+		// Requires 3.1+
+		if ( ! function_exists( 'get_tax_sql' ) )
+			return;
+
 		add_action( 'wp_loaded',                      array( &$this, 'wp_loaded' ) );
 
 		// Add the language to all generated links so we don't have to redirect to add it
@@ -60,9 +65,7 @@ class Internacional {
 		add_filter( 'day_link',                       array( &$this, 'add_language_to_url' ) );
 		add_filter( 'feed_link',                      array( &$this, 'add_language_to_url' ) );
 		add_filter( 'get_pagenum_link',               array( &$this, 'add_language_to_url' ) );
-		// Limiting a category/tag/etc. archive to a single language only works in WP 3.1+
-		if ( $this->is_wp31plus() )
-			add_filter( 'term_link',                  array( &$this, 'add_language_to_url' ) );
+		add_filter( 'term_link',                      array( &$this, 'add_language_to_url' ) );
 
 		// Prevent redirects to the real current URL (WordPress won't realize it's doing it due to the URL hackery)
 		add_filter( 'redirect_canonical',             array( &$this, 'cancel_redirect_to_self' ), 2 );
@@ -138,7 +141,6 @@ class Internacional {
 					'choose_from_most_used'      => __( 'Choose from the most used languages', 'internacional' ),
 				),
 				'show_ui' => false, // We'll make our own
-				'rewrite' => false, // Not needed and will cause a fatal error under 3.0.x due to calling so early
 			)
 		);
 
@@ -288,10 +290,6 @@ class Internacional {
 	 * Redirects to the current URL but with the language in it
 	 */
 	public function add_language_into_url_via_redirect() {
-		// Categories/tags under 3.0.x don't work
-		if ( ! $this->is_wp31plus() && ( is_category() || is_tag() ) )
-			return;
-
 		// Temporarily strip the QUERY_STRING
 		$request_uri = ( ! empty( $_SERVER['QUERY_STRING'] ) ) ? str_replace( '?' . $_SERVER['QUERY_STRING'], '', $this->real_request_uri ) : $this->real_request_uri;
 
@@ -375,7 +373,6 @@ class Internacional {
 
 		return $locale;
 	}
-	
 
 	/**
 	 * A helper function to determine if the database queries should be altered to limit the shown data to a single language
@@ -398,11 +395,6 @@ class Internacional {
 
 		$this->first_query = false;
 
-		// The queries in 3.1+ were rewritten to use a big ID list instead of filtering it down to a specific taxonmy
-		// Without this new query method, it's not easy to filter the SQL to be tax(cat)=123&tax(lang)=456, so don't bother
-		if ( $this->is_cat_or_tag_from_url() && ! $this->is_wp31plus() )
-			return false;
-
 		return true;
 	}
 
@@ -416,14 +408,14 @@ class Internacional {
 	public function join_in_taxonomy_table( $join, $post_table_name = null ) {
 		global $wpdb;
 
-		if ( ! $this->should_modify_query()  )
+		if ( ! $this->should_modify_query() )
 			return $join;
 
 		// Some queries use an alias for the posts database table name
 		if ( ! $post_table_name )
 			$post_table_name = $wpdb->posts;
 
-		$join .= " LEFT JOIN $wpdb->term_relationships ON ( $post_table_name.ID = $wpdb->term_relationships.object_id ) LEFT JOIN $wpdb->term_taxonomy ON ( $wpdb->term_taxonomy.term_taxonomy_id = $wpdb->term_relationships.term_taxonomy_id ) LEFT JOIN $wpdb->terms ON ( $wpdb->terms.term_id = $wpdb->term_taxonomy.term_id ) ";
+		$join .= $this->get_tax_sql_cached( $post_table_name, 'join' );
 
 		return $join;
 	}
@@ -440,7 +432,7 @@ class Internacional {
 	}
 
 	/**
-	 * Modifies a query by limiting the results to the current language
+	 * Modifies the WHERE part of a query by limiting the results to the current language
 	 * 
 	 * @param string $where The passed existing WHERE query part.
 	 * @return string A potentially modified WHERE query part.
@@ -451,9 +443,35 @@ class Internacional {
 		if ( ! $this->should_modify_query() )
 			return $where;
 
-		$where .= $wpdb->prepare( " AND $wpdb->term_taxonomy.taxonomy = %s AND $wpdb->terms.term_id = %d", $this->taxonomy_name, $this->current_language->term_id );
+		$where .= $this->get_tax_sql_cached( $wpdb->posts, 'where' );
 
 		return $where;
+	}
+
+	/*
+	 * A caching wrapper for get_tax_sql()
+	 *
+	 * @param string $post_table_name The name of the table
+	 * @param string $type The query type desired ("where" or "join")
+	 * @return array The WHERE and the JOIN query parts. See get_tax_sql().
+	 */
+	public function get_tax_sql_cached( $post_table_name, $type ) {
+		if ( ! empty( $this->tax_sql_cache[$post_table_name] ) )
+			return $this->tax_sql_cache[$post_table_name][$type];
+
+		$this->tax_sql_cache[$post_table_name] = get_tax_sql(
+			array(
+				array(
+					'taxonomy' => $this->taxonomy_name,
+					'terms' => $this->current_language->term_id,
+					'field' => 'term_id',
+				),
+			),
+			$post_table_name,
+			'ID'
+		);
+
+		return $this->tax_sql_cache[$post_table_name][$type];
 	}
 
 	/**
@@ -859,27 +877,6 @@ class Internacional {
 		$term = wp_insert_term( $name, $this->taxonomy_name, array( 'slug' => 'internacional-' . $slug ) );
 
 		return ( ! $term || is_wp_error( $term ) ) ? false : $term;
-	}
-
-	/**
-	 * Determines if we're viewing a category or tag archive based purely on the URL (for early sniffing)
-	 *
-	 * @return boolean
-	 */
-	public function is_cat_or_tag_from_url() {
-		$category_base = ( get_option( 'category_base') ) ? get_option( 'category_base' ) : 'category';
-		$tag_base      = ( get_option( 'tag_base' ) )     ? get_option( 'tag_base' )      : 'tag';
-
-		return ( false !== strpos( $_SERVER['REQUEST_URI'], "/{$category_base}/" ) || false !== strpos( $_SERVER['REQUEST_URI'], "/{$tag_base}/" ) );
-	}
-
-	/**
-	 * Determines if we're running WordPress 3.1+
-	 *
-	 * @return boolean true for 3.1+, false for older versions
-	 */
-	public function is_wp31plus() {
-		return function_exists( 'wp_get_term_taxonomy_parent_id' );
 	}
 
 	/**
