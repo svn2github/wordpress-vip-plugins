@@ -42,7 +42,7 @@ class Internacional {
 	public $current_url_parts    = array();
 	public $real_request_uri;
 	public $languages            = array(); // Don't modify this directly
-	public $first_query          = true;
+	public $internal_query_count = 0;
 	public $disable_query_filter = false;
 	public $tax_sql_cache        = array();
 
@@ -382,18 +382,17 @@ class Internacional {
 	public function should_modify_query() {
 		global $wp;
 
+		$this->internal_query_count++;
+
 		if (
 			   $this->disable_query_filter // Used internally to disable the language filters
 			|| ! $this->current_language // No language? Then there's no way we can filter out posts
 			|| $this->current_language === $this->fake_all_term // The "all" language means show all posts, so don't filter
 			|| is_preview() // Leave previews alone so they'll always work
-			|| ( $this->first_query && ( ! empty( $wp->query_vars['name'] ) || ! empty( $wp->query_vars['pagename'] ) ) ) // If post or page, skip the first query (lets old no-language items not 404)
+			|| ( $this->internal_query_count <= 2 && ( ! empty( $wp->query_vars['name'] ) || ! empty( $wp->query_vars['pagename'] ) ) ) // If post or page, skip the first query (lets old no-language items not 404)
 		) {
-			$this->first_query = false;
 			return false;
 		}
-
-		$this->first_query = false;
 
 		return true;
 	}
