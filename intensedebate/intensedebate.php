@@ -365,7 +365,7 @@ Author URI: http://intensedebate.com
 	// saves or wipes an individual meta field
 	function id_save_usermeta( $user_id, $name, $value = null ) {
 		if ( isset( $value ) && !empty( $value ) ) {
-			update_usermeta( $user_id, $name, $value );
+			update_user_meta( $user_id, $name, $value );
 		} else {
 			id_delete_user_meta( $user_id, $name );
 		}
