@@ -496,12 +496,22 @@ Author URI: http://intensedebate.com
 		} else {
 			$comment = new id_comment( array( 'comment_ID' => $comment_id ) );
 			$comment->loadFromWP();
-			if ( $status == "hold" )
+			switch ( (string) $status ) {
+			case '0' :
+			case 'hold' :
 				$comment->comment_approved = 0;
-			if ( $status == "approve" )
+				break;
+			case 'approve' :
+			case '1' :
 				$comment->comment_approved = 1;
-			if ( $status == "spam" )
+				break;
+			case 'spam' :
 				$comment->comment_approved = "spam";
+				break;
+			default :
+				return;
+			}
+
 			$queue = id_get_queue();
 			$queue->add( 'save_comment', $comment->export(), 'id_generic_callback' );
 		}
