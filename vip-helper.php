@@ -106,12 +106,12 @@ function _disable_autosave() {
  * Redirect http://blog.wordpress.com/feed/ to $target URL
  * Don't redirect if a feed service user agent, because that could result 
  * in a loop.
+ * Can be executed before wp init b/c checks the URI directly to see if main feed
  * ex. vip_main_feed_redirect( 'http://feeds.feedburner.com/ourfeeds/thefeed' );
  * @author lloydbudd
  */
 function vip_main_feed_redirect( $target ) {
 	if ( wpcom_vip_is_main_feed_requested() && !wpcom_vip_is_feedservice_ua() ) {
-		header( "X-Accel-Expires: 0" );
 		wp_redirect( $target, '302' );
 		die;
 	}
@@ -133,6 +133,14 @@ function wpcom_vip_is_main_feed_requested() {
  * @author lloydbudd
  */ 
 function wpcom_vip_is_feedservice_ua() {
+	if ( function_exists( 'wpcom_feed_cache_headers' ) ) {
+		// Workaround so that no feed request served from nginx wpcom-feed-cache
+		// If you are checking you must already know is a feed 
+		// and don't want any requests cached
+		// ASSUMPTION: you've already confirmed is_feed() b/f calling
+		// wpcom_vip_is_feedservice_ua
+			header( "X-Accel-Expires: 0" ); 
+	}
 	if ( function_exists( 'vary_cache_on_function' ) ) { // batcache variant
 		vary_cache_on_function(
 			'return (bool) preg_match("/feedburner|feedvalidator|MediafedMetrics/i", $_SERVER["HTTP_USER_AGENT"]);'
