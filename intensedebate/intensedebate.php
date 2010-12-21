@@ -1503,7 +1503,7 @@ Author URI: http://intensedebate.com
 		
 		// user profile settings prompt
 		if ( !id_user_connected() && !empty( $_GET['page'] ) && $_GET['page'] != 'id_settings' && $_GET['page'] != 'id_registration' ) {
-			$profileurl = get_bloginfo( 'wpurl' ) . '/wp-admin/profile.php#intensedebatelogin';
+			$profileurl = get_bloginfo( 'wpurl' ) . '/wp-admin/users.php?page=grofiles-user-settings#intensedebatelogin';
 			?>
 			<div class="updated fade-ff0000">
 				<p><strong><?php printf( __( 'Connect to your IntenseDebate account. Go to your <a href="%s">WordPress profile</a> to log in or register.', 'intensedebate' ), $profileurl ); ?></strong></p>
