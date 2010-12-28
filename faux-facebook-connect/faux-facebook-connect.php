@@ -13,6 +13,10 @@ if ( function_exists('wpcom_is_vip') ) {
 	function fauxfb_plugin_url() {
 		return get_bloginfo('url') . '/wp-content/themes/vip/plugins/faux-facebook-connect';
 	}
+	add_filter( 'fauxfb_style_url', 'fauxfb_style_url' );
+	function fauxfb_style_url() {
+		return 'http://s' . rand(0,2) . '.wp.com/wp-content/themes/vip/plugins/faux-facebook-connect/fauxfb_style.css';
+	}
 }
 
 
