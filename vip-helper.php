@@ -34,7 +34,10 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
 
 	$cache_key = md5( $url );
 
-	if ( $cache = wp_cache_get( $cache_key , 'vip') ) {
+	$cache = wp_cache_get( $cache_key , 'vip');
+
+	//Empty strings are OK, FALSE means no cache
+	if ( false !== $cache ) {
 		return $cache;
 	}
 
