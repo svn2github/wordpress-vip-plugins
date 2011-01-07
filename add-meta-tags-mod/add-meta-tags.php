@@ -44,7 +44,7 @@ Translation Domain
 
 Translation files are searched in: wp-content/plugins
 */
-load_plugin_textdomain('add-meta-tags', 'wp-content/plugins');
+load_plugin_textdomain('add-meta-tags');
 
 /*
 Custom fields that hold post/page related seo content
@@ -61,7 +61,7 @@ Admin Panel
 */
 
 function amt_add_pages() {
-	add_options_page(__('Meta Tags Options', 'add-meta-tags'), __('Meta Tags', 'add-meta-tags'), 8, __FILE__, 'amt_options_page');
+	add_options_page(__('Meta Tags Options', 'add-meta-tags'), __('Meta Tags', 'add-meta-tags'), 'administrator', __FILE__, 'amt_options_page');
 }
 
 function amt_show_info_msg($msg) {

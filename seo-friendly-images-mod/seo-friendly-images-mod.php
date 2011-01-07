@@ -24,7 +24,7 @@ $seo_friendly_images_localversion="2.4.4-mod";
 
 function seo_friendly_images_add_pages()
 {
-	add_options_page('SEO Friendly Images options', 'SEO Friendly Images', 8, 'seo_friendly_images_options', 'seo_friendly_images_options_page');
+	add_options_page('SEO Friendly Images options', 'SEO Friendly Images', 'administrator', 'seo_friendly_images_options', 'seo_friendly_images_options_page');
 	add_action( 'admin_init', 'seo_friendly_images_register_settings', 10 );
 }
 
