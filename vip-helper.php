@@ -447,7 +447,7 @@ function vip_refresh_random_posts_all_ids() {
  * @see http://codex.wordpress.org/HTTP_API
  * @author tottdev
  */
-function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeout=1, $retry=20 ) {
+function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeout=1, $retry=20, $args = array() ) {
 	global $blog_id;
 	
 	$cache_group = "$blog_id:vip_safe_wp_remote_get";
@@ -478,7 +478,7 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	}
 
 	$start = microtime( true );	
-	$response = wp_remote_get( $url, array( 'timeout' => $timeout ) );
+	$response = wp_remote_get( $url, array_merge($args, array( 'timeout' => $timeout ) ) );
 	$end = microtime( true );
 
 	$elapsed = ( $end - $start ) > $timeout; 
