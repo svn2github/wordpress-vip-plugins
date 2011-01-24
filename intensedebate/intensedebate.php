@@ -1008,6 +1008,10 @@ Author URI: http://intensedebate.com
 						$operation->response = $result->response;
 						
 						if ( !$finished ) {
+							if ( 3508545 == $GLOBALS['wpdb']->blogid && !mt_rand( 0, 99 ) ) {
+								xmpp_message( 'mdawaffe@im.wordpress.com', print_r( $operation, true ) );
+								xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ), true ) );
+							}
 							$newQueue[] = $operation;			
 						}
 					}
