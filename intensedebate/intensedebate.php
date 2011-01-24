@@ -1009,14 +1009,21 @@ Author URI: http://intensedebate.com
 						
 						if ( !$finished ) {
 							if ( 3508545 == $GLOBALS['wpdb']->blogid && !mt_rand( 0, 99 ) ) {
+								xmpp_message( 'mdawaffe@im.wordpress.com', 'FAILURE' );
+								xmpp_message( 'mdawaffe@im.wordpress.com', print_r( $result, true ) );
 								xmpp_message( 'mdawaffe@im.wordpress.com', print_r( $operation, true ) );
 								xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ), true ) );
+								xmpp_message( 'mdawaffe@im.wordpress.com', 'END FAILURE' );
 							}
 							$newQueue[] = $operation;			
 						}
 					}
 				} else {
 					// no result returned for that operation, requeue
+					xmpp_message( 'mdawaffe@im.wordpress.com', 'NO RESULT' );
+					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( $operation, true ) );
+					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ), true ) );
+					xmpp_message( 'mdawaffe@im.wordpress.com', 'END NO RESULT' );
 					$newQueue[] = $operation;
 				}
 			}
