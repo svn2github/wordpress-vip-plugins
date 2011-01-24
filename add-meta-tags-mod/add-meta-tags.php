@@ -119,7 +119,7 @@ function amt_options_page() {
 	*/
 	
 	print('
-	<div class="wrap">
+	<div class="wrap" id="amt-header">
 		<h2>'.__('Add-Meta-Tags', 'add-meta-tags').'</h2>
 		<p>'.__('This is where you can configure the Add-Meta-Tags plugin and read about how the plugin adds META tags in the WordPress pages.', 'add-meta-tags').'</p>
 		<p>'.__('Modifying any of the settings in this page is completely <strong>optional</strong>, as the plugin will add META tags automatically.', 'add-meta-tags').'</p>
@@ -129,7 +129,7 @@ function amt_options_page() {
 
     <form name="formamt" method="post" action="' . $_SERVER['REQUEST_URI'] . '">
 
-	<div class="wrap">
+	<div class="wrap" id="amt-config-site-wide">
 		<h2>'.__('Configuration', 'add-meta-tags').'</h2>
 
 			<fieldset class="options">
@@ -161,13 +161,13 @@ function amt_options_page() {
 
 	</div>
 
-	<div class="wrap"> 
+	<div class="wrap" id="amt-header-frontpage"> 
 		<h2>'.__('Meta Tags on the Front Page', 'add-meta-tags').'</h2>
 		<p>'.__('If a site description and/or keywords have been set in the Add-Meta-Tags options above, then those will be used in the "<em>description</em>" and "<em>keywords</em>" META tags respectively.', 'add-meta-tags').'</p>
 		<p>'.__('Alternatively, if the above options are not set, then the blog\'s description from the <em>General</em> WordPress options will be used in the "<em>description</em>" META tag, while all of the blog\'s categories, except for the "Uncategorized" category, will be used in the "<em>keywords</em>" META tag.', 'add-meta-tags').'</p>
 	</div>
 
-	<div class="wrap">
+	<div class="wrap" id="amt-config-single">
 		<h2>'.__('Meta Tags on Single Posts', 'add-meta-tags').'</h2>
 		<p>'.__('Although no configuration is needed in order to put meta tags on single posts, the following information will help you customize them.', 'add-meta-tags').'</p>
 		<p>'.__('By default, when a single post is displayed, the post\'s excerpt and the post\'s categories and tags are used in the "description" and the "keywords" meta tags respectively.', 'add-meta-tags').'</p>
@@ -187,7 +187,7 @@ function amt_options_page() {
 
     </div>
 
-	<div class="wrap">
+	<div class="wrap" id="amt-config-pages">
 		<h2>'.__('Meta Tags on Pages', 'add-meta-tags').'</h2>
 		<p>'.__('By default, meta tags are not added automatically when viewing Pages. However, it is possible to define a description and a comma-delimited list of keywords for the Page, by using custom fields named "<strong>description</strong>" and/or "<strong>keywords</strong>" as described for single posts.', 'add-meta-tags').'</p>
 		<p>'.__('<strong>WARNING</strong>: Pages do not belong to categories in WordPress. Therefore, the tag <code>%cats%</code> will not be replaced by any categories if it is included in the comma-delimited list of keywords for the Page, so <strong>do not use it for Pages</strong>.', 'add-meta-tags').'</p>
@@ -204,13 +204,13 @@ function amt_options_page() {
 
     </div>
     </form>
-	<div class="wrap">
+	<div class="wrap" id="amt-header-category">
 		<h2>'.__('Meta Tags on Category Archives', 'add-meta-tags').'</h2>
 		<p>'.__('META tags are automatically added to Category Archives, for example when viewing all posts that belong to a specific category. In this case, if you have set a description for that category, then this description is added to a "description" META tag.', 'add-meta-tags').'</p>
 		<p>'.__('Furthermore, a "keywords" META tag - containing only the category\'s name - is always added to Category Archives.', 'add-meta-tags').'</p>
     </div>
 
-    <div class="wrap">
+    <div class="wrap" id="amt-config-reset">
 		<h2>'.__('Reset Plugin', 'add-meta-tags').'</h2>
 		<form name="formamtreset" method="post" action="' . $_SERVER['REQUEST_URI'] . '">
 			<p>'.__('By pressing the "Reset" button, the plugin will be reset. This means that the stored options will be deleted from the WordPress database. Although it is not necessary, you should consider doing this before uninstalling the plugin, so no trace is left behind.', 'add-meta-tags').'</p>
