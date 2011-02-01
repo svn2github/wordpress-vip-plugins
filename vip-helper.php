@@ -30,6 +30,8 @@ function vip_redirects( $vip_redirects_array = array() ) {
  * See http://lobby.vip.wordpress.com/best-practices/fetching-remote-data/ for more details
  */
 function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
+	global $blog_id;
+
 	// $url = esc_url_raw( $url ); // Safety
 
 	$cache_key = md5( $url );
@@ -55,6 +57,10 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
 
 	// Reset the default timeout to its old value
 	ini_set( 'default_socket_timeout', $old_timeout );
+
+	// Log errors for internal WP.com debugging
+	if ( false === $content )
+		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Fetching $url with a timeout of $timeout failed." );
 
 	// The cache time shouldn't be less than a minute
 	// Please try and keep this as high as possible though
@@ -449,10 +455,10 @@ function vip_refresh_random_posts_all_ids() {
  */
 function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeout=1, $retry=20, $args = array() ) {
 	global $blog_id;
-	
+
 	$cache_group = "$blog_id:vip_safe_wp_remote_get";
 	$cache_key = 'disable_remote_get_' . md5( parse_url( $url, PHP_URL_HOST ) );
-	
+
 	// valid url
 	if ( empty( $url ) || !parse_url( $url ) )
 		return ( $fallback_value ) ? $fallback_value : new WP_Error('invalid_url', $url );
@@ -468,17 +474,17 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	$retry =  ( (int) $retry < 10 ) ? 10 : (int) $retry;
 	// more than 10 faulty hits seem to be to much
 	$threshold = ( (int) $threshold > 10 ) ? 10 : (int) $threshold;
-		
+
 	$option = wp_cache_get( $cache_key, $cache_group );
-	
+
 	// check if the timeout was hit and obey the option and return the fallback value 
 	if ( false !== $option && time() - $option['time'] < $retry ) { 
 		if ( $option['hits'] >= $threshold )
 			return ( $fallback_value ) ? $fallback_value : new WP_Error('remote_get_disabled', $option );
 	}
 
-	$start = microtime( true );	
-	$response = wp_remote_get( $url, array_merge($args, array( 'timeout' => $timeout ) ) );
+	$start = microtime( true );
+	$response = wp_remote_get( $url, array_merge( $args, array( 'timeout' => $timeout ) ) );
 	$end = microtime( true );
 
 	$elapsed = ( $end - $start ) > $timeout; 
@@ -497,8 +503,12 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 			wp_cache_delete( $cache_key, $cache_group);
 	}
 	
-	if( is_wp_error( $response ) )
+	if ( is_wp_error( $response ) ) {
+		// Log errors for internal WP.com debugging
+		error_log( "vip_safe_wp_remote_get: Blog ID {$blog_id}: Fetching $url with a timeout of $timeout failed. Result: " . maybe_serialize( $response ) );
+
 		return ( $fallback_value ) ? $fallback_value : $response;
+	}
 
 	return $response;
 }
