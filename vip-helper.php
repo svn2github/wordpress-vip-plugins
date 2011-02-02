@@ -58,19 +58,18 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
 	// Reset the default timeout to its old value
 	ini_set( 'default_socket_timeout', $old_timeout );
 
-	// Log errors for internal WP.com debugging
-	if ( false === $content )
+	if ( false === $content ) {
+		// Log errors for internal WP.com debugging
 		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Fetching $url with a timeout of $timeout failed." );
-
-	// The cache time shouldn't be less than a minute
-	// Please try and keep this as high as possible though
-	// It'll make your site faster if you do
-	$new_timeout = abs( intval( $cache_time ) );
-	if ( $cache_time < 60 )
-		$cache_time = 60;
-
-	wp_cache_set( $cache_key, $content, 'vip', $cache_time );
-
+	
+	} else {
+		// Please try and keep cache_time as long as possible.
+		// It'll make your site faster if you do.
+		$new_timeout = absint( $cache_time );
+		if ( $cache_time < 60 )
+			$cache_time = 60;
+		wp_cache_set( $cache_key, $content, 'vip', $cache_time );
+	}
 	return $content;
 }
 
