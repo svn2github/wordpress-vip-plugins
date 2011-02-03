@@ -28,48 +28,70 @@ function vip_redirects( $vip_redirects_array = array() ) {
 /*
  * Fetch a remote URL and cache the result for a certain period of time
  * See http://lobby.vip.wordpress.com/best-practices/fetching-remote-data/ for more details
+ *
+ * This function originally used file_get_contents(), hence the function name.
+ * While it no longer does, it still operates the same as the basic PHP function.
  */
-function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 600 ) {
+function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900 ) {
 	global $blog_id;
 
-	// $url = esc_url_raw( $url ); // Safety
+	// $url = esc_url_raw( $url );
 
 	$cache_key = md5( $url );
+	$backup_key = 'backup:' . $cache_key;
+	$cache_group = 'wpcom_vip_file_get_contents';
+	$disable_get_key = 'disable:' . $cache_key;
 
-	$cache = wp_cache_get( $cache_key , 'vip');
-
-	//Empty strings are OK, FALSE means no cache
-	if ( false !== $cache ) {
+	// Let's see if we have an existing cache already
+	// Empty strings are okay, false means no cache
+	if ( false !== $cache = wp_cache_get( $cache_key, $cache_group) )
 		return $cache;
-	}
+
+	// The cache time shouldn't be less than a minute
+	// Please try and keep this as high as possible though
+	// It'll make your site faster if you do
+	$cache_time = (int) $cache_time;
+	if ( $cache_time < 60 )
+		$cache_time = 60;
 
 	// The timeout can be 1, 2, or 3 seconds
-	$new_timeout = min( 3, max( 1, (int) $timeout ) );
+	$timeout = min( 3, max( 1, (int) $timeout ) );
 
-	// Record the previous default timeout value
-	$old_timeout = ini_get( 'default_socket_timeout' );
+	$server_up = true;
+	$response = false;
+	$content = false;
 
-	// Set the timeout value to avoid holding up php
-	ini_set( 'default_socket_timeout', $new_timeout );
-
-	// Make our request
-	$content = @file_get_contents( $url );
-
-	// Reset the default timeout to its old value
-	ini_set( 'default_socket_timeout', $old_timeout );
-
-	if ( false === $content ) {
-		// Log errors for internal WP.com debugging
-		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Fetching $url with a timeout of $timeout failed." );
-	
-	} else {
-		// Please try and keep cache_time as long as possible.
-		// It'll make your site faster if you do.
-		$new_timeout = absint( $cache_time );
-		if ( $cache_time < 60 )
-			$cache_time = 60;
-		wp_cache_set( $cache_key, $content, 'vip', $cache_time );
+	// Check to see if previous attempts have failed
+	if ( false !== wp_cache_get( $disable_get_key, $cache_group ) ) {
+		$server_up = false;
 	}
+	// Otherwise make the remote request
+	else {
+		$response = wp_remote_get( $url, array( 'timeout' => $timeout ) );
+	}
+
+	// Was the request successful?
+	if ( $server_up && ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
+		$content = wp_remote_retrieve_body( $response );
+
+		// Cache the result
+		wp_cache_set( $cache_key, $content, $cache_group, $cache_time );
+
+		// Additionally cache the result with no expiry as a backup content source
+		wp_cache_set( $backup_key, $content, $cache_group );
+	}
+	// Okay, it wasn't successful. Perhaps we have a backup result from earlier.
+	elseif ( $content = wp_cache_get( $backup_key, $cache_group ) ) {
+		// Log that we used a backup result
+		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Backup cache used for $url because: " . maybe_serialize( $response ) );
+		wp_cache_set( $disable_get_key, 1, $cache_group, $cache_time );
+	}
+	// We were unable to fetch any content, so don't try again for another 60 seconds
+	elseif ( $server_up ) {
+		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		wp_cache_set( $disable_get_key, 1, $cache_group, 60 );
+	}
+
 	return $content;
 }
 
