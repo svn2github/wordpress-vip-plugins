@@ -82,14 +82,17 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900 ) {
 	}
 	// Okay, it wasn't successful. Perhaps we have a backup result from earlier.
 	elseif ( $content = wp_cache_get( $backup_key, $cache_group ) ) {
-		// Log that we used a backup result
-		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Backup cache used for $url because: " . maybe_serialize( $response ) );
-		wp_cache_set( $disable_get_key, 1, $cache_group, $cache_time );
+		// If a remote request failed, log why it did
+		if ( $response ) {
+			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		}
 	}
 	// We were unable to fetch any content, so don't try again for another 60 seconds
-	elseif ( $server_up ) {
-		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+	elseif ( $response ) {
 		wp_cache_set( $disable_get_key, 1, $cache_group, 60 );
+
+		// If a remote request failed, log why it did
+		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
 	}
 
 	return $content;
