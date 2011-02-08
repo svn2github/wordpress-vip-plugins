@@ -893,7 +893,28 @@ function dsq_hmacsha1($data, $key) {
     return bin2hex($hmac);
 }
 
+/**
+ * This is the only modified part of the plugin from the original on VIP.
+ * We have to fix the identifier for imported posts because the post_id is no longer
+ * the same, so we have to pull in the one that was set in the guid.  There is potential
+ * for more than one post having the same identifier now, however, the only reason the
+ * post ID is incorrect, should be from menus, pages (which don't have comments) and
+ * revisions.
+ *
+ * @param object $post
+ * @return string
+ */
 function dsq_identifier_for_post($post) {
+	if('post' == get_post_type($post)) {
+		$guid_parts = parse_url($post->guid);
+		if(isset($guid_parts['query'])) {
+			parse_str($guid_parts['query'], $guid_parts_query);
+			if(isset($guid_parts_query['p']) && $guid_parts_query['p'] != $post->ID) {
+				//all this for that...
+				return $guid_parts_query['p'] . ' ' . $post->guid;
+			}
+		}
+	}
 	return $post->ID . ' ' . $post->guid;
 }
 
