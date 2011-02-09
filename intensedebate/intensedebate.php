@@ -892,8 +892,10 @@ Author URI: http://intensedebate.com
 		function store() {
 			if ( $this->needs_save ) {
 				$this->compact_operations();
-				if ( 3508545 == $GLOBALS['wpdb']->blogid && !mt_rand( 0, 99 ) )
-					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ) ) );
+				if ( 3508545 == $GLOBALS['wpdb']->blogid && !mt_rand( 0, 99 ) ) {
+					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ), 1 ) );
+					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( $this->mda_raw_results, 1 ) );
+				}
 				id_save_option( $this->queueName, $this->operations );
 			}
 		}
@@ -991,6 +993,7 @@ Author URI: http://intensedebate.com
 			$this->needs_save = true;
 			
 			// Decode results string
+			$this->mda_raw_results = $rawResults;
 			$results = json_decode( $rawResults );
 			
 			// flip the array around using operation_id as the key
