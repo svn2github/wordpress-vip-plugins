@@ -892,8 +892,6 @@ Author URI: http://intensedebate.com
 		function store() {
 			if ( $this->needs_save ) {
 				$this->compact_operations();
-				if ( 3508545 == $GLOBALS['wpdb']->blog_id && !mt_rand( 0, 99 ) )
-					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ) ) );
 				id_save_option( $this->queueName, $this->operations );
 			}
 		}
