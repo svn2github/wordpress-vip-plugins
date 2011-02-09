@@ -538,6 +538,18 @@ Author URI: http://intensedebate.com
 	}
 
 	function id_delete_post( $post_id ) {
+		// Core calls delete_post action twice per post.
+		static $post_ids = array();
+		if ( isset( $post_ids[$post_id] ) ) {
+			return;
+		}
+		$post_ids[$post_id] = true;
+
+		// Core calls delete_post for revisions too.
+		if ( wp_is_post_revision( $post_id ) ) {
+			return;
+		}
+
 		$packet = new stdClass;
 		$packet->post_id = $post_id;
 		$queue = id_get_queue();
