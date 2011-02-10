@@ -431,7 +431,16 @@ Author URI: http://intensedebate.com
 	// pings queue object
 	function id_ping_queue() {
 		$queue = id_get_queue();
-		$queue->ping();
+		if ( ID_REQUEST_QUEUE_NAME != 'id_request_queue' ) {
+			// We're in a job, process the queue.
+			$queue->load();
+			$queue->ping();
+			return;
+		}
+
+		// Otherwise, just store the queue for processing by a job
+
+		$queue->store();
 	}
 	
 	function id_queue_not_empty() {
@@ -902,15 +911,33 @@ Author URI: http://intensedebate.com
 		}
 		
 		function store() {
-			if ( $this->needs_save ) {
-				$this->compact_operations();
+			if ( !$this->needs_save ) {
+				return;
+			}
+
+			$this->compact_operations();
+
 /*
-				if ( 3508545 == $GLOBALS['wpdb']->blogid && !mt_rand( 0, 99 ) ) {
-					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ), 1 ) );
-					xmpp_message( 'mdawaffe@im.wordpress.com', print_r( $this->mda_raw_results, 1 ) );
-				}
+			if ( 3508545 == $GLOBALS['wpdb']->blogid && !mt_rand( 0, 99 ) ) {
+				xmpp_message( 'mdawaffe@im.wordpress.com', print_r( debug_backtrace( false ), 1 ) );
+				xmpp_message( 'mdawaffe@im.wordpress.com', print_r( $this->mda_raw_results, 1 ) );
+			}
 */
-				id_save_option( $this->queueName, $this->operations );
+
+			$queue_async = false;
+			if ( 'id_request_queue' == $this->queueName ) {
+				// A non-jobs process has decided to store the queue (it couldn't process all the ops for some reason)
+				// Save as a new queue for a job
+				$this->queueName = id_get_new_queue_name();
+				$queue_async = true;
+			} // else, we're in a jobs process, it will requeue itself as needed
+
+			// Save a new queue
+			id_save_option( $this->queueName, $this->operations );
+
+			if ( $queue_async ) {
+				// Attach a job to the new queue
+				id_queue_async_job( $this->queueName );
 			}
 		}
 		
@@ -942,8 +969,15 @@ Author URI: http://intensedebate.com
 		}
 		
 		function send( $operations = null ) {
-			if ( null == $operations )
-				$operations = $this->operations;			
+			if ( null == $operations ) {
+				// We're processing the entire queue, which needs to be stored as we go (maybe it doesn't but let's be safe)
+				$operations = $this->operations;
+				$store = true;
+			} else {
+				// We're processing specific ops we just created.
+				// We don't need to have their timestamps stored (don't need to be locked, no other process knows about them)
+				$store = false;
+			}
 			
 			if ( !count( $operations ) )
 				return false;
@@ -990,7 +1024,11 @@ Author URI: http://intensedebate.com
 				'blogid' => get_option( 'id_blogID' ),
 				'operations' => json_encode( $send )
 			);
-			$this->store();
+
+			// Store if necessary
+			if ( $store ) {
+				$this->store();
+			}
 			
 			if ( !count( $send ) )
 				return false;
@@ -1009,7 +1047,7 @@ Author URI: http://intensedebate.com
 			// Decode results string
 			$this->mda_raw_results = $rawResults;
 			$results = json_decode( $rawResults );
-			
+
 			// flip the array around using operation_id as the key
 			$results = $this->reIndex( $results, 'operation_id' );
 
@@ -1069,11 +1107,13 @@ Author URI: http://intensedebate.com
 		global $wpmu_version;
 				
 		// Blanket protection against accidental access to edit-comments.php
-		$basename = basename( $_SERVER['REQUEST_URI'] );
-		if ( stristr( $basename, '?' ) )
-			$basename = substr( $basename, 0, strpos( $basename, '?' ) );
-		if ( 0 == get_option( 'id_moderationPage') && 'edit-comments.php' == $basename )
-			wp_redirect( get_bloginfo( 'wpurl' ) . '/wp-admin/admin.php?page=intensedebate' );
+		if ( !WPCOM_SANDBOXED ) {
+			$basename = basename( $_SERVER['REQUEST_URI'] );
+			if ( stristr( $basename, '?' ) )
+				$basename = substr( $basename, 0, strpos( $basename, '?' ) );
+			if ( 0 == get_option( 'id_moderationPage') && 'edit-comments.php' == $basename )
+				wp_redirect( get_bloginfo( 'wpurl' ) . '/wp-admin/admin.php?page=intensedebate' );
+		}
 
 		// determine requested action
 		$action = id_param( 'id_action' );
@@ -1426,30 +1466,65 @@ Author URI: http://intensedebate.com
 // ACTION: get all operations queued in WP
 
 	function id_REST_get_queue() {
+		global $wpdb;
+
+		// Find all the queues
+		$options = (array) $wpdb->get_col( $wpdb->prepare(
+			"SELECT `option_name` FROM `$wpdb->options` WHERE `option_name` LIKE %s",
+			like_escape( 'id_request_queue_' ) . '%'
+		) );
+
 		$queue = id_get_queue();
-		$queue->load();
-		return $queue->operations;
+		$all_operations = array();
+
+		foreach ( $options as $option ) {
+			$queue->queueName = $option;
+			$queue->load();
+			$all_operations = array_merge( $all_operations, $queue->operations );
+		}
+
+		return $all_operations;
 	}
 	
 // ACTION: cancel a specific operation
 
  	function id_REST_cancel_operation() {
+		global $wpdb;
+
 		$queue = id_get_queue();
-		$queue->load();
 
 		$hash = id_param( 'id_operation_hash', false );
 		if ( !$hash )
 			return array( 'success' => false, 'hash' => $hash, 'operations' => count( $queue->operations ) );
-		
-		$new_ops = array();
-		foreach ( $queue->operations as $operation ) {
-			if ( $hash != $operation->operation_id )
-				$new_ops[] = $operation;
+
+		// Look in each queue
+		$options = (array) $wpdb->get_col( $wpdb->prepare(
+			"SELECT `option_name` FROM `$wpdb->options` WHERE `option_name` LIKE %s",
+			like_escape( 'id_request_queue_' ) . '%'
+		) );
+
+		$count = 0;
+		foreach ( $options as $option ) {
+			$new_ops = array();
+			$needs_save = false;
+			$queue->queueName = $option;
+			$queue->load();
+			foreach ( $queue->operations as $operation ) {
+				$count++;
+				if ( $hash == $operation->operation_id )
+					$needs_save = true;
+				else
+					$new_ops[] = $operation;
+			}
+
+			if ( $needs_save ) {
+				$queue->operations = $new_ops;
+				$queue->needs_save = true;
+				$queue->store();
+			}
 		}
-		$queue->operations = $new_ops;
-		$queue->needs_save = true;
-		$queue->store();
-		return array( 'success' => true, 'hash' => $hash, 'operations' => count( $new_ops ) );
+
+		return array( 'success' => true, 'hash' => $hash, 'operations' => $count );
 	}
 	
 // ACTION: restart import
@@ -2483,7 +2558,7 @@ Author URI: http://intensedebate.com
 			, 'id_userKey'
 			, 'id_jsCommentLinks'
 			, 'id_moderationPage'
-			, ID_REQUEST_QUEUE_NAME
+			, 'id_request_queue' //ID_REQUEST_QUEUE_NAME
 			, 'id_revertMobile'
 			, 'id_useIDComments'
 			, 'id_hideSettingsTop'
@@ -2978,3 +3053,42 @@ Author URI: http://intensedebate.com
 // ACTIVATE HOOKS
 
 	id_activate_hooks();
+
+function id_move_request_queue_to_jobs( $queue ) {
+	if ( !$queue ) {
+		return $queue;
+	}
+
+	delete_option( 'id_request_queue' );
+
+	$queue_name = id_get_new_queue_name();
+
+	add_option( $queue_name, $queue, false, 'no' );
+
+	id_queue_async_job( $queue_name );
+
+	return null;
+}
+
+function id_get_new_queue_name() {
+	$now = time();
+
+	// We're doing a normal page view.  Don't processe queue, just store and spawn a job.
+	do {
+		// Racy, but I don't care.
+		$queue_name = strtolower( "id_request_queue_{$now}_" . wp_generate_password( 10, false, false ) );
+	} while( get_option( $queue_name ) );
+
+	return $queue_name;
+}
+
+function id_queue_async_job( $queue_name ) {
+	$data = array(
+		'queue_name' => $queue_name,
+		'attempt_number' => 1,
+	);
+
+	queue_async_job( $data, 'intensedebate_process_queue', 0, 0 );
+}
+
+add_filter( 'option_id_request_queue', 'id_move_request_queue_to_jobs' );
