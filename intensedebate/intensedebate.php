@@ -446,10 +446,9 @@ Author URI: http://intensedebate.com
 	function id_queue_not_empty() {
 		$queue = id_get_queue();
 		$queue->load();
-		if ( count( $queue->operations ) ) {
-			return true;
-		}
-		else {
+		if ( $count = count( $queue->operations ) ) {
+			return $count;
+		} else {
 			return false;
 		}
 	}
