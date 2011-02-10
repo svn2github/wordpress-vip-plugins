@@ -3088,7 +3088,7 @@ function id_queue_async_job( $queue_name ) {
 		'attempt_number' => 1,
 	);
 
-	queue_async_job( $data, 'intensedebate_process_queue', 0, 0 );
+	deferred_async_job( $data, 'intensedebate_process_queue', time() + 5, 0, 0 );
 }
 
 add_filter( 'option_id_request_queue', 'id_move_request_queue_to_jobs' );
