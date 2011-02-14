@@ -34,16 +34,18 @@ if ( !function_exists('get_option') )
 @define( 'AKST_PATH', 'http://s0.wp.com/wp-content/themes/vip/plugins/share-this-classic-wpcom/' );
 @define( 'AKST_FILE', get_bloginfo('url') . '/wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php' );
 
-function akst_addtocontent() {
-	$addtocontent = get_option('akst_addtocontent');
-	if($addtocontent == '') {
-		$addtocontent = 1;
-		add_option('akst_addtocontent', $addtocontent);
-	}
-	
-	return $addtocontent;
-}
 
+if ( !function_exists('akst_addtocontent') ) {
+	function akst_addtocontent() {
+		$addtocontent = get_option('akst_addtocontent');
+		if($addtocontent == '') {
+			$addtocontent = 1;
+			add_option('akst_addtocontent', $addtocontent);
+		}
+	
+		return $addtocontent;
+	}
+}
 /*function akst_addtofooter() {
 	$addtofooter = get_option('akst_addtofooter');
 	if($addtofooter == '') {
@@ -54,63 +56,75 @@ function akst_addtocontent() {
 	return $addtofooter;
 }*/
 
-function akst_addtofeed() {
-	$addtofeed = get_option('akst_addtofeed');
-	if($addtofeed == '') {
-		$addtofeed = 1;
-		add_option('akst_addtofeed', $addtofeed);
-	}
+if ( !function_exists('akst_addtofeed') ) {
+	function akst_addtofeed() {
+		$addtofeed = get_option('akst_addtofeed');
+		if($addtofeed == '') {
+			$addtofeed = 1;
+			add_option('akst_addtofeed', $addtofeed);
+		}
 
-	return $addtofeed;
+		return $addtofeed;
+	}
 }
 
-function akst_showicon() {
-	$showicon = get_option('akst_showicon');
-	if($showicon == '') {
-		$showicon = 1;
-		add_option('akst_showicon', $showicon);
-	}
+if ( !function_exists('akst_showicon') ) {
+	function akst_showicon() {
+		$showicon = get_option('akst_showicon');
+		if($showicon == '') {
+			$showicon = 1;
+			add_option('akst_showicon', $showicon);
+		}
 
-	return $showicon;
+		return $showicon;
+	}
 }
 
-function akst_linktext() {
-	$linktext = get_option('akst_linktext');
-	if($linktext == '') {
-		$linktext = 'ShareThis';
-		add_option('akst_linktext', $linktext);
-	}
+if ( !function_exists('akst_linktext') ) {
+	function akst_linktext() {
+		$linktext = get_option('akst_linktext');
+		if($linktext == '') {
+			$linktext = 'ShareThis';
+			add_option('akst_linktext', $linktext);
+		}
 	
-	return $linktext;
+		return $linktext;
+	}
 }
 
-function akst_tabs() {
-	$tabs = get_option('akst_tabs');
-	if ($tabs == '') {
-		$tabs = 'email,social';
-		add_option('akst_tabs', $tabs);
-	}
+if ( !function_exists('akst_tabs') ) {
+	function akst_tabs() {
+		$tabs = get_option('akst_tabs');
+		if ($tabs == '') {
+			$tabs = 'email,social';
+			add_option('akst_tabs', $tabs);
+		}
 	
-	return $tabs;
+		return $tabs;
+	}
 }
 
-function akst_socialwebs() {
-/* WPCOM this wpcom feature was never fully implmented, if demand for customizing can revisit
- * The problem is that this php file is called directly and Wordpress env is therefore not loaded
- * causing fatal error when loading JS
- * /wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php?akst_action=js
-	$socialwebs = get_option('akst_socialwebs');
-	if ($socialwebs == '') {
-		$socialwebs = 'twitter,facebook,digg,stumbleupon,delicious,reddit,blinklist,newsvine,furl,tailrank,magnolia';
-		add_option('akst_socialwebs', $socialwebs);
-	}
+if ( !function_exists('akst_socialwebs') ) {
+	function akst_socialwebs() {
+	/* WPCOM this wpcom feature was never fully implmented, if demand for customizing can revisit
+	 * The problem is that this php file is called directly and Wordpress env is therefore not loaded
+	 * causing fatal error when loading JS
+	 * /wp-content/themes/vip/plugins/share-this-classic-wpcom/share-this.php?akst_action=js
+		$socialwebs = get_option('akst_socialwebs');
+		if ($socialwebs == '') {
+			$socialwebs = 'twitter,facebook,digg,stumbleupon,delicious,reddit,blinklist,newsvine,furl,tailrank,magnolia';
+			add_option('akst_socialwebs', $socialwebs);
+		}
 */
-	$socialwebs = 'twitter,facebook,digg,stumbleupon,delicious,reddit';
-	return $socialwebs;
+		$socialwebs = 'twitter,facebook,digg,stumbleupon,delicious,reddit';
+		return $socialwebs;
+	}
 }
 
-function akst_disp_socialweb($socialweb) {
-	return strstr(akst_socialwebs(), $socialweb);
+if ( !function_exists('akst_disp_socialweb') ) {
+	function akst_disp_socialweb($socialweb) {
+		return strstr(akst_socialwebs(), $socialweb);
+	}
 }
 
 // Find more URLs here: 
