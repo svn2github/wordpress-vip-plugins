@@ -21,6 +21,15 @@ if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
 /*
  * Return top posts as array
  * Reproduces the result of /wp-admin/index.php?page=stats&blog=<blogid>&view=postviews&numdays=30&summarize returning the top 10 posts if called with default params
+   Sample Array:
+ 	Array ( 
+		[0] => Array (
+		 	[post_id] => 1 
+			[post_title] => Post Title 1
+			[post_permalink] => http://permalink/ 
+			[views] => 321896 
+		) 
+	)
  * @param integer $num_days The length of the desired time frame. Default is 30. Maximum 90 days
  * @param integer $limit The maximum number of records to return. Default is 10. Maximum 100.
  * @param string $end_date The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01) and default is UTC date.
