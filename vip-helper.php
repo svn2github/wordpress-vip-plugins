@@ -32,8 +32,15 @@ function vip_redirects( $vip_redirects_array = array() ) {
  * This function originally used file_get_contents(), hence the function name.
  * While it no longer does, it still operates the same as the basic PHP function.
  */
-function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900 ) {
+function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $extra_args = array() ) {
 	global $blog_id;
+
+	$extra_args_defaults = array(
+		'obey_cache_control_header' => true, // Uses the "cache-control" "max-age" value if greater than $cache_time
+	);
+
+	$extra_args = wp_parse_args( $extra_args, $extra_args_defaults );
+
 
 	// $url = esc_url_raw( $url );
 
@@ -46,13 +53,6 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900 ) {
 	// Empty strings are okay, false means no cache
 	if ( false !== $cache = wp_cache_get( $cache_key, $cache_group) )
 		return $cache;
-
-	// The cache time shouldn't be less than a minute
-	// Please try and keep this as high as possible though
-	// It'll make your site faster if you do
-	$cache_time = (int) $cache_time;
-	if ( $cache_time < 60 )
-		$cache_time = 60;
 
 	// The timeout can be 1, 2, or 3 seconds
 	$timeout = min( 3, max( 1, (int) $timeout ) );
@@ -73,6 +73,21 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900 ) {
 	// Was the request successful?
 	if ( $server_up && ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
 		$content = wp_remote_retrieve_body( $response );
+
+		// Obey the cache time header unless an arg is passed saying not to
+		if ( $extra_args['obey_cache_control_header'] && $cache_header = trim( wp_remote_retrieve_header( $response, 'cache-control' ) ) ) {
+			list( $cache_header_type, $cache_header_time ) = explode( '=', $cache_header );
+
+			if ( 'max-age' == $cache_header_type && $cache_header_time > $cache_time )
+				$cache_time = (int) $cache_header_time; // Casting to an int will strip "must-revalidate", etc.
+		}
+
+		// The cache time shouldn't be less than a minute
+		// Please try and keep this as high as possible though
+		// It'll make your site faster if you do
+		$cache_time = (int) $cache_time;
+		if ( $cache_time < 60 )
+			$cache_time = 60;
 
 		// Cache the result
 		wp_cache_set( $cache_key, $content, $cache_group, $cache_time );
