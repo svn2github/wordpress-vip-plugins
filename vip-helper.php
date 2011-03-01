@@ -37,6 +37,7 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 
 	$extra_args_defaults = array(
 		'obey_cache_control_header' => true, // Uses the "cache-control" "max-age" value if greater than $cache_time
+		'http_api_args' => array(), // See http://codex.wordpress.org/Function_API/wp_remote_get
 	);
 
 	$extra_args = wp_parse_args( $extra_args, $extra_args_defaults );
@@ -67,7 +68,9 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	}
 	// Otherwise make the remote request
 	else {
-		$response = wp_remote_get( $url, array( 'timeout' => $timeout ) );
+		$http_api_args = (array) $extra_args['http_api_args'];
+		$http_api_args['timeout'] = $timeout;
+		$response = wp_remote_get( $url, $http_api_args );
 	}
 
 	// Was the request successful?
