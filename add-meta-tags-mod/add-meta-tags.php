@@ -61,26 +61,32 @@ Admin Panel
 */
 
 function amt_add_pages() {
-	add_options_page(__('Meta Tags Options', 'add-meta-tags'), __('Meta Tags', 'add-meta-tags'), 'administrator', __FILE__, 'amt_options_page');
+	add_options_page(__('Meta Tags Options', 'add-meta-tags'), __('Meta Tags', 'add-meta-tags'), 'administrator', 'amt_options', 'amt_options_page');
 }
 
 function amt_show_info_msg($msg) {
 	echo '<div id="message" class="updated fade"><p>' . $msg . '</p></div>';
 }
 
+function amt_clean_array( $array ) {
+	$clean = array();
+	foreach( $array as $key => $value ) {
+		$clean[$key] = (boolean) $value;
+	}
+	return $clean;
+}
 function amt_options_page() {
 	if (isset($_POST['info_update'])) {
 		/*
 		For a little bit more security and easier maintenance, a separate options array is used.
 		*/
 
-		//var_dump($_POST);
 		$options = array(
-			"site_description"	=> $_POST["site_description"],
-			"site_keywords"		=> $_POST["site_keywords"],
-			"site_wide_meta"	=> $_POST["site_wide_meta"],
-            "post_options"      => ( is_array( $_POST["post_options"] ) ) ? $_POST["post_options"] : array(),
-            "page_options"      => ( is_array( $_POST["page_options"] ) ) ? $_POST["page_options"] : array(),
+			"site_description"	=> esc_attr( $_POST["site_description"] ),
+			"site_keywords"		=> esc_attr( $_POST["site_keywords"] ),
+			"site_wide_meta"	=> strip_tags( $_POST["site_wide_meta"], '<meta>' ),
+            "post_options"      => ( is_array( $_POST["post_options"] ) ) ? amt_clean_array( $_POST["post_options"] ) : array(),
+            "page_options"      => ( is_array( $_POST["page_options"] ) ) ? amt_clean_array( $_POST["page_options"] ) : array(),
 			);
 		update_option("add_meta_tags_opts", $options);
 		amt_show_info_msg(__('Add-Meta-Tags options saved.', 'add-meta-tags'));
@@ -109,9 +115,9 @@ function amt_options_page() {
     
     // good defaults is the hallmark of good software
     if ( !is_array( $post_options ) )
-        $post_options = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+        $post_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
     if ( !is_array( $page_options ) )
-        $page_options = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+        $page_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
     
     
 	/*
@@ -408,8 +414,9 @@ function amt_add_meta_tags() {
 		$cmpvalues = array();
 
     if ( !is_array( $cmpvalues ) )
-        $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+        $cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
 
+	$cmpvalues = amt_clean_array( $cmpvalues );
 	$my_metatags = "";
 
     // nothing allowed so just return
@@ -428,7 +435,7 @@ function amt_add_meta_tags() {
 		Description
 		Custom post field "description" overrides post's excerpt in Single Post View.
 		*/
-        if ( 'true' == $cmpvalues['mt_seo_description'] ) {    
+        if ( true == $cmpvalues['mt_seo_description'] ) {    
 
             if ( !empty($mt_seo_description) ) {
                 /*
@@ -446,7 +453,7 @@ function amt_add_meta_tags() {
 		Meta
 		Custom post field "mt-seo-meta" adds additional meta tags
 		*/
-        if ( !empty($mt_seo_meta) && 'true' == $cmpvalues['mt_seo_meta'] ) {
+        if ( !empty($mt_seo_meta) && true == $cmpvalues['mt_seo_meta'] ) {
 			/*
 			If there is a custom field, use it
 			*/
@@ -471,7 +478,7 @@ function amt_add_meta_tags() {
 		NOTE: if $include_keywords_in_single_posts is FALSE, then keywords
 		metatag is not added to single posts.
 		*/
-        if ( 'true' == $cmpvalues['mt_seo_keywords'] ) {                                                       
+        if ( true == $cmpvalues['mt_seo_keywords'] ) {                                                       
             if ( ($include_keywords_in_single_posts && is_single()) || is_page() ) {
                 if ( !empty($mt_seo_keywords) ) {
                     /*
@@ -592,10 +599,12 @@ function mt_seo_meta_box( $post, $meta_box ) {
         $cmpvalues = $options['post_options'];
 
     if ( !is_array( $cmpvalues ) )
-        $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+        $cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
 
+	$cmpvalues = amt_clean_array( $cmpvalues );
+	
     foreach( (array) $mt_seo_fields as $field_name => $field_data ) {
-        if ( 'true' != $cmpvalues[$field_name] )
+        if ( true != $cmpvalues[$field_name] )
             continue;
         
         ${$field_name} = format_to_edit( ${$field_name} );
@@ -719,9 +728,11 @@ function mt_seo_rewrite_title( $title ) {
 		$cmpvalues = array();
 		
     if ( !is_array( $cmpvalues ) )
-        $cmpvalues = array( 'mt_seo_title' => 'true', 'mt_seo_description' => 'true', 'mt_seo_keywords' => 'true', 'mt_seo_meta' => 'true' );
+        $cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
 
-    if ( 'true' != $cmpvalues['mt_seo_title'] )
+	$cmpvalues = amt_clean_array( $cmpvalues );
+	
+    if ( true != $cmpvalues['mt_seo_title'] )
         return $title;
     
     $mt_seo_title = (string) get_post_meta( $posts[0]->ID, 'mt_seo_title', true );
@@ -747,4 +758,3 @@ add_action( 'wp_head', 'amt_add_meta_tags', 0 );
 add_action( 'admin_head', 'mt_seo_style' );
 add_filter( 'wp_title', 'mt_seo_rewrite_title', 9999);
 
-?>
