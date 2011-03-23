@@ -126,7 +126,7 @@ function wpcom_vip_get_stats_xml( $table = 'views', $end_date = false, $num_days
  */
  
 function wpcom_vip_csv_expand_post( $post ) {
-	return array( $post->ID, $post->post_title, $post->post_permalink ? $post->post_permalink : global_permalink( $GLOBALS['blog_id'], $post->ID ) );
+	return array( $post->ID, $post->post_title, $post->permalink );
 }
 
 function wpcom_vip_csv_quote( $v ) {
