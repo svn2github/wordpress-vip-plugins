@@ -1554,6 +1554,7 @@ var edcal = {
      * the calendar is being used.
      */
     doFeedback: function() {
+		return false;
          jQuery.getScript('http://www.zackgrossbart.com/edcal/mint/?js', function() {
              edcal.saveFeedbackPref();
          });

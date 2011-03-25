@@ -58,8 +58,8 @@ $EDCAL_NONCE_ERROR = "6";
 $edcal_supports_custom_types = function_exists('get_post_types') && function_exists('get_post_type_object');
 
 function edcal_load_language() {
-    $plugin_dir = basename(dirname(__FILE__));
-    load_plugin_textdomain( 'editorial-calendar', 'wp-content/plugins/' . $plugin_dir . '/languages/', $plugin_dir . '/languages/' );
+    //$plugin_dir = basename(dirname(__FILE__));
+    load_plugin_textdomain( 'editorial-calendar', 'wp-content/plugins/themes/vip/plugins/editorial-calendar/languages/' );
 }
 
 /*
@@ -99,18 +99,6 @@ function edcal_list_add_management_page(  ) {
 }
 
 /*
- * This is a utility function to open a file add it to our
- * output stream.  We use this to embed JavaScript and CSS
- * files and cut down on the number of HTTP requests.
- */
-function echoEdCalFile($myFile) {
-    $fh = fopen($myFile, 'r');
-    $theData = fread($fh, filesize($myFile));
-    fclose($fh);
-    echo $theData;
-}
- 
-/*
  * This is the function that generates our admin page.  It adds the CSS files and 
  * generates the divs that we need for the JavaScript to work.
  */
@@ -122,16 +110,20 @@ function edcal_list_admin() {
      * so we only show the feedback after they have been using it 
      * for a little while.
      */
-    $edcal_count = get_option("edcal_count");
+    /*
+	$edcal_count = get_option("edcal_count");
     if ($edcal_count == '') {
         $edcal_count = 0;
         add_option("edcal_count", $edcal_count, "", "yes");
     }
+	*/
         
-    if (get_option("edcal_do_feedback") != "done") {
+    /*
+	if (get_option("edcal_do_feedback") != "done") {
         $edcal_count++;
         update_option("edcal_count", $edcal_count);
     }
+	*/
     
     
     /*
@@ -145,17 +137,17 @@ function edcal_list_admin() {
      
     echo '<!-- This is the styles from time picker.css -->';
     echo '<style type="text/css">';
-    echoEdCalFile(dirname( __FILE__ ) . "/lib/timePicker.css");
+    echo '@import url("' . content_url( 'themes/vip/plugins/editorial-calendar/lib/timePicker.css' ) . '");';
     echo '</style>';
 	
     echo '<!-- This is the styles from humanmsg.css -->';
     echo '<style type="text/css">';
-    echoEdCalFile(dirname( __FILE__ ) . "/lib/humanmsg.css");
+    echo '@import url("' . content_url( 'themes/vip/plugins/editorial-calendar/lib/humanmsg.css' ) . '");';
     echo '</style>';
     
     echo '<!-- This is the styles from edcal.css -->';
     echo '<style type="text/css">';
-    echoEdCalFile(dirname( __FILE__ ) . "/edcal.css");
+    echo '@import url("' . content_url( 'themes/vip/plugins/editorial-calendar/edcal.css' ) . '");';
     echo '</style>';
     
     ?>
@@ -192,15 +184,6 @@ function edcal_list_admin() {
                 if (get_option("edcal_status_pref") != "") {
             ?>
                 edcal.statusPref = <?php echo(get_option("edcal_status_pref")); ?>;
-            <?php
-                }
-            ?>
-
-            <?php 
-                if (get_option("edcal_do_feedback") != "done") {
-            ?>
-                edcal.doFeedbackPref = true;
-                edcal.visitCount = <?php echo(get_option("edcal_count")); ?>;
             <?php
                 }
             ?>
@@ -288,36 +271,34 @@ function edcal_list_admin() {
 
     <style type="text/css">
         .loadingclass > .postlink, .loadingclass:hover > .postlink, .tiploading {
-            background-image: url('<?php echo(path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/../../../wp-admin/images/loading.gif")); ?>');
+            background-image: url('images/loading.gif');
         }
 
         #loading {
-            background-image: url('<?php echo(path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/../../../wp-admin/images/loading.gif")); ?>');
+            background-image: url('images/loading.gif');
         }
 
         #tipclose {
-            background-image: url('<?php echo(path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/images/tip_close.png")); ?>');
+            background-image: url('<?php echo content_url( 'themes/vip/plugins/editorial-calendar/images/tip_close.png' ); ?>');
         }
 
         #tooltip {
-            background: white url('<?php echo(path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/../../../wp-admin/images/gray-grad.png")); ?>') repeat-x left top;
+            background: white url('images/gray-grad.png') repeat-x left top;
         }
         
         .month-present .daylabel, .firstOfMonth .daylabel, .dayheadcont {
-            background: #6D6D6D url('<?php echo(path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/../../../wp-admin/images/gray-grad.png")); ?>') repeat-x scroll left top;
+            background: #6D6D6D url('images/gray-grad.png') repeat-x scroll left top;
         }
 
         .today .daylabel {
-            background: url('<?php echo(path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/../../../wp-admin/images/button-grad.png")); ?>') repeat-x left top;
+            background: url('images/button-grad.png') repeat-x left top;
         }
 
     </style>
     
     <?php
     echo '<!-- This is the code from edcal.js -->';
-    echo '<script type="text/javascript">';
-    echoEdCalFile(dirname( __FILE__ ) . "/edcal.js");
-    echo '</script>';
+    echo '<script type="text/javascript" src="' . content_url( 'themes/vip/plugins/editorial-calendar/edcal.js' ) . '"></script>';
     
     ?>
     
@@ -433,13 +414,13 @@ $edcal_endDate;
  * we want.
  */
 function edcal_filter_where($where = '') {
-    global $edcal_startDate, $edcal_endDate;
+    global $edcal_startDate, $edcal_endDate, $wpdb;
     //posts in the last 30 days
     //$where .= " AND post_date > '" . date('Y-m-d', strtotime('-30 days')) . "'";
     //posts  30 to 60 days old
     //$where .= " AND post_date >= '" . date('Y-m-d', strtotime('-60 days')) . "'" . " AND post_date <= '" . date('Y-m-d', strtotime('-30 days')) . "'";
     //posts for March 1 to March 15, 2009
-    $where .= " AND post_date >= '" . $edcal_startDate . "' AND post_date < '" . $edcal_endDate . "'";
+    $where .= $wpdb->prepare( ' AND post_date >= %s AND post_date < %s', $edcal_startDate, $edcal_endDate );
     return $where;
 }
 
@@ -453,34 +434,14 @@ function edcal_scripts() {
      * locale.  We can do this based on the locale in the localized bundle to make sure the date locale matches
      * the locale for the other strings.
      */
-    wp_enqueue_script( "date", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/languages/date-".__('en-US', 'editorial-calendar').".js"), array( 'jquery' ) );
+    wp_enqueue_script( 'edcal-date', content_url( 'themes/vip/plugins/editorial-calendar/lib/languages/date-en-US.js' ), array( 'jquery' ) );
     wp_enqueue_script( 'jquery' );
     wp_enqueue_script( 'jquery-ui-draggable' );
     wp_enqueue_script( 'jquery-ui-droppable' );
 
-	//wp_enqueue_script( "date-extras", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/date.extras.js"), array( 'jquery' ) );
+    wp_enqueue_script( "edcal-lib", content_url( 'themes/vip/plugins/editorial-calendar/lib/edcallib.min.js' ), array( 'jquery' ) );
 
-    wp_enqueue_script( "edcal-lib", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/edcallib.min.js"), array( 'jquery' ) );
-
-    if ($_GET['qunit']) {
-        wp_enqueue_script( "qunit", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/qunit.js"), array( 'jquery' ) );
-        wp_enqueue_script( "edcal-test", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/edcal_test.js"), array( 'jquery' ) );
-    }
-    
     return;
-    
-    /*
-     * If you're using one of the specific libraries you should comment out the two lines
-     * above this comment.
-     */
-    wp_enqueue_script( "bgiframe", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/jquery.bgiframe.js"), array( 'jquery' ) );
-    wp_enqueue_script( "humanMsg", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/humanmsg.js"), array( 'jquery' ) );
-    wp_enqueue_script( "jquery-timepicker", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/jquery.timepicker.js"), array( 'jquery' ) );
-	
-    wp_enqueue_script( "scrollable", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/tools.scrollable-1.1.2.js"), array( 'jquery' ) );
-    wp_enqueue_script( "mouse-wheel", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/tools.scrollable.mousewheel-1.0.1.js"), array( 'jquery' ) );
-
-    wp_enqueue_script( "json-parse2", path_join(WP_PLUGIN_URL, basename( dirname( __FILE__ ) )."/lib/json2.js"), array( 'jquery' ) );
 }
 
 /*
@@ -490,8 +451,8 @@ function edcal_scripts() {
 function edcal_posts() {
     header("Content-Type: application/json");
     edcal_addNoCacheHeaders();
-    if (!edcal_checknonce()) {
-        die();
+    if (!edcal_checknonce() ) {
+        die('edcal_posts fail');
     }
     
     global $edcal_startDate, $edcal_endDate;
@@ -541,12 +502,12 @@ function edcal_getpost() {
     edcal_addNoCacheHeaders();
 	
 	// If nonce fails, return
-	if (!edcal_checknonce()) die();
+	if (!edcal_checknonce() ) die('edcal_getpost fail');
 	
 	$post_id = intval($_GET['postid']);
 	
 	// If a proper post_id wasn't passed, return
-	if(!$post_id) die();
+	if(!$post_id) die('edcal_getpost invalid post ID');
     
     $args = array(
         'post__in' => array($post_id)
@@ -704,7 +665,7 @@ function edcal_postJSON($post, $addComma = true, $fullPost = false) {
  */
 function edcal_deletepost() {
 	if (!edcal_checknonce()) {
-		die();
+		die('edcal_deletepost fail');
 	}
 
     header("Content-Type: application/json");
@@ -715,6 +676,8 @@ function edcal_deletepost() {
 	$title = $post['post_title'];
 	$date = date('dmY', strtotime($post['post_date'])); // [TODO] : is there a better way to generate the date string ... ??
 
+	if ( ! current_user_can( 'delete_post', $edcal_postid ) )
+		exit('edcal_deletepost permissions check fail');
 
 	$force = !EMPTY_TRASH_DAYS;					// wordpress 2.9 thing. deleted post hangs around (ie in a recycle bin) after deleted for this # of days
 	if ( $post->post_type == 'attachment' ) {
@@ -751,7 +714,7 @@ function edcal_deletepost() {
  */
 function edcal_changetitle() {
     if (!edcal_checknonce()) {
-        die();
+        die('edcal_changetitle fail');
     }
 
     header("Content-Type: application/json");
@@ -759,6 +722,9 @@ function edcal_changetitle() {
     
     $edcal_postid = isset($_GET['postid'])?$_GET['postid']:null;
     $edcal_newTitle = isset($_GET['title'])?$_GET['title']:null;
+
+	if ( ! current_user_can( 'edit_post', $edcal_postid ) )
+		exit('edcal_changetitle permissions check fail');
     
     $post = get_post($edcal_postid, ARRAY_A);
     setup_postdata($post);
@@ -800,7 +766,7 @@ function edcal_changetitle() {
  */
 function edcal_newdraft() {
     if (!edcal_checknonce()) {
-        die();
+        die('edcal_newdraft fail');
     }
 
     header("Content-Type: application/json");
@@ -847,7 +813,7 @@ function edcal_newdraft() {
 function edcal_savepost() {
 	
 	if (!edcal_checknonce()) {
-        die();
+        die('edcal_savepost fail');
     }
 
     header("Content-Type: application/json");
@@ -860,6 +826,9 @@ function edcal_savepost() {
 	// If the post id is not specified, we're creating a new post
 	if($_POST['id']) {
 		$my_post['ID'] = intval($_POST['id']);
+
+		if ( ! current_user_can( 'edit_post', $my_post['ID'] ) )
+			exit('edcal_savepost permissions check fail');
     } else {
         $my_post['post_status'] = 'draft'; // if new post, set the status to draft
     }
@@ -1121,47 +1090,39 @@ function edcal_saveoptions() {
     /*
      * The number of weeks preference
      */
-    $edcal_weeks = isset($_GET['weeks'])?$_GET['weeks']:null;
-    if ($edcal_weeks != null) {
-        add_option("edcal_weeks_pref", $edcal_weeks, "", "yes");
+    $edcal_weeks = isset($_GET['weeks'])? intval( $_GET['weeks'] ):null;
+    if ($edcal_weeks) {
+        //add_option("edcal_weeks_pref", $edcal_weeks, "", "yes");
         update_option("edcal_weeks_pref", $edcal_weeks);
     }
     
     /*
      * The show author preference
      */
-    $edcal_author = isset($_GET['author-hide'])?$_GET['author-hide']:null;
+    $edcal_author = isset($_GET['author-hide'])?'true':'false';
     if ($edcal_author != null) {
-        add_option("edcal_author_pref", $edcal_author, "", "yes");
+        //add_option("edcal_author_pref", $edcal_author, "", "yes");
         update_option("edcal_author_pref", $edcal_author);
     }
     
     /*
      * The show status preference
      */
-    $edcal_status = isset($_GET['status-hide'])?$_GET['status-hide']:null;
+    $edcal_status = isset($_GET['status-hide'])?'true':'false';
     if ($edcal_status != null) {
-        add_option("edcal_status_pref", $edcal_status, "", "yes");
+        //add_option("edcal_status_pref", $edcal_status, "", "yes");
         update_option("edcal_status_pref", $edcal_status);
     }
     
     /*
      * The show time preference
      */
-    $edcal_time = isset($_GET['time-hide'])?$_GET['time-hide']:null;
+    $edcal_time = isset($_GET['time-hide'])?'true':'false';
     if ($edcal_time != null) {
-        add_option("edcal_time_pref", $edcal_time, "", "yes");
+        //add_option("edcal_time_pref", $edcal_time, "", "yes");
         update_option("edcal_time_pref", $edcal_time);
     }
 
-    /*
-     * The edcal feedback preference
-     */
-    $edcal_feedback = isset($_GET['dofeedback'])?$_GET['dofeedback']:null;
-    if ($edcal_feedback != null) {
-        add_option("edcal_do_feedback", $edcal_feedback, "", "yes");
-        update_option("edcal_do_feedback", $edcal_feedback);
-    }
     
     
     /*
