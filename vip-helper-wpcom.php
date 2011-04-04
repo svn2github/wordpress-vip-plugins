@@ -81,8 +81,8 @@ function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true
  *  Returns an HTML list of related posts from the same blog.
 */
 
-function wpcom_vip_flaptor_related_posts( $max_num = 5 ){
- 	return flaptor_related_inline( $max_num );
+function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ){
+ 	return flaptor_related_inline( $max_num, $additional_stopwords, $exclude_own_titles );
 }
 
 /*
@@ -103,8 +103,8 @@ function wpcom_vip_flaptor_related_posts( $max_num = 5 ){
  *
 */
 
-function wpcom_vip_get_flaptor_related_posts( $max_num = 5 ){
- 	return get_flaptor_related( $max_num );
+function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true){
+ 	return get_flaptor_related( $max_num, $additional_stopwords, $exclude_own_titles );
 }
 
 /*
