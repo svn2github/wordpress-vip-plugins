@@ -712,7 +712,7 @@ function mt_seo_style() {
     <?php
 }
 
-function mt_seo_rewrite_title( $title ) {
+function mt_seo_rewrite_title( $title, $sep = '' , $seplocation = '' ) {
 	global $posts, $include_keywords_in_single_posts, $mt_seo_fields;
 
     if ( !is_single() && !is_page())
@@ -741,7 +741,14 @@ function mt_seo_rewrite_title( $title ) {
     
     $mt_seo_title = str_replace("%title%", $title, $mt_seo_title);
     $mt_seo_title = strip_tags( $mt_seo_title );
-
+    
+    if ( !empty( $sep ) ) {
+		if ( 'right' == $seplocation ) {
+			$mt_seo_title .= " $sep ";
+		} else {
+			$mt_seo_title = " $sep " . $mt_seo_title;
+		}
+	}
     return $mt_seo_title;
 }
 
@@ -756,5 +763,5 @@ add_action( 'admin_menu', 'amt_add_pages' );
 add_action( 'admin_menu', 'add_mt_seo_box' );
 add_action( 'wp_head', 'amt_add_meta_tags', 0 );
 add_action( 'admin_head', 'mt_seo_style' );
-add_filter( 'wp_title', 'mt_seo_rewrite_title', 9999);
+add_filter( 'wp_title', 'mt_seo_rewrite_title', 9999, 3);
 
