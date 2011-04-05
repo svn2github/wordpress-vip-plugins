@@ -54,6 +54,8 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 	$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
 	if ( file_exists( $includepath ) ) {
 
+		wpcom_vip_add_loaded_plugin( "$folder/$plugin" );
+
 		// Since we're going to be include()'ing inside of a function,
 		// we need to do some hackery to get the variable scope we want.
 		// See http://www.php.net/manual/en/language.variables.scope.php#91982
@@ -136,6 +138,25 @@ function wpcom_vip_load_helper_wpcom() {
 	} else {
 		die( "wpcom_vip_load_helper_wpcom() should only be called on WordPress.com as it contains WordPress.com-specific code." );
 	}
+}
+
+function wpcom_vip_add_loaded_plugin( $plugin ) {
+	global $vip_loaded_plugins;
+	
+	if( ! isset( $vip_loaded_plugins ) )
+		$vip_loaded_plugins = array();
+	
+	array_push( $vip_loaded_plugins, $plugin );
+}
+
+function wpcom_vip_get_loaded_plugins() {
+	global $vip_loaded_plugins;
+	
+	if( ! isset( $vip_loaded_plugins ) )
+		$vip_loaded_plugins = array();
+	
+	return $vip_loaded_plugins;
+	
 }
 
 ?>
