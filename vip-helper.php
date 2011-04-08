@@ -591,3 +591,35 @@ function wpcom_vip_blog_users( $index = 'ID', $who = 'authors' ) {
 	
 	return $blog_users;
 }
+
+/** 
+ * Disable comment counts in "Right Now" Dashboard widget as it can take a while to query this.
+ */
+function disable_right_now_comment_count() {
+	if ( !is_admin() )
+		return;
+	
+	add_filter( 'wp_count_comments', '_disable_right_now_comment_count_filter', 0 );
+	add_action( 'wp_print_scripts', '_disable_right_now_comment_count_css' );
+}
+
+/**
+ * this function is internally called by wp_count_comments
+ */
+function _disable_right_now_comment_count_css() {
+	?>
+<style type="text/css">
+#dashboard_right_now div.table_discussion { display: none; }
+#dashboard_right_now div.table_content { width: 100%; }
+</style>
+	<?php
+}
+function _disable_right_now_comment_count_filter( $data ) {
+	$backtrace = debug_backtrace();
+	foreach( $backtrace as $args ) {
+		if ( 'wp_dashboard_right_now' == $args['function'] ) {
+			return 'n/a';
+		}
+	}
+	return false;
+}
