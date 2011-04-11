@@ -313,21 +313,23 @@ function amt_get_all_categories($no_uncategorized = TRUE) {
 	*/
 
 	$category_ids = get_all_category_ids();
-	foreach( $category_ids as $cat_id ) {
-		$cat_name = get_cat_name( $cat_id );
-		$categories[] = $cat_name;
-	}
-	if ( empty( $categories ) ) {
-		return "";
-	} else {
-		$all_cats = "";
-		foreach ( $categories as $cat ) {
-			if ( $no_uncategorized && $cat != "Uncategorized" ) {
-				$all_cats .= $cat . ', ';
-			}
+	if ( !empty( $category_ids ) ) {
+		foreach( $category_ids as $cat_id ) {
+			$cat_name = get_cat_name( $cat_id );
+			$categories[] = $cat_name;
 		}
-		$all_cats = strtolower( rtrim( $all_cats, " ," ) );
-		return $all_cats;
+		if ( empty( $categories ) ) {
+			return "";
+		} else {
+			$all_cats = "";
+			foreach ( $categories as $cat ) {
+				if ( $no_uncategorized && $cat != "Uncategorized" ) {
+					$all_cats .= $cat . ', ';
+				}
+			}
+			$all_cats = strtolower( rtrim( $all_cats, " ," ) );
+			return $all_cats;
+		}
 	}
 }
 
