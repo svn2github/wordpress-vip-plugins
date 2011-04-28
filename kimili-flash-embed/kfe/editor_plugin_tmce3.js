@@ -17,8 +17,9 @@
 				var n = prompt("What is the absolute URL to your .SWF?");
 				var h = prompt("How tall is your SWF?\n(In pixels or a percentage - i.e. 250 or 100%)");
 				var w = prompt("How wide is your SWF?\n(In pixels or a percentage - i.e. 125 or 75%)");
+				var content = prompt('Enter the content that you\'d like to show to users without Flash.') || ' '; // need to use an single space otherwise the shortcode parser chokes with multiple tags on the page
 				if (n && h && w) {
-					var text = "[kml_flashembed movie=\"" + n + "\" height=\"" + h + "\" width=\"" + w + "\" /]";		
+					var text = '[kml_flashembed movie="' + n + '" height="' + h + '" width="' + w + '"]' + content + '[/kml_flashembed]';
 					tinyMCE.execInstanceCommand('content', 'mceInsertContent', false, text);
 					return true;	
 				}
