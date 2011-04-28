@@ -76,19 +76,31 @@ function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true
  	return get_sphere_results( $permalink, $max_num, $limit_to_same_domain );
 }
 
-/*
- * Experimental: VIP Related posts using WordPress.com search
- *  Returns an HTML list of related posts from the same blog.
+/**
+ * Experimental: VIP Related posts using WordPress.com search, based on the content of the post
+ * Use wpcom_vip_flaptor_related_posts() as a template tag.
+ * @param int $max_num - maximum number of results you want (default: 5)
+ * @param array $additional_stopwords - Stop words are common words in your content that you want to exclude from the search. Most common english words are ignored by default.
+ * @param boolean $exclude_own_titles - Exclude words form the title and description of this blog in the query (default: true)
+ * @return string Returns an HTML unordered list of related posts from the same blog.
+ * IE:
+ * <ul>
+ * 	<li><a href="URL">Title</a></li>
+ * 	<li><a href="URL">Title</a></li>
+ * </ul>
 */
 
 function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ){
  	return flaptor_related_inline( $max_num, $additional_stopwords, $exclude_own_titles );
 }
 
-/*
- * Experimental: VIP Related posts using WordPress.com search
- *
- * Returns an array of related posts:
+/**
+ * Experimental: VIP Related posts using WordPress.com search, based on the content of the post
+ * Use wpcom_vip_get_flaptor_related_posts() if you prefer to get an array you can process.
+ * @param int $max_num - maximum number of results you want (default: 5)
+ * @param array $additional_stopwords - stopwords are common words in your content that you want to exclude from the search. Most common english words are ignored by default.
+ * @param boolean $exclude_own_titles - Exclude words form the title and description of this blog in the query (default: true)
+ * @return array of related posts, in the following structure:
  * array =>
  *     array
  *       'url' => string
