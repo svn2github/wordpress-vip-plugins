@@ -140,7 +140,7 @@ function kml_flashembed_build_fo_script($atts, $content = '') {
 			$value 		= substr($value, 2, $endtrim);
 			$value 		= '"'.eval("return " . $value).'"';
 		} else {
-			$value = '"'.$value.'"';
+			$value = $value;
 		}
 		$flash_vars->$name = $value;
 	}
