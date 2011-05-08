@@ -3,7 +3,7 @@
  * Plugin Name: Get The Image
  * Plugin URI: http://justintadlock.com/archives/2008/05/27/get-the-image-wordpress-plugin
  * Description: This is a highly intuitive script that can grab an image by custom field input, post attachment, or extracting it from the post's content.
- * Version: 0.6.2
+ * Version: 0.6.2b
  * Author: Justin Tadlock
  * Author URI: http://justintadlock.com
  *
@@ -23,7 +23,7 @@
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  *
  * @package GetTheImage
- * @version 0.6.2
+ * @version 0.6.2b
  * @author Justin Tadlock <justin@justintadlock.com>
  * @copyright Copyright (c) 2008 - 2010, Justin Tadlock
  * @link http://justintadlock.com/archives/2008/05/27/get-the-image-wordpress-plugin
@@ -34,10 +34,10 @@
 add_theme_support( 'post-thumbnails' );
 
 /* Delete the cache when a post or post metadata is updated. */
-add_action( 'save_post', 'get_the_image_delete_cache' );
-add_action( 'deleted_post_meta', 'get_the_image_delete_cache' );
-add_action( 'updated_post_meta', 'get_the_image_delete_cache' );
-add_action( 'added_post_meta', 'get_the_image_delete_cache' );
+add_action( 'save_post', 'get_the_image_post_cache_invalidate', 11, 2 );
+add_action( 'deleted_post_meta', 'get_the_image_meta_cache_invalidate', 11, 3 );
+add_action( 'updated_post_meta', 'get_the_image_meta_cache_invalidate', 11, 3 );
+add_action( 'added_post_meta', 'get_the_image_meta_cache_invalidate', 11, 3 );
 
 /**
  * The main image function for displaying an image.  It supports several arguments that allow developers to
@@ -415,12 +415,30 @@ function get_the_image_meta_key_save( $args = array(), $image = array() ) {
 }
 
 /**
+ * Callback that handles cache invalidation when post updated.
+ *
+ * @since 0.6.2b
+ */
+function get_the_image_post_cache_invalidate( $post_id, $post ) {
+	get_the_image_delete_cache( $object_id );
+}
+
+/**
+ * Callback that handles cache invalidation when meta values changed.
+ *
+ * @since 0.6.2b
+ */
+function get_the_image_meta_cache_invalidate( $meta_id, $object_id, $meta_key ) {
+	get_the_image_delete_cache( $object_id );
+}
+
+/**
  * Deletes the image cache for users that are using a persistent-caching plugin.
  *
  * @since 0.5.0
  */
-function get_the_image_delete_cache() {
-	wp_cache_delete( 'get_the_image' );
+function get_the_image_delete_cache( $object_id ) {
+	wp_cache_delete( $object_id, 'get_the_image' );
 }
 
 /**
