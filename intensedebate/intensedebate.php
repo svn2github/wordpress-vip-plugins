@@ -2101,9 +2101,9 @@ Author URI: http://intensedebate.com
 			});
 
 		<?php if ( 0 == get_option( 'id_moderationPage' ) ) : ?>
-			jQuery('#adminmenu a[href=edit-comments.php]').attr('id', "id_moderate_comment_link");
-			jQuery('#adminmenu a[href=edit-comments.php]').attr('href', "admin.php?page=intensedebate");
-			jQuery('#favorite-actions a[href=edit-comments.php]').attr('href', "admin.php?page=intensedebate");
+			jQuery('#adminmenu a[href="edit-comments.php"]').attr('id', "id_moderate_comment_link");
+			jQuery('#adminmenu a[href="edit-comments.php"]').attr('href', "admin.php?page=intensedebate");
+			jQuery('#favorite-actions a[href="edit-comments.php"]').attr('href', "admin.php?page=intensedebate");
 		<?php endif; ?>
 		});
 		/* ]]> */
@@ -2758,7 +2758,7 @@ Author URI: http://intensedebate.com
 			</div>
 		
 		<script type="text/javascript">		
-		jQuery('#adminmenu a[href=edit-comments.php]').addClass('current');				
+		jQuery('#adminmenu a[href="edit-comments.php"]').addClass('current');				
 		function addScript() {
 			setTimeout("addScript2();", 100);
 		}
