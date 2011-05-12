@@ -334,6 +334,9 @@ function post_now_published( $post_id ) {
 			if ( $max_age > 0 && ( (current_time('timestamp', 1) - get_post_time('U', true) ) / 3600 ) > $max_age ) {
 				return;
 			}
+
+			add_post_meta( $post_id, 'has_been_twittered', 'yes' );
+
 			$i = 'New blog entry \'' . the_title('','',false) . '\' - ' . get_permalink();
 
 			$user_override = get_option( $twit_plugin_prefix . 'user_override' );
@@ -382,8 +385,6 @@ function post_now_published( $post_id ) {
 			$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
 			
 			twit_update_status( $oauth_token, $oauth_token_secret, $message );
-			
-			add_post_meta( $post_id, 'has_been_twittered', 'yes' );
 		}
 	}
 }
