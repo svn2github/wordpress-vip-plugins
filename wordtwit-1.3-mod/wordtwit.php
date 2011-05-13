@@ -323,19 +323,41 @@ function post_now_published( $post_id ) {
 
 	$post_update = apply_filters( 'wordtwit_post_update', true, $post_id );
 	
+	$max_age = get_option( $twit_plugin_prefix . 'max_age', 0 );
+	if ( $max_age > 0 && ( ( current_time('timestamp', 1 ) - get_post_time( 'U', true, $post_id ) ) / 3600 ) > $max_age ) {
+		return;
+	}
+
+	if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+		// Dear VIPs, Don't ever do this.
+		$srtm = $GLOBALS['wpdb']->srtm;
+		$GLOBALS['wpdb']->send_reads_to_masters();
+		$nmc = isset( $_GET['nomemcache'] ) ? $_GET['nomemcache'] : null;
+		$_GET['nomemcache'] = 'all';
+	}
+
 	$has_been_twittered = get_post_meta( $post_id, 'has_been_twittered', true );
+	if ( 'yes' == $has_been_twittered ) {
+		return;
+	}
+
+	if ( defined( 'DOING_CRON' ) && DOING_CRON ) {
+		$GLOBALS['wpdb']->srtm = $srtm;
+		if ( is_null( $nmc ) ) {
+			unset( $_GET['nomemcache'] );
+		} else {
+			$_GET['nomemcache'] = $nmc;
+		}
+	}
+	
+	add_post_meta( $post_id, 'has_been_twittered', 'yes' );
+
 	if ( true == $post_update && !($has_been_twittered == 'yes')) {
 		query_posts('p=' . $post_id);
 
 		if (have_posts()) {
 			the_post();
 			global $post;
-			$max_age = get_option( $twit_plugin_prefix . 'max_age', 0 );
-			if ( $max_age > 0 && ( (current_time('timestamp', 1) - get_post_time('U', true) ) / 3600 ) > $max_age ) {
-				return;
-			}
-
-			add_post_meta( $post_id, 'has_been_twittered', 'yes' );
 
 			$i = 'New blog entry \'' . the_title('','',false) . '\' - ' . get_permalink();
 
