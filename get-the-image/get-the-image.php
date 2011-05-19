@@ -420,7 +420,7 @@ function get_the_image_meta_key_save( $args = array(), $image = array() ) {
  * @since 0.6.2b
  */
 function get_the_image_post_cache_invalidate( $post_id, $post ) {
-	get_the_image_delete_cache( $object_id );
+	get_the_image_delete_cache( $post_id );
 }
 
 /**
