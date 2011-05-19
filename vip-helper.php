@@ -72,7 +72,7 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 		$http_api_args['timeout'] = $timeout;
 		$response = wp_remote_get( $url, $http_api_args );
 	}
-
+	
 	// Was the request successful?
 	if ( $server_up && ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
 		$content = wp_remote_retrieve_body( $response );
@@ -101,16 +101,22 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	// Okay, it wasn't successful. Perhaps we have a backup result from earlier.
 	elseif ( $content = wp_cache_get( $backup_key, $cache_group ) ) {
 		// If a remote request failed, log why it did
-		if ( $response ) {
+		if ( $response && ! is_wp_error( $response ) ) {
+			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response[headers] ) . ' ' . maybe_serialize( $response[response] ) );
+		} elseif ( $response ) { // is WP_Error object
 			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
 		}
 	}
 	// We were unable to fetch any content, so don't try again for another 60 seconds
 	elseif ( $response ) {
 		wp_cache_set( $disable_get_key, 1, $cache_group, 60 );
-
+		
 		// If a remote request failed, log why it did
-		error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		if ( $response && ! is_wp_error( $response ) ) {
+			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response[headers] ) . ' ' . maybe_serialize( $response[response] ) );
+		} elseif ( $response ) { // is WP_Error object
+			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		}
 	}
 
 	return $content;
