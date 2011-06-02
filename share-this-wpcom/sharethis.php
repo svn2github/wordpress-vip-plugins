@@ -424,7 +424,7 @@ function st_menu_items() {
 		add_options_page(
 			__('ShareThis Options', 'sharethis')
 			, __('ShareThis', 'sharethis')
-			, 8 
+			, 'manage_options' 
 			, basename(__FILE__)
 			, 'st_options_form'
 		);
