@@ -59,7 +59,7 @@ $edcal_supports_custom_types = function_exists('get_post_types') && function_exi
 
 function edcal_load_language() {
     //$plugin_dir = basename(dirname(__FILE__));
-    load_plugin_textdomain( 'editorial-calendar', 'wp-content/plugins/themes/vip/plugins/editorial-calendar/languages/' );
+    load_plugin_textdomain( 'editorial-calendar', false, dirname( __FILE__ ) . '/languages/' );
 }
 
 /*
