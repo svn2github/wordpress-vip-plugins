@@ -570,6 +570,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 														'title' => $group_data['title'],
 														'class' => $group_data['class'],
 														'fields' => $_fields,
+														'pages' => $group_data['pages'],
 				);
 			}
 
