@@ -469,7 +469,7 @@ function edcal_posts() {
      * If we're in the specific post type case we need to add
      * the post type to our query.
      */
-    $post_type = $_GET['post_type'];
+    $post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : '';
     if ($post_type) {
         $args['post_type'] = $post_type;
     }
@@ -517,7 +517,7 @@ function edcal_getpost() {
      * If we're in the specific post type case we need to add
      * the post type to our query.
      */
-    $post_type = $_GET['post_type'];
+    $post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : '';
     if ($post_type) {
         $args['post_type'] = $post_type;
     }
@@ -557,11 +557,11 @@ function edcal_json_encode($string) {
  */
 function edcal_get_posttype_multiplename() {
 
-    $post_type = $_GET['post_type'];
+    $post_type = isset ( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : false;
     if (!$post_type) {
         return 'Posts';
     }
-
+		
     $postTypeObj = get_post_type_object($post_type);
     return $postTypeObj->labels->name;
 }
@@ -573,7 +573,7 @@ function edcal_get_posttype_multiplename() {
 
 function edcal_get_posttype_singlename() {
 
-    $post_type = $_GET['post_type'];
+    $post_type = isset( $_GET['post_type'] ) ? sanitize_key( $_GET['post_type'] ) : '';
     if (!$post_type) {
         return 'Post';
     }
