@@ -390,11 +390,11 @@ if ( !class_exists( "Easy_CF" ) ) {
 		 * Add meta boxes for defined fields
 		 */
 		public function add_meta_boxes() {
-			foreach( $this->_field_data as $group_id => $group_data ) {
+			foreach( (array) $this->_field_data as $group_id => $group_data ) {
 				$group_title = ( empty( $group_data['title'] ) ) ? $group_id : $group_data['title'];
 				$group_context = ( empty( $group_data['context'] ) ) ? 'advanced' : $group_data['context'];
 				$group_pages = ( empty( $group_data['pages'] ) ) ? array( 'post', 'page' ) : $group_data['pages'];
-				foreach( $group_pages as $page ) {
+				foreach( (array) $group_pages as $page ) {
 					add_meta_box( $group_id, $group_title, array( &$this, 'meta_box_cb' ), $page, $group_context );
 				}
 			}
@@ -414,7 +414,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 		 * or similar add_action( 'save_post', array( &$this, 'save_post_cb' ), 1, 2 ); call
 		 */
 		public function save_post_cb($post_id, $post) {
-			foreach( $this->_used_fields as $box_id => $field_ids ) {
+			foreach( (array) $this->_used_fields as $box_id => $field_ids ) {
 				if ( ! wp_verify_nonce( $_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce'], $this->_plugin_prefix . '_' . $box_id . '_nonce' ) ) {
 					return $post->ID;
 				}
@@ -434,7 +434,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 				
 				// Add values of $my_data as custom fields
 				// Let's cycle through the $my_data array!
-				foreach ( $field_ids as $field_id ) {
+				foreach ( (array) $field_ids as $field_id ) {
 					$value = $_POST[$field_id];
 					if ( !$this->{$field_id}->validate( $value, $post->ID ) ) {
 						$this->add_admin_notice( $this->{$field_id}->get_error_msg() );
@@ -482,7 +482,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 
 			// validate data, make sure to fill $this->_field_data only with validated fields
 
-			foreach( $field_data as $group_id => $group_data ) {
+			foreach( (array) $field_data as $group_id => $group_data ) {
 				// check group_id
 				if ( !preg_match( "#^[a-zA-Z0-9_-]+$#msiU", $group_id ) ) {
 					$this->add_admin_notice( sprintf( __( "Group %s contains invalid chars use only [a-zA-Z0-9_-]" ), $group_id ) );
@@ -510,7 +510,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 				$_fields = array();
 
 				// check fields array
-				foreach( $group_data['fields'] as $field_id => $field ) {
+				foreach( (array) $group_data['fields'] as $field_id => $field ) {
 
 					// check field id
 					if ( empty( $field_id ) ) {
@@ -576,9 +576,9 @@ if ( !class_exists( "Easy_CF" ) ) {
 
 
 			// initialize classes for validated data
-			foreach( $this->_field_data as $group_id => $group_data ) {
+			foreach( (array) $this->_field_data as $group_id => $group_data ) {
 
-				foreach( $group_data['fields'] as $field_id => $field ) {
+				foreach( (array) $group_data['fields'] as $field_id => $field ) {
 					$field_class_name = 'Easy_CF_Field_' . ucfirst( $field['type'] );
 					if ( !class_exists( $field_class_name ) )
 						$field_class_name = 'Easy_CF_Field';
