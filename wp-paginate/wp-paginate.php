@@ -269,7 +269,7 @@ if (!class_exists( 'WPPaginate' )) {
 			/* WPCOM VIP MOD
 				- Replaced plugin_basename() with  basename( dirname( ) )
 			*/
-			add_options_page( 'WP-Paginate', 'WP-Paginate', 10, basename(__FILE__), array(&$this, 'admin_options_page' ));
+			add_options_page( 'WP-Paginate', 'WP-Paginate', 'manage_options', basename(__FILE__), array(&$this, 'admin_options_page' ));
 			add_filter( 'plugin_action_links_' . basename( dirname( __FILE__ ) ) , array(&$this, 'filter_plugin_actions' ), 10, 2 );
 		}
 
