@@ -408,9 +408,9 @@ function amt_add_meta_tags() {
 	$options = get_option("add_meta_tags_opts");
 	$site_wide_meta = $options["site_wide_meta"];
 
-    if ( 'page' == $posts[0]->post_type )
+    if ( isset( $posts[0] ) && 'page' == $posts[0]->post_type )
         $cmpvalues = $options['page_options'];
-    elseif ( 'post' == $posts[0]->post_type )
+    elseif ( isset( $posts[0] ) && 'post' == $posts[0]->post_type )
         $cmpvalues = $options['post_options'];
 	else 
 		$cmpvalues = array();
@@ -722,9 +722,9 @@ function mt_seo_rewrite_title( $title, $sep = '' , $seplocation = '' ) {
 
     $options = get_option("add_meta_tags_opts");
 	
-    if ( 'page' == $posts[0]->post_type )
+    if ( isset( $posts[0] ) && 'page' == $posts[0]->post_type )
         $cmpvalues = $options['page_options'];
-    elseif ( 'post' == $posts[0]->post_type )
+    elseif ( isset( $posts[0] ) && 'post' == $posts[0]->post_type )
         $cmpvalues = $options['post_options'];
 	else
 		$cmpvalues = array();
