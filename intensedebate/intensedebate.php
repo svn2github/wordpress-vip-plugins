@@ -347,14 +347,8 @@ Author URI: http://intensedebate.com
 		global $wpmu_version;
 		
 		if ( false === get_option( $name ) && empty( $wpmu_version ) ) { // Avoid WPMU options cache bug
-			if ( 0 === strpos( $name, 'id_request_queue' ) ) {
-				xmpp_message( 'mdawaffe@im.wordpress.com', "IDQUEUE {$GLOBAL['blog_id']}: ADD_OPTION: $queue_name" );
-			}
 			add_option( $name, $value, '', 'no' );
 		} else {
-			if ( 0 === strpos( $name, 'id_request_queue' ) ) {
-				xmpp_message( 'mdawaffe@im.wordpress.com', "IDQUEUE {$GLOBAL['blog_id']}: UPDATE_OPTION: $queue_name" );
-			}
 			update_option( $name, $value );
 		}
 		
@@ -3093,7 +3087,6 @@ function id_queue_async_job( $queue_name ) {
 		'attempt_number' => 1,
 	);
 
-	xmpp_message( 'mdawaffe@im.wordpress.com', "IDQUEUE {$GLOBAL['blog_id']}: QUEUED: $queue_name" );
 	deferred_async_job( $data, 'intensedebate_process_queue', time() + 5, 0, 0 );
 }
 
