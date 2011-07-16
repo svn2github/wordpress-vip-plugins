@@ -32,7 +32,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 			if ( function_exists( 'send_vip_team_debug_message' ) ) {
 				// Use an expiring cache value to avoid spamming messages
 				if ( ! wp_cache_get( 'noplugin', 'wpcom_vip_load_plugin' ) ) {
-					send_vip_team_debug_message( 'WARNING: wpcom_vip_load_plugin() is being called without a $plugin parameter on ' . get_bloginfo('url') );
+					send_vip_team_debug_message( 'WARNING: wpcom_vip_load_plugin() is being called without a $plugin parameter' );
 					wp_cache_set( 'noplugin', 1, 'wpcom_vip_load_plugin', 3600 );
 				}
 			}
@@ -87,7 +87,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 				// Use an expiring cache value to avoid spamming messages
 				$cachekey = md5( $folder . '|' . $plugin );
 				if ( ! wp_cache_get( "notfound_$cachekey", 'wpcom_vip_load_plugin' ) ) {
-					send_vip_team_debug_message( "WARNING: wpcom_vip_load_plugin() is trying to load a non-existent file ( /$folder/$plugin/$plugin.php ) on " . get_bloginfo('url') );
+					send_vip_team_debug_message( "WARNING: wpcom_vip_load_plugin() is trying to load a non-existent file ( /$folder/$plugin/$plugin.php )" );
 					wp_cache_set( "notfound_$cachekey", 1, 'wpcom_vip_load_plugin', 3600 );
 				}
 			}
