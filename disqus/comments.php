@@ -58,9 +58,9 @@
 			req.open('GET', '?cf_action=sync_comments&post_id=<?php echo $post->ID; ?>', true);
 			req.send(null);
 		});
+		
+		<?php do_action('disqus_config_js'); // call action for custom Disqus config js ?>
 	};
-	
-	<?php do_action('disqus_config_js'); // call action for custom Disqus config js ?>
 	
 	var facebookXdReceiverPath = '<?php echo DSQ_PLUGIN_URL . '/xd_receiver.htm' ?>';
 </script>
