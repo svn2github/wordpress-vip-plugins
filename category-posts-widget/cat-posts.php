@@ -38,11 +38,11 @@ function jl_cat_posts_widget( $args, $widget_args = 1 ) {
 		$title = $options[$number]['title'];
 	}
 	
-	// Get array of post info.
-	$cat_posts = get_posts('numberposts='.$num.'&category='.$cat_id);
-	
 	$jl_cat_posts_widget = wp_cache_get('jl_cat_posts_widget', 'widget');
 	if($jl_cat_posts_widget == false) {
+		// Get array of post info.
+		$cat_posts = get_posts('numberposts='.$num.'&category='.$cat_id);
+	
 		$jl_cat_posts_widget = $before_widget;
 		$jl_cat_posts_widget .= $before_title;
 
