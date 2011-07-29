@@ -410,7 +410,6 @@ function wpcom_vip_remove_mediacontent_from_rss2_feed() {
 
 /**
  * Disable post-post screen
- * http://keepingtheirblogsgoing.wordpress.com/2011/07/29/on-disabling-post-post-i-think-its-a/
  */
 function wpcom_vip_disable_postpost() {
 	remove_filter( 'redirect_post_location', 'wpcom_maybe_post_post' );
