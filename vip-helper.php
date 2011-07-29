@@ -633,11 +633,3 @@ function _disable_right_now_comment_count_filter( $data ) {
 	}
 	return false;
 }
-
-/**
- * Disable post-post
- */
-function wpcom_vip_disable_postpost() {
-	remove_filter( 'redirect_post_location', 'wpcom_maybe_post_post' );
-}
-
