@@ -634,7 +634,12 @@ function dsq_add_query_posts($posts) {
 }
 
 // check to see if the posts in the loop match the original request or an explicit request, if so output the JS
-function dsq_loop_end($query) {
+function dsq_loop_end() {
+	global $wp_query;
+	
+	wp_reset_query(); // let's go back to the original query
+	$query = $wp_query;
+	
 	if ( get_option('disqus_cc_fix') == '1' || !count($query->posts) || is_single() || is_page() || is_feed() ) {
 		return;
 	}
@@ -647,7 +652,7 @@ function dsq_loop_end($query) {
 		dsq_output_loop_comment_js($DSQ_QUERY_POST_IDS[$posts_key]);
 	}
 }
-add_action('loop_end', 'dsq_loop_end');
+add_action('wp_footer', 'dsq_loop_end');
 
 // if someone has a better hack, let me know
 // prevents duplicate calls to count.js
