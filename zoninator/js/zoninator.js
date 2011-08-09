@@ -260,7 +260,7 @@ var zoninator = {}
 			return zoninator.ajaxErrorCallback(returnData, originalData, successCallback, errorCallback);
 		}
 		
-		console.log('ajaxSuccessCallback', returnData, originalData);
+		//console.log('ajaxSuccessCallback', returnData, originalData);
 		
 		if(returnData.nonce)
 			zoninator.updateAjaxNonce(returnData.nonce);
@@ -280,7 +280,7 @@ var zoninator = {}
 			}
 		}
 		
-		console.log('ajaxErrorCallback', returnData, originalData);
+		//console.log('ajaxErrorCallback', returnData, originalData);
 		
 		if(typeof(errorCallback) === 'function') {
 			return errorCallback(returnData, originalData); 
