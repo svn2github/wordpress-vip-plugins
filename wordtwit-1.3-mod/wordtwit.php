@@ -3,9 +3,8 @@
 Plugin Name: WordTwit
 Plugin URI: http://www.bravenewcode.com/wordtwit
 Description: Generates Twitter Updates from Blog Postings
-Author: Duane Storey and Dale Mugford, BraveNewCode Inc., Modified and extended for WordPress.com by Thorsten Ott
+Author: <a href="http://www.bravenewcode.com">Duane Storey and Dale Mugford, BraveNewCode Inc.</a>, Modified and extended for WordPress.com by Thorsten Ott
 Version: 1.3-mod
-Author URI: http://www.bravenewcode.com
 */
 /*
 Reason for Mod:
