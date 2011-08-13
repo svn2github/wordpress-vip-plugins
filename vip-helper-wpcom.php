@@ -415,4 +415,13 @@ function wpcom_vip_disable_postpost() {
 	remove_filter( 'redirect_post_location', 'wpcom_maybe_post_post' );
 }
 
+/**
+ * Outputs Open Graph tags to various pages on the site
+ * http://developers.facebook.com/docs/opengraph/
+ */
+
+function wpcom_vip_enable_opengraph() {
+	add_action( 'wp_head', 'wpcom_og_tags' ); // This hook is excluded from VIP sites, but if you see double output, it's because the hook's been added twice
+}
+
 ?>
