@@ -178,7 +178,7 @@ if (!class_exists('wp_lightboxplus')) {
     }
 
     function lightboxPlusAddPages() {
-      add_submenu_page('themes.php', "Lightbox Plus", "Lightbox Plus", 10, "lightboxplus", array(&$this, "lightboxPlusAdminPanel"));
+      add_submenu_page('themes.php', "Lightbox Plus", "Lightbox Plus", 'manage_options', "lightboxplus", array(&$this, "lightboxPlusAdminPanel"));
     }
 
 		/*---- Add some default options if they don't exist ----*/
