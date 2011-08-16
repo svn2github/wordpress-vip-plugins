@@ -156,7 +156,7 @@ if (!class_exists('wp_lightboxplus')) {
 		if ($classMethod == 1) {
 			$lightboxPlusJavaScript .= '  $(".cboxModal").colorbox();'.$this->endLine();
 		} else {
-			$lightboxPlusJavaScript .= '  $("a[href*=\'http\']").colorbox();'.$this->endLine();
+			$lightboxPlusJavaScript .= '  $("a[rel*=\'lightbox\']").colorbox();'.$this->endLine();
 		}
 
 		$lightboxPlusJavaScript .= '  });'.$this->endLine();
