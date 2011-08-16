@@ -11,7 +11,7 @@ Version: 1.5.3.1-mod
 global $post, $content;  // WordPress Globals
 global $g_lightbox_plus_url;
 $g_lightbox_plus_url = get_bloginfo('wpurl') . '/wp-content/themes/vip/plugins/lightbox-plus';
-load_plugin_textdomain('lightboxplus', $path = $g_lightbox_plus_url);
+load_plugin_textdomain( 'lightboxplus', false, false, dirname( __FILE__ ) . '/languages/' );
 
 if (!function_exists("lightboxPlusReload")) {
 	function lightboxPlusReload($update) {
@@ -252,7 +252,7 @@ if (!class_exists('wp_lightboxplus')) {
 
     function lightboxPlusAdminPanel() {
       global $g_lightbox_plus_url;
-      load_plugin_textdomain('lightboxplus', $path = $g_lightbox_plus_url);
+      load_plugin_textdomain('lightboxplus', false, dirname( __FILE__ ) . '/languages/' );
       $location = get_option('siteurl').'/wp-admin/admin.php?page=lightboxplus';
 
       /*---- Where the styles reside ----*/
@@ -260,30 +260,30 @@ if (!class_exists('wp_lightboxplus')) {
       update_option('lightboxplus_style_path', $stylePath);
 
       /*---- check form submission and update setting ----*/
-      if ($_POST['action']) {
+      if ( ! empty( $_POST['action'] ) ) {
         if ($_POST['sub'] == 'settings') {
-			$themeStyle            = $_POST[lightboxplus_style];
-			$transition            = $_POST[transition];
-			$speed                 = $_POST[speed];
-			$maxWidth              = $_POST[max_width];
-			$maxHeight             = $_POST[max_height];
-			$resize                = $_POST[resize];
-			$opacity               = $_POST[opacity];
-			$preloading            = $_POST[preloading];
-			$labelImage            = $_POST[label_image];
-			$labelOf               = $_POST[label_of];
-			$previous              = $_POST[previous];
-			$next                  = $_POST[next];
-			$close                 = $_POST[close];
-			$overlayClose          = $_POST[overlay_close];
-			$slideshow             = $_POST[slideshow];
-			$slideshowAuto         = $_POST[slideshow_auto];
-			$slideshowSpeed        = $_POST[slideshow_speed];
-			$slideshowStart        = $_POST[slideshow_start];
-			$slideshowStop         = $_POST[slideshow_stop];
-			$displayTitle          = $_POST[display_title];
-			$autoLightbox          = $_POST[auto_lightbox];
-			$classMethod           = $_POST[class_method];
+			$themeStyle            = $_POST['lightboxplus_style'];
+			$transition            = $_POST['transition'];
+			$speed                 = $_POST['speed'];
+			$maxWidth              = $_POST['max_width'];
+			$maxHeight             = $_POST['max_height'];
+			$resize                = $_POST['resize'];
+			$opacity               = $_POST['opacity'];
+			$preloading            = $_POST['preloading'];
+			$labelImage            = $_POST['label_image'];
+			$labelOf               = $_POST['label_of'];
+			$previous              = $_POST['previous'];
+			$next                  = $_POST['next'];
+			$close                 = $_POST['close'];
+			$overlayClose          = $_POST['overlay_close'];
+			$slideshow             = $_POST['slideshow'];
+			$slideshowAuto         = $_POST['slideshow_auto'];
+			$slideshowSpeed        = $_POST['slideshow_speed'];
+			$slideshowStart        = $_POST['slideshow_start'];
+			$slideshowStop         = $_POST['slideshow_stop'];
+			$displayTitle          = $_POST['display_title'];
+			$autoLightbox          = $_POST['auto_lightbox'];
+			$classMethod           = $_POST['class_method'];
 			$lightboxPlusOptions = array(
 				"lightboxplus_style"       => $themeStyle,
 				"transition"               => $transition,
@@ -389,7 +389,7 @@ if (!class_exists('wp_lightboxplus')) {
 			closedir($handle);
 		}
 
-		$lightboxPlusStatus = $_GET[updated];
+		$lightboxPlusStatus = $_GET['updated'];
 		if ($lightboxPlusStatus) {
 		switch ($lightboxPlusStatus) {
 			case 'settings':
