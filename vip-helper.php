@@ -633,3 +633,12 @@ function _disable_right_now_comment_count_filter( $data ) {
 	}
 	return false;
 }
+
+
+/**
+ * Disables any of the sharing functionality from showing up
+ */
+function wpcom_vip_disable_sharing() {
+	remove_filter( 'the_content', 'sharing_display', 9 );
+	remove_filter( 'the_excerpt', 'sharing_display', 9 );
+}
