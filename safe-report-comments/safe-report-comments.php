@@ -94,13 +94,19 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 					add_filter( 'comment_reply_link', array( &$this, 'add_flagging_link' ) );
 				add_action( 'comment_report_abuse_link', array( &$this, 'print_flagging_link' ) );
 					
-				//Set a cookie now to see if they are supported by the browser.
+				add_action( 'template_redirect', array( $this, 'add_test_cookie' ) ); // need to do this at template_redirect because is_feed isn't available yet
+			}
+		}
+
+		public function add_test_cookie() {
+			//Set a cookie now to see if they are supported by the browser.
+			// Don't add cookie if it's already set; and don't do it for feeds
+			if( ! is_feed() && ! isset( $_COOKIE[ TEST_COOKIE ] ) ) {
 				@setcookie(TEST_COOKIE, 'WP Cookie check', 0, COOKIEPATH, COOKIE_DOMAIN);
 				if ( SITECOOKIEPATH != COOKIEPATH )
 					@setcookie(TEST_COOKIE, 'WP Cookie check', 0, SITECOOKIEPATH, COOKIE_DOMAIN);
 			}
 		}
-
 		
 		/*
 		 */
