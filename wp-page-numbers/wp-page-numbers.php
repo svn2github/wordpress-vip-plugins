@@ -178,6 +178,7 @@ function wp_page_numbers()
 	$prevpage = $settings["prevpage"];
 	$startspace = $settings["startspace"];
 	$endspace = $settings["endspace"];
+	$pagingMiddleString = '';
 	
 	if( $nextpage == "" ) { $nextpage = "&gt;"; }
 	if( $prevpage == "" ) { $prevpage = "&lt;"; }
