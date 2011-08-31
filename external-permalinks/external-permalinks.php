@@ -33,12 +33,12 @@ add_filter( 'page_link', 'external_permalinks_filter_page_permalink', 1, 2 );
  * @return null
  */
 function external_permalinks_redirect_postpage_request( $query ) {
-	if( $query->is_single && $link = get_post_meta( $query->query[ 'p' ], '_external_permalink', true ) ) {
+	if( is_single() && $link = get_post_meta( get_the_ID(), '_external_permalink', true ) ) {
 		wp_redirect( $link, 307 );
 		exit;
 	}
 }
-add_action( 'pre_get_posts', 'external_permalinks_redirect_postpage_request', 1 );
+add_action( 'template_redirect', 'external_permalinks_redirect_postpage_request', 1 );
 
 /*
  * Add meta box to posts and pages to set external link
