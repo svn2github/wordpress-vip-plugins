@@ -20,7 +20,7 @@ class WPcom_Watermark_Uploads {
 			return false;
 
 		add_filter( 'wp_handle_upload_prefilter', array( &$this, 'handle_file' ), 100 );
-		add_filter( 'wp_upload_bits_data',        array( &$this, 'handle_bits' ), 10, 2 );
+		add_filter( 'wp_upload_bits_data',        array( &$this, 'handle_bits' ), 10, 2 ); // http://core.trac.wordpress.org/ticket/12493
 	}
 
 	// For filters that pass a $_FILES array
