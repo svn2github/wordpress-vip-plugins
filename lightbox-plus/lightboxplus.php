@@ -382,7 +382,7 @@ if (!class_exists('wp_lightboxplus')) {
 		$stylePath = get_option('lightboxplus_style_path');
 		if ($handle = opendir($stylePath)) {
 			while (false !== ($file = readdir($handle))) {
-				if ($file != "." && $file != ".." && $file != ".DS_Store") {
+				if ($file != "." && $file != ".." && $file != ".DS_Store" && $file != '.svn') {
 					$styles[$file] = $stylePath."/".$file."/";
 				}
 				}
