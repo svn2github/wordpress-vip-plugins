@@ -424,4 +424,19 @@ function wpcom_vip_enable_opengraph() {
 	add_action( 'wp_head', 'wpcom_og_tags' ); // This hook is excluded from VIP sites, but if you see double output, it's because the hook's been added twice
 }
 
+/**
+ * Allows you to customize the /via and follow recommendation for the WP.com Sharing Twitter button
+ * @param $via (string) What the /via should be set to. Empty value disables the feature. 
+ */
+function wpcom_vip_sharing_twitter_via( $via = '' ) {
+	if( empty( $via ) )
+		$via_callback = '__return_false';
+	//elseif( is_callable( $via ) )
+		//$via_callback = $via;
+	else
+		$via_callback = create_function( '', sprintf( 'return %s;', sanitize_key( $via ) ) );
+	
+	add_filter( 'sharing_twitter_via', $via_callback );
+}
+
 ?>
