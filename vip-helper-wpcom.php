@@ -373,7 +373,7 @@ function wpcom_vip_ip2country( $ip = '' ) {
 
 function wpcom_vip_remove_polldaddy_rating() {
 	remove_filter( 'the_content', 'polldaddy_show_rating', 5 );
-	remove_filter( 'social_nascar', 'polldaddy_show_rating', 10 );
+	remove_filter( 'post_flair',  'polldaddy_show_rating', 10 );
 }
 
 /*
