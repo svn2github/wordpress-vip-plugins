@@ -32,8 +32,7 @@ if( ! class_exists( 'Zoninator' ) ) :
 
 define( 'ZONINATOR_VERSION', '0.1' );
 define( 'ZONINATOR_PATH', dirname( __FILE__ ) );
-//define( 'ZONINATOR_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
-define( 'ZONINATOR_URL', content_url( 'themes/vip/plugins/zoninator/' ) ); // wpcom
+define( 'ZONINATOR_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
 
 require_once( ZONINATOR_PATH . '/functions.php' );
 require_once( ZONINATOR_PATH . '/widget.zone-posts.php');
