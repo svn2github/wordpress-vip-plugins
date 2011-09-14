@@ -169,12 +169,12 @@ function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
 	$vip_shared_plugins_url = content_url( '/themes/vip/plugins' );
 	
 	if ( 0 === strpos( $plugin, $vip_shared_plugins_dir) )
-		$url = str_replace( $vip_shared_plugins_dir, $vip_shared_plugins_url, dirname( $plugin ) );
+		$url_override = str_replace( $vip_shared_plugins_dir, $vip_shared_plugins_url, dirname( $plugin ) );
 	elseif  ( 0 === strpos( $plugin, get_stylesheet_directory() ) )
-		$url = str_replace(get_stylesheet_directory(), get_stylesheet_directory_uri(), dirname( $plugin ) );
+		$url_override = str_replace(get_stylesheet_directory(), get_stylesheet_directory_uri(), dirname( $plugin ) );
 
-	if ( $path )
-		$url .= '/' . $path;
+	if ( isset( $url_override ) )
+		$url = trailingslashit( $url_override ) . $path;
 
 	return $url;
 }
