@@ -159,4 +159,24 @@ function wpcom_vip_get_loaded_plugins() {
 	
 }
 
-?>
+/**
+ * Filter plugins_url() so that it works for plugins inside the shared VIP plugins directory or a theme directory.
+ * Props to the GigaOm dev team for coming up with this method.
+ */
+function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
+
+	$vip_shared_plugins_dir = WP_CONTENT_DIR . '/themes/vip/plugins';
+	$vip_shared_plugins_url = content_url( '/themes/vip/plugins' );
+	
+	if ( 0 === strpos( $plugin, $vip_shared_plugins_dir) )
+		$url = str_replace( $vip_shared_plugins_dir, $vip_shared_plugins_url, dirname( $plugin ) );
+	elseif  ( 0 === strpos( $plugin, get_stylesheet_directory() ) )
+		$url = str_replace(get_stylesheet_directory(), get_stylesheet_directory_uri(), dirname( $plugin ) );
+
+	if ( $path )
+		$url .= '/' . $path;
+
+	return $url;
+}
+
+add_filter( 'plugins_url', 'wpcom_vip_plugins_url', 10, 3 );
