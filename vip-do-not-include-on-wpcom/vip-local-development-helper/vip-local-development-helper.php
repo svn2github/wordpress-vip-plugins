@@ -165,14 +165,14 @@ function wpcom_vip_get_loaded_plugins() {
  */
 function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
 
-	$vip_shared_plugins_dir = WP_CONTENT_DIR . '/themes/vip/plugins';
-	$vip_shared_plugins_url = content_url( '/themes/vip/plugins' );
+	$vip_dir = WP_CONTENT_DIR . '/themes/vip';
+	$vip_url = content_url( '/themes/vip' );
 	
-	if ( 0 === strpos( $plugin, $vip_shared_plugins_dir) )
-		$url_override = str_replace( $vip_shared_plugins_dir, $vip_shared_plugins_url, dirname( $plugin ) );
+	if( 0 === strpos( $plugin, $vip_dir ) )
+		$url_override = str_replace( $vip_dir, $vip_url, dirname( $plugin ) );
 	elseif  ( 0 === strpos( $plugin, get_stylesheet_directory() ) )
 		$url_override = str_replace(get_stylesheet_directory(), get_stylesheet_directory_uri(), dirname( $plugin ) );
-
+	
 	if ( isset( $url_override ) )
 		$url = trailingslashit( $url_override ) . $path;
 
@@ -180,3 +180,27 @@ function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
 }
 
 add_filter( 'plugins_url', 'wpcom_vip_plugins_url', 10, 3 );
+
+/**
+ * Return a URL for given VIP theme and path. Does not work with VIP shared plugins.
+ * 
+ * @param $theme string Name of the theme folder
+ * @param $path string Path to suffix to the theme URL
+ *
+ * @return string URL for the specified theme and path
+ */
+function wpcom_vip_theme_url( $theme, $path = '' ) {
+	// We need to reference a file in the specified theme; style.css will almost always be there.
+	$theme_file = sprintf( '%s/themes/vip/%s/style.css', WP_CONTENT_DIR, $theme );
+	// For local environments where the theme isn't under /themes/vip/themename/
+	$theme_file_alt = sprintf( '%s/themes/%s/style.css', WP_CONTENT_DIR, $theme );
+
+	$path = ltrim( $path, '/' );
+
+	if ( file_exists( $theme_file ) )
+		return plugins_url( $path, $theme_file );
+	elseif( file_exists( $theme_file_alt ) )
+		return plugins_url( $path, $theme_file_alt );
+
+	return false;
+}
