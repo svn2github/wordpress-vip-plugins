@@ -184,12 +184,15 @@ add_filter( 'plugins_url', 'wpcom_vip_plugins_url', 10, 3 );
 /**
  * Return a URL for given VIP theme and path. Does not work with VIP shared plugins.
  * 
- * @param $theme string Name of the theme folder
  * @param $path string Path to suffix to the theme URL
+ * @param $theme string Name of the theme folder
  *
  * @return string URL for the specified theme and path
  */
-function wpcom_vip_theme_url( $theme, $path = '' ) {
+function wpcom_vip_theme_url( $path = '', $theme = '' ) {
+	if ( empty( $theme ) )
+		$theme = str_replace( 'vip/', '', get_stylesheet() );
+
 	// We need to reference a file in the specified theme; style.css will almost always be there.
 	$theme_file = sprintf( '%s/themes/vip/%s/style.css', WP_CONTENT_DIR, $theme );
 	// For local environments where the theme isn't under /themes/vip/themename/
