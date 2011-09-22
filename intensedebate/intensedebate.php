@@ -14,7 +14,7 @@ Author URI: http://intensedebate.com
 	define( 'ID_PLUGIN_VERSION', '2.9' );
 	
 	// API Endpoints
-	define( 'ID_BASEURL', sprintf( '%://intensedebate.com', ( is_ssl() ? 'https' : 'http' ) ) );
+	define( 'ID_BASEURL', 'http://intensedebate.com' );
 	define( 'ID_SERVICE', ID_BASEURL . '/services/v1/operations/postOperations.php' );
 	define( 'ID_USER_LOOKUP_SERVICE', ID_BASEURL . '/services/v1/users' );
 	define( 'ID_BLOG_LOOKUP_SERVICE', ID_BASEURL . '/services/v1/sites' );
