@@ -27,6 +27,10 @@ class New_Device_Notification {
 		if ( ! current_user_can( 'edit_posts' ) )
 			return;
 
+		// IP whitelist
+		if ( in_array( $_SERVER['REMOTE_ADDR'], array( '72.233.96.227' ) ) )
+			continue;
+
 		$salt = get_option( 'newdevicenotification_salt' );
 		if ( ! $salt ) {
 			$salt = wp_generate_password( 64, true, true );
