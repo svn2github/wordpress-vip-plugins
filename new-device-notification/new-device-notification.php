@@ -29,7 +29,7 @@ class New_Device_Notification {
 
 		// IP whitelist
 		if ( in_array( $_SERVER['REMOTE_ADDR'], array( '72.233.96.227' ) ) )
-			continue;
+			return;
 
 		$salt = get_option( 'newdevicenotification_salt' );
 		if ( ! $salt ) {
