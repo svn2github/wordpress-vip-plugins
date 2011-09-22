@@ -249,7 +249,7 @@ function vip_multiple_moderators($emails) {
 	$email_headers = "From: donotreply@wordpress.com" . "\n" . "CC: " . implode(', ', $emails);
 	add_filter('comment_moderation_headers', create_function( '', 'return '.var_export( $email_headers, true ).';') );
 
-	add_filter( 'vip_multiple_moderators', create_function( '$existing', 'return array_merge( $existing, ' . var_export( $emails, true ) . ' );') );
+	add_filter( 'wpcom_vip_multiple_moderators', create_function( '$existing', 'return array_merge( $existing, ' . var_export( $emails, true ) . ' );') );
 }
 
 /*
