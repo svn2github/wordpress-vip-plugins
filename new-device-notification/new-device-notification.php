@@ -122,11 +122,11 @@ Feel free to also reply to this e-mail if you have any questions whatsoever.
 		$location = ip2location( $ip );
 
 		$human = array();
-		if ( ! empty( $location->city ) )
+		if ( ! empty( $location->city ) && '-' != $location->city )
 			$human[] = $location->city;
-		if ( ! empty( $location->region ) && ( empty( $location->city ) || $location->region != $location->city ) )
+		if ( ! empty( $location->region ) && '-' != $location->region && ( empty( $location->city ) || $location->region != $location->city ) )
 			$human[] = $location->region;
-		if ( ! empty( $location->country_long ) )
+		if ( ! empty( $location->country_long ) && '-' != $location->country_long )
 			$human[] = $location->country_long;
 
 		if ( ! empty( $human ) ) {
