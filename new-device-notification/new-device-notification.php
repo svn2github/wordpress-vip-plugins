@@ -21,10 +21,15 @@ class New_Device_Notification {
 	}
 
 	public function init() {
-		global $current_user;
+		global $current_user, $blog_id;
 
-		// Only run this plugin for users that have access to this site
-		if ( ! current_user_can( 'edit_posts' ) )
+		get_currentuserinfo();
+
+		// Users to skip:
+		// * Super admins
+		// * Users who don't have wp-admin access
+		// * Anyone using 2-step auth enabled ( http://en.support.wordpress.com/text-messaging/ )
+		if ( is_super_admin() || ! current_user_can( 'edit_posts' ) || sms_user_has_two_step_auth( $current_user->ID, $blog_id ) )
 			return;
 
 		// IP whitelist
@@ -36,8 +41,6 @@ class New_Device_Notification {
 			$salt = wp_generate_password( 64, true, true );
 			add_option( 'newdevicenotification_salt', $salt );
 		}
-
-		get_currentuserinfo();
 
 		$this->cookie_hash = hash_hmac( 'md5', $current_user->user_login , $salt );
 
