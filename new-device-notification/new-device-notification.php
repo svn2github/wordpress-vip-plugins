@@ -23,6 +23,10 @@ class New_Device_Notification {
 	public function init() {
 		global $current_user;
 
+		// IP whitelist
+		if ( in_array( $_SERVER['REMOTE_ADDR'], array( '72.233.96.227' ) ) )
+			return;
+
 		get_currentuserinfo();
 
 		// Users to skip:
@@ -30,10 +34,6 @@ class New_Device_Notification {
 		// * Users who don't have wp-admin access
 		// * Anyone using 2-step auth enabled ( http://en.support.wordpress.com/text-messaging/ )
 		if ( is_super_admin() || ! current_user_can( 'edit_posts' ) || sms_user_has_two_step_auth( $current_user->ID ) )
-			return;
-
-		// IP whitelist
-		if ( in_array( $_SERVER['REMOTE_ADDR'], array( '72.233.96.227' ) ) )
 			return;
 
 		$salt = get_option( 'newdevicenotification_salt' );
