@@ -3,7 +3,7 @@
 Plugin Name: Zone Manager (Zoninator)
 Description: Curation made easy! Create "zones" then add and order your content!
 Author: Mohammad Jangda
-Version: 0.1
+Version: 0.2
 Author URI: http://digitalize.ca
 
 Copyright 2010-2011 Mohammad Jangda / Bangor Daily News
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 if( ! class_exists( 'Zoninator' ) ) :
 
-define( 'ZONINATOR_VERSION', '0.1' );
+define( 'ZONINATOR_VERSION', '0.2' );
 define( 'ZONINATOR_PATH', dirname( __FILE__ ) );
 define( 'ZONINATOR_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
 
@@ -86,7 +86,7 @@ class Zoninator
 		// Register taxonomy
 		if( ! taxonomy_exists( $this->zone_taxonomy ) ) {
 			register_taxonomy( $this->zone_taxonomy, $this->get_supported_post_types(), array(
-				'label' => 'Zones',
+				'label' => __( 'Zones', 'zoninator' ),
 				'hierarchical' => false,
 				'query_var' => false,
 				'rewrite' => false,
@@ -192,6 +192,7 @@ class Zoninator
 					} else {
 						if( ! $zone_id && isset( $result['term_id'] ) )
 							$zone_id = $result['term_id'];
+						
 						// Redirect with success message
 						$message = sprintf( '%s-success', $action );
 						wp_redirect( $this->_get_zone_page_url( array( 'action' => 'edit', 'zone_id' => $zone_id, 'message' => $message ) ) );
@@ -345,7 +346,6 @@ class Zoninator
 									<label for="zone-slug"><?php _e( 'Slug', 'zoninator' ); ?></label>
 									<span><?php echo esc_attr( $zone_slug ); ?></span>
 									<input type="hidden" id="zone-slug" name="slug" value="<?php echo esc_attr( $zone_slug ); ?>" />
-									
 								</div>
 								<?php endif; ?>
 								
@@ -815,6 +815,7 @@ class Zoninator
 			'order' => 'ASC',
 			'posts_per_page' => -1,
 			'showposts' => -1,
+			'post_type' => $this->get_supported_post_types(),
 		);
 		$args = wp_parse_args( $args, $defaults );
 		
@@ -1034,20 +1035,10 @@ class Zoninator
 	}
 	
 	function get_formatted_zone_slug( $slug ) {
-		return $slug; // wpcom - Global tags I think are messing things up. That, or my terrible code.
-		
-		if( strpos( $slug, $this->zone_term_prefix ) === 0 )
-			return $slug;
-		
-		return $this->zone_term_prefix . $slug;
+		return $slug; // legacy function -- slugs can no longer be changed
 	}
 	function get_unformatted_zone_slug( $slug ) {
-		return $slug; // wpcom - Global tags I think are messing things up. That, or my terrible code.
-		
-		if( strpos( $slug, $this->zone_term_prefix ) === false )
-			return $slug;
-		
-		return substr( $slug, strlen( $this->zone_term_prefix ) );
+		return $slug; // legacy function -- slugs can no longer be changed
 	}
 	
 	function get_post_id( $post ) {

@@ -174,7 +174,9 @@ var zoninator = {}
 		
 		zoninator.getPost(postId).fadeOut('slow', function() {
 			$(this).remove();
-			zoninator.updatePostOrder(true);
+			if ( zoninator.getZonePostIds().length )
+				zoninator.updatePostOrder(true);
+			zoninator.$zonePostsWrap.trigger('loading.end');
 		});
 	}
 
