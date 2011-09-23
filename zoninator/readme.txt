@@ -2,8 +2,8 @@
 Contributors: batmoo
 Tags: zones, post order, post list, posts, order, zonination, content curation, curation, content management
 Requires at least: 3.0
-Tested up to: 3.1
-Stable tag: 0.1
+Tested up to: 3.3
+Stable tag: 0.2
 
 Curation made easy! Create "zones" then add and order your content!
 
@@ -21,7 +21,6 @@ Key features included in the plugin:
 * Limit capabilities on who can add/edit/delete zones vs add content to zones
 * Locking mechanism, so only one user can edit a zone at a time (to avoid conflicts)
 * Idle control, so people can't keep the zoninator locked
-
 
 This plugin was built by [Mohammad Jangda](http://digitalize.ca) in conjunction with [William Davis](http://wpdavis.com/) and the [Bangor Daily News](http://www.bangordailynews.com/).
 
@@ -55,9 +54,19 @@ Filter the following and change according to your needs:
 
 == Changelog ==
 
+= 0.3 =
+
+* Disable editing and prefixing of slugs. They're just problems waiting to happen...
+
 = 0.2 = 
 
+* Move Zones to a top-level menu so that it's easier to access. And doesn't make much sense hidden under Dashboard.
+* Change the way error and success messages are handled.
+* jQuery 1.6.1 compatibility.
 * Bug fix: Custom Post Types not being included in search. Thanks Shawn!
+* Bug fix: Custom Post Types not being included in post list. Thanks Daniel!
+* Bug fix: Error thrown when removing last post in a zone. Thanks Daniel!
+* Other cleanup.
 
 = 0.1 =
 
@@ -65,7 +74,13 @@ Filter the following and change according to your needs:
 
 == Upgrade Notice ==
 
-Nothing to see here...
+= 0.3 =
+
+* Slugs can no longer be edited. This is possibly a breaking change if you're using slugs to get zones or zone posts.
+
+= 0.2 =
+
+* Bunch of bug fixes and code improvements
 
 == Usage Notes ==
 
