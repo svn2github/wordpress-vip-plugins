@@ -312,7 +312,7 @@ function amt_get_the_excerpt($excerpt_max_len = 300, $desc_avg_length = 250, $de
 		$amt_excerpt = $posts[0]->post_excerpt;
 	}
 
-	return $amt_excerpt;
+	return apply_filters( 'amt_get_the_excerpt', $amt_excerpt, $post[0] );
 }
 
 
@@ -573,6 +573,9 @@ function amt_add_meta_tags() {
 			$my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower($cur_cat_name) . "\" />";
 		}
 	}
+
+	// WP.com -- allow filtering of the meta tags
+	$my_metatags = apply_filters( 'amt_metatags', $my_metatags );
 
 	if ($my_metatags) {
 		echo "\n<!-- META Tags added by Add-Meta-Tags WordPress plugin. Get it at: http://www.g-loaded.eu/ -->" . $my_metatags . "\n" . amt_get_site_wide_metatags($site_wide_meta) . "\n\n";
