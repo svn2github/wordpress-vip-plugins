@@ -323,6 +323,13 @@ function wpcom_vip_cache_buster( $url, $mtime = null ) {
  * @author Thorsten Ott
  */
 function wpcom_vip_meta_desc() {
+	$text = wpcom_vip_get_meta_desc();
+	if ( !empty( $text ) ) {
+		echo "\n<meta name=\"description\" content=\"$text\" />\n";
+	}
+}
+
+function wpcom_vip_get_meta_desc() {
 	$default_settings = array(	
 		'length' => 25,              // amount of length units to use for the meta description
 		'length_unit' => 'word',     // the length unit can be either "word" or "char"
@@ -398,10 +405,8 @@ function wpcom_vip_meta_desc() {
 			$text = mb_strimwidth( $text, 0, $length, '...' );
 		}
 	}
-
-	if ( !empty( $text ) ) {
-		echo "\n<meta name=\"description\" content=\"$text\" />\n";
-	}
+	
+	return $text;
 }
 
 
