@@ -41,10 +41,9 @@ class New_Device_Notification {
 		// * Super admins
 		// * Users who don't have wp-admin access
 		// * Anyone using 2-step auth enabled ( http://en.support.wordpress.com/text-messaging/ )
-/*
-		if ( is_super_admin() || ! current_user_can( 'edit_posts' ) || sms_user_has_two_step_auth( $current_user->ID ) )
+		//if ( is_super_admin() || ! current_user_can( 'edit_posts' ) || sms_user_has_two_step_auth( $current_user->ID ) )
+		if ( ! current_user_can( 'edit_posts' ) )
 			return;
-*/
 
 		// Set up the per-blog salt
 		$salt = get_option( 'newdevicenotification_salt' );
@@ -107,10 +106,6 @@ class New_Device_Notification {
 		$blogname = html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 
 		send_vip_team_debug_message( "[NDN] New device detected for {$current_user->user_login} on " . parse_url( home_url(), PHP_URL_HOST ) . ': ' . $_SERVER['REMOTE_ADDR'] . " ({$location->human}) using " . $_SERVER['HTTP_USER_AGENT'] );
-
-		// TODO: Figure out why this happens. Super admin?
-		if ( empty( $current_user->user_login ) )
-			return;
 
 		// If we're still in the grace period, don't send an e-mail
 		$installed_time = get_option( 'newdevicenotification_installedtime' );
