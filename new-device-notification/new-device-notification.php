@@ -108,6 +108,10 @@ class New_Device_Notification {
 
 		send_vip_team_debug_message( "[NDN] New device detected for {$current_user->user_login} on " . parse_url( home_url(), PHP_URL_HOST ) . ': ' . $_SERVER['REMOTE_ADDR'] . " ({$location->human}) using " . $_SERVER['HTTP_USER_AGENT'] );
 
+		// TODO: Figure out why this happens. Super admin?
+		if ( empty( $current_user->user_login ) )
+			return;
+
 		// If we're still in the grace period, don't send an e-mail
 		$installed_time = get_option( 'newdevicenotification_installedtime' );
 /*
