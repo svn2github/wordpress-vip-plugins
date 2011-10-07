@@ -347,26 +347,6 @@ function wpcom_vip_crop_small_thumbnail() {
 }
 
 
-/**
- * Looks up the country by $ip address
- * 
- * @return string ISO 3166-1 alpha-2 country code: http://www.iso.org/iso/country_codes.htm
- * @return false if a country couldn't be found
- *
- * This Geo feature is being tested and is free for VIP right now. It may be a paid service in the future.
- */
-
-if ( ! function_exists( 'wpcom_vip_ip2country' ) ) {
-function wpcom_vip_ip2country( $ip = '' ) {
-	require_once dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/plugins/lang-guess/class-guess-lang.php';
-
-	if ( '' == $ip )
-		$ip = $_SERVER['REMOTE_ADDR'];
-
-	return ip2country_sql( addslashes( $ip ) );
-}
-}
-
 /*
  * Do not display the Polldaddy rating. Usually used for a page or post where ratings are not wanted.
  *
