@@ -356,6 +356,7 @@ function wpcom_vip_crop_small_thumbnail() {
  * This Geo feature is being tested and is free for VIP right now. It may be a paid service in the future.
  */
 
+if ( ! function_exists( 'wpcom_vip_ip2country' ) ) {
 function wpcom_vip_ip2country( $ip = '' ) {
 	require_once dirname( dirname( dirname( dirname( __FILE__ ) ) ) ) . '/plugins/lang-guess/class-guess-lang.php';
 
@@ -363,6 +364,7 @@ function wpcom_vip_ip2country( $ip = '' ) {
 		$ip = $_SERVER['REMOTE_ADDR'];
 
 	return ip2country_sql( addslashes( $ip ) );
+}
 }
 
 /*
