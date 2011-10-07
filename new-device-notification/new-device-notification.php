@@ -118,6 +118,8 @@ class New_Device_Notification {
 		$message = sprintf( apply_filters( 'ndn_message',
 'Hello,
 
+[JUST TESTING A SECURITY PLUGIN! YOU CAN IGNORE THIS! :)]
+
 This is an automated email to all site moderators to inform you that %1$s has logged into %2$s ( %3$s ) from a device that we don\'t recognize or that had last been used before %9$s when this monitoring was first enabled.
 
 While they are likely simply logging in from a new web browser or computer (in which case this email can be safely ignored), there is also a chance that their account has been compromised and someone else has logged into their account.
