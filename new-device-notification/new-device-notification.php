@@ -127,7 +127,7 @@ Here are some details about the login to help verify if it was legitimate:
 WP.com Username: %8$s
 IP Address: %4$s
 Hostname: %5$s
-Guessed Location: %6$s
+Guessed Location: %6$s  (likely completely wrong for mobile devices)
 Browser User Agent: %7$s
 
 If you believe that this log in was unauthorized, please immediately reply to this e-mail and our VIP team will work with you to remove this user\'s access.
