@@ -416,7 +416,7 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 	//elseif( is_callable( $via ) )
 		//$via_callback = $via;
 	else
-		$via_callback = create_function( '', sprintf( 'return %s;', sanitize_key( $via ) ) );
+		$via_callback = create_function( '', sprintf( 'return "%s";', sanitize_key( $via ) ) );
 	
 	add_filter( 'sharing_twitter_via', $via_callback );
 }
