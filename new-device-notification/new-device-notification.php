@@ -114,15 +114,15 @@ class New_Device_Notification {
 			return false;
 */
 
-		$subject = sprintf( apply_filters( 'ndn_subject', '[%1$s] %2$s has logged in from an unknown device' ), $blogname, $current_user->display_name );
+		$subject = sprintf( apply_filters( 'ndn_subject', '[%1$s] Automated security advisory: %2$s has logged in from an unknown device' ), $blogname, $current_user->display_name );
 		$message = sprintf( apply_filters( 'ndn_message',
 'Hello,
 
 [JUST TESTING A SECURITY PLUGIN! YOU CAN IGNORE THIS! :)]
 
-This is an automated email to all site moderators to inform you that %1$s has logged into %2$s ( %3$s ) from a device that we don\'t recognize or that had last been used before %9$s when this monitoring was first enabled.
+This is an automated email to all %2$s site moderators to inform you that %1$s has logged into %3$s from a device that we don\'t recognize or that had last been used before %9$s when this monitoring was first enabled.
 
-While they are likely simply logging in from a new web browser or computer (in which case this email can be safely ignored), there is also a chance that their account has been compromised and someone else has logged into their account.
+It\'s likely that %1$s simply logged in from a new web browser or computer (in which case this email can be safely ignored), but there is also a chance that their account has been compromised and someone else has logged into their account.
 
 Here are some details about the login to help verify if it was legitimate:
 
@@ -132,9 +132,9 @@ Hostname: %5$s
 Guessed Location: %6$s  (likely completely wrong for mobile devices)
 Browser User Agent: %7$s
 
-If you believe that this log in was unauthorized, please immediately reply to this e-mail and our VIP team will work with you to remove this user\'s access.
+If you believe that this log in was unauthorized, please immediately reply to this e-mail and our VIP team will work with you to remove  %1$s\'s access.
 
-You should also immediately have the user change their password:
+You should also advise %1$s to change their password immediately:
 
 http://support.wordpress.com/passwords/
 
