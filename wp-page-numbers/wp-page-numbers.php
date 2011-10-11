@@ -72,6 +72,7 @@ function wp_page_numbers_page_of_page($max_page, $paged, $page_of_page_text, $pa
 
 function wp_page_numbers_prevpage($paged, $max_page, $prevpage)
 {
+	$pagingString = '';
 	if( $max_page > 1 && $paged > 1 )
 		$pagingString = '<li><a href="'.get_pagenum_link($paged-1). '">'.$prevpage.'</a></li>';
 	return $pagingString;
