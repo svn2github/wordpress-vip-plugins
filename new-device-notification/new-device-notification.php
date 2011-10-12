@@ -24,8 +24,7 @@ class New_Device_Notification {
 		add_option( 'newdevicenotification_installedtime', time() );
 
 		// Wait until "admin_init" to do anything else
-		//add_action( 'admin_init', array( &$this, 'admin_init' ), 99 );
-		add_action( 'init', array( &$this, 'admin_init' ), 99 );
+		add_action( 'admin_init', array( &$this, 'admin_init' ), 99 );
 	}
 
 	public function admin_init() {
@@ -38,11 +37,10 @@ class New_Device_Notification {
 		get_currentuserinfo();
 
 		// Users to skip:
-		// * Super admins
-		// * Users who don't have wp-admin access
+		// * Super admins (Automattic employees visiting your site)
+		// * Users who don't have /wp-admin/ access
 		// * Anyone using 2-step auth enabled ( http://en.support.wordpress.com/text-messaging/ )
-		//if ( is_super_admin() || ! current_user_can( 'edit_posts' ) || sms_user_has_two_step_auth( $current_user->ID ) )
-		if ( ! current_user_can( 'edit_posts' ) )
+		if ( is_super_admin() || ! current_user_can( 'edit_posts' ) || sms_user_has_two_step_auth( $current_user->ID ) )
 			return;
 
 		// Set up the per-blog salt
@@ -109,10 +107,8 @@ class New_Device_Notification {
 
 		// If we're still in the grace period, don't send an e-mail
 		$installed_time = get_option( 'newdevicenotification_installedtime' );
-/*
 		if ( time() - $installed_time < $this->grace_period )
 			return false;
-*/
 
 		$subject = sprintf( apply_filters( 'ndn_subject', '[%1$s] Automated security advisory: %2$s has logged in from an unknown device' ), $blogname, $current_user->display_name );
 		$message = sprintf( apply_filters( 'ndn_message',
