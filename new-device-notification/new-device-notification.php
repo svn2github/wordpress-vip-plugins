@@ -103,11 +103,17 @@ class New_Device_Notification {
 		$location = $this->ip_to_city( $_SERVER['REMOTE_ADDR'] );
 		$blogname = html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES );
 
-		send_vip_team_debug_message( "[NDN] New device detected for {$current_user->user_login} on " . parse_url( home_url(), PHP_URL_HOST ) . ': ' . $_SERVER['REMOTE_ADDR'] . " ({$location->human}) using " . $_SERVER['HTTP_USER_AGENT'] );
-
 		// If we're still in the grace period, don't send an e-mail
 		$installed_time = get_option( 'newdevicenotification_installedtime' );
-		if ( time() - $installed_time < $this->grace_period )
+		$send_email  = ( time() - $installed_time < $this->grace_period ) ? false : true;
+
+		// Notify VIP of this
+		$debug_message  = '[NDN] [EMAIL ';
+		$debug_message .=  ( $send_email ) ? '' : 'NOT ';
+		$debug_message .= "SENT] New device detected for {$current_user->user_login} on " . parse_url( home_url(), PHP_URL_HOST ) . ': ' . $_SERVER['REMOTE_ADDR'] . " ({$location->human}) using " . $_SERVER['HTTP_USER_AGENT'];
+		send_vip_team_debug_message( $debug_message );
+
+		if ( ! $send_email )
 			return false;
 
 		$subject = sprintf( apply_filters( 'ndn_subject', '[%1$s] Automated security advisory: %2$s has logged in from an unknown device' ), $blogname, $current_user->display_name );
