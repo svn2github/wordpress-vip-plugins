@@ -24,6 +24,7 @@ function json_feed() {
 		$output[] = array
 		(
 			'id' => (int) get_the_ID(),
+			'type' => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
 			'permalink' => get_permalink(),
 			'title' => get_the_title(),
 			'content' => get_the_content(),
