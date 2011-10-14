@@ -34,6 +34,13 @@ class New_Device_Notification {
 		if ( in_array( $_SERVER['REMOTE_ADDR'], array( '72.233.96.227' ) ) )
 			return;
 
+		// User Agent whitelist
+		if ( in_array( $_SERVER['HTTP_USER_AGENT'], array(
+			'Shockwave Flash', // The uploader
+		) ) ) {
+			return;
+		}
+
 		get_currentuserinfo();
 
 		// Users to skip:
