@@ -114,6 +114,10 @@ add_action( 'do_feed_json', 'json_feed' );
 // WPCOM Mod  - rewrite rules 
 function json_feed_rewrite_rules( $rules ) {
 	global $default_rewrite_rules;
+	
+	if( empty( $rules ) )
+		$rules = $default_rewrite_rules;
+	
 	$add_rules = array ( 
 		'feed/(json)(/jsonp/([^/]+))?(/date_format/([^/]+))?(/remove_uncategorized/([^/]+))?/?$' 
 			=> 'index.php?&feed=$matches[1]&jsonp=$matches[3]&date_format=$matches[5]&remove_uncategorized=$matches[7]',
@@ -199,6 +203,6 @@ function json_feed_rewrite_rules( $rules ) {
 		'(.+?)/(json)(/jsonp/([^/]+))?(/date_format/([^/]+))?(/remove_uncategorized/([^/]+))?/?$' 
 			=> 'index.php?pagename=$matches[1]&feed=$matches[2]&jsonp=$matches[4]&date_format=$matches[6]&remove_uncategorized=$matches[8]',
 	);
-	return array_merge( $add_rules, (array) $default_rewrite_rules );
+	return array_merge( $add_rules, (array) $rules );
 }
 add_filter( 'pre_transient_rewrite_rules', 'json_feed_rewrite_rules' );
