@@ -115,8 +115,11 @@ add_action( 'do_feed_json', 'json_feed' );
 function json_feed_rewrite_rules( $rules ) {
 	global $default_rewrite_rules;
 	
-	if( empty( $rules ) )
+	if( empty( $rules ) ) {
+		if( empty( $default_rewrite_rules ) )
+			$default_rewrite_rules = array();
 		$rules = $default_rewrite_rules;
+	}
 	
 	$add_rules = array ( 
 		'feed/(json)(/jsonp/([^/]+))?(/date_format/([^/]+))?(/remove_uncategorized/([^/]+))?/?$' 
