@@ -245,7 +245,7 @@ class CheezCap {
 	}
 	
 	function admin_css() {
-		wp_enqueue_style( 'jquery-ui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.3/themes/base/jquery-ui.css', false, '1.7.3' );
+		wp_enqueue_style( 'jquery-ui', ( is_ssl() ? 'https' : 'http' ) . '://ajax.googleapis.com/ajax/libs/jqueryui/1.7.3/themes/base/jquery-ui.css', false, '1.7.3' );
 	}
 	
 	function admin_js_libs() {
