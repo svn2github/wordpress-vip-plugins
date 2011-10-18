@@ -9,7 +9,7 @@ Displays post and comment date and times in the visitor's timezone using Javascr
 
 == Description ==
 
-Displays post and comment date and times in the visitors's timezone using Javascript. No theme modifications are needed.
+Displays post and comment date and times in the visitor's timezone using Javascript. No theme modifications are needed.
 
 Heavily based on code from the [P2 theme](http://p2theme.com/) by [Automattic](http://automattic.com/).
 
@@ -22,6 +22,9 @@ Check out [one of my sites](http://www.finalgear.com/) to try it yourself. All o
 Visit Plugins &rarr; Add New in your administration area and search for the name of this plugin.
 
 == ChangeLog ==
+
+= Version 1.2.1 =
+* Fix bug affecting the post time functions. Whoops.
 
 = Version 1.2.0 =
 * Make use of HTML `data` attributes instead of nested and hidden `<span>`s to store the additional data.
@@ -52,6 +55,9 @@ Visit Plugins &rarr; Add New in your administration area and search for the name
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Fixes broken post times. Whoops.
 
 = 1.2.0 =
 Leaner, meaner, and faster.

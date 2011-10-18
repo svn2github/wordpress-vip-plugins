@@ -4,7 +4,7 @@
 
 Plugin Name:  Local Time
 Plugin URI:   http://www.viper007bond.com/wordpress-plugins/localtime/
-Version:      1.2.0
+Version:      1.2.1
 Description:  Displays post and comment date and times in the visitor's timezone using Javascript. Heavily based on code from the <a href="http://p2theme.com/">P2 theme</a> by <a href="http://automattic.com/">Automattic</a>.
 Author:       Alex Mills (Viper007Bond)
 Author URI:   http://www.viper007bond.com/
@@ -16,7 +16,7 @@ Domain Path:  /localization/
 
 class ViperLocalTime {
 
-	public $version = '1.2.0';
+	public $version = '1.2.1';
 
 	// Class init
 	function __construct() {
@@ -77,7 +77,7 @@ class ViperLocalTime {
 					$format = get_option( 'date_format' );
 					break;
 
-				case 'get_the_time':
+				case 'get_post_time':
 				case 'get_comment_time':
 					$format = get_option( 'time_format' );
 					break;
@@ -91,7 +91,7 @@ class ViperLocalTime {
 		remove_filter( current_filter(), array( &$this, 'add_html' ), 1, 2 );
 		switch ( current_filter() ) {
 			case 'get_the_date':
-			case 'get_the_time':
+			case 'get_post_time':
 				$gmttime = get_post_time( 'c', true );
 				break;
 
