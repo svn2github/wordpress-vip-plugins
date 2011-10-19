@@ -98,7 +98,8 @@ class CWS_WP_Help_Plugin {
 	}
 
 	public function admin_menu() {
-		$hook = add_dashboard_page( _x( 'Publishing Help', 'page title', 'wp-help' ), _x( 'Publishing Help', 'menu title', 'wp-help' ), 'publish_posts', 'wp-help-documents', array( $this, 'render_listing_page' ) );
+		$view_cap = apply_filters( 'wp_help_view_cap', 'publish_posts' ); // WP.com: allow filtering of cap used to display the menu
+		$hook = add_dashboard_page( _x( 'Publishing Help', 'page title', 'wp-help' ), _x( 'Publishing Help', 'menu title', 'wp-help' ), $view_cap, 'wp-help-documents', array( $this, 'render_listing_page' ) );
 		add_action( "load-{$hook}", array( $this, 'enqueue' ) );
 	}
 
