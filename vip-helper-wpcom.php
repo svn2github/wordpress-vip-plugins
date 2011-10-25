@@ -421,4 +421,17 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 	add_filter( 'sharing_twitter_via', $via_callback );
 }
 
-?>
+/**
+* Disables WPCOM Sharing in Posts and Pages
+* Sharing can be disalbed in the dashboard, by removing all buttons
+* from Enabled Services.
+* This function is primary for automating sharing when you have numerous
+* sites to administer.  It also assists having consistent CSS containers b/w 
+* development and production.
+* See also http://en.support.wordpress.com/sharing/
+* 
+*/
+function wpcom_vip_disable_sharing() {
+	remove_filter( 'the_content', 'sharing_display', 9 );
+	remove_filter( 'the_excerpt', 'sharing_display', 9 );
+}

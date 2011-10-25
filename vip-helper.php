@@ -235,7 +235,7 @@ function _vip_doubleclick_dartiframe_redirect() {
 	$dart_file = get_stylesheet_directory() . '/DARTIframe.html';
 	if ( strpos( $_SERVER[ 'REQUEST_URI' ], 'DARTIframe.html' ) !== false && file_exists( $dart_file ) ) {
 		header( 'Content-Type: text/html' );
-		echo include( $dart_file );
+		echo file_get_contents( $dart_file );
 		exit;
 	}
 }
@@ -642,13 +642,4 @@ function _disable_right_now_comment_count_filter( $data ) {
 		}
 	}
 	return false;
-}
-
-
-/**
- * Disables any of the sharing functionality from showing up
- */
-function wpcom_vip_disable_sharing() {
-	remove_filter( 'the_content', 'sharing_display', 9 );
-	remove_filter( 'the_excerpt', 'sharing_display', 9 );
 }
