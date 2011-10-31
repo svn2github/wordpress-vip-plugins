@@ -28,7 +28,7 @@
 <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 
 <script type="text/javascript" charset="utf-8">
-	var disqus_url = '<?php echo get_permalink(); ?> ';
+	var disqus_url = '<?php echo get_permalink(); ?>';
 	var disqus_identifier = '<?php echo dsq_identifier_for_post($post); ?>';
 	var disqus_container_id = 'disqus_thread';
 	var disqus_domain = '<?php echo DISQUS_DOMAIN; ?>';
