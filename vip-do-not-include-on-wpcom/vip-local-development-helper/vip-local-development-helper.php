@@ -165,14 +165,18 @@ function wpcom_vip_get_loaded_plugins() {
  */
 function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
 
-	$vip_dir = WP_CONTENT_DIR . '/themes/vip';
+	// Be gentle on Windows, borrowed from core, see plugin_basename
+	$content_dir = str_replace( '\\','/', WP_CONTENT_DIR ); // sanitize for Win32 installs
+	$content_dir = preg_replace( '|/+|','/', $content_dir ); // remove any duplicate slash
+
+	$vip_dir = $content_dir . '/themes/vip';
 	$vip_url = content_url( '/themes/vip' );
-	
+
 	if( 0 === strpos( $plugin, $vip_dir ) )
 		$url_override = str_replace( $vip_dir, $vip_url, dirname( $plugin ) );
 	elseif  ( 0 === strpos( $plugin, get_stylesheet_directory() ) )
 		$url_override = str_replace(get_stylesheet_directory(), get_stylesheet_directory_uri(), dirname( $plugin ) );
-	
+
 	if ( isset( $url_override ) )
 		$url = trailingslashit( $url_override ) . $path;
 
