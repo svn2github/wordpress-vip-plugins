@@ -394,7 +394,8 @@ function wpcom_vip_remove_mediacontent_from_rss2_feed() {
  * Disable post-post screen
  */
 function wpcom_vip_disable_postpost() {
-	remove_filter( 'redirect_post_location', 'wpcom_maybe_post_post' );
+	remove_filter( 'redirect_post_location', 'wpcom_maybe_post_post' ); // v1
+	add_filter( 'post_post_disable', '__return_true' ); // v2
 }
 
 /**
