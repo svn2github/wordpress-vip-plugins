@@ -961,7 +961,13 @@ class bcn_admin extends mtekk_admin
 	}
 }
 //Let's make an instance of our object takes care of everything
-$bcn_admin = new bcn_admin;
+# WPCOM: Wait until "init" instead of doing it now
+add_action( 'init', 'bcn_init', 1 );
+function bcn_init() {
+	global $bcn_admin;
+	$bcn_admin = new bcn_admin;
+}
+
 /**
  * A wrapper for the internal function in the class
  * 
