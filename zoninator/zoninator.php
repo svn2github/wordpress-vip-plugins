@@ -1180,15 +1180,15 @@ class Zoninator
 	}
 	
 	function _get_add_zones_cap() {
-		return apply_filters( 'zoninator_add_zone_cap', 'manage_options' );
+		return apply_filters( 'zoninator_add_zone_cap', 'edit_others_posts' );
 	}
 	
 	function _get_edit_zones_cap() {
-		return apply_filters( 'zoninator_edit_zone_cap', 'manage_options' );
+		return apply_filters( 'zoninator_edit_zone_cap', 'edit_others_postss' );
 	}
 	
 	function _get_manage_zones_cap() {
-		return apply_filters( 'zoninator_manage_zone_cap', 'edit_published_posts' );
+		return apply_filters( 'zoninator_manage_zone_cap', 'edit_others_posts' );
 	}
 	
 	function _get_zone_page_url( $args = array() ) {
