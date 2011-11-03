@@ -1184,7 +1184,7 @@ class Zoninator
 	}
 	
 	function _get_edit_zones_cap() {
-		return apply_filters( 'zoninator_edit_zone_cap', 'edit_others_postss' );
+		return apply_filters( 'zoninator_edit_zone_cap', 'edit_others_posts' );
 	}
 	
 	function _get_manage_zones_cap() {
