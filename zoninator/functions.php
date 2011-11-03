@@ -34,6 +34,14 @@ function z_get_posts_in_zone( $zone, $args = array() ) {
 
 /**
  * @param $zone int|string ID or Slug of the zone
+ * @return array List of orders post objects
+ */
+function z_get_zone_query( $zone ) {
+	return z_get_zoninator()->get_zone_query( $zone );
+}
+
+/**
+ * @param $zone int|string ID or Slug of the zone
  * @param $post_id int ID of the post (or, null if in The Loop)
  * @return array|false Returns next post relative to post_id for the given zone
  */

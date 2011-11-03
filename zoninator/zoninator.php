@@ -809,6 +809,16 @@ class Zoninator
 		if( $posts = $this->get_zone_posts_from_cache( $zone, $args ) )
 			return $posts;
 		
+		$query = $this->get_zone_query( $zone, $args );
+		$posts = $query->get_posts();
+		
+		// Add posts to cache
+		$this->add_zone_posts_to_cache( $posts, $zone, $args );
+		
+		return $posts;
+	}
+	
+	function get_zone_query( $zone, $args = array() ) {
 		$meta_key = $this->get_zone_meta_key( $zone );
 		
 		$defaults = array(
@@ -835,12 +845,7 @@ class Zoninator
 			$args['meta_key'] = $meta_key;
 		}
 		*/
-		$posts = get_posts( $args );
-		
-		// Add posts to cache
-		$this->add_zone_posts_to_cache( $posts, $zone, $args );
-		
-		return $posts;
+		return new WP_Query( $args );
 	}
 	
 	function get_last_post_in_zone( $zone ) {

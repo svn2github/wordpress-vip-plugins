@@ -56,6 +56,7 @@ Filter the following and change according to your needs:
 
 = 0.3 =
 
+* Introduce z_get_zone_query: returns a WP_Query object so you can run the loop like usual.
 * Disable editing and prefixing of slugs. They're just problems waiting to happen...
 
 = 0.2 = 
