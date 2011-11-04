@@ -824,8 +824,8 @@ class Zoninator
 		$defaults = array(
 			'order' => 'ASC',
 			'posts_per_page' => -1,
-			'showposts' => -1,
 			'post_type' => $this->get_supported_post_types(),
+			'ignore_sticky_posts' => '1', // don't want sticky posts messing up our order
 		);
 		$args = wp_parse_args( $args, $defaults );
 		
