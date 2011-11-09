@@ -436,3 +436,58 @@ function wpcom_vip_disable_sharing() {
 	remove_filter( 'the_content', 'sharing_display', 9 );
 	remove_filter( 'the_excerpt', 'sharing_display', 9 );
 }
+
+/**
+ * Reads a postmeta value directly from the master database.
+ * This is not intended for front-end usage. This purpose of this function is to avoid
+ * race conditions that could appear while the caches are primed.
+ * A good scenario where this could be used is to ensure published posts are not syndicated multiple times by checking a postmeta flag that is set on syndication
+ * 
+ * Note: this looks complicated, but the intention was to use API functions rather than direct DB queries for upward compatibility.
+ */
+function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
+	global $wpdb;
+	
+	// make sure to bypass caching for all get requests
+	if ( class_exists( 'WP_Object_Cache' ) ) {
+		global $wp_object_cache;
+		$old_object_cache = $wp_object_cache;
+		if ( !class_exists( 'Fake_WP_Object_Cache' ) ) {
+			class Fake_WP_Object_Cache extends WP_Object_Cache {
+				function get($id, $group = 'default') {
+					return false;
+				}
+			}
+		}
+		$wp_object_cache = new Fake_WP_Object_Cache();
+	}
+	
+	// send all reads to master
+	$srtm_backup = $changed_srtm = false;
+	if ( true <> $wpdb->srtm ) {
+		$changed_srtm = true;
+		$srtm_backup = $wpdb->srtm;
+		$wpdb->send_reads_to_masters();
+	}
+	// update the meta cache
+	update_meta_cache( 'post', array( $post_id ) );
+	
+	// get the postmeta data
+	$result = get_post_meta( $post_id, $key, $single );
+	
+	// put correct object cache back
+	$wp_object_cache = $old_object_cache;
+	
+	// send reads back to where they belong to
+	if ( true === $changed_srtm )
+		$wpdb->srtm = $srtm_backup;
+	
+	// check the default method
+	$result_chk = get_post_meta( $post_id, $key, $single );
+	// delete the meta cache if results differ to make sure subsequent get_post_meta() calls will refresh from db
+	if ( $result_chk <> $result ) {
+		wp_cache_delete( $post_id, 'post_meta' );
+	}
+	
+	return $result;
+}
