@@ -332,7 +332,7 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 		$table = 'views';
 
 	if ( ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date ) )
-		$end_date = $GLOBAL['today'];
+		$end_date = $GLOBALS['today'];
 
 	if ( $limit > 100 )
 		$limit = 100;
