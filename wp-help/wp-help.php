@@ -66,7 +66,8 @@ class CWS_WP_Help_Plugin {
 					'not_found' => __( 'No Help Documents Found', 'wp-help' ),
 					'not_found_in_trash' => __( 'No Help Documents found in Trash', 'wp-help' ),
 					'parent' => __( 'Parent Help Document', 'wp-help' )
-				)
+				),
+				'rewrite' => false, // WP.com: disable rewrites
 			)
 		);
 	}
