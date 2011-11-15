@@ -21,6 +21,10 @@ class CWS_WP_Help_Plugin {
 		// Translations
 		load_plugin_textdomain( 'wp-help', false, basename( dirname( __FILE__ ) ) . '/i18n' );
 
+		// WP.com: allow filtering of permissions
+		$this->view_cap = apply_filters( 'wp_help_view_cap', 'publish_posts' );
+		$this->publish_cap = apply_filters( 'wp_help_publish_cap', 'manage_options' );
+
 		// Actions and filters
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'do_meta_boxes', array( $this, 'do_meta_boxes' ), 20, 2 );
@@ -39,14 +43,14 @@ class CWS_WP_Help_Plugin {
 				'hierarchical' => true,
 				'supports' => array( 'title', 'editor', 'revisions', 'page-attributes' ),
 				'capabilities' => array(
-					'publish_posts' => 'manage_options',
-					'edit_posts' => 'manage_options',
-					'edit_others_posts' => 'manage_options',
-					'delete_posts' => 'manage_options',
-					'read_private_posts' => 'manage_options',
-					'edit_post' => 'manage_options',
-					'delete_post' => 'manage_options',
-					'read_post' => 'read'
+					'publish_posts' => $this->publish_cap,
+					'edit_posts' => $this->publish_cap,
+					'edit_others_posts' => $this->publish_cap,
+					'delete_posts' => $this->publish_cap,
+					'read_private_posts' => $this->publish_cap,
+					'edit_post' => $this->publish_cap,
+					'delete_post' => $this->publish_cap,
+					'read_post' => $this->view_cap
 				),
 				'labels' => array (
 					'name' => __( 'Help Documents', 'wp-help' ),
@@ -98,8 +102,7 @@ class CWS_WP_Help_Plugin {
 	}
 
 	public function admin_menu() {
-		$view_cap = apply_filters( 'wp_help_view_cap', 'publish_posts' ); // WP.com: allow filtering of cap used to display the menu
-		$hook = add_dashboard_page( _x( 'Publishing Help', 'page title', 'wp-help' ), _x( 'Publishing Help', 'menu title', 'wp-help' ), $view_cap, 'wp-help-documents', array( $this, 'render_listing_page' ) );
+		$hook = add_dashboard_page( _x( 'Publishing Help', 'page title', 'wp-help' ), _x( 'Publishing Help', 'menu title', 'wp-help' ), $this->view_cap, 'wp-help-documents', array( $this, 'render_listing_page' ) );
 		add_action( "load-{$hook}", array( $this, 'enqueue' ) );
 	}
 
@@ -178,7 +181,7 @@ class CWS_WP_Help_Plugin {
 <?php $pages = $this->get_help_topics_html(); ?>
 <?php if ( trim( $pages ) ) : ?>
 <div id="cws-wp-help-listing">
-<h3><?php _e( 'Help Topics', 'wp-help' ); ?><?php if ( current_user_can( 'publish_pages' ) ) : ?><span><a href="<?php echo admin_url( 'edit.php?post_type=wp-help' ); ?>"><?php _ex( 'Manage', 'verb. Button with limited space', 'wp-help' ); ?></a></span><?php endif; ?></h3>
+<h3><?php _e( 'Help Topics', 'wp-help' ); ?><?php if ( current_user_can( $this->publish_cap ) ) : ?><span><a href="<?php echo admin_url( 'edit.php?post_type=wp-help' ); ?>"><?php _ex( 'Manage', 'verb. Button with limited space', 'wp-help' ); ?></a></span><?php endif; ?></h3>
 <ul>
 <?php echo $pages; ?>
 </ul>
@@ -195,7 +198,7 @@ class CWS_WP_Help_Plugin {
 <?php endif; ?>
 </div>
 <?php else : ?>
-	<?php if ( current_user_can( 'manage_options' ) ) : ?>
+	<?php if ( current_user_can( $this->publish_cap ) ) : ?>
 		<p><?php printf( __( 'No published help documents found. <a href="%s">Manage Help Documents</a>.', 'wp-help' ), admin_url( 'edit.php?post_type=wp-help' ) ); ?></p>
 	<?php else : ?>
 		<p><?php _e( 'No help documents found. Contact the site administrator.', 'wp-help' ); ?></p>
