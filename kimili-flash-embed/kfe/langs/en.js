@@ -1,4 +1,4 @@
 // English lang variables  
-tinyMCE.addToLang('', {  
+tinyMCE.addI18n('', {  
 	kfe_desc : "Insert a Kimili Flash Embed Tag." 
 });
