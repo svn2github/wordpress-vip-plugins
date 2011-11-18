@@ -570,10 +570,10 @@ if ( !class_exists( "Easy_CF" ) ) {
 				}
 
 				$this->_field_data[$group_id] = array(
-														'title' => $group_data['title'],
-														'class' => $group_data['class'],
-														'fields' => $_fields,
-														'pages' => $group_data['pages'],
+					'title'  => ( ! empty( $group_data['title'] ) ) ? $group_data['title'] : null,
+					'class'  => ( ! empty( $group_data['class'] ) ) ? $group_data['title'] : null,
+					'fields' => $_fields,
+					'pages'  => ( ! empty( $group_data['pages'] ) ) ? $group_data['pages'] : null,
 				);
 			}
 
