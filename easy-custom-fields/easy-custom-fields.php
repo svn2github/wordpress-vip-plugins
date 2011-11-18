@@ -562,8 +562,11 @@ if ( !class_exists( "Easy_CF" ) ) {
 						$this->add_admin_notice( sprintf( __( "Field validator %s for group %s contains invalid chars use only [a-zA-Z0-9_-]" ), $field['validate'], $group_id ) );
 						continue;
 					}
-					
-					$_fields[$field_id] = array( 'id' => $field_id, 'label' => $field['label'], 'hint' => $field['hint'], 'class' => $field['class'], 'type' => $field['type'], 'validate' => $field['validate'], 'error_msg' => $field['error_msg'], 'input_class' => $field['input_class'] );
+
+					$_fields[$field_id] = array( 'id' => $field_id );
+					foreach ( array( 'label', 'hint', 'class', 'type', 'validate', 'error_msg', 'input_class' ) as $key ) {
+						$_fields[$field_id][$key] = ( ! empty( $field[$key] ) ) ? $field[$key] : null;
+					}
 				}
 
 				$this->_field_data[$group_id] = array(
