@@ -53,7 +53,7 @@ function taxonomy_image_plugin_url( $file = '' ) {
 	static $path = '';
 	if ( empty( $path ) ) {
 		// altered from using plugin_dir_url() for VIP style plugin dir
-		$path = get_stylesheet_directory_uri() . '/plugins/' . trailingslashit( basename( dirname( __FILE__ ) ) );
+		$path = plugins_url( '', __FILE__ );
 	}
 	return $path . $file;
 }
