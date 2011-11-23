@@ -438,6 +438,16 @@ function wpcom_vip_disable_sharing() {
 }
 
 /**
+ * Disables the OnSwipe theme for mobile browsers.
+ * OnSwipe can also be disabled from the WordPress admin. This can function
+ * automate disabling OnSwipe on a theme by theme basis, and will override the value
+ * in the WordPress admin.
+ */
+ function wpcom_vip_disable_onswipe() {
+ 	add_filter( 'onswipe_is_disabled', '__return_true' );
+ }
+
+/**
  * Reads a postmeta value directly from the master database.
  * This is not intended for front-end usage. This purpose of this function is to avoid
  * race conditions that could appear while the caches are primed.
