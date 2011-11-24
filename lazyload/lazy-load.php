@@ -21,7 +21,7 @@ class LazyLoad_Images {
 	}
 
 	function add_scripts() {
-		wp_enqueue_script( 'wpcom-lazy-load-images',  $this->get_url( 'js/lazyload.js' ), array( 'jquery', 'jquery-sonar' ), self::version, true );
+		wp_enqueue_script( 'wpcom-lazy-load-images',  $this->get_url( 'js/lazy-load.js' ), array( 'jquery', 'jquery-sonar' ), self::version, true );
 		wp_enqueue_script( 'jquery-sonar', $this->get_url( 'js/jquery.sonar.min.js' ), array( 'jquery' ), self::version, true );
 	}
 
