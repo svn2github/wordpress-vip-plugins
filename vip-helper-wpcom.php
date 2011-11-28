@@ -447,6 +447,16 @@ function wpcom_vip_disable_sharing() {
  	add_filter( 'onswipe_is_disabled', '__return_true' );
  }
 
+ /**
+  * Whether or not the OnSwipe/PadPressed theme is active for a site
+  * Active means the OnSwipe theme is loaded on the current pageview
+  */
+function wpcom_vip_is_onswipe_active() {
+	if ( defined( 'PADPRESS_IS_ACTIVE' ) && true === PADPRESS_IS_ACTIVE )
+		return true;
+	return false;
+}
+
 /**
  * Reads a postmeta value directly from the master database.
  * This is not intended for front-end usage. This purpose of this function is to avoid
