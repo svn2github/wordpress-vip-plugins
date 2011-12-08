@@ -19,7 +19,7 @@
 /*
 Plugin Name: ShareThis Classic
 Plugin URI: http://alexking.org/projects/share-this
-Description: Let your visitors share a post/page with others. Supports e-mail and posting to social bookmarking sites. <a href="options-general.php?page=share-this.php">Configuration options are here</a>. Questions on configuration, etc.? Make sure to read the README.
+Description: Let your visitors share a post/page with others. Supports e-mail and posting to social bookmarking sites. Questions on configuration, etc.? Make sure to read the README.
 Version: 1.5.2-WPCOM 
 Author: ShareThis, Crowd Favorite (crowdfavorite.com) - modified by Automattic
 Author URI: http://sharethis.com
