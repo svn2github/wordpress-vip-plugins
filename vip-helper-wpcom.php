@@ -511,3 +511,57 @@ function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
 	
 	return $result;
 }
+
+/**
+ * Queries posts by a postmeta key/value pair directly from the master database.
+ * This is not intended for front-end usage. This purpose of this function is to avoid
+ * race conditions that could appear while the caches are primed.
+ * A good scenario where this could be used is to ensure published posts are not syndicated multiple times by checking if a post with a certain meta value already exists.
+ * @param string $meta_key postmeta key to query
+ * @param string $meta_value postmeta value to check for
+ * @param string $post_type post_type of the post to query
+ * @param array $post_stati array of the post_stati that are supposed to be included
+ * @param integer $limit amount of possible posts to receive. not more than 10
+ * @return mixed Array with post objects or WP_Error
+ */
+function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = 'post', $post_stati = array( 'publish', 'draft', 'pending', 'private' ), $limit = 1 ) {
+	global $wpdb;
+	
+	if ( empty( $meta_key ) || empty( $meta_value ) || empty( $post_stati ) || !is_array( $post_stati ) || !post_type_exists( $post_type ) )
+		return new WP_Error( 'invalid_arguments', __( "At least one of the arguments of wpcom_uncached_get_post_by_meta is invalid" ) );
+		
+	if ( empty( $limit ) || $limit <= 0 || $limit > 10 )
+		return new WP_Error( 'invalid_arguments', __( "Please use a limit between 1 and 10" ) );
+	
+	$post_status_string = '';
+	$_post_status_string = array();
+	
+	foreach( $post_stati as $post_status )
+		$_post_status_string[] = sprintf( "'%s'", esc_sql( $post_status ) );
+	$post_status_string = implode( ", ", $_post_status_string );
+	
+	// send all reads to master
+	$srtm_backup = $changed_srtm = false;
+	if ( true <> $wpdb->srtm ) {
+		$changed_srtm = true;
+		$srtm_backup = $wpdb->srtm;
+		$wpdb->send_reads_to_masters();
+	}
+	
+	// query all posts matching the post_type and meta key/value pair
+	$query = $wpdb->prepare( 
+					"SELECT $wpdb->posts.*  FROM $wpdb->posts, $wpdb->postmeta 
+					WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id 
+					AND $wpdb->postmeta.meta_key = %s 
+					AND $wpdb->postmeta.meta_value = %s
+					AND $wpdb->posts.post_type = %s AND $wpdb->posts.post_status IN ( " . $post_status_string . " ) LIMIT 0, %d", esc_sql( $meta_key ), esc_sql( $meta_value ), esc_sql( $post_type ), (int) $limit
+	);
+	
+	$posts = $wpdb->get_results( $query, OBJECT );
+
+	// send reads back to where they belong to
+	if ( true === $changed_srtm )
+		$wpdb->srtm = $srtm_backup;
+		
+	return $posts;
+}
