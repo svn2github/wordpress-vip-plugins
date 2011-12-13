@@ -52,8 +52,7 @@ function taxonomy_image_plugin_version() {
 function taxonomy_image_plugin_url( $file = '' ) {
 	static $path = '';
 	if ( empty( $path ) ) {
-		// altered from using plugin_dir_url() for VIP style plugin dir
-		$path = plugins_url( '', __FILE__ );
+		$path = plugin_dir_url( __FILE__ );
 	}
 	return $path . $file;
 }
