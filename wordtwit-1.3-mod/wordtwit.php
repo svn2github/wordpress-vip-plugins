@@ -549,7 +549,7 @@ function wordtwit_options_subpanel() {
 function wordtwit_add_plugin_option() {
 	global $twit_plugin_name;
 	if (function_exists('add_options_page')) {
-		add_options_page($twit_plugin_name, $twit_plugin_name, 0, basename(__FILE__), 'wordtwit_options_subpanel');
+		add_options_page($twit_plugin_name, $twit_plugin_name, 'manage_options', basename(__FILE__), 'wordtwit_options_subpanel');
    }	
 }
 
