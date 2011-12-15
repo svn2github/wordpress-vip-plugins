@@ -29,6 +29,48 @@ function vip_redirects( $vip_redirects_array = array() ) {
 	}
 }
 
+/**
+ * Advanced 301 redirects using regex to match and redirect URLs.
+ *
+ * Warning: Since regex is expensive and this will be run on every uncached pageload, you'll want to keep this small, lean, and mean.
+ *
+ * Some examples:
+ *
+ * Redirecting from /2011/12/dont-miss-it-make-live-holiday-giveaway.html (extra .html at the end)
+ * '|/([0-9]{4})/([0-9]{2})/([0-9]{2})/([^/]+)\.html|' => '|/$1/$2/$3/$4/|'
+ *
+ * Redirecting from /archive/2011/12/dont-miss-it-make-live-holiday-giveaway
+ * '|/archive/([0-9]{4})/([0-9]{2})/([^/]+)/?|' => '|/$3/|' // since we don't have the day, we should just send to /%postname% then WordPress can redirect from there
+ *
+ * Redirecting from /tax-tips/how-to-get-a-tax-break-for-summer-child-care/04152011-6163 (/%category%/%postname%/%month%%day%%year%-%post_id%)
+ * '|/([^/]+)\/([^/]+)/([0-9]{1,2})([0-9]{1,2})([0-9]{4})-([0-9]{1,})/?|' => '|/$5/$3/$4/$2/|'
+ *
+ * @param array Elements should be in the form of: '/old/permalink/regex' => '/new/permalink/regex'
+ * @param bool Whether the querystring should be included in the check
+ *
+ */
+function vip_regex_redirects( $vip_redirects_array = array(), $with_querystring = false ) {
+
+	if ( empty( $vip_redirects_array ) )
+		return;
+
+	$uri = $_SERVER['REQUEST_URI'];
+
+	if ( ! $with_querystring )
+		$uri = parse_url( $uri, PHP_URL_PATH );
+
+	if( $uri && '/' != $uri ) { // don't process for homepage
+		
+		foreach ( $vip_redirects_array as $old_url => $new_url ) {
+			if ( preg_match( $old_url, $uri, $matches ) ) {
+				$redirect_uri = preg_replace( $old_url, $new_url, $uri );
+				wp_redirect( $redirect_uri, 301 );
+				exit;
+			}
+		}
+	}
+}
+
 /*
  * Fetch a remote URL and cache the result for a certain period of time
  * See http://lobby.vip.wordpress.com/best-practices/fetching-remote-data/ for more details
