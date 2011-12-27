@@ -86,7 +86,7 @@
 			  ));
 		?>
 	 	<fieldset>
-			<script src="http://www.ooyala.com/partner/uploadButton?width=100&amp;height=20&amp;label=<?php echo ( urlencode( esc_attr__('Select File', 'ooyalavideo') ) );?>"></script>
+			<script src="//www.ooyala.com/partner/uploadButton?width=100&amp;height=20&amp;label=<?php echo ( urlencode( esc_attr__('Select File', 'ooyalavideo') ) );?>"></script>
 			<script>
 			var ooyalaParams = '<?php echo $param_string ?>';
 			 function onOoyalaUploaderReady( )  { 
