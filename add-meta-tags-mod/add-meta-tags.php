@@ -312,7 +312,7 @@ function amt_get_the_excerpt($excerpt_max_len = 300, $desc_avg_length = 250, $de
 		$amt_excerpt = $posts[0]->post_excerpt;
 	}
 
-	return apply_filters( 'amt_get_the_excerpt', $amt_excerpt, $post[0] );
+	return apply_filters( 'amt_get_the_excerpt', $amt_excerpt, $posts[0] );
 }
 
 
