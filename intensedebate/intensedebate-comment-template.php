@@ -5,25 +5,15 @@
 
 if ( 0 == get_option( 'id_revertMobile' ) && id_is_mobile() ) :
 	// Display the comments template from the active theme
-	include( get_option( 'id_comment_template_file' ) );
+	id_get_original_comment_template();
 else :
-	global $id_cur_post;
-	$id_cur_post = $post;
-	$bits = parse_url( WP_CONTENT_URL );
-	$xd_base = $bits['path'] . '/themes/vip/plugins';
-	id_auto_login();
 ?>
 	<div id='idc-container'></div>
 	<div id="idc-noscript">
-		<?php
-		// Include your theme's comemnt template
-		if ( is_readable( get_option( "id_comment_template_file" ) ) )
-			include( get_option( "id_comment_template_file" ) );
-		?>
+		<?php id_get_original_comment_template(); ?>
 	</div>
 	<script type="text/javascript">
 	/* <![CDATA[ */
-	var idc_xd_receiver = '<?php echo $xd_base; ?>/intensedebate/xd_receiver.htm';
 	function IDC_revert() { document.getElementById('idc-loading-comments').style.display='none'; if ( !document.getElementById('IDCommentsHead') ) { document.getElementById('idc-noscript').style.display='block'; document.getElementById('idc-comment-wrap-js').parentNode.removeChild(document.getElementById('idc-comment-wrap-js')); } else { document.getElementById('idc-noscript').style.display='none'; } }
 	idc_ns = document.getElementById('idc-noscript');
 	idc_ns.style.display='none'; idc_ld = document.createElement('div');
@@ -35,8 +25,6 @@ else :
 	</script>
 <?php
 // Queue up the comment UI to load now that everything else is in place
-id_postload_js( ID_BASEURL . '/js/wordpressTemplateCommentWrapper2.php?acct=' . get_option( 'id_blogAcct' ) . '&postid=' . $id . '&title=' . urlencode( $post->post_title ) . '&url=' . urlencode( get_permalink( $id ) ) . '&posttime=' . urlencode( $post->post_date_gmt ) . '&postauthor=' . urlencode( get_author_name( $post->post_author ) ) . '&guid=' . urlencode( $post->guid ), 'idc-comment-wrap-js' );
+id_postload_js( ID_BASEURL . '/js/wordpressTemplateCommentWrapper2.php?acct=' . get_option( 'id_blogAcct' ) . '&postid=' . $post->ID . '&title=' . urlencode( $post->post_title ) . '&url=' . urlencode( get_permalink( $post->ID ) ) . '&posttime=' . urlencode( $post->post_date_gmt ) . '&postauthor=' . urlencode( get_the_author_meta( 'display_name' ) ) . '&guid=' . urlencode( $post->guid ), 'idc-comment-wrap-js' );
 
 endif; // revertMobile
-
-?>
