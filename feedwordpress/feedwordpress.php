@@ -45,8 +45,8 @@ License: GPL
  * - changed clear_cache() method to use WP methods, instead of direct sql to clear the options/transients
  * - SO MANY OTHER THINGS (3 days worth of changes) can't write them all.
  */
-define('A16Z_PLUGIN_URL', trailingslashit(get_template_directory_uri()).'functions/feedwordpress/');
-define('A16Z_PLUGIN_DIR', trailingslashit(get_template_directory()).'functions/feedwordpress/');
+define('A16Z_PLUGIN_URL', WP_CONTENT_URL . '/themes/vip/plugins/feedwordpress/');
+define('A16Z_PLUGIN_DIR', WP_CONTENT_DIR . '/themes/vip/plugins/feedwordpress/');
 
 
 
