@@ -4,7 +4,7 @@ Donate link: http://digitalize.ca/donate
 Tags: authors, users, multiple authors, coauthors, multi-author, publishing
 Tested up to: 3.3
 Requires at least: 3.1
-Stable tag: 2.6
+Stable tag: 2.6.1
 
 Allows multiple authors to be assigned to any post type via a search-as-you-type input box
 
@@ -19,6 +19,10 @@ The extended version incorporates search-as-you-type functionality for adding us
 > *See "Other Notes" section for Template Tags and usage information*
 
 == Changelog ==
+
+= 2011-12-30 / 2.6.1 =
+
+* Fix mangled usernames because of sanitize_key http://wordpress.org/support/topic/plugin-co-authors-plus-26-not-working-with-wp-33
 
 = 2011-12-22 / 2.6 =
 

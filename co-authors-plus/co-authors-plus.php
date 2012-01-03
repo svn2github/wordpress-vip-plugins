@@ -3,10 +3,9 @@
 Plugin Name: Co-Authors Plus
 Plugin URI: http://wordpress.org/extend/plugins/co-authors-plus/
 Description: Allows multiple authors to be assigned to a post. This plugin is an extended version of the Co-Authors plugin developed by Weston Ruter.
-Version: 2.6
+Version: 2.6.1
 Author: Mohammad Jangda, Daniel Bachhuber
-Author URI: http://digitalize.ca
-Copyright: Some parts (C) 2009-2011, Mohammad Jangda; Other parts (C) 2008, Weston Ruter
+Copyright: 2008-2011 Shared and distributed between Mohammad Jangda, Daniel Bachhuber, Weston Ruter
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
 This program is free software; you can redistribute it and/or modify
@@ -25,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'COAUTHORS_PLUS_VERSION', '2.6' );
+define( 'COAUTHORS_PLUS_VERSION', '2.6.1' );
 
 if( ! defined( 'COAUTHORS_PLUS_DEBUG' ) )
 	define( 'COAUTHORS_PLUS_DEBUG', false );
@@ -468,7 +467,7 @@ class coauthors_plus {
 		// @todo this should check the nonce before changing the value
 		
 		if( isset( $_REQUEST['coauthors-nonce'] ) && isset( $_POST['coauthors'] ) && is_array( $_POST['coauthors'] ) ) {
-			$author = sanitize_key( $_POST['coauthors'][0] );
+			$author = sanitize_user( $_POST['coauthors'][0] );
 			if( $author ) {
 				$author_data = get_user_by( 'login', $author );
 				$data['post_author'] = $author_data->ID;
@@ -500,7 +499,7 @@ class coauthors_plus {
 			
 			if( $this->current_user_can_set_authors() ){
 				$coauthors = (array) $_POST['coauthors'];
-				$coauthors = array_map( 'sanitize_key', $coauthors );
+				$coauthors = array_map( 'sanitize_user', $coauthors );
 				return $this->add_coauthors( $post_id, $coauthors );
 			}
 		}
