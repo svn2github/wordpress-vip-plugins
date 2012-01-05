@@ -1,0 +1,189 @@
+=== Edit Flow ===
+Contributors: batmoo, danielbachhuber, sbressler, automattic
+Donate link: http://editflow.org/contribute/
+Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
+Requires at least: 3.1
+Tested up to: 3.3.1
+Stable tag: 0.6.5
+
+Redefining your editorial workflow.
+
+== Description ==
+
+Edit Flow empowers you to collaborate with your editorial team inside WordPress. We've made it modular so you can customize it to your needs:
+
+* [Custom Statuses](http://editflow.org/features/custom-statuses/) - Define the important stages of your workflow.
+* [Editorial Comments](http://editflow.org/features/editorial-comments/) - Threaded commenting in the admin for private discussion between writers and editors.
+* [Notifications](http://editflow.org/features/notifications/) - Receive timely updates on the content you're following.
+* [User Groups](http://editflow.org/features/user-groups/) - For publishers with many users working in the admin, user groups help you keep them organized.
+* [Calendar](http://editflow.org/features/calendar/) - A convenient week-by-week or month-by-month look at your content.
+* [Editorial Metadata](http://editflow.org/features/editorial-metadata/) - Keep track of the interview location, required word count, and other important details.
+* [Story Budget](http://editflow.org/features/story-budget/) - View all of your upcoming posts in a more traditional story budget view, and hit the print button to take it to your planning meeting.
+
+More details and documentation can be found on [our website](http://www.editflow.org/).
+
+We'd love to hear from you! For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. If you'd like to contribute code, [we'd love to have you involved](http://editflow.org/contribute/).
+
+== Installation ==
+
+The easiest way to install this plugin is to go to Add New in the Plugins section of your blog admin and search for "Edit Flow." On the far right side of the search results, click "Install."
+
+If the automatic process above fails, follow these simple steps to do a manual install:
+
+1. Extract the contents of the zip file into your `/wp-content/plugins/` directory
+1. Activate the plugin through the 'Plugins' menu in WordPress
+1. Write and enjoy the merits of a structured editorial workflow!
+
+== Screenshots ==
+
+1. The ability to Add, Edit, and Delete Custom Statuses
+2. Custom Statuses are automatically added to Status dropdown on the Edit Post and Quick Edit Post screens
+3. A new column is added to the Edit Posts screen and the ability to filter by status
+4. Threaded editorial commenting and additional metadata for posts
+5. See posts your upcoming posts on the Calendar
+6. Get a sense of your upcoming content on the Story Budget
+7. Editorial metadata comes with a bunch of built-in terms, but these can be changed to your heart's content
+8. Within each post you can modify the metadata recorded for the post
+
+== Frequently Asked Questions ==
+
+= Edit Flow doesn't do X, Y, and Z. That makes me sad. =
+
+For support questions, feedback and ideas, please use the [WordPress.org forums](http://wordpress.org/tags/edit-flow?forum_id=10), which we look at often. For everything else, say [hello@editflow.org](mailto:hello@editflow.org).
+
+== Upgrade Notice ==
+
+= 0.7 = 
+Complete rewrite into a modular architecture. Lots of polish added. Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first
+
+= 0.6.5 = 
+Fixes an issue where the post timestamp would be set as soon as a custom status was used.
+
+= 0.6.4 =
+Number of minor fixes and improvements, including proper support for bulk editing custom statuses, a 'Clear' link for clearing date editorial metadata, and better respect for user roles and capabilities in Story Budget.
+
+= 0.6.3 =
+Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues. Added option to see unpublished content on story budget and editorial calendar.
+
+= 0.6.2 =
+Two bug fixes: post titles should properly appear in email notifications, and bulk editing no longer deletes editorial metadata.
+
+= 0.6.1 =
+Proper support for custom post types. We removed the option to enable/disable Custom Statuses for Pages from the Settings page. Custom Statuses are enabled by default for Pages. To remove support for statuses, please see readme.
+
+= 0.6 =
+New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
+
+== Changelog ==
+
+= 0.7 (Dec. ???, 2011) =
+* Entire plugin was rewritten into a modular architecture (e.g. each feature is broken into a module you can enable or disable). One point of the modular architecture is to make it much easier for others to contribute new features. For the end user, there’s a brand new settings page where you can manage your modules. Each module then registers a configuration view for module settings. Most have options to choose which post types you’d like it activated for, along with other configuration options.
+* Calendar is far more functional. Content is viewed in a six week view by default, and number of weeks is configurable in screen options. Posts can be dragged and dropped between dates. Click on a post title to get the details about the post, including editorial metadata.
+* Custom statuses can be drag and drop ordered with AJAX. All statuses (including core ‘draft’ and ‘pending’) can be edited or deleted.
+* Editorial Metadata terms can be ordered with AJAX. Terms can be made “viewable” and then will be displayed on the manage posts view and calendar if enabled.
+* Story Budget shows “viewable” editorial metadata and fixes a few bugs, including not showing posts in a subcategory of a parent category.
+* Notifications/subscriptions are filtered so you can disable the auto-subscribing of authors or editorial commenters.
+* Important note: If upgrading from pre-v0.6, please upgrade to v0.6.5 first to ensure all of your data remains intact.
+* [tk link to release post]
+
+= 0.6.5 (Sept. 19, 2011) =
+* Bug fix: Workaround for a bug in core where the timestamp is set when a post is saved with a custom status. Instead, we update the timestamp on publish to current time if a custom post date hasn't been set. Thanks saomay for [help tracking the bug down](http://wordpress.org/support/topic/plugin-edit-flow-custom-statuses-create-timestamp-problem/).
+
+= 0.6.4 (Jul. 22, 2011) =
+* Display unpublished custom statuses inline with the post title, per WordPress standard UI
+* New number type for editorial metadata, so you can have fields like "Word Count"
+* Dropped the admin option for disabling custom statuses on posts. It didn't work, and this is handled by post_type_supports()
+* Add a 'Clear' link to editorial metadata date fields to allow user to easily clear the input
+* Bug fix: Proper support for bulk editing custom statuses
+* Bug fix: Contributor saving a new post respects the default custom status, instead of reverting to 'draft' as the post status
+* Bug fix: Better respect for user roles and capabilities in Story Budget
+* Bug fix: Custom statuses in Quick Edit now work as you'd expect them
+* Bug fix: Show all taxonomy terms (most likely categories) on the Story Budget, regardless of whether they include published content
+* Bug fix: If there are no editorial metadata fields available, a message will display instead of leaving an empty post meta box
+
+= 0.6.3 (Mar. 21, 2011) =
+* Restored email notifications to old delivery method instead of queueing with WP cron because of reliability issues.
+* Better approach to including files so Edit Flow works properly on Windows systems.
+* Option to see all unpublished content on story budget and editorial calendar with a filter to include scheduled posts as unpublished content.
+
+= 0.6.2 (Jan. 26, 2011) =
+* Bug fix: Post Titles were broken in email notifications. (Thanks kfawcett and madguy000!)
+* Bug fix: Bulk editing any post types would cause editorial metadata to occasionally be deleted. (Thanks meganknight!)
+
+= 0.6.1 (Jan. 9, 2011) =
+* Custom Post Type support for custom post statuses, editorial metadata, editorial comments, notifications, (Thanks to all who requested this!)
+* Added search and filtering tools for user and usergroup lists
+* Email notifications are now queued to improve performance and avoid issues with spam
+* Posts in calendar now have a unique classname based on the status (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney))
+* The "Posts I'm Following" widget has a cleaner look
+* Bug fix: Users without JavaScript no longer see the status dropdown
+* Bug fix: Users with JavaScript no longer see the respond button for editorial comments
+* Bug fix: Contributors should not have the ability to publish through Quick Edit
+* Bug fix: Proper i18n support (Thanks Beto Frega and others)
+* Bug fix: Editorial Comments issue in IE (Thanks [asecondwill](http://wordpress.org/support/profile/asecondwill) and James Skaggs)
+* Bug fix: Always email admin feature was not working (Thanks [nicomollet](http://wordpress.org/support/profile/nicomollet))
+* Bug fix: Notifications for scheduled posts did not include links (Thanks [erikajurney](http://wordpress.org/support/profile/erikajurney))
+
+= 0.6 (Nov. 9, 2010) =
+* New feature: Editorial Metadata. Previously, Edit Flow had 'due date', 'location' and 'description', as available editorial metadata. We've expanded this functionality to be completely customizable; admins can add any number of editorial metadata with the following types: checkbox, date, location, paragraph, text, or user dropdown.
+* New feature: Story Budget. View all of your upcoming posts in a more traditional story budget view. Posts are grouped by category, and view can be filtered by post status, category, user, or limited to a date range. Hit the print button to take it on the go.
+* Completely rewritten calendar view now saves filter state on a user by user basis. Also, highlights current day, and displays status and time for each post.
+* Temporarily disabled QuickPitch widget until we rewrite it to support editorial metadata.
+* Bug fix: Editorial comments should no longer show up in the stock Recent Comments widget or in the comments view in the WordPress Admin. The comment count number should also be correct.
+* Bug fix: Duplicate custom post statuses and usergroups are handled in more sane ways (aka creating, editing, and deleting should work as expected)
+
+= 0.5.3 (Oct. 6, 2010) =
+* Fixes issue where default Custom Statuses and User Groups were returning even after being deleted
+
+= 0.5.1 (Jul. 29, 2010) =
+* Editorial calendar improvements: filter by category or author
+* QuickPitch stories get default status instead of pitch status
+* No email notifications for “Auto Draft” post status
+* Backwards compatibility with WordPress 2.9.x
+
+= 0.5 (Jul. 3, 2010) =
+* Calendar view for visualizing and spec assignments at a glance
+* Improvements for WordPress 3.0 compatibility
+
+= 0.4 =
+* Users that edit a post automatically get subscribed to that post (only if they have the manage subscriptions capability)
+* Edit Flow automatically hides editorial comments if the plugin is disabled
+* Moved default custom status additions to upgrade function so they don't get added every time you activate
+* Bug fix: remove editorial comments from comments feed
+
+= 0.3.3 (Feb. 4, 2010) =
+* Added tooltips with descriptions to the Status dropdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
+* Fixed the issue where subscribed users/usergroups were not receiving notifications
+
+= 0.3.2 (Jan. 28, 2010)=
+* Fixed fatal error if notifications were disabled
+
+= 0.3.1 =
+* Small bug fixes
+
+= 0.3 =
+* *Note:* Edit Flow now requires 2.9+
+* Notification emails on status change now have specific subject lines messages based on action taken
+* Action links in comment notifications now take the user to the comment form; i.e. clicking reply link in the email will focus on the comment text box and reply to the message
+* Usergroups!
+* Assign users and usergroups that should be notified of post updates
+* Removed notify by role option since it's redundant because of usergroups
+* Added "Always notify admin option"
+* Added option to hide the status dropdown on Post and Page edit pages (default set to show)
+* Added option to globally disable QuickPitch widget
+* Bug fix: Custom Status names cannot be longer than 20 chars
+* Bug fix: Deleted users are removed as subscribers from posts
+* Bug fix: Blank menu items should now be sorta hidden 
+
+= 0.2 =
+* Custom Statuses are now supported for pages
+* Editorial Comments (with threading)
+* Email Notifications (on post status change and editorial comment)
+* Additional Post metadata 
+* Quick Pitch Dashboard widget
+* Bug fix: sorting issue on Manage Posts page (Mad props to David Smith from Columbia U.)
+* Other bug fixes
+* Better localization support
+
+= 0.1.5 =
+* Ability to assign custom statuses to posts
