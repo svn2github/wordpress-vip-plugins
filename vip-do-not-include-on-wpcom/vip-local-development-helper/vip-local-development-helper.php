@@ -66,6 +66,11 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 		// Now include
 		include_once( $includepath );
 
+		// If there's a wpcom-helper file for the plugin, load that too
+		$helper_path = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/wpcom-helper.php";
+		if ( file_exists( $helper_path ) )
+			require_once( $helper_path );
+
 		// Blacklist out some variables
 		$blacklist = array( 'blacklist' => 0, 'pre_include_variables' => 0, 'new_variables' => 0 );
 
