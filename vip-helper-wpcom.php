@@ -164,11 +164,13 @@ function _vip_admin_gallery_css_extras() {
  */
 
 function vip_remove_enhanced_feed_images() {
-	remove_filter('add_to_feed', 'add_delicious_to_feed');
-	remove_filter('add_to_feed', 'add_stumbleupon_to_feed');
-	remove_filter('add_to_feed', 'add_digg_to_feed');
-	remove_filter('add_to_feed', 'add_reddit_to_feed');
-	remove_filter('add_to_feed', 'add_commentcount_to_feed');
+	remove_filter( 'add_to_feed', 'add_delicious_to_feed' );
+	remove_filter( 'add_to_feed', 'add_facebook_to_feed' );
+	remove_filter( 'add_to_feed', 'add_twitter_to_feed' );
+	remove_filter( 'add_to_feed', 'add_stumbleupon_to_feed' );
+	remove_filter( 'add_to_feed', 'add_digg_to_feed' );
+	remove_filter( 'add_to_feed', 'add_reddit_to_feed' );
+	remove_filter( 'add_to_feed', 'add_commentcount_to_feed' );
 }
 
 /*
