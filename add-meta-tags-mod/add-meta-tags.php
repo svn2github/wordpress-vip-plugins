@@ -360,29 +360,25 @@ function amt_get_post_tags() {
 
 function amt_get_all_categories($no_uncategorized = TRUE) {
 	/*
-	Returns a comma-delimited list of all the blog's categories.
+	Returns a comma-delimited list of some of the blog's categories.
 	The built-in category "Uncategorized" is excluded.
 	*/
-
-	$category_ids = get_all_category_ids();
-	if ( !empty( $category_ids ) ) {
-		foreach( $category_ids as $cat_id ) {
-			$cat_name = get_cat_name( $cat_id );
-			$categories[] = $cat_name;
-		}
-		if ( empty( $categories ) ) {
-			return "";
-		} else {
-			$all_cats = "";
-			foreach ( $categories as $cat ) {
-				if ( $no_uncategorized && $cat != "Uncategorized" ) {
-					$all_cats .= $cat . ', ';
-				}
-			}
-			$all_cats = strtolower( rtrim( $all_cats, " ," ) );
-			return $all_cats;
+	if ( ! $categories = wp_cache_get( 'amt_get_all_categories', 'category' ) ) {
+		$categories = get_terms( 'category', array( 'fields' => 'names', 'get' => 'all', 'number' => 20, 'orderby' => 'count' ) ); // limit to 20 to avoid killer queries
+		wp_cache_add( 'amt_get_all_categories', $categories, 'category' );
+	}
+	
+	if ( empty( $categories ) )
+		return '';
+	
+	$all_cats = "";
+	foreach ( $categories as $cat ) {
+		if ( $no_uncategorized && $cat != "Uncategorized" ) {
+			$all_cats .= $cat . ', ';
 		}
 	}
+	$all_cats = strtolower( rtrim( $all_cats, " ," ) );
+	return $all_cats;
 }
 
 
