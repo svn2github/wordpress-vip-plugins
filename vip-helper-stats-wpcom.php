@@ -190,6 +190,18 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 			foreach ( stats_get_posts( array_keys( $posts ), $GLOBALS['blog_id'] ) as $id => $post )
 				$posts[$id] = wpcom_vip_csv_expand_post( $post );
 			break;
+		case 'authorviews':
+			$_rows = array();
+			foreach ( $rows as $date => $authors ) {
+				foreach ( $authors as $author => $posts ) {
+					$author_views = 0;
+					foreach ( $posts as $views ) {
+						$author_views += $views;
+					}
+					$_rows[] = array( $date, $author, $author_views );
+				}
+			}
+			break;
 		default :
 			$_rows = array( array( 'date', rtrim( $table, 's' ), 'views' ) );
 			foreach ( $rows as $date => $day_rows )
@@ -218,6 +230,9 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 					break;
 				case "clicks":
 					$out[] = array( 'date' => $values[0], 'url' => $values[1], 'clicks' => $values[2] );
+					break;
+				case 'authorviews':
+					$out[] = array( 'date' => $values[0], 'author' => $values[1], 'views' => $values[2] );
 					break;
 			}
 		}
@@ -328,7 +343,7 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 	$blog_id = $wpdb->blogid;
 
 	// adjust parameters
-	if ( ! in_array( $table, array( 'views', 'postviews', 'referrers', 'searchterms', 'clicks' ) ) )
+	if ( ! in_array( $table, array( 'views', 'postviews', 'authorviews', 'referrers', 'searchterms', 'clicks' ) ) )
 		$table = 'views';
 
 	if ( ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date ) )
