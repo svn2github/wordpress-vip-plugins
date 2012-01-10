@@ -1,52 +1,13 @@
 <?php
 /**
  * Don't load caps on install for WP.com. Instead, let's add
- * them with the WP.com apprach.
+ * them with the WP.com + core caps approach
  */
 add_filter( 'ef_kill_add_caps_to_role', '__return_true' );
-$custom_roles = array(
-	'administrator' => array(
-		'capabilities' => array (
-			'ef_view_calendar' => true,
-			'edit_post_subscriptions' => true,
-			'edit_usergroups' => true,
-			'ef_view_story_budget' => true,
-		),
-	),
-	'editor' => array(
-		'capabilities' => array (
-			'ef_view_calendar' => true,
-			'edit_post_subscriptions' => true,
-			'ef_view_story_budget' => true,
-		),
-	),
-	'author' => array(
-		'capabilities' => array (
-			'ef_view_calendar' => true,
-			'edit_post_subscriptions' => true,
-			'ef_view_story_budget' => true,
-		),
-	),
-	'contributor' => array(
-		'capabilities' => array (
-			'ef_view_calendar' => true,
-			'ef_view_story_budget' => true,
-		),
-	),
-);
-global $wp_user_roles;
-foreach ( $custom_roles as $role_name => $role_args ) {
-	if ( isset( $wp_user_roles[ $role_name ] ) ) {
-		foreach ( $role_args as $arg_name => $arg_values ) {
-			if ( is_array( $wp_user_roles[ $role_name ][ $arg_name ] ) )
-				$wp_user_roles[ $role_name ][ $arg_name ] = array_merge( $wp_user_roles[ $role_name ][ $arg_name ], $arg_values ); // Change this if the caps should be completely overwritten
-			else
-				$wp_user_roles[ $role_name ][ $arg_name ] = $arg_values;
-		}
-	} else {
-		$wp_user_roles[ $role_name ] = $role_args;
-	}
-}
+add_filter( 'ef_view_calendar_cap', function() { return 'edit_posts'; } );
+add_filter( 'ef_view_story_budget_cap', function() { return 'edit_posts'; } );
+add_filter( 'edit_post_subscriptions', function() { return 'edit_others_posts'; } );
+add_filter( 'edit_usergroups', function() { return 'manage_options'; } );
 
 /**
  * Edit Flow loads modules after plugins_loaded, which has already been fired on WP.com
