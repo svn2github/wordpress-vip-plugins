@@ -2599,7 +2599,7 @@ Author URI: http://intensedebate.com
 		wp_register_sidebar_widget( 'id-stats', __( 'IntenseDebate - Site Stats' ), 'widget_id_blog_stats' );
 	}
 	
-	add_action( "plugins_loaded", "id_blog_stats_init" );
+	add_action( "widgets_init", "id_blog_stats_init" );
 	
 	// Add ID recent comments widget
 	function widget_id_recent_comments( $args ) {
@@ -2637,7 +2637,7 @@ Author URI: http://intensedebate.com
 		wp_register_widget_control( 'id-recent', __( 'IntenseDebate - Recent Comments' ), 'widget_id_recent_comments_control' );
 	}
 	
-	add_action( "plugins_loaded", "id_recent_comments_init" );
+	add_action( "widgets_init", "id_recent_comments_init" );
 	
 	// Add ID top commenters widget
 	function widget_id_top_commenters( $args ) {
@@ -2675,7 +2675,7 @@ Author URI: http://intensedebate.com
 		wp_register_widget_control( 'id-top', __( 'IntenseDebate - Top Commenters' ), 'widget_id_top_commenters_control' );
 	}
 	
-	add_action( "plugins_loaded", "id_top_commenters_init" );
+	add_action( "widgets_init", "id_top_commenters_init" );
 	
 	// Add ID most commented posts widget
 	function widget_id_most_commented_posts( $args ) {
@@ -2713,7 +2713,7 @@ Author URI: http://intensedebate.com
 		wp_register_widget_control( 'id-commented', __( 'IntenseDebate - Most Commented Posts'), 'widget_id_most_commented_posts_control' );
 	}
 	
-	add_action("plugins_loaded", "id_most_commented_posts_init");
+	add_action("widgets_init", "id_most_commented_posts_init");
 
 	// Detect if this is a mobile client based on the user agent
 	function id_is_mobile() {
