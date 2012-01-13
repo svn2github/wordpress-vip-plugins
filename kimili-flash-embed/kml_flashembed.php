@@ -153,7 +153,7 @@ function kml_flashembed_build_fo_script($atts, $content = '') {
 	
 	// Add NoScript content
 	if ( ! empty( $noscript ) )
-		$output .= '<noscript>' . $noscript . '</noscript>';
+		$output .= '<noscript>' . wp_kses_post( $noscript ) . '</noscript>';
 	
 	return $output;
 }
