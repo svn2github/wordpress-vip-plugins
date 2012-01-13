@@ -159,10 +159,9 @@ function kml_flashembed_build_fo_script($atts, $content = '') {
 
 function kml_flashembed_build_object_tag($atts, $content = '') {
 	
+	$out	= array();	
 	if (is_array($atts)) extract($atts);
 	
-	$ret = '';
-	$out = array();
 	// Build a query string based on the $fvars attribute
 	$querystring = (count($fvars) > 0) ? "?" : "";
 	for ($i = 0; $i < count($fvars); $i++) {
@@ -210,10 +209,9 @@ function kml_flashembed_build_object_tag($atts, $content = '') {
 	if (isset($allowscriptaccess))	$out[] = '	<param name="allowScriptAccess" value="' . esc_attr( $allowscriptaccess ) . '" />';
 	if (isset($allowfullscreen))	$out[] = '	<param name="allowFullScreen" value="' . esc_attr( $allowfullscreen ) . '" />';
 									$out[] = wp_kses_post( $content );
-	 								$out[] = '</object>';     
+	 								$out[] = '</object>';
 
-	$ret .= join("\n", $out);
-	return $ret;
+	return join( "\n", $out );
 	
 }
 
