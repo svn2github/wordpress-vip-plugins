@@ -658,7 +658,7 @@ function mt_seo_save_meta_field( $post_id, $field_name ) {
 		if ( preg_match_all( '/<meta[\s]+([name|property]+)=["\']+([^>"\']*)["\']+[\s]+content=["\']+([^>"\']*)["\']+[\s]*[\/]?[\s]*>/si', stripslashes( $_POST[$field_name] ), $matches ) ) {
             if (isset($matches) && is_array($matches) ) {
                 foreach ( $matches[1] as $key => $name ) {
-                    $data .= sprintf( '<meta %1$s="%2$s" content="%3$s" />', sanitize_key( $name ), esc_attr( $matches[2][$key] ), esc_attr( $matches[3][$key] ) ); 
+                    $data .= sprintf( '<meta %1$s="%2$s" content="%3$s" />', sanitize_key( $name ), esc_attr( $matches[2][$key] ), esc_attr( $matches[3][$key] ) ) . "\n"; 
                 }
             } else {
                 $data = wp_filter_post_kses( $_POST[$field_name] );
