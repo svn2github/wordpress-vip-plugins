@@ -607,16 +607,15 @@ function mt_seo_meta_box( $post, $meta_box ) {
     foreach( (array) $mt_seo_fields as $field_name => $field_data ) {
         if ( true != $cmpvalues[$field_name] )
             continue;
-        
-        ${$field_name} = format_to_edit( ${$field_name} );
+
         if( 'textarea' == $field_data[1] ) {
             echo '<p><label for="' . $field_name . '">' . $field_data[0] . '</label><br />';
             echo '<textarea class="wide-seo-box" rows="4" cols="40" tabindex="' . $tabindex . '" name="' . $field_name . '"';
-            echo 'id="' . $field_name .'">' . ${$field_name} . '</textarea><br />';
+            echo 'id="' . $field_name .'">' . esc_textarea( ${$field_name} ) . '</textarea><br />';
             echo $field_data[2] . "</p>\n";
         } else if ( 'text' == $field_data[1] ) {
             echo '<p><label for="' . $field_name .'">' . $field_data[0] . '</label>';
-            echo '<input type="text" class="wide-seo-box" tabindex="' . $tabindex . '" name="' . $field_name . '" id="' . $field_name . '" value="' . ${$field_name} . '" /><br />';
+            echo '<input type="text" class="wide-seo-box" tabindex="' . $tabindex . '" name="' . $field_name . '" id="' . $field_name . '" value="' . esc_attr( ${$field_name} ) . '" /><br />';
             echo $field_data[2] . "</p>\n";
         }
         $tabindex++;
@@ -656,10 +655,11 @@ function mt_seo_save_meta_field( $post_id, $field_name ) {
 
 	// Sanitize
     if( 'mt_seo_meta' == $field_name ) {
-        if ( preg_match_all( '/<[\s]*meta[\s]*name="?' . '([^>"]*)"?[\s]*' . 'content="?([^>"]*)"?[\s]*[\/]?[\s]*>/si', stripslashes( $_POST[$field_name] ), $matches ) ) {
+		if ( preg_match_all( '/<meta[\s]+([name|property]+)=["\']+([^>"\']*)["\']+[\s]+content=["\']+([^>"\']*)["\']+[\s]*[\/]?[\s]*>/si', stripslashes( $_POST[$field_name] ), $matches ) ) {
             if (isset($matches) && is_array($matches) ) {
-                foreach ( $matches[1] AS $key => $name ) 
-                    $data .= "<meta name=\"" . wp_specialchars( $name ) . "\" content=\"" . wp_specialchars( $matches[2][$key] ) . "\" />\n"; 
+                foreach ( $matches[1] as $key => $name ) {
+                    $data .= sprintf( '<meta %1$s="%2$s" content="%3$s" />', sanitize_key( $name ), esc_attr( $matches[2][$key] ), esc_attr( $matches[3][$key] ) ); 
+                }
             } else {
                 $data = wp_filter_post_kses( $_POST[$field_name] );
                 $data = trim( stripslashes( $data ) );
@@ -672,7 +672,6 @@ function mt_seo_save_meta_field( $post_id, $field_name ) {
         $data = wp_filter_post_kses( $_POST[$field_name] );
         $data = trim( stripslashes( $data ) );
     }
-
 	// nothing new, and we're not deleting the old
 	if ( !$data && !$old_data )
 		return;
