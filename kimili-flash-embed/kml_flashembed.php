@@ -132,14 +132,9 @@ function kml_flashembed_build_fo_script($atts, $content = '') {
 		}
 		// Prune out JS or PHP values -- security risk that shouldn't be allowed.
 		if (preg_match("/^\\$\\{.*\\}/i", $value)) { 		// JS
-			$endtrim 	= strlen($value) - 3;
-			$value		= substr($value, 2, $endtrim);
-			$value		= str_replace(';', '', $value);
-			$value 		= '';
+			$value		= ''; // not allowed
 		} else if (preg_match("/^\\?\\{.*\\}/i", $value)) {	// PHP
-			$endtrim 	= strlen($value) - 3;
-			$value 		= substr($value, 2, $endtrim);
-			$value 		= '';
+			$value		= ''; // not allowed
 		} else {
 			$value = $value;
 		}
@@ -183,13 +178,9 @@ function kml_flashembed_build_object_tag($atts, $content = '') {
 		}
 		// Prune out JS or PHP values
 		if (preg_match("/^\\$\\{.*\\}/i", $value)) { 		// JS
-			$endtrim 	= strlen($value) - 3;
-			$value		= substr($value, 2, $endtrim);
-			$value		= str_replace(';', '', $value);
+			$value		= ''; // not allowed
 		} else if (preg_match("/^\\?\\{.*\\}/i", $value)) {	// PHP
-			$endtrim 	= strlen($value) - 3;
-			$value 		= substr($value, 2, $endtrim);
-			$value 		= eval("return " . $value);
+			$value		= ''; // not allowed
 		}
 		// else {
 		//	$value = '"'.$value.'"';
@@ -202,22 +193,22 @@ function kml_flashembed_build_object_tag($atts, $content = '') {
 	
 									$out[] = '';    
 						  	  		$out[] = '<object	type="application/x-shockwave-flash"';
-									$out[] = '			data="'.$movie.$querystring.'"'; 
-	if (isset($base)) 	   		 	$out[] = '			base="'.$base.'"';
-									$out[] = '			width="'.$width.'"';
-									$out[] = '			height="'.$height.'">';
-									$out[] = '	<param name="movie" value="' . $movie.$querystring . '" />';
-	if (isset($play))				$out[] = '	<param name="play" value="' . $play . '" />';
-	if (isset($loop))				$out[] = '	<param name="loop" value="' . $loop . '" />';
-	if (isset($menu)) 				$out[] = '	<param name="menu" value="' . $menu . '" />';
-	if (isset($scale)) 				$out[] = '	<param name="scale" value="' . $scale . '" />';
-	if (isset($wmode)) 				$out[] = '	<param name="wmode" value="' . $wmode . '" />';
-	if (isset($align)) 				$out[] = '	<param name="align" value="' . $align . '" />';
-	if (isset($salign)) 			$out[] = '	<param name="salign" value="' . $salign . '" />';    
-	if (isset($base)) 	   		 	$out[] = '	<param name="base" value="' . $base . '" />';
-	if (isset($allowscriptaccess))	$out[] = '	<param name="allowScriptAccess" value="' . $allowscriptaccess . '" />';
-	if (isset($allowfullscreen))	$out[] = '	<param name="allowFullScreen" value="' . $allowfullscreen . '" />';
-									$out[] = $content;
+									$out[] = '			data="'.esc_attr( $movie.$querystring ).'"'; 
+	if (isset($base)) 	   		 	$out[] = '			base="'.esc_attr( $base ).'"';
+									$out[] = '			width="'.esc_attr( $width ).'"';
+									$out[] = '			height="'.esc_attr( $height ).'">';
+									$out[] = '	<param name="movie" value="' . esc_attr( $movie.$querystring ) . '" />';
+	if (isset($play))				$out[] = '	<param name="play" value="' . esc_attr( $play ) . '" />';
+	if (isset($loop))				$out[] = '	<param name="loop" value="' . esc_attr( $loop ) . '" />';
+	if (isset($menu)) 				$out[] = '	<param name="menu" value="' . esc_attr( $menu ) . '" />';
+	if (isset($scale)) 				$out[] = '	<param name="scale" value="' . esc_attr( $scale ) . '" />';
+	if (isset($wmode)) 				$out[] = '	<param name="wmode" value="' . esc_attr( $wmode ) . '" />';
+	if (isset($align)) 				$out[] = '	<param name="align" value="' . esc_attr( $align ) . '" />';
+	if (isset($salign)) 			$out[] = '	<param name="salign" value="' . esc_attr( $salign ) . '" />';    
+	if (isset($base)) 	   		 	$out[] = '	<param name="base" value="' . esc_attr( $base ) . '" />';
+	if (isset($allowscriptaccess))	$out[] = '	<param name="allowScriptAccess" value="' . esc_attr( $allowscriptaccess ) . '" />';
+	if (isset($allowfullscreen))	$out[] = '	<param name="allowFullScreen" value="' . esc_attr( $allowfullscreen ) . '" />';
+									$out[] = wp_kses_post( $content );
 	 								$out[] = '</object>';     
 
 	$ret .= join("\n", $out);
