@@ -130,22 +130,23 @@ function kml_flashembed_build_fo_script($atts, $content = '') {
 				$value	.= "=";
 			}
 		}
-		// Prune out JS or PHP values
+		// Prune out JS or PHP values -- security risk that shouldn't be allowed.
 		if (preg_match("/^\\$\\{.*\\}/i", $value)) { 		// JS
 			$endtrim 	= strlen($value) - 3;
 			$value		= substr($value, 2, $endtrim);
 			$value		= str_replace(';', '', $value);
+			$value 		= '';
 		} else if (preg_match("/^\\?\\{.*\\}/i", $value)) {	// PHP
 			$endtrim 	= strlen($value) - 3;
 			$value 		= substr($value, 2, $endtrim);
-			$value 		= '"'.eval("return " . $value).'"';
+			$value 		= '';
 		} else {
 			$value = $value;
 		}
 		$flash_vars->$name = $value;
 	}
 	
-	$div = sprintf( '<div id="%1$s" class="%2$s">%3$s</div>', esc_attr( $target ), esc_attr( $classname ), wp_filter_kses( $content ) );
+	$div = sprintf( '<div id="%1$s" class="%2$s">%3$s</div>', esc_attr( $target ), esc_attr( $classname ), wp_kses_post( $content ) );
 	$script = sprintf( 'swfobject.embedSWF("%1$s", "%2$s", "%3$s", "%4$s", "%5$s", "%6$s", %7$s, %8$s);', esc_js( $movie ), esc_js( $target ), esc_js( $width ), esc_js( $height ), esc_js( $fversion ), esc_js( $express_install ), json_encode( $flash_vars ), json_encode( $params ) );
 	
 	$output = sprintf( '%s<script type="text/javascript">%s</script>', $div, $script );
