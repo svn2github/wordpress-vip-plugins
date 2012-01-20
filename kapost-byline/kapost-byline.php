@@ -74,7 +74,7 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 			if(strpos($k, '_kapost_analytics_') === 0)
 			{
 				$kk = str_replace('_kapost_analytics_', '', $k);
-				$kapost_analytics[$kk] = $v;
+				$kapost_analytics[$kk] = sanitize_text_field( $v );
 			}
 		}
 
@@ -108,21 +108,21 @@ function kapost_byline_get_analytics_code($id)
 
 	extract($kapost_analytics, EXTR_SKIP);
 
-	$code = <<<CODE
+	$code = '
 <!-- BEGIN KAPOST ANALYTICS CODE -->
 <span id="kapostanalytics_${post_id}"></span>
 <script>
 <!--
 var _kapost_data = _kapost_data || [];
-_kapost_data.push([1, "${post_id}", "${author_id}", "${newsroom_id}", escape("${categories}")]);
+_kapost_data.push([1, "' . esc_js( $post_id ) .'", "' . esc_js( $author_id ) .'", "'. esc_js( $newsroom_id ) .'", escape("'. esc_js( $categories ) .'")]);
 (function(){
-var ka = document.createElement('script'); ka.async=true; ka.id="kp_tracker"; ka.src="${url}/javascripts/tracker.js";
-var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka, s);
+var ka = document.createElement(\'script\'); ka.async=true; ka.id="kp_tracker"; ka.src="${url}/javascripts/tracker.js";
+var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(ka, s);
 })();
 -->
 </script>
 <!-- END KAPOST ANALYTICS CODE -->
-CODE;
+';
 
 	return $code;
 }
