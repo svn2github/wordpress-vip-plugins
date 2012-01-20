@@ -110,13 +110,13 @@ function kapost_byline_get_analytics_code($id)
 
 	$code = '
 <!-- BEGIN KAPOST ANALYTICS CODE -->
-<span id="kapostanalytics_${post_id}"></span>
+<span id="kapostanalytics_'. esc_attr( $post_id ) .'"></span>
 <script>
 <!--
 var _kapost_data = _kapost_data || [];
 _kapost_data.push([1, "' . esc_js( $post_id ) .'", "' . esc_js( $author_id ) .'", "'. esc_js( $newsroom_id ) .'", escape("'. esc_js( $categories ) .'")]);
 (function(){
-var ka = document.createElement(\'script\'); ka.async=true; ka.id="kp_tracker"; ka.src="${url}/javascripts/tracker.js";
+var ka = document.createElement(\'script\'); ka.async=true; ka.id="kp_tracker"; ka.src="'. esc_url( $url ) .'/javascripts/tracker.js";
 var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(ka, s);
 })();
 -->
