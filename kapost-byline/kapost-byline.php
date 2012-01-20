@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.0.3
+	Version: 1.0.5
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.0.3-WIP');
+define('KAPOST_BYLINE_VERSION', '1.0.5-WIP');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -52,7 +52,7 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 	{
 		// look up the image by URL which is the GUID (too bad there's NO wp_ specific method to do this, oh well!)
 		global $wpdb;
-		$thumbnail = $wpdb->get_row($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND guid = %s", $custom_fields['kapost_featured_image']));
+		$thumbnail = $wpdb->get_row($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND guid = %s LIMIT 1", $custom_fields['kapost_featured_image']));
 
 		// if the image was found, set it as the featured image for the current post
 		if(!empty($thumbnail))
@@ -62,7 +62,25 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 			update_post_meta($id, '_thumbnail_id', $thumbnail->ID);
 		}
 	}
-	
+
+	// store our protected custom field required by our analytics
+	if(isset($custom_fields['_kapost_analytics_url']))
+	{
+		// join them into one for performance and speed
+		$kapost_analytics = array();
+		foreach($custom_fields as $k => $v)
+		{
+			// starts with?
+			if(strpos($k, '_kapost_analytics_') === 0)
+			{
+				$kk = str_replace('_kapost_analytics_', '', $k);
+				$kapost_analytics[$kk] = $v;
+			}
+		}
+
+		add_post_meta($id, '_kapost_analytics', $kapost_analytics);
+	}
+
 	// set our post author
 	if($uid !== false && $post->post_author != $uid)
 	{
@@ -77,6 +95,51 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 	return true;
 }
 
+function kapost_byline_has_analytics_code($content)
+{
+	return strpos($content, '<!-- END KAPOST ANALYTICS CODE -->') !== FALSE;
+}
+
+function kapost_byline_get_analytics_code($id)
+{
+	$kapost_analytics = get_post_meta($id, '_kapost_analytics', true);
+	if(empty($kapost_analytics))
+		return "";
+
+	extract($kapost_analytics, EXTR_SKIP);
+
+	$code = <<<CODE
+<!-- BEGIN KAPOST ANALYTICS CODE -->
+<span id="kapostanalytics_${post_id}"></span>
+<script>
+<!--
+var _kapost_data = _kapost_data || [];
+_kapost_data.push([1, "${post_id}", "${author_id}", "${newsroom_id}", escape("${categories}")]);
+(function(){
+var ka = document.createElement('script'); ka.async=true; ka.id="kp_tracker"; ka.src="${url}/javascripts/tracker.js";
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka, s);
+})();
+-->
+</script>
+<!-- END KAPOST ANALYTICS CODE -->
+CODE;
+
+	return $code;
+}
+
+function kapost_byline_the_content($content)
+{
+	global $post;
+
+	if(isset($post) && !kapost_byline_has_analytics_code($content))
+		return $content . kapost_byline_get_analytics_code($post->ID);
+
+	return $content;
+}
+
+add_filter('the_content', 'kapost_byline_the_content');
+add_filter('the_content_feed', 'kapost_byline_the_content');
+
 function kapost_byline_xmlrpc_version()
 {
 	return KAPOST_BYLINE_VERSION;
@@ -85,20 +148,24 @@ function kapost_byline_xmlrpc_version()
 function kapost_byline_xmlrpc_newPost($args)
 {
 	global $wp_xmlrpc_server;
-	    
-	$wp_xmlrpc_server->escape($args);
 
-	$blog_id	= intval($args[0]);
-	$username	= $args[1];
-	$password	= $args[2];
-	$data		= $args[3];
+	// create a copy of the arguments and escape that
+	// in order to avoid any potential double escape issues
+	$_args = $args;
+
+	$wp_xmlrpc_server->escape($_args);
+
+	$blog_id	= intval($_args[0]);
+	$username	= $_args[1];
+	$password	= $_args[2];
+	$data		= $_args[3];
 
 	if(!$wp_xmlrpc_server->login($username, $password))
 		return $wp_xmlrpc_server->error;
 
 	if(!current_user_can('publish_posts'))
 		return new IXR_Error(401, __('Sorry, you are not allowed to publish posts on this site.'));
-
+	
 	$uid = false;
 	$custom_fields = kapost_byline_custom_fields($data['custom_fields']);
 	if(isset($custom_fields['kapost_author_email']))
@@ -109,10 +176,10 @@ function kapost_byline_xmlrpc_newPost($args)
 	}
 	
 	$id = $wp_xmlrpc_server->mw_newPost($args);
-
+	
 	if(is_string($id))
 		kapost_byline_update_post($id, $custom_fields, $uid, $blog_id);
-
+	
 	return $id;
 }
 
