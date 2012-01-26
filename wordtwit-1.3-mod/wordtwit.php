@@ -400,7 +400,7 @@ function post_now_published( $post_id ) {
 				elseif( 'bitly' == $wordtwit_url_type )
 					$message = str_replace( '[link]', twit_get_bitly_url( get_permalink() ), $message );
 				elseif( 'wpme' == $wordtwit_url_type )
-					$message = str_replace( '[link]', get_shortlink( $post->ID ), $message );
+					$message = str_replace( '[link]', wp_get_shortlink( $post->ID ), $message );
 			}
 			
 			$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
