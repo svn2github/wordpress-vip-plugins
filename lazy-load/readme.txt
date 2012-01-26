@@ -3,7 +3,7 @@ Contributors: batmoo, automattic, jakemgold, get10up
 Tags: lazy load, images, front-end optimization
 Requires at least: 3.2
 Tested up to: 3.3
-Stable tag: 0.2
+Stable tag: 0.3
 
 Lazy load images to improve page load times and server bandwidth. Images are loaded only when visible to the user.
 
@@ -26,6 +26,11 @@ Uses <a href="http://www.artzstudio.com/files/jquery-boston-2010/jquery.sonar/ "
 No applicable screenshots
 
 == Changelog ==
+
+= 0.3 =
+
+* Make LazyLoad a static class so that it's easier to change its hooks
+* Hook in at a higher priority for content filters
 
 = 0.2 =
 
