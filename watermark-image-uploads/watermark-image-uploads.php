@@ -26,7 +26,7 @@ class WPcom_Watermark_Uploads {
 	// For filters that pass a $_FILES array
 	public function handle_file( $file ) {
 
-		if ( false === apply_filters( 'wpcom_watermark_enabled', true ) )
+		if ( false === apply_filters( 'wpcom_watermark_enabled', true, 'file', $file ) )
 			return $file;
 
 		// Make sure the upload is valid
@@ -82,7 +82,7 @@ class WPcom_Watermark_Uploads {
 	// For filters that pass the image as a string
 	public function handle_bits( $bits, $file ) {
 
-		if ( false === apply_filters( 'wpcom_watermark_enabled', true ) )
+		if ( false === apply_filters( 'wpcom_watermark_enabled', true, 'bits', $file ) )
 			return $bits;
 
 		// Check file extension
