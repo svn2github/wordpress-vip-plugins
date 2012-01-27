@@ -10,6 +10,8 @@
  * License: GPL2
  */
 
+if ( ! class_exists( 'LazyLoad_Images' ) ) :
+
 class LazyLoad_Images {
 
 	const version = '0.3';
@@ -45,3 +47,5 @@ class LazyLoad_Images {
 }
 
 LazyLoad_Images::init();
+
+endif;
