@@ -361,7 +361,9 @@ function dsq_update_permalink($post) {
  */
 
 function dsq_get_style() {
-	echo "<link rel=\"stylesheet\" href=\"" . DISQUS_URL ."stylesheets/" .  strtolower(get_option('disqus_forum_url')) . "/disqus.css?v=2.0\" type=\"text/css\" media=\"screen\" />";
+	$forum_url = get_option( 'disqus_forum_url' );
+	if ( ! empty( $forum_url ) )
+		echo "<link rel=\"stylesheet\" href=\"" . esc_url( DISQUS_URL ."stylesheets/" .  untrailingslashit( strtolower( $forum_url ) ) . "/disqus.css?v=2.0" ) . "\" type=\"text/css\" media=\"screen\" />";
 }
 
 add_action('wp_head','dsq_get_style');
