@@ -7,24 +7,31 @@ require_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper.php' );
  * in the theme's functions.php to use this
  */
 
-/*
+/**
  * Simple 301 redirects
  * array elements should be in the form of:
  * '/old' => 'http://wordpress.com/new/'
  *
- * @author nickmomrik
  */
 function vip_redirects( $vip_redirects_array = array() ) {
+	$redirect_url = '';
+
 	// Sanitize the redirects array
 	$vip_redirects_array = array_map( 'untrailingslashit', $vip_redirects_array );
-	
+
 	// Get the current URL minus query string
-	$uri = untrailingslashit( $_SERVER['REQUEST_URI'] );
-	$parsed_uri = parse_url( $uri );
-	$uri = isset( $parsed_uri['path'] ) ? $parsed_uri['path'] : '';
-	
-	if( $uri && array_key_exists( $uri, $vip_redirects_array ) ) {
-		wp_redirect( $vip_redirects_array[$uri], 301 );
+	$uri_unslashed = untrailingslashit( $_SERVER['REQUEST_URI'] );
+	$parsed_uri_path = parse_url( $uri_unslashed, PHP_URL_PATH );
+	$parsed_uri_path = $parsed_uri_path ? $parsed_uri_path : '';
+	$parsed_uri_path_slashed = trailingslashit( $parsed_uri_path );
+
+	if ( $parsed_uri_path && array_key_exists( $parsed_uri_path, $vip_redirects_array ) )
+		$redirect_url = $vip_redirects_array[ $parsed_uri_path ];
+	elseif ( $parsed_uri_path_slashed && array_key_exists( $parsed_uri_path_slashed, $vip_redirects_array ) )
+		$redirect_url = $vip_redirects_array[ $parsed_uri_path_slashed ];
+
+	if ( $redirect_url ) {
+		wp_redirect( $redirect_url, 301 );
 		exit;
 	}
 }
