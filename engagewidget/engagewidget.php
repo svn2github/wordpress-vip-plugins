@@ -11,7 +11,7 @@
 class EngageCLWidget extends WP_Widget {
 	function __construct() {
 		$widget_ops = array( 'classname' => 'EngageCLWidget', 'description' => 'Get recommendations of articles that might interest you' );
-		parent::__constuct( 'EngageCLWidget', 'Engage', $widget_ops );
+		parent::__construct( 'EngageCLWidget', 'Engage', $widget_ops );
 	}
 
 	function form( $instance ) {
