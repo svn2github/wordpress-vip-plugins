@@ -25,6 +25,18 @@ Uses <a href="http://www.artzstudio.com/files/jquery-boston-2010/jquery.sonar/ "
 
 No applicable screenshots
 
+== Frequently Asked Questions ==
+
+= How do I lazy load other images in my theme? =
+
+You can add an attribute called "data-lazy-src" with the source of the image URL and set the actual image URL to a transparent 1x1 pixel.
+
+The alternative, and this isn't too highly recommended, is to use output buffering:
+
+`ob_start( array( LazyLoad_Images, 'add_image_placeholders' ) );`
+
+This will lazy load <em>all</em> your images.
+
 == Changelog ==
 
 = 0.3 =
