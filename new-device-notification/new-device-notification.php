@@ -112,7 +112,9 @@ class New_Device_Notification {
 
 		// If we're still in the grace period, don't send an e-mail
 		$installed_time = get_option( 'newdevicenotification_installedtime' );
-		$send_email  = ( time() - $installed_time < $this->grace_period ) ? false : true;
+		$send_email  = ( time() - $installed_time < (int) apply_filters( 'ndn_grace_period', $this->grace_period ) ) ? false : true;
+
+		$send_email = apply_filters( 'ndn_send_email', $send_email );
 
 		// Notify VIP of this
 		$debug_message  = '[NDN] [EMAIL ';
