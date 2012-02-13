@@ -444,9 +444,7 @@ if (!class_exists('AdvancedExcerpt')):
 
     function page_script()
     {
-      wp_enqueue_script($this->name . '_script', WP_CONTENT_URL . '/themes/vip/plugins/advanced-excerpt/advanced-excerpt.js', array(
-        'jquery'
-      ));
+      wp_enqueue_script( $this->name . '_script', plugins_url( 'advanced-excerpt/advanced-excerpt.js', dirname( __FILE__ ) ), array( 'jquery' ) );
     }
 
     function add_pages()
