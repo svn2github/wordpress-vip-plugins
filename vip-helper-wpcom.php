@@ -173,6 +173,14 @@ function vip_remove_enhanced_feed_images() {
 	remove_filter( 'add_to_feed', 'add_commentcount_to_feed' );
 }
 
+/**
+ * Remove the tracking bug added to all WordPress.com feeds
+ */
+function wpcom_vip_remove_feed_tracking_bug() {
+	remove_filter( 'the_content', 'add_bug_to_feed', 100 );
+	remove_filter( 'the_excerpt_rss', 'add_bug_to_feed', 100 );
+}
+
 /*
  * Override default colors of audio player. Colors specified in the shortcode still can override
  * @author nickmomrik
