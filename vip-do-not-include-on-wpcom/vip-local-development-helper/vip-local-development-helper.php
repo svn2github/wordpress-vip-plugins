@@ -216,3 +216,21 @@ function wpcom_vip_theme_url( $path = '', $theme = '' ) {
 
 	return false;
 }
+
+/**
+ * Return the directory path for a given VIP theme
+ *
+ * @param $theme string Name of the theme folder
+ *
+ * @return string path for the specified theme
+ */
+function wpcom_vip_theme_dir( $theme = '' ) {
+	if ( empty( $theme ) )
+		$theme = get_stylesheet();
+
+	// Simple sanity check, in case we get passed a lame path
+	$theme = ltrim( $theme, '/' );
+	$theme = str_replace( 'vip/', '', $theme );
+
+	return trailingslashit( sprintf( '%s/vip/%s', WP_CONTENT_DIR, $theme ) );
+}
