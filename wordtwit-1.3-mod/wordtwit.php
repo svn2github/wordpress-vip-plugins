@@ -163,6 +163,7 @@ function twit_show_user_profile( $user ) {
 			update_option( $twit_plugin_prefix . 'user_options', $user_options );
 
 			wp_redirect( $redirect_url );
+			exit;
 		}
 	} 
 	
@@ -427,6 +428,25 @@ function bnc_stripslashes_deep( $value ) {
 	return $value;
 }
 
+function twit_options_reauthorize() {
+   global $twit_plugin_prefix;
+   // get new authorization
+	if ( isset( $_POST['reauthorize'] ) ) {
+		if ( $_POST['reauthorize'] == 'Connect to Twitter account' ) {
+			$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET );
+			$request_token = $twit_connection->getRequestToken( admin_url( 'options-general.php?page=wordtwit.php' ) );
+			$redirect_url = $twit_connection->getAuthorizeURL( $request_token, FALSE );
+			
+			// save token values
+			update_option( $twit_plugin_prefix . 'oauth_token', $request_token['oauth_token'] );
+			update_option( $twit_plugin_prefix . 'oauth_token_secret', $request_token['oauth_token_secret'] );
+			
+			wp_redirect( $redirect_url );
+			exit;
+		}
+	} 
+}
+
 function wordtwit_options_subpanel() {
 	if (get_magic_quotes_gpc()) {
 		$_POST = array_map( 'bnc_stripslashes_deep', $_POST );
@@ -484,22 +504,7 @@ function wordtwit_options_subpanel() {
 		update_option( $twit_plugin_prefix . 'wordtwit_url_type', $wordtwit_url_type );
 		update_option( $twit_plugin_prefix . 'bitly_user_name', $bitly_user_name );
 		update_option( $twit_plugin_prefix . 'bitly_api_key', $bitly_api_key );
-	} 
-	
-	// get new authorization
-	if ( isset( $_POST['reauthorize'] ) ) {
-		if ( $_POST['reauthorize'] == 'Connect to Twitter account' ) {
-			$twit_connection = new TwitterOAuth( WORDTWIT_CONSUMER_KEY, WORDTWIT_CONSUMER_SECRET );
-			$request_token = $twit_connection->getRequestToken( admin_url( 'options-general.php?page=wordtwit.php' ) );
-			$redirect_url = $twit_connection->getAuthorizeURL( $request_token, FALSE );
-			
-			// save token values
-			update_option( $twit_plugin_prefix . 'oauth_token', $request_token['oauth_token'] );
-			update_option( $twit_plugin_prefix . 'oauth_token_secret', $request_token['oauth_token_secret'] );
-			
-			wp_redirect( $redirect_url );
-		}
-	} 
+	}
 	
 	$oauth_token = get_option( $twit_plugin_prefix . 'oauth_token' );
 	$oauth_token_secret = get_option( $twit_plugin_prefix . 'oauth_token_secret' );
@@ -549,7 +554,8 @@ function wordtwit_options_subpanel() {
 function wordtwit_add_plugin_option() {
 	global $twit_plugin_name;
 	if (function_exists('add_options_page')) {
-		add_options_page($twit_plugin_name, $twit_plugin_name, 'manage_options', basename(__FILE__), 'wordtwit_options_subpanel');
+		$hook = add_options_page($twit_plugin_name, $twit_plugin_name, 'manage_options', basename(__FILE__), 'wordtwit_options_subpanel');
+		add_action( 'load-' . $hook, 'twit_options_reauthorize' );
    }	
 }
 
