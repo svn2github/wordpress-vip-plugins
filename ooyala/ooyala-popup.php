@@ -1,3 +1,8 @@
+<?php
+if ( ! class_exists( 'OoyalaBacklotAPI' ) )
+	require_once( dirname(__FILE__) . '/class-ooyala-backlot-api.php' );
+?>
+
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
