@@ -137,7 +137,7 @@ class Ooyala_Video {
 		
 		$options = get_option( 'ooyala' );
 		if ( empty($width) )
-			$width = $option['video_width'];
+			$width = $options['video_width'];
 		if ( empty($width) )
 			$width = $GLOBALS['content_width'];
 		if ( empty($width) )
