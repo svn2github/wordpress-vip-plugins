@@ -47,6 +47,11 @@
 		 	<form name="ooyala-requests-form" action="#">
 				<p id="media-search" class="search-box">
 					<img src="<?php echo $this->plugin_url; ?>img/ooyala_72dpi_dark_sm.png" style="display:block; float:left"/>
+					<select name="ooyalasearchfield" id="ov-search-field">
+						<option value="description" selected="selected">Description</option>
+						<option value="name">Name</option>
+						<option value="labels">Label</option>
+					</select>
 					<label class="screen-reader-text" for="media-search-input"><?php _e('Search Keyword', 'ooyala_video');?></label>
 					<input type="text" id="ov-search-term" name="ooyalasearch" value="">
 					<input type="submit" name=""  id="ov-search-button" class="button" value="Search">

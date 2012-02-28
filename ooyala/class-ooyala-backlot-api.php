@@ -62,7 +62,7 @@ class OoyalaBacklotAPI  {
 		$timeout = apply_filters( 'ooyala_http_request_timeout', 10 );
 		
 		$response = wp_remote_get( $url, array( 'timeout' => $timeout ) );
-		
+
 		if ( is_wp_error( $response ) )
 			return $response;
 		else

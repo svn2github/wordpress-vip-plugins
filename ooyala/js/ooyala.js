@@ -11,12 +11,12 @@ OV.Popup = function()  {
 			jQuery('#ov-content-' + whichTab).show();
 	}
 	
-	function setThumbnail( id, $link ) {
+	function setThumbnail( image, $link ) {
 		
 		var data = {
 				action: 'ooyala_set',
 				ooyala: 'thumbnail',
-				embed: id,
+				img: image,
 				postid: postId,
 				_wpnonce: ajax_nonce_ooyala
 		};
@@ -53,25 +53,28 @@ OV.Popup = function()  {
 	}
 	
 	return {
-		ooyalaRequest: function( what, searchTerm, pageId ) {
+		ooyalaRequest: function( what, searchTerm, searchField, pageId ) {
 
 			if ( 'paging' == what ) {
 				previousRequest = jQuery('#response-div').data('previousRequest');
 				searchTerm = previousRequest.searchTerm;
+				searchField = previousRequest.searchField;
 				what = previousRequest.what;
 			}
 
 			searchTerm = ( searchTerm == '' ) ? '' : searchTerm;
+			searchField = ( searchField == '' ) ? '' : searchField;
 			pageId =  ( pageId == '' ) ? '0' : pageId;
 			postId = ( postId == '' ) ? '0' : postId;
 
 			//Let's store this search in case we get a subsequent paging request
-			jQuery('#response-div').data( 'previousRequest', {searchTerm: searchTerm, what: what});
+			jQuery('#response-div').data( 'previousRequest', {searchTerm: searchTerm, what: what, searchField: searchField});
 
 			var data = {
 					action: 'ooyala_request',
 					ooyala: what,
 					key_word: searchTerm,
+					search_field: searchField,
 					pageid: pageId,
 			};
 			jQuery.get( ajaxurl, data, function(response) {
@@ -115,7 +118,7 @@ OV.Popup = function()  {
 				return false;
 			});
 			jQuery('#ov-search-button').click(function () {
-				OV.Popup.ooyalaRequest('search', jQuery('#ov-search-term').val() );
+				OV.Popup.ooyalaRequest('search', jQuery('#ov-search-term').val(), jQuery('#ov-search-field').val() );
 				return false;
 			});
 			jQuery('#ov-last-few').live('click', function () {
@@ -126,7 +129,7 @@ OV.Popup = function()  {
 			jQuery('.ooyala-paging').live( 'click', function(e) {
 				e.preventDefault();
 				pageId = jQuery(this).attr('href').substring(1);
-				OV.Popup.ooyalaRequest( 'paging','', pageId );
+				OV.Popup.ooyalaRequest( 'paging','', '', pageId );
 				return false;
 			});
 			jQuery('.ooyala-item div a.use-shortcode').live( 'click', function(e) {
@@ -138,9 +141,10 @@ OV.Popup = function()  {
 				var $link = jQuery(this);
 				e.preventDefault();
 				id = jQuery(this).parent().prev('a').attr('title');
+				image = jQuery(this).parent().prev('a').children('img').attr('src');
 				jQuery('a.use-featured').text(ooyalaL10n.use_as_featured).show();
 				$link.text(setPostThumbnailL10n.saving);
-				setThumbnail( id, $link );
+				setThumbnail( image, $link );
 			});
 			
 			jQuery('#ooyala-insert').click( function() {

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Ooyala Video
 Plugin URI: http://www.ooyala.com/wordpressplugin/
-Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in the <a href="options-general.php?page=ooyalavideo_options_page"> plugin settings</a>.
+Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in the <a href="options-general.php?page=ooyala_options"> plugin settings</a>.
 Version: 1.4.1
 License: GPL
 Author: David Searle
@@ -10,7 +10,7 @@ Author: David Searle
 Contact mail: wordpress@ooyala.com
 */
 
-require_once( dirname(__FILE__) . '/class-ooyala-backlot-api.php' );
+require_once( dirname(__FILE__) . '/class-wp-ooyala-backlot-api.php' );
 
 class Ooyala_Video {
 	
@@ -41,26 +41,44 @@ class Ooyala_Video {
 		
 		$this->plugin_dir = plugin_dir_path( __FILE__ );
 		$this->plugin_url = plugin_dir_url( __FILE__ );
-
-		$this->partner_code = get_option( 'ooyalavideo_partnercode' );
-		$this->secret_code  = get_option( 'ooyalavideo_secretcode' );
 	
-		// Add link to settings page
+		if ( is_admin() ) {
+			require_once( dirname( __FILE__ ) . '/ooyala-options.php' );
+
+			$partner_code = get_option( 'ooyalavideo_partnercode' );
+			if ( $partner_code ) {
+				$secret_code  = get_option( 'ooyalavideo_secretcode' );
+				$show_in_feed = get_option( 'ooyalavideo_showinfeed' );
+				$video_width  = get_option( 'ooyalavideo_width' ); 
+				
+				$options = array(
+					'partner_code' => $partner_code,
+					'secret_code'  => $secret_code,
+					'show_in_feed' => $show_in_feed,
+					'video_width'  => $video_width
+				);
+				update_option( 'ooyala', $options );
+				delete_option( 'ooyalavideo_partnercode' );
+				delete_option( 'ooyalavideo_secretcode' );
+				delete_option( 'ooyalavideo_showinfeed' );
+				delete_option( 'ooyalavideo_width' );
+			} else {
+				$options = get_option( 'ooyala', array( 'partner_code' => '', 'secret_code' => '' ) );
+				$this->partner_code = $options['partner_code'];
+				$this->secret_code  = $options['secret_code'];
+			}
+		}
 		
-		add_action( 'admin_menu', 				array( &$this, 'options_page' 		) );
-		add_action( 'admin_init', 				array( &$this, 'register_settings'	) );
+		add_action( 'admin_menu', 				array( &$this, 'add_media_page' 	) );
 		add_action( 'admin_init', 				array( &$this, 'register_script' 	) );
 		add_action( 'media_buttons', 			array( &$this, 'media_button'		), 999 );
 		add_action( 'wp_ajax_ooyala_popup', 	array( &$this, 'popup' 				) );
 		add_action( 'wp_ajax_ooyala_set', 		array( &$this, 'ooyala_set' 		) );
 		add_action( 'wp_ajax_ooyala_request', 	array( &$this, 'ooyala_request' 	) );
-
-		add_filter( 'plugin_action_links',      array( $this, 'add_settings_link'   ), 10, 2 );
 		
 		add_shortcode( 'ooyala', array(&$this, 'shortcode') );
-		
 	}
-	
+
 	function Ooyala_Video() {
 		$this->__construct();
 	}
@@ -76,28 +94,14 @@ class Ooyala_Video {
 			$config_file = dirname(__FILE__).'/config.php';
 
 			if ( file_exists( $config_file ) ) {
-				include_once( $config_file);		
-				if ( defined( 'OOYALA_PARTNER_CODE' ) )
-					update_option( 'ooyalavideo_partnercode', esc_attr( OOYALA_PARTNER_CODE ) );
-				if ( defined( 'OOYALA_SECRET_CODE' ) )
-					update_option( 'ooyalavideo_secretcode', esc_attr( OOYALA_SECRET_CODE ) );
-			}
-				
+				include_once( $config_file );
+				$options = array( 
+					'partner_code'  => defined( 'OOYALA_PARTNER_CODE' ) ? esc_attr( 'OOYALA_PARTNER_CODE' ) : '',
+					'parner_secret' => defined( 'OOYALA_SECRET_CODE'  ) ? esc_attr( 'OOYALA_SECRET_CODE'  ) : ''
+				);
+				update_option( 'ooyala', $options );
+			}				
 		}
-	}
-	
-
-	/**
-	* Settings link in the plugin actions links
-	*/
-	function add_settings_link( $links, $file ) {
-
-		if ( plugin_basename( __FILE__ ) == $file ) {
-			$settings_link = '<a href="' . menu_page_url( 'ooyalavideo_options', false ). '">' . __( 'Settings', 'ooyalavideo' ) . '</a>';
-			array_unshift( $links, $settings_link );
-		}
-
-		return $links;
 	}
 	
 	/**
@@ -131,9 +135,9 @@ class Ooyala_Video {
 			'autoplay' => ''), $atts
 		));
 		
-		
+		$options = get_option( 'ooyala' );
 		if ( empty($width) )
-			$width = get_option('ooyalavideo_width');
+			$width = $option['video_width'];
 		if ( empty($width) )
 			$width = $GLOBALS['content_width'];
 		if ( empty($width) )
@@ -159,7 +163,7 @@ class Ooyala_Video {
 			$output .= "<script src='http://player.ooyala.com/player.js?width={$width}&height={$height}&embedCode={$code}&autoplay={$autoplay}'></script><noscript><object classid='clsid:D27CDB6E-AE6D-11cf-96B8-444553540000' id='ooyalaPlayer_7n2iz_gewtz7xi' width='{$width}' height='{$height}' codebase='http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab'><param name='movie' value='http://player.ooyala.com/player.swf?embedCode={$code}&version=2' /><param name='bgcolor' value='#000000' /><param name='allowScriptAccess' value='always' /><param name='allowFullScreen' value='true' /><param name='flashvars' value='embedType=noscriptObjectTag&embedCode=###VID###' /><embed src='http://player.ooyala.com/player.swf?embedCode={$code}&version=2' bgcolor='#000000' width='{$width}' height='{$height}' name='ooyalaPlayer_7n2iz_gewtz7xi' align='middle' play='true' loop='false' allowscriptaccess='always' allowfullscreen='true' type='application/x-shockwave-flash' flashvars='&embedCode={$code}' pluginspage='http://www.adobe.com/go/getflashplayer'></embed></object></noscript>";		
 			$output .= "\n<!-- Shortcode generated by WordPress plugin Ooyala Video -->\n";
 			$output .= '</div>';
-		} elseif ( 'true' == get_option('ooyalavideo_showinfeed')  ) {
+		} elseif ( $options['show_in_feed']  ) {
 			$output = __('[There is a video that cannot be displayed in this feed. ', 'ooyalavideo').'<a href="'.get_permalink().'">'.__('Visit the blog entry to see the video.]','ooyalavideo').'</a>';		
 		}
 		
@@ -169,93 +173,8 @@ class Ooyala_Video {
 	/**
 	 * Add options page
 	 */
-	function options_page() {
-		add_options_page( 'Ooyala Video', 'Ooyala Video', 'manage_options', 'ooyalavideo_options', array(&$this, 'display_options') );
-	}
-		
-	/**
-	 * Register settings for the options page
-	 */	
-	function register_settings() {
-		register_setting( 'ooyala-settings-group', 'ooyalavideo_partnercode', 'esc_attr');
-		register_setting( 'ooyala-settings-group', 'ooyalavideo_secretcode', 'esc_attr');
-		register_setting( 'ooyala-settings-group', 'ooyalavideo_showinfeed');
-		register_setting( 'ooyala-settings-group', 'ooyalavideo_width', array( &$this, 'validate_video_size')  );
-	}
-	
-	/**
-	 * Width setting validation Callback
-	 * @param string $width 
-	 * @return int 
-	 */
-	function validate_video_size( $width ) {
-		$width = absint( $width );
-
-		if ( $width > 800 )
-			$width = 800;
-		elseif ( $width < 250 )
-			$width = 250;
-						
-		return $width;
-	}
-	
-	/**
-	 * Callback that display the options form
-	 */
-	function display_options() {
-		
-		if (! current_user_can('manage_options') )
-			return;
-		?>
-
-		<div style="width:75%;" class="wrap" id="ooyalavideo_options_panel">
-			<h2><?php echo _e('Ooyala Video','ooyalavideo'); ?></h2>
-
-			<a href="http://www.ooyala.com/"><img src="<?php echo $this->plugin_url; ?>img/ooyala_72dpi_dark_sm.png" title="<?php echo _e('Ooyala') ?>" alt="<?php echo _e('Ooyala Logo') ?>" /></a>
-
-			<form action="options.php" method="post">
-				<?php settings_fields( 'ooyala-settings-group' ); ?>
-				<?php 
-					$ooyalavideo_partnercode = get_option('ooyalavideo_partnercode' ); 
-					$ooyalavideo_secretcode= get_option('ooyalavideo_secretcode' ); 
-					$ooyalavideo_width = get_option('ooyalavideo_width' ); 
-					$ooyalavideo_showinfeed = get_option('ooyalavideo_showinfeed' );
-				?>
-				<table class="form-table">
-					<tbody>
-						<tr valign="top">
-							<th scope="row"><label for="ooyalavideo_partnercode"><?php  _e('Ooyala Partner Code','ooyalavideo'); ?></label></th>
-							<td><input type="text" value="<?php echo esc_attr( $ooyalavideo_partnercode ) ?>" name="ooyalavideo_partnercode" />
-								<span class="description"><?php  _e('You can find your Partner and Secret codes under the Developers area of the Backlot Account tab','ooyalavideo'); ?></span>
-							</td>
-						</tr>
-						<tr valign="top">
-							<th scope="row"><label for="ooyalavideo_secretcode"><?php  _e('Ooyala Secret Code','ooyalavideo'); ?></label></th>
-							<td><input type="text" value="<?php echo esc_attr( $ooyalavideo_secretcode ) ?>" name="ooyalavideo_secretcode" />
-								<span class="description"><?php  _e('You can find your Partner and Secret codes under the Developers area of the Backlot Account tab','ooyalavideo'); ?></span>
-							</td>
-						</tr>
-						<tr valign="top">
-							<th scope="row"><label for="ooyalavideo_showinfeed"><?php  _e('In feed, show link to blog post','ooyalavideo'); ?></label></th>
-							<td><input type="checkbox" name="ooyalavideo_showinfeed" value="1" <?php checked($ooyalavideo_showinfeed); ?> />
-								<span class="description"><?php  _e('Video embedding in feeds is not yet available','ooyalavideo'); ?></span>
-							</td>
-						</tr>
-
-						<tr valign="top">
-							<th scope="row"><label for="ooyalavideo_width"><?php _e('Video object width','ooyalavideo'); ?></label></th>
-							<td><input type="text" value="<?php echo (int) $ooyalavideo_width ?>" name="ooyalavideo_width" size="5" maxlength="3" />
-								<span class="description">(250-800)</span>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-				<p class="submit">
-					<input name="Submit" type="submit" value="<?php esc_attr_e('Save Settings', 'ooyalavideo'); ?>" class="button-primary"/>
-				</p>
-			</form>
-		</div>
-		<?php
+	function add_media_page() {
+		add_media_page( __( 'Ooyala', 'ooyalavideo' ), __( 'Ooyala Video', 'ooyalavideo' ), 'upload_files', 'ooyala-browser', array( &$this, 'media_page' ) );
 	}
 	
 	/**
@@ -354,8 +273,7 @@ class Ooyala_Video {
 
 		if (! wp_verify_nonce($nonce, 'ooyala') )
 		 	die('Security check');
-		
-		$embed =  isset( $_POST['embed'] ) ? esc_attr( $_POST['embed'] ) : '';
+
 		$_post_id = absint( $_POST['postid'] );
 
 		// Make sure the global is set, otherwise the nonce check in set_post_thumbnail() will fail
@@ -370,17 +288,8 @@ class Ooyala_Video {
 			$thumbnail_width = 640;
 			$thumbnail_height = 640;
 		}
-
-		if ( !empty( $embed ) )
-			$results = OoyalaBacklotAPI::query(array(
-				'embedCode' => $embed,
-				'range' => '0-1',
-				'resolution' => $thumbnail_width . 'x' . $thumbnail_height
-			), 'thumbnails' );
-		else
-			return;
 		
-		$url = OoyalaBacklotAPI::get_promo_thumbnail( $results);
+		$url = isset( $_POST['img'] ) ? esc_attr( $_POST['img'] ) : '';
 		$thumbnail_id = $this->set_thumbnail( $url, $_post_id );
 		
 		if ( false !== $thumbnail_id ) {
@@ -409,27 +318,24 @@ class Ooyala_Video {
 		$limit = Ooyala_Video::VIDEOS_PER_PAGE;
 		
 		$key_word = isset( $_GET['key_word'] ) ? esc_attr( $_GET['key_word'] ) : '';
+		$field = isset( $_GET['search_field'] ) ? esc_attr( $_GET['search_field'] ) : 'description';
 		$pageid = isset( $_GET['pageid'] ) ? (int) $_GET['pageid'] : '';
-
+		$backlot = new WP_Ooyala_Backlot( get_option( 'ooyala' ) );
 		switch( $do ) {		
 			case 'search':
 				if ( '' != $pageid &&  '' != $key_word ) {
-					$results = OoyalaBacklotAPI::query(	array(
-						'text' => $key_word,
-						'status' => 'live',
-						'orderBy' => 'uploadedAt,desc',
+					$backlot->query( array(
+						'where'   => $field . "='" . $key_word . "' AND status='live'",
+						'orderby' => 'created_at descending',
 						'limit' => $limit,
-						'pageID' => $pageid,
-						'queryMode' => 'AND' 
+						'pageID' => $pageid
 					) );
 				} else if ( '' != $key_word ) {
-					$results = OoyalaBacklotAPI::query(	array(
-						'text' => $key_word,
-						'status' => 'live',
-						'orderBy' => 'uploadedAt,desc',
-						'limit' => $limit,
-						'queryMode' => 'AND' 
-					));
+					$backlot->query( array(
+						'where'   => $field . "='" . $key_word . "' AND status='live'",
+						'orderby' => 'created_at descending',
+						'limit'   => $limit,
+					) );
 				}
 				else {
 					echo 'Please enter a search term!';
@@ -438,37 +344,27 @@ class Ooyala_Video {
 			break;
 	 		case 'last_few':
 				if ( !empty( $pageid) ) {
-					$results = OoyalaBacklotAPI::query(array(
-						'status' => 'live',
-						'orderBy' => 'uploadedAt,desc',
+					$backlot->query( array(
+						'where' => "status='live'",
+						'orderby' => 'created_at descending',
 						'pageID' => $pageid,
 						'limit' => $limit
 					));
-				} else {		  
-					$results = OoyalaBacklotAPI::query(array(
-						'status' => 'live',
-						'orderBy' => 'uploadedAt,desc',
-						'limit' => $limit,
-						'pageID' => '0'
-					));
+				} else {
+					$backlot->query( array(
+						'where'   => "status='live'",
+						'orderby' => 'created_at descending',
+						'limit'   => $limit
+					) );
 				}
 			break;
 		}
-
-		// Check if OoyalaBacklotAPI::query returned an error
-		if ( !is_wp_error( $results ) ) {
-			$results = OoyalaBacklotAPI::print_results( $results );
-		}
-
-		// We may have got an error from OoyalaBacklotAPI::print_results this time, so check again
-		if ( is_wp_error( $results ) ) 
-			echo '<div class="error"></p>'. __('Error:', 'ooyalavideo') . " {$results->get_error_message()} </p></div>";
-		else 
-			echo $results;
-
 		die();
 	}
 
+	function media_page() {
+		require_once( dirname( __FILE__ ) . '/ooyala-browser.php' );
+	}
 }
 
 //Run option migration on activation
