@@ -2,9 +2,9 @@
 /*
 Plugin Name: SocialFlow
 Plugin URI: http://wordpress.org/extend/plugins/socialflow/
-Description: 
+Description: SocialFlow's WordPress plugin enhances your WordPress experience by allowing you to utilize the full power of SocialFlow from right inside your WordPress dashboard.
 Author: SocialFlow, Stresslimit, PeteMall
-Version: 1.0.1
+Version: 1.1
 Author URI: http://socialflow.com/
 License: GPLv2 or later
 Text Domain: socialflow
@@ -42,33 +42,42 @@ class SocialFlow_Plugin {
 		// Translations
 		load_plugin_textdomain( 'socialflow', false, basename( dirname( __FILE__ ) ) . '/i18n' );
 
-		add_action( 'post_row_actions',                array( $this, 'row_actions'               ), 10, 2 );
-		add_action( 'page_row_actions',                array( $this, 'row_actions'               ), 10, 2 );
-		add_action( 'admin_enqueue_scripts',           array( $this, 'enqueue'                   ), 10, 2 );
-		add_action( 'transition_post_status',          array( $this, 'transition_post_status'    ), 10, 3 );
-		add_action( 'add_meta_boxes',                  array( $this, 'add_meta_box'              ) );
-		add_action( 'save_post',                       array( $this, 'save_post'                 ) );
-		add_action( 'wp_dashboard_setup',              array( $this, 'register_dashboard_widget' ) );
-		add_action( 'wp_ajax_sf-shorten-msg',          array( $this, 'shorten_message'           ) );
-		add_action( 'admin_init',                      array( $this, 'admin_init'                ) );
-		add_action( 'admin_notices',                   array( $this, 'admin_notices'             ) );
+		add_action( 'post_row_actions',       array( $this, 'row_actions'               ), 10, 2 );
+		add_action( 'page_row_actions',       array( $this, 'row_actions'               ), 10, 2 );
+		add_action( 'admin_enqueue_scripts',  array( $this, 'enqueue'                   ), 10, 2 );
+		add_action( 'transition_post_status', array( $this, 'transition_post_status'    ), 10, 3 );
+		add_action( 'add_meta_boxes',         array( $this, 'add_meta_box'              ) );
+		add_action( 'save_post',              array( $this, 'save_post'                 ) );
+		add_action( 'wp_dashboard_setup',     array( $this, 'register_dashboard_widget' ) );
+		add_action( 'wp_ajax_sf-shorten-msg', array( $this, 'shorten_message'           ) );
+		add_action( 'admin_init',             array( $this, 'admin_init'                ) );
+		add_action( 'admin_notices',          array( $this, 'admin_notices'             ) );
+
+		if ( is_admin() )
+			require_once( dirname( __FILE__ ) . '/includes/settings.php' );
 	}
 
 	public function admin_init() {
-		if ( isset( $_POST['sf'], $_POST['sf']['enable'], $_POST['sf']['message_option'] ) ) {
-			$o = get_option( 'socialflow' );
-			$o['publish_option'] = sanitize_text_field( $_POST['sf']['message_option'] );
-			$o['enable'] = absint( $_POST['sf']['enable'] );
+		if ( isset( $_GET['sf_oauth'], $_GET['oauth_token'] ) ) {
+			$options = get_option( 'socialflow' );
+			if ( ! isset( $options['oauth_token'] ) )
+				return;
 
-			if ( !empty( $o['accounts'] ) ) {
-				foreach ( $o['accounts'] as $id => $account ) {
-					if ( in_array( $id, $_POST['sf']['accounts'] ) )
-						$o['accounts'][$id]['status'] = 1;
-					else
-						$o['accounts'][$id]['status'] = 0;
-				}
+			if ( $options['oauth_token'] == $_GET['oauth_token'] ) {
+				require_once( dirname( __FILE__ ) ) . '/includes/class-wp-socialflow.php';
+				$sf = new WP_SocialFlow( self::consumer_key, self::consumer_secret, $options['oauth_token'], $options['oauth_token_secret'] );
+				$options['access_token'] = $sf->get_access_token( $_GET['oauth_verifier'] );
+				unset( $options['oauth_token'] );
+				unset( $options['oauth_token_secret'] );
+				$options['publish_option'] = empty( $options['publish_option'] ) ? 'optimize' : $options['publish_option'];
+				$options['enable'] = true;
+				$options['accounts'] = $sf->get_account_list();
+				foreach ( $options['accounts'] as &$account )
+					$account['status'] = 'on';
+				update_option( 'socialflow', $options );
+				wp_redirect( admin_url() );
+				exit;
 			}
-			update_option( 'socialflow', $o );
 		} elseif ( isset( $_GET['action'], $_GET['_wpnonce'], $_GET['post'] ) && 'sf-publish' == $_GET['action'] && wp_verify_nonce( $_GET['_wpnonce'], 'sf-publish_' . $_GET['post'] ) ) {
 			$referer = remove_query_arg( array( 'action', '_wpnonce', 'post' ), wp_get_referer() );
 
@@ -153,7 +162,7 @@ class SocialFlow_Plugin {
 	 */
 	public function register_dashboard_widget() {
 		if ( current_user_can( 'publish_posts' ) )
-			wp_add_dashboard_widget( 'socialflow', __( 'SocialFlow', 'socialflow' ), array( $this, 'dashboard_widget' ), array( $this, 'dashboard_widget_settings' ) );
+			wp_add_dashboard_widget( 'socialflow', __( 'SocialFlow', 'socialflow' ), array( $this, 'dashboard_widget' ) );
 	}
 
 	/**
@@ -182,28 +191,6 @@ class SocialFlow_Plugin {
 			}
 		}
 
-		if ( isset( $_REQUEST['sf_disconnect'] ) ) {
-			unset( $options['access_token'] );
-			unset( $options['accounts'] );
-			update_option( 'socialflow', $options );
-		}
-
-		if ( isset( $_GET['sf_oauth'], $_GET['oauth_token'], $options['oauth_token'] ) ) {
-			if ( $options['oauth_token'] == $_GET['oauth_token'] ) {
-				require_once( dirname( __FILE__ ) ) . '/includes/class-wp-socialflow.php';
-				$sf = new WP_SocialFlow( self::consumer_key, self::consumer_secret, $options['oauth_token'], $options['oauth_token_secret'] );
-				$options['access_token'] = $sf->get_access_token( $_GET['oauth_verifier'] );
-				unset( $options['oauth_token'] );
-				unset( $options['oauth_token_secret'] );
-				$options['publish_option'] = empty( $options['publish_option'] ) ? 'optimize' : $options['publish_option'];
-				$options['enable'] = true;
-				$options['accounts'] = $sf->get_account_list();
-				foreach ( $options['accounts'] as &$account )
-					$account['status'] = true;
-				update_option( 'socialflow', $options );
-			}
-		}
-
 		if ( 
 			! $options ||
 			empty( $options['access_token'] ) ||
@@ -213,28 +200,6 @@ class SocialFlow_Plugin {
 		} else {
 			$this->display_compose_form();
 		}
-	}
-
-	/**
-	 * Handle the SocialFlow dashboard widget settings.
-	 */
-	public function dashboard_widget_settings() {
-		$options = get_option( 'socialflow', array() );
-
-		if ( empty( $options ) )
-			$options['socialflow'] = array( 'access_token' => array(), 'option' => 'optimize', 'enable' => 'false' );
-
-		if ( $_POST && isset( $_POST['socialflow'] ) ) {
-			$options['socialflow']['option']   = isset( $_POST['socialflow']['option'] ) ? sanitize_text_field( $_POST['socialflow']['option'] ) : '';
-			$options['socialflow']['enable']   = isset( $_POST['socialflow']['enable'] ) ? sanitize_text_field( $_POST['socialflow']['enable'] ) : '';
-
-			update_option( 'socialflow', $options );
-		}
-
-		if ( ! isset( $_GET['edit'] ) )
-			return;
-
-		$this->display_settings_form( $options );
 	}
 
 	/**
@@ -267,78 +232,6 @@ class SocialFlow_Plugin {
 		</div>
 		
 		<?php
-	}
-
-	/**
-	 * Display the settings form for the dashboard widget.
-	 */
-	private function display_settings_form( $options ) {
-		$default = array( 'publish_option' => 'optimize', 'enable' => 'false', 'accounts' => array() );
-		$options = array_merge( $default, $options );
-
-		?><div class="submitbox"><?php
-
-		if ( !empty( $options['access_token'] ) ) {
-			require_once( dirname( __FILE__ ) ) . '/includes/class-wp-socialflow.php';
-			$sf = new WP_SocialFlow( self::consumer_key, self::consumer_secret, $options['access_token']['oauth_token'], $options['access_token']['oauth_token_secret'] );
-
-			$accounts = $sf->get_account_list();
-
-			if ( false === $accounts ) {
-				?><div class="misc-pub-section"><p><span class="sf-error"><?php _e( 'There was a problem communicating with the SocialFlow API. Please Try again later. If this problem persists, please email support@socialflow.com', 'socialflow' ); ?></p></div><?php
-			} elseif ( empty( $accounts ) ) {
-				?><div class="misc-pub-section"><p><span class="sf-error"><?php _e( 'You have not authorized SocialFlow to optimize any Twitter accounts or Facebook Pages. Please go to <a href="https://app.socialflow.com">SocialFlow</a> to set this up.', 'socialflow' ); ?></p></div><?php
-			} else {
-				foreach ( $accounts as $key => $account ) {
-					if ( !isset( $account['service_type'] ) || 'publishing' != $account['service_type'] )
-					 	unset( $accounts[ $key ] );
-					else
-						$accounts[ $key ]['status'] = isset( $options['accounts'][$key]['status'] ) ? $options['accounts'][$key]['status'] : true;
-				}
-			}
-			$options['accounts'] = $accounts;
-			update_option( 'socialflow', $options );
-		}
-
-		?>
-			<div id="misc-publishing-actions">
-
-				<div class="misc-pub-section">
-					<label for="sf-username-display"><?php _e( 'SocialFlow Plugin Status:', 'socialflow' ); ?></label>
-					<span id="sf-username-display" class="hide-if-no-js"><?php echo empty( $options['access_token'] ) ? __( 'Not Authorized', 'socialflow' ) : __( 'Authorized', 'socialflow' );  ?> </span>
-					<?php if ( ! empty( $options['access_token'] ) ) : ?><a href="<?php echo esc_url( add_query_arg( 'sf_disconnect', true, admin_url( '/' ) ) ); ?>"><?php _e( 'Disconnect', 'socialflow' ); ?></a><?php endif; ?>
-				</div>
-
-				<div class="misc-pub-section">
-					<label for="sf_message_option"><?php _e( 'Default Message Option:', 'socialflow' ); ?></label>
-					<select id="sf_message_option" name="sf[message_option]">
-						<option value="optimize" <?php selected( $options['publish_option'], 'optimize' ); ?>><?php _e( 'Optimize', 'socialflow' ); ?></option>
-						<option value="publishnow" <?php selected( $options['publish_option'], 'publishnow' ); ?>><?php _e( 'Publish Now', 'socialflow' ); ?></option>
-						<option value="hold" <?php selected( $options['publish_option'], 'hold' ); ?>><?php _e( 'Hold', 'socialflow' ); ?></option>
-					</select>
-				</div>
-
-				<div class="misc-pub-section" id="sf-accounts">
-					<label for="sf_message_option"><?php _e( 'Message these accounts when blog posts are published:', 'socialflow' ); ?></label>
-					<div id="edit-accounts-div">
-						<?php if ( !empty( $accounts ) ) {
-							foreach ( $accounts as $account ) {
-								$id = 'sf[accounts][' . esc_attr( $account['client_service_id'] ) . ']';
-								echo '<label for="' . $id . '" class="selectit"><input type="checkbox" id="' . $id . '" name="sf[accounts][]" value="' . esc_attr( $account['client_service_id'] ) . '" ' . checked( $account['status'], true, false ) . ' /> ' . esc_html( $account['name'].' - '.ucfirst($account['account_type']) ) . '</label><br />';
-								}
-							} ?>
-					</div>
-				</div>
-
-				<div class="misc-pub-section">
-					<label for="sf_enable"><?php _e( 'Automatically send blog post messages to SocialFlow:', 'socialflow' ); ?> </label>
-					<input type="radio" name="sf[enable]" id="enable-yes" value="1" <?php checked( $options['enable'], 1 ); ?> /> <label for="enable-yes" class="selectit"><?php _e( 'Yes', 'socialflow' ); ?> </label>
-					<input type="radio" name="sf[enable]" id="enable-no" value="0" <?php checked( $options['enable'], 0 ); ?> /> <label for="enable-no" class="selectit"><?php _e( 'No', 'socialflow' ); ?></label>
-				</div>
-
-			</div>
-		</div><?php
-		
 	}
 
 	/**
@@ -451,7 +344,7 @@ class SocialFlow_Plugin {
 		$account_types = array();
 		
 		foreach ( $accounts as $key => $account ) {
-			if ( 'publishing' != $account['service_type'] || ! $account['status'] ) {
+			if ( 'publishing' != $account['service_type'] || 'on' != $account['status'] ) {
 				unset( $accounts[ $key ] );
 			} else {
 				$service_user_ids[] = $account['service_user_id'];
@@ -472,7 +365,7 @@ class SocialFlow_Plugin {
 
 	public function shorten_message( $message = '' ) {
 		if ( !$message = $_REQUEST['sf_message'] )
-			return;
+			die;
 
 		$account = $_REQUEST['sf_account'];
 		$options = get_option( 'socialflow' );
@@ -508,7 +401,6 @@ class SocialFlow_Plugin {
 		}
 		$_SERVER['REQUEST_URI'] = remove_query_arg( 'sf_sent', $_SERVER['REQUEST_URI'] );
 	}
-
 }
 
 new SocialFlow_Plugin;
