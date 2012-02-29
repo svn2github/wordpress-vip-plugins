@@ -8,7 +8,7 @@ class SocialFlow_Settings {
 
 	public function settings_page() {
 		$options = get_option( 'socialflow' );
-		if ( isset( $_REQUEST['sf_disconnect'] ) ) {
+		if ( isset( $_REQUEST['sf_disconnect'], $options['access_token'] ) ) {
 			unset( $options['access_token'] );
 			unset( $options['accounts'] );
 			update_option( 'socialflow', $options );
@@ -29,12 +29,32 @@ class SocialFlow_Settings {
 	}
 
 	public function settings_init() {
-		register_setting( 'sf_options', 'socialflow' );
+		register_setting( 'sf_options', 'socialflow', array( $this,'sanitize' ) );
 		add_settings_section( 'sf_general', '', '__return_false', 'sf-settings' );
 		add_settings_field( 'sf_status', __( 'SocialFlow Plugin Status', 'socialflow' ), array( $this, 'status_field' ) , 'sf-settings', 'sf_general' );
 		add_settings_field( 'sf_message_option', __( 'Default Message Option', 'socialflow' ), array( $this, 'message_option_field' ) , 'sf-settings', 'sf_general' );
 		add_settings_field( 'sf_accounts', __( 'Message these accounts when blog posts are published', 'socialflow' ), array( $this, 'accounts_field' ) , 'sf-settings', 'sf_general' );
 		add_settings_field( 'sf_enable', __( 'Automatically send blog post messages to SocialFlow', 'socialflow' ), array( $this, 'enable_field' ) , 'sf-settings', 'sf_general' );
+	}
+
+	public function sanitize( $options ) {
+		foreach ( $options as $option_key => &$option_value ) {
+			switch ( $option_key ) {
+				case 'enable' :
+					$option_value = absint( $option_value );
+					break;
+				case 'publish_option' :
+					$option_value = sanitize_text_field( $option_value );
+					break;
+				case 'accounts' :
+					foreach ( $option_value as &$accounts ) {
+						foreach( $accounts as &$account_fields )
+							$account_fields = sanitize_text_field( $account_fields );
+					}
+					break;
+			}
+		}
+		return $options;
 	}
 
 	function settings_menu() {
