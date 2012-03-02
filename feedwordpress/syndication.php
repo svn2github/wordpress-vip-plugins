@@ -855,7 +855,7 @@ function fwp_multidelete_page () {
 
 		if (count($do_it['delete']) > 0) :
 			$deletem = "(".implode(', ', $do_it['delete']).")";
-			foreach ($do_id['delete'] as $del_id) {
+			foreach ($do_it['delete'] as $del_id) {
 				// Make a list of the items syndicated from this feed...
 				$args = array(
 					'posts_per_page' => -1,
