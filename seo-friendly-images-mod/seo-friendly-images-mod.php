@@ -70,7 +70,7 @@ function seo_friendly_images_options_page()
 		// Fetch code from DB
 		$alt_text = get_option('seo_friendly_images_alt');
 		$title_text = get_option('seo_friendly_images_title');
-		$override =( get_option('seo_friendly_images_override') == 1 ) ? "checked":"";
+		$override =( get_option('seo_friendly_images_override') == 1 ) ? true : false;
 			
 	// Configuration Page
 
@@ -96,6 +96,7 @@ function seo_friendly_images_options_page()
 		 	<form name="sfiform" action="options.php" method="post">
 END;
 	settings_fields( 'seo_friendly_images_settings' );
+	$checked = checked( $override, 1, false );
 	echo <<<END
    				<h2>General Options</h2>
    
@@ -123,7 +124,7 @@ END;
 </div>
 
 <br />
-<div><input id="check1" type="checkbox" name="seo_friendly_images_override" $override />
+<div><input id="check1" type="checkbox" name="seo_friendly_images_override" value="1" $checked />
 <label for="check1">Override default Wordpress alt (recommended)</label></div> 
 
 
