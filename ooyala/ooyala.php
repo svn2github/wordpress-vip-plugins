@@ -343,16 +343,16 @@ class Ooyala_Video {
 		
 		$key_word = isset( $_GET['key_word'] ) ? esc_attr( $_GET['key_word'] ) : '';
 		$field = isset( $_GET['search_field'] ) ? esc_attr( $_GET['search_field'] ) : 'description';
-		$pageid = isset( $_GET['pageid'] ) ? (int) $_GET['pageid'] : '';
+		$pageid = isset( $_GET['pageid'] ) ? $_GET['pageid'] : '';
 		$backlot = new WP_Ooyala_Backlot( get_option( 'ooyala' ) );
 		switch( $do ) {		
 			case 'search':
 				if ( '' != $pageid &&  '' != $key_word ) {
 					$backlot->query( array(
-						'where'   => $field . "='" . $key_word . "' AND status='live'",
-						'orderby' => 'created_at descending',
-						'limit' => $limit,
-						'pageID' => $pageid
+						'where'        => $field . "='" . $key_word . "' AND status='live'",
+						'orderby'      => 'created_at descending',
+						'limit'        => $limit,
+						'papage_token' => absint( $pageid )
 					) );
 				} else if ( '' != $key_word ) {
 					$backlot->query( array(
@@ -369,10 +369,10 @@ class Ooyala_Video {
 	 		case 'last_few':
 				if ( !empty( $pageid) ) {
 					$backlot->query( array(
-						'where' => "status='live'",
-						'orderby' => 'created_at descending',
-						'pageID' => $pageid,
-						'limit' => $limit
+						'where'      => "status='live'",
+						'orderby'    => 'created_at descending',
+						'limit'      => $limit,
+						'page_token' => absint( $pageid )
 					));
 				} else {
 					$backlot->query( array(

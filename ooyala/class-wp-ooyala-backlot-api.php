@@ -58,6 +58,7 @@ class WP_Ooyala_Backlot {
 		$url = add_query_arg( $params, 'https://api.ooyala.com' . $request['path'] );
 
 		$response = wp_remote_get( $url, array( 'timeout' => apply_filters( 'ooyala_http_request_timeout', 10 ) ) );
+
 		if ( $return )
 			return $response;
 		if ( 200 == wp_remote_retrieve_response_code( $response ) )
@@ -66,11 +67,20 @@ class WP_Ooyala_Backlot {
 
 	private function render_popup( $response ) {
 		$videos = json_decode( $response );
-		$output = '<div id="ooyala-items">';
 
-		if ( empty( $videos->items ) )
+		if ( empty( $videos->items ) ) {
 			_e( 'No videos found.', 'ooyalavideo' );
+			return;
+		}
 
+		$output = '';
+		if ( !empty( $videos->next_page ) ) {
+			parse_str( urldecode( $videos->next_page ) );
+			$next = '<a href="#' . $page_token . '" class="next page-numbers ooyala-paging">Next &raquo;</a>';
+			$output .= '<div class="tablenav"><div class="tablenav-pages">' . $next . '</div></div>';
+		}
+
+		$output .= '<div id="ooyala-items">';
 		foreach ( $videos->items as $video ) {
 			$output .= '
 			<div id="ooyala-item-' . esc_attr( $video->embed_code ) . '" class="ooyala-item">

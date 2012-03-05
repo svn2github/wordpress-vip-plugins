@@ -38,7 +38,7 @@
 		$response = $backlot->query( array(
 			'where'   => $where,
 			'orderby' => 'created_at descending',
-			'limit'   => 20,
+			'limit'   => 16,
 		), array(), true );
 
 
@@ -105,5 +105,4 @@
 			echo $output;
 		endif; 
 	} ?>
-	</div>
 </div>
