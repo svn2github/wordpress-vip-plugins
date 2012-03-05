@@ -145,6 +145,20 @@ function wpcom_vip_load_helper_wpcom() {
 	}
 }
 
+/*
+ * Loads the WordPress.com-only VIP helper file for stats which defines some helpful stats-related functions.
+ *
+*/
+function wpcom_vip_load_helper_stats() {
+        $includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-stats-wpcom.php';
+
+        if ( function_exists( 'wpcom_is_vip' ) ) {
+                require_once( $includepath );
+        } else {
+                die( "wpcom_vip_load_helper_stats() should only be called on WordPress.com as it contains WordPress.com-specific code." );
+        }
+}
+
 function wpcom_vip_add_loaded_plugin( $plugin ) {
 	global $vip_loaded_plugins;
 	
