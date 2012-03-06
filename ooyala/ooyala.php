@@ -168,7 +168,6 @@ class Ooyala_Video {
 				'embedCode' => $code,
 				'autoplay' => $autoplay,
 				'callback' => $callback,
-				'playerId' => 'player',
 				'version' => 2,
 			), 'http://player.ooyala.com/player.js' );
 
