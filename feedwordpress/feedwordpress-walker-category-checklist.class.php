@@ -7,11 +7,28 @@
  * This is the fucking stupidest thing ever.
  */
 
- require_once(ABSPATH.'/wp-admin/includes/template.php');
+// require_once(ABSPATH.'/wp-admin/includes/template.php');
 // Fucking fuck.
-
-class FeedWordPress_Walker_Category_Checklist extends Walker_Category_Checklist {
+// Unfuck by extending base Walker instead of Walker_Category_Checklist class by rinatkhaziev
+class FeedWordPress_Walker_Category_Checklist extends Walker {
+	var $tree_type = 'category';
 	var $prefix = '';
+	var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
+
+	function start_lvl(&$output, $depth, $args) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent<ul class='children'>\n";
+	}
+
+	function end_lvl(&$output, $depth, $args) {
+		$indent = str_repeat("\t", $depth);
+		$output .= "$indent</ul>\n";
+	}
+
+	function end_el(&$output, $category, $depth, $args) {
+		$output .= "</li>\n";
+	}
+
 	function set_prefix ($prefix) {
 		$this->prefix = $prefix;
 	}

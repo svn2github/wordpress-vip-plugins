@@ -102,7 +102,7 @@ require_once(ABSPATH . WPINC . '/feed.php');
 require_once(ABSPATH . WPINC . '/class-feed.php');
 require_once(ABSPATH . WPINC . '/class-simplepie.php');
 
-require_once (ABSPATH . WPINC . '/registration.php'); // for wp_insert_user
+// require_once (ABSPATH . WPINC . '/registration.php'); // for wp_insert_user @deprecated
 
 require_once(dirname(__FILE__) . '/admin-ui.php');
 require_once(dirname(__FILE__) . '/compatability.php'); // LEGACY API: Replicate or mock up functions for legacy support purposes
@@ -114,13 +114,17 @@ if (is_array($_POST)) :
 	$fwp_post = stripslashes_deep($_POST);
 endif;
 
+add_action( 'admin_enqueue_scripts', 'fwp_scripts');
+/**
+ * fix notice in 3.3
+ */
+function fwp_scripts() {
 // If this is a FeedWordPress admin page, queue up scripts for AJAX functions that FWP uses
 // If it is a display page or a non-FeedWordPress admin page, don't.
 if (FeedWordPressSettingsUI::is_admin()) :
 	add_action('admin_print_scripts', array('FeedWordPressSettingsUI', 'admin_scripts'));
 
 	wp_register_style('feedwordpress-elements', A16Z_PLUGIN_URL.'feedwordpress-elements.css');
-
 	wp_enqueue_style('dashboard');
 	wp_enqueue_style('feedwordpress-elements');
 
@@ -130,6 +134,7 @@ if (FeedWordPressSettingsUI::is_admin()) :
 		endif;
 	endif;
 endif;
+}
 
 if (!FeedWordPress::needs_upgrade()) : // only work if the conditions are safe!
 
@@ -167,18 +172,18 @@ if (!FeedWordPress::needs_upgrade()) : // only work if the conditions are safe!
 	# happens to fuck up any URI with a & to separate GET parameters.
 	remove_filter('pre_link_rss', 'wp_filter_kses');
 	remove_filter('pre_link_url', 'wp_filter_kses');
-	
+
 	# Admin menu
 	add_action('admin_menu', 'fwp_add_pages');
 
-	add_action('admin_menu', 'feedwordpress_add_post_edit_controls');
+	add_action('add_meta_boxes', 'feedwordpress_add_post_edit_controls');
 	add_action('save_post', 'feedwordpress_save_post_edit_controls');
 
 	add_action('admin_footer', array('FeedWordPress', 'admin_footer'));
-	
+
 	# Inbound XML-RPC update methods
 	add_filter('xmlrpc_methods', 'feedwordpress_xmlrpc_hook');
-	
+
 	# Outbound XML-RPC ping reform
 	remove_action('publish_post', 'generic_ping'); // WP 1.5.x
 	remove_action('do_pings', 'do_all_pings', 10, 1); // WP 2.1, 2.2

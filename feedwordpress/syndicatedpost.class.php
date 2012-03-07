@@ -983,11 +983,13 @@ class SyndicatedPost {
 		if (is_null($this->_freshness)) :
 			/* CF: Needed to either find a way to get the guid from a WP call, 
 			or we'll need to store the URL where it should be....in post_meta */
+			/** rinatkhaziev: this was outdated and erroneous **/ 
 			$args = array(
-				'post_meta' => '_fwp_guid',
+				'meta_key' => '_fwp_guid',
 				'meta_value' => $this->guid(),
 				'posts_per_page' => 1, // Only want the first one (there should always only be 1),
-				'numberposts' => 0,
+				'post_status' => array( 'publish', 'draft', 'private', 'pending', 'future' )
+				
 			);
 			$posts = get_posts($args);
 			if (!is_array($posts) or empty($posts)) {
