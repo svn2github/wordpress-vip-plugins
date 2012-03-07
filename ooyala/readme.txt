@@ -4,10 +4,10 @@ Contributors: dsearle, automattic, PeteMall
 Tags: embedding, video, embed, portal, ooyala, shortcode
 Requires at least: 3.0
 Tested up to: 3.3
-Stable tag: 1.4.1
+Stable tag: 1.5
 
 Easy embedding of videos for the Ooyala Video Platform.
-Browse your Ooyala's videos, and easily insert them into your posts and page.
+Browse your Ooyala videos, and easily insert them into your posts and page.
 
 
 == Description ==
@@ -29,6 +29,13 @@ Copy the subfolder "ooyala-video" with all included files into the "wp-content/p
 = 1.5 =
 * Added PeteMall as contributor
 * Fixed localization for menu strings
+
+= 1.4.3 =
+* Added Automattic as contributor
+
+= 1.4.2 = 
+* Provided more robustness around the API calls being made.
+* Updated documentation to direct users to the V1 API keys.
 
 = 1.4.1 = 
 * Fixed a deprecated function call
