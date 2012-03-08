@@ -29,6 +29,7 @@ Copy the subfolder "ooyala-video" with all included files into the "wp-content/p
 = 1.5 =
 * Added PeteMall as contributor
 * Fixed localization for menu strings
+* Deprecated config.php - API code should be entered through the settings screen.
 
 = 1.4.3 =
 * Added Automattic as contributor
