@@ -2,8 +2,8 @@
 /*
 Plugin Name: Ooyala Video
 Plugin URI: http://www.ooyala.com/wordpressplugin/
-Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in the <a href="options-general.php?page=ooyala_options"> plugin settings</a>.
-Version: 1.4.1
+Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in the <a href="options-general.php?page=ooyala-options"> plugin settings</a>.
+Version: 1.5
 License: GPL
 Author: David Searle
 
