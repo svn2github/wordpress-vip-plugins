@@ -18,7 +18,7 @@ class LazyLoad_Images {
 
 	function init() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ) );
-		add_filter( 'the_content', array( __CLASS__, 'add_image_placeholders' ), 11 );
+		add_filter( 'the_content', array( __CLASS__, 'add_image_placeholders' ), 99 ); // run this later, so other content filters have run, including image_add_wh on WP.com
 		add_filter( 'post_thumbnail_html', array( __CLASS__, 'add_image_placeholders' ), 11 );
 	}
 
@@ -36,7 +36,7 @@ class LazyLoad_Images {
 		$placeholder_image = apply_filters( 'lazyload_images_placeholder_image', self::get_url( 'images/1x1.trans.gif' ) );
 
 		// This is a pretty simple regex, but it works
-		$content = preg_replace( '#<img([^>]+?)src=[\'"]([^\'">]*)[\'"]([^>]*)>#', sprintf( '<img${1}src="%s" data-lazy-src="${2}"${3}><noscript><img${1}src="${2}"${3}></noscript>', $placeholder_image ), $content );
+		$content = preg_replace( '#<img([^>]+?)src=[\'"]?([^\'"\s>]+)[\'"]?([^>]*)>#', sprintf( '<img${1}src="%s" data-lazy-src="${2}"${3}><noscript><img${1}src="${2}"${3}></noscript>', $placeholder_image ), $content );
 
 		return $content;
 	}
