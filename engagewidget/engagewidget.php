@@ -67,7 +67,7 @@ class EngageCLWidget extends WP_Widget {
 	}
 
 	function init_engage_cl_widget( $instance ) {
-		$engageJsUrl = 'http://www.engagewidget.com/static/js/show_widget.js';
+		$engageJsUrl = 'http://www.engagewidget.com/static/raw-js/show_widget.js';
 		$cl_params = array( 'cl_refer' => 'wordpress', 'cl_bg_color' => $instance['bg_color'], 'cl_border_color' => $instance['border_color'] );
 		echo '<script type=\'text/javascript\'>'
 			.'var cl_ad=1; var cl_link=window.location.href;'
