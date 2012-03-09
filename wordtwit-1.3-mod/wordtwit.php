@@ -353,11 +353,9 @@ function post_now_published( $post_id ) {
 	add_post_meta( $post_id, 'has_been_twittered', 'yes' );
 
 	if ( true == $post_update && !($has_been_twittered == 'yes')) {
-		query_posts('p=' . $post_id);
-
-		if (have_posts()) {
-			the_post();
-			global $post;
+		 global $post;
+		 $post = get_post( $post_id );
+		 setup_postdata( $Post );
 
 			$i = 'New blog entry \'' . the_title('','',false) . '\' - ' . get_permalink();
 
@@ -407,7 +405,8 @@ function post_now_published( $post_id ) {
 			$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
 			
 			twit_update_status( $oauth_token, $oauth_token_secret, $message );
-		}
+
+		 wp_reset_postdata();
 	}
 }
 
