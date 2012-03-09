@@ -53,6 +53,13 @@ class MediaPass_Plugin {
 	const OPT_ACCESS_TOKEN			= 'mp_access_token';
 	const OPT_REFRESH_TOKEN			= 'mp_refresh_token';
 	
+	const NONCE_METERED		=	'metered';
+	const NONCE_PRICING		=	'pricing';
+	const NONCE_BENEFITS	=	'benefits';
+	const NONCE_NETWORK		=	'network';
+	const NONCE_ACCOUNT		=	'account';
+	const NONCE_ECPM_FLOOR	=	'ecpm-floor';
+	
 	public function __construct() {
 		$this->init_api_strings();
 
@@ -66,8 +73,12 @@ class MediaPass_Plugin {
 		add_action('init', array(&$this,'init'));
 	}
 	
-	private function check_nonce(){
-		check_admin_referer( self::NONCE );
+	public static function nonce_for($for) {
+		wp_nonce_field(self::NONCE . $for);
+	}
+	
+	private function check_nonce($for){
+		check_admin_referer( self::NONCE . $for );
 		
 		return true;
 	}
@@ -75,8 +86,8 @@ class MediaPass_Plugin {
 		return function_exists('wpcom_is_vip') && wpcom_is_vip();	
 	}
 	
-	private function is_good_post(){
-		return !empty($_POST) && $this->check_nonce();
+	private function is_valid_http_post_action($for){
+		return !empty($_POST) && $this->check_nonce($for);
 	}
 	
 	private function init_api_strings() {
@@ -256,7 +267,7 @@ class MediaPass_Plugin {
 				
 			$this->api_client = new MediaPass( $mp_access_token, $mp_user_ID , self::API_ENV );
 			
-			add_menu_page('MediaPass General Information', 'MediaPass', 'read', 'mediapass',array(&$this,'menu_default'));
+			add_menu_page('MediaPass General Information', 'MediaPass', 'read', 'mediapass',array(&$this,'menu_default'), plugins_url('images/logo-icon-16x16.png',__FILE__) );
 			
 			add_submenu_page('mediapass', 'MediaPass Account Information', 'Account Info', 'edit_others_posts', 'mediapass_accountinfo',array(&$this,'menu_account_info'));
 			add_submenu_page('mediapass', 'MediaPass Reporting', 'Reporting', 'edit_others_posts', 'mediapass_reporting', array(&$this,'menu_reporting'));
@@ -329,7 +340,7 @@ class MediaPass_Plugin {
 	public function menu_metered() {
 		$ok = isset($_POST['Status']) && isset($_POST['Count']);
 		
-		if ($this->is_good_post() && $ok) {
+		if ($this->is_valid_http_post_action(self::NONCE_METERED) && $ok) {
 			list( $status, $count ) = array( $_POST['Status'], $_POST['Count'] );
 		
 			$data = $this->api_client->set_request_metering_status( $status, $count );
@@ -366,10 +377,19 @@ class MediaPass_Plugin {
 	}
 
 	public function menu_placement() {
+		/** 
+		 * WE REMOVED ALL OF THE FUNCTIONALITY FROM THIS PAGE IN FAVOR OF MOVING TO THE MORE
+		 * 'native' LOCATIONS (post list, category list, etc) IN WP-ADMIN. PAGE IS NOW PURELY 
+		 * INSTRUCTIONAL. 
+		 * 
+		 * FORGOT TO REMOVE.
+		 */
+		
+		/*	
 		wp_enqueue_script('jquery-ui-datepicker');
 		wp_enqueue_script('jquery-ui-tabs');
 			
-		$isPost = $this->is_good_post();
+		$isPost = $this->is_valid_http_post_action(self::NONCE_PLACEMENT);
 		
 		$categories = get_categories();
 		$tags		= get_tags();
@@ -397,14 +417,14 @@ class MediaPass_Plugin {
 		$selected   		= get_option(self::OPT_PLACEMENT_CATEGORIES);
 		$selected_tags 		= get_option(self::OPT_PLACEMENT_TAGS);
 		$selected_authors 	= get_option(self::OPT_PLACEMENT_AUTHORS);
-		
+		*/
 		include_once('includes/placement.php');
 	}
 	
 	public function menu_benefits() {
 		$user_number = get_option(self::OPT_USER_NUMBER);
 		
-		if ($this->is_good_post()) {
+		if ($this->is_valid_http_post_action(self::NONCE_BENEFITS)) {
 			
 			if (!empty($_POST['upload_image'])) {
 				$pathinfo = pathinfo($_POST['upload_image']);
@@ -416,9 +436,10 @@ class MediaPass_Plugin {
 			$benefit = $this->api_client->set_benefits_text( $_POST['benefits'] );
 		} else {
 			$benefit = $this->api_client->get_benefits_text();
-			$logo = $this->api_client->get_logo( $user_number );
 		}
 		
+		$logo = $this->api_client->get_logo( $user_number );
+			
 		$data = array(
 			'Status' => $benefit['Status'],
 			'Msg' => array(
@@ -431,9 +452,9 @@ class MediaPass_Plugin {
 	}
 	
 	public function menu_network() {
-		$isPost = $this->is_good_post();
-		$isActiveSiteUpdate = $isPost && isset($_POST['update-active-site-action']);
-		$isPricingUpdate = $isPost && isset($_POST['update-active-network-pricing']);
+		$isPost = $this->is_valid_http_post_action(self::NONCE_NETWORK);
+		$isActiveSiteUpdate = $isPost && isset($_POST['mp-network-update-active-site-action']);
+		$isPricingUpdate = $isPost && isset($_POST['mp-network-update-active-network-pricing']);
 		
 		if ($isActiveSiteUpdate) {
 			$networkSelected = $_POST['network-selected'];
@@ -465,7 +486,7 @@ class MediaPass_Plugin {
 	public function menu_account_info() {
 		$user_number = get_option(self::OPT_USER_NUMBER);
 		
-		if ($this->is_good_post()) {
+		if ($this->is_valid_http_post_action(self::NONCE_ACCOUNT)) {
 			$data = $this->api_client->api_call(array(
 				'method' => 'POST',
 				'action' => 'Account',
@@ -481,7 +502,7 @@ class MediaPass_Plugin {
 	}
 	
 	public function menu_ecpm_floor() {
-		if ($this->is_good_post()) {
+		if ($this->is_valid_http_post_action(self::NONCE_ECPM_FLOOR)) {
 			$data = $this->api_client->set_ecpm_floor( $_POST['ecpm_floor'] );
 		} else {
 			$data = $this->api_client->get_ecpm_floor();
@@ -497,7 +518,7 @@ class MediaPass_Plugin {
 		
 		$user_number = get_option(self::OPT_USER_NUMBER);
 		
-		if ($this->is_good_post()) {
+		if ($this->is_valid_http_post_action(self::NONCE_PRICING)) {
 			
 			$price_model = array();
 			
@@ -540,22 +561,29 @@ class MediaPass_Plugin {
 	public function menu_faqs_tc() {
 		if ( ! function_exists( 'fetch_feed' ) )
 			include_once(ABSPATH . WPINC . '/feed.php');
+			
 		$faq_feed = fetch_feed($this->faq_feed_url);
+		
 		if (!is_wp_error($faq_feed)) {
 			$faq_items = $faq_feed->get_items(0, $faq_feed->get_item_quantity(5));
 		}
+		
 		include_once('includes/faq_tc.php');
 	}
 	
 	public function menu_deauth() {
-		$escaped_uri = esc_url($_SERVER['REQUEST_URI']);
-		$logo = plugins_url('/js/images/mplogo.gif', __FILE__);
-		
-		echo '<div class="mp-wrap">';
-		echo 	'<h2 class="header"><img width="24" height="24" src="'. $logo . '" class="mp-icon"> De-Authorize Plugin</h2>';
-		echo 	'<p>Are you sure you want to de-authorize this plugin?</p>';
-		echo  	'<p><a href="' . $escaped_uri . '&deauth=true">Click here to de-authorize this plugin and unlink your MediaPass account.</a></p>';
-		echo '</div>';
+		if (!empty($_GET['deauth'])) {
+			$this->delete_all_options();
+			
+			echo '<div class="mp-wrap">';
+			echo '<h2 class="header"><img width="24" height="24" src="'. plugins_url('/images/logo-icon.png', __FILE__) .'" class="mp-icon"> De-Authorizing</h2>';
+			echo '<p>Please wait while we deauthorize the plugin.</p>';
+			echo '</div>';
+			
+			echo '<script type="text/javascript">location.href="'. $this->auth_deauth_url . menu_page_url('mediapass',false)  .'";</script>';
+		} else {
+			include_once('includes/deauth.php');
+		}
 	}
 	
 	/**
@@ -564,41 +592,14 @@ class MediaPass_Plugin {
 	 */
 	public static function delete_all_options() {
 		$opts = array( 
-			self::OPT_INSTALLED_URL, self::OPT_USER_ID, self::OPT_USER_URL, self::OPT_USER_ERROR, 
-			self::OPT_USER_NUMBER, self::OPT_PLACEMENT_CATEGORIES, self::OPT_PLACEMENT_AUTHORS, 
-			self::OPT_PLACEMENT_DATES, self::OPT_PLACEMENT_TAGS, self::OPT_ACCESS_TOKEN, 
-			self::OPT_REFRESH_TOKEN, self::OPT_DEFAULT_PLACEMENT_MODE
+			self::OPT_INSTALLED_URL		, self::OPT_USER_ID, self::OPT_USER_URL, self::OPT_USER_ERROR, 
+			self::OPT_USER_NUMBER		, self::OPT_PLACEMENT_CATEGORIES, self::OPT_PLACEMENT_AUTHORS, 
+			self::OPT_PLACEMENT_DATES	, self::OPT_PLACEMENT_TAGS		, self::OPT_ACCESS_TOKEN, 
+			self::OPT_REFRESH_TOKEN		, self::OPT_DEFAULT_PLACEMENT_MODE
 		);
 		
 		foreach($opts as $o){
 			delete_option($o);
-		}
-	}
-	
-	public function update_auth_status() {
-		// De-authorize account if requested
-		if (!empty($_GET['deauth'])) {
-			$this->delete_all_options();
-			
-			wp_redirect( $this->auth_deauth_url . urlencode( menu_page_url( 'mediapass_deauth_success', false ) ) );
-			exit;
-		}
-		
-		if (!empty($_GET['page']) && $_GET['page'] == self::PLUGIN_NAME) {
-			$mp_user_id 	  = get_option(self::OPT_USER_NUMBER   );
-			$mp_access_token  = get_option(self::OPT_ACCESS_TOKEN  );
-			$mp_refresh_token = get_option(self::OPT_REFRESH_TOKEN );
-	
-			if ($mp_user_id != 0 && $mp_refresh_token != 0 && $mp_access_token !== 0) {
-	
-				$response = $api_client->get_account_data($mp_user_id);
-				
-				if ($response['Msg'] == 'HTTP Error 401 Unauthorized') {
-					$refresh_redirect = MP_AUTH_REFRESH_URL . urlencode("http" . ( is_ssl() ? "s" : null ) . "://" . $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI']) . '&refresh_token=' . $mp_refresh_token;
-					wp_redirect($refresh_redirect);
-					exit;
-				}
-			}
 		}
 	}
 }

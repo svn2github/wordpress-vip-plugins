@@ -56,9 +56,19 @@ These are the three MediaPass subscription options. In order from left to right,
 
 == Changelog ==
 
-= 1.0 =
-* Add Video Overlay option.
-* Imported mediapass.com account settings.
+= 0.9.4 =
+* Enable account deauthorization process.
+
+= 0.9.3 =
+* Ajax now validates nonces.  Different nonce seed for each page initiating the action.
+* Ajax handlers now validates capabilities.
+
+= 0.9.2 =
+* Converted all NONCE generation to MediaPass_Plugin::nonce_for($action_specific_nonce)
+* Migrated is_good_post() to is_valid_http_post_action($action_specific_nonce)
+* Removed unused code from menu_placement() - page has become purely instructional
+* Added icon to main menu
+* Updated version to 0.9.2
 
 
 

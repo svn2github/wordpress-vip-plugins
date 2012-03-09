@@ -6,7 +6,7 @@
 	<p>Upload a logo to customize the look and feel of your Page Overlay and Video Overlay subscription options. Your logo must be a jpg. See examples below.</p>
 	
 	<form name="benefits" action="" method="post" accept-charset="utf-8" id="benefits-form">
-		<?php wp_nonce_field('mp-nonce'); ?>
+		<?php MediaPass_Plugin::nonce_for(MediaPass_Plugin::NONCE_BENEFITS) ?>
 		<br/><br/>
 		 <table width="100%" border="0" cellpadding="0" cellspacing="0" id="logo_benefits_options">
           	<colgroup>

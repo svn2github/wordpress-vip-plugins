@@ -8,7 +8,7 @@
 	</p>
 
 	<form action="" method="post" accept-charset="utf-8">
-		<?php wp_nonce_field('mp-nonce'); ?>
+		<?php MediaPass_Plugin::nonce_for(MediaPass_Plugin::NONCE_METERED) ?>
 		<table border="0" class="form-table">
 			<tr>
 				<th><label for="Status">Status</label></th>

@@ -6,7 +6,7 @@
 	<p class="subtitle" style="padding-left:0">First, choose your Premium Subscription model. Most websites will use Membership Access, to allow multiple pages or sections of content to be included in your premium subscription membership. The Single Article Access is for websites that wish to only charge for specific pieces of content. This option is similar to a pay-per-view model, and does not support ongoing premium subscriptions.</p>
 	<br/>
 	<form action="#" method="post" accept-charset="utf-8" id="membership-form">
-	<?php wp_nonce_field('mp-nonce'); ?>
+	<?php MediaPass_Plugin::nonce_for(MediaPass_Plugin::NONCE_PRICING) ?>
 	<div id="subscription-model">
 		<label for="subscription-model">My Premium Subscription Model:</label>
 		<select name="subscription_model" id="subscription-model" style="width:165px;">

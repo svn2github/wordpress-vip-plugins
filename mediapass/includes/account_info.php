@@ -4,7 +4,7 @@
 	<p class="subtitle" style="padding-left:0">Update your MediaPass Publisher Account information here.  Accurate account and address information ensures proper payment of your Premium subscription revenue to WordPress site administrators, processed and issued by MediaPass.</p>
 	<br/>
 	<form action="" method="post" accept-charset="utf-8">
-		<?php wp_nonce_field('mp-nonce'); ?>
+		<?php MediaPass_Plugin::nonce_for(MediaPass_Plugin::NONCE_ACCOUNT) ?>
 		<table border="0" cellspacing="0" cellpadding="0" class="form-table">
 			<tbody>
 				<tr>

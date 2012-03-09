@@ -1,20 +1,32 @@
 <?php
 
 class MediaPass_Plugin_ContentListExtensions {
+	const TARGET_CATEGORY = 'category-list-update-protection';
+	const TARGET_TAG	  = 'tag-list-update-protection';
+	const TARGET_AUTHOR	  = 'author-list-update-protection';
+	const TARGET_POST	  = 'content-list-update-protection';
+	
+	private function can_protect_posts() {
+		return current_user_can('publish_posts');
+	}
+	
+	private function can_protect_meta() {
+		return current_user_can('manage_categories');
+	}
 	
 	public function __construct(){
 		if( ! is_admin() ) {
 			return;
 		}
-			
-		if( current_user_can('publish_posts') ) {
+		
+		if( $this->can_protect_posts() ) {
 			add_action('manage_posts_columns'		, array(&$this,'add_post_list_column'));
 			add_action('manage_posts_custom_column'	, array(&$this,'add_post_custom_column'));
 			add_action('admin_head-edit.php'		, array(&$this,'add_bulk_post_actions'));
 			add_action('admin_print_footer_scripts' , array(&$this,'print_list_extensions_script'));
 		}  
 		
-		if( current_user_can('manage_categories') ) {
+		if( $this->can_protect_meta() ) {
 			add_action('manage_edit-category_columns'	, array(&$this,'add_mediapass_column'));
 			add_action('manage_category_custom_column'	, array(&$this,'add_category_custom_column'),10,3);
 
@@ -24,13 +36,13 @@ class MediaPass_Plugin_ContentListExtensions {
 			add_action('manage_users_columns'		, array(&$this,'add_mediapass_column'));
 			add_action('manage_users_custom_column' , array(&$this,'add_user_custom_column'),10,3);
 		}
-
+		
 		add_action('wp_ajax_content-list-update-protection' , array(&$this,'action_update_post_protection'));
 		add_action('wp_ajax_author-list-update-protection'  , array(&$this,'action_update_author_protection'));
 		add_action('wp_ajax_category-list-update-protection', array(&$this,'action_update_category_protection'));
 		add_action('wp_ajax_tag-list-update-protection'		, array(&$this,'action_update_tag_protection'));
 	}
-	
+
 	public function add_mediapass_column( $columns ) {
 		$columns['mediapass'] = 'MediaPass';
 		
@@ -113,22 +125,32 @@ class MediaPass_Plugin_ContentListExtensions {
 		echo $box;
 	}
 	
-	public function print_list_extensions_script() {
+	private function get_current_content_mode() {
 		$screen = get_current_screen();
 		
 		$opts = new stdClass();
 		
 		if( $screen->taxonomy == 'category' ) {
-			$opts->targetAction = 'category-list-update-protection';
+			$opts->targetAction = self::TARGET_CATEGORY;
 		} else if( $screen->taxonomy == 'post_tag' ) {
-			$opts->targetAction = 'tag-list-update-protection';
+			$opts->targetAction = self::TARGET_TAG;
 		} else if( $screen->base == 'users' ) {
-			$opts->targetAction = 'author-list-update-protection';
+			$opts->targetAction = self::TARGET_AUTHOR;
+		} else {
+			$opts->targetAction = self::TARGET_POST;
 		}
+		
+		return $opts;
+	}
+	
+	public function print_list_extensions_script() {
+		$opts = $this->get_current_content_mode();
+		
+		$opts->nonce = wp_create_nonce($opts->targetAction );
 		
 		$s  = '<script type="text/javascript">';	
 		$s .= 'jQuery(document).ready(function($){';
-		$s .= 'var opts = '. json_encode($opts) . '; console.log(opts);';
+		$s .= 'var opts = '. json_encode($opts) . ';';
 		$s .= 'MM.ContentListExtensionsInstance = new MM.WP.ContentListExtensions(opts);';
 		$s .= 'MM.ContentEditorExtensionsInstance = new MM.WP.ContentEditorExtensions();';
 		$s .= 'MM.ContentListExtensionsInstance.renderBulkActionControl();';
@@ -151,7 +173,11 @@ class MediaPass_Plugin_ContentListExtensions {
 		}
 	}
 	
-	public function action_update_content_protection($opt){
+	public function action_update_content_protection($target,$opt){
+		check_ajax_referer( $target, 'nonce');
+		
+		if( ! $this->can_protect_meta() ) { die(); }
+		
 		$data = json_decode(stripslashes($_POST['data']),true);
 		
 		$authors = $data['selectedPosts'];
@@ -185,16 +211,20 @@ class MediaPass_Plugin_ContentListExtensions {
 	}
 	
 	public function action_update_tag_protection(){
-		$this->action_update_content_protection(MediaPass_Plugin::OPT_PLACEMENT_TAGS);
+		$this->action_update_content_protection(self::TARGET_TAG, MediaPass_Plugin::OPT_PLACEMENT_TAGS);
 	}
 	public function action_update_category_protection() {
-		$this->action_update_content_protection(MediaPass_Plugin::OPT_PLACEMENT_CATEGORIES);
+		$this->action_update_content_protection(self::TARGET_CATEGORY,MediaPass_Plugin::OPT_PLACEMENT_CATEGORIES);
 	}
 	public function action_update_author_protection() {
-		$this->action_update_content_protection(MediaPass_Plugin::OPT_PLACEMENT_AUTHORS);
+		$this->action_update_content_protection(self::TARGET_AUTHOR,MediaPass_Plugin::OPT_PLACEMENT_AUTHORS);
 	}
 	
 	public function action_update_post_protection() {
+		check_ajax_referer( self::TARGET_POST, 'nonce' );
+		
+		if( ! $this->can_protect_posts() ) { die(); }
+		
 		$data = json_decode(stripslashes($_POST['data']),true);
 		
 		$posts  = $data['selectedPosts'];

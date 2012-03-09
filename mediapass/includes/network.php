@@ -8,8 +8,8 @@
 	<br/>
 	<h3 id="a-manage-sites">Current Network Sites</h3>
 	<form method="POST">
-	<?php wp_nonce_field('mp-nonce'); ?>
-	<input type="hidden" name="update-active-site-action" value="1" />
+	<?php MediaPass_Plugin::nonce_for(MediaPass_Plugin::NONCE_NETWORK) ?>
+	<input type="hidden" name="mp-network-update-active-site-action" value="1" />
 	<table class="widefat" id="network-sites">
 		<tr>
 			<th>Active</th>
@@ -48,9 +48,9 @@
 <hr/>
 	<h3>Add New Site</h3>
 	<form method="post" accept-charset="utf-8">
-		<input type="hidden" name="create-site-action" value="1" />
+		<input type="hidden" name="mp-network-create-site-action" value="1" />
 		
-		<?php wp_nonce_field('mp-nonce'); ?>
+		<?php MediaPass_Plugin::nonce_for(MediaPass_Plugin::NONCE_NETWORK) ?>
 		<table border="0" class="form-table">
 			<tr class="network-site">
 				<td>
@@ -86,8 +86,9 @@
 		<p class="subtitle" style="padding-left:0">Your site visitors will see three options when asked to sign-up for a Premium subscription. Select the 3 subscription membership periods to choose from, and the corresponding unit price for each period. For example, if you want to charge $60 for a 6 month subscription, enter $10 for the unit price.</p>
 		<br/>
 		<form method="POST">
-		<?php echo wp_nonce_field('mp-nonce')?>
-		<input type="hidden" name="update-active-network-pricing" value="1" />
+			
+		<?php MediaPass_Plugin::nonce_for(MediaPass_Plugin::NONCE_NETWORK) ?>
+		<input type="hidden" name="mp-network-update-active-network-pricing" value="1" />
 		
 		<table border="0" cellspacing="0" cellpadding="0" id="price-points">
 			<tr>

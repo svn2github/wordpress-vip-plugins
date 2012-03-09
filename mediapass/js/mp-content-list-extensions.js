@@ -58,7 +58,7 @@ MM.WP.ContentListExtensions = function(config) {
 	}
 	
 	var updateSelectedPosts = function(selectedPostIds, actionRequested, cb) {
-		$.post(ajaxurl,{
+		$.post(ajaxurl + '?nonce=' + cfg.nonce,{
 			action: targetAction,
 			dataType: 'json',
 			data: JSON.stringify({
