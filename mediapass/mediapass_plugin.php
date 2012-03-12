@@ -272,12 +272,12 @@ class MediaPass_Plugin {
 			add_submenu_page('mediapass', 'MediaPass Account Information', 'Account Info', 'edit_others_posts', 'mediapass_accountinfo',array(&$this,'menu_account_info'));
 			add_submenu_page('mediapass', 'MediaPass Reporting', 'Reporting', 'edit_others_posts', 'mediapass_reporting', array(&$this,'menu_reporting'));
 			add_submenu_page('mediapass', 'MediaPass Placement Configuration', 'Placement', 'edit_others_posts', 'mediapass_placement', array(&$this,'menu_placement'));
-		    add_submenu_page('mediapass', 'MediaPass Price Points', 'Price Points', 'update_core', 'mediapass_pricepoints',array(&$this,'menu_price_points'));
+		    add_submenu_page('mediapass', 'MediaPass Price Points', 'Price Points', 'manage_options', 'mediapass_pricepoints',array(&$this,'menu_price_points'));
 		    add_submenu_page('mediapass', 'MediaPass Update Benefits', 'Logo and Benefits', 'edit_others_posts', 'mediapass_benefits',array(&$this,'menu_benefits'));
 			add_submenu_page('mediapass', 'MediaPass Metered Settings', 'Metered Settings', 'edit_others_posts', 'mediapass_metered_settings',array(&$this,'menu_metered'));
-			add_submenu_page('mediapass', 'MediaPass Network Settings', 'Network Settings', 'update_core', 'mediapass_network_settings',array(&$this,'menu_network'));
+			add_submenu_page('mediapass', 'MediaPass Network Settings', 'Network Settings', 'manage_options', 'mediapass_network_settings',array(&$this,'menu_network'));
 		    add_submenu_page('mediapass', 'MediaPass FAQs, Terms and Conditions', 'FAQs', 'edit_posts', 'mediapass_faqs_tc',array(&$this,'menu_faqs_tc'));
-		    add_submenu_page('mediapass', 'De-authorize MediaPass Account', 'De-Authorize', 'update_core', 'mediapass_deauth',array(&$this,'menu_deauth'));
+		    add_submenu_page('mediapass', 'De-authorize MediaPass Account', 'De-Authorize', 'manage_options', 'mediapass_deauth',array(&$this,'menu_deauth'));
 			
 			// Disabled for now, pending further development and refinement.
 			//
