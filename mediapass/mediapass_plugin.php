@@ -7,11 +7,11 @@ require_once(dirname(__FILE__) . "/mediapass_plugin_content_filters.php");
 class MediaPass_Plugin {
 
 	const PLUGIN_NAME	=	'mediapass';
-	const API_ENV		=	'stage';
+	const API_ENV		=	'prod';
 	const CLIENT_ID		=	'97B9A5B07E8FCC853F1588FA6C024E36';
 	
-	const API_PREFIX	=	'https://api-staging.mediapass.com/';
-	const FE_PREFIX		=	'https://web-staging.mediapass.com/';
+	const API_PREFIX	=	'https://api.mediapass.com/';
+	const FE_PREFIX		=	'https://www.mediapass.com/';
 	
 	const NONCE			=	'mp-nonce';
 	
@@ -254,7 +254,17 @@ class MediaPass_Plugin {
 			update_option( self::OPT_USER_NUMBER  , $id 			);
 			
 			delete_transient( 'mp_get_publisher_data_lock' ); // delete the transient to make sure we ping the API for fresh data
+			
 			$this->get_publisher_data();
+			
+			// Activate site and set the default mode to EXCLUDE.
+			
+			$site_activation = new stdClass;
+			$site_activation->id = $id;
+			$site_activation->active = true;
+			$site_activation->default_filter_type = 0;
+			
+			$this->api_client->update_network_site($site_activation);
 		}
 	
 		$mp_user_ID 		= get_option(self::OPT_USER_NUMBER  );
@@ -352,72 +362,12 @@ class MediaPass_Plugin {
 	}
 	
 	public function menu_default() {
-		$un = get_option(self::OPT_USER_NUMBER);
-		
-		$period  = isset($_GET['period']) ? $_GET['period'] : false;
-		$stats   = $this->api_client->get_reporting_summary_stats( $un, $period );
-		$earning = $this->api_client->get_reporting_summary_earnings( $un );
-		
-		if ($stats['Status'] == 'success' && $earning['Status']['success']) {
-			$data = array(
-				'stats' => $stats['Msg'],
-				'earning' => $earning['Msg']
-			);
-			include_once('includes/summary_report.php');
-		} else {
-			$error = "";
-			if ($stats['Status'] != 'success') {
-				$error .= $stats['Msg'];
-			}
-			if ($earning['Status'] != 'success') {
-				$error .= $earning['Msg'];
-			}
-			include_once('includes/error.php');
-		}
+		/* function of page changed */
+		include_once('includes/summary_report.php');
 	}
 
 	public function menu_placement() {
-		/** 
-		 * WE REMOVED ALL OF THE FUNCTIONALITY FROM THIS PAGE IN FAVOR OF MOVING TO THE MORE
-		 * 'native' LOCATIONS (post list, category list, etc) IN WP-ADMIN. PAGE IS NOW PURELY 
-		 * INSTRUCTIONAL. 
-		 * 
-		 * FORGOT TO REMOVE.
-		 */
-		
-		/*	
-		wp_enqueue_script('jquery-ui-datepicker');
-		wp_enqueue_script('jquery-ui-tabs');
-			
-		$isPost = $this->is_valid_http_post_action(self::NONCE_PLACEMENT);
-		
-		$categories = get_categories();
-		$tags		= get_tags();
-		$authors    = get_users(array('who' => 'authors', 'fields' => 'all_with_meta'));
-		
-		if( $isPost ) {
-		  	$to_update = $_POST['placement-update-section'];
-			$checks = isset($_POST['checked']) ? $_POST['checked'] : array();
-			
-			$selected = array();
-		  	
-		  	foreach($checks as $check) {
-		    	$selected[] = intval( $check ); // we're saving IDs
-		  	}
-			
-		  	if( $to_update == 'category') {
-			  	update_option(MediaPass_Plugin::OPT_PLACEMENT_CATEGORIES, $selected);
-		  	} else if( $to_update == 'tag') {
-		  		update_option(MediaPass_Plugin::OPT_PLACEMENT_TAGS, $selected);
-		  	} else if( $to_update == 'author') {
-		  		update_option(MediaPass_Plugin::OPT_PLACEMENT_AUTHORS, $selected);
-		  	}
-		}
-		
-		$selected   		= get_option(self::OPT_PLACEMENT_CATEGORIES);
-		$selected_tags 		= get_option(self::OPT_PLACEMENT_TAGS);
-		$selected_authors 	= get_option(self::OPT_PLACEMENT_AUTHORS);
-		*/
+		/* Function of page changed. */
 		include_once('includes/placement.php');
 	}
 	

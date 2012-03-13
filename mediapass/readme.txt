@@ -56,6 +56,12 @@ These are the three MediaPass subscription options. In order from left to right,
 
 == Changelog ==
 
+= 0.9.5 =
+* Upon successful association of MediaPass account with plugin, activate the site and set the default mode to "exclude" to accomodate new defaults
+* Remove unused code from menu_default
+* Remove old comments regarding unused code removal
+* Migrate to production API
+
 = 0.9.4 =
 * Enable account deauthorization process.
 

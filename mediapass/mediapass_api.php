@@ -294,6 +294,22 @@ class MediaPass {
 	}
 	
 	/**
+	 * Update site information
+	 */
+	public function update_network_site( $site_model ) {
+		return $this->api_call(array(
+			'method' => 'PUT',
+			'action' => 'network/list',
+			'content_type' => 'application/json',
+			'body' => array(
+				'Id' => $site_model->id,
+				'Active' => $site_model->active,
+				'DefaultFilterType' => $site_model->default_filter_type
+			)
+		));
+	}
+	
+	/**
 	 * Set Network Pricing
 	 */
 	public function set_network_pricing( $price_model ) {
