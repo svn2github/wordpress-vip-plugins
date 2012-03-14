@@ -258,7 +258,7 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	// The "en" is there as staticize_subdomain() expects the passed URL to be something.wordpress.com
 	$thumburl = staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
 
-	return ( $escape ) ? esc_attr( $thumburl ) : $thumburl;
+	return ( $escape ) ? esc_url( $thumburl ) : $thumburl;
 }
 
 /*
