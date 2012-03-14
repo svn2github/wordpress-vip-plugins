@@ -237,9 +237,9 @@ class Livefyre_Admin {
 
 	function network_options_init( $options_page = 'livefyre_domain_options' ) {
 	
-		register_setting($options_page, 'livefyre_domain_name');
-		register_setting($options_page, 'livefyre_domain_key');
-		register_setting($options_page, 'livefyre_use_backplane');
+		register_setting($options_page, 'livefyre_domain_name', 'sanitize_text_field' );
+		register_setting($options_page, 'livefyre_domain_key', 'sanitize_text_field' );
+		register_setting($options_page, 'livefyre_use_backplane', 'sanitize_text_field' );
 
 		add_settings_section('lf_domain_settings',
 			'Livefyre Domain Settings',
@@ -269,8 +269,8 @@ class Livefyre_Admin {
 	function site_options_init() {
 	
 		$site_options = 'livefyre_site_options';
-		register_setting($site_options, 'livefyre_site_id');
-		register_setting($site_options, 'livefyre_site_key');
+		register_setting($site_options, 'livefyre_site_id', 'sanitize_text_field' );
+		register_setting($site_options, 'livefyre_site_key', 'sanitize_text_field' );
 		
 		add_settings_section('lf_site_settings',
 			'Livefyre Site Settings',
@@ -314,25 +314,25 @@ class Livefyre_Admin {
 
 	function site_id_callback() {
 	
-		echo "<input name='livefyre_site_id' value='". get_option( 'livefyre_site_id' ) ."' />";
+		echo "<input name='livefyre_site_id' value='". esc_attr( get_option( 'livefyre_site_id' ) ) ."' />";
 		
 	}
 	
 	function site_key_callback() { 
 	
-		echo "<input name='livefyre_site_key' value='". get_option( 'livefyre_site_key' ) ."' />";
+		echo "<input name='livefyre_site_key' value='". esc_attr( get_option( 'livefyre_site_key' ) ) ."' />";
 		
 	}
 	
 	function domain_name_callback() {
 	
-		echo "<input name='livefyre_domain_name' value='". get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) ."' />";
+		echo "<input name='livefyre_domain_name' value='". esc_attr( get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) ) ."' />";
 		
 	}
 	
 	function domain_key_callback() { 
 	
-		echo "<input name='livefyre_domain_key' value='". get_option( 'livefyre_domain_key' ) ."' />";
+		echo "<input name='livefyre_domain_key' value='". esc_attr( get_option( 'livefyre_domain_key' ) ) ."' />";
 		
 	}
 	
@@ -389,7 +389,7 @@ class Livefyre_Display {
 				$func = "wp_". $handler . "_url";
 				$code = $this->lf_core->AppExtension->get_option( "livefyre_$handler", false );
 				if ( !$code ) {
-					$code = 'function(){document.location.href="' . $func( get_permalink() ) . '"}';
+					$code = 'function(){document.location.href="' . esc_url( $func( get_permalink() ) ) . '"}';
 				}
 				$conv->add_js_delegate( "auth_$handler", $code );
 			}
