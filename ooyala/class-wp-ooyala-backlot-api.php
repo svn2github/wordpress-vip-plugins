@@ -36,6 +36,38 @@ class WP_Ooyala_Backlot {
 		return $signature;
 	}
 
+	public function update( $body, $path ) {
+		$params = array(
+			'api_key' => $this->api_key,
+			'expires' => time() + 900
+		);
+		$path = '/v2/assets/' . $path;
+		$params['signature'] = $this->sign_request( array( 'path' => $path, 'method' => 'PATCH', 'body' => $body ), $params );
+		foreach ( $params as &$param )
+			$param = rawurlencode( $param );
+
+		$url = add_query_arg( $params, 'https://api.ooyala.com' . $path );
+		/*
+		// Workaround for core bug - http://core.trac.wordpress.org/ticket/18589
+		// Uncomment this section if running < 3.4 or trunk with < http://core.trac.wordpress.org/changeset/20183
+		$curl = curl_init( $url );
+		curl_setopt( $curl, CURLOPT_HEADER, false );
+		curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Content-type: application/json' ) );
+		curl_setopt( $curl, CURLOPT_CUSTOMREQUEST, "PATCH" );
+		curl_setopt( $curl, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
+
+		$response = curl_exec( $curl );
+		$status = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
+		curl_close( $curl );
+
+		if ( 200 == $status )
+			return json_decode( $response );
+		*/
+
+		return wp_remote_request( $url, array( 'headers' => array( 'Content-Type' => 'application/json' ), 'method' => 'PATCH', 'body' => $body, 'timeout' => apply_filters( 'ooyala_http_request_timeout', 10 ) ) );
+	}
+
 	public function query( $params, $request = array(), $return = false ) {
 		$default_request = array(
 			'method' => 'GET',

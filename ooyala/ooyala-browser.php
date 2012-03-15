@@ -18,7 +18,23 @@
 	<?php
 
 	$backlot = new WP_Ooyala_Backlot( get_option( 'ooyala' ) );
-	if ( !empty( $_GET['edit'] ) ) {
+
+	if ( isset( $_POST['submit'] ) ) {
+		$response = $backlot->update( 
+			json_encode(
+				array( 
+					'name' => sanitize_text_field( $_POST['ooyala']['title'] ),
+					'embed_code' => sanitize_text_field( $_POST['ooyala']['embed'] ),
+					'description' => sanitize_text_field( $_POST['ooyala']['description'] )
+				)
+			),		
+			sanitize_text_field( $_POST['ooyala']['embed' ] )
+		);
+		if ( 200 == wp_remote_retrieve_response_code( $response ) )
+			echo '<div id="message" class="updated below-h2"><p>' . __( 'Video updated.', 'ooyalavideo' ) . '</p></div>';
+		else
+			echo '<div id="message" class="error below-h2"><p>' . __( 'There was an error communicating with Ooyala API.', 'ooyalavideo' ) . '</p></div>';
+	} elseif ( !empty( $_GET['edit'] ) ) {
 		$response = $backlot->query(
 			array(
 				'where' => "embed_code='" . esc_attr( $_GET['edit'] ) . "'"
@@ -46,28 +62,27 @@
 			echo '<div id="message" class="error below-h2"><p>' . __( 'Ooyala API is currently unavailable.', 'ooyala' ) . '</p></div>';
 	} ?>
 
-
 	<form id="ooyala-search">
 		<input type="hidden" name="page" value="ooyala-browser" />
 		<p class="">
 			<select name="ooyalasearchfield" id="ov-search-field">
 				<option value="description" selected="selected"><?php esc_attr_e( 'Description', 'ooyalavideo' ); ?></option>
 				<option value="name"><?php esc_attr_e( 'Name', 'ooyalavideo' ); ?></option>
-				<option value="labels"><?php esc_attr_e( 'Label', 'ooyalavideo' ); ?></option>
 			</select>
 			<label class="screen-reader-text" for="ooyala-search-input"><?php esc_html_e( 'Search', 'ooyalavideo' ); ?></label>
 			<input type="text" id="ooyala-search-input" name="s" value="" />
 			<?php submit_button( __( 'Search', 'ooyalavideo' ), 'secondary', 'ooyala-search', false ) ?>
 		</p>
 	</form>
-		
+
 	<?php if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
 		$videos = json_decode( wp_remote_retrieve_body( $response ) );
 		if ( empty( $videos->items ) )
 			_e( 'No videos found.', 'ooyalavideo' );
 
-		if ( !empty( $_GET['edit'] ) ) : $video = $videos->items[0]; ?>
-			<form id="ooyala-edit-video" method="post" action="<?php menu_page_url( 'ooyala-browser'); ?>">
+		if ( !empty( $_GET['edit'] ) ) : 
+			$video = isset( $_POST['submit'] ) ? $videos : $videos->items[0]; ?>
+			<form id="ooyala-edit-video" method="post" action="<?php echo add_query_arg( 'edit', sanitize_text_field( $_GET['edit'] ), menu_page_url( 'ooyala-browser', false ) ); ?>">
 				<input type="hidden" name="ooyala[embed]" value="<?php echo esc_attr( $video->embed_code ); ?>" />
 				<table class="form-table">
 				<tbody>
@@ -76,12 +91,8 @@
 						<td><input type="text" id="ooyala-title" name="ooyala[title]" value="<?php echo esc_attr( $video->name ); ?>" class="regular-text"></td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php esc_html_e( 'Label', 'ooyalavide' ); ?></th>
-						<td><input type="text" id="ooyala-label" name="ooyala[label]" value="<?php echo isset( $video->label ) ? esc_attr( $video->label ) : ''; ?>" class="regular-text"></td>
-					</tr>
-					<tr valign="top">
 						<th scope="row"><?php esc_html_e( 'Description', 'ooyalavide' ); ?></th>
-						<td><textarea rows="4" cols="40" name="ooyala-description" tabindex="6" id="ooyala['description]"><?php echo esc_textarea( $video->description ); ?></textarea></td>
+						<td><textarea rows="4" cols="40" id="ooyala-description" tabindex="6" name="ooyala[description]"><?php echo esc_textarea( $video->description ); ?></textarea></td>
 					</tr>
 				</tbody>
 				</table>

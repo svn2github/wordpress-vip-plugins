@@ -51,7 +51,7 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 		<div id="ov-content-ooyala" class="ov-content">	
 		 	<form name="ooyala-requests-form" action="#">
 				<p id="media-search" class="search-box">
-					<img src="<?php echo $this->plugin_url; ?>img/ooyala_72dpi_dark_sm.png" style="display:block; float:left"/>
+					<img src="<?php echo $this->plugin_url; ?>img/ooyala100.png" style="vertical-align: middle; margin-right: 10px;"/>
 					<select name="ooyalasearchfield" id="ov-search-field">
 						<option value="description" selected="selected">Description</option>
 						<option value="name">Name</option>
