@@ -9,7 +9,7 @@
  *
  * VIP version of this is manually synced from WPCOM code.
  */
-
+if ( ! function_exists( 'is_mobile' ) ) :
 function is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $kinds = array( 'smart' => false, 'dumb' => false, 'any' => false );
 	static $first_run = true;
@@ -124,3 +124,4 @@ function is_ipad( $type = 'ipad-any' ) {
 	else
 		return $is_ipad;
 }
+endif;
