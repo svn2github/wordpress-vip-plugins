@@ -19,7 +19,7 @@ define('MYSITEAPP_PLUGIN_VERSION', '4.0');
 /** User-Agent for mobile requests **/
 define('MYSITEAPP_AGENT','MySiteApp');
 /** Template for mobile requests **/
-define('MYSTIEAPP_TEMPLATE','mysiteapp');
+define('MYSITEAPP_TEMPLATE','vip/plugins/uppsite/themes/mysiteapp');
 /** Template for web app **/
 define('MYSITEAPP_TEMPLATE_WEBAPP', 'webapp');
 /** API url **/
@@ -82,9 +82,9 @@ class MySiteAppPlugin {
 
 		// Don't change the template directory when in the admin panel
 		if ($this->is_mobile && ! is_admin() ) {
-            add_filter( 'stylesheet', array(&$this, 'get_stylesheet') );
-			add_filter( 'theme_root', array(&$this, 'theme_root') );
-			add_filter( 'theme_root_uri', array(&$this, 'theme_root_uri') );
+			add_filter( 'stylesheet', array(&$this, 'get_stylesheet') );
+			//add_filter( 'theme_root', array(&$this, 'theme_root') );
+			//add_filter( 'theme_root_uri', array(&$this, 'theme_root_uri') );
 			add_filter( 'template', array(&$this, 'get_template') );
 		}
 	}
@@ -126,10 +126,7 @@ class MySiteAppPlugin {
 	function get_theme() {
 		if ($this->is_agent) {
 			// Native app
-			return MYSTIEAPP_TEMPLATE;
-		} elseif ($this->is_mobile) {
-			// Mobile browser
-			return MYSITEAPP_TEMPLATE_WEBAPP;
+			return MYSITEAPP_TEMPLATE;
 		} else {
 			return null;
 		}
@@ -153,13 +150,13 @@ class MySiteAppPlugin {
 	 * @param string $template	Current template
 	 */
 	function get_template( $template ) {
+		return 'vip/plugins/uppsite/themes/mysiteapp';
+
 		if ($this->is_agent) {
 			define("MYSITEAPP_RUNNING","1");
 			if ( function_exists( 'add_theme_support' ) )
 				add_theme_support( 'post-thumbnails');
-			return MYSTIEAPP_TEMPLATE;
-		} elseif ($this->is_mobile) {
-			return MYSITEAPP_TEMPLATE_WEBAPP;
+			return MYSITEAPP_TEMPLATE;
 		} else {
 			return $template;
 		}
