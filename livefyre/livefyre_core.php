@@ -5,18 +5,18 @@ Livefyre Realtime Comments Core Module
 This library is shared between all Livefyre plugins.
 
 Author: Livefyre, Inc. 
-Version: 3.16
+Version: 3.17
 Author URI: http://livefyre.com/
 */
 define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
-define( 'LF_DEFAULT_TLD', 'i4.livefyre.com' );
+define( 'LF_DEFAULT_TLD', 'livefyre.com' );
 define( 'LF_SYNC_LONG_TIMEOUT', 25200 );
 define( 'LF_SYNC_SHORT_TIMEOUT', 3 );
 define( 'LF_SYNC_MAX_INSERTS', 50 );
 define( 'LF_SYNC_ACTIVITY', 'lf-activity' );
 define( 'LF_SYNC_MORE', 'more-data' );
 define( 'LF_SYNC_ERROR', 'error' );
-define( 'LF_PLUGIN_VERSION', '3.16' );
+define( 'LF_PLUGIN_VERSION', '3.17' );
 
 global $livefyre;
 

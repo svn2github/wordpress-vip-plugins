@@ -4,7 +4,7 @@ Plugin Name: Livefyre Realtime Comments
 Plugin URI: http://livefyre.com/wordpress#
 Description: Implements livefyre realtime comments for WordPress
 Author: Livefyre, Inc.
-Version: 3.16
+Version: 3.17
 Author URI: http://livefyre.com/
 */
 
@@ -238,8 +238,8 @@ class Livefyre_Admin {
 	function network_options_init( $options_page = 'livefyre_domain_options' ) {
 	
 		register_setting($options_page, 'livefyre_domain_name', 'sanitize_text_field' );
-		register_setting($options_page, 'livefyre_domain_key', 'sanitize_text_field' );
-		register_setting($options_page, 'livefyre_use_backplane', 'sanitize_text_field' );
+		register_setting($options_page, 'livefyre_domain_key', 'sanitize_text_field');
+		register_setting($options_page, 'livefyre_use_backplane', 'sanitize_text_field');
 
 		add_settings_section('lf_domain_settings',
 			'Livefyre Domain Settings',
@@ -253,7 +253,7 @@ class Livefyre_Admin {
 			'lf_domain_settings');
 		
 		add_settings_field('livefyre_domain_key',
-			'Livefyre Domain Key (not required if using Backplane)',
+			'Livefyre Domain Key (required if you don\'t use livefyre.com profiles)',
 			array( &$this, 'domain_key_callback' ),
 			'livefyre_network',
 			'lf_domain_settings');
@@ -269,8 +269,8 @@ class Livefyre_Admin {
 	function site_options_init() {
 	
 		$site_options = 'livefyre_site_options';
-		register_setting($site_options, 'livefyre_site_id', 'sanitize_text_field' );
-		register_setting($site_options, 'livefyre_site_key', 'sanitize_text_field' );
+		register_setting($site_options, 'livefyre_site_id', 'sanitize_text_field');
+		register_setting($site_options, 'livefyre_site_key', 'sanitize_text_field');
 		
 		add_settings_section('lf_site_settings',
 			'Livefyre Site Settings',
@@ -297,6 +297,26 @@ class Livefyre_Admin {
 		?>
 			<div class="wrap">
 				<h2>Livefyre Settings Page</h2>
+				<h3>WordPress.com VIP Instructions</h3>
+				<p style="font-size:1em;">
+					<ol style="font-size:inherit;">
+						<li>Go to http://www.livefyre.com/install/</li>
+						<li>Create a Livefyre account</li>
+						<li>Enter your Site URL</li>
+						<li>Select "Custom" platform (gear symbol)</li>
+						<li>Click "keep going" to see "Livefyre is ready for use on…"</li>
+						<li>Email WordPressVIP@livefyre.com with the following information:
+						    <ul style="font-size:inherit;">
+						        <li>URL of your site</li>
+						        <li>Any additional questions about Livefyre</li>
+						    </ul>
+						</li>
+						<li>Livefyre will email you the Livefyre Site ID and Site Key to enter on the Livefyre Settings Page in your WP-Admin.</li>
+						<li>No changes need to be made for Livefyre Domain Settings.</li>
+						<li>Click "Save Changes" and you're all set!</li>
+					</ol>
+				</p>
+				<p style="font-size:1em;"><strong>Do you have your own profile system where users login?</strong> Do you want users creating profiles for your site? Let us know and we'll schedule a time to talk through Livefyre's Enterprise Platform to show you how it will meet the needs of your community.</p>
 				<form method="post" action="options.php">
 					<?php
 						settings_fields( 'livefyre_domain_options' );
@@ -338,7 +358,7 @@ class Livefyre_Admin {
 	
 	function use_backplane_callback() {
 	
-		echo "<input name='livefyre_use_backplane' type='checkbox' value='1' " . ( get_option('livefyre_use_backplane', false) ? 'checked ' : '' ) . "/>";
+		echo "<input name='livefyre_use_backplane' type='checkbox' value='1' " . checked( get_option('livefyre_use_backplane', false) ) . "/>";
 	
 	}
 
@@ -385,19 +405,28 @@ class Livefyre_Display {
 			$site = $domain->site( $this->lf_core->AppExtension->get_option( 'livefyre_site_id' ) );
 			$article = $site->article( $post_id );
 			$conv = $article->conversation();
-			foreach ( array( 'login', 'logout' ) as $handler ) {
-				$func = "wp_". $handler . "_url";
-				$code = $this->lf_core->AppExtension->get_option( "livefyre_$handler", false );
-				if ( !$code ) {
-					$code = 'function(){document.location.href="' . esc_url( $func( get_permalink() ) ) . '"}';
-				}
-				$conv->add_js_delegate( "auth_$handler", $code );
-			}
-			if ( $current_user ) {
-				$user = $domain->user( $current_user->ID );
-				echo $conv->to_initjs( $user, $current_user->display_name );
-			} else {
+			if ( $this->lf_core->AppExtension->get_option( 'livefyre_use_backplane', false ) || $this->lf_core->AppExtension->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) == LF_DEFAULT_PROFILE_DOMAIN || defined( LF_WP_VIP ) ) {
+				/* In these scenarios, we can't make assumptions about how user auth
+				   events need to be set up.  For livefyre.com profiles all defaults are
+				   inferred.  In the case of Backplane and/or WP VIP this shall be set
+				   up using a child theme (for those not using livefyre.com profiles).
+				*/
 				echo $conv->to_initjs( );
+			} else {
+				foreach ( array( 'login', 'logout' ) as $handler ) {
+					$func = "wp_". $handler . "_url";
+					$code = $this->lf_core->AppExtension->get_option( "livefyre_$handler", false );
+					if ( !$code ) {
+						$code = 'function(){document.location.href="' . $func( get_permalink() ) . '"}';
+					}
+					$conv->add_js_delegate( "auth_$handler", $code );
+				}
+				if ( $current_user ) {
+					$user = $domain->user( $current_user->ID );
+					echo $conv->to_initjs( $user, $current_user->display_name );
+				} else {
+					echo $conv->to_initjs( );
+				}
 			}
 		}
 
