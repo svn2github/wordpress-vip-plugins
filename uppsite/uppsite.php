@@ -150,8 +150,6 @@ class MySiteAppPlugin {
 	 * @param string $template	Current template
 	 */
 	function get_template( $template ) {
-		return 'vip/plugins/uppsite/themes/mysiteapp';
-
 		if ($this->is_agent) {
 			define("MYSITEAPP_RUNNING","1");
 			if ( function_exists( 'add_theme_support' ) )
@@ -167,7 +165,7 @@ class MySiteAppPlugin {
 	 * @param string $path
 	 */
 	function theme_root( $path ) {
-		if ($this->is_mobile) {
+		if ($this->is_agent) {
 			$pluginDir = dirname(__FILE__);
 			if (defined('WP_PLUGIN_DIR')) {
 				$pluginDir = WP_PLUGIN_DIR . '/' . mysiteapp_get_plugin_name();
