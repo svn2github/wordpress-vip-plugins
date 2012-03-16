@@ -22,7 +22,7 @@ class Daylife_Meta_Box {
 	public function render_meta_box() {
 		$daylife = get_option( 'daylife' );
 		if ( !$daylife['access_key'] || !$daylife['shared_secret'] || !$daylife['api_endpoint'] ) {
-			echo __( 'Please enter the API credentials for Dalylife on the settings screen.', 'daylife' );
+			echo sprintf( __( 'Please enter the API credentials for Daylife on the <a href="%s">settings screen</a>.', 'daylife' ), menu_page_url( 'daylife-options', false ) );
 			return;
 		}
 		?><input type="text" id="daylife-search" name="daylife-search" size="16" value=""><?php
