@@ -525,7 +525,7 @@ function mysiteapp_post_new() {
 	global $post_ID, $form_action, $post, $user_ID;
 	if ($msap->is_device() ) {
 		if (!$post) {
-			$post = get_default_post_to_edit( 'post', true );
+			$post = get_default_post_to_edit( 'post', false );
 			$post_ID = $post->ID;
 		}
 		$arr = array(
