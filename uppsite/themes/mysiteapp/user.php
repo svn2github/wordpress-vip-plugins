@@ -27,10 +27,10 @@ $avatar_url = mysiteapp_extract_url($avatar);
 	<logout_url><![CDATA[<?php echo mysiteapp_logout_url_wrapper() ?>]]></logout_url>
 	<login_url><![CDATA[<?php echo site_url('wp-login.php') ?>]]></login_url>
 	<capabilities>
-		<is_contributor><?php echo isset($user->wp_capabilities['contributor']) && $user->wp_capabilities['contributor'] ? "true" : "false" ?></is_contributor>
-		<is_author><?php echo isset($user->wp_capabilities['author']) && $user->wp_capabilities['author'] ? "true" : "false" ?></is_author>
-		<is_editor><?php echo isset($user->wp_capabilities['editor']) && $user->wp_capabilities['editor'] ? "true" : "false" ?></is_editor>
-		<is_administrator><?php echo isset($user->wp_capabilities['administrator']) && $user->wp_capabilities['administrator'] ? "true": "false" ?></is_administrator>
+		<is_contributor><?php echo current_user_can('contributor') ? "true" : "false" ?></is_contributor>
+		<is_author><?php echo current_user_can('author') ? "true" : "false" ?></is_author>
+		<is_editor><?php echo current_user_can('editor') ? "true" : "false" ?></is_editor>
+		<is_administrator><?php echo current_user_can('administrator') ? "true": "false" ?></is_administrator>
 	</capabilities>
 	</user>
 </mysiteapp>
