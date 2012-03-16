@@ -27,11 +27,11 @@ $avatar_url = mysiteapp_extract_url($avatar);
 	<logout_url><![CDATA[<?php echo mysiteapp_logout_url_wrapper() ?>]]></logout_url>
 	<login_url><![CDATA[<?php echo site_url('wp-login.php') ?>]]></login_url>
 	<capabilities>
-		<is_contributor><?php echo current_user_can('contributor') ? "true" : "false" ?></is_contributor>
-		<is_author><?php echo current_user_can('author') ? "true" : "false" ?></is_author>
-		<is_editor><?php echo current_user_can('editor') ? "true" : "false" ?></is_editor>
-		<is_administrator><?php echo current_user_can('administrator') ? "true": "false" ?></is_administrator>
-		<can_publish><?php echo current_user_can('publish_posts') ? "true" : "false" ?></can_publish>
+		<is_contributor><?php echo $user->has_cap('contributor') ? "true" : "false" ?></is_contributor>
+		<is_author><?php echo $user->has_cap('author') ? "true" : "false" ?></is_author>
+		<is_editor><?php echo $user->has_cap('editor') ? "true" : "false" ?></is_editor>
+		<is_administrator><?php echo $user->has_cap('administrator') ? "true": "false" ?></is_administrator>
+		<can_publish><?php echo $user->has_cap('publish_posts') ? "true" : "false" ?></can_publish>
 	</capabilities>
 	</user>
 </mysiteapp>
