@@ -31,6 +31,7 @@ $avatar_url = mysiteapp_extract_url($avatar);
 		<is_author><?php echo current_user_can('author') ? "true" : "false" ?></is_author>
 		<is_editor><?php echo current_user_can('editor') ? "true" : "false" ?></is_editor>
 		<is_administrator><?php echo current_user_can('administrator') ? "true": "false" ?></is_administrator>
+		<can_publish><?php echo current_user_can('publish_posts') ? "true" : "false" ?></can_publish>
 	</capabilities>
 	</user>
 </mysiteapp>
