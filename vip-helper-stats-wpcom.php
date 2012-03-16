@@ -1,18 +1,18 @@
 <?php
 /*
- * NOTE: This feature is currently still in testing phase
- */
- 
-/*
  *	VIP Helper Functions for Statistics that are specific to WordPress.com
  *
  * wpcom_vip_get_stats_csv() and wpcom_vip_get_stats_xml() are output compatible to
  * stats_get_csv() provided by http://wordpress.org/extend/plugins/stats/ 
  *
  * To add these functions to your theme add
-include(ABSPATH . 'wp-content/themes/vip/plugins/vip-helper-stats-wpcom.php');
+ *
+ *    wpcom_vip_load_helper_stats();
+ *
  * in the theme's 'functions.php'. This should be wrapped in a 
-if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
+ * 
+ *     if ( function_exists('function_name') ) { // WPCOM specific
+ *
  * so you don't load it in your local environment. This will help alert you if
  * have any unconditional dependencies on the WordPress.com environment.
  */
