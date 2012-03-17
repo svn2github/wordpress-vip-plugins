@@ -525,7 +525,9 @@ function mysiteapp_post_new() {
 	global $post_ID, $form_action, $post, $user_ID;
 	if ($msap->is_device() ) {
 		if (!$post) {
-			$post = get_default_post_to_edit( 'post', false );
+			remove_action('save_post', 'mysiteapp_post_new_process');
+			$post = get_default_post_to_edit( 'post', true );
+			add_action('save_post', 'mysiteapp_post_new_process');
 			$post_ID = $post->ID;
 		}
 		$arr = array(
@@ -571,6 +573,12 @@ function mysiteapp_post_new() {
  * @param int $post_id	The newly / updated post_id
  */
 function mysiteapp_post_new_process($post_id) {
+	if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+		return;
+
+	if ( wp_is_post_revision( $post_id ) )
+		return;
+
 	global $msap;
 	if ($msap->is_device() ) {
 		$the_post = wp_is_post_revision($post_id);
@@ -715,6 +723,10 @@ function mysiteapp_get_app_links(){
 	$get = '?api_key='.$options['uppsite_key'].'&hash='.$hash;
 	
 	$response = wp_remote_get(MYSITEAPP_APP_DOWNLOAD_URL.$get);
+
+	if ( is_wp_error( $response ) )
+		return;
+
 	$data = json_decode($response['body'],true);
 	if($data){
 		// Iterate over the mobile platforms
