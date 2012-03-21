@@ -137,6 +137,7 @@ class Livefyre_Activation {
 			// Initialize default profile domain i.e. livefyre.com
 			$this->lf_core->AppExtension->update_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
 		}
+		$this->lf_core->AppExtension->schedule_sync( LF_SYNC_LONG_TIMEOUT );
 	
 	}
 
