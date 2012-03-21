@@ -147,8 +147,7 @@ function ap_wibiya_mobile_header()
     if (ap_wibiya_mobile_using_ie()) {
         wp_enqueue_style('wibiya-mobile-css', __WIBIYA_MOBILE_URL__ . 'views/css/ie.css');
     }
-	wp_register_script( 'jquery-effects', __WIBIYA_MOBILE_URL__ . 'views/js/jquery-1.7.1.min.js');
-	wp_enqueue_script('jquery-effects');
+    wp_enqueue_script( 'jquery' );
 }
 
 function ap_wibiya_mobile_show_livepreview_panding()
