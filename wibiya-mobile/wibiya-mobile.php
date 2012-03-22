@@ -310,7 +310,11 @@ function wibiya_mobile_run()
         add_action('admin_menu', 'ap_wibiya_mobile');
         add_action('admin_head', 'ap_wibiya_mobile_header');
     } else {
-		
+
+		// We shouldn't be redirecting XML-RPC requests
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			return;
+
         $is_mobile = false;
         if ((function_exists('is_mobile') && is_mobile('any', false)) || (ap_wibiya_mobile_is_mobile() == true)) {
             $is_mobile = true;
