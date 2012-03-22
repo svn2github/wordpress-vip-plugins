@@ -22,6 +22,7 @@ class Ooyala_Options {
 		add_settings_field( 'ooyala-api-secret', __( 'API Secret (v2)', 'ooyalavideo' ), array( $this, 'api_secret' ), 'ooyala-options', 'ooyala-general' );
 		add_settings_field( 'ooyala-show-in-feed', __( 'Show link to blog post in feed', 'ooyalavideo' ), array( $this, 'show_in_feed' ), 'ooyala-options', 'ooyala-general' );
 		add_settings_field( 'ooyala-video-width', __( 'Video object width', 'ooyalavideo' ), array( $this, 'video_width' ), 'ooyala-options', 'ooyala-general' );
+		add_settings_field( 'ooyala-video-status', __( 'Default video status', 'ooyalavideo' ), array( $this, 'video_status' ), 'ooyala-options', 'ooyala-general' );
 	}
 
 	public function partner_code() {
@@ -67,6 +68,16 @@ class Ooyala_Options {
 		?><input type="text" id="ooyala-video-width" name="ooyala[video_width]" value="<?php echo esc_attr( $options['video_width'] ); ?>" class="regular-text" /><?php		
 	}
 
+	public function video_status() {
+		$options = get_option( 'ooyala', array() );
+		if ( ! isset( $options['video_status'] ) )
+			$options['video_status'] = 'pending';
+		?><select id="ooyala-video-status" name="ooyala[video_status]">
+				<option value="pending" <?php selected( $options['video_status'], 'pending' ); ?>><?php _e( 'Pending', 'ooyalavideo' ); ?></option>
+				<option value="live" <?php selected( $options['video_status'], 'live' ); ?>><?php _e( 'Live', 'ooyalavideo' ); ?></option>
+		</select><?php
+	}
+
 	public function sanitize_settings( $options ) {
 		foreach ( $options as $option_key => &$option_value ) {
 			switch ( $option_key ) {
@@ -74,6 +85,7 @@ class Ooyala_Options {
 				case 'secret_code' :
 				case 'api_key' :
 				case 'api_secret' :
+				case 'video_status' :
 					$option_value = esc_attr( $option_value );
 					break;
 

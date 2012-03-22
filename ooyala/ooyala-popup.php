@@ -91,8 +91,10 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 			// Define any default labels to assign and the dynamic label prefix  
 			// for any user-selected dynamic labels 
 
+			$options = get_option( 'ooyala' );
+			$status = empty( $options['video_status'] ) ? 'pending' : $options['video_status'];
 			$param_string = OoyalaBacklotAPI::signed_params(array( 
-			  'status' => 'pending',  
+			  'status' => $status
 			  ));
 		?>
 	 	<fieldset>
