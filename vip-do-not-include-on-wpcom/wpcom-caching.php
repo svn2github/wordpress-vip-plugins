@@ -35,5 +35,8 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 		$term = get_term( $term_id, $taxonomy, $output, $filter );
 	}
 
+	if ( is_wp_error( $term ) )
+		$term = false;
+
 	return $term;
 }
