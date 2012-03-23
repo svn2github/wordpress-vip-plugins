@@ -30,7 +30,7 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 		if ( $term && ! is_wp_error( $term ) )
 			wp_cache_set( $cache_key, $term->term_id, 'get_term_by' );
 		else
-			wp_cache_set( $cache_key, 0, 'get_term_by' ); // if we get an invalid value, let's cache it
+			wp_cache_set( $cache_key, 0, 'get_term_by' ); // if we get an invalid value, let's cache it anyway
 	} else {
 		$term = get_term( $term_id, $taxonomy, $output, $filter );
 	}
@@ -39,4 +39,32 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 		$term = false;
 
 	return $term;
+}
+
+/**
+ * Cached version of get_page_by_title so that we're not making unnecessary SQL all the time
+ */
+function wpcom_vip_get_page_by_title( $title, $output = OBJECT, $post_type = 'page' ) {
+	$cache_key = $post_type . '_' . sanitize_key( $title );
+	$page_id = wp_cache_get( $cache_key, 'get_page_by_title' );
+
+	if ( $page_id === false ) {
+		$page = get_page_by_title( $title, $output, $post_type );
+		$page_id = $page ? $page->ID : 0;
+		wp_cache_set( $cache_key, $page_id, 'get_page_by_title' ); // We only store the ID to keep our footprint small
+	}
+
+	if ( $page_id )
+		return get_page( $page_id, $output );
+
+	return null;
+}
+
+/**
+ * Flush the cache for published pages so we don't end up with stale data
+ */
+add_action( 'transition_post_status', 'wpcom_vip_flush_get_page_by_title_cache', 10, 3 );
+function wpcom_vip_flush_get_page_by_title_cache( $new_status, $old_status, $post ) {
+	if ( 'publish' == $new_status || 'publish' == $old_status )
+		wp_cache_delete( $post->post_type . '_' . sanitize_key( $post->post_title ), 'get_page_by_title' );
 }
