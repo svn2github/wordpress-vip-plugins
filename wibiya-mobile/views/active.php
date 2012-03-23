@@ -16,7 +16,7 @@ if (function_exists('wp_nonce_field')) {
 		<div class="customize">
 			<h3>Customize your new mobile site</h3>
 			<p>Personalize it even more by choosing custom colors, images, additional pages, social features, and much more!</p>
-			<p><a href="javascript:void(0);" class="regularButton" onclick="$('.registerPanel').toggle('slide');$(this).next().toggle();$(this).toggleClass('disabled');">Customize</a> <span class="note"></span></p>
+			<p><a href="javascript:void(0);" class="regularButton" onclick="jQuery('.registerPanel').toggle('slide');jQuery(this).next().toggle();jQuery(this).toggleClass('disabled');">Customize</a> <span class="note"></span></p>
 			<div class="registerPanel">
 			<iframe name="register_iframe"   id="register_iframe" src="<?php echo __WIBIYA_REGISTER_PAGE__ . '&email=' . $GLOBALS['admin_email'] . '&domain=' . base64_encode(home_url()).'&callback='.base64_encode(admin_url()).'&rss_url=';?><?php echo bloginfo('rss2_url'); ?>" frameborder="0" scrolling="no" width="100%" height="400"></iframe>
 			</div>

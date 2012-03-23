@@ -62,6 +62,7 @@ function ap_wibiya_mobile_options_page()
                 }
                 if (function_exists('check_admin_referer')) {
                     check_admin_referer('ap_wibiya_mobile_admin_form');
+					ap_wibiya_mobile_theme_enable();
                     ap_wibiya_mobile_update_policy(__POLICY_DISABLE_USER__);
                     $params['action'] = 'disable_site';
                     $response = ap_wibiya_mobile_curl_request($params);
@@ -86,6 +87,7 @@ function ap_wibiya_mobile_options_page()
                 }
                 if (function_exists('check_admin_referer')) {
                     check_admin_referer('ap_wibiya_mobile_admin_form');
+					ap_wibiya_mobile_theme_disable();
                     ap_wibiya_mobile_update_policy(__POLICY_ACTIVE_USER__);
                     $params['action'] = 'active_site';
                     $response = ap_wibiya_mobile_curl_request($params);
@@ -147,7 +149,7 @@ function ap_wibiya_mobile_header()
     if (ap_wibiya_mobile_using_ie()) {
         wp_enqueue_style('wibiya-mobile-css', __WIBIYA_MOBILE_URL__ . 'views/css/ie.css');
     }
-    wp_enqueue_script( 'jquery' );
+    wp_enqueue_script('jquery');
 }
 
 function ap_wibiya_mobile_show_livepreview_panding()
@@ -265,6 +267,7 @@ function ap_wibiya_mobile_install_plugin()
 	$curr_user=wp_get_current_user();
 	update_option('ap_wibiya_mobile_secondary_email', $curr_user->data->user_email);
     ap_wibiya_mobile_check_site();
+	add_option('ap_wibiya_mobile_theme_state', '4', '2', 'yes');
 	if(!function_exists('register_activation_hook'))
 	{
 		wp_redirect(admin_url()."options-general.php?page=ap_wibiya_mobile_options");
@@ -279,6 +282,7 @@ function ap_wibiya_mobile_uninstall_plugin()
     delete_option('ap_wibiya_mobile_url');
     delete_option('ap_wibiya_mobile_register');
 	delete_option('ap_wibiya_mobile_secondary_email');
+	delete_option('ap_wibiya_mobile_theme_state');
 	$params['action'] = 'uninstall_site';
     $response = ap_wibiya_mobile_curl_request($params);
 	if(!function_exists('register_deactivation_hook'))
@@ -287,7 +291,44 @@ function ap_wibiya_mobile_uninstall_plugin()
 		exit;
 	}
 }
-
+function ap_wibiya_mobile_theme_disable()
+{
+	if($GLOBALS['ap_wibiya_mobile_policy']==__POLICY_INACTIVE_USER__ || $GLOBALS['ap_wibiya_mobile_policy']==__POLICY_DISABLE_USER__)
+	{
+		if (get_option( 'wp_mobile_disable' ) == 1 )
+		{ 
+			update_option('ap_wibiya_mobile_theme_state', 1); 	
+		}
+		elseif(get_option( 'wp_mobile_disable' ) == 0)
+		{
+			update_option('ap_wibiya_mobile_theme_state', 0);
+			update_option('wp_mobile_disable',1);
+		}		
+		else
+		{ 
+			update_option('ap_wibiya_mobile_theme_state', '2'); 
+			update_option('wp_mobile_disable',1);
+		}
+	}
+}
+function ap_wibiya_mobile_theme_enable()
+{
+	if ((get_option( 'ap_wibiya_mobile_theme_state' ) == 1)&&(get_option( 'wp_mobile_disable' ) != false))
+	{ 
+		update_option('wp_mobile_disable',1);	
+	}
+	elseif((get_option( 'ap_wibiya_mobile_theme_state' ) == 0)&&(get_option( 'wp_mobile_disable' ) != false))
+	{
+		update_option('wp_mobile_disable',0);
+	}
+	else
+	{ 
+		if (get_option( 'wp_mobile_disable' ) == 1 )
+		{ 
+			delete_option('wp_mobile_disable');
+		}
+	}
+}
 function ap_wibiya_mobile_is_mobile()
 {
     $useragent = $_SERVER['HTTP_USER_AGENT'];
@@ -311,16 +352,19 @@ function wibiya_mobile_run()
         add_action('admin_head', 'ap_wibiya_mobile_header');
     } else {
 
-		// We shouldn't be redirecting XML-RPC requests
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
-			return;
+	// We shouldn't be redirecting XML-RPC requests
+	if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+		return;
 
         $is_mobile = false;
         if ((function_exists('is_mobile') && is_mobile('any', false)) || (ap_wibiya_mobile_is_mobile() == true)) {
             $is_mobile = true;
         }
-        if ($is_mobile && isset($GLOBALS['ap_wibiya_mobile_install']) && $GLOBALS['ap_wibiya_mobile_install'] == 1 && $GLOBALS['ap_wibiya_mobile_policy'] >= __POLICY_ACTIVE_USER__ && get_option('ap_wibiya_mobile_url')) {
-            wp_redirect(get_option('ap_wibiya_mobile_url'));
+        if ($is_mobile && isset($GLOBALS['ap_wibiya_mobile_install']) && $GLOBALS['ap_wibiya_mobile_install'] == 1 && $GLOBALS['ap_wibiya_mobile_policy'] >= __POLICY_ACTIVE_USER__ && get_option('ap_wibiya_mobile_url')&&(!isset($_GET['noredirect']))&&(!isset($_GET['feed']))) {
+			if(is_home())
+			{  $mobile_url=get_option('ap_wibiya_mobile_url').'?url=&cms=wordpress&timestamp='.time();    }
+			else{ $mobile_url=get_option('ap_wibiya_mobile_url').'?url='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&cms=wordpress&timestamp='.time();  }	
+			wp_redirect($mobile_url);
             exit;
         }
     }
