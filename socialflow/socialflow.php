@@ -96,7 +96,7 @@ class SocialFlow_Plugin {
 	}
 
 	public function enqueue( $hook ) {		
-		if ( in_array( $hook, array( 'index.php', 'post-new.php', 'post.php' ) ) ) {
+		if ( in_array( $hook, array( 'index.php', 'post-new.php', 'post.php' ) ) && ( !isset( $_REQUEST['post_type'] ) || in_array( $_REQUEST['post_type'], array( 'post' ) ) ) ) {
 			$color = 'fresh' == get_user_meta( get_current_user_id(), 'admin_color', true ) ? '#F1F1F1' : '#F5FAFD';
 			?>
 <style type="text/css">
@@ -138,7 +138,7 @@ class SocialFlow_Plugin {
 			
 			wp_enqueue_script( 'socialflow', plugins_url( 'js/socialflow-widget.js', __FILE__ ), array( 'jquery' ), '20111020' );
 			wp_localize_script( 'socialflow', 'sf_l10n', $this->l10n );
-		} elseif ( 'edit.php' == $hook ) {
+		} elseif ( 'edit.php' == $hook && ( !isset( $_REQUEST['post_type'] ) || in_array( $_REQUEST['post_type'], array( 'post' ) ) ) ) {
 			wp_enqueue_script( 'socialflow', plugins_url( 'js/socialflow.js', __FILE__ ), array( 'jquery' ), '20111020' );
 			wp_localize_script( 'socialflow', 'sf_l10n', $this->l10n );
 		}
