@@ -70,7 +70,6 @@ function ap_wibiya_mobile_options_page()
             }
             if (!$GLOBALS['ap_wibiya_mobile_register']) {
                 if (isset($_GET['registration']) && $_GET['registration'] == 1 && isset($_GET['code']) && ($_GET['code'] == ap_wibiya_mobile_make_hash(home_url()))) {
-                    update_option('ap_wibiya_mobile_register', 1);
                     $GLOBALS['ap_wibiya_mobile_register'] = 1;
 					update_option('ap_wibiya_mobile_register', 1);
 					update_option('ap_wibiya_mobile_url', base64_decode($_GET['murl']));
@@ -102,6 +101,8 @@ function ap_wibiya_mobile_options_page()
             ap_wibiya_mobile_check_site();
             break;
     }
+	if(($GLOBALS['ap_wibiya_mobile_policy']>=__POLICY_DISABLE_USER__) && ($GLOBALS['ap_wibiya_mobile_register']!=1))
+	{ ap_wibiya_check_recovery(); }
     ap_wibiya_mobile_show_livepreview();
 }
 
@@ -126,7 +127,34 @@ function ap_wibiya_mobile_show_livepreview()
             break;
     }
 }
-
+function ap_wibiya_check_recovery()
+{
+	$params['action'] = 'check_recovery';
+	$params['code'] = ap_wibiya_mobile_make_hash(home_url());
+    $params['url'] = home_url();
+    $response = wp_remote_post(__WIBIYA_CURL_URI__, array(
+            'method' => 'POST',
+            'timeout' => 5,
+            'redirection' => 1,
+            'httpversion' => '1.0',
+            'blocking' => true,
+            'headers' => array(),
+            'body' => array('msg' => json_encode($params)),
+            'cookies' => array()
+        )
+    );
+    if (is_wp_error($response) || !isset($response["body"])) {
+        //log_app('function', 'ap_wibiya_mobile_curl_request() curl to wibiya bad response ');
+        $response = false;
+    }
+	$responseRec = ap_wibiya_mobile_parce_responce($response["body"]);
+	if($responseRec['register']==1&&(!empty($responseRec['url'])))
+	{
+		$GLOBALS['ap_wibiya_mobile_register'] = 1;
+		update_option('ap_wibiya_mobile_register', 1);
+		update_option('ap_wibiya_mobile_url', base64_decode($_GET['url']));
+	}
+}
 function ap_wibiya_mobile_update_policy($policy)
 {
     $GLOBALS['ap_wibiya_mobile_policy'] = $policy;
