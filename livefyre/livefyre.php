@@ -358,7 +358,7 @@ class Livefyre_Admin {
 	
 	function use_backplane_callback() {
 	
-		echo "<input name='livefyre_use_backplane' type='checkbox' value='1' " . checked( get_option('livefyre_use_backplane', false) ) . "/>";
+		echo "<input name='livefyre_use_backplane' type='checkbox' value='1' " . checked( get_option('livefyre_use_backplane', false), true, false ) . "/>";
 	
 	}
 
@@ -405,13 +405,14 @@ class Livefyre_Display {
 			$site = $domain->site( $this->lf_core->AppExtension->get_option( 'livefyre_site_id' ) );
 			$article = $site->article( $post_id );
 			$conv = $article->conversation();
-			if ( $this->lf_core->AppExtension->get_option( 'livefyre_use_backplane', false ) || $this->lf_core->AppExtension->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) == LF_DEFAULT_PROFILE_DOMAIN || defined( LF_WP_VIP ) ) {
+			$use_backplane = $this->lf_core->AppExtension->get_option( 'livefyre_use_backplane', false );
+			if ( $use_backplane || $this->lf_core->AppExtension->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) == LF_DEFAULT_PROFILE_DOMAIN || defined( LF_WP_VIP ) ) {
 				/* In these scenarios, we can't make assumptions about how user auth
 				   events need to be set up.  For livefyre.com profiles all defaults are
 				   inferred.  In the case of Backplane and/or WP VIP this shall be set
 				   up using a child theme (for those not using livefyre.com profiles).
 				*/
-				echo $conv->to_initjs( );
+				echo $conv->to_initjs( null, null, $use_backplane );
 			} else {
 				foreach ( array( 'login', 'logout' ) as $handler ) {
 					$func = "wp_". $handler . "_url";
@@ -421,12 +422,12 @@ class Livefyre_Display {
 					}
 					$conv->add_js_delegate( "auth_$handler", $code );
 				}
-				if ( $current_user ) {
-					$user = $domain->user( $current_user->ID );
-					echo $conv->to_initjs( $user, $current_user->display_name );
-				} else {
-					echo $conv->to_initjs( );
-				}
+    			if ( $current_user ) {
+    				$user = $domain->user( $current_user->ID );
+    				echo $conv->to_initjs( $user, $current_user->display_name, $use_backplane );
+    			} else {
+    				echo $conv->to_initjs( null, null, $use_backplane);
+    			}
 			}
 		}
 
