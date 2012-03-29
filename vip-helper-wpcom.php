@@ -315,7 +315,7 @@ function get_top_posts( $number = 10, $days = 2 ) {
  */
 
 function wpcom_vip_disable_youtube_comment_embeds() {
-	remove_filter( 'comment_text', 'youtube_link', 5 );
+	remove_filter( 'comment_text', 'youtube_link', 1 );
 	remove_filter( 'comment_text', 'youtube_markup' );
 }
 
