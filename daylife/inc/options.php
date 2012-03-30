@@ -24,12 +24,12 @@ class Daylife_Options {
 		$screen->add_help_tab( array(
 			'id'      => 'daylife-licenses',
 			'title'   => __( 'Licenses & Pricing', 'daylife' ),
-			'content' => __( '<p>This plugin helps you find licensed images from sources like Getty, AP, Reuters and more. See the complete list of all the content partners <a href="http://www.daylife.com/about-us/our-partnerships/">here</a>. To learn more about these Image Licenses and their pricing, drop an email to getdaylife@daylife.com.</p>', 'dayflife' )
+			'content' => __( '<p>This plugin helps you find licensed images from sources like Getty, AP, Reuters and more. See the complete list of all the content partners <a href="http://www.daylife.com/about-us/our-partnerships/">here</a>. To learn more about these Image Licenses and their pricing, drop an email to <a href="mailto:getdaylife@daylife.com">getdaylife@daylife.com</a>.</p>', 'dayflife' )
 		) );
 		$screen->add_help_tab( array(
 			'id'      => 'daylife-getting-started',
 			'title'   => __( 'Getting Started', 'daylife' ),
-			'content' => __( '<p>Please drop an email to getdaylife@daylife.com, and they will set your Plugin Settings - your Accesskey, SharedSecret and a Source Filter with access to your licensed sources.</p>', 'dayflife' )
+			'content' => __( '<p>Please drop an email to <a href="mailto:getdaylife@daylife.com">getdaylife@daylife.com</a>, and they will set your Plugin Settings - your Accesskey, SharedSecret and a Source Filter with access to your licensed sources.</p>', 'dayflife' )
 		) );
 		$screen->set_help_sidebar( __( '<p><strong>For more information:</strong></p><p><a href="http://www.daylife.com/">Daylife</a></p>', 'daylife' ) );
 	}
@@ -53,8 +53,7 @@ class Daylife_Options {
 	public function sanitize_settings( $options ) {
 		foreach ( $options as $option_key => &$option_value ) {
 			switch ( $option_key ) {
-				case 'access_key' :
-				case 'shared_secret' :
+				default:
 					$option_value = esc_attr( $option_value );
 					break;
 			}
@@ -73,6 +72,7 @@ class Daylife_Options {
 		<div class="wrap">
 			<?php screen_icon( 'daylife' ); ?>
 			<h2><?php _e( 'Daylife Settings', 'daylife' ); ?></h2>
+			 <p><?php _e( 'This plugin helps you find licensed images from sources like Getty, AP, Reuters and more. See the complete list of all the content partners <a href="http://www.daylife.com/about-us/our-partnerships/">here</a>. To learn more about these Image Licenses and their pricing, drop an email to <a href="mailto:getdaylife@daylife.com">getdaylife@daylife.com</a>.', 'dayflife' ); ?></p>
 			<form method="post" action="options.php">
 				<?php
 					settings_fields( 'daylife_options' );

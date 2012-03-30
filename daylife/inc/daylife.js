@@ -37,6 +37,7 @@ jQuery( function($) {
 			var img = $(this).siblings( 'img' );
 			var data = {
 				action: 'daylife-image-load',
+				nonce: $('#daylife-add-nonce-field').val(),
 				daylife_url: img.attr( 'daylife_url' ),
 				caption: img.attr( 'caption' ),
 				credit: img.attr( 'credit' ),

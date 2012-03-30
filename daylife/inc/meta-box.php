@@ -27,6 +27,7 @@ class Daylife_Meta_Box {
 		}
 		?><input type="text" id="daylife-search" name="daylife-search" size="16" value=""><?php
 		wp_nonce_field( 'daylife-search-nonce', 'daylife-search-nonce-field' );
+		wp_nonce_field( 'daylife-add-nonce', 'daylife-add-nonce-field' );
 		submit_button( __( 'Search', 'daylife' ), 'secondary', 'daylife-search-button', false );
 		submit_button( __( 'Suggest Images', 'daylife' ), 'secondary', 'daylife-suggest-button', false );
 		?><div class="daylife-response" style="display: none">Loading</div><?php
@@ -117,12 +118,17 @@ class Daylife_Meta_Box {
 	}
 
 	public function image_load() {
+		check_ajax_referer( 'daylife-add-nonce', 'nonce' );
+		if ( ! current_user_can( 'upload_files' ) ) {
+			_e( "You don't have permissions to upload files.", 'daylife' );
+			die;
+		}
 		$_POST = stripslashes_deep( $_POST );
-		$url = str_replace( '/45x45.jpg', '/600x600.jpg', $_POST['thumb_url'] );
-		$attachment_id = $this->media_sideload_image_get_id( $url, $_POST['post_id'], $_POST['image_title'] );
+		$url = str_replace( '/45x45.jpg', '/600x600.jpg', esc_url_raw( $_POST['thumb_url'] ) );
+		$attachment_id = $this->media_sideload_image_get_id( $url, absint( $_POST['post_id'] ), sanitize_text_field( $_POST['image_title'] ) );
 
 		// Set caption to caption + credit
-		wp_update_post( array( 'ID'=>$attachment_id, 'post_excerpt'=>$_POST['caption'] . "<br /><br />Credit: " . $_POST['credit'] ) );
+		wp_update_post( array( 'ID' => $attachment_id, 'post_excerpt' => wp_kses_post( $_POST['caption'] ) . "<br /><br />Credit: " . wp_kses_post( $_POST['credit'] ) ) );
 
 		$attachment = get_post( $attachment_id, ARRAY_A );
 		$attachment['image-size'] = 'full';
