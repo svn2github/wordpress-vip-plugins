@@ -162,10 +162,12 @@ Feel free to also reply to this e-mail if you have any questions whatsoever.
 		);
 
 		// "admin_email" plus any e-mails passed to the vip_multiple_moderators() function
-		$emails = array_unique( apply_filters( 'wpcom_vip_multiple_moderators', array( get_option( 'admin_email' ) ) ) );
+		$emails = array_unique( (array) apply_filters( 'wpcom_vip_multiple_moderators', array( get_option( 'admin_email' ) ) ) );
 
 		$headers  = 'From: "WordPress.com VIP Support" <vip-support@wordpress.com>' . "\r\n";
-		$headers .= 'CC: ' . $current_user->user_email . "\r\n";
+
+		if ( apply_filters( 'ndn_cc_current_user', true ) )
+			$headers .= 'CC: ' . $current_user->user_email . "\r\n";
 
 		wp_mail( $emails, $subject, $message, $headers );
 
