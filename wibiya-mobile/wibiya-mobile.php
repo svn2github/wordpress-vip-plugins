@@ -383,17 +383,35 @@ function wibiya_mobile_run()
     } else {
 
 		// We shouldn't be redirecting XML-RPC requests
-		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ){  return; }						
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			return;
+
 		$is_mobile = false;		
-        if ((!strstr($_SERVER['REQUEST_URI'],'noredirect'))&&(!strstr($_SERVER['REQUEST_URI'],'wp-admin'))&&(!strstr($_SERVER['REQUEST_URI'],'feed'))&&(!strstr($_SERVER['REQUEST_URI'],'wp-login'))&&((function_exists('is_mobile') && is_mobile('any', false)) || is_ipad() ||  (ap_wibiya_mobile_is_mobile() == true))) {
+        if ( ( ! strstr( $_SERVER['REQUEST_URI'] ,'noredirect' ) )
+			&& ( ! strstr( $_SERVER['REQUEST_URI'] , 'wp-admin' ) )
+			&& ( ! strstr( $_SERVER['REQUEST_URI'], 'feed' ) )
+			&& ( ! strstr( $_SERVER['REQUEST_URI'], 'wp-login' ) )
+			&& ( ( function_exists( 'is_mobile' ) && is_mobile( 'any', true ) )
+			|| is_ipad()
+			|| ( ap_wibiya_mobile_is_mobile() == true ) )
+		) {
 			$is_mobile = true;
 		}
-        if ($is_mobile && isset($GLOBALS['ap_wibiya_mobile_install']) && $GLOBALS['ap_wibiya_mobile_install'] == 1 && $GLOBALS['ap_wibiya_mobile_policy'] >= __POLICY_ACTIVE_USER__ && get_option('ap_wibiya_mobile_url')) {
-			if($_SERVER['REQUEST_URI']=="/"||$_SERVER['REQUEST_URI']=="")
-			{  $mobile_url=get_option('ap_wibiya_mobile_url').'?url=&cms=wordpress&timestamp='.time();    }
-			else
-			{ $mobile_url=get_option('ap_wibiya_mobile_url').'?url='.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].'&cms=wordpress&timestamp='.time();  }	
-			wp_redirect($mobile_url);
+
+        if ( $is_mobile
+			&& isset( $GLOBALS['ap_wibiya_mobile_install'] )
+			&& $GLOBALS['ap_wibiya_mobile_install'] == 1
+			&& $GLOBALS['ap_wibiya_mobile_policy'] >= __POLICY_ACTIVE_USER__
+			&& get_option( 'ap_wibiya_mobile_url' )
+		) {
+			if( $_SERVER['REQUEST_URI'] == "/" || $_SERVER['REQUEST_URI'] == "" ) {
+				$mobile_url = get_option('ap_wibiya_mobile_url') . '?url=&cms=wordpress&timestamp=' . time();
+			} else {
+				$http_host = esc_url( $_SERVER['HTTP_HOST'], array( 'http' ) );
+				$current_url = $http_host . $_SERVER['REQUEST_URI'];
+				$mobile_url = get_option( 'ap_wibiya_mobile_url' ) . '?url=' . urlencode( $current_url ) . '&cms=wordpress&timestamp='.time();
+			}	
+			wp_redirect( $mobile_url );
 			exit;
 		}
     }
