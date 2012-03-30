@@ -429,6 +429,8 @@ class Livefyre_Display {
     				echo $conv->to_initjs( null, null, $use_backplane);
     			}
 			}
+		} else if ( !is_single() ) {
+			echo '<script type="text/javascript" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
 		}
 
 	}
@@ -449,7 +451,7 @@ class Livefyre_Display {
 	function livefyre_comments_number( $count, $post ) {
 
 		global $post;
-		return '<span article_id = "' . $post->ID . '" class = "livefyre-ncomments">' . $count . '</span>';
+		return '<span data-lf-article-id="' . $post->ID . '" data-lf-site-id="' . get_option('livefyre_site_id', '') . '" class="livefyre-commentcount">'.$count.'</span>';
 
 	}
 	

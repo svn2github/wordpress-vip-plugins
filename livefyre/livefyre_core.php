@@ -45,9 +45,7 @@ class Livefyre_core {
 		$this->top_domain = ( $profile_domain == LF_DEFAULT_PROFILE_DOMAIN ? LF_DEFAULT_TLD : $profile_domain );
 
 		$this->http_url = ( strpos(LF_DEFAULT_TLD, 'livefyre.com') === 0 ? "http://www." . LF_DEFAULT_TLD : "http://" . LF_DEFAULT_TLD );
-		$this->api_url = "http://api.$this->top_domain";
-		$this->quill_url = "http://quill.$this->top_domain";
-		$this->admin_url = "http://admin.$this->top_domain";
+		$this->asset_url = "http://zor.$this->top_domain";
 		$this->bootstrap_url = "http://bootstrap.$this->top_domain";
 		$this->home_url = $this->AppExtension->home_url();
 		$this->plugin_version = LF_PLUGIN_VERSION;
@@ -354,4 +352,3 @@ class Livefyre_Sync {
 	}
 	
 }
-
