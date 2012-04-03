@@ -422,13 +422,21 @@ function wpcom_vip_enable_opengraph() {
  * @param $via (string) What the /via should be set to. Empty value disables the feature. 
  */
 function wpcom_vip_sharing_twitter_via( $via = '' ) {
-	if( empty( $via ) )
+	if( empty( $via ) ) {
 		$via_callback = '__return_false';
-	//elseif( is_callable( $via ) )
+	/*
+	} elseif( is_callable( $via ) ) {
 		//$via_callback = $via;
-	else
-		$via_callback = create_function( '', sprintf( 'return "%s";', sanitize_key( $via ) ) );
-	
+	*/
+	} else {
+		// sanitize_key() without changing capitizalization
+		$raw_via = $via;
+		$via = preg_replace( '/[^A-Za-z0-9_\-]/', '', $via );
+		$via = apply_filters( 'sanitize_key', $via, $raw_via );
+
+		$via_callback = create_function( '', sprintf( 'return "%s";', $via ) );
+	}
+
 	add_filter( 'sharing_twitter_via', $via_callback );
 }
 
