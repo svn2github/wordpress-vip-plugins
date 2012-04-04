@@ -2,16 +2,17 @@
 /*
 Plugin Name: Easy Custom Fields
 Plugin Script: easy-custom-fields.php
-Plugin URI:
+Plugin URI: http://wordpress.org/extend/plugins/easy-custom-fields/
 Description: A set of extendable classes for easy Custom Field Handling
-Version: 0.1
+Version: 0.3
 Author: Thorsten Ott
 Author URI: http://automattic.com
 */
 /*
 Simple Usage example via functions.php: 
 
-require_once( ABSPATH . '/wp-content/themes/vip/plugins/easy-custom-fields/easy-custom-fields.php' );
+wpcom_vip_load_plugin( 'easy-custom-fields' );
+
 $field_data = array (
 	'testgroup' => array (				// unique group id
 		'fields' => array(				// array "fields" with field definitions
@@ -25,7 +26,8 @@ $easy_cf = new Easy_CF($field_data);
 
 Advanced Usage example via functions.php:
 
-require_once( ABSPATH . '/wp-content/themes/vip/plugins/easy-custom-fields/easy-custom-fields.php' );
+wpcom_vip_load_plugin( 'easy-custom-fields' );
+
 $field_data = array (
 	'testgroup' => array (
 		'fields' => array(
@@ -168,6 +170,16 @@ if ( !class_exists( "Easy_CF_Field" ) ) {
 				return $this->validator->get( $value );
 			else 
 				return $value;
+		}
+		
+		/*
+		 * Get the ID for the current Post
+		 * @return current post ID
+		 */
+		public function get_post_id() {
+			global $post;
+			$post_id = $post->ID;
+			return $post_id;
 		}
 
 		/*
@@ -512,6 +524,8 @@ if ( !class_exists( "Easy_CF" ) ) {
 				// check fields array
 				foreach( (array) $group_data['fields'] as $field_id => $field ) {
 
+					$_fields[$field_id] = array( 'id' => $field_id, 'label' => null, 'hint' => null, 'class' => null, 'type' => null, 'validate' => null, 'error_msg' => null, 'input_class' => null );
+					
 					// check field id
 					if ( empty( $field_id ) ) {
 						$this->add_admin_notice( sprintf( "Field id in group %s not set", $group_id ) );
@@ -521,59 +535,60 @@ if ( !class_exists( "Easy_CF" ) ) {
 						continue;
 					}
 
-					// check label
-					if ( !empty( $field['label'] ) && !preg_match( "#^[a-zA-Z0-9_-\s:]+$#miU", $field['label'] ) ) {
-						$this->add_admin_notice( sprintf( __( "Field label %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:]" ), $field['label'], $group_id ) );
-						continue;
-					}
-
-					// check hint
-					if ( !empty( $field['hint'] ) && !preg_match( "#^[a-zA-Z0-9_-\s:/\.]+$#miU", $field['hint'] ) ) {
-						$this->add_admin_notice( sprintf( __( "Field hint %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field['hint'], $group_id ) );
-						continue;
-					}
-
-					// check error_msg
-					if ( !empty( $field['error_msg'] ) && !preg_match( "#^[a-zA-Z0-9_-\s:/\.]+$#miU", $field['error_msg'] ) ) {
-						$this->add_admin_notice( sprintf( __( "Field error_msg %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field['error_msg'], $group_id ) );
-						continue;
-					}
-
-					// check class
-					if ( !empty( $field['class'] ) && !preg_match( "#^[a-zA-Z0-9_-\s]+$#miU", $field['class'] ) ) {
-						$this->add_admin_notice( sprintf( __( "Field class %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s]" ), $field['class'], $group_id ) );
-						continue;
-					}
-
-					// check input_class
-					if ( !empty( $field['input_class'] ) && !preg_match( "#^[a-zA-Z0-9_-\s]+$#miU", $field['input_class'] ) ) {
-						$this->add_admin_notice( sprintf( __( "Field input_class %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s]" ), $field['input_class'], $group_id ) );
-						continue;
-					}
-					
-					// check type
-					if ( !empty( $field['type'] ) && !preg_match( "#^[a-zA-Z0-9_]+$#miU", $field['type'] ) ) {
-						$this->add_admin_notice( sprintf( __( "Field type %s for group %s contains invalid chars use only [a-zA-Z0-9_-]" ), $field['type'], $group_id ) );
-						continue;
-					}
-
-					// check validate
-					if ( !empty( $field['validate'] ) && !preg_match( "#^[a-zA-Z0-9_]+$#miU", $field['validate'] ) ) {
-						$this->add_admin_notice( sprintf( __( "Field validator %s for group %s contains invalid chars use only [a-zA-Z0-9_-]" ), $field['validate'], $group_id ) );
-						continue;
-					}
-
-					$_fields[$field_id] = array( 'id' => $field_id );
-					foreach ( array( 'label', 'hint', 'class', 'type', 'validate', 'error_msg', 'input_class' ) as $key ) {
-						$_fields[$field_id][$key] = ( ! empty( $field[$key] ) ) ? $field[$key] : null;
+					foreach($field as $field_name => $field_value){
+	
+						// check label
+						if ( !empty( $field_value ) && $field_name == 'label' && !preg_match( "#^[a-zA-Z0-9_-\s:]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field label %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:]" ), $field_value, $group_id ) );
+							continue;
+						}
+	
+						// check hint
+						if ( !empty( $field_value ) && $field_name == 'hint' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field hint %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field_value, $group_id ) );
+							continue;
+						}
+	
+						// check error_msg
+						if ( !empty( $field_value ) && $field_name == 'error_msg' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field error_msg %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field_value, $group_id ) );
+							continue;
+						}
+	
+						// check class
+						if ( !empty( $field_value ) && $field_name == 'class' && !preg_match( "#^[a-zA-Z0-9_-\s]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field class %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s]" ), $field_value, $group_id ) );
+							continue;
+						}
+	
+						// check input_class
+						if ( !empty( $field_value ) && $field_name == 'input_class' && !preg_match( "#^[a-zA-Z0-9_-\s]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field input_class %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s]" ), $field_value, $group_id ) );
+							continue;
+						}
+						
+						// check type
+						if ( !empty( $field_value ) && $field_name == 'type' && !preg_match( "#^[a-zA-Z0-9_]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field type %s for group %s contains invalid chars use only [a-zA-Z0-9_-]" ), $field_value, $group_id ) );
+							continue;
+						}
+	
+						// check validate
+						if ( !empty( $field_value ) && $field_name == 'validate' && !preg_match( "#^[a-zA-Z0-9_]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field validator %s for group %s contains invalid chars use only [a-zA-Z0-9_-]" ), $field_value, $group_id ) );
+							continue;
+						}
+						
+						$_fields[$field_id][$field_name] = $field_value;
 					}
 				}
 
 				$this->_field_data[$group_id] = array(
 					'title'  => ( ! empty( $group_data['title'] ) ) ? $group_data['title'] : null,
-					'class'  => ( ! empty( $group_data['class'] ) ) ? $group_data['title'] : null,
+					'class'  => ( ! empty( $group_data['class'] ) ) ? $group_data['class'] : null,
 					'fields' => $_fields,
 					'pages'  => ( ! empty( $group_data['pages'] ) ) ? $group_data['pages'] : null,
+					'context'  => ( ! empty( $group_data['context'] ) ) ? $group_data['context'] : null,					
 				);
 			}
 

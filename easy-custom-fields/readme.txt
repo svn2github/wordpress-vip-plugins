@@ -2,7 +2,7 @@
 Contributors: tott, automattic
 Tags: custom fields, post meta, post_meta, custom post fields
 Requires at least: 2.9.2
-Tested up to: 3.0-beta1
+Tested up to: 3.3.1
 Stable tag: trunk
 
 This is a set of extendable classes to allow easy handling of custom post fields.

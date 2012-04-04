@@ -440,6 +440,68 @@ if ( !class_exists( "Easy_CF_Field_Taxonomy_Checkboxes" ) ) {
 	}
 }
 
+if ( !class_exists( "Easy_CF_Field_Image" ) ) {
+	class Easy_CF_Field_Image extends Easy_CF_Field {
+		public function print_form() {
+			$class = ( empty( $this->_field_data['class'] ) ) ? $this->_field_data['id'] . '_class' :  $this->_field_data['class'];
+			$input_class = ( empty( $this->_field_data['input_class'] ) ) ? $this->_field_data['id'] . '_input_class' :  $this->_field_data['input_class'];
+			$name = ( empty( $this->_field_data['name'] ) ) ? $this->_field_data['id'] :  $this->_field_data['name'];
+			$id = ( empty( $this->_field_data['id'] ) ) ? $this->_field_data['id'] :  $this->_field_data['id'];
+			$label = ( empty( $this->_field_data['label'] ) ) ? $this->_field_data['id'] :  $this->_field_data['label'];
+			$value = $this->get();
+			$hint = ( empty( $this->_field_data['hint'] ) ) ? '' :  '<p><em>' . $this->_field_data['hint'] . '</em></p>';
+			$set_title = ( empty( $this->_field_data['set_title'] ) ) ? 'Set Image' : $this->_field_data['set_title'];
+			$remove_title = ( empty( $this->_field_data['remove_title'] ) ) ? 'Remove Image' : $this->_field_data['remove_title'];
+			$post_id = $this->get_post_id();
+
+			if(isset($value) && $value != ''){
+				$image = wp_get_attachment_metadata( $value );
+				$text = ($image['sizes']['thumbnail']['file'] != '') ? '<img src="' . wp_get_attachment_thumb_url( $value ) . '"/>' : $image['file'];
+				$display = '<input type="hidden" type="text" name="%s" id="%s" value="' . $value . '"/>
+							<div id="upload_image_text-%s">' . $text . '</div>';
+				$remove = '&nbsp;&nbsp;&nbsp;<a class="remove-%s" href="#">%s</a>';
+			}
+			else{
+				$display = '<input type="hidden" type="text" name="%s" id="%s" value=""/>
+							<div id="upload_image_text-%s" style="display: none;"></div>';
+				$remove = '&nbsp;&nbsp;&nbsp;<a class="remove-%s" href="#" style="display: none;">%s</a>';
+			}
+
+			$label_format =
+				'<div class="%s">'.
+				'<p><label for="%s"><strong>%s</strong></label></p>'.
+				
+				$display .
+				'<p><a class="thickbox" id="upload_image-%s" href="'. get_admin_url() .'media-upload.php?post_id=%s&amp;type=image&amp;&amp;tab=library&amp;TB_iframe=1&amp;width=640&amp;height=534" title="%s">%s</a>' . $remove . '</p>'.
+				'</div>'.
+				'<script type="text/javascript">
+					jQuery("#upload_image-%s").click(function() {'.
+				'		obj = jQuery(this);'.
+				'		window.original_send_to_editor = window.send_to_editor;'.
+				'		window.send_to_editor = function(html) {'.
+				'			var imgClass = jQuery("img",html).attr("class");'.
+				'			var imgSrc = jQuery("img",html).attr("src");'.
+				'			var thumbImg = "";'.				
+				'			if (!imgClass)'.
+				'				var imgClass = jQuery(html).attr("class");'.
+				'			imgClass = imgClass.substring( ( imgClass.lastIndexOf( "-" ) + 1 ), imgClass.length );'.
+				'			thumbImg = imgSrc.substring( 0, imgSrc.lastIndexOf( "." ) ) + "-150x150" + imgSrc.substring( imgSrc.lastIndexOf( "." ), imgSrc.length );'.
+ 				'			obj.parent().prev().prev().val( imgClass );'.
+				'			obj.parent().prev("div").html("<img src=\'" + thumbImg + "\'/>").show();'.
+				'			jQuery(".remove-%s").show();'.
+				'			tb_remove();'.
+				'		}'.
+				'	});'.
+				'	jQuery(".remove-%s").click(function(){'.
+				'		jQuery(this).hide().parent().prev().html("").prev().val("");'.
+				'		return false;'.
+				'	});'.
+				'</script>';
+			printf( $label_format, $class, $id, $label, $id, $id, $id, $id, $post_id, $set_title, $set_title, $id, $remove_title, $id, $id, $id );
+		}
+	}
+}
+
 if ( !class_exists( "Easy_CF_Validator_Required" ) ) {
 	class Easy_CF_Validator_Required extends Easy_CF_Validator {
 		public function get( $value = '' ) {
