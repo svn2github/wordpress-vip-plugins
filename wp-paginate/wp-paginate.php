@@ -145,7 +145,9 @@ if (!class_exists( 'WPPaginate' )) {
 				$ellipsis = "<li><span class='gap'>...</span></li>";
 
 				if ($page > 1 && !empty($previouspage)) {
-					$output .= sprintf( '<li><a href="%s" class="prev">%s</a></li>', $prevlink, stripslashes($previouspage));
+					$cleanedPrevPage = stripslashes($previouspage);
+					$prevLinkTag = apply_filters('wp_paginate_prev_link_tag', sprintf('<a href="%s" class="prev">%s</a>', $prevlink, $cleanedPrevPage), $prevlink, $cleanedPrevPage);
+					$output .= '<li>'.$prevLinkTag.'</li>';
 				}
 
 				$min_links = $range * 2 + 1;
@@ -182,7 +184,9 @@ if (!class_exists( 'WPPaginate' )) {
 				}
 
 				if ($page < $pages && !empty($nextpage)) {
-					$output .= sprintf( '<li><a href="%s" class="next">%s</a></li>', $nextlink, stripslashes($nextpage));
+					$cleanedNextPage = stripslashes($nextpage);
+					$nextLinkTag = apply_filters('wp_paginate_next_link_tag', sprintf('<a href="%s" class="next">%s</a>', $nextlink, $cleanednextPage), $nextlink, $cleanednextPage);
+					$output .= '<li>'.$nextLinkTag.'</li>';
 				}
 				$output .= "</ol>";
 			}
