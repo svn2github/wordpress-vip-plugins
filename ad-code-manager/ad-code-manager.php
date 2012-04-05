@@ -721,9 +721,12 @@ class Ad_Code_Manager
 				else
 					$include = true;
 
-				//
 				// If we have matching conditional and $this->logical_operator equals OR just break from the loop and do not try to evaluate others
 				if ( $include && $this->logical_operator == 'OR' )
+					break;
+
+				// If $this->logical_operator equals AND and one conditional evaluates false, skip this ad code
+				if ( !$include && $this->logical_operator == 'AND' )
 					break;
 
 			}
