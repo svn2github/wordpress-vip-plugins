@@ -625,7 +625,7 @@ class Zoninator
 				$limit = $this->posts_per_page; 
 			$exclude = (array) $this->_get_request_var( 'exclude', array(), 'absint' );
 			
-			$args = array(
+			$args = apply_filters( 'zoninator_search_args', array(
 				's' => $q,
 				'post__not_in' => $exclude,
 				'posts_per_page' => $limit,
@@ -635,7 +635,7 @@ class Zoninator
 				'order' => 'DESC',
 				'orderby' => 'post_date',
 				'suppress_filters' => true,
-			);
+			) );
 			
 			$query = new WP_Query( $args );
 			$stripped_posts = array();
