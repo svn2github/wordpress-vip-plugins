@@ -17,6 +17,9 @@ require_once( dirname( __FILE__ ) . '/vip-do-not-include-on-wpcom/wpcom-caching.
  *
  */
 function vip_redirects( $vip_redirects_array = array() ) {
+	if ( empty( $vip_redirects_array ) )
+		return;
+
 	$redirect_url = '';
 
 	// Sanitize the redirects array
@@ -36,6 +39,32 @@ function vip_redirects( $vip_redirects_array = array() ) {
 	if ( $redirect_url ) {
 		wp_redirect( $redirect_url, 301 );
 		exit;
+	}
+}
+
+/**
+ * Wildcard redirects based on the beginning of the request path.
+ *
+ * This is basically an alternative to vip_regex_redirects() for when you
+ * only need to redirect /foo/bar/* to somewhere else. Using regex
+ * to do this simple check would add lots of overhead.
+ *
+ * array elements should be in the form of:
+ * '/some-path/' => 'http://wordpress.com/new/'
+ */
+function vip_substr_redirects( $vip_redirects_array = array() ) {
+	if ( empty( $vip_redirects_array ) )
+		return;
+
+	// Don't do anything for the homepage
+	if ( '/' == $_SERVER['REQUEST_URI'] )
+		return;
+
+	foreach ( $vip_redirects_array as $old_path => $new_url ) {
+		if ( substr( $_SERVER['REQUEST_URI'], 0, strlen( $old_path ) ) == $old_path ) {
+			wp_redirect( $new_url, 301 );
+			exit();
+		}
 	}
 }
 
