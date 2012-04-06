@@ -472,7 +472,7 @@ class Zoninator
 			// Copy To
 		);
 		?>
-		<?php echo esc_html( $post->post_title ); ?>
+		<?php echo sprintf( '%s <span class="zone-post-status">(%s)</span>', esc_html( $post->post_title ), esc_html( $post->post_status ) ); ?>
 		
 		<div class="row-actions">
 			<?php echo implode( ' | ', $action_links ); ?>
@@ -631,7 +631,7 @@ class Zoninator
 				'posts_per_page' => $limit,
 				'showposts' => $limit,
 				'post_type' => $post_types,
-				'post_status' => 'publish',
+				'post_status' => array( 'publish', 'future' ),
 				'order' => 'DESC',
 				'orderby' => 'post_date',
 				'suppress_filters' => true,
@@ -649,6 +649,7 @@ class Zoninator
 					'post_id' => $post->ID,
 					'date' => get_the_time( get_option( 'date_format' ), $post ),
 					'post_type' => $post->post_type,
+					'post_status' => $post->post_status,
 				);
 			}
 			

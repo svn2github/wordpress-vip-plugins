@@ -201,6 +201,9 @@
 				visibility: hidden;
 			}
 			*/
+			.zone-post-status {
+				color: #999;
+			}
 		.zone-post .row-actions {
 			font-size: 11px;
 			font-weight: normal;
@@ -240,6 +243,7 @@
 		padding-bottom: 5px;
 		border-bottom: 1px dotted #eee;
 		cursor: pointer;
+		overflow: hidden;
 	}
 	.ui-autocomplete .title {
 		display: block;
@@ -251,12 +255,19 @@
 		color: #666;
 		font-size: 11px;
 		clear: both;
-		display: block;
+		float: left;
 	}
 	.ui-autocomplete .type {
 		text-transform: uppercase;
 		color: #666;
 		font-size: 11px;
+		width: 19%;
+		margin-left: 1%;
+		float: right;
+		text-align: right;
+	}
+	.ui-autocomplete .status {
+		font-size: 10px;
 		width: 19%;
 		margin-left: 1%;
 		float: right;
