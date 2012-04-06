@@ -827,8 +827,14 @@ class Zoninator
 			'post_type' => $this->get_supported_post_types(),
 			'ignore_sticky_posts' => '1', // don't want sticky posts messing up our order
 		);
+
+		// Default to published posts on the front-end
+		if ( ! is_admin() )
+			$defaults['post_status'] = array( 'publish' );
+
 		if ( is_admin() ) // skip APC in the admin
 			$defaults['suppress_filters'] = true; 
+
 		$args = wp_parse_args( $args, $defaults );
 		
 		// Un-overridable args
