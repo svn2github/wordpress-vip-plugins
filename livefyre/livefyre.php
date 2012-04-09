@@ -173,7 +173,8 @@ class Livefyre_Application {
 		"comment_author_url",
 		"comment_author_IP",
 		"comment_content",
-		"comment_ID"
+		"comment_ID",
+		"comment_post_ID"
 	);
 	
 	function sanitize_inputs ( $data ) {
