@@ -10,6 +10,11 @@ require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-powered-wpcom/vip-powe
 if ( function_exists( 'wpcom_is_vip' ) ) {
 	wpcom_vip_load_helper_wpcom(); // vip-helper-wpcom.php
 	wpcom_vip_load_helper_stats(); // vip-helper-wpcom.php
+} else {
+	// Local helpers that add WP.com functionality
+	require_once( __DIR__ . '/vip-do-not-include-on-wpcom/is-mobile.php' );
+	require_once( __DIR__ . '/vip-do-not-include-on-wpcom/wpcom-functions.php' );
+	require_once( __DIR__ . '/vip-do-not-include-on-wpcom/wpcom-shortcodes.php' );
 }
 
 // Load the "works everywhere" helper file
