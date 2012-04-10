@@ -730,3 +730,44 @@ function _disable_right_now_comment_count_filter( $data ) {
 	}
 	return false;
 }
+
+/**
+ * Returns profile information for a WordPress.com/Gravatar user
+ *
+ * @param string|int Email, ID, or username for user to lookup
+ * @return array Profile info formatted as noted here: http://en.gravatar.com/site/implement/profiles/php/
+ */
+function wpcom_vip_get_user_profile( $email_or_id ) {
+
+	if ( is_numeric( $email_or_id ) ) {
+		$user = get_user_by( 'id', $email_or_id );
+		if ( ! $user )
+			return false;
+
+		$email = $user->user_email;
+	} elseif ( is_email( $email_or_id ) ) {
+		$email = $email_or_id;
+	} else {
+		$user_login = sanitize_user( $email_or_id, true );
+		$user = get_user_by( 'login', $user_login );
+		if ( ! $user )
+			return;
+
+		$email = $user->user_email;
+	}
+
+	$hashed_email = md5( strtolower( trim( $email ) ) );	
+	$profile_url = esc_url_raw( sprintf( '%s.gravatar.com/%s.php', ( is_ssl() ? 'https://secure' : 'http://www' ), $hashed_email ), array( 'http', 'https' ) );
+
+	$profile = wpcom_vip_file_get_contents( $profile_url, 1, 900 );
+	if ( $profile ) {
+		$profile = unserialize( $profile );
+
+		if ( is_array( $profile ) && ! empty( $profile['entry'] ) && is_array( $profile['entry'] ) ) {
+			$profile = $profile['entry'][0];
+		} else {
+			$profile = false;
+		}
+	}
+	return $profile;
+}
