@@ -452,7 +452,9 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 * See also http://en.support.wordpress.com/sharing/
 */
 function wpcom_vip_disable_sharing() {
+	remove_filter( 'pre_post_flair', 'pre_post_flair' );
 	remove_filter( 'post_flair', 'sharing_display', 20 );
+	remove_filter( 'post_post_flair', 'post_post_flair' );
 }
 function wpcom_vip_enable_sharing() {
 	add_filter( 'post_flair', 'sharing_display', 20 );
