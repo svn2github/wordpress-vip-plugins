@@ -185,7 +185,7 @@ if (!class_exists( 'WPPaginate' )) {
 
 				if ($page < $pages && !empty($nextpage)) {
 					$cleanedNextPage = stripslashes($nextpage);
-					$nextLinkTag = apply_filters('wp_paginate_next_link_tag', sprintf('<a href="%s" class="next">%s</a>', $nextlink, $cleanednextPage), $nextlink, $cleanednextPage);
+					$nextLinkTag = apply_filters('wp_paginate_next_link_tag', sprintf('<a href="%s" class="next">%s</a>', $nextlink, $cleanedNextPage), $nextlink, $cleanednextPage);
 					$output .= '<li>'.$nextLinkTag.'</li>';
 				}
 				$output .= "</ol>";
