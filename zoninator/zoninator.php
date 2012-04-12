@@ -786,6 +786,8 @@ class Zoninator
 			}
 			// TODO: remove_object_terms -- but need remove object terms function :(
 		}
+
+		clean_term_cache( $this->get_zone_id( $zone ), $this->zone_taxonomy ); // flush cache for our zone term and related APC caches
 	}
 	
 	function remove_zone_posts( $zone, $posts = null ) {
@@ -803,6 +805,8 @@ class Zoninator
 			if( $post_id )
 				delete_metadata( 'post', $post_id, $meta_key );
 		}
+
+		clean_term_cache( $this->get_zone_id( $zone ), $this->zone_taxonomy ); // flush cache for our zone term and related APC caches
 	}
 
 	function get_zone_posts( $zone, $args = array() ) {
