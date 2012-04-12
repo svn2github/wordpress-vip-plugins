@@ -611,3 +611,13 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 		
 	return $posts;
 }
+
+
+/**
+ * Removes the mobile app promotion from the bottom of the default mobile theme.
+ *
+ * Example: "Now Available! Download WordPress for iOS"
+ */
+function wpcom_disable_mobile_app_promotion() {
+	remove_action( 'wp_mobile_theme_footer', 'mobile_app_promo' );
+}
