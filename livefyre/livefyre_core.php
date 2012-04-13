@@ -163,6 +163,12 @@ class Livefyre_Sync {
 			Schedule the next sync if we got >50 or the server says "more-data".
 			If there are no more comments, schedule a sync for several hrs out.
 		*/
+		$result = array(
+			'status' => 'ok',
+			'message' => 'The sync process completed successfully.',
+			'last-message-type' => null,
+			'records-created' => 0
+		);
 		$this->lf_core->AppExtension->debug_log( time() . ' livefyre synched' );
 		$max_activity = $this->lf_core->AppExtension->get_option( 'livefyre_activity_id', '0' );
 		if ( $max_activity == '0' ) {
@@ -174,17 +180,21 @@ class Livefyre_Sync {
 		$sigcreated_param = 'sig_created=' . time();
 		$key = $this->lf_core->AppExtension->get_option( 'livefyre_site_key' );
 		$url .= '?' . $sigcreated_param . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $sigcreated_param ) );
-		$result = $this->lf_core->lf_domain_object->http->request( $url );
-		if (is_array( $result ) && isset($result['response']) && $result['response']['code'] == 200) {
-			$str_comments = $result['body'];
+		$http_result = $this->lf_core->lf_domain_object->http->request( $url );
+		if (is_array( $http_result ) && isset($http_result['response']) && $http_result['response']['code'] == 200) {
+			$str_comments = $http_result['body'];
 		} else {
 			$str_comments = '';
 		}
 		$json_array = json_decode( $str_comments );
 		if ( !is_array( $json_array ) ) {
 			$this->schedule_sync( LF_SYNC_LONG_TIMEOUT );
-			$this->livefyre_report_error( 'Error during do_sync: Invalid response ( not a valid json array ) from sync request to url: ' . $url . ' it responded with: ' . $str_comments );
-			return;
+			$error_message = 'Error during do_sync: Invalid response ( not a valid json array ) from sync request to url: ' . $url . ' it responded with: ' . $str_comments;
+			$this->livefyre_report_error( $error_message );
+			return array_merge(
+				$result,
+				array( 'status' => 'error', 'message' => $error_message )
+			);
 		}
 		$data = array();
 		$inserts_remaining = LF_SYNC_MAX_INSERTS;
@@ -235,10 +245,14 @@ class Livefyre_Sync {
 				}
 			}
 		}
+		$result[ 'last-message-type' ] = $mtype;
+		$result[ 'activities-handled' ] = LF_SYNC_MAX_INSERTS - $inserts_remaining;
+		$result[ 'last-activity-id' ] = $last_activity_id;
 		if ( $last_activity_id ) {
 			$this->lf_core->AppExtension->update_option( 'livefyre_activity_id', $last_activity_id );
 		}
 		$this->schedule_sync( $timeout );
+		return $result;
 	
 	}
 
@@ -252,9 +266,10 @@ class Livefyre_Sync {
 	function comment_update() {
 		
 		if (isset($_GET['lf_wp_comment_postback_request']) && $_GET['lf_wp_comment_postback_request']=='1') {
-			$this->do_sync();
+			$result = $this->do_sync();
 			// Instruct the backend to use the site sync postback mechanism for future updates.
-			echo "{\"status\":\"ok\",\"plugin-version\":\"" . LF_PLUGIN_VERSION . "\",\"message\":\"sync-initiated\"}";
+			$result[ 'plugin-version' ] = LF_PLUGIN_VERSION;
+			echo json_encode( $result );
 			exit;
 		}
 	
