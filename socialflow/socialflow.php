@@ -19,6 +19,7 @@ class SocialFlow_Plugin {
 
 	public function __construct() {
 		global $pagenow;
+		global $typenow;
 		self::$instance = $this;
 
 		$this->l10n = array(
@@ -95,8 +96,8 @@ class SocialFlow_Plugin {
 		add_meta_box( 'socialflow', __( 'SocialFlow', 'socialflow' ), array( $this, 'display_compose_form' ), 'post', 'side', 'high', array( 'post_page' => true ) );
 	}
 
-	public function enqueue( $hook ) {		
-		if ( in_array( $hook, array( 'index.php', 'post-new.php', 'post.php' ) ) && ( !isset( $_REQUEST['post_type'] ) || in_array( $_REQUEST['post_type'], array( 'post' ) ) ) ) {
+	public function enqueue( $hook ) {
+		if ( in_array( $hook, array( 'index.php', 'post-new.php', 'post.php' ) ) && ( in_array( $_REQUEST['post_type'], array( 'post' ) ) || in_array( $typenow, array( 'post' ) ) ) ) {
 			$color = 'fresh' == get_user_meta( get_current_user_id(), 'admin_color', true ) ? '#F1F1F1' : '#F5FAFD';
 			?>
 <style type="text/css">
