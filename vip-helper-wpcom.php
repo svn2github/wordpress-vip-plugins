@@ -621,3 +621,28 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 function wpcom_disable_mobile_app_promotion() {
 	remove_action( 'wp_mobile_theme_footer', 'mobile_app_promo' );
 }
+
+
+/**
+ * Enables term_order functionality
+ */
+function enable_term_order_functionality() {
+	$db_version = get_option( 'db_version' );
+	$cmp_db_version = 6846;
+	if ( $db_version >= $cmp_db_version )
+		add_action( 'set_object_terms', '_enable_term_order_functionality', 1, 6 );
+}
+function _enable_term_order_functionality( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+	global $wpdb;
+	$t = get_taxonomy( $taxonomy );
+	if ( ! $append && isset( $t->sort ) && $t->sort ) {
+		$values = array();
+		$term_order = 0;
+		$final_tt_ids = wp_get_object_terms( $object_id, $taxonomy, array( 'fields' => 'tt_ids' ) );
+		foreach ( $tt_ids as $tt_id )
+			if ( in_array( $tt_id, $final_tt_ids ) )
+				$values[] = $wpdb->prepare( "(%d, %d, %d)", $object_id, $tt_id, ++$term_order );
+		if ( $values )
+			$wpdb->query( "INSERT INTO $wpdb->term_relationships (object_id, term_taxonomy_id, term_order) VALUES " . implode( ',', $values ) . " ON DUPLICATE KEY UPDATE term_order = VALUES(term_order) ");
+	}
+}
