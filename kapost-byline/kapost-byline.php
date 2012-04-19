@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.0.5
+	Version: 1.0.7
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.0.5-WIP');
+define('KAPOST_BYLINE_VERSION', '1.0.7-WIP');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -16,9 +16,52 @@ function kapost_byline_custom_fields($raw_custom_fields)
 
 	$custom_fields = array();
 	foreach($raw_custom_fields as $i => $cf)
-		$custom_fields[$cf['key']] = $cf['value'];
+	{
+		$k = sanitize_text_field($cf['key']);
+		$v = sanitize_text_field($cf['value']);
+		$custom_fields[$k] = $v;
+	}
 
 	return $custom_fields;
+}
+
+function kapost_is_protected_meta($protected_fields, $field)
+{
+	if(!in_array($field, $protected_fields))
+		return false;
+
+	if(function_exists('is_protected_meta'))
+		return is_protected_meta($field, 'post');
+
+	return ($field[0] == '_');
+}
+
+function kapost_byline_protected_custom_fields($custom_fields)
+{	   
+	if(!isset($custom_fields['_kapost_protected']))
+		return array();
+
+	$protected_fields = array();
+	foreach(explode('|', $custom_fields['_kapost_protected']) as $p)
+	{
+		list($prefix, $keywords) = explode(':', $p);
+
+		$prefix = trim($prefix);
+		foreach(explode(',', $keywords) as $k)
+		{
+			$kk = trim($k);
+			$protected_fields[] = "_${prefix}_${kk}";
+		}
+	}   
+		
+	$pcf = array();
+	foreach($custom_fields as $k => $v)
+	{   
+		if(kapost_is_protected_meta($protected_fields, $k))
+			$pcf[$k] = $v;																								
+	}
+	
+	return $pcf;
 }
 
 function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=false)
@@ -28,11 +71,21 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 
 	$post_needs_update = false;
 
-	// if this is a draft then clear the 'publish date'
+	// if this is a draft then clear the 'publish date' or set our own
 	if($post->post_status == 'draft')
 	{
-		$post->post_date = '0000-00-00 00:00:00';
-		$post->post_date_gmt = '0000-00-00 00:00:00';
+		if(isset($custom_fields['kapost_publish_date']))
+		{
+			$post_date = $custom_fields['kapost_publish_date']; // UTC
+			$post->post_date = get_date_from_gmt($post_date);
+			$post->post_date_gmt = $post_date;
+		}
+		else
+		{
+			$post->post_date = '0000-00-00 00:00:00';
+			$post->post_date_gmt = '0000-00-00 00:00:00';
+		}
+
 		$post_needs_update = true;
 	}
 
@@ -74,11 +127,21 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 			if(strpos($k, '_kapost_analytics_') === 0)
 			{
 				$kk = str_replace('_kapost_analytics_', '', $k);
-				$kapost_analytics[$kk] = sanitize_text_field( $v );
+				$kapost_analytics[$kk] = $v;
 			}
 		}
 
 		add_post_meta($id, '_kapost_analytics', $kapost_analytics);
+	}
+
+	// store other implicitly 'allowed' protected custom fields
+	if(isset($custom_fields['_kapost_protected']))
+	{
+		foreach(kapost_byline_protected_custom_fields($custom_fields) as $k => $v)
+		{
+			delete_post_meta($id, $k);
+			if(!empty($v)) add_post_meta($id, $k, $v);
+		}
 	}
 
 	// set our post author
@@ -108,21 +171,21 @@ function kapost_byline_get_analytics_code($id)
 
 	extract($kapost_analytics, EXTR_SKIP);
 
-	$code = '
+	$code = "
 <!-- BEGIN KAPOST ANALYTICS CODE -->
-<span id="kapostanalytics_'. esc_attr( $post_id ) .'"></span>
+<span id='kapostanalytics_" . esc_attr($post_id) . "'></span>
 <script>
 <!--
 var _kapost_data = _kapost_data || [];
-_kapost_data.push([1, "' . esc_js( $post_id ) .'", "' . esc_js( $author_id ) .'", "'. esc_js( $newsroom_id ) .'", escape("'. esc_js( $categories ) .'")]);
+_kapost_data.push([1, '" . esc_js($post_id) . "', '" . esc_js($author_id) . "', '" . esc_js($newsroom_id) . "', escape('" . esc_js($categories) . "')]);
 (function(){
-var ka = document.createElement(\'script\'); ka.async=true; ka.id="kp_tracker"; ka.src="'. esc_url( $url ) .'/javascripts/tracker.js";
-var s = document.getElementsByTagName(\'script\')[0]; s.parentNode.insertBefore(ka, s);
+var ka = document.createElement('script'); ka.async=true; ka.id='kp_tracker'; ka.src='" . esc_url($url) . "/javascripts/tracker.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka, s);
 })();
 -->
 </script>
 <!-- END KAPOST ANALYTICS CODE -->
-';
+";
 
 	return $code;
 }
