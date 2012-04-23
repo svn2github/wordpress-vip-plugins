@@ -581,11 +581,11 @@ dsq_export_comments = function() {
 add_action('admin_head', 'dsq_admin_head');
 
 function dsq_warning() {
-	if ( !get_option('disqus_forum_url') && !isset($_POST['forum_url']) && $_GET['page'] != 'disqus' ) {
+	if ( !get_option('disqus_forum_url') && !isset($_POST['forum_url']) && isset($_POST['page']) && $_GET['page'] != 'disqus' ) {
 		dsq_manage_dialog('You must <a href="edit-comments.php?page=disqus">configure the plugin</a> to enable Disqus Comments.', true);
 	}
 
-	if ( !dsq_is_installed() && $_GET['page'] == 'disqus' ) {
+	if ( !dsq_is_installed() && isset($_POST['page']) && $_GET['page'] == 'disqus' ) {
 		dsq_manage_dialog('Disqus Comments has not yet been configured. (<a href="edit-comments.php?page=disqus">Click here to configure</a>)');
 	}
 }
