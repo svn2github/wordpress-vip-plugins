@@ -348,7 +348,8 @@ if ( !class_exists( "Easy_CF" ) ) {
 		 */
 		public function meta_box_cb( $object='', $box='' ) {
 			// Run once
-			if ( ! $this->_nonce_flag[$box['id']] ) {
+			
+			if ( ! isset( $this->_nonce_flag[$box['id']] ) || ! $this->_nonce_flag[$box['id']] ) {
 				$this->print_nonce( $box['id'] );
 				$this->_nonce_flag[$box['id']] = true;
 			}
@@ -427,7 +428,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 		 */
 		public function save_post_cb($post_id, $post) {
 			foreach( (array) $this->_used_fields as $box_id => $field_ids ) {
-				if ( ! wp_verify_nonce( $_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce'], $this->_plugin_prefix . '_' . $box_id . '_nonce' ) ) {
+				if ( ( ! isset($_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce']) ) || ( ! wp_verify_nonce( $_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce'], $this->_plugin_prefix . '_' . $box_id . '_nonce' ) ) ) {
 					return $post->ID;
 				}
 
@@ -446,17 +447,23 @@ if ( !class_exists( "Easy_CF" ) ) {
 				
 				// Add values of $my_data as custom fields
 				// Let's cycle through the $my_data array!
+				
 				foreach ( (array) $field_ids as $field_id ) {
-					$value = $_POST[$field_id];
-					if ( !$this->{$field_id}->validate( $value, $post->ID ) ) {
-						$this->add_admin_notice( $this->{$field_id}->get_error_msg() );
-						continue;
-					}
-					if (!$value) {
+					if ( isset( $_POST[$field_id] ) ) {
+						$value = $_POST[$field_id];
+						if ( !$this->{$field_id}->validate( $value, $post->ID ) ) {
+							$this->add_admin_notice( $this->{$field_id}->get_error_msg() );
+							continue;
+						}
+						if ( false === $value ) {
+							// delete blanks
+							$this->{$field_id}->delete( $post->ID );
+						} else {
+							$this->{$field_id}->set( $value, $post->ID );
+						}
+					} else {
 						// delete blanks
 						$this->{$field_id}->delete( $post->ID );
-					} else {
-						$this->{$field_id}->set( $value, $post->ID );
 					}
 				}				
 			}
@@ -491,7 +498,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 		 */
 		protected function parse_field_data() {
 			$field_data = $this->_fields_meta;
-
+			
 			// validate data, make sure to fill $this->_field_data only with validated fields
 
 			foreach( (array) $field_data as $group_id => $group_data ) {
