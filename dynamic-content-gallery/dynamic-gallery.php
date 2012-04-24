@@ -22,12 +22,13 @@ $dfcg_off02 = $options['off02']-$dfcg_offset;
 $dfcg_off03 = $options['off03']-$dfcg_offset;
 $dfcg_off04 = $options['off04']-$dfcg_offset;
 $dfcg_off05 = $options['off05']-$dfcg_offset;
+$dfcg_gallery_delay = apply_filters( 'dfcg_gallery_delay', 10000 );
 ?>
-
 <script type="text/javascript">
    function startGallery() {
       var myGallery = new gallery($('myGallery'), {
-         timed: true
+         timed: true,
+         delay: <?php echo intval( $dfcg_gallery_delay ); ?>
       });
    }
    window.addEvent('domready',startGallery);
