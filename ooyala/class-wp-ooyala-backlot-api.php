@@ -37,6 +37,7 @@ class WP_Ooyala_Backlot {
 	}
 
 	public function update( $body, $path ) {
+		global $wp_version;
 		$params = array(
 			'api_key' => $this->api_key,
 			'expires' => time() + 900
@@ -47,9 +48,11 @@ class WP_Ooyala_Backlot {
 			$param = rawurlencode( $param );
 
 		$url = add_query_arg( $params, 'https://api.ooyala.com' . $path );
-		/*
+
+		if ( $wp_version >= 3.4 )
+			return wp_remote_request( $url, array( 'headers' => array( 'Content-Type' => 'application/json' ), 'method' => 'PATCH', 'body' => $body, 'timeout' => apply_filters( 'ooyala_http_request_timeout', 10 ) ) );
+		
 		// Workaround for core bug - http://core.trac.wordpress.org/ticket/18589
-		// Uncomment this section if running < 3.4 or trunk with < http://core.trac.wordpress.org/changeset/20183
 		$curl = curl_init( $url );
 		curl_setopt( $curl, CURLOPT_HEADER, false );
 		curl_setopt( $curl, CURLOPT_HTTPHEADER, array( 'Content-type: application/json' ) );
@@ -61,11 +64,7 @@ class WP_Ooyala_Backlot {
 		$status = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 		curl_close( $curl );
 
-		if ( 200 == $status )
-			return json_decode( $response );
-		*/
-
-		return wp_remote_request( $url, array( 'headers' => array( 'Content-Type' => 'application/json' ), 'method' => 'PATCH', 'body' => $body, 'timeout' => apply_filters( 'ooyala_http_request_timeout', 10 ) ) );
+		return array( 'body' => $response, 'response' => array( 'code' => $status ) );
 	}
 
 	public function query( $params, $request = array(), $return = false ) {
@@ -105,12 +104,43 @@ class WP_Ooyala_Backlot {
 			return;
 		}
 
-		$output = '';
+		$output = $page_token = $next = '';
 		if ( !empty( $videos->next_page ) ) {
 			parse_str( urldecode( $videos->next_page ) );
 			$next = '<a href="#' . $page_token . '" class="next page-numbers ooyala-paging">Next &raquo;</a>';
-			$output .= '<div class="tablenav"><div class="tablenav-pages">' . $next . '</div></div>';
 		}
+
+		$ids = isset( $_REQUEST['ooyala_ids'] ) ? $_REQUEST['ooyala_ids'] : '';
+		$ids = explode( ',', $ids );
+
+		if ( $page_token ) {
+			if ( in_array( $page_token, $ids ) ) {
+				$key = array_keys( $ids, $page_token );
+				$key = $key[0];
+				$prev_token = $key > 1 ? $ids[ $key - 2 ] : '-1';
+			} else {
+				$c = count( $ids );
+				$prev_token = $c > 1 ? $ids[ count( $ids ) - 2 ] : -1;
+				$ids[] = $page_token;
+			}			
+		} else {
+			$prev_token = $ids[ count( $ids ) - 2 ];
+		}
+
+		if ( $next || $prev_token != -1 ) {
+			$output .= '<div class="tablenav"><div class="tablenav-pages">';
+			if ( $prev_token != -1 )
+				$output .= '<a href="#' . $prev_token . '" class="prev page-numbers ooyala-paging">&laquo; Prev</a>';
+
+			if ( $next )
+				$output .= $next;
+
+			$output .= '</div></div>';
+		}
+
+		$ids = implode( ',', $ids );
+		$output .= '<input type="hidden" id="ooyala-ids" value="' . esc_attr( $ids ) . '" />';
+			
 
 		$output .= '<div id="ooyala-items">';
 		foreach ( $videos->items as $video ) {

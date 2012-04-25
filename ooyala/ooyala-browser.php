@@ -77,6 +77,7 @@
 
 	<?php if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
 		$videos = json_decode( wp_remote_retrieve_body( $response ) );
+		$videos = stripslashes_deep( $videos );
 		if ( empty( $videos->items ) )
 			_e( 'No videos found.', 'ooyalavideo' );
 

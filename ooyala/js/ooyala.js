@@ -72,6 +72,7 @@ OV.Popup = function()  {
 
 			var data = {
 					action: 'ooyala_request',
+					ooyala_ids: jQuery('#ooyala-ids').val(),
 					ooyala: what,
 					key_word: searchTerm,
 					search_field: searchField,
