@@ -646,3 +646,78 @@ function _enable_term_order_functionality( $object_id, $terms, $tt_ids, $taxonom
 			$wpdb->query( "INSERT INTO $wpdb->term_relationships (object_id, term_taxonomy_id, term_order) VALUES " . implode( ',', $values ) . " ON DUPLICATE KEY UPDATE term_order = VALUES(term_order) ");
 	}
 }
+
+
+
+/**
+ * Sets a option lock on the master database. This can be used in order to
+ * ensure that certain processes are only executed once at a time.
+ * @param string $lock_name name of the lock. 
+ * @param string $lock_time amount of seconds until this lock expires and a new can be created. minimum of 60 seconds.
+ * @return boolean true or false / WP_Error
+ */
+function wpcom_set_option_lock( $lock_name, $lock_time = 300 ) {
+	global $wpdb;
+	
+	if ( empty( $lock_name ) ) 
+		return new WP_Error( 'invalid_arguments', __( "At least one of the arguments of wpcom_set_option_lock is invalid" ) );
+		
+	if ( empty( $lock_time ) || $lock_time < 60 )
+		return new WP_Error( 'invalid_arguments', __( "Please use a lock time bigger than 60 seconds" ) );
+
+	// query the option lock
+	$lock = wpcom_get_option_lock( $lock_name );
+	
+	$time = time();
+	$new_lock = $time + (int) $lock_time;
+
+	if ( false === $lock ) { // check if lock exists
+		// set new lock
+		$result = $wpdb->insert( $wpdb->options, array( 'option_name' => '_option_lock_' . esc_attr( $lock_name ), 'option_value' => $new_lock ) );
+		return true;
+	} else { // check if lock is expired
+		if ( $lock < $time ) {
+			// update lock
+			$result = $wpdb->update( $wpdb->options, array( 'option_name' => '_option_lock_' . esc_attr( $lock_name ), 'option_value' => $new_lock ),  array( 'option_name' => '_option_lock_' . esc_attr( $lock_name ) ) );var_export( $result );
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+/**
+ * Gets a option lock from the master database. This can be used in order to
+ * ensure that certain processes are only executed once at a time.
+ * @param string $lock_name name of the lock. 
+ * @return mixed false / WP_Error or existing lock time
+ */
+function wpcom_get_option_lock( $lock_name ) {
+	global $wpdb;
+	if ( empty( $lock_name ) ) 
+		return new WP_Error( 'invalid_arguments', __( "At least one of the arguments of wpcom_set_option_lock is invalid" ) );
+	
+	// send all reads to master
+	$send_to_master = false;
+	if ( is_callable( array( $wpdb, 'send_reads_to_masters' ) ) )
+		 $send_to_master = true;
+		 
+	$srtm_backup = $changed_srtm = false;
+	if ( true === $send_to_master && true <> $wpdb->srtm ) {
+		$changed_srtm = true;
+		$srtm_backup = $wpdb->srtm;
+		$wpdb->send_reads_to_masters();
+	}
+	
+	// query the option lock
+	$lock = $wpdb->get_var( $wpdb->prepare( "SELECT $wpdb->options.option_value FROM $wpdb->options WHERE $wpdb->options.option_name = %s", '_option_lock_' . esc_attr( $lock_name ) ) );
+	
+	// send reads back to where they belong to
+	if ( true === $send_to_master && true === $changed_srtm )
+		$wpdb->srtm = $srtm_backup;
+
+	if ( is_null( $lock ) )
+		return false;
+
+	return $lock;
+}
