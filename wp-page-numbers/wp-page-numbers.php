@@ -74,7 +74,7 @@ function wp_page_numbers_prevpage($paged, $max_page, $prevpage)
 {
 	$pagingString = '';
 	if( $max_page > 1 && $paged > 1 )
-		$pagingString = '<li><a href="'.get_pagenum_link($paged-1). '">'.$prevpage.'</a></li>';
+		$pagingString = '<li><a href="'. esc_url( get_pagenum_link($paged-1) ). '">'.$prevpage.'</a></li>';
 	return $pagingString;
 }
 
@@ -90,9 +90,9 @@ function wp_page_numbers_left_side($max_page, $limit_pages, $paged, $pagingStrin
 			if( $i <= $limit_pages )
 			{
 				if ($paged == $i || ($paged == "" && $i == 1))
-					$pagingString .= '<li class="active_page"><a href="'.get_pagenum_link($i). '">'.$i.'</a></li>'."\n";
+					$pagingString .= '<li class="active_page"><a href="'.esc_url( get_pagenum_link($i) ). '">'.$i.'</a></li>'."\n";
 				else
-					$pagingString .= '<li><a href="'.get_pagenum_link($i). '">'.$i.'</a></li>'."\n";
+					$pagingString .= '<li><a href="'.esc_url( get_pagenum_link($i) ). '">'.$i.'</a></li>'."\n";
 				if ($i == 1)
 					$page_check_min = true;
 				if ($max_page == $i)
@@ -113,9 +113,9 @@ function wp_page_numbers_middle_side($max_page, $paged, $limit_pages_left, $limi
 		if($paged-$i <= $limit_pages_left && $paged+$limit_pages_right >= $i)
 		{
 			if ($paged == $i)
-				$pagingString .= '<li class="active_page"><a href="'.get_pagenum_link($i). '">'.$i.'</a></li>'."\n";
+				$pagingString .= '<li class="active_page"><a href="'.esc_url( get_pagenum_link($i) ). '">'.$i.'</a></li>'."\n";
 			else
-				$pagingString .= '<li><a href="'.get_pagenum_link($i). '">'.$i.'</a></li>'."\n";
+				$pagingString .= '<li><a href="'.esc_url( get_pagenum_link($i) ). '">'.$i.'</a></li>'."\n";
 				
 			if ($i == 1)
 				$page_check_min = true;
@@ -136,9 +136,9 @@ function wp_page_numbers_right_side($max_page, $limit_pages, $paged, $pagingStri
 		if( ($max_page + 1 - $i) <= $limit_pages )
 		{
 			if ($paged == $i)
-				$pagingString .= '<li class="active_page"><a href="'.get_pagenum_link($i). '">'.$i.'</a></li>'."\n";
+				$pagingString .= '<li class="active_page"><a href="'.esc_url( get_pagenum_link($i) ). '">'.$i.'</a></li>'."\n";
 			else
-				$pagingString .= '<li><a href="'.get_pagenum_link($i). '">'.$i.'</a></li>'."\n";
+				$pagingString .= '<li><a href="'.esc_url( get_pagenum_link($i) ). '">'.$i.'</a></li>'."\n";
 				
 			if ($i == 1)
 			$page_check_min = true;
@@ -153,7 +153,7 @@ function wp_page_numbers_right_side($max_page, $limit_pages, $paged, $pagingStri
 function wp_page_numbers_nextpage($paged, $max_page, $nextpage)
 {
 	if( $paged != "" && $paged < $max_page)
-		$pagingString = '<li><a href="'.get_pagenum_link($paged+1). '">'.$nextpage.'</a></li>'."\n";
+		$pagingString = '<li><a href="'.esc_url( get_pagenum_link($paged+1) ). '">'.$nextpage.'</a></li>'."\n";
 	return $pagingString;
 }
 
@@ -229,7 +229,7 @@ function wp_page_numbers()
 		if ($page_check_min == false && $show_start_end_numbers != "no")
 		{
 			$pagingString .= "<li class=\"first_last_page\">";
-			$pagingString .= "<a href=\"" . get_pagenum_link(1) . "\">1</a>";
+			$pagingString .= "<a href=\"" . esc_url(get_pagenum_link(1) ) . "\">1</a>";
 			$pagingString .= "</li>\n<li  class=\"space\">".$startspace."</li>\n";
 		}
 	
@@ -240,7 +240,7 @@ function wp_page_numbers()
 		{
 			$pagingString .= "<li class=\"space\">".$endspace."</li>\n";
 			$pagingString .= "<li class=\"first_last_page\">";
-			$pagingString .= "<a href=\"" . get_pagenum_link($max_page) . "\">" . $max_page . "</a>";
+			$pagingString .= "<a href=\"" . esc_url( get_pagenum_link($max_page) ) . "\">" . $max_page . "</a>";
 			$pagingString .= "</li>\n";
 		}
 	
