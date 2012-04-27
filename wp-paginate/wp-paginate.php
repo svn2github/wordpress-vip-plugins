@@ -133,10 +133,10 @@ if (!class_exists( 'WPPaginate' )) {
 
 			$prevlink = ($this->type === 'posts' )
 				? esc_url(get_pagenum_link($page - 1))
-				: get_comments_pagenum_link($page - 1);
+				: esc_url( get_comments_pagenum_link($page - 1) );
 			$nextlink = ($this->type === 'posts' )
 				? esc_url(get_pagenum_link($page + 1))
-				: get_comments_pagenum_link($page + 1);
+				: esc_url( get_comments_pagenum_link($page + 1) );
 
 			$output = stripslashes($before);
 			if ($pages > 1) {
@@ -203,7 +203,7 @@ if (!class_exists( 'WPPaginate' )) {
 		function paginate_loop($start, $max, $page = 0) {
 			$output = "";
 			for ($i = $start; $i <= $max; $i++) {
-				$p = ($this->type === 'posts' ) ? esc_url(get_pagenum_link($i)) : get_comments_pagenum_link($i);
+				$p = ($this->type === 'posts' ) ? esc_url(get_pagenum_link($i)) : esc_url( get_comments_pagenum_link($i) );
 				$output .= ($page == intval($i))
 					? "<li><span class='page current'>$i</span></li>"
 					: "<li><a href='$p' title='$i' class='page'>$i</a></li>";
