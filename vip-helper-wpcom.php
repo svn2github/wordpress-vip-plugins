@@ -668,7 +668,7 @@ function wpcom_set_option_lock( $lock_name, $lock_time = 300 ) {
 	// query the option lock
 	$lock = wpcom_get_option_lock( $lock_name );
 	
-	$time = time();
+	$time = microtime( true );
 	$new_lock = $time + (int) $lock_time;
 
 	if ( false === $lock ) { // check if lock exists
