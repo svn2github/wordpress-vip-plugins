@@ -179,7 +179,7 @@ if (isset($_GET['settings-updated'])) {
           <li>Click the same player that you used for the playlist player</li>
           <li>Click on the <strong> Get Code </strong> button on the bottom of the screen</li>
           <li> A code window should appear, check to see it's in Javascript mode </li>
-          <li> In Javascript mode school down until you see <strong>param name = "playerKey"</strong> </li>
+          <li> In Javascript mode scroll down until you see <strong>param name = "playerKey"</strong> </li>
           <li> Copy the value from playerKey </li>
           <h4>Example</h4> 
           <img src='<?php echo plugins_url( '/playerKey.png', __FILE__ ); ?>' title='Player Key Example' />
