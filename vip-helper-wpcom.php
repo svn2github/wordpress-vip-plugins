@@ -397,7 +397,11 @@ function wpcom_vip_remove_snap_preview_div() {
  * http://lobby.vip.wordpress.com/custom-made/altering-feeds/
  */
 function wpcom_vip_remove_mediacontent_from_rss2_feed() {
-	remove_action( 'rss2_item', 'mrss_item' );
+	add_action( 'template_redirect', '_wpcom_vip_remove_mediacontent_from_rss2_feed', 11 );
+}
+function _wpcom_vip_remove_mediacontent_from_rss2_feed() {
+	// Really the namespace should be removed too but leave it for legacy reasons
+	remove_action( 'rss2_item', 'mrss_item', 10, 0 );
 }
 
 /**
