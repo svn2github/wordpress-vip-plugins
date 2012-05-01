@@ -164,9 +164,14 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 
 		// Obey the cache time header unless an arg is passed saying not to
 		if ( $extra_args['obey_cache_control_header'] && $cache_header = trim( wp_remote_retrieve_header( $response, 'cache-control' ) ) ) {
-			list( $cache_header_type, $cache_header_time ) = explode( '=', $cache_header );
-
-			if ( 'max-age' == $cache_header_type && $cache_header_time > $cache_time )
+			// When multiple cache-control directives are returned, they are comma separated
+			foreach ( explode( ',', $cache_header ) as $cache_control ) {
+				// In this scenario, only look for the max-age directive 
+				if( 'max-age' == substr( trim( $cache_control ), 0, 7 ) )
+					list( $cache_header_type, $cache_header_time ) = explode( '=', trim( $cache_control ) );
+			}
+			// If the max-age directive was found and had a value set that is greater than our cache time
+			if ( isset( $cache_header_type ) && isset( $cache_header_time ) && $cache_header_time > $cache_time )
 				$cache_time = (int) $cache_header_time; // Casting to an int will strip "must-revalidate", etc.
 		}
 
