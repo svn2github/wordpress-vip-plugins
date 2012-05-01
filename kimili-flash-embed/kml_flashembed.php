@@ -23,7 +23,7 @@ Update: http://www.kimili.com/plugins/kml_flashembed/wp
 ************************************************************************/
 
 $kml_flashembed_ver		= "1.4.3b";
-$kml_flashembed_root	= get_settings('siteurl') . '/wp-content/themes/vip/plugins/kimili-flash-embed';
+$kml_flashembed_root	= plugins_url( '', __FILE__ );
 
 
 /***********************************************************************
