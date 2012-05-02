@@ -45,13 +45,14 @@ function brightcove_api_menu_handle() {
 }
 
 add_action( 'admin_enqueue_scripts', 'brightcove_register_scripts' );
+add_action( 'wp_enqueue_scripts', 'brightcove_enqueue_frontend_scripts' );
 
 function brightcove_register_scripts() {
 	
 	wp_register_script( 'brightcove_script', 'http://admin.brightcove.com/js/BrightcoveExperiences.js');
 	wp_register_script( 'jqueryPlaceholder', plugins_url( '/jQueryPlaceholder/jQueryPlaceholder.js', __FILE__ ) );
 	wp_register_script( 'jquery-validate', plugins_url( '/jQueryValidation/jquery.validate.min.js', __FILE__ ) );
-	wp_register_script( 'jquery-validate-additional', plugins_url( '/jQueryValidation/additional-methods.min.js', __FILE__ ) );
+	wp_register_script( 'jquery-validate-additional', plugins_url( '/jQueryValidation/additional-methods.min.js', __FILE__ ) );	
 }
 
 //Adds all the scripts nessesary for plugin to work
@@ -68,6 +69,13 @@ function brightcove_enqueue_admin_media_scripts() {
 	wp_enqueue_style( 'brightcove-styles', plugins_url( '/brightcove.css', __FILE__ ) );
 	wp_enqueue_style( 'brightove-jquery-ui-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css' );
 }
+
+//Adds all the scripts nessesary for plugin to work
+function brightcove_enqueue_frontend_scripts() {
+
+	wp_enqueue_script( 'brightcove_script' );
+}
+
 
 add_action( 'init', 'brightcove_init_global_vars' );
 
@@ -275,9 +283,9 @@ function brightcove_media_upload_form () {
 <div class="bc-container">
 	<?php
 	GLOBAL $bcGlobalVariables;
-		echo wp_kses_post( $bcGlobalVariables['defaultSetErrorMessage'] );
-		echo wp_kses_post( $bcGlobalVariables['defaultsSection'] );
-		echo wp_kses_post( $bcGlobalVariables['loadingImg'] );
+		echo wp_kses_post( $bcGlobalVariables['defaultSetErrorMessage'] ); 
+		echo wp_kses( $bcGlobalVariables['defaultsSection'], array( 'input' => array( 'id' => array(), 'type' => array(), 'value' => array(), 'name' => array() ), 'div' => array( 'class' => array() ) ) );
+		echo wp_kses( $bcGlobalVariables['loadingImg'], array( 'img' => array( 'class' => array(), 'src' => array() ) ) );
 	?>
 
 	<div class='no-error'>
@@ -364,9 +372,9 @@ function brightcove_media_api_upload_form () {
 ?>
 	<div class="bc-container">
 	<?php
-		echo wp_kses_post( $bcGlobalVariables['defaultSetErrorMessage'] );
-		echo wp_kses_post( $bcGlobalVariables['defaultsSection'] );
-		echo wp_kses_post( $bcGlobalVariables['loadingImg'] );
+		echo wp_kses_post( $bcGlobalVariables['defaultSetErrorMessage'] ); 
+		echo wp_kses( $bcGlobalVariables['defaultsSection'], array( 'input' => array( 'id' => array(), 'type' => array(), 'value' => array(), 'name' => array() ), 'div' => array( 'class' => array() ) ) );
+		echo wp_kses( $bcGlobalVariables['loadingImg'], array( 'img' => array( 'class' => array(), 'src' => array() ) ) );
 
 	?>
 <input type='hidden' id='bc-api-key' name='bc-api-key' value='<?php echo esc_attr( $apiKey ); ?>'>

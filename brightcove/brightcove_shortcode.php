@@ -1,11 +1,11 @@
 <?php
 
-add_shortcode('brightcove','brightcove_render_shortcode');
+add_shortcode('brightcove','brightcove_add');
 
-function brightcove_render_shortcode($atts) {
+function brightcove_add($atts) {
 	GLOBAL $bcGlobalVariables;
 
-	wp_enqueue_script( 'brightcove-script' );
+	brightcove_enqueue_frontend_scripts();
 
 	$defaults = array(
 					'playerid' => '',
@@ -13,7 +13,9 @@ function brightcove_render_shortcode($atts) {
 					'playlistid' => '',
 					'videoid' => '',
 					'width' => $bcGlobalVariables['defaultWidth'],
-					'height'  => $bcGlobalVariables['defaultHeight']
+					'height'  => $bcGlobalVariables['defaultHeight'],
+					'playlist_width' => $bcGlobalVariables['defaultWidthPlaylist'],
+					'playlist_height' => $bcGlobalVariables['defaultHeightPlaylist']
 					);
 	$combined_attr = shortcode_atts( $defaults, $atts );
 	
@@ -22,38 +24,41 @@ function brightcove_render_shortcode($atts) {
 	$playerid =	sanitize_key( $combined_attr['playerid'] );	
 	$playerkey = sanitize_key( $combined_attr['playerkey'] );
 	$videoid = sanitize_key( $combined_attr['videoid'] );
-	$playlistid = sanitize_key( $combined_attr['playlistid'] );		
+	$playlistid = sanitize_key( $combined_attr['playlistid'] );
+	$playlist_width = sanitize_key( $combined_attr['defaultWidthPlaylist'] );	
+	$playlist_height = sanitize_key( $combined_attr['defaultHeightPlaylist'] );			
 
-	$html = '<div style="display:none"></div>
-	<object id="' . esc_attr( rand() ) .'" class="BrightcoveExperience">
-  		<param name="bgcolor" value="#FFFFFF" />
-  		<param name="wmode" value="transparent" />
-  		<param name="width" value="' . esc_attr( $width ) . '" />
-  		<param name="height" value="'. esc_attr( $height ) .'" />';
- 	if ($playerid != '') {   
-    	$html = $html . '<param name="playerID" value="'. esc_attr( $playerid ) .'" />';
+	$html = '<div style="display:none"></div>';
+	$html = $html . '<object id="' . esc_attr( rand() ) .'" class="BrightcoveExperience">';
+  	$html = $html . '<param name="bgcolor" value="#FFFFFF" />';
+  	$html = $html . '<param name="wmode" value="transparent" />';
+  	
+ 	if ($playerid != '') {
+    		$html = $html . '<param name="playerID" value="'. esc_attr( $playerid ) .'" />';
   	}
 
-  	if ($playerkey != '') {   
-    	$html = $html . '<param name="playerKey" value="'. esc_attr( $playerkey ) .'"/>';
+  	if ($playerkey != '') {
+    		$html = $html . '<param name="playerKey" value="'. esc_attr( $playerkey ) .'"/>';
   	}
- 	$html = $html .' <param name="isVid" value="true" />
-  	<param name="isUI" value="true" />
-  	<param name="dynamicStreaming" value="true" />';
+  	
+	$html = $html . '<param name="isVid" value="true" />';
+	$html = $html . '<param name="isUI" value="true" />';
+	$html = $html . '<param name="dynamicStreaming" value="true" />';
 
-  	if ($videoid != '')
-  	{ 
-    	$html = $html . '<param name="@videoPlayer" value="'.esc_attr( $videoid ) .'" />';
+  	if ($videoid != '') {
+    		$html = $html . '<param name="@videoPlayer" value="'.esc_attr( $videoid ) .'" />';
+    		$html = $html . '<param name="width" value="' . esc_attr( $width ) . '" />';
+  		$html = $html . '<param name="height" value="'. esc_attr( $height ) .'" />';
   	}
-  	if ($playlistid != '')
-  	{   
-    	$html = $html . '<param name="@playlistTabs" value="'.esc_attr( $playlistid ).'" />';
-    	$html = $html . '<param name="@videoList" value="'.esc_attr( $playlistid ).'" />';
-    	$html = $html . '<param name="@playlistCombo" value="'.esc_attr( $playlistid ).'" />';
-  	} 
+  	if ($playlistid != '') {
+    		$html = $html . '<param name="@playlistTabs" value="'.esc_attr( $playlistid ).'" />';
+    		$html = $html . '<param name="@videoList" value="'.esc_attr( $playlistid ).'" />';
+    		$html = $html . '<param name="@playlistCombo" value="'.esc_attr( $playlistid ).'" />';
+    		$html = $html . '<param name="width" value="' . esc_attr( $playlist_width ) . '" />';
+  		$html = $html . '<param name="height" value="'. esc_attr( $playlist_height ) .'" />';
+  	}
+  	
 	$html = $html . '</object>';
 
 	return $html;
 }
-
-
