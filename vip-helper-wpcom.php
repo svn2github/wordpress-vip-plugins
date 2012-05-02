@@ -445,6 +445,16 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 }
 
 /**
+ * Disables WPCOM Post Flair entirely on the frontend
+ * This removes the filters and doesn't allow the stylesheet to be enqueued
+ *
+ * The functions below can be used to disable Post Flair piece by piece
+ */
+function wpcom_vip_disable_post_flair() {
+	add_filter( 'post_flair_disable', '__return_true' );
+}
+
+/**
 * Disables WPCOM Sharing in Posts and Pages
 * Sharing can be disalbed in the dashboard, by removing all buttons
 * from Enabled Services.
