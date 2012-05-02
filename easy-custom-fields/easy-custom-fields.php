@@ -4,7 +4,7 @@ Plugin Name: Easy Custom Fields
 Plugin Script: easy-custom-fields.php
 Plugin URI: http://wordpress.org/extend/plugins/easy-custom-fields/
 Description: A set of extendable classes for easy Custom Field Handling
-Version: 0.3
+Version: 0.5
 Author: Thorsten Ott
 Author URI: http://automattic.com
 */
@@ -428,6 +428,10 @@ if ( !class_exists( "Easy_CF" ) ) {
 		 */
 		public function save_post_cb($post_id, $post) {
 			foreach( (array) $this->_used_fields as $box_id => $field_ids ) {
+				// bypass fields which are not used in this group
+				if ( !in_array( $_POST['post_type'], $this->_field_data[$box_id]['pages'] ) )
+					continue;
+					
 				if ( ( ! isset($_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce']) ) || ( ! wp_verify_nonce( $_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce'], $this->_plugin_prefix . '_' . $box_id . '_nonce' ) ) ) {
 					return $post->ID;
 				}
@@ -455,12 +459,7 @@ if ( !class_exists( "Easy_CF" ) ) {
 							$this->add_admin_notice( $this->{$field_id}->get_error_msg() );
 							continue;
 						}
-						if ( false === $value ) {
-							// delete blanks
-							$this->{$field_id}->delete( $post->ID );
-						} else {
-							$this->{$field_id}->set( $value, $post->ID );
-						}
+						$this->{$field_id}->set( $value, $post->ID );
 					} else {
 						// delete blanks
 						$this->{$field_id}->delete( $post->ID );
