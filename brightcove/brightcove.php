@@ -45,7 +45,6 @@ function brightcove_api_menu_handle() {
 }
 
 add_action( 'admin_enqueue_scripts', 'brightcove_register_scripts' );
-add_action( 'wp_enqueue_scripts', 'brightcove_enqueue_frontend_scripts' );
 
 function brightcove_register_scripts() {
 	
@@ -73,7 +72,7 @@ function brightcove_enqueue_admin_media_scripts() {
 //Adds all the scripts nessesary for plugin to work
 function brightcove_enqueue_frontend_scripts() {
 
-	wp_enqueue_script( 'brightcove_script' );
+	wp_enqueue_script( 'brightcove_script', 'http://admin.brightcove.com/js/BrightcoveExperiences.js' );
 }
 
 

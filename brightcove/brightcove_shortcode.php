@@ -1,11 +1,10 @@
 <?php
 
+add_action( 'wp_enqueue_scripts', 'brightcove_enqueue_frontend_scripts' );
 add_shortcode('brightcove','brightcove_add');
 
 function brightcove_add($atts) {
 	GLOBAL $bcGlobalVariables;
-
-	brightcove_enqueue_frontend_scripts();
 
 	$defaults = array(
 					'playerid' => '',
@@ -25,8 +24,8 @@ function brightcove_add($atts) {
 	$playerkey = sanitize_key( $combined_attr['playerkey'] );
 	$videoid = sanitize_key( $combined_attr['videoid'] );
 	$playlistid = sanitize_key( $combined_attr['playlistid'] );
-	$playlist_width = sanitize_key( $combined_attr['defaultWidthPlaylist'] );	
-	$playlist_height = sanitize_key( $combined_attr['defaultHeightPlaylist'] );			
+	$playlist_width = sanitize_key( $combined_attr['playlist_width'] );	
+	$playlist_height = sanitize_key( $combined_attr['playlist_height'] );			
 
 	$html = '<div style="display:none"></div>';
 	$html = $html . '<object id="' . esc_attr( rand() ) .'" class="BrightcoveExperience">';
