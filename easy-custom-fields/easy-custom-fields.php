@@ -429,8 +429,8 @@ if ( !class_exists( "Easy_CF" ) ) {
 		public function save_post_cb($post_id, $post) {
 			foreach( (array) $this->_used_fields as $box_id => $field_ids ) {
 				// bypass fields which are not used in this group
-				$access = ( empty( $this->_field_data[$box_id]['pages'] ) ? array( 'post', 'page' ) : $this->_field_data[$box_id]['pages'] );
-				if ( !in_array( $_POST['post_type'], $access ) )
+				$access = ( empty( $this->_field_data[$box_id]['pages'] ) ? array( 'post', 'page' ) : (array) $this->_field_data[$box_id]['pages'] );
+				if ( !in_array( $post->post_type, $access ) )
 					continue;
 					
 				if ( ( ! isset($_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce']) ) || ( ! wp_verify_nonce( $_REQUEST[$this->_plugin_prefix . '_' . $box_id . '_nonce'], $this->_plugin_prefix . '_' . $box_id . '_nonce' ) ) ) {
