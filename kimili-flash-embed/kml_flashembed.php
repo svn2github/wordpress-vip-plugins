@@ -221,7 +221,7 @@ function kml_flashembed_build_object_tag($atts, $content = '') {
 
 function kml_flashembed_add_flashobject_js() {
 	global $kml_flashembed_ver, $kml_flashembed_root;
-	wp_enqueue_script( 'swfobject-2-2', $kml_flashembed_root . '/js/swfobject.js', null, $kml_flashembed_ver, false );
+	wp_enqueue_script( 'swfobject' );
 }
 
 
