@@ -76,6 +76,10 @@ function ap_wibiya_mobile_options_page()
 					echo "<script>myRef = window.open('".__WIBIYA_ADMIN_PANEL__."','mywin', 'left=20,top=20,width=1200px,height=800px,toolbar=1,resizable=0'); myRef.focus();</script>";
                 }
             }
+			if(isset($_GET['mobileUrl'])&&(filter_var($_GET['mobileUrl'], FILTER_VALIDATE_URL)))
+			{
+				update_option('ap_wibiya_mobile_url', $_GET['mobileUrl']);
+			}
             break;
         case __POLICY_INACTIVE_USER__ :
         case __POLICY_DISABLE_USER__ :
@@ -392,24 +396,67 @@ function wibiya_mobile_run()
 			&& ( ! strstr( $_SERVER['REQUEST_URI'], 'feed' ) )
 			&& ( ! strstr( $_SERVER['REQUEST_URI'], 'wp-login' ) )
 			&& ( ( function_exists( 'is_mobile' ) && is_mobile( 'any', true ) )
-			|| is_ipad()
+			|| (function_exists( 'is_ipad' ) && is_ipad())
 			|| ( ap_wibiya_mobile_is_mobile() == true ) )
 		) {
 			$is_mobile = true;
 		}
-
         if ( $is_mobile
 			&& isset( $GLOBALS['ap_wibiya_mobile_install'] )
 			&& $GLOBALS['ap_wibiya_mobile_install'] == 1
 			&& $GLOBALS['ap_wibiya_mobile_policy'] >= __POLICY_ACTIVE_USER__
 			&& get_option( 'ap_wibiya_mobile_url' )
 		) {
+			$conversionArr = array(
+				'iphone' => 65,
+				'android' => 66,
+				'rim' => 68,
+				'winphone' =>72,
+				'symbian' => 80,
+				'bada' => 96,
+				'ipad' => 193,
+				'android_tab' => 194
+			);
+			$device='';
+			if(function_exists( 'is_ipad' )&&is_ipad())
+			{
+				$device='device='.$conversionArr['ipad'];
+			}
+			elseif(function_exists( 'is_mobile' )&&isset($conversionArr[is_mobile( 'any', true )]))
+			{
+				$device='device='.$conversionArr[is_mobile( 'any', true )];
+			}
+			else{
+			
+				if(stripos($_SERVER['HTTP_USER_AGENT'],"iPad"))
+				{
+					$device='device='.$conversionArr['ipad'];
+				}
+				elseif(stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))
+				{
+					$device='device='.$conversionArr['iphone'];
+				}
+				elseif(stripos($_SERVER['HTTP_USER_AGENT'],"Android") && stripos($_SERVER['HTTP_USER_AGENT'],"mobile"))
+				{
+					$device='device='.$conversionArr['android'];
+				}
+				else if(stripos($_SERVER['HTTP_USER_AGENT'],"Android"))
+				{
+					$device='device='.$conversionArr['android_tab'];
+				}
+				elseif(stripos($_SERVER['HTTP_USER_AGENT'],"RIM Tablet"))
+				{
+					$device='device='.$conversionArr['rim'];
+				}
+			}
+			if(!trim($device)){ $device.='&'; }
+			
 			if( $_SERVER['REQUEST_URI'] == "/" || $_SERVER['REQUEST_URI'] == "" ) {
-				$mobile_url = get_option('ap_wibiya_mobile_url') . '?url=&cms=wordpress&timestamp=' . time();
+				$mobile_url = get_option('ap_wibiya_mobile_url') . '?'.$device.'url=&cms=wordpress&timestamp=' . time();
 			} else {
 				$http_host = esc_url( $_SERVER['HTTP_HOST'], array( 'http' ) );
 				$current_url = $http_host . $_SERVER['REQUEST_URI'];
-				$mobile_url = get_option( 'ap_wibiya_mobile_url' ) . '?url=' . urlencode( $current_url ) . '&cms=wordpress&timestamp='.time();
+				$mobile_url = get_option( 'ap_wibiya_mobile_url' ) . '?'.$device.'url=' . urlencode( $current_url ) . '&cms=wordpress&timestamp='.time();
 			}	
 			wp_redirect( $mobile_url );
 			exit;

@@ -28,4 +28,16 @@ function changeSecondaryEmail()
 		}
 	}
 }
+function changeMobileDomain()
+{
+	if(document.getElementById('mobileUrl').value!=''&&document.getElementById('mobileUrl').value!=null&&document.getElementById('mobileUrl').value!=undefined)
+	{	
+		url = document.location.href;
+		pos = url.indexOf('&mobileUrl=');
+		if(pos==-1){ document.location.href=document.location.href+'&mobileUrl='+document.getElementById('mobileUrl').value;  }
+		else{
+			document.location.href=url.substr(0, pos)+'&mobileUrl='+document.getElementById('mobileUrl').value;
+		}
+	}
+}
 </script>

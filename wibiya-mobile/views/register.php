@@ -15,7 +15,10 @@ if (function_exists('wp_nonce_field')) {
 		<div class="customize">
 			<h3>Customize your new mobile site</h3>
 			<p>Personalize it even more by choosing custom colors, images, additional pages, social features, and much more!</p>
-			<p><a href="javascript:void(0);" class="regularButton" onclick="myRef = window.open('<?php echo __WIBIYA_ADMIN_PANEL__; ?>','mywin', 'left=20,top=20,width=1200px,height=800px,toolbar=1,resizable=0'); myRef.focus()">Customize</a></p>
+			<p><a href="javascript:void(0);" class="regularButton" onclick="myRef = window.open('<?php echo __WIBIYA_ADMIN_PANEL__; ?>','mywin', 'left=20,top=20,width=1200px,height=800px,toolbar=1,resizable=0'); myRef.focus()">Customize</a> <a href="javascript:void(0);" class="regularButton" onclick="jQuery('.registerPanel').toggle('slide');jQuery(this).next().toggle();jQuery(this).toggleClass('disabled');">Customize Mobile Domain</a> <span class="note"></span></p>
+			<div class="registerPanel">
+			<p><input id="mobileUrl" name="mobileUrl" type="text"  class="text" value="<?php echo get_option('ap_wibiya_mobile_url'); ?>" placeholder="Mobile Domain" /><input type="button" value="Update" onclick="changeMobileDomain()"/></p>
+			</div>
 		</div>
 		<div class="support">
 			<h3>Questions? Comments?</h3>
