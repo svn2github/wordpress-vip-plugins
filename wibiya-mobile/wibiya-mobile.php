@@ -449,7 +449,7 @@ function wibiya_mobile_run()
 					$device='device='.$conversionArr['rim'];
 				}
 			}
-			if(!trim($device)){ $device.='&'; }
+			if(!empty($device)){ $device.='&'; }
 			
 			if( $_SERVER['REQUEST_URI'] == "/" || $_SERVER['REQUEST_URI'] == "" ) {
 				$mobile_url = get_option('ap_wibiya_mobile_url') . '?'.$device.'url=&cms=wordpress&timestamp=' . time();
