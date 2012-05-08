@@ -690,7 +690,7 @@ function wpcom_set_option_lock( $lock_name, $lock_time = 300 ) {
 	} else { // check if lock is expired
 		if ( $lock < $time ) {
 			// update lock
-			$result = $wpdb->update( $wpdb->options, array( 'option_name' => '_option_lock_' . esc_attr( $lock_name ), 'option_value' => $new_lock ),  array( 'option_name' => '_option_lock_' . esc_attr( $lock_name ) ) );var_export( $result );
+			$result = $wpdb->update( $wpdb->options, array( 'option_name' => '_option_lock_' . esc_attr( $lock_name ), 'option_value' => $new_lock ),  array( 'option_name' => '_option_lock_' . esc_attr( $lock_name ) ) );
 			return true;
 		}
 	}
