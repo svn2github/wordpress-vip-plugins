@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.0.7
+	Version: 1.3.0
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.0.7-WIP');
+define('KAPOST_BYLINE_VERSION', '1.3.0-WIP');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -27,41 +27,41 @@ function kapost_byline_custom_fields($raw_custom_fields)
 
 function kapost_is_protected_meta($protected_fields, $field)
 {
-	if(!in_array($field, $protected_fields))
-		return false;
+    if(!in_array($field, $protected_fields))
+        return false;
 
-	if(function_exists('is_protected_meta'))
-		return is_protected_meta($field, 'post');
+    if(function_exists('is_protected_meta'))
+        return is_protected_meta($field, 'post');
 
-	return ($field[0] == '_');
+    return ($field[0] == '_');
 }
 
 function kapost_byline_protected_custom_fields($custom_fields)
-{	   
-	if(!isset($custom_fields['_kapost_protected']))
-		return array();
+{       
+    if(!isset($custom_fields['_kapost_protected']))
+        return array();
 
-	$protected_fields = array();
-	foreach(explode('|', $custom_fields['_kapost_protected']) as $p)
-	{
-		list($prefix, $keywords) = explode(':', $p);
+    $protected_fields = array();
+    foreach(explode('|', $custom_fields['_kapost_protected']) as $p)
+    {
+        list($prefix, $keywords) = explode(':', $p);
 
-		$prefix = trim($prefix);
-		foreach(explode(',', $keywords) as $k)
-		{
-			$kk = trim($k);
-			$protected_fields[] = "_${prefix}_${kk}";
-		}
-	}   
-		
-	$pcf = array();
-	foreach($custom_fields as $k => $v)
-	{   
-		if(kapost_is_protected_meta($protected_fields, $k))
-			$pcf[$k] = $v;																								
-	}
-	
-	return $pcf;
+        $prefix = trim($prefix);
+        foreach(explode(',', $keywords) as $k)
+        {
+            $kk = trim($k);
+            $protected_fields[] = "_${prefix}_${kk}";
+        }
+    }   
+        
+    $pcf = array();
+    foreach($custom_fields as $k => $v)
+    {   
+        if(kapost_is_protected_meta($protected_fields, $k))
+            $pcf[$k] = $v;                                                                                                
+    }
+    
+    return $pcf;
 }
 
 function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=false)
@@ -173,17 +173,7 @@ function kapost_byline_get_analytics_code($id)
 
 	$code = "
 <!-- BEGIN KAPOST ANALYTICS CODE -->
-<span id='kapostanalytics_" . esc_attr($post_id) . "'></span>
-<script>
-<!--
-var _kapost_data = _kapost_data || [];
-_kapost_data.push([1, '" . esc_js($post_id) . "', '" . esc_js($author_id) . "', '" . esc_js($newsroom_id) . "', escape('" . esc_js($categories) . "')]);
-(function(){
-var ka = document.createElement('script'); ka.async=true; ka.id='kp_tracker'; ka.src='" . esc_url($url) . "/javascripts/tracker.js';
-var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka, s);
-})();
--->
-</script>
+<span id='kapostanalytics' pid='" . esc_attr($post_id) . "' aid='" . esc_attr($author_id) . "' nid='" . esc_attr($newsroom_id) . "' cats='" . esc_attr($categories) . "' url='" . $url . "'></span>
 <!-- END KAPOST ANALYTICS CODE -->
 ";
 
@@ -200,8 +190,25 @@ function kapost_byline_the_content($content)
 	return $content;
 }
 
+function kapost_inject_footer_script() {
+  echo '<script><!--
+var _kapost_data = _kapost_data || [];
+m = document.getElementById("kapostanalytics");
+_kapost_data.push([1, m.getAttribute("pid"), m.getAttribute("aid"), m.getAttribute("nid"), m.getAttribute("cats")]);
+(function() {
+var ka = document.createElement(\'script\'); 
+ka.async=true; 
+ka.id="kp_tracker"; 
+ka.src=m.getAttribute("url") + "/javascripts/tracker.js";
+var s = document.getElementsByTagName(\'script\')[0]; 
+s.parentNode.insertBefore(ka, s);
+})();
+//--></script>';
+}
+
 add_filter('the_content', 'kapost_byline_the_content');
 add_filter('the_content_feed', 'kapost_byline_the_content');
+add_action('wp_footer', 'kapost_inject_footer_script');
 
 function kapost_byline_xmlrpc_version()
 {
@@ -246,10 +253,62 @@ function kapost_byline_xmlrpc_newPost($args)
 	return $id;
 }
 
+function kapost_byline_xmlrpc_newMediaObject($args)
+{
+	global $wpdb, $wp_xmlrpc_server;
+
+	$blog_id	= intval($args[0]);
+	$username	= $wpdb->escape($args[1]);
+	$password	= $wpdb->escape($args[2]);
+	$data		= $args[3];
+
+	$name	= sanitize_file_name($data['name']);
+	$type	= $data['type'];
+	$bits	= $data['bits'];
+
+	$content= empty($data['description'])	? ''	: sanitize_text_field($data['description']);
+	$title	= empty($data['title'])			? $name : sanitize_text_field($data['title']);
+	$caption= empty($data['caption'])		? ''	: sanitize_text_field($data['caption']);
+	$alt	= empty($data['alt'])			? ''	: sanitize_text_field($data['alt']);
+
+	if(!$user = $wp_xmlrpc_server->login($username, $password))
+		return $wp_xmlrpc_server->error;
+
+	if(!current_user_can('upload_files'))
+		return new IXR_Error(401, __('You are not allowed to upload files to this site.'));
+
+	if($error = apply_filters('pre_upload_error', false))
+		return new IXR_Error(500, $error);
+
+	$upload = wp_upload_bits($name, NULL, $bits);
+	if(!empty($upload['error'])) 
+		return new IXR_Error(500, sprintf(__('Could not write file %1$s (%2$s)'), $name, $upload['error']));
+
+	$post_id = 0;
+	$attachment = array
+	(
+		'post_title'	=> $title,
+		'post_excerpt'	=> $caption,
+		'post_content'	=> $content,
+		'post_type'		=> 'attachment',
+		'post_parent'	=> $post_id,
+		'post_mime_type'=> $type,
+		'guid'			=> $upload['url']
+	);
+
+	$id = wp_insert_attachment($attachment, $upload['file'], $post_id);
+	wp_update_attachment_metadata($id, wp_generate_attachment_metadata($id, $upload['file']));
+
+	if(!empty($alt)) add_post_meta($id, '_wp_attachment_image_alt', $alt);
+
+	return apply_filters('wp_handle_upload', array('file' => $name, 'url' => $upload['url'], 'type' => $type, 'id' => $id), 'upload');
+}
+
 function kapost_byline_xmlrpc($methods)
 {
-	$methods['kapost.version'] = 'kapost_byline_xmlrpc_version';
-	$methods['kapost.newPost'] = 'kapost_byline_xmlrpc_newPost';
+	$methods['kapost.version']			= 'kapost_byline_xmlrpc_version';
+	$methods['kapost.newPost']			= 'kapost_byline_xmlrpc_newPost';
+	$methods['kapost.newMediaObject']	= 'kapost_byline_xmlrpc_newMediaObject';
 	return $methods;
 }
 add_filter('xmlrpc_methods', 'kapost_byline_xmlrpc');
