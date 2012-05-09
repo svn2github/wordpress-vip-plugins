@@ -24,8 +24,8 @@ class Responsive_Images {
 	}
 
 	function add_image_placeholders( $content ) {
-		// Don't lazyload for feeds, previews, attachment pages
-		if( is_preview() || is_feed() || is_attachment() )
+		// Don't load for feeds, previews, attachment pages, non-mobile views
+		if( is_preview() || is_feed() || is_attachment() || ( function_exists( 'is_mobile' ) && ! is_mobile() ) )
 			return $content;
 
 		// In case you want to change the placeholder image
