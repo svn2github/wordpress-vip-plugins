@@ -22,7 +22,7 @@
 			// if the image does have a dimension, set to screen if image dimension is bigger.
 			// otherwise default to image dimension.
 			var img_width = ! max_width || max_width > screen_width ? screen_width : max_width;
-			var img_height = ! max_height || max_height > screen_height ? screen_height : max_height;
+			var img_height = max_height ? max_height : null;
 
 			if ( img_width )
 				src = responsive_add_query_arg( 'w', img_width, src );
