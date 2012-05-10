@@ -45,7 +45,7 @@ class Livefyre_core {
 		$this->top_domain = ( $profile_domain == LF_DEFAULT_PROFILE_DOMAIN ? LF_DEFAULT_TLD : $profile_domain );
 
 		$this->http_url = ( strpos(LF_DEFAULT_TLD, 'livefyre.com') === 0 ? "http://www." . LF_DEFAULT_TLD : "http://" . LF_DEFAULT_TLD );
-		$this->asset_url = "http://zor." . LF_DEFAULT_TLD;
+		$this->assets_url = "http://zor." . LF_DEFAULT_TLD;
 		$this->bootstrap_url = "http://bootstrap.$this->top_domain";
 		$this->home_url = $this->AppExtension->home_url();
 		$this->plugin_version = LF_PLUGIN_VERSION;
