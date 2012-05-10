@@ -683,7 +683,7 @@ class CoAuthors_Guest_Authors
 	 *
 	 * @todo support for multiple avatar sizes
 	 */
-	function filter_get_avatar( $avatar, $id_or_email, $size, $default, $alt ) {
+	function filter_get_avatar( $avatar, $id_or_email, $size, $default ) {
 
 		if ( !is_email( $id_or_email ) )
 			return $avatar;
@@ -703,7 +703,6 @@ class CoAuthors_Guest_Authors
 
 		$args = array(
 				'class' => 'avatar avatar-32 photo',
-				'alt' => $alt,
 			);
 		$avatar = get_the_post_thumbnail( $post_id, 'guest-author-32', $args );
 
