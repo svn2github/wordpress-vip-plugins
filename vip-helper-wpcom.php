@@ -451,7 +451,7 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
  * The functions below can be used to disable Post Flair piece by piece
  */
 function wpcom_vip_disable_post_flair() {
-	add_filter( 'post_flair_disable', '__return_true' );
+	post_flair_hide();
 }
 
 /**
