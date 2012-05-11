@@ -384,8 +384,10 @@ function post_now_published( $post_id ) {
 					$oauth_token_secret = get_option( $twit_plugin_prefix . 'oauth_token_secret' );
 			}
 
-			if ( empty( $oauth_token ) || empty( $oauth_token_secret ) )
+			if ( empty( $oauth_token ) || empty( $oauth_token_secret ) ) {
+				update_post_meta( $post_id, 'wordtwit_fail', 'no-token' );
 				return;
+			}
 			
 			$message = apply_filters( 'wordtwit_pre_proc_message', $message, $post->ID );
 			
@@ -404,7 +406,10 @@ function post_now_published( $post_id ) {
 			
 			$message = apply_filters( 'wordtwit_post_proc_message', $message, $post->ID );
 			
-			twit_update_status( $oauth_token, $oauth_token_secret, $message );
+			$update_status = twit_update_status( $oauth_token, $oauth_token_secret, $message );
+
+			if ( ! $update_status )
+				update_post_meta( $post_id, 'wordtwit_fail', 'api-fail' );
 
 		 wp_reset_postdata();
 	}
