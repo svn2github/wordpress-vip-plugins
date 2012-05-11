@@ -668,43 +668,6 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 }
 
 /** 
- * A function to retrieve a simple list of the blog users. 
- * @param string $index - the main key to use for the array
- * @param string $who  - 'authors' for just blog authors, everything else will return all blog users.
- * @author yoavf
-*/
-function wpcom_vip_blog_users( $index = 'ID', $who = 'authors' ) {
-	
-	$keys = array(
-			'ID',
-		 	'user_login',
-		 	'user_nicename',
-		 	'user_email',
-			'user_url',
-		 	'display_name'
-		 );
-		
-	$index = in_array( $index, $keys ) ? $index : 'ID' ;
-	
-	$who = ( 'authors' == $who ) ? 'authors' : '';
-	
-	$users = wp_cache_get( 'blog_users', 'vip' );
-	if ( false == $users ) {
-		$users = get_users( array( 'who' => $who, 'fields' => $keys, 'count_total' => false ) );
-		wp_cache_set( 'blog_users', $users, 'vip', 60*60*12 );	
-	}
-	
-	unset( $keys[$index] );
-
-	$blog_users = array();	
-	foreach ( $users as $user )
-		foreach ( $keys as $key )
-			$blog_users[$user->$index][$key] = $user->$key;
-	
-	return $blog_users;
-}
-
-/** 
  * Disable comment counts in "Right Now" Dashboard widget as it can take a while to query this.
  */
 function disable_right_now_comment_count() {
