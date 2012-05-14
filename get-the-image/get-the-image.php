@@ -309,7 +309,7 @@ function image_by_scan( $args = array() ) {
 	preg_match_all( '|<img.*?src=[\'"](.*?)[\'"].*?>|i', get_post_field( 'post_content', $args['post_id'] ), $matches );
 
 	/* If there is a match for the image, return its URL. */
-	if ( isset( $matches ) && $matches[1][0] )
+	if ( isset( $matches[1] ) && isset($matches[1][0]) )
 		return array( 'url' => $matches[1][0] );
 
 	return false;
