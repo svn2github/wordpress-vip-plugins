@@ -3,15 +3,15 @@ Contributors: ethitter, thinkoomph
 Donate link: http://www.thinkoomph.com/plugins-modules/view-all-posts-pages/
 Tags: view all, pages, paged, paged post, multipage, single view, single page, wp_link_pages, nextpage, next page, quicktag
 Requires at least: 3.2.1
-Tested up to: 3.3
-Stable tag: 0.4.1
+Tested up to: 3.4
+Stable tag: 0.5
 
 Provides a "view all" (single page) option for content paged using WordPress' &lt;!--nextpage--&gt; Quicktag (multipage posts).
 == Description ==
 
 Provides a "view all" (single page) option for posts, pages, and custom post types paged using WordPress' <a href="http://codex.wordpress.org/Write_Post_SubPanel#Quicktags" target="_blank"><code>&lt;!--nextpage--&gt;</code> Quicktag</a> (multipage posts).
 
-Your theme must use `wp_link_pages()` to generate post page links, or you must use either the automatic or manual link capabilities provided in the plugin.
+Your theme must use `wp_link_pages()` to generate post page links, or you must use either the automatic or manual link capabilities provided in the plugin.
 
 **IMPORTANT**: There are certain plugins that may interfere with this plugin's functionality. See the **FAQ** for more information.
 
@@ -43,8 +43,12 @@ This plugin is known to conflict with certain plugins, many pertaining to SEO an
 
 == Changelog ==
 
+= 0.5 =
+* Change how post content is modified for View All display. Rather than using the `the_content` filter, global variables are overridden in the `the_post` action. Ensures that infinite loops don't result from shortcode processing and other uses of the `the_content` filter. Props to the WordPress.com VIP Support team (batmoo) and stevenkword.
+* Introduces the `vapp_display_link` filter to allow plugins and themes to suppress the automatic View All link on specific posts. Return `false` to suppress the link. Filter also passes post ID, plugin options, and post object.
+
 = 0.4.1 =
-* Eliminate use of plugins_loaded action since plugin has no dependencies on other plugins. All code previously located in the associated method has been moved to the class's constructor. props danielbachhuber.
+* Eliminate use of plugins_loaded action since plugin has no dependencies on other plugins. All code previously located in the associated method has been moved to the class's constructor. Props danielbachhuber.
 
 = 0.4 =
 * Add filter to disable rewrite rules notice.
@@ -52,15 +56,18 @@ This plugin is known to conflict with certain plugins, many pertaining to SEO an
 * Update code to conform to WordPress Coding Standards.
 
 = 0.3 =
-* Simplyify rewrite rule creation, resolving 404 errors in most cases.
+* Simplify rewrite rule creation, resolving 404 errors in most cases.
 
 = 0.2 =
 * Change how wp_link_pages arguments are filtered to better support as-needed filtering.
 
 = 0.1 =
-* Intial release
+* Initial release
 
 == Upgrade Notice ==
+
+= 0.5 =
+Infinite loops may result from previous method used to display entire post's content for the View All display. This update eliminates that possibility by using the the_post action rather than the the_content filter. Props to the WordPress.com VIP Support team (batmoo) and stevenkword.
 
 = 0.4.1 =
 Eliminates use of plugins_loaded action since plugin has no dependencies on other plugins. All code previously located in the associated method has been moved to the class's constructor. props danielbachhuber.
