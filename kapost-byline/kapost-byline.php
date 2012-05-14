@@ -257,19 +257,12 @@ function kapost_byline_xmlrpc_newMediaObject($args)
 {
 	global $wpdb, $wp_xmlrpc_server;
 
-	$blog_id	= intval($args[0]);
-	$username	= $wpdb->escape($args[1]);
-	$password	= $wpdb->escape($args[2]);
-	$data		= $args[3];
+	$_args = $args;
 
-	$name	= sanitize_file_name($data['name']);
-	$type	= $data['type'];
-	$bits	= $data['bits'];
-
-	$content= empty($data['description'])	? ''	: sanitize_text_field($data['description']);
-	$title	= empty($data['title'])			? $name : sanitize_text_field($data['title']);
-	$caption= empty($data['caption'])		? ''	: sanitize_text_field($data['caption']);
-	$alt	= empty($data['alt'])			? ''	: sanitize_text_field($data['alt']);
+	$blog_id	= intval($_args[0]);
+	$username	= $wpdb->escape($_args[1]);
+	$password	= $wpdb->escape($_args[2]);
+	$data		= $_args[3];
 
 	if(!$user = $wp_xmlrpc_server->login($username, $password))
 		return $wp_xmlrpc_server->error;
@@ -277,31 +270,42 @@ function kapost_byline_xmlrpc_newMediaObject($args)
 	if(!current_user_can('upload_files'))
 		return new IXR_Error(401, __('You are not allowed to upload files to this site.'));
 
-	if($error = apply_filters('pre_upload_error', false))
-		return new IXR_Error(500, $error);
+	$image = $wp_xmlrpc_server->mw_newMediaObject($args);
+	if(!is_array($image) || empty($image['url']))
+		return $image;
 
-	$upload = wp_upload_bits($name, NULL, $bits);
-	if(!empty($upload['error'])) 
-		return new IXR_Error(500, sprintf(__('Could not write file %1$s (%2$s)'), $name, $upload['error']));
+	$attachment = $wpdb->get_row($wpdb->prepare("SELECT ID FROM $wpdb->posts WHERE post_type = 'attachment' AND guid = %s LIMIT 1", $image['url']));
+	if(empty($attachment))
+		return $image;
 
-	$post_id = 0;
-	$attachment = array
-	(
-		'post_title'	=> $title,
-		'post_excerpt'	=> $caption,
-		'post_content'	=> $content,
-		'post_type'		=> 'attachment',
-		'post_parent'	=> $post_id,
-		'post_mime_type'=> $type,
-		'guid'			=> $upload['url']
-	);
+	$update_attachment = false;
 
-	$id = wp_insert_attachment($attachment, $upload['file'], $post_id);
-	wp_update_attachment_metadata($id, wp_generate_attachment_metadata($id, $upload['file']));
+	if(isset($data['description']))
+	{
+		$attachment->post_content = sanitize_text_field($data['description']);
+		$update_attachment = true;
+	}
 
-	if(!empty($alt)) add_post_meta($id, '_wp_attachment_image_alt', $alt);
+	if(isset($data['title']))
+	{
+		$attachment->post_title	= sanitize_text_field($data['title']);
+		$update_attachment = true;
+	}
 
-	return apply_filters('wp_handle_upload', array('file' => $name, 'url' => $upload['url'], 'type' => $type, 'id' => $id), 'upload');
+	if(isset($data['caption']))
+	{
+		$attachment->post_excerpt = sanitize_text_field($data['caption']);
+		$update_attachment = true;
+	}
+
+	if($update_attachment) 
+		wp_update_post($attachment);
+
+	if(isset($data['alt'])) 
+		add_post_meta($attachment->ID, '_wp_attachment_image_alt', sanitize_text_field($data['alt']));
+
+	$image['id'] = $attachment->ID;
+	return $image;
 }
 
 function kapost_byline_xmlrpc($methods)

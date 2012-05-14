@@ -1,14 +1,14 @@
 === Kapost Social Publishing Byline ===
-Contributors: iamnader, icebreaker
+Contributors: iamnader, icebreaker, worldnamer
 Tags: social, publishing
 Requires at least: 2.9
 Tested up to: 3.2.1
-Stable tag: 1.0.7
+Stable tag: 1.3.0
 
 This Kapost plug-in is a companion with the newsroom that you can create at Kapost.com.
 
 == Description ==
-This plugin allows posts published from Kapost.com into your WordPress blog to keep the same username for the author. If the author on the published post doesn't exists in WordPress (check done by looking at email address), this plugin will return an error message.
+This plugin allows posts published from Kapost.com into your WordPress blog to keep the same username for the author. If the author on the published post doesn't exist in WordPress (check done by looking at email address), this plugin will return an error message.
 
 In addition, this plugin allows Kapost newsrooms to publish to a Custom Type. 
 
@@ -30,6 +30,12 @@ For more information, visit the [Kapost website](http://www.kapost.com).
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Changelog ==
+= 1.3.0 =
+* added image metadata support
+
+= 1.2.0 =
+* reworked asynchronous calls to analytics to reduce plugin interference and remove need for tags in the body
+
 = 1.0.7 =
 * added support to store and modify protected custom fields
 
@@ -55,6 +61,12 @@ For more information, visit the [Kapost website](http://www.kapost.com).
 * First version
 
 == Upgrade Notice ==
+= 1.3.0 =
+* added image metadata support
+
+= 1.2.0 =
+* reworked asynchronous calls to analytics to reduce plugin interference and remove need for tags in the body
+
 = 1.0.7 =
 * added support to store and modify protected custom fields
 
