@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Rinat Khaziev, Jeremy Felt, Daniel Bachhuber, Automattic, doejo
-Version: 0.2
+Version: 0.2.1
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.2' );
+define( 'AD_CODE_MANAGER_VERSION', '0.2.1' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -258,6 +258,7 @@ class Ad_Code_Manager
 					$this->edit_conditionals( $id, $new_conditionals );
 					$message = 'ad-code-updated';
 				}
+				$this->flush_cache();
 				break;
 			case 'delete':
 				$id = (int)$_REQUEST['id'];
@@ -354,11 +355,14 @@ class Ad_Code_Manager
 		foreach ( $this->current_provider->columns as $slug => $title ) {
 			$provider_url_vars[$slug] = get_post_meta( $post->ID, $slug, true );
 		}
+
+		$priority = get_post_meta( $post_id, 'priority', true );
+		$priority = ( !empty( $priority ) ) ? intval( $priority ) : 10;
 	
 		$ad_code_formatted = array(
 			'conditionals' => $this->get_conditionals( $post->ID ),
 			'url_vars' => $provider_url_vars,
-			'priority' => get_post_meta( $post->ID, 'priority', true ),
+			'priority' => $priority,
 			'post_id' => $post->ID
 		);
 		return $ad_code_formatted;
@@ -415,6 +419,7 @@ class Ad_Code_Manager
 				update_post_meta( $acm_inserted_post_id, $slug, $ad_code[$slug] );
 			}
 			update_post_meta( $acm_inserted_post_id, 'priority', $ad_code['priority'] );
+			$this->flush_cache();
 			return $acm_inserted_post_id;
 		}
 		return false;
@@ -447,6 +452,7 @@ class Ad_Code_Manager
 	function delete_ad_code( $ad_code_id ) {
 		if ( 0 !== $ad_code_id ) {
 			wp_delete_post( $ad_code_id , true ); //force delete post
+			$this->flush_cache();
 			return true;
 		}
 		return;
