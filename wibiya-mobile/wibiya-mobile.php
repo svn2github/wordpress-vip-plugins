@@ -417,38 +417,32 @@ function wibiya_mobile_run()
 				'ipad' => 193,
 				'android_tab' => 194
 			);
+
+		// If Batcache is running, disable it for mobile views so we can do proper UA detection
+		if ( $is_mobile && function_exists( 'batcache_cancel' ) )
+			batcache_cancel();
+
 			$device='';
-			if(function_exists( 'is_ipad' )&&is_ipad())
-			{
-				$device='device='.$conversionArr['ipad'];
-			}
-			elseif(function_exists( 'is_mobile' )&&isset($conversionArr[is_mobile( 'any', true )]))
-			{
-				$device='device='.$conversionArr[is_mobile( 'any', true )];
-			}
-			else{
-			
-				if(stripos($_SERVER['HTTP_USER_AGENT'],"iPad"))
-				{
-					$device='device='.$conversionArr['ipad'];
-				}
-				elseif(stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))
-				{
-					$device='device='.$conversionArr['iphone'];
-				}
-				elseif(stripos($_SERVER['HTTP_USER_AGENT'],"Android") && stripos($_SERVER['HTTP_USER_AGENT'],"mobile"))
-				{
-					$device='device='.$conversionArr['android'];
-				}
-				else if(stripos($_SERVER['HTTP_USER_AGENT'],"Android"))
-				{
-					$device='device='.$conversionArr['android_tab'];
-				}
-				elseif(stripos($_SERVER['HTTP_USER_AGENT'],"RIM Tablet"))
-				{
-					$device='device='.$conversionArr['rim'];
-				}
-			}
+                                                                if(stripos($_SERVER['HTTP_USER_AGENT'],"iPad"))
+                                                                {
+                                                                        $device='device='.$conversionArr['ipad'];
+                                                                }
+                                                                elseif(stripos($_SERVER['HTTP_USER_AGENT'],"iPhone"))
+                                                                {
+                                                                        $device='device='.$conversionArr['iphone'];
+                                                                }
+                                                                elseif(stripos($_SERVER['HTTP_USER_AGENT'],"Android") && stripos($_SERVER['HTTP_USER_AGENT'],"mobile"))
+                                                                {
+                                                                        $device='device='.$conversionArr['android'];
+                                                                }
+                                                                elseif(stripos($_SERVER['HTTP_USER_AGENT'],"Android"))
+                                                                {
+                                                                        $device='device='.$conversionArr['android_tab'];
+                                                                }
+                                                                elseif(stripos($_SERVER['HTTP_USER_AGENT'],"RIM Tablet"))
+                                                                {
+                                                                        $device='device='.$conversionArr['rim'];
+                                                                }
 			if(!empty($device)){ $device.='&'; }
 			
 			if( $_SERVER['REQUEST_URI'] == "/" || $_SERVER['REQUEST_URI'] == "" ) {
