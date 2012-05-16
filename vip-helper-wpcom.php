@@ -519,7 +519,7 @@ function wpcom_vip_is_onswipe_active() {
  * Sets the default for subscribe to comments to off
  */
 function wpcom_vip_disable_default_subscribe_to_comments() {
-	add_filter( 'default_subscribe_to_comments', '__return_false', 99 ); // run late so we override others
+	add_filter( 'subscribe_to_comments_override', '__return_false', 99 ); // run late so we override others
 }
 
 /**
