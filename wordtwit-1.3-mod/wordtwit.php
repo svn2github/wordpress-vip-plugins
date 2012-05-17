@@ -244,34 +244,24 @@ function twit_hit_server( $location, $username, $password, &$output, $post = fal
    global $wordtwit_version;
    $output = '';
    
-   $snoopy = new Snoopy;
-   $snoopy->agent = 'WordTwit ' . $wordtwit_version;
-   
+   $args = array(
+	  'user-agent' => 'WordTwit ' . $wordtwit_version,
+	  'headers' => array(),
+   );
+
    if ( $username ) {
-	  $snoopy->user = $username;
-	  if ( $password ) {
-		 $snoopy->pass = $password;		 
-	  }
+	  $args['headers']['Authorization'] = 'Basic ' . base64_encode( $username . ':' . $password );
    }
-   
+
    if ( $post ) {
-	  // need to do the actual post
-	  $result = $snoopy->submit( $location, $post_fields );
-	  if ( $result ) {
-		 return true;	
-	  }
+	  $args['body'] = $post_fields;
+	  $response = wp_remote_get( $location, $args );
+	  return '200' == wp_remote_retrieve_response_code( $response );
    } else {
-	  $result = $snoopy->fetch( $location );
-	  if ( $result ) {
-		 $output = $snoopy->results;  
-	  }
-	  
-	  $code = explode( ' ', $snoopy->response_code );
-	  if ( $code[1] == 200) {
-		 return true;
-	  } else {
-		 return false;
-	  }
+	  $response = wp_remote_get( $location, $args );
+	  $output = wp_remote_retrieve_body( $response );
+
+	  return '200' == wp_remote_retrieve_response_code( $response );
    }
 }
 
@@ -291,7 +281,7 @@ function twit_update_status( $oauth_token, $oauth_token_secret, $new_status ) {
 function twit_get_tiny_url( $link ) {
    $output = '';
    $result = twit_hit_server( 'http://tinyurl.com/api-create.php?url=' . $link, '', '', $output );
-   
+
    return $output;
 }
 
@@ -302,7 +292,7 @@ function twit_get_bitly_url( $link ) {
 	$output = false;
 	$result = twit_hit_server( 'http://api.bit.ly/shorten?version=2.0.1&longUrl=' . urlencode( $link ) . '&format=xml&login=' . $bitly_user_name . '&apiKey=' . $bitly_api_key, '', '', $output );
 	preg_match( '#<shortUrl>(.*)</shortUrl>#iUs', $output, $url );
-	
+
 	if ( isset( $url[1] ) ) {
 		return $url[1];	
 	} else {
