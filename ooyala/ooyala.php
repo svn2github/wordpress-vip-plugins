@@ -134,6 +134,7 @@ class Ooyala_Video {
 			'code' => '',
 			'autoplay' => '',
 			'callback' => 'recieveOoyalaEvent',
+			'wmode' => 'opaque',
 			), $atts
 		));
 		
@@ -149,6 +150,7 @@ class Ooyala_Video {
 		$height = floor( $width*9/16 );
 		$autoplay = (bool) $autoplay ? '1' : '0';
 		$sanitized_embed = sanitize_key( $code );
+		$wmode = in_array( $wmode, array( 'window', 'transparent', 'opaque', 'gpu', 'direct' ) ) ? $wmode : 'opaque';
 		$callback = preg_match( '/[^\w]/', $callback ) ? '' : sanitize_text_field( $callback ); // // sanitize a bit because we don't want nasty things
 
 		if ( empty( $code ) )
@@ -169,6 +171,7 @@ class Ooyala_Video {
 				'embedCode' => $code,
 				'autoplay' => $autoplay,
 				'callback' => $callback,
+				'wmode' => $wmode,
 				'version' => 2,
 			), 'http://player.ooyala.com/player.js' );
 
@@ -180,6 +183,7 @@ class Ooyala_Video {
 			$output .= "<param name='bgcolor' value='#000000' />";
 			$output .= "<param name='allowScriptAccess' value='always' />";
 			$output .= "<param name='allowFullScreen' value='true' />";
+			$output .= "<param name='wmode' value='$wmode' />";
 			$output .= "<param name='flashvars' value='embedType=noscriptObjectTag&embedCode=###VID###' />";
 			$output .= "<embed src='http://player.ooyala.com/player.swf?embedCode={$code}&version=2' bgcolor='#000000' width='{$width}' height='{$height}' name='ooyalaPlayer_" . esc_attr( $sanitized_embed ) . "' align='middle' play='true' loop='false' allowscriptaccess='always' allowfullscreen='true' type='application/x-shockwave-flash' flashvars='&embedCode={$code}' pluginspage='http://www.adobe.com/go/getflashplayer'>";
 			$output .= "</embed>";
