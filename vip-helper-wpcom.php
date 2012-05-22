@@ -72,8 +72,14 @@ function vip_display_related_posts( $limit_to_same_domain = true ) {
 
 function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true ){
 	$permalink = get_permalink();
-	stats_extra( 'related_links', 'vip_get' );
- 	return get_sphere_results( $permalink, $max_num, $limit_to_same_domain );
+
+	if ( function_exists( 'stats_extra' ) )
+		stats_extra( 'related_links', 'vip_get' );
+
+	if ( function_exists( 'get_sphere_results' ) )
+		return get_sphere_results( $permalink, $max_num, $limit_to_same_domain );
+	else
+		return array(); // TODO: return dummy data
 }
 
 /**
@@ -91,7 +97,10 @@ function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true
 */
 
 function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ){
- 	return flaptor_related_inline( $max_num, $additional_stopwords, $exclude_own_titles );
+	if ( function_exists( 'flaptor_related_inline' ) )
+		return flaptor_related_inline( $max_num, $additional_stopwords, $exclude_own_titles );
+	else
+		return array(); // TODO: return dummy data
 }
 
 /**
@@ -116,7 +125,10 @@ function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = 
 */
 
 function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true){
- 	return get_flaptor_related( $max_num, $additional_stopwords, $exclude_own_titles );
+	if ( function_exists( 'get_flaptor_related' ) )
+		return get_flaptor_related( $max_num, $additional_stopwords, $exclude_own_titles );
+	else
+		return array(); // TODO: return dummy data
 }
 
 /*
@@ -198,7 +210,12 @@ function wpcom_vip_audio_player_colors( $colors ) {
  */
 
 function wpcom_vip_top_post_title( $days = 2 ) {
-		global $wpdb;
+	global $wpdb;
+
+	// Compat for .org
+	if ( ! function_exists( 'stats_get_daily_history' ) )
+		return array(); // TODO: return dummy data
+
 	$title = wp_cache_get("wpcom_vip_top_post_title_$days", 'output');
 	if ( empty($title) ) {
 		if ( $days < 2 || !is_int($days) ) $days = 2; // minimum is 2 because of how stats rollover for a new day
@@ -252,11 +269,16 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	$height = (int) $height;
 
 	// ImgPress doesn't currently support redirects, so help it out by doing http://foobar.wordpress.com/files/ to http://foobar.files.wordpress.com/
-	$url = new_file_urls( $url );
+	if ( function_exists( 'new_file_urls' ) )
+		$url = new_file_urls( $url );
 
 	// staticize_subdomain() converts the URL to use one of our CDN's (the main reason to use this function)
 	// The "en" is there as staticize_subdomain() expects the passed URL to be something.wordpress.com
-	$thumburl = staticize_subdomain( 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}" );
+	$thumburl = 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}";
+
+	// On WP.com, serve from our CDN if available
+	if ( function_exists( 'staticize_subdomain' ) )
+		$thumburl = staticize_subdomain( $thumburl );
 
 	return ( $escape ) ? esc_url( $thumburl ) : $thumburl;
 }
@@ -289,6 +311,11 @@ get_top_posts() returns an array of post_ID -> views.
 
 function get_top_posts( $number = 10, $days = 2 ) {
 	global $wpdb;
+
+	// Compat for .org
+	if ( ! function_exists( 'stats_get_daily_history' ) )
+		return array(); // TODO: return dummy data
+
 
 	$top_posts = wp_cache_get( "get_top_posts_{$number}_{$days}" );
 
@@ -343,8 +370,10 @@ function _wpcom_vip_allow_full_size_images_for_real( $ignore, $id, $size ) {
 
 		return array( $img_url, $w, $h, false );
 	} else {
-		return wpcom_resize( $ignore, $id, $size );
+		if ( function_exists( 'wpcom_resize' ) )
+			return wpcom_resize( $ignore, $id, $size );
 	}
+	return $ignore;
 }
 
 /*
@@ -428,10 +457,6 @@ function wpcom_vip_enable_opengraph() {
 function wpcom_vip_sharing_twitter_via( $via = '' ) {
 	if( empty( $via ) ) {
 		$via_callback = '__return_false';
-	/*
-	} elseif( is_callable( $via ) ) {
-		//$via_callback = $via;
-	*/
 	} else {
 		// sanitize_key() without changing capitizalization
 		$raw_via = $via;
@@ -451,7 +476,8 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
  * The functions below can be used to disable Post Flair piece by piece
  */
 function wpcom_vip_disable_post_flair() {
-	post_flair_hide();
+	if ( function_exists( 'post_flair_hide' ) )
+		post_flair_hide();
 }
 
 /**
@@ -510,9 +536,7 @@ function wpcom_vip_enable_likes() {
   * Active means the OnSwipe theme is loaded on the current pageview
   */
 function wpcom_vip_is_onswipe_active() {
-	if ( defined( 'PADPRESS_IS_ACTIVE' ) && true === PADPRESS_IS_ACTIVE )
-		return true;
-	return false;
+	return defined( 'PADPRESS_IS_ACTIVE' ) && true === PADPRESS_IS_ACTIVE;
 }
 
 /**
@@ -552,7 +576,8 @@ function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
 	if ( true <> $wpdb->srtm ) {
 		$changed_srtm = true;
 		$srtm_backup = $wpdb->srtm;
-		$wpdb->send_reads_to_masters();
+		if ( is_callable( array( $wpdb, 'send_reads_to_masters' ) ) )
+			$wpdb->send_reads_to_masters();
 	}
 	// update the meta cache
 	update_meta_cache( 'post', array( $post_id ) );
