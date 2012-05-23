@@ -51,8 +51,10 @@ function vip_redirects( $vip_redirects_array = array() ) {
  *
  * array elements should be in the form of:
  * '/some-path/' => 'http://wordpress.com/new/'
+ *
+ * With $append_old_uri set to 'true', the full path past the match will be added to the new URL
  */
-function vip_substr_redirects( $vip_redirects_array = array() ) {
+function vip_substr_redirects( $vip_redirects_array = array(), $append_old_uri = false ) {
 	if ( empty( $vip_redirects_array ) )
 		return;
 
@@ -62,6 +64,8 @@ function vip_substr_redirects( $vip_redirects_array = array() ) {
 
 	foreach ( $vip_redirects_array as $old_path => $new_url ) {
 		if ( substr( $_SERVER['REQUEST_URI'], 0, strlen( $old_path ) ) == $old_path ) {
+			if ( $append_old_uri )
+				$new_url .= str_replace( $old_path, '', $_SERVER['REQUEST_URI'] );
 			wp_redirect( $new_url, 301 );
 			exit();
 		}
