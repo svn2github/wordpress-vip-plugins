@@ -743,3 +743,28 @@ function wpcom_vip_get_user_profile( $email_or_id ) {
 	}
 	return $profile;
 }
+
+
+/**
+ * Checks to see if a given e-mail address has a Gravatar or not.
+ *
+ * You can use this function to only call get_avatar() when the user
+ * has a Gravatar and display nothing (rather than a placeholder image)
+ * when they don't.
+ */
+function wpcom_vip_email_has_gravatar( $email ) {
+
+	$hash = md5( strtolower( trim( $email ) ) );
+
+	// If not in the cache, check again
+	if ( false === $has_gravatar = wp_cache_get( $hash, 'email_has_gravatar' ) ) {
+
+		$request = wp_remote_head( 'http://0.gravatar.com/avatar/' . $hash . '?d=404' );
+
+		$has_gravatar = ( 404 == wp_remote_retrieve_response_code( $request ) ) ? 0 : 1;
+
+		wp_cache_set( $hash, $has_gravatar, 'email_has_gravatar', 86400 ); // Check daily
+	}
+
+	return (bool) $has_gravatar;
+}
