@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Rinat Khaziev, Jeremy Felt, Daniel Bachhuber, Automattic, doejo
-Version: 0.2.1
+Version: 0.2.2-working
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.2.1' );
+define( 'AD_CODE_MANAGER_VERSION', '0.2.2-working' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -106,6 +106,15 @@ class Ad_Code_Manager
 
 		}
 		
+		/**
+		 * Configuration filter: acm_register_provider_slug
+		 *
+		 * We've already gathered a list of default providers by scanning the ACM plugin
+		 * directory for classes that we can use. To add a provider already included via
+		 * a different directory, the following filter is provided.
+		 */
+		$this->providers = apply_filters( 'acm_register_provider_slug', $this->providers );
+
 		/**
 		 * Configuration filter: acm_provider_slug
 		 *
