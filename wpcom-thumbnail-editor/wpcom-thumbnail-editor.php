@@ -358,6 +358,9 @@ class WPcom_Thumbnail_Editor {
 		if ( empty( $_REQUEST['id'] ) || ! $attachment = get_post( intval( $_REQUEST['id'] ) ) )
 			wp_die( sprintf( __( 'Invalid %s parameter.', 'wpcom-thumbnail-editor' ), '<code>id</code>' ) );
 
+		if ( 'attachment' != $attachment->post_type  || ! wp_attachment_is_image( $attachment->ID ) )
+			wp_die( sprintf( __( 'That is not a valid image attachment.', 'wpcom-thumbnail-editor' ), '<code>id</code>' ) );
+
 		if ( ! current_user_can( get_post_type_object( $attachment->post_type )->cap->edit_post, $attachment->ID ) )
 			wp_die( __( 'You are not allowed to edit this attachment.' ) );
 
