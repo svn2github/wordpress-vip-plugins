@@ -139,6 +139,7 @@ class WPcom_Thumbnail_Editor {
 	public function edit_thumbnail_screen() {
 		global $parent_file, $submenu_file, $title;
 
+		// Validate "id" and "size" query string values and check user capabilities. Dies on error.
 		$attachment = $this->validate_parameters();
 
 		$size = $_REQUEST['size']; // Validated in this::validate_parameters()
@@ -286,6 +287,8 @@ class WPcom_Thumbnail_Editor {
 	 * @since 1.0.0
 	 */
 	public function post_handler() {
+
+		// Validate "id" and "size" POST values and check user capabilities. Dies on error.
 		$attachment = $this->validate_parameters();
 
 		$size = $_REQUEST['size']; // Validated in this::validate_parameters()
