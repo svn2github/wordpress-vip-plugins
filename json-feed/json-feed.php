@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: JSON feed WPCOM/DTV
+Plugin Name: JSON feed
 Plugin URI: http://wordpress.org/extend/plugins/json-feed/
 Description: Provides feeds in JSON form
-Version: 1.3-WPCOM-DTV
-Author: Chris Northwood (modified by Dan Phiffer and Arnaldo Capo DIRECTV)
+Version: 1.3-WPCOM
+Author: Chris Northwood (modified by Dan Phiffer)
 Author URI: http://www.pling.org.uk/
 */
 
@@ -14,25 +14,14 @@ function json_feed_queryvars( $qvars ) {
 	$qvars[] = 'jsonp';
 	$qvars[] = 'date_format';
 	$qvars[] = 'remove_uncategorized';
-	$qvars[] = 'maxResults';
 	return $qvars;
 }
 
 function json_feed() {
 	$output = array();
-	$output_posts = array();
-	
-	global $wp_query;
-	$post_count = $wp_query->found_posts;
-	
-	$max_results = 0;
-	if ( get_query_var( 'maxResults' ) != '')
-		$max_results = (int) get_query_var( 'maxResults' );
-	
-	$i=0;
 	while ( have_posts() ) {
 		the_post();
-		$output_posts[] = array
+		$output[] = array
 		(
 			'id' => (int) get_the_ID(),
 			'type' => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
@@ -45,20 +34,9 @@ function json_feed() {
 			'tags' => json_feed_tags()
 		);
 		// WPCOM Mod - custom filter
-		$output_posts = apply_filters( 'json_feed_output_post', $output_posts);
+		$output = apply_filters( 'json_feed_output', $output);
 		
-		if (++$i == $max_results)
-			break;	
 	}
-	
-	$output = array(
-		'totalResults' => $post_count,
-		'posts' => $output_posts
-	);
-	
-	// WPCOM Mod - custom filter
-	$output = apply_filters( 'json_feed_output', $output);	
-	
 	if ( get_query_var( 'jsonp' ) == '' ) {
 		header( 'Content-Type: application/json; charset=' . get_option( 'blog_charset' ), true );
 		echo json_encode( $output );
