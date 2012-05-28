@@ -51,7 +51,7 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
 
 /*
  * Return stats as array
- * @param string $table table for stats can be views, postviews, referrers, searchterms, clicks. Default is views.
+ * @param string $table table for stats can be views, postviews, authorviews, referrers, searchterms, clicks. Default is views.
  * @param string $end_data The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01) and default is UTC date.
  * @param integer $num_days The length of the desired time frame. Default is 1. Maximum 90 days
  * @param string $and possibility to refine the query with additional AND condition. usually unused
