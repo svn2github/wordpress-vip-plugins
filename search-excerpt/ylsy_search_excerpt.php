@@ -20,12 +20,8 @@ class SearchExcerpt {
         // Password checking copied from
         // template-functions-post.php/get_the_content()
         // Search shouldn't match a passworded entry anyway.
-        if (!empty($post->post_password) ) { // if there's a password
-            if (stripslashes($_COOKIE['wp-postpass_'.COOKIEHASH]) != 
-                $post->post_password ) 
-            {      // and it doesn't match the cookie
+        if ( post_password_required() ) {
                 return get_the_password_form();
-            }
         }
 
         return $post->post_content;
