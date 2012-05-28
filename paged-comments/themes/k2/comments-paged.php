@@ -3,12 +3,12 @@
 	if ('comments-paged.php' == basename($_SERVER['SCRIPT_FILENAME'])) { die (__('Please do not load this page directly. Thanks!','k2_domain')); }
 
 	// Password Protection
-	if (!empty($post->post_password)) { if ($_COOKIE['wp-postpass_' . COOKIEHASH] != $post->post_password) {
+	if ( post_password_required() ) {
 ?>
 
 	<p class="nopassword"><?php _e('This post is password protected. Enter the password to view comments.','k2_domain'); ?></p>
 
-<?php return; } } ?>
+<?php return; } ?>
 
 	<?php if (($comments) or ('open' == $post->comment_status)) : $shownavigation = 'yes'; ?>
 
