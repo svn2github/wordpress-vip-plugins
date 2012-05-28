@@ -12,7 +12,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 	var $is_search = false;
 
 	function __construct() {
-		if( !empty( $_GET['s'] ) )
+		if( !empty( $_REQUEST['s'] ) )
 			$this->is_search = true;
 
 		parent::__construct( array(
@@ -22,7 +22,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 *
+	 * Perform Co-Authors Query
 	 */
 	function prepare_items() {
 		global $coauthors_plus;
@@ -30,7 +30,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 		$columns = $this->get_columns();
 		$hidden = array();
 		$sortable = array();
-		$this->_column_headers = array( $columns, $hidden, $sortable ) ;
+		$this->_column_headers = array( $columns, $hidden, $sortable );
 
 		$paged = ( isset( $_REQUEST['paged'] ) ) ? intval( $_REQUEST['paged'] ) : 1;
 		$per_page = 20;
@@ -43,6 +43,30 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 				'orderby'        => 'post_title',
 				'order'          => 'ASC',
 			);
+
+		$this->filters = array(
+				'show-all'                => __( 'Show all', 'co-authors-plus' ),
+				'with-linked-account'     => __( 'With linked account', 'co-authors-plus' ),
+				'without-linked-account'  => __( 'Without linked account', 'co-authors-plus' ),
+			);
+
+		if ( isset( $_REQUEST['filter'] ) && array_key_exists( $_REQUEST['filter'], $this->filters ) ) {
+			$this->active_filter = sanitize_key( $_REQUEST['filter'] );
+		} else {
+			$this->active_filter = 'show-all';
+		}
+
+		switch( $this->active_filter ) {
+			case 'with-linked-account':
+			case 'without-linked-account':
+				$args['meta_key'] = $coauthors_plus->guest_authors->get_post_meta_key( 'linked_account' );
+				if ( 'with-linked-account' == $this->active_filter )
+					$args['meta_compare'] = '!=';
+				else
+					$args['meta_compare'] = '=';
+				$args['meta_value'] = '0';
+				break;
+		}
 
 		if( $this->is_search )
 			add_filter( 'posts_where', array( $this, 'filter_query_for_search' ) );
@@ -63,10 +87,10 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 			'per_page' => $per_page,
 			) );
 	}
-	
+
 	function filter_query_for_search( $where ) {
 		global $wpdb;
-		$var = '%' . sanitize_text_field( $_GET['s'] ) . '%';
+		$var = '%' . sanitize_text_field( $_REQUEST['s'] ) . '%';
 		$where .= $wpdb->prepare( ' AND (post_title LIKE %s OR post_name LIKE %s )', $var, $var);
 		return $where;
 	}
@@ -89,12 +113,13 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 				'first_name'     => __( 'First Name', 'co-authors-plus' ),
 				'last_name'      => __( 'Last Name', 'co-authors-plus' ),
 				'user_email'     => __( 'E-mail', 'co-authors-plus' ),
+				'linked_account' => __( 'Linked Account', 'co-authors-plus' ),
 			);
 		return $columns;
 	}
 
 	/**
-	 *
+	 * Render a single row
 	 */
 	function single_row( $item ) {
 		static $alternate_class = '';
@@ -107,7 +132,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 	}
 
 	/**
-	 *
+	 * Render columns, some are overridden below
 	 */
 	function column_default( $item, $column_name ) {
 
@@ -120,6 +145,9 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 		}
 	}
 
+	/**
+	 * Render display name, e.g. author name
+	 */
 	function column_display_name( $item ) {
 
 		$item_edit_link = get_edit_post_link( $item->ID );
@@ -137,12 +165,44 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 		return $output;
 	}
 
+	/**
+	 * Render linked account
+	 */
+	function column_linked_account( $item ) {
+		if ( $item->linked_account ) {
+			$account = get_user_by( 'login', $item->linked_account );
+			if ( $account ) {
+				if ( current_user_can( 'edit_users' ) ) {
+					return '<a href="' . admin_url( 'user-edit.php?user_id=' . $account->ID ) . '">' . esc_html( $item->linked_account ) . '</a>';
+				}
+				return $item->linked_account;
+			}
+		}
+		return '';
+	}
+
+	/**
+	 * Allow users to filter the guest authors by various criteria
+	 */
+	function extra_tablenav( $which ) {
+
+		?><div class="alignleft actions"><?php
+		if ( 'top' == $which ) {
+			if ( !empty( $this->filters ) ) {
+				echo '<select name="filter">';
+				foreach( $this->filters as $key => $value ) {
+					echo '<option value="' . esc_attr( $key ) . '" ' . selected( $this->active_filter, $key, false ) . '>' . esc_attr( $value ) . '</option>';
+				}
+				echo '</select>';
+			}
+			submit_button( __( 'Filter', 'co-authors-plus' ), 'secondary', false, false );
+		}
+		?></div><?php
+	}
+
 	function display() {
 		global $coauthors_plus;
-		echo '<form>';
-		echo '<input type="hidden" name="page" value="view-guest-authors" />';
 		$this->search_box( $coauthors_plus->guest_authors->labels['search_items'], 'guest-authors' );
-		echo '</form>';
 		parent::display();
 	}
 
