@@ -34,7 +34,7 @@ add_filter( 'page_link', 'external_permalinks_filter_page_permalink', 1, 2 );
  */
 function external_permalinks_redirect_postpage_request( $query ) {
 	$post_id = get_the_ID();
-	if( is_single() && $link = get_post_meta( $post_id, '_external_permalink', true ) ) {
+	if( is_singular() && $link = get_post_meta( $post_id, '_external_permalink', true ) ) {
 	
 		$status_code = (int) get_post_meta( $post_id, '_external_permalink_status_code', true );
 		if( ! in_array( $status_code, external_permalinks_get_status_codes() ) )
