@@ -44,11 +44,12 @@ function brightcove_api_menu_handle() {
   return wp_iframe('brightcove_media_api_upload_form',$errors);
 }
 
-add_action( 'admin_enqueue_scripts', 'brightcove_register_scripts' );
+add_action( 'wp_enqueue_scripts', 'brightcove_register_scripts', 1 ); // register our scripts early
+add_action( 'admin_enqueue_scripts', 'brightcove_register_scripts', 1 );
 
 function brightcove_register_scripts() {
-	
-	wp_register_script( 'brightcove_script', 'http://admin.brightcove.com/js/BrightcoveExperiences.js');
+	$brightcove_script = is_ssl() ? 'https://sadmin.brightcove.com/js/BrightcoveExperiences.js' : 'http://admin.brightcove.com/js/BrightcoveExperiences.js';
+	wp_register_script( 'brightcove_script', $brightcove_script );
 	wp_register_script( 'jqueryPlaceholder', plugins_url( '/jQueryPlaceholder/jQueryPlaceholder.js', __FILE__ ) );
 	wp_register_script( 'jquery-validate', plugins_url( '/jQueryValidation/jquery.validate.min.js', __FILE__ ) );
 	wp_register_script( 'jquery-validate-additional', plugins_url( '/jQueryValidation/additional-methods.min.js', __FILE__ ) );	
@@ -66,13 +67,12 @@ function brightcove_enqueue_admin_media_scripts() {
 	wp_enqueue_script( 'mapi_script', plugins_url( '/bc-mapi.js', __FILE__ ) );
 
 	wp_enqueue_style( 'brightcove-styles', plugins_url( '/brightcove.css', __FILE__ ) );
-	wp_enqueue_style( 'brightove-jquery-ui-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css' );
+	wp_enqueue_style( 'brightove-jquery-ui-style', ( is_ssl() ? 'https' : 'http' ) . '://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/smoothness/jquery-ui.css' );
 }
 
 //Adds all the scripts nessesary for plugin to work
 function brightcove_enqueue_frontend_scripts() {
-
-	wp_enqueue_script( 'brightcove_script', 'http://admin.brightcove.com/js/BrightcoveExperiences.js' );
+	wp_enqueue_script( 'brightcove_script' );
 }
 
 
