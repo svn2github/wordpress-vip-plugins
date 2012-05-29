@@ -488,7 +488,7 @@ displayPagedVideoSearchResults = function (pResponse, allOrSearch) {
 		$('#bc-video-search-video').html(html).removeClass('disable');
 	} else {
 		html = "<div id='video-page-" + pageNumber + "' class='video-page " + pageClass + "'>" + html + pagesHTML + "<div class='clearfix button-bar'>"+prevButton+nextButton+"</div></div>";
-		$('#bc-video-search-video').html(html).removeClass('disable');
+		$('#bc-video-search-video').append(html).removeClass('disable');
 		$('.loading-img-api').remove();
 	}
 	$('#video-page-'+pageNumber).find('.bc-video').bind('click', function() {
@@ -505,7 +505,7 @@ displayPagedVideoSearchResults = function (pResponse, allOrSearch) {
 		var pageNumber = $(this).data('nextpage');
 		showPage(pageNumber, 'video');
 	});
-	
+
 	if (allOrSearch == 'all') {
 		if (pageNumber+1 < totalNumberOfPages){
 		getAllVideos(pageNumber+1);	
@@ -515,7 +515,7 @@ displayPagedVideoSearchResults = function (pResponse, allOrSearch) {
 		searchForVideos(pageNumber+1);	
 		}
 	}
-	
+	showPage( 0, 'video' );
 }
 
 showPage = function (pageNumber,videoOrPlaylist) {
