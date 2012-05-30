@@ -385,7 +385,7 @@ class WPcom_Thumbnail_Editor {
 
 		$sizes = get_intermediate_image_sizes();
 
-		add_filter('intermediate_image_sizes', 'wpcom_intermediate_sizes');
+		add_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
 
 		return $sizes;
 	}
