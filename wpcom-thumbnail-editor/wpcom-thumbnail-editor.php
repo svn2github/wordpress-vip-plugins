@@ -3,7 +3,7 @@
 **************************************************************************
 
 Plugin Name:  WordPress.com Thumbnail Editor
-Description:  Since thumbnails are generated on-demand on WondPress.com, thumbnail cropping location must be set via the URL. This plugin assists in doing this.
+Description:  Since thumbnails are generated on-demand on WondPress.com, thumbnail cropping location must be set via the URL. This plugin assists in doing this. Based on concepts by Imran Nathani of <a href="http://metronews.ca/">Metro News Canada</a>.
 Version:      1.0.0 Beta
 Author:       Automattic
 Author URI:   http://vip.wordpress.com/
