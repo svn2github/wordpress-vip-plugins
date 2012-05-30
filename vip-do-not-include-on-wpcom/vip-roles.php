@@ -57,6 +57,8 @@ function wpcom_vip_merge_role_caps( $role, $caps ) {
 		else
 			$role_obj->remove_cap( $cap );
 	}
+
+	_wpcom_vip_maybe_refresh_current_user_caps( $role );
 }
 endif;
 
@@ -74,6 +76,8 @@ function wpcom_vip_override_role_caps( $role, $caps ) {
 		return;
 
 	$role_obj->capabilities = (array) $caps;
+
+	_wpcom_vip_maybe_refresh_current_user_caps( $role );
 }
 endif;
 
@@ -121,3 +125,13 @@ function wpcom_vip_remove_role_caps( $role, $caps ) {
 	wpcom_vip_merge_role_caps( $role, $filtered_caps );
 }
 endif;
+
+/**
+ * Force refreshes the current user's capabilities if they belong to the specified role.
+ * This is to prevent a race condition where the WP_User and its related caps are generated before or roles changes.
+ */
+function _wpcom_vip_maybe_refresh_current_user_caps( $role ) {
+	if ( is_user_logged_in() && current_user_can( $role ) ) {
+		wp_get_current_user()->get_role_caps();
+	}
+}
