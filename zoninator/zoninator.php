@@ -126,7 +126,7 @@ class Zoninator
 
 	function admin_page_init() {
 		// Set up page
-		add_menu_page( __( 'Zoninator', 'zoninator' ), __( 'Zones', 'zoninator' ), $this->_get_manage_zones_cap(), $this->key, array( $this, 'admin_page' ), '', 11 );
+		add_menu_page( __( 'Zoninator', 'zoninator' ), __( 'Zones', 'zoninator' ), $this->_get_edit_zones_cap(), $this->key, array( $this, 'admin_page' ), '', 11 );
 	}
 
 	function admin_enqueue_scripts() {
