@@ -410,7 +410,7 @@ class Zoninator
 				</div>
 				
 				<div class="col-wrap zone-col zone-posts-col">
-					<div class="zone-posts-wrapper <?php echo ! $this->_current_user_can_edit_zones( $zone_id ) || $zone_locked ? 'readonly' : ''; ?>">
+					<div class="zone-posts-wrapper <?php echo ! $this->_current_user_can_manage_zones( $zone_id ) || $zone_locked ? 'readonly' : ''; ?>">
 						<?php if( $zone_id ) : ?>
 							<h3><?php _e( 'Zone Content', 'zoninator' ); ?></h3>
 							
