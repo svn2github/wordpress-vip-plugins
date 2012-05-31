@@ -547,6 +547,15 @@ function wpcom_vip_disable_default_subscribe_to_comments() {
 }
 
 /**
+ * The default behavior for invitations is to allow any WordPress.com user accept an invitation
+ * regardless of whether their email address matches what the invitation was sent to. This helper
+ * function forces the invitation email to match the WordPress.com user's email address
+ */
+function wpcom_invite_force_matching_email_address() {
+	add_filter( 'wpcom_invite_force_matching_email_address', '__return_true' );
+}
+
+/**
  * Reads a postmeta value directly from the master database.
  * This is not intended for front-end usage. This purpose of this function is to avoid
  * race conditions that could appear while the caches are primed.
