@@ -57,8 +57,8 @@ OV.Popup = function()  {
 
 			if ( 'paging' == what ) {
 				previousRequest = jQuery('#response-div').data('previousRequest');
-				searchTerm = previousRequest.searchTerm;
-				searchField = previousRequest.searchField;
+				searchTerm = jQuery('#ov-search-term').val();//previousRequest.searchTerm;
+				searchField = jQuery('#ov-search-field').val();//previousRequest.searchField;
 				what = previousRequest.what;
 			}
 
@@ -66,6 +66,7 @@ OV.Popup = function()  {
 			searchField = ( searchField == '' ) ? '' : searchField;
 			pageId =  ( pageId == '' ) ? '0' : pageId;
 			postId = ( postId == '' ) ? '0' : postId;
+
 
 			//Let's store this search in case we get a subsequent paging request
 			jQuery('#response-div').data( 'previousRequest', {searchTerm: searchTerm, what: what, searchField: searchField});
@@ -119,6 +120,7 @@ OV.Popup = function()  {
 				return false;
 			});
 			jQuery('#ov-search-button').click(function () {
+				jQuery('#ooyala-ids').val('');
 				OV.Popup.ooyalaRequest('search', jQuery('#ov-search-term').val(), jQuery('#ov-search-field').val() );
 				return false;
 			});

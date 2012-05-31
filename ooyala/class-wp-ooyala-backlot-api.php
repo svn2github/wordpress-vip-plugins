@@ -112,6 +112,7 @@ class WP_Ooyala_Backlot {
 
 		$ids = isset( $_REQUEST['ooyala_ids'] ) ? $_REQUEST['ooyala_ids'] : '';
 		$ids = explode( ',', $ids );
+		$prev_token = -1;
 
 		if ( $page_token ) {
 			if ( in_array( $page_token, $ids ) ) {
@@ -120,10 +121,10 @@ class WP_Ooyala_Backlot {
 				$prev_token = $key > 1 ? $ids[ $key - 2 ] : '-1';
 			} else {
 				$c = count( $ids );
-				$prev_token = $c > 1 ? $ids[ count( $ids ) - 2 ] : -1;
+				$prev_token = $c > 1 ? $ids[ count( $ids ) - 2 ] : '-1';
 				$ids[] = $page_token;
 			}			
-		} else {
+		} elseif ( count( $ids ) > 1 ) {
 			$prev_token = $ids[ count( $ids ) - 2 ];
 		}
 
@@ -139,8 +140,7 @@ class WP_Ooyala_Backlot {
 		}
 
 		$ids = implode( ',', $ids );
-		$output .= '<input type="hidden" id="ooyala-ids" value="' . esc_attr( $ids ) . '" />';
-			
+		$output .= '<input type="hidden" id="ooyala-ids" value="' . esc_attr( $ids ) . '" />';			
 
 		$output .= '<div id="ooyala-items">';
 		foreach ( $videos->items as $video ) {

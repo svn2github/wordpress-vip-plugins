@@ -351,12 +351,12 @@ class Ooyala_Video {
 		$backlot = new WP_Ooyala_Backlot( get_option( 'ooyala' ) );
 		switch( $do ) {		
 			case 'search':
-				if ( '' != $pageid &&  '' != $key_word ) {
+				if ( !empty( $pageid ) &&  '' != $key_word ) {
 					$backlot->query( array(
 						'where'        => $field . "='" . $key_word . "' AND status='live'",
 						'orderby'      => 'created_at descending',
 						'limit'        => $limit,
-						'papage_token' => absint( $pageid )
+						'page_token' => absint( $pageid )
 					) );
 				} else if ( '' != $key_word ) {
 					$backlot->query( array(
