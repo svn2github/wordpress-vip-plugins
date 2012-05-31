@@ -164,10 +164,11 @@ class Zoninator
 				
 				case 'insert':
 				case 'update':
-					$this->verify_nonce( $action );
-					$this->verify_access( $action );
-					
 					$zone_id = $this->_get_post_var( 'zone_id', 0, 'absint' );
+
+					$this->verify_nonce( $action );
+					$this->verify_access( $action, $zone_id );
+
 					$name = $this->_get_post_var( 'name' );
 					$slug = $this->_get_post_var( 'slug', sanitize_title( $name ) );
 					$details = array(
@@ -201,10 +202,10 @@ class Zoninator
 					break;
 				
 				case 'delete':
-					$this->verify_nonce( $action );
-					$this->verify_access( $action );
-					
 					$zone_id = $this->_get_request_var( 'zone_id', 0, 'absint' );
+
+					$this->verify_nonce( $action );
+					$this->verify_access( $action, $zone_id );
 					
 					if( $zone_id ) {
 						$result = $this->delete_zone( $zone_id );
@@ -330,7 +331,7 @@ class Zoninator
 				<div class="col-wrap zone-col zone-info-col">
 					<div class="form-wrap zone-form zone-info-form">
 						
-						<?php if( $this->_current_user_can_edit_zones() && ! $zone_locked ) : ?>
+						<?php if( $this->_current_user_can_edit_zones( $zone_id ) && ! $zone_locked ) : ?>
 						
 							<form id="zone-info" method="post">
 								
@@ -409,7 +410,7 @@ class Zoninator
 				</div>
 				
 				<div class="col-wrap zone-col zone-posts-col">
-					<div class="zone-posts-wrapper <?php echo $zone_locked ? 'readonly' : ''; ?>">
+					<div class="zone-posts-wrapper <?php echo ! $this->_current_user_can_edit_zones( $zone_id ) || $zone_locked ? 'readonly' : ''; ?>">
 						<?php if( $zone_id ) : ?>
 							<h3><?php _e( 'Zone Content', 'zoninator' ); ?></h3>
 							
@@ -516,13 +517,13 @@ class Zoninator
 	}
 	
 	function ajax_add_post() {
-		// Verify nonce
-		$this->verify_nonce( $this->zone_ajax_nonce_action );
-		$this->verify_access();
-		
 		$zone_id = $this->_get_post_var( 'zone_id', 0, 'absint' );
 		$post_id = $this->_get_post_var( 'post_id', 0, 'absint' );
 		
+		// Verify nonce
+		$this->verify_nonce( $this->zone_ajax_nonce_action );
+		$this->verify_access( '', $zone_id );
+
 		// Validate
 		if( ! $zone_id || ! $post_id )
 			$this->ajax_return( 0 );
@@ -548,13 +549,13 @@ class Zoninator
 	}
 	
 	function ajax_remove_post() {
-		// Verify nonce
-		$this->verify_nonce( $this->zone_ajax_nonce_action );
-		$this->verify_access();
-		
 		$zone_id = $this->_get_post_var( 'zone_id', 0, 'absint' );
 		$post_id = $this->_get_post_var( 'post_id', 0, 'absint' );
-		
+
+		// Verify nonce
+		$this->verify_nonce( $this->zone_ajax_nonce_action );
+		$this->verify_access( '', $zone_id );
+
 		// Validate
 		if( ! $zone_id || ! $post_id )
 			$this->ajax_return( 0 );
@@ -573,13 +574,13 @@ class Zoninator
 	}
 
 	function ajax_reorder_posts() {
-		// Verify nonce
-		$this->verify_nonce( $this->zone_ajax_nonce_action );
-		$this->verify_access();
-		
 		$zone_id = $this->_get_post_var( 'zone_id', 0, 'absint' );
 		$post_ids = (array) $this->_get_post_var( 'posts', array(), 'absint' );
-		
+
+		// Verify nonce
+		$this->verify_nonce( $this->zone_ajax_nonce_action );
+		$this->verify_access( '', $zone_id );
+
 		// validate
 		if( ! $zone_id || empty( $post_ids ) )
 			$this->ajax_return( 0 );
@@ -659,11 +660,11 @@ class Zoninator
 	}
 
 	function ajax_update_lock() {
-		$this->verify_nonce( $this->zone_ajax_nonce_action );
-		$this->verify_access();
-		
 		$zone_id = $this->_get_post_var( 'zone_id', 0, 'absint' );
-		
+
+		$this->verify_nonce( $this->zone_ajax_nonce_action );
+		$this->verify_access( '', $zone_id );
+
 		if( ! $zone_id )
 			exit;
 		
@@ -1088,7 +1089,7 @@ class Zoninator
 			$this->_unauthorized_access();
 	}
 	
-	function verify_access( $action = '' ) {
+	function verify_access( $action = '', $zone_id = null ) {
 		// TODO: should check if zone locked
 		
 		$verify_function = '';
@@ -1105,7 +1106,7 @@ class Zoninator
 				break;
 		}
 		
-		if( ! call_user_func( array( $this, $verify_function ) ) )
+		if( ! call_user_func( array( $this, $verify_function ), $zone_id ) )
 			$this->_unauthorized_access();
 	}
 	
@@ -1184,8 +1185,9 @@ class Zoninator
 		return current_user_can( $this->_get_add_zones_cap() );
 	}
 	
-	function _current_user_can_edit_zones() {
-		return current_user_can( $this->_get_edit_zones_cap() );
+	function _current_user_can_edit_zones( $zone_id ) {
+		$has_cap = current_user_can( $this->_get_edit_zones_cap() );
+		return apply_filters( 'zoninator_current_user_can_edit_zone', $has_cap, $zone_id );
 	}
 	
 	function _current_user_can_manage_zones() {
