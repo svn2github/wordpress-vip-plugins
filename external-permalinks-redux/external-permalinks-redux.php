@@ -32,7 +32,7 @@ class external_permalinks_redux {
 		add_action( 'wp', array( $this, 'action_wp' ) );
 		
 		$this->meta_key_target = apply_filters( 'epr_meta_key_target', '_links_to' );
-		$this->meta_key_type = apply_filters( 'epr_meta_key_target', '_links_to_type' );
+		$this->meta_key_type = apply_filters( 'epr_meta_key_type', '_links_to_type' );
 	}
 	
 	/*
