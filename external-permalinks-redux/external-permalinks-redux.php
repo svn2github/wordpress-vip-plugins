@@ -16,13 +16,15 @@ class external_permalinks_redux {
 	
 	var $meta_key_target;
 	var $meta_key_type;
+	var $status_codes;
 	
 	/*
-	 * Register actions and filters, set meta key
-	 * @uses add_action, add_filter, apply_filters
+	 * Register actions and filters
+	 * @uses add_action, add_filter
 	 * @return null
 	 */
 	function __construct() {
+		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'save_post', array( $this, 'action_save_post' ) );
 		
@@ -30,9 +32,20 @@ class external_permalinks_redux {
 		add_filter( 'post_type_link', array( $this, 'filter_post_permalink' ), 1, 2 );
 		add_filter( 'page_link', array( $this, 'filter_page_link' ), 1, 2 );
 		add_action( 'wp', array( $this, 'action_wp' ) );
-		
+	}
+
+	/**
+	 * Register plugin keys and status codes
+	 */
+	function action_init() {
+
 		$this->meta_key_target = apply_filters( 'epr_meta_key_target', '_links_to' );
 		$this->meta_key_type = apply_filters( 'epr_meta_key_type', '_links_to_type' );
+		$status_codes = array(
+				302 => __( 'Temporary (302)', 'external-permalinks-redux' ),
+				301 => __( 'Permanent (301)', 'external-permalinks-redux' ),
+			);
+		$this->status_codes = apply_filters( 'epr_status_codes', $status_codes );
 	}
 	
 	/*
@@ -73,8 +86,12 @@ class external_permalinks_redux {
 		<p>
 			<label for="epr-type"><?php _e( 'Redirect Type:', $this->ns ); ?></label>
 			<select name="<?php echo $this->meta_key_target; ?>_type" id="epr-type">
-				<option value="302"<?php selected( 302, intval( $type ), true ); ?>>Temporary (302)</option>
-				<option value="301"<?php selected( 301, intval( $type ), true ); ?>>Permanent (301)</option>
+				<option value=""><?php _e( '-- Select --', 'external-permalinks-redux' ); ?></option>
+				<?php foreach ( $this->status_codes as $status_code => $explanation ) {
+					echo '<option value="' . esc_attr( $status_code ) . '"';
+					selected( $status_code, intval( $type ) );
+					echo '>' . esc_attr( $explanation ) . '</option>';
+				} ?>
 			</select>
 		</p>
 		
@@ -102,7 +119,7 @@ class external_permalinks_redux {
 			//Redirect type
 			$type = intval( $_POST[ $this->meta_key_target . '_type' ] );
 			
-			if( !empty( $url ) && ( $type == 301 || $type == 302 ) )
+			if( !empty( $url ) && array_key_exists( $type, $this->status_codes ) )
 				update_post_meta( $post_id, $this->meta_key_type, $type );
 			else
 				delete_post_meta( $post_id, $this->meta_key_type );
