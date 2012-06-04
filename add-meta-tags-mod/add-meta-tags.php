@@ -653,9 +653,12 @@ function mt_seo_save_meta_field( $post_id, $field_name ) {
 	// Already have data?
 	$old_data = get_post_meta( $post_id, $field_name, true );
 
+	$data = isset( $_POST[$field_name] ) ? $_POST[$field_name] : '';
+	$data = apply_filters( 'mt_seo_save_meta_field', $data, $field_name, $old_data, $post_id );
+
 	// Sanitize
     if( 'mt_seo_meta' == $field_name ) {
-		$data = wp_kses( trim( stripslashes( $_POST[$field_name] ) ), array(
+		$data = wp_kses( trim( stripslashes( $data ) ), array(
 			'meta' => array(
 				'http-equiv' => array(),
 				'name' => array(),
@@ -664,7 +667,7 @@ function mt_seo_save_meta_field( $post_id, $field_name ) {
 			)
 		) );
     } else {
-        $data = wp_filter_post_kses( $_POST[$field_name] );
+        $data = wp_filter_post_kses( $data );
         $data = trim( stripslashes( $data ) );
     }
 	// nothing new, and we're not deleting the old
