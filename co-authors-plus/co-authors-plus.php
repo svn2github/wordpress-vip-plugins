@@ -424,8 +424,9 @@ class coauthors_plus {
 			
 			$count = 1;
 			foreach( $authors as $author ) :
+				$user_login = sanitize_title( $author->user_login );
 				?>
-				<a href="<?php echo esc_url( get_admin_url( null, 'edit.php?author_name=' . $author->user_login ) ); ?>"><?php echo esc_html( $author->display_name ); ?></a><?php echo ( $count < count( $authors ) ) ? ',' : ''; ?>
+				<a href="<?php echo esc_url( get_admin_url( null, 'edit.php?author_name=' . $user_login ) ); ?>"><?php echo esc_html( $author->display_name ); ?></a><?php echo ( $count < count( $authors ) ) ? ',' : ''; ?>
 				<?php
 				$count++;
 			endforeach;
