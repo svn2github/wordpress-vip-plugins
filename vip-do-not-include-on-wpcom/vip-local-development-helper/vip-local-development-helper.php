@@ -217,15 +217,19 @@ function wpcom_vip_theme_url( $path = '', $theme = '' ) {
 		$theme = str_replace( 'vip/', '', get_stylesheet() );
 
 	// We need to reference a file in the specified theme; style.css will almost always be there.
-	$theme_file = sprintf( '%s/themes/vip/%s/style.css', WP_CONTENT_DIR, $theme );
+	$theme_folder = sprintf( '%s/themes/vip/%s', WP_CONTENT_DIR, $theme );
+	$theme_file = $theme_folder . '/style.css';
+
 	// For local environments where the theme isn't under /themes/vip/themename/
-	$theme_file_alt = sprintf( '%s/themes/%s/style.css', WP_CONTENT_DIR, $theme );
+	$theme_folder_alt = sprintf( '%s/themes/%s', WP_CONTENT_DIR, $theme );
+	$theme_file_alt = $theme_folder_alt . '/style.css';
 
 	$path = ltrim( $path, '/' );
 
-	if ( file_exists( $theme_file ) )
+	// We pass in a dummy file to plugins_url even if it doesn't exist, otherwise we get a URL relative to the parent of the theme folder (i.e. /themes/vip/)
+	if ( is_dir( $theme_folder ) )
 		return plugins_url( $path, $theme_file );
-	elseif( file_exists( $theme_file_alt ) )
+	elseif( is_dir( $theme_folder_alt ) )
 		return plugins_url( $path, $theme_file_alt );
 
 	return false;
