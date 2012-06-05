@@ -768,3 +768,30 @@ function wpcom_vip_email_has_gravatar( $email ) {
 
 	return (bool) $has_gravatar;
 }
+
+/**
+ * Check that a URL matches a given whitelist
+ *
+ * Example whitelist: array( 'mydomain.com', 'mydomain.net' ) 
+ */
+function wpcom_vip_is_valid_domain( $url, $whitelisted_domains ) {
+	$domain = parse_url( $url, PHP_URL_HOST );
+
+	if ( ! $domain )
+		return false;
+
+	// Check if we match the domain exactly
+	if ( in_array( $domain, $whitelisted_domains ) )
+		return true;
+
+	$valid = false;
+
+	foreach( $whitelisted_domains as $whitelisted_domain ) {
+		$whitelisted_domain = '.' . $whitelisted_domain; // Prevent things like 'evilsitetime.com'
+		if( strpos( $domain, $whitelisted_domain ) === ( strlen( $domain ) - strlen( $whitelisted_domain ) ) ) {
+			$valid = true;
+			break;
+		}
+	}
+	return $valid;
+}
