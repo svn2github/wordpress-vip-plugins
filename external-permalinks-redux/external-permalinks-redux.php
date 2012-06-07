@@ -14,8 +14,8 @@ class external_permalinks_redux {
 	 */
 	var $ns = 'epr';
 	
-	var $meta_key_target;
-	var $meta_key_type;
+	var $meta_key_target = '_links_to';
+	var $meta_key_type = '_links_to_type';
 	var $status_codes;
 	
 	/*
@@ -24,7 +24,7 @@ class external_permalinks_redux {
 	 * @return null
 	 */
 	function __construct() {
-		add_action( 'init', array( $this, 'action_init' ) );
+		add_action( 'init', array( $this, 'action_init' ), 0 ); // other init actions may rely on permalinks so filter early 
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_action( 'save_post', array( $this, 'action_save_post' ) );
 		
@@ -39,8 +39,8 @@ class external_permalinks_redux {
 	 */
 	function action_init() {
 
-		$this->meta_key_target = apply_filters( 'epr_meta_key_target', '_links_to' );
-		$this->meta_key_type = apply_filters( 'epr_meta_key_type', '_links_to_type' );
+		$this->meta_key_target = apply_filters( 'epr_meta_key_target', $this->meta_key_target );
+		$this->meta_key_type = apply_filters( 'epr_meta_key_type', $this->meta_key_type );
 		$status_codes = array(
 				302 => __( 'Temporary (302)', 'external-permalinks-redux' ),
 				301 => __( 'Permanent (301)', 'external-permalinks-redux' ),
