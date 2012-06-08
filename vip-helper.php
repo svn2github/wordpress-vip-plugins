@@ -25,8 +25,11 @@ function vip_redirects( $vip_redirects_array = array() ) {
 	// Sanitize the redirects array
 	$vip_redirects_array = array_map( 'untrailingslashit', $vip_redirects_array );
 
+	// Lowercase all the source redirects
+	$vip_redirects_array = array_change_key_case( $vip_redirects_array );
+
 	// Get the current URL minus query string
-	$uri_unslashed = untrailingslashit( $_SERVER['REQUEST_URI'] );
+	$uri_unslashed = untrailingslashit( strtolower( $_SERVER['REQUEST_URI'] ) );
 	$parsed_uri_path = parse_url( $uri_unslashed, PHP_URL_PATH );
 	$parsed_uri_path = $parsed_uri_path ? $parsed_uri_path : '';
 	$parsed_uri_path_slashed = trailingslashit( $parsed_uri_path );
