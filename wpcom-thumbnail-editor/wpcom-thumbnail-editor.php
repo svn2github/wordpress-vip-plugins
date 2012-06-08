@@ -167,13 +167,17 @@ class WPcom_Thumbnail_Editor {
 		$original_aspect_ratio  = $image[1] / $image[2];
 		$thumbnail_aspect_ratio = $thumbnail_dimensions['width'] / $thumbnail_dimensions['height'];
 
+
+		# Build the selection coordinates
+
 		// If there's already a custom selection
 		if ( $coordinates = $this->get_coordinates( $attachment->ID, $size ) ) {
 			$attachment_metadata = wp_get_attachment_metadata( $attachment->ID );
 
 			// If original is bigger than display, scale down the coordinates to match the scaled down original
 			if ( $attachment_metadata['width'] > $image[1] || $attachment_metadata['height'] > $image[2] ) {
-				// How much was it shrunk?
+
+				// At what percentage is the image being displayed at?
 				$scale = $image[1] / $attachment_metadata['width'];
 
 				foreach ( $coordinates as $coordinate ) {
@@ -223,10 +227,33 @@ class WPcom_Thumbnail_Editor {
 		<?php screen_icon(); ?>
 		<h2><?php echo esc_html( $title ); ?></h2>
 
+		<noscript><p><strong style="color:red;font-size:20px;"><?php esc_html_e( 'Please enable Javascript to use this page.', 'wpcom-thumbnail-editor' ); ?></strong></p></noscript>
+
 		<p><?php esc_html_e( 'The original image is shown in full below, although it may have been shrunk to fit on your screen. Please select the portion that you would like to use as the thumbnail image.', 'wpcom-thumbnail-editor' ); ?></p>
 
 		<script type="text/javascript">
 			jQuery(document).ready(function($){
+				function update_preview ( img, selection ) {
+					// This is how big the selection image is
+					var img_width  = <?php echo (int) $image[1]; ?>;
+					var img_height = <?php echo (int) $image[2]; ?>;
+
+					// This is how big the thumbnail preview needs to be
+					var thumb_width  = <?php echo (int) $thumbnail_dimensions['width']; ?>;
+					var thumb_height = <?php echo (int) $thumbnail_dimensions['height']; ?>;
+
+					var scaleX = thumb_width / ( selection.width || 1 );
+					var scaleY = thumb_height / ( selection.height || 1 );
+
+					// Update the preview image
+					$('#wpcom-thumbnail-edit-preview').css({
+						width: Math.round( scaleX * img_width ) + 'px',
+						height: Math.round( scaleY * img_height ) + 'px',
+						marginLeft: '-' + Math.round( scaleX * selection.x1 ) + 'px',
+						marginTop: '-' + Math.round( scaleY * selection.y1 ) + 'px'
+					});
+				}
+
 				$('#wpcom-thumbnail-edit').imgAreaSelect({
 					aspectRatio: '<?php echo intval( $thumbnail_dimensions['width'] ) . ':' . intval( $thumbnail_dimensions['height'] ) ?>',
 					handles: true,
@@ -237,8 +264,17 @@ class WPcom_Thumbnail_Editor {
 					x2: <?php echo (int) $initial_selection[2]; ?>,
 					y2: <?php echo (int) $initial_selection[3]; ?>,
 
-					// Fill the hidden fields with the selected coordinates
-					onSelectEnd: function (img, selection) {
+					// Update the preview
+					onInit: function ( img, selection ) {
+						update_preview( img, selection );
+						$('#wpcom-thumbnail-edit-preview').show();
+					},
+					onSelectChange: function ( img, selection ) {
+						update_preview( img, selection );
+					},
+
+					// Fill the hidden fields with the selected coordinates for the form
+					onSelectEnd: function ( img, selection ) {
 						$('input[name="wpcom_thumbnail_edit_x1"]').val(selection.x1);
 						$('input[name="wpcom_thumbnail_edit_y1"]').val(selection.y1);
 						$('input[name="wpcom_thumbnail_edit_x2"]').val(selection.x2);
@@ -255,6 +291,12 @@ class WPcom_Thumbnail_Editor {
 			<?php submit_button( __( 'Reset Thumbnail', 'wpcom-thumbnail-editor' ), 'primary', 'wpcom_thumbnail_edit_reset', false ); ?>
 			<a href="<?php echo esc_url( admin_url( 'media.php?action=edit&attachment_id=' . $attachment->ID ) ); ?>" class="button"><?php _e( 'Cancel Changes', 'wpcom-thumbnail-editor' ); ?></a>
 		</p>
+
+		<h3><?php esc_html_e( 'Thumbnail Preview', 'wpcom-thumbnail-editor' ); ?></h3>
+
+		<div style="overflow:hidden;width:<?php echo (int) $thumbnail_dimensions['width']; ?>px;height:<?php echo (int) $thumbnail_dimensions['height']; ?>px;">
+			<img id="wpcom-thumbnail-edit-preview" class="hidden" src="<?php echo esc_url( wp_get_attachment_url( $attachment->ID ) ); ?>" />
+		</div>
 
 		<input type="hidden" name="action" value="wpcom_thumbnail_edit" />
 		<input type="hidden" name="id" value="<?php echo (int) $attachment->ID; ?>" />
