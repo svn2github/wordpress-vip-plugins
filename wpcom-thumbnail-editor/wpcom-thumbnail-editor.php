@@ -123,7 +123,7 @@ class WPcom_Thumbnail_Editor {
 		foreach ( $this->get_intermediate_image_sizes() as $size ) {
 			$edit_url = admin_url( 'admin.php?action=wpcom_thumbnail_edit&id=' . intval( $attachment->ID ) . '&size=' . urlencode( $size ) );
 			$edit_title = sprintf( __( 'Click here to edit the "%s" thumbnail', 'wpcom-thumbnail-editor' ), $size );
-			$html .= '<p><a href="' . esc_url( $edit_url ) . '" title="' . esc_attr( $edit_title ) . '">' . get_image_tag( $attachment->ID, $size, $edit_title, 'none', $size ) . '</a></p>';
+			$html .= '<p><a href="' . esc_url( $edit_url ) . '" title="' . esc_attr( $edit_title ) . '">' . get_image_tag( $attachment->ID, $size, $edit_title, 'none', $size ) . '</a><div>&uarr; ' . esc_html( $size ) . '</div></p>';
 		}
 
 		$html .= '</div>';
