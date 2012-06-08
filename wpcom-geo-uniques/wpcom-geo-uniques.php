@@ -49,7 +49,6 @@ class WPCOM_Geo_Uniques {
 		header( 'Content-type: text/javascript' );
 		?>
 		document.cookie = '<?php printf( '%s=%s; expires=%s; max-age=%s; path=/', esc_js( self::COOKIE_NAME ), esc_js( $country ), esc_js( $expiry_date ), esc_js( self::$expiry_time ) ); ?>';
-		alert( document.cookie );
 		window.location.reload();
 		<?php
 		exit;
