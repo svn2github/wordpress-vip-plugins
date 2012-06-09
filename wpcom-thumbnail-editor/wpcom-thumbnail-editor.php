@@ -536,6 +536,6 @@ class WPcom_Thumbnail_Editor {
 	}
 }
 
-$WPcom_Thumbnail_Editor = new WPcom_Thumbnail_Editor;
+$GLOBALS['WPcom_Thumbnail_Editor'] = new WPcom_Thumbnail_Editor;
 
 ?>
