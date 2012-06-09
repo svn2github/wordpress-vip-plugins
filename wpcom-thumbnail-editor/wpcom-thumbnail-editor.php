@@ -43,9 +43,8 @@ class WPcom_Thumbnail_Editor {
 		// Admin-only hooks
 		if ( is_admin() ) {
 
-			// Add a new field to the edit attachment screen, but only in the media library (not the lightbox)
-			if ( 'media.php' == basename( $_SERVER['PHP_SELF'] ) )
-				add_filter( 'attachment_fields_to_edit', array( &$this, 'add_attachment_fields_to_edit' ), 50, 2 );
+			// Add a new field to the edit attachment screen
+			add_filter( 'attachment_fields_to_edit', array( &$this, 'add_attachment_fields_to_edit' ), 50, 2 );
 
 			// Create a new screen for editing a thumbnail
 			add_action( 'admin_action_wpcom_thumbnail_edit', array( &$this, 'edit_thumbnail_screen' ) );
@@ -107,14 +106,37 @@ class WPcom_Thumbnail_Editor {
 		$html .= '<input type="button" class="hide-if-no-js button" onclick="jQuery(this).hide();jQuery(\'#' . esc_js( 'wpcom-thumbs-' . $attachment->ID ) . '\').slideDown(\'slow\');" value="' . __( 'Show Thumbnails', 'wpcom-thumbnail-editor' ) . '" />';
 
 		$html .= '<div id="' . esc_attr( 'wpcom-thumbs-' . $attachment->ID ) . '" class="hidden">';
-		$html .= '<p>' . __( 'Click on a thumbnail image to modify it.', 'wpcom-thumbnail-editor' ) . '</p>';
 
-		foreach ( $this->get_intermediate_image_sizes() as $size ) {
-			$edit_url = admin_url( 'admin.php?action=wpcom_thumbnail_edit&id=' . intval( $attachment->ID ) . '&size=' . urlencode( $size ) );
-			$edit_title = sprintf( __( 'Click here to edit the "%s" thumbnail', 'wpcom-thumbnail-editor' ), $size );
-			$html .= '<p><a href="' . esc_url( $edit_url ) . '" title="' . esc_attr( $edit_title ) . '">' . get_image_tag( $attachment->ID, $size, $edit_title, 'none', $size ) . '</a><div>&uarr; ' . esc_html( $size ) . '</div></p>';
-		}
+			$html .= '<p>' . __( 'Click on a thumbnail image to modify it. Each thumbnail has likely been scaled down in order to fit nicely into a grid.', 'wpcom-thumbnail-editor' ) . '</p>';
 
+			$html .= '<div>';
+
+			foreach ( $this->get_intermediate_image_sizes() as $size ) {
+				$edit_url = admin_url( 'admin.php?action=wpcom_thumbnail_edit&id=' . intval( $attachment->ID ) . '&size=' . urlencode( $size ) );
+
+				// We need to get the fullsize thumbnail so that the cropping is properly done
+				$thumbnail = image_downsize( $attachment->ID, $size );
+
+				// Now resize it again via ImgPress to fit in a box
+				$thumbnail_url = add_query_arg( array(
+					'url' => urlencode( $thumbnail[0] ),
+					'fit' => urlencode( '250,250' ),
+				), $this->imgpress_url );
+
+				$html .= '<div style="float:left;margin:0 20px 20px 0;min-width:250px;">';
+					$html .= '<a href="' . esc_url( $edit_url ) . '"';
+
+					if ( 'media.php' != basename( $_SERVER['PHP_SELF'] ) )
+						$html .= ' target="_blank"';
+
+					$hrml .= '>';
+						$html .= '<strong>' . esc_html( $size ) . '</strong><br />';
+						$html .= '<img src="' . esc_url( $thumbnail_url ) . '" alt="' . esc_attr( $size ) . '" />';
+					$html .= '</a>';
+				$html .= '</div>';
+			}
+
+			$html .= '</div>';
 		$html .= '</div>';
 
 		return $html;
