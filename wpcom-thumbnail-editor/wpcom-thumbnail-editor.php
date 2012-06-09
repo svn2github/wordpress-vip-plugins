@@ -30,7 +30,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Initialize the class by registering various hooks.
-	 *
 	 */
 	function __construct() {
 
@@ -64,7 +63,6 @@ class WPcom_Thumbnail_Editor {
 	 * Outputs status messages based on query parameters.
 	 *
 	 * It cheats a little and uses the settings error API in order to avoid having to generate it's own HTML.
-	 *
 	 */
 	public function output_thumbnail_message() {
 		if ( ! empty( $_GET['wtereset'] ) )
@@ -79,7 +77,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Adds a new field to the edit attachment screen that lists thumbnail sizes.
-	 *
 	 *
 	 * @param $form_fields array Existing fields.
 	 * @param $attachment object The attachment currently being edited.
@@ -100,7 +97,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Generates the HTML for the edit attachment field.
-	 *
 	 *
 	 * @param $attachment object The attachment currently being edited.
 	 * @return string The HTML for the form field.
@@ -126,7 +122,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Outputs the HTML for the thumbnail crop selection screen.
-	 *
 	 */
 	public function edit_thumbnail_screen() {
 		global $parent_file, $submenu_file, $title;
@@ -317,7 +312,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Processes the submission of the thumbnail crop selection screen and saves the results to post meta.
-	 *
 	 */
 	public function post_handler() {
 
@@ -383,7 +377,6 @@ class WPcom_Thumbnail_Editor {
 	 * Makes sure that the "id" (attachment ID) and "size" (thumbnail size) query string parameters are valid
 	 * and dies if they are not. Returns attachment object with matching ID on success.
 	 *
-	 *
 	 * @return null|object Dies on error, returns attachment object on success.
 	 */
 	public function validate_parameters() {
@@ -407,7 +400,6 @@ class WPcom_Thumbnail_Editor {
 	 * empty array on WordPress.com so this function removes that filter, calls the function,
 	 * and then re-adds the filter back onto the function.
 	 *
-	 *
 	 * @return array An array of image size strings.
 	 */
 	public function get_intermediate_image_sizes() {
@@ -423,7 +415,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Returns the width and height of a given thumbnail size.
-	 *
 	 *
 	 * @param $size string Thumbnail size name.
 	 * @return array|false Associative array of width and height in pixels. False on invalid size.
@@ -457,7 +448,6 @@ class WPcom_Thumbnail_Editor {
 	/**
 	 * Fetches the coordinates for a custom crop for a given attachment ID and thumbnail size.
 	 *
-	 *
 	 * @param $attachment_id int Attachment ID.
 	 * @param $size string Thumbnail size name.
 	 * @return array|false Array of crop coordinates or false if no custom selection set.
@@ -474,7 +464,6 @@ class WPcom_Thumbnail_Editor {
 	/**
 	 * Saves the coordinates for a custom crop for a given attachment ID and thumbnail size.
 	 *
-	 *
 	 * @param $attachment_id int Attachment ID.
 	 * @param $size string Thumbnail size name.
 	 * @param $coordinates array Array of coordinates in the format array( x1, y1, x2, y2 )
@@ -489,7 +478,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Deletes the coordinates for a custom crop for a given attachment ID and thumbnail size.
-	 *
 	 *
 	 * @param $attachment_id int Attachment ID.
 	 * @param $size string Thumbnail size name.
@@ -509,7 +497,6 @@ class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Returns the attributes for a given attachment thumbnail. Meant for hooking into image_downsize().
-	 *
 	 *
 	 * @param $existing_resize array|false Any existing data. Returned on no action.
 	 * @param $attachment_id int Attachment ID.
