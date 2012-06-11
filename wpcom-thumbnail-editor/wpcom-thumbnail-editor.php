@@ -129,7 +129,7 @@ class WPcom_Thumbnail_Editor {
 					if ( 'media.php' != basename( $_SERVER['PHP_SELF'] ) )
 						$html .= ' target="_blank"';
 
-					$hrml .= '>';
+					$html .= '>';
 						$html .= '<strong>' . esc_html( $size ) . '</strong><br />';
 						$html .= '<img src="' . esc_url( $thumbnail_url ) . '" alt="' . esc_attr( $size ) . '" />';
 					$html .= '</a>';
