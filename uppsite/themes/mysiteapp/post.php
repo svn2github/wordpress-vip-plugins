@@ -13,12 +13,6 @@ if (function_exists('get_the_author_meta')) {
 }
 $avatar_url = mysiteapp_extract_url($avatar);
 
-// Thumbnail
-$thumb_url = null;
-if (function_exists('has_post_thumbnail') && has_post_thumbnail()) {
-	$thumb_url = mysiteapp_extract_url(get_the_post_thumbnail());
-}
-
 $show_post_content = get_query_var('mysiteapp_should_show_post');
 
 if ($show_post_content) {
@@ -34,7 +28,7 @@ if ($show_post_content) {
 	comments_open="<?php echo comments_open() ? "true" : "false" ?>"
 	facebook_comments="<?php echo isset($options['fbcomment']) ? "true" : "false" ?>">
 	<permalink><?php the_permalink(); ?></permalink>
-	<thumb_url><?php echo $thumb_url; ?></thumb_url>
+	<thumb_url><?php echo mysiteapp_extract_thumbnail(); ?></thumb_url>
 	<title><![CDATA[<?php echo html_entity_decode(get_the_title(), ENT_QUOTES, 'UTF-8'); ?>]]></title>
 	<time><![CDATA[<?php the_time('m/d/y G:i'); ?>]]></time>
 	<unix_time><![CDATA[<?php the_time('U'); ?>]]></unix_time>

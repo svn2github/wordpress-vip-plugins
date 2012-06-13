@@ -479,12 +479,13 @@ function mysiteapp_error_handler($message, $title = '', $args = array()) {
 }
 /**
  * Redirects to UppSite's error handler
- * @param string $message Error message
+ * @param string $function Die handling function
  */
-function mysiteapp_call_error($message) {
+function mysiteapp_call_error( $function ) {
 	if(defined("MYSITEAPP_RUNNING")){
 		return 'mysiteapp_error_handler';
 	}
+	return $function;
 }
 /**
  * Helper function to extract url from a string
@@ -506,6 +507,39 @@ function mysiteapp_extract_url($str) {
 		}
 	}
 	return null;
+}
+
+/**
+ * Extracts the thumbnail url of the post by iterating
+ * over popular plugins that provide the thumbnail image url
+ * @note This function should be called inside the post loop.
+ */
+function mysiteapp_extract_thumbnail() {
+	$thumb_url = null;
+	
+	if (function_exists('has_post_thumbnail') && has_post_thumbnail()) {
+		// Built-in function
+		$thumb_url = get_the_post_thumbnail();
+	}
+	if (is_null($thumb_url) && function_exists('the_attached_image')) {
+		// The Attached Image plugin
+		$temp_thumb = the_attached_image('img_size=thumb&echo=false');
+		if (!empty($temp_thumb)) {
+			$thumb_url = $temp_thumb;
+		}
+	} 
+	if (is_null($thumb_url) && function_exists('get_the_image')) {
+		// Get The Image plugin
+		$temp_thumb = get_the_image(array('size' => 'thumbnail', 'echo' => false, 'link_to_post' => false));
+		if (!empty($temp_thumb)) {
+			$thumb_url = $temp_thumb;
+		}
+	}
+	
+	if (!is_null($thumb_url)) {
+		$thumb_url = mysiteapp_extract_url($thumb_url);
+	}
+	return $thumb_url;
 }
 
 /**
