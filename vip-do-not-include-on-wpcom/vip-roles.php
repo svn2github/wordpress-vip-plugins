@@ -1,6 +1,9 @@
 <?php
 /**
  * Helper functions that make it easy to add roles for WordPress.com sites.
+ *
+ * We use the core API functions as well as modifying the $wp_user_roles global
+ * in case roles are re-initialized and our mods are lost.
  */
 
 if ( ! function_exists( 'wpcom_vip_get_role_caps' ) ) :
@@ -26,12 +29,22 @@ if ( ! function_exists( 'wpcom_vip_add_role' ) ) :
  *     wpcom_vip_add_role( 'super-editor', 'Super Editor', array( 'level_0' => true ) );
  */
 function wpcom_vip_add_role( $role, $name, $capabilities ) {
+	global $wp_user_roles;
+
 	$role_obj = get_role( $role );
 
-	if ( ! $role_obj )
+	if ( ! $role_obj ) {
 		add_role( $role, $name, $capabilities );
-	else
+
+		if ( ! isset( $wp_user_roles[ $role ] ) ) {
+			$wp_user_roles[ $role ] = array(
+				'name' => $name,
+				'capabilities' => $capabilities,
+			);
+		}
+	} else {
 		wpcom_vip_merge_role_caps( $role, $capabilities );
+	}
 }
 endif;
 
@@ -43,6 +56,8 @@ if ( ! function_exists( 'wpcom_vip_merge_role_caps' ) ) :
  *     wpcom_vip_merge_role_caps( 'author', array( 'publish_posts' => false ) );
  */
 function wpcom_vip_merge_role_caps( $role, $caps ) {
+	global $wp_user_roles;
+
 	$role_obj = get_role( $role );
 
 	if ( ! $role_obj )
@@ -58,6 +73,10 @@ function wpcom_vip_merge_role_caps( $role, $caps ) {
 			$role_obj->remove_cap( $cap );
 	}
 
+	if ( isset( $wp_user_roles[ $role ] ) ) {
+		$wp_user_roles[ $role ][ 'capabilities' ] = array_merge( $current_caps, (array) $caps );
+	}
+
 	_wpcom_vip_maybe_refresh_current_user_caps( $role );
 }
 endif;
@@ -70,12 +89,18 @@ if ( ! function_exists( 'wpcom_vip_override_role_caps' ) ) :
  *     wpcom_vip_override_role_caps( 'editor', array( 'level_0' => false) );
  */
 function wpcom_vip_override_role_caps( $role, $caps ) {
+	global $wp_user_roles;
+
 	$role_obj = get_role( $role );
 
 	if ( ! $role_obj )
 		return;
 
 	$role_obj->capabilities = (array) $caps;
+
+	if ( isset( $wp_user_roles[ $role ] ) ) {
+		$wp_user_roles[ $role ][ 'capabilities' ] = (array) $caps;
+	}
 
 	_wpcom_vip_maybe_refresh_current_user_caps( $role );
 }
