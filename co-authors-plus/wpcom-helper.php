@@ -6,6 +6,8 @@
 $coauthors_plus_guest_authors_whitelist = array(
 		'vip/dawn-urdu',
 		'vip/newyorkobserver',
+		'vip/scbeautyhigh',
+		'vip/scstylecaster',
 		'vip/thoughtcatalog',
 	);
 if ( !in_array( get_option( 'stylesheet' ), $coauthors_plus_guest_authors_whitelist ) )
