@@ -101,17 +101,22 @@ class WPcom_Thumbnail_Editor {
 	 * @return string The HTML for the form field.
 	 */
 	public function get_attachment_field_html( $attachment ) {
+		$sizes = $this->get_intermediate_image_sizes();
+
+		if ( empty( $sizes ) )
+			return '<p>' . __( 'No thumbnail sizes could be found that are cropped. For now this functionality only supports cropped thumbnails.' ) . '</p>';
+
 		$html = '<p class="hide-if-js">' . __( 'You need to enable Javascript to use this functionality.', 'wpcom-thumbnail-editor' ) . '</p>';
 
 		$html .= '<input type="button" class="hide-if-no-js button" onclick="jQuery(this).hide();jQuery(\'#' . esc_js( 'wpcom-thumbs-' . $attachment->ID ) . '\').slideDown(\'slow\');" value="' . __( 'Show Thumbnails', 'wpcom-thumbnail-editor' ) . '" />';
 
 		$html .= '<div id="' . esc_attr( 'wpcom-thumbs-' . $attachment->ID ) . '" class="hidden">';
 
-			$html .= '<p>' . __( 'Click on a thumbnail image to modify it. Each thumbnail has likely been scaled down in order to fit nicely into a grid.', 'wpcom-thumbnail-editor' ) . '</p>';
+			$html .= '<p>' . __( 'Click on a thumbnail image to modify it. Each thumbnail has likely been scaled down in order to fit nicely into a grid.<br /><strong>Only thumbnails that are cropped are shown.</strong> Other sizes are hidden because they will be scaled to fit.', 'wpcom-thumbnail-editor' ) . '</p>';
 
 			$html .= '<div>';
 
-			foreach ( $this->get_intermediate_image_sizes() as $size ) {
+			foreach ( $sizes as $size ) {
 				$edit_url = admin_url( 'admin.php?action=wpcom_thumbnail_edit&id=' . intval( $attachment->ID ) . '&size=' . urlencode( $size ) );
 
 				// We need to get the fullsize thumbnail so that the cropping is properly done
@@ -424,13 +429,38 @@ class WPcom_Thumbnail_Editor {
 	 *
 	 * @return array An array of image size strings.
 	 */
-	public function get_intermediate_image_sizes() {
+	public function get_intermediate_image_sizes( $cropped_only = true ) {
+		global $_wp_additional_image_sizes;
+
 		# /wp-content/mu-plugins/wpcom-media.php
 		remove_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
 
 		$sizes = get_intermediate_image_sizes();
 
 		add_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
+
+		if ( $cropped_only ) {
+			$filtered_sizes = array();
+
+			foreach ( $sizes as $size ) {
+				switch ( $size ) {
+					case 'thumbnail':
+						if ( get_option( 'thumbnail_crop' ) )
+							$filtered_sizes[] = $size;
+						break;
+
+					case 'medium':
+					case 'large':
+						break;
+
+					default:
+						if ( ! empty( $_wp_additional_image_sizes[$size] ) && $_wp_additional_image_sizes[$size]['crop'] )
+							$filtered_sizes[] = $size;
+				}
+			}
+
+			$sizes = $filtered_sizes;
+		}
 
 		return $sizes;
 	}
