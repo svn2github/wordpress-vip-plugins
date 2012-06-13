@@ -101,7 +101,7 @@ function mostpopular_feed() {
 }
 
 function add_mostpopular_feed() {
-    global $wp_rewrite, $wpdb, $vip_custom_rewrite_rules;
+    global $wp_rewrite, $wpdb;
 
     $rules = get_option( "rewrite_rules" );
 
@@ -116,20 +116,6 @@ function add_mostpopular_feed() {
         add_feed('mostpopular', 'mostpopular_feed');
     }
 
-    // we don't want users to see this
-    if ( ! is_super_admin() )
-        return;
-
-    // but site admins should see the rewrite rules on request or if they differ to what might be hardcoded
-    if ( ( isset( $vip_custom_rewrite_rules[ $wpdb->blogid ] ) &&
-           count( array_diff( $rules, $vip_custom_rewrite_rules[ $wpdb->blogid ] ) ) > 0 )
-         || 1 == $_GET['printrules'] ) {
-
-        echo "Please update the rules in define.php\n<br/><pre>\n\n" . $wpdb->blogid . " = " . str_replace( "\n", "", var_export( get_option( "rewrite_rules" ), true ) ) .",\n</pre>";
-        exit;
-    }
-    
-    return;
 }
 add_action( "init", "add_mostpopular_feed" );
 
