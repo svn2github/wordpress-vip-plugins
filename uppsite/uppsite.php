@@ -521,14 +521,14 @@ function mysiteapp_extract_thumbnail() {
 		// Built-in function
 		$thumb_url = get_the_post_thumbnail();
 	}
-	if (is_null($thumb_url) && function_exists('the_attached_image')) {
+	if (empty($thumb_url) && function_exists('the_attached_image')) {
 		// The Attached Image plugin
 		$temp_thumb = the_attached_image('img_size=thumb&echo=false');
 		if (!empty($temp_thumb)) {
 			$thumb_url = $temp_thumb;
 		}
 	} 
-	if (is_null($thumb_url) && function_exists('get_the_image')) {
+	if (empty($thumb_url) && function_exists('get_the_image')) {
 		// Get The Image plugin
 		$temp_thumb = get_the_image(array('size' => 'thumbnail', 'echo' => false, 'link_to_post' => false));
 		if (!empty($temp_thumb)) {
@@ -536,7 +536,7 @@ function mysiteapp_extract_thumbnail() {
 		}
 	}
 	
-	if (!is_null($thumb_url)) {
+	if ( ! empty($thumb_url)) {
 		$thumb_url = mysiteapp_extract_url($thumb_url);
 	}
 	return $thumb_url;
