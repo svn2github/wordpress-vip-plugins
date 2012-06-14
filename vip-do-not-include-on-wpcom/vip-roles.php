@@ -42,6 +42,8 @@ function wpcom_vip_add_role( $role, $name, $capabilities ) {
 				'capabilities' => $capabilities,
 			);
 		}
+
+		_wpcom_vip_maybe_refresh_current_user_caps( $role );
 	} else {
 		wpcom_vip_merge_role_caps( $role, $capabilities );
 	}
