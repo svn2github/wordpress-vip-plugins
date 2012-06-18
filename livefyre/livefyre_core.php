@@ -180,7 +180,7 @@ class Livefyre_Sync {
 		$sigcreated_param = 'sig_created=' . time();
 		$key = $this->lf_core->AppExtension->get_option( 'livefyre_site_key' );
 		$url .= '?' . $sigcreated_param . '&sig=' . urlencode( getHmacsha1Signature( base64_decode( $key ), $sigcreated_param ) );
-		$http_result = $this->lf_core->lf_domain_object->http->request( $url );
+		$http_result = $this->lf_core->lf_domain_object->http->request( $url, array( 'timeout' => 60 ) );
 		if (is_array( $http_result ) && isset($http_result['response']) && $http_result['response']['code'] == 200) {
 			$str_comments = $http_result['body'];
 		} else {
