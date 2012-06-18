@@ -18,7 +18,7 @@ else :
 	idc_ns = document.getElementById('idc-noscript');
 	idc_ns.style.display='none'; idc_ld = document.createElement('div');
 	idc_ld.id = 'idc-loading-comments'; idc_ld.style.verticalAlign='middle';
-	idc_ld.innerHTML = "<img src='<?php echo staticize_subdomain( WP_CONTENT_URL . '/themes/vip/plugins/intensedebate/loading.gif' ); ?>' alt='Loading' border='0' align='absmiddle' /> <?php _e( 'Loading IntenseDebate Comments...', 'intensedebate' ); ?>";
+	idc_ld.innerHTML = "<img src='<?php echo plugins_url( 'loading.gif', __FILE__ ); ?>' alt='Loading' border='0' align='absmiddle' /> <?php _e( 'Loading IntenseDebate Comments...', 'intensedebate' ); ?>";
 	idc_ns.parentNode.insertBefore(idc_ld, idc_ns);
 	setTimeout( IDC_revert, 10000 );
 	/* ]]> */
