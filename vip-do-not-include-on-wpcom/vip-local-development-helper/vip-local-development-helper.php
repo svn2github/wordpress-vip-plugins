@@ -3,7 +3,7 @@
 /*
 Plugin Name: VIP Local Development Helper
 Description: Helps you test your <a href="http://vip.wordpress.com/hosting/">WordPress.com VIP</a> theme in your local development environment by defining some functions that are always loaded on WordPress.com
-Plugin URI:  http://viphostingtech.wordpress.com/getting-started/development-environment/
+Plugin URI:  http://lobby.vip.wordpress.com/getting-started/development-environment/
 Author:      Automattic
 Author URI:  http://vip.wordpress.com/
 
@@ -17,7 +17,7 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * Loads a plugin out of our shared plugins directory.
  *
  * See the following URL for details:
- * @link http://viphostingtech.wordpress.com/plugins/
+ * @link http://lobby.vip.wordpress.com/plugins/
  *
  * @param string $plugin Plugin folder name (and filename) of the plugin
  * @param string $folder Optional. Folder to include from. Useful for when you have multiple themes and your own shared plugins folder.
@@ -27,7 +27,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
 	// Make sure there's a plugin to load
 	if ( empty($plugin) ) {
-		// On WordPress.com, use an internal function to message VIP about the bad call to this function
+		// On WordPress.com, use an internal function to message VIP about a bad call to this function
 		if ( function_exists( 'wpcom_is_vip' ) ) {
 			if ( function_exists( 'send_vip_team_debug_message' ) ) {
 				// Use an expiring cache value to avoid spamming messages
@@ -100,7 +100,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 		}
 		// die() in non-WordPress.com environments so you know you made a mistake
 		else {
-			die( "Unable to load $plugin using wpcom_vip_load_plugin()!" );
+			die( "Unable to load $plugin ({$helper_path}) using wpcom_vip_load_plugin()!" );
 		}
 	}
 }
