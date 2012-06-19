@@ -1,5 +1,10 @@
 function updateCountdown() {
-	var count = sf_l10n['max'] - jQuery('#sf-text').val().length;
+	var $sf_text = jQuery('#sf-text');
+
+	if ( ! $sf_text.length )
+		return;
+
+	var count = sf_l10n['max'] - $sf_text.val().length;
 	if(count<0) {
 		jQuery('#sf_char_count').addClass('sf-count-error');
 		jQuery('#sf-post input[type=submit]').attr('disabled', 'disabled')
