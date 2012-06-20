@@ -169,8 +169,13 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	if ( $server_up && ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
 		$content = wp_remote_retrieve_body( $response );
 
+		$cache_header = wp_remote_retrieve_header( $response, 'cache-control' );
+		if ( is_array( $cache_header ) )
+			$cache_header = array_shift( $cache_header );
+
 		// Obey the cache time header unless an arg is passed saying not to
-		if ( $extra_args['obey_cache_control_header'] && $cache_header = trim( wp_remote_retrieve_header( $response, 'cache-control' ) ) ) {
+		if ( $extra_args['obey_cache_control_header'] && $cache_header ) {
+			$cache_header = trim( $cache_header );
 			// When multiple cache-control directives are returned, they are comma separated
 			foreach ( explode( ',', $cache_header ) as $cache_control ) {
 				// In this scenario, only look for the max-age directive 
