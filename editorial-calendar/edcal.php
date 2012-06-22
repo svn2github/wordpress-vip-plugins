@@ -636,14 +636,14 @@ function edcal_postJSON($post, $addComma = true, $fullPost = false) {
             "typeTitle" : "<?php echo($postTypeTitle); ?>",
 
             <?php if ( current_user_can('edit_post', $post->ID) ) {?>
-            "editlink" : "<?php echo(get_edit_post_link($id)); ?>",
+            "editlink" : "<?php echo(get_edit_post_link($post->ID)); ?>",
             <?php } ?>
 
             <?php if ( current_user_can('delete_post', $post->ID) ) {?>
             "dellink" : "javascript:edcal.deletePost(<?php echo $post->ID ?>)",
             <?php } ?>
 
-            "permalink" : "<?php echo(get_permalink($id)); ?>",
+            "permalink" : "<?php echo(get_permalink($post->ID)); ?>",
             "id" : "<?php the_ID(); ?>"
 			
 			<?php if($fullPost) : ?>
