@@ -123,6 +123,9 @@ function vip_regex_redirects( $vip_redirects_array = array(), $with_querystring 
  *
  * This function originally used file_get_contents(), hence the function name.
  * While it no longer does, it still operates the same as the basic PHP function.
+ *
+ * We strongly recommend not using a $timeout value of more than 3 seconds as this
+ * function makes blocking requests (stops page generation and waits for the response).
  */
 function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $extra_args = array() ) {
 	global $blog_id;
@@ -147,8 +150,8 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	if ( false !== $cache = wp_cache_get( $cache_key, $cache_group) )
 		return $cache;
 
-	// The timeout can be 1, 2, or 3 seconds
-	$timeout = min( 3, max( 1, (int) $timeout ) );
+	// The timeout can be 1 to 10 seconds, we strongly recommend no more than 3 seconds
+	$timeout = min( 10, max( 1, (int) $timeout ) );
 
 	$server_up = true;
 	$response = false;
