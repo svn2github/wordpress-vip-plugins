@@ -18,22 +18,29 @@ function json_feed_queryvars( $qvars ) {
 
 add_action('do_feed_json', 'json_feed');
 function json_feed() {
+	global $wp_query;
+
+	$query_args = apply_filters( 'json_feed_query_args', $wp_query->query );
+
 	$output = array();
-	while (have_posts()) {
-		the_post();
-		$output[] = array(
-			'id' => (int) get_the_ID(),
-			'type' => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
-			'permalink' => get_permalink(),
-			'title' => get_the_title(),
-			'content' => get_the_content(),
-			'excerpt' => get_the_excerpt(),
-			'date' => get_the_time(json_feed_date_format()),
-			'categories' => json_feed_categories(),
-			'tags' => json_feed_tags()
-		);
-		// WPCOM Mod - custom filter
-		$output = apply_filters( 'json_feed_output', $output);
+	$json_feed = new WP_Query( $query_args );
+	if ( $json_feed->have_posts() ) {
+		while ( $json_feed->have_posts() ) {
+			$json_feed->the_post();
+			$output[] = array(
+				'id' => (int) get_the_ID(),
+				'type' => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
+				'permalink' => get_permalink(),
+				'title' => get_the_title(),
+				'content' => get_the_content(),
+				'excerpt' => get_the_excerpt(),
+				'date' => get_the_time(json_feed_date_format()),
+				'categories' => json_feed_categories(),
+				'tags' => json_feed_tags()
+			);
+			// WPCOM Mod - custom filter
+			$output = apply_filters( 'json_feed_output', $output);
+		}
 	}
 	if ( get_query_var('jsonp') == '' ) {
 		header('Content-Type: application/json; charset=' . get_option('blog_charset'), true);
