@@ -27,6 +27,7 @@ function json_feed() {
 	if ( $json_feed->have_posts() ) {
 		while ( $json_feed->have_posts() ) {
 			$json_feed->the_post();
+			$featured_image_url = wp_get_attachment_url( get_post_thumbnail_id( get_the_ID() ) );
 			$output[] = array(
 				'id' => (int) get_the_ID(),
 				'type' => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
@@ -34,6 +35,7 @@ function json_feed() {
 				'title' => get_the_title(),
 				'content' => get_the_content(),
 				'excerpt' => get_the_excerpt(),
+				'featured_image_url' => ( $featured_image_url ) ? $featured_image_url : '',
 				'date' => get_the_time(json_feed_date_format()),
 				'categories' => json_feed_categories(),
 				'tags' => json_feed_tags()
