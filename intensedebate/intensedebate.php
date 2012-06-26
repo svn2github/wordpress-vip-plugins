@@ -2536,7 +2536,9 @@ Author URI: http://intensedebate.com
 		?>
 		<script type="text/javascript">
 		/* <![CDATA[ */
+		(function() {
 		var s = document.createElement("script"); s.type = "text/javascript";<?php echo $id ? " s.id = '" . addslashes( $id ) . "';" : ''; ?> s.src = "<?php echo addslashes( $url ); ?>"; document.getElementsByTagName("head")[0].appendChild(s);
+		}());
 		/* ]]> */
 		</script>
 <?php
