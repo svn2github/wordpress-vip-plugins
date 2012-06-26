@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.3.0
+	Version: 1.5.0
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.3.0-WIP');
+define('KAPOST_BYLINE_VERSION', '1.5.0-WIP');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -141,6 +141,17 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 		{
 			delete_post_meta($id, $k);
 			if(!empty($v)) add_post_meta($id, $k, $v);
+		}
+	}
+
+	// match custom fields to custom taxonomies if appropriate
+	$taxonomies = array_keys(get_taxonomies(array('_builtin' => false), 'names'));
+	if(!empty($taxonomies))
+	{
+		foreach($custom_fields as $k => $v)
+		{                                                                                                       
+			if(in_array($k, $taxonomies))
+				wp_set_object_terms($id, explode(',', $v), $k);
 		}
 	}
 
@@ -308,11 +319,54 @@ function kapost_byline_xmlrpc_newMediaObject($args)
 	return $image;
 }
 
+function kapost_byline_xmlrpc_getPermalink($args)
+{
+	global $wp_xmlrpc_server;
+	$wp_xmlrpc_server->escape($args);
+
+	$post_id	= intval($args[0]);
+	$username	= $args[1];
+	$password	= $args[2];
+
+	if(!$user = $wp_xmlrpc_server->login($username, $password))
+		return $wp_xmlrpc_server->error;
+	
+	if(!current_user_can('edit_post', $post_id))
+		return new IXR_Error(401, __('Sorry, you cannot edit this post.'));
+
+	$post = get_post($post_id);
+	if(!is_object($post) || !isset($post->ID))
+		return new IXR_Error(401, __('Sorry, you cannot edit this post.'));
+
+	if(!empty($post->post_title) && in_array($post->post_status, array('draft', 'pending', 'auto-draft')))
+	{
+		$post->filter = 'sample';
+		$post->post_status = 'publish';
+		if(empty($post->post_date) || $post->post_date == '0000-00-00 00:00:00')
+		{
+			$post->post_date = current_time('mysql');
+			$post->post_date_gmt = current_time('mysql', 1);
+		}
+		if(empty($post->post_name))
+		{
+			$post->post_name = wp_unique_post_slug(sanitize_title($post->post_title), 
+																  $post->ID, 
+																  $post->post_status, 
+																  $post->post_type, 
+																  $post->post_parent);
+		}
+		return get_permalink($post);
+	}
+
+	return get_permalink($post);
+}
+
 function kapost_byline_xmlrpc($methods)
 {
-	$methods['kapost.version']			= 'kapost_byline_xmlrpc_version';
-	$methods['kapost.newPost']			= 'kapost_byline_xmlrpc_newPost';
-	$methods['kapost.newMediaObject']	= 'kapost_byline_xmlrpc_newMediaObject';
+	$methods['kapost.version'] = 'kapost_byline_xmlrpc_version';
+	$methods['kapost.newPost'] = 'kapost_byline_xmlrpc_newPost';
+	$methods['kapost.newMediaObject'] = 'kapost_byline_xmlrpc_newMediaObject';
+	$methods['kapost.getPermalink']	= 'kapost_byline_xmlrpc_getPermalink';
 	return $methods;
 }
 add_filter('xmlrpc_methods', 'kapost_byline_xmlrpc');
