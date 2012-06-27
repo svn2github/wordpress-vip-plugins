@@ -142,7 +142,7 @@ if (!class_exists('MultiPostThumbnails')) {
 		public function enqueue_admin_scripts( $hook ) {
 			// only load on select pages
 			if( in_array( $hook, array( 'post-new.php', 'post.php', 'media-upload-popup' ) ) )
-				wp_enqueue_script( "featured-image-custom", plugins_url( 'js/multi-post-thumbnails-admin.js', __FILE__ ), array( 'jquery' ) );
+				wp_enqueue_script( "featured-image-custom", plugins_url( 'js/multi-post-thumbnails-admin.js', __FILE__ ), array( 'thickbox' ) );
 		}
 
 		/**
