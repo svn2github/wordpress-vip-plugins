@@ -15,7 +15,7 @@ class FeedWordPressCategoriesPage extends FeedWordPressAdminPage {
 		$unfamiliar = array ('create'=>'','tag' => '', 'default'=>'','filter'=>'');
 		if ($page->for_feed_settings()) :
 			$unfamiliar['site-default'] = '';
-			$ucKey = $link->settings["unfamiliar category"];
+			$ucKey = isset($link->settings["unfamiliar category"]) ? $link->settings["unfamiliar category"] : null;
 			$ucDefault = 'site-default';
 		else :
 			$ucKey = FeedWordPress::on_unfamiliar('category');
@@ -71,9 +71,7 @@ blank.</p></td>
 	function categories_box ($page, $box = NULL) {
 		$link = $page->link;
 		if ($page->for_feed_settings()) :
-			if (is_array($link->settings['cats'])) : $cats = $link->settings['cats'];
-			else : $cats = array();
-			endif;
+			$cats = (isset($link->settings['cats']) && is_array($link->settings['cats'])) ? $link->settings['cats'] : array();
 		else :
 			$cats = array_map('trim',
 				preg_split(FEEDWORDPRESS_CAT_SEPARATOR_PATTERN, get_option('feedwordpress_syndication_cats'))
@@ -87,7 +85,7 @@ blank.</p></td>
 	function tags_box ($page, $box = NULL) {
 		$link = $page->link;
 		if ($page->for_feed_settings()) :
-			$tags = $link->settings['tags'];
+			$tags = (isset($link->settings['tags']) && is_array($link->settings['tags'])) ? $link->settings['tags'] : array();
 		else :
 			$tags = array_map('trim',
 				preg_split(FEEDWORDPRESS_CAT_SEPARATOR_PATTERN, get_option('feedwordpress_syndication_tags'))

@@ -231,6 +231,10 @@ function feedwordpress_update_magic_url () {
 	// Explicit update request in the HTTP request (e.g. from a cron job)
 	if (FeedWordPress::update_requested()) :
 		$feedwordpress = new FeedWordPress;
+
+		// need to include includes/bookmark.php for wp link functions
+		require_once( ABSPATH . 'wp-admin/includes/bookmark.php' );
+
 		$feedwordpress->update(FeedWordPress::update_requested_url());
 		
    		// Magic URL should return nothing but a 200 OK header packet
@@ -863,6 +867,7 @@ function fwp_release_pings () {
 }
 
 function fwp_do_pings () {
+	global $fwp_held_ping, $post_id;
 	if (!is_null($fwp_held_ping) and $post_id) : // Defer until we're done updating
 		$fwp_held_ping = $post_id;
 	elseif (function_exists('do_all_pings')) :

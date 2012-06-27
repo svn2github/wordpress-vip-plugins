@@ -103,7 +103,7 @@ class SyndicatedLink {
 				$author_rules = explode("\n\n", $this->settings['map authors']);
 				$ma = array();
 				foreach ($author_rules as $rule) :
-					list($rule_type, $author_name, $author_action) = explode("\n", $rule);
+					list($rule_type, $author_name, $author_action) = array_pad(explode("\n", $rule), 3, '');
 					
 					// Normalize for case and whitespace
 					$rule_type = strtolower(trim($rule_type));

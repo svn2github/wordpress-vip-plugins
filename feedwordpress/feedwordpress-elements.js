@@ -321,11 +321,11 @@ fwpList = {
 	process: function(el) {
 		var list = this;
 
-		$("[class^=add:" + list.id + ":]", el || null)
+		$('[class^="add:' + list.id + ':"]', el || null)
 			.filter('form').submit( function() { return list.fwpList.add(this); } ).end()
 			.not('form').click( function() { return list.fwpList.add(this); } );
-		$("[class^=delete:" + list.id + ":]", el || null).click( function() { return list.fwpList.del(this); } );
-		$("[class^=dim:" + list.id + ":]", el || null).click( function() { return list.fwpList.dim(this); } );
+		$('[class^="delete:' + list.id + ':"]', el || null).click( function() { return list.fwpList.del(this); } );
+		$('[class^="dim:' + list.id + ':"]', el || null).click( function() { return list.fwpList.dim(this); } );
 	},
 
 	recolor: function() {
@@ -414,7 +414,7 @@ jQuery(document).ready( function($) {
 				drop.remove();
 			}
 		};
-		
+
 		$('#' + checkboxId).fwpList({
 			alt: '',
 			elementbox: taxAdderId,

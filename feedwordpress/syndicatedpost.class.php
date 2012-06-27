@@ -190,7 +190,7 @@ class SyndicatedPost {
 					$this->post['meta'][$key][] = apply_filters("syndicated_post_meta_{$key}", $value, $this);
 				endforeach;
 			endforeach;
-			
+
 			// RSS 2.0 / Atom 1.0 enclosure support
 			$enclosures = $this->entry->get_enclosures();
 			if (is_array($enclosures)) : foreach ($enclosures as $enclosure) :
@@ -381,7 +381,7 @@ class SyndicatedPost {
 			if (strlen($node) > 0) :
 				$matches = array();
 		
-				list($ns, $element) = $this->xpath_extended_name($node);
+				list($namespaces, $element) = $this->xpath_extended_name($node);
 		
 				if (preg_match('/^@(.*)$/', $element, $ref)) :
 					$element = $ref[1];
@@ -480,7 +480,7 @@ class SyndicatedPost {
 			$content = $this->item['xhtml']['div'];
 		elseif (isset($this->item['content']['encoded']) and $this->item['content']['encoded']):
 			$content = $this->item['content']['encoded'];
-		else:
+		elseif (isset($this->item['description'])):
 			$content = $this->item['description'];
 		endif;
 		return $content;
@@ -1010,7 +1010,7 @@ class SyndicatedPost {
 						$update_hash_changed = true; // Can't find syndication meta-data
 					endif;
 
-					preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):([0-9]+):([0-9]+)/', $result->post_modified_gmt, $backref);
+					preg_match('/([0-9]+)-([0-9]+)-([0-9]+) ([0-9]+):([0-9]+):([0-9]+)/', $post->post_modified_gmt, $backref);
 
 					$last_rev_ts = gmmktime($backref[4], $backref[5], $backref[6], $backref[2], $backref[3], $backref[1]);
 					$updated_ts = $this->updated(/*fallback=*/ true, /*default=*/ NULL);
@@ -1164,7 +1164,8 @@ class SyndicatedPost {
 	
 	function insert_new () {
 		global $wp_db_version;
-		define( 'VIP_CUSTOM_POSTING', true );
+		if ( !defined('VIP_CUSTOM_POSTING') )
+			define( 'VIP_CUSTOM_POSTING', true );
 				
 		$dbpost = $this->normalize_post(/*new=*/ true);
 		if (!is_null($dbpost)) :
@@ -1247,7 +1248,10 @@ class SyndicatedPost {
 			$out[$key] = sanitize_post_field($key, $this->post[$key], null, 'db');
 		endforeach;
 
-		if (strlen($out['post_title'].$out['post_content'].$out['post_excerpt']) == 0) :
+		// May not always have a post excerpt
+		$excerpt = isset( $out['post_excerpt'] ) ? $out['post_excerpt'] : '';
+
+		if (strlen($out['post_title'].$out['post_content'].$excerpt) == 0) :
 			// FIXME: Option for filtering out empty posts
 		endif;
 		if (strlen($out['post_title'])==0) :
@@ -1378,7 +1382,7 @@ class SyndicatedPost {
 			foreach ( $this->post['meta'] as $key => $values ) :
 				// If this is an update, clear out the old
 				// values to avoid duplication.
-				$result = delete_post_meta($postID, $key);
+				$result = delete_post_meta($postId, $key);
 
 				// Allow for either a single value or an array
 				if (!is_array($values)) $values = array($values);
@@ -1432,6 +1436,7 @@ class SyndicatedPost {
 		
 		else :
 			// Check the database for an existing author record that might fit
+			$id = NULL;
 
 			// First try the user core data table.
 			if ($user = get_user_by('login', trim(strtolower($login)))) {

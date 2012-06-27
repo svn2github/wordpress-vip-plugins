@@ -347,6 +347,7 @@ function fwp_tags_box ($tags, $object) {
 	        $helps = __('Separate tags with commas.');
 	        $box['title'] = __('Tags');
 	?>
+    <div id="tagsdiv-<?php echo $tax_name; ?>">
 		<div class="tagsdiv" id="<?php echo $tax_name; ?>">
 	        <div class="jaxtag">
 	        <div class="nojs-tags hide-if-js">
@@ -361,31 +362,34 @@ function fwp_tags_box ($tags, $object) {
 	        </div></div>
 	        <p class="howto"><?php echo $helps; ?></p>
 	        <div class="tagchecklist"></div>
-	        </div>
-	        <p class="hide-if-no-js"><a href="#titlediv" class="tagcloud-link" id="link-<?php echo $tax_name; ?>"><?php printf( __('Choose from the most used tags in %s'), $box['title'] ); ?></a></p>
+	    </div>
+	    <p class="hide-if-no-js"><a href="#titlediv" class="tagcloud-link" id="link-<?php echo $tax_name; ?>"><?php printf( __('Choose from the most used tags in %s'), $box['title'] ); ?></a></p>
+    </div>
 <?php		
 	elseif (fwp_test_wp_version(FWP_SCHEMA_28)) : // WordPress 2.8+
 ?>
 		<?php print $desc; ?>
+	<div id="tagsdiv-post_tag">
 		<div class="tagsdiv" id="post_tag">
-		<div class="jaxtag">
-		 <div class="nojs-tags hide-if-js">
-		  <p><?php _e('Add or remove tags'); ?></p>
-		  <textarea name="tax_input[post_tag]" class="the-tags" id="tax-input[post_tag]"><?php echo implode(",", $tags); ?></textarea>
-		 </div>
+			<div class="jaxtag">
+				<div class="nojs-tags hide-if-js">
+					<p><?php _e('Add or remove tags'); ?></p>
+					<textarea name="tax_input[post_tag]" class="the-tags" id="tax-input[post_tag]"><?php echo implode(",", $tags); ?></textarea>
+				</div>
 		
-		 <span class="ajaxtag hide-if-no-js">
-			<label class="screen-reader-text" for="new-tag-post_tag"><?php _e('Tags'); ?></label>
-			<input type="text" id="new-tag-post_tag" name="newtag[post_tag]" class="newtag form-input-tip" size="16" autocomplete="off" value="<?php esc_attr_e('Add new tag'); ?>" />
-			<input type="button" class="button tagadd" value="<?php esc_attr_e('Add'); ?>" />
-		 </span>
-		</div>
-		<p class="howto"><?php echo __('Separate tags with commas.'); ?></p>
-		<div class="tagchecklist"></div>
+				<span class="ajaxtag hide-if-no-js">
+					<label class="screen-reader-text" for="new-tag-post_tag"><?php _e('Tags'); ?></label>
+					<input type="text" id="new-tag-post_tag" name="newtag[post_tag]" class="newtag form-input-tip" size="16" autocomplete="off" value="<?php esc_attr_e('Add new tag'); ?>" />
+					<input type="button" class="button tagadd" value="<?php esc_attr_e('Add'); ?>" />
+				</span>
+			</div>
+			<p class="howto"><?php echo __('Separate tags with commas.'); ?></p>
+			<div class="tagchecklist"></div>
 		</div>
 		<p class="tagcloud-link hide-if-no-js"><a href="#titlediv" class="tagcloud-link" id="link-post_tag"><?php printf( __('Choose from the most used tags in %s'), 'Post Tags'); ?></a></p>
-		</div>
-		</div>
+	</div>
+	</div>
+	</div>
 <?php
 	else :
 ?>
@@ -484,7 +488,7 @@ function update_feeds_finish ($feed, $added, $dt) {
 function fwp_author_list () {
 	$ret = array();
 
-	$users = get_users_of_blog();
+	$users = get_users();
 	if (!empty($users)) {
 		foreach ($users as $user) {
 			$ret[$user->ID] = $user->user_login;

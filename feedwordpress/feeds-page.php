@@ -504,13 +504,13 @@ contextual_appearance('time-limit', 'time-limit-box', null, 'yes');
 			if (!preg_match("\007^((".implode(')|(', $page->special_settings)."))$\007i", $key)) :
 	?>
 				<tr style="vertical-align:top">
-				<th width="30%" scope="row"><input type="hidden" name="notes[<?php echo $i; ?>][key0]" value="<?php echo esc_html($key); ?>" />
-				<input id="notes-<?php echo $i; ?>-key" name="notes[<?php echo $i; ?>][key1]" value="<?php echo esc_html($key); ?>" /></th>
-				<td width="60%"><textarea rows="2" cols="40" id="notes-<?php echo $i; ?>-value" name="notes[<?php echo $i; ?>][value]"><?php echo esc_html($value); ?></textarea></td>
-				<td width="10%"><select name="notes[<?php echo $i; ?>][action]">
-				<option value="update">save changes</option>
-				<option value="delete">delete this setting</option>
-				</select></td>
+				<?php self::custom_settings_row_inputs( $i, $key, $value ) ?>
+				<td width="10%">
+					<select name="notes[<?php echo $i; ?>][action]">
+						<option value="update">save changes</option>
+						<option value="delete">delete this setting</option>
+					</select>
+				</td>
 				</tr>
 	<?php
 				$i++;
@@ -518,12 +518,19 @@ contextual_appearance('time-limit', 'time-limit-box', null, 'yes');
 		endforeach;
 	?>
 		<tr>
-		<th scope="row"><input type="text" size="10" name="notes[<?php echo $i; ?>][key1]" value="" /></th>
-		<td><textarea name="notes[<?php echo $i; ?>][value]" rows="2" cols="40"></textarea></td>
+		<?php self::custom_settings_row_inputs( $i ) ?>
 		<td><em>add new setting...</em><input type="hidden" name="notes[<?php echo $i; ?>][action]" value="update" /></td>
 		</tr>
 	</table>
 	</div> <!-- id="postcustomstuff" -->
+		<?php
+	}
+
+	function custom_settings_row_inputs( $row_number, $key = '', $value = '' ) {
+		?>
+		<th width="30%" scope="row"><input type="hidden" name="notes[<?php echo $row_number; ?>][key0]" value="<?php echo(( $key ) ? esc_html( $key ) : ''); ?>" />
+		<input id="notes-<?php echo $row_number; ?>-key" name="notes[<?php echo $row_number; ?>][key1]" value="<?php echo(( $key ) ? esc_html( $key ) : ''); ?>" /></th>
+		<td width="60%"><textarea rows="2" cols="40" id="notes-<?php echo $row_number; ?>-value" name="notes[<?php echo $row_number; ?>][value]"><?php echo(( $value ) ? esc_html( $value ) : ''); ?></textarea></td>
 		<?php
 	}
 
@@ -782,7 +789,7 @@ contextual_appearance('time-limit', 'time-limit-box', null, 'yes');
 	function accept_POST ($post) {
 		// User mashed a Save Changes button
 		if (isset($post['save']) or isset($post['submit'])) :
-			
+
 			if ($this->for_feed_settings()) :
 				$alter = array ();
 					
@@ -805,7 +812,7 @@ contextual_appearance('time-limit', 'time-limit-box', null, 'yes');
 						$this->link->settings[$mn['key1']] = $mn['value']; // in with the new
 					endif;
 				endforeach;
-				
+
 				// now stuff through the web form
 				// hardcoded feed info
 				

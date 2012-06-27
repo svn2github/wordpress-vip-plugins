@@ -36,7 +36,7 @@ class FeedWordPressPostsPage extends FeedWordPressAdminPage {
 					$custom_settings[$mn['key1']] = $mn['value']; // in with the new
 				endif;
 			endforeach;
-	
+
 			$this->updatedPosts->accept_POST($post);
 			if ($this->for_feed_settings()) :
 				$alter = array ();
@@ -286,7 +286,7 @@ class FeedWordPressPostsPage extends FeedWordPressAdminPage {
 		<tr><th  scope="row">Permalinks point to:</th>
 		<td><ul class="options">	
 		<?php if ($page->for_feed_settings()) : ?>
-		<li><label><input type="radio" name="munge_permalink" value="default"<?php echo ($munge_permalink!='yes' and $munge_permalink != 'no')?' checked="checked"':''; ?>/> use <a href="admin.php?page=<?php echo FWP_POSTS_PAGE_SLUG; ?>">site-wide setting</a> (currently: <strong><?php print $setting['munge_permalink'][$global_munge_permalink]; ?></strong>)</label></li>
+		<li><label><input type="radio" name="munge_permalink" value="default"<?php echo ($munge_permalink!='yes' and $munge_permalink != 'no')?' checked="checked"':''; ?>/> use <a href="admin.php?page=<?php echo FWP_POSTS_PAGE_SLUG; ?>">site-wide setting</a> (currently: <strong><?php if (isset($setting['munge_permalink'][$global_munge_permalink])) echo $setting['munge_permalink'][$global_munge_permalink]; ?></strong>)</label></li>
 		<?php endif; ?>
 		<li><label><input type="radio" name="munge_permalink" value="yes"<?php echo ($munge_permalink=='yes')?' checked="checked"':''; ?>><?php print $setting['munge_permalink']['yes']; ?></label></li>
 		<li><label><input type="radio" name="munge_permalink" value="no"<?php echo ($munge_permalink=='no')?' checked="checked"':''; ?>><?php print $setting['munge_permalink']['no']; ?></label></li>
@@ -416,7 +416,7 @@ class FeedWordPressPostsPage extends FeedWordPressAdminPage {
 		endif;
 
 		if ($page->for_feed_settings()) :
-			$custom_settings = $page->link->settings["postmeta"];
+			$custom_settings = isset($page->link->settings["postmeta"]) ? $page->link->settings["postmeta"] : array();
 		else :
 			$custom_settings = get_option('feedwordpress_custom_settings');
 		endif;
