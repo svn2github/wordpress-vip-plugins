@@ -4,10 +4,6 @@
  *
  * @since 0.1.3
  */
-class Doubleclick_For_Publishers_Columns {
-	
-}
-
 class Doubleclick_For_Publishers_ACM_Provider extends ACM_Provider {
 	function __construct() {
 		// Default output HTML

@@ -1,9 +1,9 @@
 === Ad Code Manager ===
 Contributors: rinatkhaziev, jeremyfelt, zztimur, danielbachhuber, automattic, doejo
-Tags: advertising, ad codes
+Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
-Tested up to: 3.3.2
-Stable tag: 0.2.2
+Tested up to: 3.4
+Stable tag: 0.2.3
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
 
@@ -268,19 +268,24 @@ Example usage:
 		return $columns;
 	}`
 
-= acm_provider_columns =
+= acm_ad_code_args =
 
 This filter comes in pair with previous one, it should return array of ad network specific parameters. E.g. in acm_list_table_columns example we have
-'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name"
+'id', 'name', 'priority', 'conditionals'. All of them except name are generic for Ad Code Manager. Hence acm_provider_columns should return only "name". "editable" and "required" indicate whether this field should be editable and required.
 
 Example usage:
 
-	`add_filter( 'acm_provider_columns', 'my_acm_provider_columns' );
-	function my_acm_provider_columns( $columns ) {
-		$columns = array(
-			'name'           => __( 'Name', 'ad-code-manager' ),
+	`add_filter( 'acm_ad_code_args', 'my_acm_ad_code_args' );
+	function my_acm_ad_code_args( $args ) {
+		$args = array(
+			array(
+				'key'       => 'name',
+				'label'     => __( 'Name', 'ad-code-manager' ),
+				'editable'  => true,
+				'required'  => true,
+			),
 		);
-		return $columns;
+		return $args;
 	}`
 
 == Screenshots ==
@@ -293,6 +298,9 @@ Example usage:
 
 == Upgrade Notice ==
 
+= 0.2.3 =
+The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
+
 = 0.2.2 =
 Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
 
@@ -300,6 +308,12 @@ Incorporated a new provider for Google AdSense and added bulk delete action for 
 Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
 
 == Changelog ==
+
+= 0.2.3 (June 25,2012) =
+
+* Allow columns to be optional when creating and editing ad codes, introduced new filter acm_ad_code_args
+* Remove acm_provider_columns filter
+* Fix for Google Adsense
 
 = 0.2.2 (June 5, 2012) =
 * New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
