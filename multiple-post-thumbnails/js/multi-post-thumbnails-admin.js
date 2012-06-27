@@ -11,7 +11,7 @@ function MultiPostThumbnailsSetThumbnailID(thumb_id, id, post_type){
 
 function MultiPostThumbnailsRemoveThumbnail(id, post_type, nonce){
 	jQuery.post(ajaxurl, {
-		action:'set-' + post_type + '-' + id + '-thumbnail', post_id: jQuery('#post_ID').val(), thumbnail_id: -1, _ajax_nonce: nonce, cookie: encodeURIComponent(document.cookie)
+		action:'set-' + post_type + '-' + id + '-thumbnail', post_id: jQuery('#post_ID').val(), thumbnail_id: -1, _ajax_nonce: nonce
 	}, function(str){
 		if ( str == '0' ) {
 			alert( setPostThumbnailL10n.error );
@@ -28,7 +28,7 @@ function MultiPostThumbnailsSetAsThumbnail(thumb_id, id, post_type, nonce){
 
 	$link.text( setPostThumbnailL10n.saving );
 	jQuery.post(ajaxurl, {
-		action:'set-' + post_type + '-' + id + '-thumbnail', post_id: post_id, thumbnail_id: thumb_id, _ajax_nonce: nonce, cookie: encodeURIComponent(document.cookie)
+		action:'set-' + post_type + '-' + id + '-thumbnail', post_id: post_id, thumbnail_id: thumb_id, _ajax_nonce: nonce
 	}, function(str){
 		var win = window.dialogArguments || opener || parent || top;
 		$link.text( setPostThumbnailL10n.setThumbnail );
