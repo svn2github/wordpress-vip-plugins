@@ -71,7 +71,7 @@ function wp_elnw_parse_external_links($matches){
 	if (($txfx_elnw_images_target_blank && wp_elnw_es_imagen($matches[3])) || ( wp_elnw_get_domain_name_from_uri($matches[3]) != wp_elnw_get_domain_name_from_uri($_SERVER["HTTP_HOST"]) )) {
 		$link = '<a href="' . $matches[2] . '//' . $matches[3] . '"' . $matches[1] . $matches[4] . ' target="_blank">' . $matches[5] . '</a>';	 
 	} else {
-		$Link = '<a href="' . $matches[2] . '//' . $matches[3] . '"' . $matches[1] . $matches[4] . '>' . $matches[5] . '</a>';
+		$link = '<a href="' . $matches[2] . '//' . $matches[3] . '"' . $matches[1] . $matches[4] . '>' . $matches[5] . '</a>';
 	}
 	return apply_filters( 'elnw_external_link', $link, $matches );
 }
