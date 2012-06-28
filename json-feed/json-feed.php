@@ -58,7 +58,7 @@ function json_feed() {
 		echo json_encode($output);
 	} else {
 		header('Content-Type: application/javascript; charset=' . get_option('blog_charset'), true);
-		echo get_query_var('jsonp') . '(' . json_encode($output) . ')';
+		echo preg_replace( '/\W/', '', get_query_var('jsonp') ) . '(' . json_encode($output) . ')';
 	}
 }
 
