@@ -46,7 +46,7 @@ function json_feed() {
 
 			$output[] = $item;
 
-			// This custom filter is poorly named and is deprecated
+			// This custom filter is deprecated
 			$output = apply_filters( 'json_feed_output', $output);
 		}
 	}
