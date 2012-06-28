@@ -37,8 +37,8 @@ function jl_cat_posts_widget( $args, $widget_args = 1 ) {
 	} else {
 		$title = $options[$number]['title'];
 	}
-	
-	$jl_cat_posts_widget = wp_cache_get('jl_cat_posts_widget', 'widget');
+	$cache_key = 'jl_cat_posts_widget-' . $cat_id;
+	$jl_cat_posts_widget = wp_cache_get($cache_key, 'widget');
 	if($jl_cat_posts_widget == false) {
 		// Get array of post info.
 		$cat_posts = get_posts('numberposts='.$num.'&category='.$cat_id);
@@ -67,13 +67,16 @@ function jl_cat_posts_widget( $args, $widget_args = 1 ) {
 		$jl_cat_posts_widget .= $after_widget;
 	
 		$news = $snoopy->results;
-		wp_cache_set('jl_cat_posts_widget', $jl_cat_posts_widget, 'widget');
+		wp_cache_set($cache_key, $jl_cat_posts_widget, 'widget');
 	} 
 	echo $jl_cat_posts_widget;
 }
 
-function flush_jl_cat_posts_widget() {
-	wp_cache_delete('jl_cat_posts_widget', 'widget');
+function flush_jl_cat_posts_widget( $post_id ) {
+	$categories = wp_get_post_categories( $post_id );
+	foreach( $categories as $cat_id ) {
+		wp_cache_delete('jl_cat_posts_widget-' . $cat_id, 'widget');
+	}
 }
 	
 add_action('save_post', 'flush_jl_cat_posts_widget');
