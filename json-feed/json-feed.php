@@ -28,7 +28,8 @@ function json_feed() {
 		while ( $json_feed->have_posts() ) {
 			$json_feed->the_post();
 			$featured_image_url = wp_get_attachment_url( get_post_thumbnail_id( get_the_ID() ) );
-			$output[] = array(
+
+			$item = array(
 				'id' => (int) get_the_ID(),
 				'type' => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
 				'permalink' => get_permalink(),
@@ -40,10 +41,18 @@ function json_feed() {
 				'categories' => json_feed_categories(),
 				'tags' => json_feed_tags()
 			);
-			// WPCOM Mod - custom filter
+
+			$item = apply_filters( 'json_feed_item', $item, get_the_ID(), $query_args );
+
+			$output[] = $item;
+
+			// This custom filter is poorly named and is deprecated
 			$output = apply_filters( 'json_feed_output', $output);
 		}
 	}
+
+	$output = apply_filters( 'json_feed_output_items', $output, $query_args );
+
 	if ( get_query_var('jsonp') == '' ) {
 		header('Content-Type: application/json; charset=' . get_option('blog_charset'), true);
 		echo json_encode($output);
