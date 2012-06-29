@@ -706,16 +706,18 @@ function fwp_multiundelete_page () {
 				'hide_invisible' => 0, // to unhide, we need to get the links that aren't visible
 			));
 		endif;
-		$errs = array(); $success = array();
+		$errs = $success = array();
 		foreach ($links as $linkdata) :
 			$linkdata->link_visible = 'Y';
 			$result = wp_update_link( (array) $linkdata );
-			if (is_wp_error($result)):
+			if (is_wp_error($result)) {
 				$errs[] = get_error_message('db_update_error');
-			endif;
+			} else {
+				$success[] = 'resubscribing post: ' . $linkdata->link_id;
+			}
 		endforeach;
 		
-		if (count($alter) > 0) :
+		if (count($success) > 0) :
 			echo "<div class=\"updated\">\n";
 			if (count($errs) > 0) :
 				echo "There were some problems processing your ";
@@ -767,13 +769,13 @@ function fwp_multiundelete_page () {
 <td width="80%"><a href="<?php echo $link_url; ?>"><?php echo $link_url; ?></a></td></tr>
 <tr style="vertical-align:top"><th width="20%" scope="row">Subscription <?php _e('Options') ?>:</th>
 <td width="80%"><ul style="margin:0; padding: 0; list-style: none">
-<li><input type="radio" id="unhide-<?php echo $link->link_id; ?>"
-name="link_action[<?php echo $link->link_id; ?>]" value="unhide" checked="checked" />
-<label for="unhide-<?php echo $link->link_id; ?>">Turn back on the subscription
+<li><input type="radio" id="unhide-<?php echo $cur_link->link_id; ?>"
+name="link_action[<?php echo $cur_link->link_id; ?>]" value="unhide" checked="checked" />
+<label for="unhide-<?php echo $cur_link->link_id; ?>">Turn back on the subscription
 for this syndication source.</label></li>
-<li><input type="radio" id="nothing-<?php echo $link->link_id; ?>"
-name="link_action[<?php echo $link->link_id; ?>]" value="nothing" />
-<label for="nothing-<?php echo $link->link_id; ?>">Leave this feed as it is.
+<li><input type="radio" id="nothing-<?php echo $cur_link->link_id; ?>"
+name="link_action[<?php echo $cur_link->link_id; ?>]" value="nothing" />
+<label for="nothing-<?php echo $cur_link->link_id; ?>">Leave this feed as it is.
 I changed my mind.</label></li>
 </ul>
 </table>
@@ -819,11 +821,12 @@ function fwp_multidelete_page () {
 		$alter = $errs = array();
 		if (count($do_it['hide']) > 0) :
 			$links = get_bookmarks(array(
-				'include' => implode(',', $link_ids),
+				'include' => implode(',', $do_it['hide']),
 			));
 			if (is_array($links) && !empty($links)) {
 				foreach ($links as $link) {
-					$link->visible = 'N';
+					$link->link_visible = 'N';
+					$alter[] = 'hiding link: ' . $link->link_id;
 					wp_update_link((array) $link);
 				}
 			}
@@ -893,10 +896,14 @@ function fwp_multidelete_page () {
 
 		return true; // Continue on to Syndicated Sites listing
 	else :
-		$targets = get_bookmarks(array(
-			'include' => implode(',', $link_ids),
-			'hide_invisible' => 0,
-		));
+		if ( count($link_ids) > 0 ) {
+			$targets = get_bookmarks(array(
+				'include' => implode(',', $link_ids),
+				'hide_invisible' => 0
+			));
+		} else {
+			$targets = array();
+		}
 ?>
 <form action="admin.php?page=<?php echo FWP_SYNDICATION_PAGE_SLUG; ?>" method="post">
 <div class="wrap">
