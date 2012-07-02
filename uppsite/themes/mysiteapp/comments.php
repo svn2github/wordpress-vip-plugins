@@ -4,16 +4,16 @@
  */
 
 $options = get_option('uppsite_options');
+$fb_comments_counter = 0;
 if (isset($options['fbcomment'])){
 	// Comment using facebook
-	$fb_comments_counter = 0;
-	$comments_xml = mysiteapp_print_facebook_comments($fb_comments_counter); 
+	$comments_xml = mysiteapp_print_facebook_comments($fb_comments_counter);
 }
 
 
 if ($comments || $fb_comments_counter > 0) : ?>
 	<comments comment_total="<?php echo (count($comments)+$fb_comments_counter)?>">
-		<?php print $comments_xml; ?>
+		<?php print !empty($comments_xml) ? $comments_xml : null; ?>
 		<?php foreach ($comments as $comment) : ?>
 		<?php 
 		if (function_exists('get_avatar') && function_exists('htmlspecialchars_decode')) {

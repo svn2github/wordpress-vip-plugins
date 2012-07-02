@@ -3,7 +3,7 @@ Contributors: mysiteapp
 Donate link: http://www.uppsite.com/
 Tags: mobile, apps, iphone, android, windows phone 7, uppsite, appsite, eppsite, app, apping, money, free
 Requires at least: 2.0.2
-Tested up to: 3.3.1
+Tested up to: 3.5-alpha
 Stable tag: trunk
 
 WordPress site into an iPhone, Android and Windows Phone 7 native apps.UppSite Plugin is a 2 minutes wizard that will do it for you!
@@ -104,6 +104,13 @@ You should note though, that Push Notifications are a major feature native apps 
 3. Android app showing the share dialog for Twitter, Facebook and Email.
 
 == Changelog ==
+
+= 4.1 =
+* Allows every plugin in WordPress.com VIP to run before
+
+= 4.0.1 =
+* Added support for "The Attached Image" and "Get The Image" plugins
+* Processing shortcodes inside the post content
 
 = 4.0 =
 * Version for WordPress.com VIP

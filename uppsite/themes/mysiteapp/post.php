@@ -24,7 +24,7 @@ if ($show_post_content) {
 }
 ?><post
 	ID="<?php the_ID(); ?>"
-	comments_num="<?php comments_number("0", '1', __('%')); ?>"
+	comments_num="<?php echo get_comments_number(); ?>"
 	comments_open="<?php echo comments_open() ? "true" : "false" ?>"
 	facebook_comments="<?php echo isset($options['fbcomment']) ? "true" : "false" ?>">
 	<permalink><?php the_permalink(); ?></permalink>

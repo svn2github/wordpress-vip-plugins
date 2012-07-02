@@ -4,7 +4,7 @@
  Plugin URI: http://www.uppsite.com/learnmore/
  Description: Uppsite is a fully automated plugin to transform your blog into native smartphone apps. **** DISABLING THIS PLUGIN WILL PREVENT YOUR APP USERS FROM USING THE APPS! ****
  Author: UppSite
- Version: 4.0
+ Version: 4.1
  Author URI: http://www.uppsite.com
   
  */
@@ -14,7 +14,7 @@ require_once( __DIR__ . '/fbcomments_page.inc.php' );
 if (!defined('MYSITEAPP_AGENT')):
 
 /** Plugin version **/
-define('MYSITEAPP_PLUGIN_VERSION', '4.0');
+define('MYSITEAPP_PLUGIN_VERSION', '4.1');
 
 /** User-Agent for mobile requests **/
 define('MYSITEAPP_AGENT','MySiteApp');
@@ -69,6 +69,12 @@ class MySiteAppPlugin {
 	 * @var boolean
 	 */
 	var $is_agent = false;
+
+    /**
+     * The current running theme
+     * @var string
+     */
+    var $cur_template = null;
 	
 	/**
 	 * Constructor
@@ -80,15 +86,111 @@ class MySiteAppPlugin {
 
 		$this->detect_user_agent();
 
-		// Don't change the template directory when in the admin panel
+        // Hooking the templates loading, if addressed from a native app
+		// (Doesn't apply when in admin panel)
 		if ($this->is_mobile && ! is_admin() ) {
-			add_filter( 'stylesheet', array(&$this, 'get_stylesheet') );
-			//add_filter( 'theme_root', array(&$this, 'theme_root') );
-			//add_filter( 'theme_root_uri', array(&$this, 'theme_root_uri') );
-			add_filter( 'template', array(&$this, 'get_template') );
+            $this->cur_template = get_template();
+            define("MYSITEAPP_RUNNING","1"); // Activate the plugin
+            if (function_exists('add_theme_support')) {
+                // Add functionality of post thumbnails
+                add_theme_support( 'post-thumbnails');
+            }
+            $this->clear_actions(); // Remove actions and filters
+            // Hook the template-loader.php load
+            add_filter('template_redirect', array(&$this, 'template_redirect'));
+            // Special filter for comments template
+            add_filter('comments_template', array(&$this, 'filter_template'));
 		}
 	}
-	
+
+    /**
+     * Replaces the current theme path with MySiteApp's theme name inside
+     * the template path.
+     * @param string $template  The template path
+     * @return string   The MySiteApp template path for that template
+     */
+    function filter_template($template) {
+        return str_replace("/".$this->cur_template."/","/".MYSITEAPP_TEMPLATE."/", $template);
+    }
+
+    /**
+     * Loads a template from MySiteApp's theme
+     *
+     * @see MySiteAppPlugin::filter_template()
+     * @param string $part  Template part name
+     */
+    function get_template_part($part) {
+        $template = TEMPLATEPATH . "/$part.php";
+        load_template($this->filter_template($template));
+    }
+
+    /**
+     * Wrapper function for all get_*_template functions, which validates
+     * the corresponding file exist in this plugin's theme.
+     *
+     * @see locate_template()
+     * @param string $template_func Function name
+     * @return mixed|string The path of the template (or empty if none found)
+     */
+    function get_mysiteapp_template($template_func) {
+        $template = $this->filter_template(call_user_func($template_func));
+        if ($template && file_exists($template)) {
+            return $template;
+        }
+        return '';
+    }
+
+    /**
+     * Template hook ('template_redirect')
+     * Ensures the loaded page will contain only the plugin's theme and exits at the end
+     * (No need for further processing of template-loader.php)
+     * @see template-loader.php
+     */
+    function template_redirect() {
+        $template = false;
+        if     ( is_404()            && $template = $this->get_mysiteapp_template('get_404_template')            ) :
+        elseif ( is_search()         && $template = $this->get_mysiteapp_template('get_search_template')         ) :
+        elseif ( is_tax()            && $template = $this->get_mysiteapp_template('get_taxonomy_template')       ) :
+        elseif ( is_front_page()     && $template = $this->get_mysiteapp_template('get_front_page_template')     ) :
+        elseif ( is_home()           && $template = $this->get_mysiteapp_template('get_home_template')           ) :
+        elseif ( is_attachment()     && $template = $this->get_mysiteapp_template('get_attachment_template')     ) :
+            remove_filter('the_content', 'prepend_attachment');
+        elseif ( is_single()         && $template = $this->get_mysiteapp_template('get_single_template')         ) :
+        elseif ( is_page()           && $template = $this->get_mysiteapp_template('get_page_template')           ) :
+        elseif ( is_category()       && $template = $this->get_mysiteapp_template('get_category_template')       ) :
+        elseif ( is_tag()            && $template = $this->get_mysiteapp_template('get_tag_template')            ) :
+        elseif ( is_author()         && $template = $this->get_mysiteapp_template('get_author_template')         ) :
+        elseif ( is_date()           && $template = $this->get_mysiteapp_template('get_date_template')           ) :
+        elseif ( is_archive()        && $template = $this->get_mysiteapp_template('get_archive_template')        ) :
+        elseif ( is_comments_popup() && $template = $this->get_mysiteapp_template('get_comments_popup_template') ) :
+        elseif ( is_paged()          && $template = $this->get_mysiteapp_template('get_paged_template')          ) :
+        else :
+            $template = $this->get_mysiteapp_template('get_index_template');
+        endif;
+        if ( $template = apply_filters( 'template_include', $template ) ) {
+            include( $template );
+        }
+        exit;
+    }
+
+    /**
+     * Removes any actions and filters that might
+     * interrupt the standard behavior of the plugin.
+     */
+    function clear_actions() {
+        // Filters
+        remove_all_filters('get_sidebar');
+        remove_all_filters('get_header');
+        remove_all_filters('get_footer');
+        // Actions
+        remove_all_actions('loop_start');
+        remove_all_actions('loop_end');
+        remove_all_actions('the_excerpt');
+        remove_all_actions('wp_footer');
+        remove_all_actions('wp_print_footer_scripts');
+        remove_all_actions('comments_array');
+    }
+
 	/**
 	 * Tell if this is a mobile browser
 	 * @return boolean
@@ -104,9 +206,12 @@ class MySiteAppPlugin {
 	function is_device() {
 		return $this->is_mobile && $this->is_agent;
 	}
-	
-	function detect_user_agent() {
 
+    /**
+     * Detects the user agent of the visitor, and marks how the plugin
+     * should handle the user in the current run.
+     */
+	function detect_user_agent() {
 		if (strpos($_SERVER['HTTP_USER_AGENT'], MYSITEAPP_AGENT) !== false) {
 			// Mobile (from our applications)
 			$this->is_mobile = true;
@@ -115,76 +220,6 @@ class MySiteAppPlugin {
 			// Regular user
 			$this->is_mobile = false;
 			$this->is_agent = false;
-		}
-		
-	}
-	
-	/**
-	 * Returns the correct theme name
-	 * @return mixed	Theme name
-	 */
-	function get_theme() {
-		if ($this->is_agent) {
-			// Native app
-			return MYSITEAPP_TEMPLATE;
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * Get the stylesheet according to the flow
-	 * @param string $stylesheet	Current CSS
-	 */
-	function get_stylesheet($stylesheet) {
-		$theme = $this->get_theme();
-		if ($theme !== null) {
-			$stylesheet = $theme;
-		}
-
-		return $stylesheet;
-	}
-	
-	/**
-	 * Returns the current template according to the flow
-	 * @param string $template	Current template
-	 */
-	function get_template( $template ) {
-		if ($this->is_agent) {
-			define("MYSITEAPP_RUNNING","1");
-			if ( function_exists( 'add_theme_support' ) )
-				add_theme_support( 'post-thumbnails');
-			return MYSITEAPP_TEMPLATE;
-		} else {
-			return $template;
-		}
-	}
-	
-	/**
-	 * Returns the theme root directory
-	 * @param string $path
-	 */
-	function theme_root( $path ) {
-		if ($this->is_agent) {
-			$pluginDir = dirname(__FILE__);
-			if (defined('WP_PLUGIN_DIR')) {
-				$pluginDir = WP_PLUGIN_DIR . '/' . mysiteapp_get_plugin_name();
-			}
-			return $pluginDir.'/themes';
-		} else {
-			return $path;
-		}
-	}
-		  
-	/**
-	 * Returns the theme root uri
-	 * @param string $url
-	 */
-	function theme_root_uri( $url ) {
-		if ($this->is_mobile) {
-			return WP_PLUGIN_URL.'/'.mysiteapp_get_plugin_name().'/themes';
-		} else {
-			return $url;
 		}
 	}
 }
@@ -326,7 +361,8 @@ function mysiteapp_fix_videos(&$subject) {
 function mysiteapp_print_post($iterator = 0, $posts_layout = 'full') {
 	set_query_var('mysiteapp_should_show_post', mysiteapp_should_show_post_content($iterator, $posts_layout));
 	if (defined("MYSITEAPP_RUNNING")) {
-		get_template_part('post');
+        global $msap;
+		$msap->get_template_part('post');
 	}
 }
 
@@ -426,8 +462,9 @@ function mysiteapp_navigation($thelist){
  */
 function mysiteapp_print_userdata($user){
 	if(defined("MYSITEAPP_RUNNING")){
+        global $msap;
 		set_query_var('mysiteapp_user', $user);
-		get_template_part('user');
+		$msap->get_template_part('user');
 		exit();
 	}
 }
@@ -527,7 +564,7 @@ function mysiteapp_extract_thumbnail() {
 		if (!empty($temp_thumb)) {
 			$thumb_url = $temp_thumb;
 		}
-	} 
+	}
 	if (empty($thumb_url) && function_exists('get_the_image')) {
 		// Get The Image plugin
 		$temp_thumb = get_the_image(array('size' => 'thumbnail', 'echo' => false, 'link_to_post' => false));
@@ -980,23 +1017,23 @@ function mysiteapp_comment_to_facebook(){
  */
 function mysiteapp_comment_to_disq($location, $comment=NULL){
 	global $msap;
-	if ($msap->is_device()){
-	$shortname  = strtolower(get_option('disqus_forum_url'));
-	$disq_thread_url = '.disqus.com/thread/';
-	$options = get_option('uppsite_options');
-		if ($comment==NULL)
-			$comment = $location;
-	
-	if(isset($options['disqus']) && strlen($shortname)>1){
-		$post_details = get_post($comment->comment_post_ID, ARRAY_A);
-		$fixed_title = str_replace(' ', '_', $post_details['post_title']);
-		$fixed_title = strtolower($fixed_title);
-		$str = 'author_name='.$comment->comment_author.'&author_email='.$comment->comment_author_email.'&subscribe=0&message='.$comment->comment_content;
-		$post_data = array('body' =>$str);
-		$url = 'http://'.$shortname.$disq_thread_url.$fixed_title.'/post_create/';
-		$result = wp_remote_post($url,$post_data);
-	}
-}
+	if ($msap->is_device()) {
+        $shortname  = strtolower(get_option('disqus_forum_url'));
+        $disq_thread_url = '.disqus.com/thread/';
+        $options = get_option('uppsite_options');
+            if ($comment==NULL)
+                $comment = $location;
+
+        if(isset($options['disqus']) && strlen($shortname)>1){
+            $post_details = get_post($comment->comment_post_ID, ARRAY_A);
+            $fixed_title = str_replace(' ', '_', $post_details['post_title']);
+            $fixed_title = strtolower($fixed_title);
+            $str = 'author_name='.$comment->comment_author.'&author_email='.$comment->comment_author_email.'&subscribe=0&message='.$comment->comment_content;
+            $post_data = array('body' =>$str);
+            $url = 'http://'.$shortname.$disq_thread_url.$fixed_title.'/post_create/';
+            $result = wp_remote_post($url,$post_data);
+        }
+    }
 	return $location;
 }
 
@@ -1108,6 +1145,30 @@ function mysiteapp_clean_output($func) {
 	$ret = call_user_func($func);
 	ob_end_clean();
 	return $ret;
+}
+
+
+/**
+ * Used to load the theme header instead of get_header() function
+ */
+function mysiteapp_get_header() {
+    global $msap;
+    $msap->get_template_part("header");
+}
+/**
+ * Used to load the theme header instead of get_footer() function
+ * @param string $name  The name of the specialised footer.
+ */
+function mysiteapp_get_footer($name) {
+    global $msap;
+    $msap->get_template_part("footer" . ( !empty($name) ? "-$name" : "" ));
+}
+/**
+ * Used to load the theme sidebar instead of get_sidebar() function
+ */
+function mysiteapp_get_sidebar() {
+    global $msap;
+    $msap->get_template_part("sidebar");
 }
 
 /** Init hook **/
