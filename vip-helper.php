@@ -16,7 +16,7 @@ require_once( dirname( __FILE__ ) . '/vip-do-not-include-on-wpcom/wpcom-caching.
  * '/old' => 'http://wordpress.com/new/'
  *
  */
-function vip_redirects( $vip_redirects_array = array() ) {
+function vip_redirects( $vip_redirects_array = array(), $case_insensitive = false ) {
 	if ( empty( $vip_redirects_array ) )
 		return;
 
@@ -25,11 +25,14 @@ function vip_redirects( $vip_redirects_array = array() ) {
 	// Sanitize the redirects array
 	$vip_redirects_array = array_map( 'untrailingslashit', $vip_redirects_array );
 
-	// Lowercase all the source redirects
-	$vip_redirects_array = array_change_key_case( $vip_redirects_array );
+	$uri_unslashed = untrailingslashit( $_SERVER['REQUEST_URI'] );
+
+	if ( $case_insensitive ) {
+		$vip_redirects_array = array_change_key_case( $vip_redirects_array );
+		$uri_unslashed = strtolower( $uri_unslashed );
+	}
 
 	// Get the current URL minus query string
-	$uri_unslashed = untrailingslashit( strtolower( $_SERVER['REQUEST_URI'] ) );
 	$parsed_uri_path = parse_url( $uri_unslashed, PHP_URL_PATH );
 	$parsed_uri_path = $parsed_uri_path ? $parsed_uri_path : '';
 	$parsed_uri_path_slashed = trailingslashit( $parsed_uri_path );
