@@ -4,7 +4,7 @@ Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.1
 Tested up to: 3.4.1
-Stable tag: 0.7.2
+Stable tag: 0.7.3
 
 Redefining your editorial workflow.
 
@@ -42,6 +42,9 @@ For support questions, feedback and ideas, please use the [WordPress.org forums]
 
 == Upgrade Notice ==
 
+= 0.7.3 =
+Support PHP 5.2.x by removing the anonymous functions we mistakenly added
+
 = 0.7.2 =
 Contributors and other users without the 'publish_posts' capability can access custom statuses.
 
@@ -70,6 +73,10 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.7.3 (Jul. 3, 2012) =
+* Bug fix: Support PHP 5.2.x by removing the anonymous functions we mistakenly added
+* Bug fix: Only update user's Story Budget saved filters when the Story Budget is being viewed, to avoid other views setting the filter values
 
 = 0.7.2 (Jul. 3, 2012) =
 * Users without the 'publish_posts' capability can now use and change custom statuses. Props [Daniel Chesterton](https://github.com/dchesterton)
