@@ -1,5 +1,5 @@
 === Lazy Load ===
-Contributors: batmoo, automattic, jakemgold, get10up
+Contributors: batmoo, automattic, jakemgold, 10up
 Tags: lazy load, images, front-end optimization
 Requires at least: 3.2
 Tested up to: 3.4.1
