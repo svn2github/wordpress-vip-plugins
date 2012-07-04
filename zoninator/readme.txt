@@ -1,5 +1,5 @@
 === Zone Manager (Zoninator) ===
-Contributors: batmoo
+Contributors: batmoo, automattic
 Tags: zones, post order, post list, posts, order, zonination, content curation, curation, content management
 Requires at least: 3.3
 Tested up to: 3.4.1
