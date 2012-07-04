@@ -2,8 +2,8 @@
 Contributors: batmoo, automattic, jakemgold, get10up
 Tags: lazy load, images, front-end optimization
 Requires at least: 3.2
-Tested up to: 3.3
-Stable tag: 0.3
+Tested up to: 3.4.1
+Stable tag: 0.4
 
 Lazy load images to improve page load times and server bandwidth. Images are loaded only when visible to the user.
 
@@ -38,6 +38,11 @@ The alternative, and this isn't too highly recommended, is to use output bufferi
 This will lazy load <em>all</em> your images.
 
 == Changelog ==
+
+= 0.4 =
+
+* New helper function to lazy load non-post content
+* Prevent circular lazy-loading
 
 = 0.3 =
 

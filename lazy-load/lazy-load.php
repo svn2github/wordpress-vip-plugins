@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Lazy Load
  * Description: Lazy load images to improve page load times. Uses jQuery.sonar to only load an image when it's visible in the viewport.
- * Version: 0.3
+ * Version: 0.4
  *
  * Code by the WordPress.com VIP team, TechCrunch 2011 Redesign team, and Jake Goldman (10up LLC).
  * Uses jQuery.sonar by Dave Artz (AOL): http://www.artzstudio.com/files/jquery-boston-2010/jquery.sonar/ 
@@ -14,7 +14,7 @@ if ( ! class_exists( 'LazyLoad_Images' ) ) :
 
 class LazyLoad_Images {
 
-	const version = '0.3';
+	const version = '0.4';
 
 	function init() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ) );
@@ -32,6 +32,10 @@ class LazyLoad_Images {
 		if( is_feed() || is_preview() || ( function_exists( 'is_mobile' ) && is_mobile() ) )
 			return $content;
 
+		// Don't lazy-load if the content has already been run through previously
+		if ( false !== strpos( $content, 'data-lazy-src' ) )
+			return $content;
+
 		// In case you want to change the placeholder image
 		$placeholder_image = apply_filters( 'lazyload_images_placeholder_image', self::get_url( 'images/1x1.trans.gif' ) );
 
@@ -44,6 +48,10 @@ class LazyLoad_Images {
 	function get_url( $path = '' ) {
 		return plugins_url( ltrim( $path, '/' ), __FILE__ );
 	}
+}
+
+function lazyload_images_add_placeholders( $content ) {
+	LazyLoad_Images::add_image_placeholders( $content );
 }
 
 LazyLoad_Images::init();
