@@ -27,13 +27,32 @@ No applicable screenshots
 
 == Frequently Asked Questions ==
 
+= How do I change the placeholder image =
+
+`
+add_filter( 'lazyload_images_placeholder_image', 'my_custom_lazyload_placeholder_image' );
+function my_custom_lazyload_placeholder_image( $image ) {
+	return 'http://url/to/image';
+}
+`
+
 = How do I lazy load other images in my theme? =
 
-You can add an attribute called "data-lazy-src" with the source of the image URL and set the actual image URL to a transparent 1x1 pixel.
+You can use the lazyload_images_add_placeholders helper function:
 
-The alternative, and this isn't too highly recommended, is to use output buffering:
+`
+if ( function_exists( 'lazyload_images_add_placeholders' ) )
+	$content = lazyload_images_add_placeholders( $content );
+`
 
-`ob_start( array( LazyLoad_Images, 'add_image_placeholders' ) );`
+Or, you can add an attribute called "data-lazy-src" with the source of the image URL and set the actual image URL to a transparent 1x1 pixel.
+
+You can also use output buffering, though this isn't recommended:
+
+`
+if ( function_exists( 'lazyload_images_add_placeholders' ) )
+	ob_start( 'lazyload_images_add_placeholders' );
+`
 
 This will lazy load <em>all</em> your images.
 
