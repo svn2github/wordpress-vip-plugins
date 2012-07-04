@@ -1,9 +1,10 @@
 === Zone Manager (Zoninator) ===
 Contributors: batmoo
 Tags: zones, post order, post list, posts, order, zonination, content curation, curation, content management
-Requires at least: 3.0
-Tested up to: 3.3
-Stable tag: 0.2
+Requires at least: 3.3
+Tested up to: 3.4.1
+Stable tag: 0.3
+License: GPLv2
 
 Curation made easy! Create "zones" then add and order your content!
 
@@ -44,9 +45,9 @@ You can use a filter:
 
 Filter the following and change according to your needs:
 
-<pre>zoninator_zone_lock_period</pre> - number of seconds a lock is valid for, default `30`
+* Number of seconds a lock is valid for, default `30`: `zoninator_zone_lock_period`
+* Max idle time in seconds: `zoninator_zone_max_lock_period`
 
-<pre>zoninator_zone_max_lock_period</pre> - max idle time in seconds
 
 == Screenshots ==
 
@@ -58,6 +59,12 @@ Filter the following and change according to your needs:
 
 * Introduce z_get_zone_query: returns a WP_Query object so you can run the loop like usual.
 * Disable editing and prefixing of slugs. They're just problems waiting to happen...
+* Add new filter to allow filtering of search args, props imrannathani for the suggestion
+* Allow scheduled posts to be added to zones so they automagically show up when they're published, props imrannathani for the idea.
+* Default to published post in all zone queries in the front-end. Scheduled posts can still be added via a filter.
+* Run clean_term_cache when a post is added or deleted from a zone so that the necessary caches are flushed.
+* Add new filter to limit editing access on a per-zone level. props hooman and the National Post team
+* Allow editor role (editor_others_posts) to manage zones (plus other capability fixes, props rinat k.)
 
 = 0.2 = 
 
@@ -85,23 +92,48 @@ Filter the following and change according to your needs:
 
 == Usage Notes ==
 
+= Example =
+
+You can work with with a zone's posts either as an array or a WP_Query object.
+
+<strong>WP_Query</strong>
+
+`
+$zone_query = z_get_zone_query( 'homepage' );
+if ( $zone_query->have_posts() ) :
+	while ( $zone_query->have_posts() ) $zone_query->the_post();
+		echo '<li>' . get_the_title() . </li>;
+	endwhile;
+endif;
+wp_reset_query();
+`
+
+<strong>Posts Array</strong>
+
+`
+$zone_posts = z_get_posts_in_zone( 'homepage' );
+foreach ( $zone_posts as $zone_post ) :
+	echo '<li>' . get_the_title( $zone_post->ID ) . </li>;
+endforeach;
+`
+
 = Function Reference = 
 
-<code>
-@return array List of all zones
-z_get_zones()
-</code>
+Get an array of all zones:
 
-<code>
-@param $zone int|string ID or Slug of the zone
-@return array Zone object
-z_get_zone( $zone )
-</code>
+`z_get_zones()`
 
-<code>
-@param $zone int|string ID or Slug of the zone
-@return array List of orders post objects
-z_get_posts_in_zone( $zone )
-</code>
+Get a single zone. Accepts either ID or slug.
 
-More functions listed in functions.php
+`z_get_zone( $zone )`
+
+Get an array of ordered posts in a given zone. Accepts either ID or slug.
+
+`z_get_posts_in_zone( $zone )`
+
+Get a WP_Query object for a given zone. Accepts either ID or slug.
+
+`z_get_zone_query( $zone );
+
+
+More functions listed in `functions.php`
