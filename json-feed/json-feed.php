@@ -27,20 +27,8 @@ function json_feed() {
 	if ( $json_feed->have_posts() ) {
 		while ( $json_feed->have_posts() ) {
 			$json_feed->the_post();
-			$featured_image_url = wp_get_attachment_url( get_post_thumbnail_id( get_the_ID() ) );
 
-			$item = array(
-				'id' => (int) get_the_ID(),
-				'type' => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
-				'permalink' => get_permalink(),
-				'title' => get_the_title(),
-				'content' => get_the_content(),
-				'excerpt' => get_the_excerpt(),
-				'featured_image_url' => ( $featured_image_url ) ? $featured_image_url : '',
-				'date' => get_the_time(json_feed_date_format()),
-				'categories' => json_feed_categories(),
-				'tags' => json_feed_tags()
-			);
+			$item = json_feed_post_item();
 
 			$item = apply_filters( 'json_feed_item', $item, get_the_ID(), $query_args );
 
@@ -60,6 +48,33 @@ function json_feed() {
 		header('Content-Type: application/javascript; charset=' . get_option('blog_charset'), true);
 		echo preg_replace( '/\W/', '', get_query_var('jsonp') ) . '(' . json_encode($output) . ')';
 	}
+}
+
+/**
+ * Helper to build an array of post data to be JSON encoded
+ * Allows subset of fields to be specified for inclusion
+ *
+ * NOTE: required to be called in a loop
+ *
+ * @return array
+ */
+function json_feed_post_item() {
+
+	$featured_image_url = wp_get_attachment_url( get_post_thumbnail_id( get_the_ID() ) );
+
+	return array(
+		'id'                 => (int) get_the_ID(),
+		'type'               => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
+		'permalink'          => get_permalink(),
+		'title'              => get_the_title(),
+		'content'            => get_the_content(),
+		'excerpt'            => get_the_excerpt(),
+		'featured_image_url' => ( $featured_image_url ) ? $featured_image_url : '',
+		'date'               => get_the_time(json_feed_date_format()),
+		'categories'         => json_feed_categories(),
+		'tags'               => json_feed_tags()
+	);
+
 }
 
 function json_feed_date_format() {
