@@ -447,8 +447,6 @@ function wpcom_vip_disable_postpost() {
  */
 
 function wpcom_vip_enable_opengraph() {
-	if ( function_exists( 'wpcom_og_tags' ) )
-		add_action( 'wp_head', 'wpcom_og_tags' ); // This hook is excluded from VIP sites, but if you see double output, it's because the hook's been added twice
 	add_filter( 'jetpack_enable_open_graph', '__return_true' );
 }
 
