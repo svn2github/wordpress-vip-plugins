@@ -354,10 +354,10 @@ class SyndicatedLink {
 		endif;
 
 		if (isset($to_notes['cats']) and is_array($to_notes['cats'])) :
-			$to_notes['cats'] = implode(FEEDWORDPRESS_CAT_SEPARATOR, $to_notes['cats']);
+			$to_notes['cats'] = implode(addcslashes(FEEDWORDPRESS_CAT_SEPARATOR, "\0..\37".'\\'), $to_notes['cats']);
 		endif;
 		if (isset($to_notes['tags']) and is_array($to_notes['tags'])) :
-			$to_notes['tags'] = implode(FEEDWORDPRESS_CAT_SEPARATOR, $to_notes['tags']);
+			$to_notes['tags'] = implode(addcslashes(FEEDWORDPRESS_CAT_SEPARATOR, "\0..\37".'\\'), $to_notes['tags']);
 		endif;
 
 		// Collapse the author mapping rule structure back into a flat string
