@@ -164,11 +164,14 @@ function get_the_image( $args = array() ) {
 	/* If $format is set to 'array', return an array of image attributes. */
 	if ( 'array' == $format ) {
 		$atts = wp_kses_hair( $image, array( 'http' ) );
+		$out  = array();
 
 		foreach ( $atts as $att )
 			$out[$att['name']] = $att['value'];
 
-		$out['url'] = $out['src']; // @deprecated 0.5 Use 'src' instead of 'url'.
+		if ( isset( $out['src'] ) )
+			$out['url'] = $out['src']; // @deprecated 0.5 Use 'src' instead of 'url'.
+
 		return $out;
 	}
 
