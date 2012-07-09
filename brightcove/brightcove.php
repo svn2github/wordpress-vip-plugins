@@ -37,11 +37,11 @@ function brightcove_menu_handle() {
 	//TODO check to see what $errors is being used for
 	//TODO check to see if parameters can be passed in here
 	//if not then have bc_media_upload_form call function
-	return wp_iframe('brightcove_media_upload_form',$errors);
+	return wp_iframe('brightcove_media_upload_form');
 }
 
 function brightcove_api_menu_handle() {
-  return wp_iframe('brightcove_media_api_upload_form',$errors);
+  return wp_iframe('brightcove_media_api_upload_form');
 }
 
 add_action( 'wp_enqueue_scripts', 'brightcove_register_scripts', 1 ); // register our scripts early
@@ -111,6 +111,9 @@ function brightcove_init_global_vars() {
 	}
 	//Player ID for playlists
 	$bcGlobalVariables['playerKeyPlaylist']= get_option('bc_player_key_playlist');
+	
+	$bcGlobalVariables['playerIDPlaylist']= get_option('bc_player_id_playlist');
+	
 	
 	//Default height & width for playlist players
 	$bcGlobalVariables['defaultHeightPlaylist']= get_option('bc_default_height_playlist');
