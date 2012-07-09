@@ -812,3 +812,12 @@ function wpcom_vip_is_valid_domain( $url, $whitelisted_domains ) {
 	}
 	return $valid;
 }
+
+/**
+ * Helper function to enable bulk user management on a per-user basis
+ *
+ * Example: wpcom_vip_bulk_user_management_whitelist( array( 'userlogin1', 'userlogin2' ) );
+ */
+function wpcom_vip_bulk_user_management_whitelist( $users ) {
+	add_filter( 'bulk_user_management_admin_users', function() use ( $users ) { return $users; } );
+}
