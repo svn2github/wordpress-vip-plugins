@@ -14,7 +14,8 @@ function brightcove_add($atts) {
 					'width' => $bcGlobalVariables['defaultWidth'],
 					'height'  => $bcGlobalVariables['defaultHeight'],
 					'playlist_width' => $bcGlobalVariables['defaultWidthPlaylist'],
-					'playlist_height' => $bcGlobalVariables['defaultHeightPlaylist']
+					'playlist_height' => $bcGlobalVariables['defaultHeightPlaylist'],
+					'link_url'=> ''
 					);
 	$combined_attr = shortcode_atts( $defaults, $atts );
 	
@@ -25,7 +26,8 @@ function brightcove_add($atts) {
 	$videoid = sanitize_key( $combined_attr['videoid'] );
 	$playlistid = sanitize_key( $combined_attr['playlistid'] );
 	$playlist_width = sanitize_key( $combined_attr['playlist_width'] );	
-	$playlist_height = sanitize_key( $combined_attr['playlist_height'] );			
+	$playlist_height = sanitize_key( $combined_attr['playlist_height'] );	
+	$link_url = sanitize_key( $combined_attr['link_url'] );			
 
 	$html = '<div style="display:none"></div>';
 	$html = $html . '<object id="' . esc_attr( rand() ) .'" class="BrightcoveExperience">';
@@ -43,6 +45,9 @@ function brightcove_add($atts) {
 	$html = $html . '<param name="isVid" value="true" />';
 	$html = $html . '<param name="isUI" value="true" />';
 	$html = $html . '<param name="dynamicStreaming" value="true" />';
+	if ( $link_url ) {
+		$html .= '<param name="linkBaseURL" value="' . esc_url( $link_url )  . '" />';
+	}
 
   	if ($videoid != '') {
     		$html = $html . '<param name="@videoPlayer" value="'.esc_attr( $videoid ) .'" />';
@@ -61,3 +66,5 @@ function brightcove_add($atts) {
 
 	return $html;
 }
+
+

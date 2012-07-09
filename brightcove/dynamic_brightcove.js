@@ -3,8 +3,8 @@ var BCL = {};
 
 (function ($) {
 //brightcove.wordpress = { 
-var singlePlayerTemplate = "<div style=\"display:none\"></div><object id=\"myExperienceVideo\" class=\"BrightcoveExperience singlePlayer\"><param name=\"bgcolor\" value=\"#FFFFFF\" /><param name=\"wmode\" value=\"transparent\" /><param name=\"width\" value=\"{{width}}\" /><param name=\"height\" value=\"{{height}}\" /><param name=\"playerID\" value=\"{{playerID}}\" /><param name=\"playerKey\" value=\"{{playerKey}}\" /><param name=\"isVid\" value=\"true\" /><param name=\"isUI\" value=\"true\" /><param name=\"dynamicStreaming\" value=\"true\" /><param name=\"@videoPlayer\" value=\"{{videoID}}\" /><param name='includeAPI' value='true' /><param name='templateReadyHandler' value='BCL.onTemplateReadyVideo' /><param name='templateErrorHandler' value='BCL.onTemplateErrorVideo' /></object>";
-var playlistPlayerTemplate = "<div style=\"display:none\"></div><object id=\"myExperiencePlaylist\" class=\"BrightcoveExperience playlistPlayer\"><param name=\"bgcolor\" value=\"#FFFFFF\" /><param name=\"wmode\" value=\"transparent\" /><param name=\"width\" value=\"{{width}}\" /><param name=\"height\" value=\"{{height}}\" /><param name=\"playerID\" value=\"{{playerID}}\" /><param name=\"playerKey\" value=\"{{playerKey}}\" /><param name=\"isVid\" value=\"true\" /><param name=\"isUI\" value=\"true\" /><param name=\"dynamicStreaming\" value=\"true\" /><param name=\"@playlistTabs\" value=\"{{playlistID}}\" /><param name=\"@videoList\" value=\"{{playlistID}}\" /><param name=\"@playlistCombo\" value=\"{{playlistID}}\" /><param name='includeAPI' value='true' /><param name='templateReadyHandler' value='BCL.onTemplateReadyVideo' /></object>";
+var singlePlayerTemplate = "<div style=\"display:none\"></div><object id=\"myExperienceVideo\" class=\"BrightcoveExperience singlePlayer\"><param name=\"bgcolor\" value=\"#FFFFFF\" /><param name=\"wmode\" value=\"transparent\" /><param name=\"width\" value=\"{{width}}\" /><param name=\"height\" value=\"{{height}}\" /><param name=\"playerID\" value=\"{{playerID}}\" /><param name=\"playerKey\" value=\"{{playerKey}}\" /><param name=\"isVid\" value=\"true\" /><param name=\"isUI\" value=\"true\" /><param name=\"dynamicStreaming\" value=\"true\" /><param name=\"@videoPlayer\" value=\"{{videoID}}\" /><param name='includeAPI' value='true' /><param name='templateReadyHandler' value='BCL.onTemplateReadyVideo' /><param name='templateErrorHandler' value='BCL.onTemplateErrorVideo' /><param name='linkBaseURL' value='{{linkUrl}}' /></object>";
+var playlistPlayerTemplate = "<div style=\"display:none\"></div><object id=\"myExperiencePlaylist\" class=\"BrightcoveExperience playlistPlayer\"><param name=\"bgcolor\" value=\"#FFFFFF\" /><param name=\"wmode\" value=\"transparent\" /><param name=\"width\" value=\"{{width}}\" /><param name=\"height\" value=\"{{height}}\" /><param name=\"playerID\" value=\"{{playerID}}\" /><param name=\"playerKey\" value=\"{{playerKey}}\" /><param name=\"isVid\" value=\"true\" /><param name=\"isUI\" value=\"true\" /><param name=\"dynamicStreaming\" value=\"true\" /><param name=\"@playlistTabs\" value=\"{{playlistID}}\" /><param name=\"@videoList\" value=\"{{playlistID}}\" /><param name=\"@playlistCombo\" value=\"{{playlistID}}\" /><param name='includeAPI' value='true' /><param name='templateReadyHandler' value='BCL.onTemplateReadyVideo' /><param name='linkBaseURL' value='{{linkUrl}}' /></object>";
 
 
 playerDataPlaylist = {
@@ -13,6 +13,7 @@ playerDataPlaylist = {
     "width" : "", 
     "height" : "",
     "playlistID":"",
+    "linkUrl":"",
     "isRef" : false
   };
 
@@ -22,6 +23,7 @@ playerDataPlayer = {
     "width" : "", 
     "height" : "",
     "videoID" : "",
+    "linkUrl":"",
     "isRef" : false
   };
 
@@ -51,15 +53,22 @@ getDefaultPlayerKeyPlaylist = function () {
 	return $('#bc-default-player-playlist-key').val();
 }
   
+getDefaultLinkUrl = function () {
+	return $('#bc-default-link').val();
+}  
+
 addPlayer = function (typeOfPlayer)	{
 	hideErrorMessage();
 	var playerHTML;
+	
 	if (typeOfPlayer == 'video')	{
+		playerDataPlayer.linkUrl = getDefaultLinkUrl();
 		playerHTML = replaceTokens(singlePlayerTemplate, playerDataPlayer, typeOfPlayer);
 		$('#dynamic-bc-placeholder-video').html(playerHTML);
 		$('.video-hide').removeClass('hidden');
 
 	} else if (typeOfPlayer == 'playlist') {
+		playerDataPlaylist.linkUrl = getDefaultLinkUrl();
 		playerHTML = replaceTokens(playlistPlayerTemplate, playerDataPlaylist, typeOfPlayer);
 		$('#dynamic-bc-placeholder-playlist').html(playerHTML);	
 		$('.playlist-hide').removeClass('hidden');
@@ -151,6 +160,7 @@ setAsRef = function (typeOfPlayer, ifRef) {
 		getVideoID('playlist');
 		}
 	}	
+	
 }
 
 changePlayerID = function (typeOfPlayer) {
@@ -187,15 +197,24 @@ updateTab =function (typeOfPlayer) {
 insertShortcode = function(typeOfPlayer) {
  var shortcode;
     if (typeOfPlayer == 'video') {
-      shortcode = '[brightcove videoID='+playerDataPlayer.videoID+' playerID='+playerDataPlayer.playerID;
+      	shortcode = '[brightcove videoID='+playerDataPlayer.videoID+' playerID='+playerDataPlayer.playerID;
+      	if (playerDataPlayer.linkUrl)
+      		shortcode += ' link_url='+playerDataPlayer.linkUrl;
+   		if (playerDataPlayer.height)
+    		shortcode += ' height='+playerDataPlayer.height;
+    	if (playerDataPlayer.width)
+    		shortcode += ' width='+playerDataPlayer.width;      		     
     } else if (typeOfPlayer == 'playlist') {
-      shortcode = '[brightcove playlistID='+playerDataPlaylist.playlistID+' playerKey='+playerDataPlaylist.playerKey;
+      	shortcode = '[brightcove playlistID='+playerDataPlaylist.playlistID+' playerKey='+playerDataPlaylist.playerKey;
+    	if (playerDataPlaylist.linkUrl)
+    		shortcode += ' link_url='+playerDataPlaylist.linkUrl; 
+   		if (playerDataPlaylist.height)
+    		shortcode += ' height='+playerDataPlaylist.height;
+    	if (playerDataPlaylist.width)
+    		shortcode += ' width='+playerDataPlaylist.width;    		     
     }	
-    if (playerDataPlayer.height)
-    	shortcode += ' height='+playerDataPlayer.height;
-    if (playerDataPlayer.width)
-    	shortcode += ' width='+playerDataPlayer.width;
-    	
+ 
+
     shortcode += ']';
     
    	var win = window.dialogArguments || opener || parent || top;

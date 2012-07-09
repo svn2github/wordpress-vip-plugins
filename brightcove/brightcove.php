@@ -95,6 +95,10 @@ function brightcove_init_global_vars() {
 	'loadingImg' => null, 
 	'publisherID' => null);
 	
+	//Get Post ID
+	if ( isset( $_GET['post_id'] ) )
+ 		$post_id = $post_ID = (int) $_GET['post_id'];	
+	
 	//Publisher ID 
 	$bcGlobalVariables['publisherID'] = get_option('bc_pub_id');
 	
@@ -142,8 +146,6 @@ function brightcove_init_global_vars() {
 	  </div>";	
 	}
 	
-	
-	
 	$bcGlobalVariables['defaultsSection'] = 
 		"<div class='defaults'>
 		<input type='hidden' id='bc-default-player' name='bc-default-player' value='". esc_attr( $bcGlobalVariables['playerID'] ) ."' />
@@ -153,6 +155,8 @@ function brightcove_init_global_vars() {
 		<input type='hidden' id='bc-default-player-playlist-key' name='bc-default-player-playlist-key' value='". esc_attr( $bcGlobalVariables['playerKeyPlaylist'] ) ."' />
 		<input type='hidden' id='bc-default-width-playlist' name='bc-default-width-playlist' value='". esc_attr( $bcGlobalVariables['defaultWidthPlaylist'] ) ."' />
 		<input type='hidden' id='bc-default-height-playlist' name='bc-default-height-playlist' value='". esc_attr( $bcGlobalVariables['defaultHeightPlaylist'] ) ."' />
+		<input type='hidden' id='bc-default-link' name='bc-default-link' value='". esc_attr( get_permalink($post_id) ) ."' />
+
 		</div>";
 	
 	$bcGlobalVariables['loadingImg'] = "<img class='loading-img' src='". includes_url( '/js/thickbox/loadingAnimation.gif' ) . "' />";
