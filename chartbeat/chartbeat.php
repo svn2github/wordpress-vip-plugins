@@ -26,7 +26,7 @@ limitations under the License.
 
 function chartbeat_menu() {
 	add_options_page('chartbeat plugin options', 'Chartbeat', 'manage_options', 'chartbeat-options', 'chartbeat_options_page');
-	add_menu_page( 'Chartbeat Console', 'Chartbeat', 'edit_posts', chartbeat_console, chartbeat_console, plugins_url('media/chartbeat.png', __FILE__) );
+	add_menu_page( 'Chartbeat Console', 'Chartbeat', 'edit_posts', 'chartbeat_console', 'chartbeat_console', plugins_url('media/chartbeat.png', __FILE__) );
 }
 add_action('admin_menu', 'chartbeat_menu');
 
