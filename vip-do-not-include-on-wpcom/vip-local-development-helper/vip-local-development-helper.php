@@ -97,10 +97,10 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 				}
 			}
 			return false;
-		}
+
 		// die() in non-WordPress.com environments so you know you made a mistake
-		else {
-			die( "Unable to load $plugin ({$helper_path}) using wpcom_vip_load_plugin()!" );
+		} else {
+			die( "Unable to load $plugin ({$folder}) using wpcom_vip_load_plugin()!" );
 		}
 	}
 }
