@@ -506,8 +506,9 @@ function chartbeat_columns($defaults) {
 	return $defaults;
 }
 add_action('manage_posts_custom_column', 'chartbeat_custom_columns', 10, 2);
-$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
+
 function chartbeat_custom_columns($column_name, $id) {
+	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	if( $column_name == 'cb_visits' ) {
 		$post_url = parse_url(get_permalink( $id ));
 		$json_url = add_query_arg( array(
