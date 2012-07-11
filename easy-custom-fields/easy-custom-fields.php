@@ -4,7 +4,7 @@ Plugin Name: Easy Custom Fields
 Plugin Script: easy-custom-fields.php
 Plugin URI: http://wordpress.org/extend/plugins/easy-custom-fields/
 Description: A set of extendable classes for easy Custom Field Handling
-Version: 0.5
+Version: 0.6
 Author: Thorsten Ott
 Author URI: http://automattic.com
 */
@@ -551,13 +551,13 @@ if ( !class_exists( "Easy_CF" ) ) {
 						}
 	
 						// check hint
-						if ( !empty( $field_value ) && $field_name == 'hint' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.]+$#miU", $field_value ) ) {
+						if ( !empty( $field_value ) && $field_name == 'hint' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.\,]+$#miU", $field_value ) ) {
 							$this->add_admin_notice( sprintf( __( "Field hint %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field_value, $group_id ) );
 							continue;
 						}
 	
 						// check error_msg
-						if ( !empty( $field_value ) && $field_name == 'error_msg' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.]+$#miU", $field_value ) ) {
+						if ( !empty( $field_value ) && $field_name == 'error_msg' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.\,]+$#miU", $field_value ) ) {
 							$this->add_admin_notice( sprintf( __( "Field error_msg %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field_value, $group_id ) );
 							continue;
 						}
