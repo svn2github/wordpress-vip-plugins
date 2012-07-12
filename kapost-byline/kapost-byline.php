@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.5.0
+	Version: 1.6.0
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.5.0-WIP');
+define('KAPOST_BYLINE_VERSION', '1.6.0-WIP');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -169,52 +169,44 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 	return true;
 }
 
-function kapost_byline_has_analytics_code($content)
-{
-	return strpos($content, '<!-- END KAPOST ANALYTICS CODE -->') !== FALSE;
-}
-
-function kapost_byline_get_analytics_code($id)
-{
-	$kapost_analytics = get_post_meta($id, '_kapost_analytics', true);
-	if(empty($kapost_analytics))
-		return "";
-
-	extract($kapost_analytics, EXTR_SKIP);
-
-	$code = "
-<!-- BEGIN KAPOST ANALYTICS CODE -->
-<span id='kapostanalytics' pid='" . esc_attr($post_id) . "' aid='" . esc_attr($author_id) . "' nid='" . esc_attr($newsroom_id) . "' cats='" . esc_attr($categories) . "' url='" . $url . "'></span>
-<!-- END KAPOST ANALYTICS CODE -->
-";
-
-	return $code;
-}
-
 function kapost_byline_the_content($content)
 {
 	global $post;
 
-	if(isset($post) && !kapost_byline_has_analytics_code($content))
-		return $content . kapost_byline_get_analytics_code($post->ID);
+	if(isset($post) && ($post->status == 'publish') && strpos($content, '<!-- END KAPOST ANALYTICS CODE -->') !== FALSE)
+		define('KAPOST_BYLINE_ANALYTICS_IN_BODY', true);
 
 	return $content;
 }
 
-function kapost_inject_footer_script() {
-  echo '<script><!--
-var _kapost_data = _kapost_data || [];
-m = document.getElementById("kapostanalytics");
-_kapost_data.push([1, m.getAttribute("pid"), m.getAttribute("aid"), m.getAttribute("nid"), m.getAttribute("cats")]);
-(function() {
-var ka = document.createElement(\'script\'); 
-ka.async=true; 
-ka.id="kp_tracker"; 
-ka.src=m.getAttribute("url") + "/javascripts/tracker.js";
-var s = document.getElementsByTagName(\'script\')[0]; 
-s.parentNode.insertBefore(ka, s);
+function kapost_inject_footer_script() 
+{
+	global $post;
+
+	if(!isset($post) || ($post->status != 'publish') || defined('KAPOST_BYLINE_ANALYTICS_IN_BODY'))
+		return;
+
+	$kapost_analytics = get_post_meta($post->ID, '_kapost_analytics', true);
+	if(empty($kapost_analytics))
+		return;
+
+	if(!isset($kapost_analytics['site_id']))
+		$kapost_analytics['site_id'] = '';
+
+	extract($kapost_analytics, EXTR_SKIP);
+
+echo "<!-- BEGIN KAPOST ANALYTICS CODE -->
+<script type=\"text/javascript\">
+<!--
+var _kaq = _kaq || [];
+_kaq.push([2, '$post_id', '$site_id']);
+(function(){
+var ka = document.createElement('script'); ka.async=true; ka.id='ka_tracker'; ka.src='$url/ka.js';
+var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka, s);
 })();
-//--></script>';
+//--> 
+</script>
+<!-- END KAPOST ANALYTICS CODE -->";
 }
 
 add_filter('the_content', 'kapost_byline_the_content');
@@ -262,6 +254,79 @@ function kapost_byline_xmlrpc_newPost($args)
 		kapost_byline_update_post($id, $custom_fields, $uid, $blog_id);
 	
 	return $id;
+}
+
+function kapost_byline_xmlrpc_editPost($args)
+{
+	global $wp_xmlrpc_server, $current_site;
+	
+	$_args = $args;
+	$wp_xmlrpc_server->escape($_args);
+
+	$blog_id	= $current_site->id;
+	$post_id	= intval($_args[0]);
+	$username	= $_args[1];
+	$password	= $_args[2];
+	$data		= $_args[3];
+	$publish	= $_args[4];
+
+	if(!$user = $wp_xmlrpc_server->login($username, $password))
+		return $wp_xmlrpc_server->error;
+	
+	if(!current_user_can('edit_post', $post_id))
+		return new IXR_Error(401, __('Sorry, you cannot edit this post.'));
+
+	$post = get_post($post_id);
+	if(!is_object($post) || !isset($post->ID))
+		return new IXR_Error(404, __('Invalid post ID.'));
+
+	$uid = false;
+	$custom_fields = kapost_byline_custom_fields($data['custom_fields']);
+	if(isset($custom_fields['kapost_author_email']))
+	{
+		$uid = email_exists($custom_fields['kapost_author_email']);
+		if(!$uid || (function_exists('is_user_member_of_blog') && !is_user_member_of_blog($uid, $blog_id)))
+			return new IXR_Error(401, 'The author of the post does not exist in WordPress.');
+	}
+
+	if(in_array($post->post_type, array('post', 'page')))
+	{
+		$result = $wp_xmlrpc_server->mw_editPost($args);
+
+		if($result === true)
+			kapost_byline_update_post($post_id, $custom_fields, $uid, $blog_id);
+
+		return $result;
+	}
+
+	$content_struct = array();
+	$content_struct['post_type'] = $post->post_type; 
+	$content_struct['post_status'] = $publish ? 'publish' : 'draft';
+
+	if(isset($data['title']))
+		$content_struct['post_title'] = $data['title'];
+
+	if(isset($data['description']))
+		$content_struct['post_content'] = $data['description'];
+
+	if(isset($data['custom_fields']))
+		$content_struct['custom_fields'] = $data['custom_fields'];
+
+	if(isset($data['mt_excerpt']))
+		$content_struct['post_excerpt'] = $data['mt_excerpt'];
+
+	if(isset($data['mt_keywords']) && !empty($data['mt_keywords']))
+		$content_struct['terms_names']['post_tag'] = explode(',', $data['mt_keywords']);
+
+	if(isset($data['categories']) && !empty($data['categories']) && is_array($data['categories']))
+		$content_struct['terms_names']['category'] = $data['categories'];
+
+	$result = $wp_xmlrpc_server->wp_editPost(array($blog_id, $username, $password, $post_id, $content_struct));
+
+	if($result === true)
+		kapost_byline_update_post($post_id, $custom_fields, $uid, $blog_id);
+
+	return $result;
 }
 
 function kapost_byline_xmlrpc_newMediaObject($args)
@@ -365,6 +430,7 @@ function kapost_byline_xmlrpc($methods)
 {
 	$methods['kapost.version'] = 'kapost_byline_xmlrpc_version';
 	$methods['kapost.newPost'] = 'kapost_byline_xmlrpc_newPost';
+	$methods['kapost.editPost'] = 'kapost_byline_xmlrpc_editPost';
 	$methods['kapost.newMediaObject'] = 'kapost_byline_xmlrpc_newMediaObject';
 	$methods['kapost.getPermalink']	= 'kapost_byline_xmlrpc_getPermalink';
 	return $methods;
