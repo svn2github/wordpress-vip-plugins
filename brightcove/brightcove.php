@@ -96,8 +96,7 @@ function brightcove_init_global_vars() {
 	'publisherID' => null);
 	
 	//Get Post ID
-	if ( isset( $_GET['post_id'] ) )
- 		$post_id = $post_ID = (int) $_GET['post_id'];	
+ 	$post_id = isset( $_GET['post_id'] ) ? (int) $_GET['post_id'] : 0;
 	
 	//Publisher ID 
 	$bcGlobalVariables['publisherID'] = get_option('bc_pub_id');
