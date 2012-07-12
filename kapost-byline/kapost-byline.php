@@ -173,7 +173,7 @@ function kapost_byline_the_content($content)
 {
 	global $post;
 
-	if(isset($post) && ($post->status == 'publish') && strpos($content, '<!-- END KAPOST ANALYTICS CODE -->') !== FALSE)
+	if(isset($post) && ($post->post_status == 'publish') && strpos($content, '<!-- END KAPOST ANALYTICS CODE -->') !== FALSE)
 		define('KAPOST_BYLINE_ANALYTICS_IN_BODY', true);
 
 	return $content;
@@ -183,7 +183,7 @@ function kapost_inject_footer_script()
 {
 	global $post;
 
-	if(!isset($post) || ($post->status != 'publish') || defined('KAPOST_BYLINE_ANALYTICS_IN_BODY'))
+	if(!isset($post) || ($post->post_status != 'publish') || defined('KAPOST_BYLINE_ANALYTICS_IN_BODY'))
 		return;
 
 	$kapost_analytics = get_post_meta($post->ID, '_kapost_analytics', true);
@@ -199,9 +199,9 @@ echo "<!-- BEGIN KAPOST ANALYTICS CODE -->
 <script type=\"text/javascript\">
 <!--
 var _kaq = _kaq || [];
-_kaq.push([2, '$post_id', '$site_id']);
+_kaq.push([2, '" . esc_js( $post_id ) . "', '". esc_js( $site_id ) . "']);
 (function(){
-var ka = document.createElement('script'); ka.async=true; ka.id='ka_tracker'; ka.src='$url/ka.js';
+var ka = document.createElement('script'); ka.async=true; ka.id='ka_tracker'; ka.src='". esc_js( $url ) ."/ka.js';
 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka, s);
 })();
 //--> 
