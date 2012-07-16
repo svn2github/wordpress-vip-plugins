@@ -137,6 +137,9 @@ function wpcom_vip_csv_quote( $v ) {
 	return "$v";
 }
 
+/**
+ * Notice: this function will return more than one value than what you need because of a bug in the limit logic. Adjust accordingly
+ */
 function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $return_array = false ) {
 	if ( empty( $rows ) )
 		return "Error: zero rows returned.";
