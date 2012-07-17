@@ -139,7 +139,6 @@ class WPcom_VIP_Plugins_UI {
 			'disqus',
 			'kapost-byline',
 			'inform',
-			'outbrain',
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
 			'storify',
