@@ -466,6 +466,11 @@ class WPcom_VIP_Plugins_UI {
 					)
 				);
 			}
+
+			// Log this action to the audit trail
+			if ( function_exists( 'audit_log' ) ) {
+				audit_log( 'vip_plugin_activate', null, $plugin );
+			}
 		}
 
 		$plugins[] = $plugin;
@@ -489,6 +494,11 @@ class WPcom_VIP_Plugins_UI {
 		// Log this to the database table used to track plugin usage across all sites
 		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
 			$wpdb->query( $wpdb->prepare( "DELETE FROM vip_plugins_enabled WHERE blog_id = %d AND plugin_slug = %s", $wpdb->blogid, $plugin ) );
+
+			// Log this action to the audit trail
+			if ( function_exists( 'audit_log' ) ) {
+				audit_log( 'vip_plugin_deactivate', null, $plugin );
+			}
 		}
 
 		$plugins = $this->get_active_plugins_option();
