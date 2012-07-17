@@ -105,7 +105,7 @@ function add_mostpopular_feed() {
 
     $rules = get_option( "rewrite_rules" );
 
-    if ( 1 == $_GET['forceupdate'] ) {
+    if ( isset( $_GET['forceupdate'] ) && 1 == $_GET['forceupdate'] ) {
         add_feed('mostpopular', 'mostpopular_feed');
         $wp_rewrite->flush_rules();
         if ( $rules != $wp_rewrite->rules ) {
