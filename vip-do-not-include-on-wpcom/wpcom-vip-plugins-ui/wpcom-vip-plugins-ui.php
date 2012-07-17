@@ -46,6 +46,11 @@ class WPcom_VIP_Plugins_UI {
 	const ACTION_PLUGIN_DEACTIVATE = 'wpcom-vip-plugins_deactivate';
 
 	/**
+	 * @var string Whether or not to disable the plugin activation links.
+	 */
+	public $activation_disabled = false;
+
+	/**
 	 * @var string Path to the extra plugins folder.
 	 */
 	public $plugin_folder;
@@ -226,6 +231,9 @@ class WPcom_VIP_Plugins_UI {
 	 * Handles the plugin activation links and activates the requested plugin.
 	 */
 	public function action_admin_post_plugin_activate() {
+		if ( $this->activation_disabled )
+			wp_die( __( 'Plugin activation via this UI has been disabled from within your theme.', 'wpcom-vip-plugins-ui' ) );
+
 		if ( empty( $_GET['plugin'] ) )
 			wp_die( sprintf( __( 'Missing % parameter', 'wpcom-vip-plugins-ui' ), '<code>plugin</code>' ) );
 
@@ -423,7 +431,10 @@ class WPcom_VIP_Plugins_UI {
 			} elseif ( 'manual' == $is_active ) {
 				$actions['deactivate-manually'] = '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file">' . __( "Enabled via your theme's code" ) . '</span>';
 			}
-		} else {
+		}
+
+		// Only show activation links if they aren't disabled
+		elseif ( ! $this->activation_disabled ) {
 			$actions['activate'] = '<a href="' . esc_url( WPcom_VIP_Plugins_UI()->get_plugin_activation_link( $plugin ) ) . '" title="' . esc_attr__( 'Activate this plugin' ) . '" class="edit">' . __( 'Activate' ) . '</a>';
 		}
 
@@ -577,5 +588,16 @@ function WPcom_VIP_Plugins_UI() {
 
 // Start up the class immediately
 WPcom_VIP_Plugins_UI();
+
+
+/**
+ * If you don't want people (de)activating plugins via this UI
+ * and only want to enable plugins via wpcom_vip_load_plugin()
+ * calls in your theme's functions.php file, then call this
+ * function to disable this plugin's (de)activation links.
+ */
+function WPcom_VIP_Plugins_UI_disable_activation() {
+	WPcom_VIP_Plugins_UI()->activation_disabled = true;
+}
 
 ?>
