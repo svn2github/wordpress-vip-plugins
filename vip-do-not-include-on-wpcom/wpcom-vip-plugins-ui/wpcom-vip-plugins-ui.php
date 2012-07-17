@@ -597,7 +597,7 @@ WPcom_VIP_Plugins_UI();
  * calls in your theme's functions.php file, then call this
  * function to disable this plugin's (de)activation links.
  */
-function WPcom_VIP_Plugins_UI_disable_activation() {
+function wpcom_vip_plugins_ui_disable_activation() {
 	WPcom_VIP_Plugins_UI()->activation_disabled = true;
 }
 
