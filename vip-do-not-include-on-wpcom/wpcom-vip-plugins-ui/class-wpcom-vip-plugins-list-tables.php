@@ -16,10 +16,6 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 
 			$plugin_folder = basename( dirname( $plugin_file ) );
 
-			// Don't want some plugins showing up in the list
-			if ( isset( WPcom_VIP_Plugins_UI()->hidden_plugins[ $plugin_folder ] ) )
-				continue;
-
 			// FPP is listed separately
 			if ( isset( WPcom_VIP_Plugins_UI()->fpp_plugins[ $plugin_folder ] ) )
 				continue;
@@ -27,6 +23,10 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 			$plugin_file = 'plugins/' . $plugin_file;
 
 			$status = WPcom_VIP_Plugins_UI()->is_plugin_active( $plugin_folder ) ? 'active' : 'inactive';
+
+			// Don't want some plugins showing up in the list
+			if ( 'inactive' == $status && in_array( $plugin_folder, WPcom_VIP_Plugins_UI()->hidden_plugins ) )
+				continue;
 
 			// Translate, Don't Apply Markup, Sanitize HTML
 			${$status}[$plugin_file] = _get_plugin_data_markup_translate( $plugin_file, $plugin_data, false, true );
