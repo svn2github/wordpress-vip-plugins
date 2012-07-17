@@ -133,10 +133,12 @@ class WPcom_VIP_Plugins_UI {
 		$this->hidden_plugins = array(
 			'vip-do-not-include-on-wpcom', // Local dev helper
 			'internacional', // Not ready yet (ever?)
+			'new-device-notification', // VIP premium Add-On
 
 			// Commercial non-FPP plugins. Available but not promoted.
 			'disqus',
 			'kapost-byline',
+			'inform',
 			'outbrain',
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
