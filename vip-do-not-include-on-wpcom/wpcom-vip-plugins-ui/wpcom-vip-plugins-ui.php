@@ -448,11 +448,10 @@ class WPcom_VIP_Plugins_UI {
 			return false;
 		}
 
-		// Log this to the database table used to track plugin usage across all sites
+		// Stuff for WordPress.com-only
 		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
-			// Double check that there isn't an existing row for this blog ID + slug combination
+			// Log this activation to a database table so we can quickly see who has what enabled
 			$existing = $wpdb->get_row( $wpdb->prepare( "SELECT plugin_enabled_id FROM vip_plugins_enabled WHERE blog_id = %d AND plugin_slug = %s LIMIT 1", $wpdb->blogid, $plugin ) );
-
 			if ( ! $existing ) {
 				$wpdb->insert(
 					'vip_plugins_enabled',
@@ -467,9 +466,15 @@ class WPcom_VIP_Plugins_UI {
 				);
 			}
 
-			// Log this action to the audit trail
+			// Log this action to the audit trail to track what user enabled the plugin and when
 			if ( function_exists( 'audit_log' ) ) {
 				audit_log( 'vip_plugin_activate', null, $plugin );
+			}
+
+			// Notify the VIP support team of the change
+			if ( function_exists( 'send_vip_team_debug_message' ) ) {
+				global $current_user;
+				send_vip_team_debug_message( "[VIP Plugins: Enable] {$current_user->user_login} ( {$current_user->display_name} ): $plugin" );
 			}
 		}
 
@@ -491,13 +496,20 @@ class WPcom_VIP_Plugins_UI {
 			return false;
 		}
 
-		// Log this to the database table used to track plugin usage across all sites
+		// Stuff for WordPress.com-only
 		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
+			// Log this deactivation to a database table so we can quickly see who has what enabled
 			$wpdb->query( $wpdb->prepare( "DELETE FROM vip_plugins_enabled WHERE blog_id = %d AND plugin_slug = %s", $wpdb->blogid, $plugin ) );
 
-			// Log this action to the audit trail
+			// Log this action to the audit trail to track what user disabled the plugin and when
 			if ( function_exists( 'audit_log' ) ) {
 				audit_log( 'vip_plugin_deactivate', null, $plugin );
+			}
+
+			// Notify the VIP support team of the change
+			if ( function_exists( 'send_vip_team_debug_message' ) ) {
+				global $current_user;
+				send_vip_team_debug_message( "[VIP Plugins: Disable] {$current_user->user_login} ( {$current_user->display_name} ): $plugin" );
 			}
 		}
 
