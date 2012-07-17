@@ -31,11 +31,6 @@ class WPcom_VIP_Plugins_UI {
 	const VIP_MENU_SLUG = 'vip-dashboard';
 
 	/**
-	 * @var string Required capability to access this plugin's features.
-	 */
-	const CAPABILITY = 'activate_plugins';
-
-	/**
 	 * @var string Action: Plugin activation.
 	 */
 	const ACTION_PLUGIN_ACTIVATE = 'wpcom-vip-plugins_activate';
@@ -54,6 +49,11 @@ class WPcom_VIP_Plugins_UI {
 	 * @var string Path to the extra plugins folder.
 	 */
 	public $plugin_folder;
+
+	/**
+	 * @var string Required capability to access this plugin's features.
+	 */
+	public $capability;
 
 	/**
 	 * @var string The $hook_suffix value for the menu page.
@@ -129,6 +129,9 @@ class WPcom_VIP_Plugins_UI {
 	 */
 	private function setup_globals() {
 		$this->plugin_folder = WP_CONTENT_DIR . '/themes/vip/plugins';
+
+		// Allow people to customize what capability is required in order to view this menu
+		$this->capability = apply_filters( 'wpcom_vip_plugins_ui_capability', 'manage_options' );
 
 		$this->hidden_plugins = array(
 			'vip-do-not-include-on-wpcom', // Local dev helper
@@ -217,9 +220,9 @@ class WPcom_VIP_Plugins_UI {
 	 */
 	public function action_admin_menu_add_menu_item() {
 		if ( $this->is_wpcom_vip() ) {
-			$this->hook_suffix = add_submenu_page( self::VIP_MENU_SLUG, __( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' ), __( 'Plugins & Services', 'wpcom-vip-plugins-ui' ), self::CAPABILITY, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
+			$this->hook_suffix = add_submenu_page( self::VIP_MENU_SLUG, __( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' ), __( 'Plugins & Services', 'wpcom-vip-plugins-ui' ), $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 		} else {
-			$this->hook_suffix = add_plugins_page( __( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' ), __( 'WP.com VIP Plugins', 'wpcom-vip-plugins-ui' ), self::CAPABILITY, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
+			$this->hook_suffix = add_plugins_page( __( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' ), __( 'WP.com VIP Plugins', 'wpcom-vip-plugins-ui' ), $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 		}
 
 		add_action( 'admin_print_styles-' . $this->hook_suffix, array( $this, 'menu_page_css' ) );
@@ -238,7 +241,7 @@ class WPcom_VIP_Plugins_UI {
 		if ( empty( $_GET['plugin'] ) )
 			wp_die( sprintf( __( 'Missing %s parameter', 'wpcom-vip-plugins-ui' ), '<code>plugin</code>' ) );
 
-		if ( ! current_user_can( self::CAPABILITY ) )
+		if ( ! current_user_can( $this->capability ) )
 			wp_die( __( 'You do not have sufficient permissions to activate plugins for this site.' ) );
 
 		check_admin_referer( 'activate-' . $_GET['plugin'] );
@@ -257,7 +260,7 @@ class WPcom_VIP_Plugins_UI {
 		if ( empty( $_GET['plugin'] ) )
 			wp_die( sprintf( __( 'Missing %s parameter', 'wpcom-vip-plugins-ui' ), '<code>plugin</code>' ) );
 
-		if ( ! current_user_can( self::CAPABILITY ) )
+		if ( ! current_user_can( $this->capability ) )
 			wp_die( __( 'You do not have sufficient permissions to deactivate plugins for this site.' ) );
 
 		check_admin_referer( 'deactivate-' . $_GET['plugin'] );
