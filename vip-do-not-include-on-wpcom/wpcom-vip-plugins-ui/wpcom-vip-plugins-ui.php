@@ -236,7 +236,7 @@ class WPcom_VIP_Plugins_UI {
 			wp_die( __( 'Plugin activation via this UI has been disabled from within your theme.', 'wpcom-vip-plugins-ui' ) );
 
 		if ( empty( $_GET['plugin'] ) )
-			wp_die( sprintf( __( 'Missing % parameter', 'wpcom-vip-plugins-ui' ), '<code>plugin</code>' ) );
+			wp_die( sprintf( __( 'Missing %s parameter', 'wpcom-vip-plugins-ui' ), '<code>plugin</code>' ) );
 
 		if ( ! current_user_can( self::CAPABILITY ) )
 			wp_die( __( 'You do not have sufficient permissions to activate plugins for this site.' ) );
@@ -255,7 +255,7 @@ class WPcom_VIP_Plugins_UI {
 	 */
 	public function action_admin_post_plugin_deactivate() {
 		if ( empty( $_GET['plugin'] ) )
-			wp_die( sprintf( __( 'Missing % parameter', 'wpcom-vip-plugins-ui' ), '<code>plugin</code>' ) );
+			wp_die( sprintf( __( 'Missing %s parameter', 'wpcom-vip-plugins-ui' ), '<code>plugin</code>' ) );
 
 		if ( ! current_user_can( self::CAPABILITY ) )
 			wp_die( __( 'You do not have sufficient permissions to deactivate plugins for this site.' ) );
