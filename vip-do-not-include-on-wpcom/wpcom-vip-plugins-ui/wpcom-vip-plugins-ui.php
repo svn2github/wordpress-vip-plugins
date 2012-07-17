@@ -145,39 +145,39 @@ class WPcom_VIP_Plugins_UI {
 		);
 
 		$this->fpp_plugins = array(
-			'chartbeat'    => array(
+			'chartbeat'     => array(
 				'name'        => 'Chartbeat',
 				'description' => 'Real-time data for big-time publishers',
 			),
-			'engagewidget' => array(
+			'engagewidget'  => array(
 				'name'        => 'ContextLogic',
 				'description' => "Dramatically increase your site's traffic and engagement",
 			),
-			'daylife'      => array(
+			'daylife'       => array(
 				'name'        => 'Daylife',
 				'description' => 'Daylife. Simply Amazing Cloud Publishing.',
 			),
-			'livefyre'     => array(
+			'livefyre'      => array(
 				'name'        => 'Livefyre',
 				'description' => 'Replace comments with live conversations connected to the social web.',
 			),
-			'mediapass'    => array(
+			'mediapass'     => array(
 				'name'        => 'MediaPass Subscriptions',
 				'description' => 'Monetize your content with recurring subscriptions made easy.',
 			),
-			'wibiya'       => array(
+			'wibiya-mobile' => array(
 				'name'        => 'Mobilize with Wibiya',
 				'description' => 'Instantly transform your blog into a stunning, mobile site!',
 			),
-			'ooyala'       => array(
+			'ooyala'        => array(
 				'name'        => 'Ooyala',
 				'description' => 'Powering personalized video across all screens',
 			),
-			'socialflow'   => array(
+			'socialflow'    => array(
 				'name'        => 'SocialFlow',
 				'description' => 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
 			),
-			'uppsite'      => array(
+			'uppsite'       => array(
 				'name'        => 'UppSite',
 				'description' => 'Create fully automated mobile applications in 2 minutes for free.',
 			),
