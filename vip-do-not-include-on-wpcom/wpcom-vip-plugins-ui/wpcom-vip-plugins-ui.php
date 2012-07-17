@@ -210,7 +210,7 @@ class WPcom_VIP_Plugins_UI {
 	 * Adds the new menu item and registers a few more hook callbacks relating to the menu page.
 	 */
 	public function action_admin_menu_add_menu_item() {
-		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
+		if ( $this->is_wpcom_vip() ) {
 			$this->hook_suffix = add_submenu_page( self::VIP_MENU_SLUG, __( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' ), __( 'Plugins & Services', 'wpcom-vip-plugins-ui' ), self::CAPABILITY, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 		} else {
 			$this->hook_suffix = add_plugins_page( __( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' ), __( 'WP.com VIP Plugins', 'wpcom-vip-plugins-ui' ), self::CAPABILITY, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
@@ -352,6 +352,18 @@ class WPcom_VIP_Plugins_UI {
 	/** Helper Functions ******************************************************/
 
 	/**
+	 * Are we on WordPress.com VIP or somewhere else?
+	 *
+	 * Not everyone is using the new loader yet (vip-init.php) so this checks
+	 * both the new method (constant) and the legacy method (function).
+	 *
+	 * @return boolean True if on WP.com VIP, false if not.
+	 */
+	public function is_wpcom_vip() {
+		return ( ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) || ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) );
+	}
+
+	/**
 	 * Gets the list of VIP plugins that have been activated via the UI.
 	 *
 	 * @return array List of active VIP plugin slugs.
@@ -449,7 +461,7 @@ class WPcom_VIP_Plugins_UI {
 		}
 
 		// Stuff for WordPress.com-only
-		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
+		if ( $this->is_wpcom_vip() ) {
 			// Log this activation to a database table so we can quickly see who has what enabled
 			$existing = $wpdb->get_row( $wpdb->prepare( "SELECT plugin_enabled_id FROM vip_plugins_enabled WHERE blog_id = %d AND plugin_slug = %s LIMIT 1", $wpdb->blogid, $plugin ) );
 			if ( ! $existing ) {
@@ -497,7 +509,7 @@ class WPcom_VIP_Plugins_UI {
 		}
 
 		// Stuff for WordPress.com-only
-		if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) {
+		if ( $this->is_wpcom_vip() ) {
 			// Log this deactivation to a database table so we can quickly see who has what enabled
 			$wpdb->query( $wpdb->prepare( "DELETE FROM vip_plugins_enabled WHERE blog_id = %d AND plugin_slug = %s", $wpdb->blogid, $plugin ) );
 
@@ -532,7 +544,7 @@ class WPcom_VIP_Plugins_UI {
 	 * @return string URL to the plugin's menu page.
 	 */
 	public function get_menu_url( $extra_query_args = array() ) {
-		$menu_url = ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) ? 'admin.php' : 'plugins.php';
+		$menu_url = ( $this->is_wpcom_vip() ) ? 'admin.php' : 'plugins.php';
 
 		$menu_url = add_query_arg(
 			array_merge(
