@@ -202,18 +202,18 @@ class WPcom_VIP_Plugins_UI {
 		add_action( 'admin_post_' . self::ACTION_PLUGIN_DEACTIVATE, array( $this, 'action_admin_post_plugin_deactivate' ) );
 	}
 
+	/** Public Hook Callback Methods ******************************************/
+
 	/**
 	 * Includes any active plugin files that are enabled via the UI/option.
 	 *
 	 * @access private
 	 */
-	private function include_active_plugins() {
+	public function include_active_plugins() {
 		foreach ( $this->get_active_plugins_option() as $plugin ) {
 			wpcom_vip_load_plugin( $plugin );
 		}
 	}
-
-	/** Public Hook Callback Methods ******************************************/
 
 	/**
 	 * Adds the new menu item and registers a few more hook callbacks relating to the menu page.
