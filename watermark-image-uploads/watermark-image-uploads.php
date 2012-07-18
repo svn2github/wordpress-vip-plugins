@@ -4,6 +4,7 @@
  * For help with this plugin, see http://lobby.vip.wordpress.com/plugins/watermark-image-uploads/
  *
  * Plugin Name: WordPress.com Watermark Image Uploads
+ * Description: Applies a watermark image of your choosing to all uploaded images.
  * Author:      Alex Mills
  * Author URI:  http://automattic.com/
  */

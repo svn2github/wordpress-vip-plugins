@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Flag Comments	
+Plugin Name: Flag Comments: No Total Count (For Better Performance)
 Plugin URI: http://watershedstudio.com/portfolio/software-development/flag-comments/
 Description: Flag comments for moderator action.
 Author: Watershed Studio, LLC
