@@ -281,9 +281,7 @@ class WPcom_VIP_Plugins_UI {
 	public function display_menu_page() {
 		require_once( dirname( __FILE__ ) . '/class-wpcom-vip-plugins-list-tables.php' );
 
-		// Internal view stats for tracking page usage
-		if ( function_exists( 'wpcom_vip_dashboard_bump_stats' ) )
-			wpcom_vip_dashboard_bump_stats( 'plugins' );
+		do_action( 'wpcom_vip_plugins_ui_menu_page' );
 
 		$fpp_table = new WPCOM_VIP_Featured_Plugins_List_Table();
 		$fpp_table->prepare_items();
@@ -465,7 +463,6 @@ class WPcom_VIP_Plugins_UI {
 	 * @return boolean True if the plugin was activated, false if an error was encountered.
 	 */
 	public function activate_plugin( $plugin ) {
-		global $wpdb;
 
 		if ( ! $this->validate_plugin( $plugin ) ) {
 			return false;
@@ -478,37 +475,9 @@ class WPcom_VIP_Plugins_UI {
 			return false;
 		}
 
-		// Stuff for WordPress.com-only
-		if ( $this->is_wpcom_vip() ) {
-			// Log this activation to a database table so we can quickly see who has what enabled
-			$existing = $wpdb->get_row( $wpdb->prepare( "SELECT plugin_enabled_id FROM vip_plugins_enabled WHERE blog_id = %d AND plugin_slug = %s LIMIT 1", $wpdb->blogid, $plugin ) );
-			if ( ! $existing ) {
-				$wpdb->insert(
-					'vip_plugins_enabled',
-					array(
-						'blog_id'     => $wpdb->blogid,
-						'plugin_slug' => $plugin,
-					),
-					array(
-						'%d',
-						'%s',
-					)
-				);
-			}
-
-			// Log this action to the audit trail to track what user enabled the plugin and when
-			if ( function_exists( 'audit_log' ) ) {
-				audit_log( 'vip_plugin_activate', null, $plugin );
-			}
-
-			// Notify the VIP support team of the change
-			if ( function_exists( 'send_vip_team_debug_message' ) ) {
-				global $current_user;
-				send_vip_team_debug_message( "[VIP Plugins: Enable] {$current_user->user_login} ( {$current_user->display_name} ): $plugin" );
-			}
-		}
-
 		$plugins[] = $plugin;
+
+		do_action( 'wpcom_vip_plugins_ui_activate_plugin', $plugin );
 
 		return update_option( self::OPTION_ACTIVE_PLUGINS, $plugins );
 	}
@@ -520,28 +489,12 @@ class WPcom_VIP_Plugins_UI {
 	 * @return boolean True if the plugin was deactivated, false if an error was encountered.
 	 */
 	public function deactivate_plugin( $plugin ) {
-		global $wpdb;
 
 		if ( ! $this->validate_plugin( $plugin ) ) {
 			return false;
 		}
 
-		// Stuff for WordPress.com-only
-		if ( $this->is_wpcom_vip() ) {
-			// Log this deactivation to a database table so we can quickly see who has what enabled
-			$wpdb->query( $wpdb->prepare( "DELETE FROM vip_plugins_enabled WHERE blog_id = %d AND plugin_slug = %s", $wpdb->blogid, $plugin ) );
-
-			// Log this action to the audit trail to track what user disabled the plugin and when
-			if ( function_exists( 'audit_log' ) ) {
-				audit_log( 'vip_plugin_deactivate', null, $plugin );
-			}
-
-			// Notify the VIP support team of the change
-			if ( function_exists( 'send_vip_team_debug_message' ) ) {
-				global $current_user;
-				send_vip_team_debug_message( "[VIP Plugins: Disable] {$current_user->user_login} ( {$current_user->display_name} ): $plugin" );
-			}
-		}
+		do_action( 'wpcom_vip_plugins_ui_deactivate_plugin', $plugin );
 
 		$plugins = $this->get_active_plugins_option();
 
