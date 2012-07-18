@@ -86,7 +86,6 @@ class WPcom_VIP_Plugins_UI {
 	 * @staticvar array $instance
 	 * @uses WPcom_VIP_Plugins_UI::setup_globals() Setup the globals needed
 	 * @uses WPcom_VIP_Plugins_UI::setup_actions() Setup the hooks and actions
-	 * @uses WPcom_VIP_Plugins_UI::include_active_plugins() Load enabled plugins
 	 * @see WPcom_VIP_Plugins_UI()
 	 * @return The one true WPcom_VIP_Plugins_UI
 	 */
@@ -95,7 +94,6 @@ class WPcom_VIP_Plugins_UI {
 			self::$instance = new WPcom_VIP_Plugins_UI;
 			self::$instance->setup_globals();
 			self::$instance->setup_actions();
-			self::$instance->include_active_plugins();
 		}
 		return self::$instance;
 	}
@@ -145,9 +143,6 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
 			'storify',
-
-			// Temporarily broken if loaded this soon
-			'edit-flow',
 		);
 
 		$this->fpp_plugins = array(
@@ -198,6 +193,8 @@ class WPcom_VIP_Plugins_UI {
 	 */
 	private function setup_actions() {
 		add_option( self::OPTION_ACTIVE_PLUGINS, array() );
+
+		add_action( 'plugins_loaded', array( $this, 'include_active_plugins' ), 0 );
 
 		add_action( 'admin_menu', array( $this, 'action_admin_menu_add_menu_item' ) );
 
