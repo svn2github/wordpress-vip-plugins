@@ -145,6 +145,9 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
 			'storify',
+
+			// Temporarily broken if loaded this soon
+			'edit-flow',
 		);
 
 		$this->fpp_plugins = array(
