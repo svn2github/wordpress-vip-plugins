@@ -730,7 +730,7 @@ function mt_seo_rewrite_title( $title, $sep = '' , $seplocation = '' ) {
 
 	$cmpvalues = amt_clean_array( $cmpvalues );
 	
-    if ( true != $cmpvalues['mt_seo_title'] )
+    if ( ! isset($cmpvalues['mt_seo_title']) || true != $cmpvalues['mt_seo_title'] )
         return $title;
     
     $mt_seo_title = (string) get_post_meta( $posts[0]->ID, 'mt_seo_title', true );
