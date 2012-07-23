@@ -30,7 +30,7 @@ function json_feed() {
 
 			$item = json_feed_post_item();
 
-			$item = apply_filters( 'json_feed_item', $item, get_the_ID(), $query_args );
+			$item = apply_filters( 'json_feed_item', $item, get_the_ID(), $query_args, $json_feed );
 
 			$output[] = $item;
 
@@ -52,7 +52,6 @@ function json_feed() {
 
 /**
  * Helper to build an array of post data to be JSON encoded
- * Allows subset of fields to be specified for inclusion
  *
  * NOTE: required to be called in a loop
  *
