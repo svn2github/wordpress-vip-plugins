@@ -22,6 +22,7 @@ class Art_Direction_Redux {
 
 	static function init() {
 		add_post_type_support( 'post', 'art-direction' );
+		add_post_type_support( 'page', 'art-direction' );
 
 		add_action( 'wp_head', array( __CLASS__, 'output_styles' ) );
 
