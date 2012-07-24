@@ -25,7 +25,7 @@ function json_feed() {
 	// Required in order for things like posts_per_page to work
 	unset( $query_args['feed'] );
 
-	$query_args = apply_filters( 'json_feed_query_args', $query_args  );
+	$query_args = apply_filters( 'json_feed_query_args', $query_args );
 
 	$output = array();
 	$json_feed = new WP_Query( $query_args );
