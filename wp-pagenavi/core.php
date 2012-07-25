@@ -263,7 +263,7 @@ class PageNavi_Core {
 	function init( $options ) {
 		self::$options = $options;
 
-		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'stylesheets' ) ); // WP.com use wp_enqueue_scripts hook instead of wp_print_styles
+		add_action( 'wp_print_styles', array( __CLASS__, 'stylesheets' ) );
 	}
 
 	function stylesheets() {

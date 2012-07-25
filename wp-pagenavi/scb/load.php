@@ -28,7 +28,7 @@ class scbLoad4 {
 		}
 
 		// TODO: don't load when activating a plugin ?
-		add_action( 'after_setup_theme', array( __CLASS__, 'load' ), 9, 0 ); // WP.com changed plugins_loaded hook to after_setup_theme
+		add_action( 'plugins_loaded', array( __CLASS__, 'load' ), 9, 0 );
 	}
 
 	static function delayed_activation( $plugin ) {
