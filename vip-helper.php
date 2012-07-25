@@ -821,3 +821,23 @@ function wpcom_vip_is_valid_domain( $url, $whitelisted_domains ) {
 function wpcom_vip_bulk_user_management_whitelist( $users ) {
 	add_filter( 'bulk_user_management_admin_users', function() use ( $users ) { return $users; } );
 }
+
+/**
+ * Helper function that provides caching for the normally uncached wp_oembed_get() function.
+ *
+ * Note that if you're using this within the contents of a post, it's probably better to use
+ * the existing WordPress functionality: http://codex.wordpress.org/Embeds
+ *
+ * This helper function is more meant for other places, such as sidebars.
+ */
+function wpcom_vip_wp_oembed_get( $url, $args = array() ) {
+	$cache_key = md5( $url . '|' . serialize( $args ) );
+
+	if ( false === $html = wp_cache_get( $cache_key, 'wpcom_vip_wp_oembed_get' ) ) {
+		$html = wp_oembed_get( $url, $args );
+
+		wp_cache_set( $cache_key, $html, 'wpcom_vip_wp_oembed_get' );
+	}
+
+	return $html;
+}
