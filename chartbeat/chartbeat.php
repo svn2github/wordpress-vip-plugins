@@ -271,15 +271,18 @@ function add_chartbeat_footer() {
 
 				if ($cats) {
 					$cat_names = array();
-					foreach ($cats as $cat) {
-						$cat_names[] = '"' . esc_js($cat->name) . '"';
-						$cat_names[] = '"' . esc_js( $cat->name ) . '"';
+					foreach ( $cats as $cat ) {
+						$cat_names[] = $cat->name;
 					}
 				}
 
-				$author = apply_filters( 'chartbeat_config_sections', $cat_names );
+				$cat_names = (array)apply_filters( 'chartbeat_config_sections', $cat_names );
 				if ( count( $cat_names ) ) {
-					printf("_sf_async_config.sections = [%s];\n", implode(', ', $cat_names));
+					foreach( $cat_names as $index => $name ) {
+						$cat_names[ $index ] = '"' . esc_js( $name ) . '"';
+					}
+					
+					printf( "_sf_async_config.sections = [%s];\n", implode( ', ', $cat_names ) );
 				}
 			}
 		} // if $enable_newsbeat
