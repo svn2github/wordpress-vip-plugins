@@ -2,7 +2,7 @@
 /***************************************************************************
  Plugin Name: Inform Tag
  Plugin URI: http://wordpressext.inform.com/extract/wpplugin/
- Version: 0.2.2
+ Version: 0.2.3
  Author: <a href="http://www.inform.com" target="_blank">Inform Technologies, Inc.</a>
  Description: Use <a href="http://www.inform.com" target="_blank">Inform</a>'s powerful categorization engine to tag your Wordpress content.
  ***************************************************************************/
@@ -20,65 +20,29 @@ if (!class_exists('inform_plugin')) {
 		private $s_search_prefix = 'www.inform.com/topic/';
 		private $s_taxonomy = 'inform';
 		
+		// ******************************************************************************
+		// INIT
+		
 		/**
-		 * init(): add action hooks
+		 * __construct(): add action hook callbacks
 		 *
 		 */
 		
-		public function init() {
+		public function __construct() {
+			add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
 			add_action('admin_init', array($this, 'admin_init'));
 			add_action('admin_menu', array($this, 'admin_menu'));
-			add_action('admin_enqueue_scripts', array($this, 'admin_enqueue_scripts'));
-			add_action('save_post', array($this, 'post_tags_save'), 1, 2);
+			add_action('save_post', array($this, 'save_post'));
 			add_action('wp_ajax_inform_proxy', array($this, 'ajax_proxy'));
 		}
 		
-		/**
-		 * admin_init(): WP admin init action callback
-		 *
-		 */
-		
-		public function admin_init() {
-			
-			// set Inform auto-select setting default
-			$s_setting = get_option('inform_tag_option');
-			if (empty($s_setting)) {
-				update_option('inform_tag_option', 'off');
-			}
-			
-			// set IAB auto-select setting default
-			$s_setting = get_option('inform_iab_tag_option');
-			if (empty($s_setting)) {
-				update_option('inform_iab_tag_option', 'on');
-			}
-			
-			// save settings
-			if (isset($_POST['action']) && $_POST['action'] === 'inform-options') {
-				$this -> options_save();
-			}
-		}
+		// ******************************************************************************
+		// CALLBACKS
 		
 		/**
-		 * admin_menu(): WP admin menu action callback
+		 * admin_enqueue_scripts(): add required CSS and JS
 		 *
-		 * adds admin page components
-		 *
-		 */
-		
-		public function admin_menu() {
-			
-			// add admin page components
-			add_meta_box($this -> s_taxonomy.'_metabox', '<strong class="inform-logo">Inform</strong> Article Curation Tool', array($this, 'metabox_render_inform'), 'post', 'normal', 'core');
-			add_meta_box($this -> s_taxonomy.'_iab', 'IAB tags', array($this, 'metabox_render_iab'), 'post', 'side', 'default');
-			
-			// add options page
-			add_options_page('Inform Tag Options', 'Inform Tag', 'manage_options', 'inform-options', array($this, 'options_page_render'));
-		}
-		
-		/**
-		 * admin_enqueue_scripts(): admin enqueue scriptsaction callback
-		 *
-		 * add required CSS and JS
+		 * @param string name of current admin page
 		 *
 		 */
 		
@@ -91,12 +55,172 @@ if (!class_exists('inform_plugin')) {
 		}
 		
 		/**
+		 * admin_init(): register settings
+		 *
+		 */
+		
+		public function admin_init() {
+			
+			// register setting
+			register_setting($this -> s_taxonomy, $this -> s_taxonomy.'_options', array($this, 'admin_options_validate'));
+			
+			// settings fields
+			add_settings_section($this -> s_taxonomy.'_main', NULL, '__return_false', $this -> s_taxonomy);
+			add_settings_field('auto_tags', __('Auto-select Inform tags'), array($this, 'admin_render_auto_tags'), $this -> s_taxonomy, $this -> s_taxonomy.'_main');
+			add_settings_field('auto_iabs', __('Auto-select IAB tags'), array($this, 'admin_render_auto_iabs'), $this -> s_taxonomy, $this -> s_taxonomy.'_main');
+			add_settings_field('required', __('Required'), array($this, 'admin_render_required'), $this -> s_taxonomy, $this -> s_taxonomy.'_main');
+			
+			// set defaults
+			$a_options = (array) $this -> options();
+			$b_defaults_set = TRUE;
+			if (!isset($a_options['auto_iabs'])) {
+				$a_options['auto_iabs'] = 1;
+				$b_defaults_set = FALSE;
+			}
+			if (!isset($a_options['required'])) {
+				$a_options['required'] = 1;
+				$b_defaults_set = FALSE;
+			}
+			if (!$b_defaults_set) {
+				// back-compat start - update from v0.2.2
+				if ($s_dep = get_option('inform_iab_tag_option')) {
+					$a_options['auto_iabs'] = !($s_dep !== 'on');
+					delete_option('inform_iab_tag_option');
+				}
+				if ($s_dep = get_option('inform_tag_option')) {
+					$a_options['auto_tags'] = $s_dep === 'on';
+					delete_option('inform_tag_option');
+				} // back-compat end
+				update_option($this -> s_taxonomy.'_options', $a_options);
+			}
+		}
+		
+		/**
+		 * admin_menu(): add admin page components, settings menu option
+		 *
+		 */
+		
+		public function admin_menu() {
+			
+			// add edit post page components
+			add_meta_box($this -> s_taxonomy.'_metabox', '<strong class="inform-logo">Inform</strong> Article Curation Tool', array($this, 'metabox_render_inform'), 'post', 'normal', 'core');
+			add_meta_box($this -> s_taxonomy.'_iab', 'IAB tags', array($this, 'metabox_render_iab'), 'post', 'side', 'default');
+			
+			// add options page
+			add_options_page(__('Inform Tagging Options'), __('Inform'), 'manage_options', $this -> s_taxonomy.'_options', array($this, 'admin_render_options_page'));
+		}
+		
+		/**
+		 * save_post(): save Inform and IAB tags
+		 *
+		 * @param number $i_post_id id of saved post
+		 *
+		 */
+		
+		public function save_post($i_post_id) {
+			
+			global $post;
+			
+			// check nonce, capabilities
+			if (!isset($_POST[$this -> s_taxonomy.'_nonce']) ||
+				!wp_verify_nonce($_POST[$this -> s_taxonomy.'_nonce'], 'save_tags') ||
+				!current_user_can('edit_post', $i_post_id) ||
+				$post -> post_type == 'revision') {
+				return FALSE;
+			}
+			
+			// iab
+			$this -> tags_save($i_post_id, 'iab', $_POST[$this -> s_taxonomy.'-iabs']);
+			
+			// inform
+			$this -> tags_save($i_post_id, 'inform', $_POST[$this -> s_taxonomy.'-tags']);
+		}
+		
+		/**
 		 * ajax_proxy(): call proxy from admin AJAX
 		 *
 		 */
 		
 		public function ajax_proxy() {
 			require dirname(__FILE__).'/proxy.php';
+		}
+		
+		// ******************************************************************************
+		// ADMIN
+		
+		/**
+		 * admin_options_validate(): validate settings
+		 *
+		 * @param array $a_input updated settings
+		 *
+		 * @return array validated settings
+		 */
+		
+		public function admin_options_validate($a_input) {
+			
+			$a_options = $this -> options();
+			
+			// autoselect IAB tags
+			$a_options['auto_iabs'] = isset($a_input['auto_iabs']) && $a_input['auto_iabs'];
+			
+			// autoselect Inform tags
+			$a_options['auto_tags'] = isset($a_input['auto_tags']) && $a_input['auto_tags'];
+			
+			// required
+			$a_options['required'] = isset($a_input['required']) && $a_input['required'];
+			
+			return $a_options;
+		}
+		
+		/**
+		 * admin_render_options_page(): render Inform settings page
+		 *
+		 */
+		
+		public function admin_render_options_page() {
+			
+			// restrict
+			if (!current_user_can('manage_options')) {
+				wp_die(__('You do not have sufficient permissions to access this page.'));
+			}
+			
+			?><div class="wrap"><?php
+			
+			screen_icon();
+			
+				?><h2><?php _e('Inform Tagging Options'); ?></h2>
+				<form action="options.php" method="post"><?php
+			
+			settings_fields($this -> s_taxonomy);
+			do_settings_sections($this -> s_taxonomy);
+			
+					?><p class="submit"><input class="button-primary" type="submit" name="submit" value="<?php _e('Save Changes'); ?>" /></p>
+				</form>
+			</div><?php
+		}
+		
+		// ******************************************************************************
+		// ADMIN FIELDS
+		
+		public function admin_render_auto_iabs() {
+			
+			$a_options = $this -> options();
+			
+			?><label for="<?php echo $this -> s_taxonomy; ?>_options_auto_iabs"><input type="checkbox" id="<?php echo $this -> s_taxonomy; ?>_options_auto_iabs" name="<?php echo $this -> s_taxonomy; ?>_options[auto_iabs]" value="1"<?php isset($a_options['auto_iabs']) && checked($a_options['auto_iabs'], 1); ?> /> <em style="color:gray"><?php esc_html_e('Any returned IAB tags will be added to the post\'s IAB tags'); ?></em></label><?php
+		}
+		
+		public function admin_render_auto_tags() {
+			
+			$a_options = $this -> options();
+			
+			?><label for="<?php echo $this -> s_taxonomy; ?>_options_auto_tags"><input type="checkbox" id="<?php echo $this -> s_taxonomy; ?>_options_auto_tags" name="<?php echo $this -> s_taxonomy; ?>_options[auto_tags]" value="1"<?php isset($a_options['auto_tags']) && checked($a_options['auto_tags'], 1); ?> /> <em style="color:gray"><?php esc_html_e('Any returned Inform tags will be added to the post\'s tags'); ?></em></label><?php
+		}
+		
+		public function admin_render_required() {
+			
+			$a_options = $this -> options();
+			
+			?><label for="<?php echo $this -> s_taxonomy; ?>_options_required"><input type="checkbox" id="<?php echo $this -> s_taxonomy; ?>_options_required" name="<?php echo $this -> s_taxonomy; ?>_options[required]" value="1"<?php isset($a_options['required']) && checked($a_options['required'], 1); ?> /> <em style="color:gray"><?php esc_html_e('User will be required to process the post before saving.'); ?></em></label><?php
 		}
 		
 		/**
@@ -132,6 +256,8 @@ if (!class_exists('inform_plugin')) {
 		
 		public function metabox_render_inform() {
 			
+			$a_options = $this -> options();
+			
 			?><div class="hide-if-js"><?php
 			?><label style="vertical-align:top">Inform tags:</label> <?php
 			?><textarea name="<?php echo $this -> s_taxonomy; ?>-tags"><?php
@@ -158,7 +284,12 @@ if (!class_exists('inform_plugin')) {
 			?></textarea><?php
 			?></div><?php
 			
-			wp_nonce_field($this -> s_taxonomy, $this -> s_taxonomy.'_nonce', FALSE);
+			wp_nonce_field('save_tags', $this -> s_taxonomy.'_nonce');
+			
+			// processed flag; assume if saved once has been processed
+			if (isset($_GET['post'])) {
+				?><input type="hidden" name="inform_processed" value="1" /><?php
+			}
 			
 			?><p><input type="button" value="Get tags" class="button"/></p><?php
 			?><script type="text/javascript">
@@ -171,10 +302,11 @@ if (!class_exists('inform_plugin')) {
 					informTagger.articles(10);
 					informTagger.blogs(5);
 					informTagger.iabDelim('<?php echo $this -> s_delim_iab; ?>');
-					informTagger.iabTagsOn(<?php echo get_option('inform_iab_tag_option') === 'on' ? 'true' : 'false'; ?>);
+					informTagger.iabTagsOn(<?php echo isset($a_options['auto_iabs']) && $a_options['auto_iabs'] ? 'true' : 'false'; ?>);
 					informTagger.informDelim('<?php echo $this -> s_delim_inform; ?>');
-					informTagger.informTagsOn(<?php echo get_option('inform_tag_option') === 'on' ? 'true' : 'false'; ?>);
+					informTagger.informTagsOn(<?php echo isset($a_options['auto_tags']) && $a_options['auto_tags'] ? 'true' : 'false'; ?>);
 					informTagger.pairDelim('<?php echo $this -> s_delim_tag_pair; ?>');
+					informTagger.required(<?php echo isset($a_options['required']) && $a_options['required'] ? 'true' : 'false'; ?>);
 					informTagger.searchPrefix('<?php echo $this -> s_search_prefix; ?>');
 					informTagger.tagDelim('<?php echo $this -> s_delim_tag; ?>');
 					informTagger.videos(5);
@@ -204,107 +336,17 @@ if (!class_exists('inform_plugin')) {
 			</script><?php
 		}
 		
-		/**
-		 * options_page_render(): render Inform settings page
-		 *
-		 */
-		
-		public function options_page_render() {
-			
-			// restrict
-			if (!current_user_can('manage_options')) {
-				wp_die(__('You do not have sufficient permissions to access this page.'));
-			}
-			
-			// feedback
-			if (!empty($_POST)) {
-				?><div id="message" class="updated fade"><p><strong><?php _e('Options saved.'); ?></strong></p></div><?php
-			}
-			
-			?><div class="wrap"><?php
-			
-			screen_icon();
-			
-			?><h2><?php _e('Inform Admin Options'); ?></h2>
-			<form id="inform-options" method="post"><?php
-				
-				wp_nonce_field($this -> s_taxonomy, $this -> s_taxonomy.'_nonce', FALSE);
-				
-				?><input type="hidden" name="action" value="inform-options" />
-				<table class="form-table">
-					<tr valign="top">
-						<th scope="row"><?php _e('Auto-select Inform tags'); ?></th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text"><span><?php _e('Auto-select Inform tags'); ?></span></legend>
-								<label><input type="radio" name="inform_tag_option" value="on"<?php echo get_option('inform_tag_option') === 'on' ? ' checked="checked"' : NULL; ?> /> <?php _e('On'); ?></label> <label><input type="radio" name="inform_tag_option" value="off"<?php echo get_option('inform_tag_option') !== 'on' ? ' checked="checked"' : NULL; ?> /> <?php _e('Off'); ?></label>
-							</fieldset>
-						</td>
-					</tr>
-					<tr valign="top">
-						<th scope="row"><?php _e('Auto-select IAB tags'); ?></th>
-						<td>
-							<fieldset>
-								<legend class="screen-reader-text"><span><?php _e('Auto-select IAB tags'); ?></span></legend>
-								<label><input type="radio" name="inform_iab_tag_option" value="on"<?php echo get_option('inform_iab_tag_option') === 'on' ? ' checked="checked"' : NULL; ?> /> <?php _e('On'); ?></label> <label><input type="radio" name="inform_iab_tag_option" value="off"<?php echo get_option('inform_iab_tag_option') !== 'on' ? ' checked="checked"' : NULL; ?> /> <?php _e('Off'); ?></label>
-							</fieldset>
-						</td>
-					</tr>
-				</table>
-				<p class="submit">
-					<input class="button-primary" type="submit" name="submit" value="<?php _e('Save Changes'); ?>" />
-				</p>
-			</form>
-			</div><?php
-		}
+		// ******************************************************************************
+		// CORE METHODS
 		
 		/**
-		 * options_save(): save options
+		 * options(): get saved options
 		 *
+		 * @return array
 		 */
 		
-		public function options_save() {
-			
-			// check nonce, permissions
-			if (!wp_verify_nonce($_POST[$this -> s_taxonomy.'_nonce'], $this -> s_taxonomy) || !current_user_can('manage_options')) {
-				return FALSE;
-			}
-			
-			// update Inform auto-select setting
-			if (isset($_POST['inform_tag_option'])) {
-				update_option('inform_tag_option', $_POST['inform_tag_option'] === 'on' ? 'on' : 'off');
-			}
-			
-			// update IAB auto-select setting
-			if (isset($_POST['inform_iab_tag_option'])) {
-				update_option('inform_iab_tag_option', $_POST['inform_iab_tag_option'] === 'on' ? 'on' : 'off');
-			}
-		}
-		
-		/**
-		 * post_tags_save(): save Inform and IAB tags
-		 *
-		 * @param number $i_post_id id of post being edited
-		 *
-		 */
-		
-		public function post_tags_save($i_post_id) {
-			
-			global $post;
-			
-			// check nonce
-			if (!isset($_POST[$this -> s_taxonomy.'_nonce']) ||
-				!wp_verify_nonce($_POST[$this -> s_taxonomy.'_nonce'], $this -> s_taxonomy) ||
-				!current_user_can('edit_post', $i_post_id) ||
-				$post -> post_type == 'revision') {
-				return FALSE;
-			}
-			
-			// iab
-			$this -> tags_save($i_post_id, 'iab', $_POST[$this -> s_taxonomy.'-iabs']);
-			
-			// inform
-			$this -> tags_save($i_post_id, 'inform', $_POST[$this -> s_taxonomy.'-tags']);
+		private function options() {
+			return get_option($this -> s_taxonomy.'_options');
 		}
 		
 		/**
@@ -379,7 +421,6 @@ if (!class_exists('inform_plugin')) {
 	
 	// instantiate plug-in
 	$inform_plugin = new inform_plugin();
-	$inform_plugin -> init();
 	
 	// API (localized)
 	

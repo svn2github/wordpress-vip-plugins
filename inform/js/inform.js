@@ -16,6 +16,8 @@ var InformTagger = function () {
 		
 		//console.log('Inform.init()');
 		
+		var aEvents;
+		
 		// create Inform tag area at bottom of WP tag meta box
 		self.metaboxTags().append('<div id="inform-tags" class="panel tags">' +
 			'<h4 class="title"><span class="inform-logo">Inform</span> suggested tags</h4>' +
@@ -30,6 +32,11 @@ var InformTagger = function () {
 		self.btnProcess().bind('click', function () {
 			self.process();
 		});
+		
+		// required, bind handler, move to top of stack
+		if (self.required() && (aEvents = jQuery('#publish').bind('click', self.publish).data('events')['click']) && aEvents.length > 1) {
+			aEvents.unshift(aEvents.pop());
+		}
 		
 		// init existing tags
 		$(self.wpTagChecklistSelector() + ' ' + self.wpTagChecklistItemSelector(), self.metaboxIab()).each(self.tagAddHandler);
@@ -87,6 +94,9 @@ var InformTagger = function () {
 	};
 	self.pairDelim = function (input) {
 		return self.getSet('sPairDelim', input);
+	};
+	self.required = function (input) {
+		return self.getSet('bRequired', input);
 	};
 	self.searchPrefix = function (input) {
 		return self.getSet('sSearchPrefix', input);
@@ -493,8 +503,19 @@ var InformTagger = function () {
 		
 		$.post(ajaxurl + '?action=' + self.wpAjaxProxy(), oData, function (sResponse) {
 			self.parseResponse(sResponse);
-			self.btnProcess().val('Get tags');
+			self.btnProcess().val('Get tags').after('<input type="hidden" name="inform_processed" />');
 		});
+	};
+	
+	// processing is required, check for input
+	self.publish = function (e) {
+		if (!$('#inform_metabox :input[name = "inform_processed"]').length) {
+			alert('Please process your post with Inform before saving.');
+			e.stopImmediatePropagation();
+			e.preventDefault();
+			return false;
+		}
+		return true;
 	};
 	
 	// extract Inform/IAB tag arrays from response
