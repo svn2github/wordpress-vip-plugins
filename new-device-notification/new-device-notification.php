@@ -120,7 +120,7 @@ class New_Device_Notification {
 		$debug_message  = '[NDN] [EMAIL ';
 		$debug_message .=  ( $send_email ) ? '' : 'NOT ';
 		$debug_message .= "SENT] New device detected for {$current_user->user_login} on " . parse_url( home_url(), PHP_URL_HOST ) . ': ' . $_SERVER['REMOTE_ADDR'] . " ({$location->human}) using " . $_SERVER['HTTP_USER_AGENT'];
-		send_vip_team_debug_message( $debug_message );
+		send_vip_team_debug_message( $debug_message, 'ndn' );
 
 		if ( ! $send_email )
 			return false;
