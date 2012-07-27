@@ -38,7 +38,8 @@ class WPcom_Thumbnail_Editor {
 			$this->imgpress_url = staticize_subdomain( $this->imgpress_url );
 
 		// When a thumbnail is requested, intercept the request and return the custom thumbnail
-		add_filter( 'image_downsize', array( &$this, 'get_thumbnail_url' ), 15, 3 );
+		if ( ! function_exists( 'is_private_blog' ) || ( function_exists( 'is_private_blog' ) && ! is_private_blog() ) )
+			add_filter( 'image_downsize', array( &$this, 'get_thumbnail_url' ), 15, 3 );
 
 		// Admin-only hooks
 		if ( is_admin() ) {
@@ -104,7 +105,11 @@ class WPcom_Thumbnail_Editor {
 		$sizes = $this->get_intermediate_image_sizes();
 
 		if ( empty( $sizes ) )
-			return '<p>' . __( 'No thumbnail sizes could be found that are cropped. For now this functionality only supports cropped thumbnails.' ) . '</p>';
+			return '<p>' . __( 'No thumbnail sizes could be found that are cropped. For now this functionality only supports cropped thumbnails.', 'wpcom-thumbnail-editor' ) . '</p>';
+
+		// ImgPress has to be able to access the source images
+		if ( function_exists( 'is_private_blog' ) && is_private_blog() )
+			return '<p>' . sprintf( __( "The custom thumbnail cropping functionality doesn't work on sites <a href='%s'>marked as private</a>.", 'wpcom-thumbnail-editor' ), admin_url( 'options-privacy.php' ) ) . '</p>';
 
 		$html = '<p class="hide-if-js">' . __( 'You need to enable Javascript to use this functionality.', 'wpcom-thumbnail-editor' ) . '</p>';
 
