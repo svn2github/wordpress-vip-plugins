@@ -407,7 +407,8 @@ class Livefyre_Display {
 			$article = $site->article( $post_id );
 			$conv = $article->conversation();
 			$use_backplane = $this->lf_core->AppExtension->get_option( 'livefyre_use_backplane', false );
-			if ( $use_backplane || $this->lf_core->AppExtension->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) == LF_DEFAULT_PROFILE_DOMAIN || defined( LF_WP_VIP ) ) {
+			$network_name = $this->lf_core->AppExtension->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
+			if ( $use_backplane || $network_name == LF_DEFAULT_PROFILE_DOMAIN || defined( LF_WP_VIP ) ) {
 				/* In these scenarios, we can't make assumptions about how user auth
 				   events need to be set up.  For livefyre.com profiles all defaults are
 				   inferred.  In the case of Backplane and/or WP VIP this shall be set
@@ -431,7 +432,7 @@ class Livefyre_Display {
     			}
 			}
 		} else if ( !is_single() ) {
-			echo '<script type="text/javascript" id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
+			echo '<script type="text/javascript" data-lf-domain="' . $network_name . '"  id="ncomments_js" src="'.$this->lf_core->assets_url.'/wjs/v1.0/javascripts/CommentCount.js"></script>';
 		}
 
 	}
