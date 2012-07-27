@@ -56,6 +56,8 @@ class SocialFlow_Plugin {
 
 		if ( is_admin() )
 			require_once( dirname( __FILE__ ) . '/includes/settings.php' );
+
+		add_post_type_support( 'post', 'socialflow' );
 	}
 
 	public function admin_init() {
@@ -329,7 +331,7 @@ class SocialFlow_Plugin {
 	}
 
 	function transition_post_status( $new_status, $old_status, $post ) {
-		if ( 'publish' != $new_status || 'publish' == $old_status )
+		if ( 'publish' != $new_status || 'publish' == $old_status || ! post_type_supports( $post->post_type, 'socialflow' ) )
 		 	return;
 
 		$message = isset( $_GET['sf_text'] ) ? sanitize_text_field( $_GET['sf_text'] ) : get_post_meta( $post->ID, 'sf_text', true );
