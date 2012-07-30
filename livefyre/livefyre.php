@@ -395,6 +395,7 @@ class Livefyre_Display {
 	function lf_embed_head_script() {
 
 		global $post, $current_user;
+		$network_name = $this->lf_core->AppExtension->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
 		if ( comments_open() && $this->livefyre_show_comments() ) {// is this a post page?
 			if( $parent_id = wp_is_post_revision( $post->ID ) ) {
 				$post_id = $parent_id;
@@ -407,7 +408,6 @@ class Livefyre_Display {
 			$article = $site->article( $post_id );
 			$conv = $article->conversation();
 			$use_backplane = $this->lf_core->AppExtension->get_option( 'livefyre_use_backplane', false );
-			$network_name = $this->lf_core->AppExtension->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
 			if ( $use_backplane || $network_name == LF_DEFAULT_PROFILE_DOMAIN || defined( LF_WP_VIP ) ) {
 				/* In these scenarios, we can't make assumptions about how user auth
 				   events need to be set up.  For livefyre.com profiles all defaults are
