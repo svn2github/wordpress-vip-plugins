@@ -68,14 +68,6 @@ In this way you could simply limit your updates on posts with a certain category
 
 
 // Some ideas taken from http://twitter.slawcup.com/twitter.class.phps
-;
-if ( ABSPATH ) {
-   require_once( ABSPATH . 'wp-config.php' );
-   require_once( ABSPATH . 'wp-includes/class-snoopy.php' );
-} else {
-   require_once( '../../../wp-config.php' );
-   require_once( '../../../wp-includes/class-snoopy.php' );
-}
 
 require_once( 'xml.php' );
 require_once( 'twitter_oauth/twitteroauth.php' );
