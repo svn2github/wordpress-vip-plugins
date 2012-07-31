@@ -219,11 +219,14 @@
 			text-indent: -9999px;
 		}
 	.zone-search-wrapper {
-		padding-bottom: 5px;
+		padding: 7px 0;
 		border-bottom: 1px dotted #999;
 	}
 		#zone-post-search {
 			width: 99%;
+		}
+		#zone-post-latest {
+			width: 98%;
 		}
 
 /** Autocomplete **/

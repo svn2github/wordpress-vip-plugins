@@ -91,6 +91,7 @@ class Zoninator
 				'query_var' => false,
 				'rewrite' => false,
 				'public' => false,
+
 			) );
 		}
 		
@@ -413,6 +414,8 @@ class Zoninator
 					<div class="zone-posts-wrapper <?php echo ! $this->_current_user_can_manage_zones( $zone_id ) || $zone_locked ? 'readonly' : ''; ?>">
 						<?php if( $zone_id ) : ?>
 							<h3><?php _e( 'Zone Content', 'zoninator' ); ?></h3>
+						
+							<?php $this->zone_admin_recent_posts_dropdown(); ?>
 							
 							<?php $this->zone_admin_search_form(); ?>
 							
@@ -477,6 +480,36 @@ class Zoninator
 		
 		<div class="row-actions">
 			<?php echo implode( ' | ', $action_links ); ?>
+		</div>
+		<?php
+	}
+
+	function zone_admin_recent_posts_dropdown() {
+		// TODO: exclude posts already in zone
+		$limit = $this->posts_per_page;
+		$post_types = $this->get_supported_post_types();
+
+		$args = apply_filters( 'zoninator_recent_posts_args', array(
+			'posts_per_page' => $limit,
+			'order' => 'DESC',
+			'orderby' => 'post_date',
+			'post_type' => $post_types,
+			'ignore_sticky_posts' => true,
+		) );
+
+		$latest_query = new WP_Query( $args );
+		?>
+		<div class="zone-search-wrapper">
+			<label for="zone-post-search-latest"><?php _e( 'Add Recent Content', 'zontinator' );?></label><br />
+			<select name="search-posts" id="zone-post-latest">
+				<option value="">Choose latest post</option>
+				<?php			
+				while ( $latest_query->have_posts() ) : $latest_query->the_post();
+					echo sprintf( '<option value="%d">%s (%s)</option>', get_the_ID(), get_the_title(), get_the_time( get_option( 'date_format' ) ) );
+				endwhile;
+				wp_reset_postdata();
+				?>
+			</select>
 		</div>
 		<?php
 	}
@@ -630,7 +663,6 @@ class Zoninator
 				's' => $q,
 				'post__not_in' => $exclude,
 				'posts_per_page' => $limit,
-				'showposts' => $limit,
 				'post_type' => $post_types,
 				'post_status' => array( 'publish', 'future' ),
 				'order' => 'DESC',
