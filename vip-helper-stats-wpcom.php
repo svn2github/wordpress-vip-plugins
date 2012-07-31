@@ -38,7 +38,7 @@
  */
 function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = false ) {
 	global $wpdb;
-	$cache_id = md5( 'top' . $wpdb->blogid . 'postviews' . $end_date . $num_days . $limit );
+	$cache_id = md5( 'top|' . $wpdb->blogid . '|' . 'postviews' . '|' . $end_date . '|' . $num_days . '|' . $limit );
 	$arr = wp_cache_get( $cache_id, 'vip_stats' );
 	if ( !$arr ) {
 		$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', 200 );
@@ -62,7 +62,7 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
  */
 function wpcom_vip_get_stats_array( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 5, $summarize = NULL ) {
 	global $wpdb;
-	$cache_id = md5( 'array' . $wpdb->blogid . $table . $end_date . $num_days . $end . $limit . $summarize );
+	$cache_id = md5( 'array|' . $wpdb->blogid . '|' . $table . '|' . $end_date . '|' . $num_days . '|' . $and . '|' . $limit . '|' . $summarize );
 	$arr = wp_cache_get( $cache_id, 'vip_stats' );
 	if ( !$arr ) {
 		$stat_result = _wpcom_vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
@@ -88,7 +88,7 @@ function wpcom_vip_get_stats_array( $table = 'views', $end_date = false, $num_da
  */
 function wpcom_vip_get_stats_csv( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 5, $summarize = NULL ) {
 	global $wpdb;
-	$cache_id = md5( 'csv' . $wpdb->blogid . $table . $end_date . $num_days . $end . $limit . $summarize );
+	$cache_id = md5( 'csv|' . $wpdb->blogid . '|' . $table . '|' . $end_date . '|' . $num_days . '|' . $and . '|' . $limit . '|' . $summarize );
 	$csv = wp_cache_get( $cache_id, 'vip_stats' );
 	if ( !$csv ) {
 		$stat_result = _wpcom_vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
@@ -111,7 +111,7 @@ function wpcom_vip_get_stats_csv( $table = 'views', $end_date = false, $num_days
  */
 function wpcom_vip_get_stats_xml( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 5, $summarize = NULL ) {
 	global $wpdb;
-	$cache_id = md5( 'xml' . $wpdb->blogid . $table . $end_date . $num_days . $end . $limit . $summarize );
+	$cache_id = md5( 'xml|' . $wpdb->blogid . '|' . $table . '|' . $end_date . '|' . $num_days . '|' . $and . '|' . $limit . '|' . $summarize );
 	$xml = wp_cache_get( $cache_id, 'vip_stats' );
 	if ( !$xml ) {
 		$stat_result = _wpcom_vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
