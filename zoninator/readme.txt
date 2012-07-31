@@ -55,6 +55,10 @@ Filter the following and change according to your needs:
 
 == Changelog ==
 
+= 0.4 =
+
+* New dropdown that recent posts which can be adding to zones, props metromatic and Metro UK
+
 = 0.3 =
 
 * Introduce z_get_zone_query: returns a WP_Query object so you can run the loop like usual.
