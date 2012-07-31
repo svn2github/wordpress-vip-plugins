@@ -311,6 +311,9 @@ if ( !function_exists( 'get_shortlink' ) ) {
 function post_now_published( $post_id ) {
 	global $twit_plugin_prefix, $post;
 
+	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING )
+		return;
+
 	$post_update = apply_filters( 'wordtwit_post_update', true, $post_id );
 	
 	$max_age = get_option( $twit_plugin_prefix . 'max_age', 0 );
