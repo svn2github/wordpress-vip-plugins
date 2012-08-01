@@ -243,7 +243,7 @@ function postrelease_create_menu() {
  * All of this is done inside the iframe.
  */
 function postrelease_settings_page() {
-	$dashboard_path = PRX_POSTRELEASE_SERVER . '/wpplugin/Index/?PublicationUrl=' . urlencode(site_url('/'));
+	$dashboard_path = PRX_POSTRELEASE_SERVER . '/wpplugin/Index/?PublicationUrl=' . urlencode(esc_url_raw( site_url( '/' ), array( 'http' ) )) . '&vip=1';
 	echo '<center><iframe src="'. esc_url( $dashboard_path ) .'" style="margin: 0 auto;" width="700px" height="900px" frameborder="0" scrolling="no"></iframe></center>';
 }
 
