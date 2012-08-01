@@ -197,9 +197,7 @@ function postrelease_is_key_valid($key) {
   * PostRelease will use this for geotargetting
   */
  function postrelease_get_client_IP() { 
-    $ipString = @getenv("HTTP_X_FORWARDED_FOR"); 
-    $addr = explode(",", $ipString);
-    return $addr[sizeof($addr)-1];
+    return $_SERVER['REMOTE_ADDR'];
 }
 
 /**
@@ -373,6 +371,12 @@ function postrelease_send_success_response() {
  * process and later for indexing purposes
  */
 function postrelease_generate_security_key() {
+	//if key already exists
+	if( false != get_option('prx_plugin_key', false) ) { 
+		print('FAIL: Key already generated');
+		return;
+	}
+
 	if( postrelease_authenticate_IP() ) {
 		$key = wp_generate_password( 10, false, false );
 		update_option('prx_plugin_key', $key);
@@ -380,7 +384,7 @@ function postrelease_generate_security_key() {
 		$output = json_encode($data);
 		print($output);
 	} else {
-		print('Invalid IP');
+		print('FAIL: Invalid IP');
 	}
 }
 
