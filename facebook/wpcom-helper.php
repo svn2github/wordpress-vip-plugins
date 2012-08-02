@@ -19,3 +19,5 @@ function fbwpcom_delete_user_meta( $original, $user_id, $meta_key, $meta_value )
 	delete_user_attribute( $user_id, $meta_key, $meta_value );
 	return true;
 }
+
+add_filter( 'fb_notify_user_of_plugin_conflicts', '__return_false' );

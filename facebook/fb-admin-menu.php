@@ -25,6 +25,10 @@ function fb_create_menu() {
  */
 function fb_notify_user_of_plugin_conflicts()
 {
+	// WP.com prevent these checks since not relevant /z 7670
+	if ( false == apply_filters( 'fb_notify_user_of_plugin_conflicts', true ) )
+		return;
+
 	//static array of potentially conflicting plugins
   //add to this list of conflicting plugins from the big list below 
 	$og_conflicting_plugins_static = array( "http://wordpress.org/extend/plugins/facebook/", 
