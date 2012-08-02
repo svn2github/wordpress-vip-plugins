@@ -151,15 +151,15 @@ class WPcom_VIP_Plugins_UI {
 		$this->fpp_plugins = array(
 			'chartbeat'     => array(
 				'name'        => 'Chartbeat',
-				'description' => 'Real-time data for big-time publishers',
-			),
-			'engagewidget'  => array(
-				'name'        => 'ContextLogic',
-				'description' => "Dramatically increase your site's traffic and engagement",
+				'description' => 'Real-time data for big-time publishers.',
 			),
 			'daylife'       => array(
 				'name'        => 'Daylife',
 				'description' => 'Daylife. Simply Amazing Cloud Publishing.',
+			),
+			'facebook'       => array(
+				'name'        => 'Facebook',
+				'description' => 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
 			),
 			'livefyre'      => array(
 				'name'        => 'Livefyre',
@@ -175,7 +175,11 @@ class WPcom_VIP_Plugins_UI {
 			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
-				'description' => 'Powering personalized video across all screens',
+				'description' => 'Powering personalized video across all screens.',
+			),
+			'postrelease-vip'        => array(
+				'name'        => 'PostRelease',
+				'description' => 'Sponsored posts made easy to deploy and manage.',
 			),
 			'socialflow'    => array(
 				'name'        => 'SocialFlow',

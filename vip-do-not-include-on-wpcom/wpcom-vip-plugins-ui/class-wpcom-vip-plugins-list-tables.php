@@ -154,7 +154,7 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 		if ( ! isset( WPcom_VIP_Plugins_UI()->fpp_plugins[$slug] ) )
 			return;
 
-		$image_src = plugins_url( 'images/featured-plugins/' . $slug . '.png', __FILE__ );
+		$image_src = plugins_url( 'images/featured-plugins/' . $slug . '-1x.png', __FILE__ );
 
 		$lobby_url = 'http://lobby.vip.wordpress.com/plugins/' . $slug . '/';
 
