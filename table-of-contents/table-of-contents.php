@@ -22,6 +22,10 @@ class Table_Of_Contents {
 	}
 
 	function add_toc( $content ) {
+		// only affect the main post and not post in custom queries
+		if ( get_the_ID() != get_queried_object_id() )
+			return $content;
+
 		$toc = '';
 		$h3s = self::get_tags( 'h3', $content );
 		$h4s = self::get_tags( 'h4', $content );
@@ -44,6 +48,10 @@ class Table_Of_Contents {
 	}
 
 	function add_overview_h3( $content ) {
+		// only affect the main post and not post in custom queries
+		if ( get_the_ID() != get_queried_object_id() )
+			return $content;
+
 		$h3s = self::get_tags( 'h3', $content );
 		if ( ! empty( $h3s ) )
 			$content = "<h3>Overview</h3>\n" . $content;
