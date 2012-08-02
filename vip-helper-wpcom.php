@@ -24,62 +24,19 @@ function vip_allow_title_orphans() {
 	remove_filter('the_title', 'widont');
 }
 
-/*
- * Only display related posts from own blog
- *
- * 1. Make sure Appearance -> Extras: 'Hide related links on this blog' is NOT checked
- * 2. Call vip_related_posts() in functions.php
- * 3. Call vip_display_related_posts() in the loop where you want them displayed
- *
- * $before and $after can be used to control the HTML that wraps around the entire related posts list
- * ex. vip_related_posts( '<div class="related-posts">', '</div>' );
- *
- * @author nickmomrik
- */
-
+// Deprecated
 function vip_related_posts($before = '', $after = '') {
-	remove_filter('the_content', 'sphere_inline');
-	if ( !empty($before) ) add_filter('sphere_inline_before', create_function( '', 'return '.var_export( $before, true ).';') );
-	if ( !empty($after) ) add_filter('sphere_inline_after', create_function( '', 'return '.var_export( $after, true ).';') );
+	return;
 }
 
+// Deprecated
 function vip_display_related_posts( $limit_to_same_domain = true ) {
-	echo sphere_inline('', $limit_to_same_domain);
+	return;
 }
 
-/*
- * Retrieves an array of possibly related posts
- *
- * 1. Make sure Appearance -> Extras: 'Hide related links on this blog' is NOT checked
- * 2. Call vip_related_posts() in functions.php to prevent related links from being automatically displayed
- * 3. Use this function to get the related posts into an array.
- *
- * Returns an array of related posts:
- * array =>
- *     array
- *       'url' => string
- *       'title' => string
- *       'timestamp' => string (YYYY-MM-DD)
- *       'host' => string, ie 'blog.wordpress.com' 
- *       'source' => 
- *         array
- *           'sourcename' => string (site name)
- *           'sourceurl' => string (site url)
- *           'sourcetype' => string (site source: same_domain, wpcom, partners)
- *
- * @author yoavf
- */
-
+// Deprecated
 function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true ){
-	$permalink = get_permalink();
-
-	if ( function_exists( 'stats_extra' ) )
-		stats_extra( 'related_links', 'vip_get' );
-
-	if ( function_exists( 'get_sphere_results' ) )
-		return get_sphere_results( $permalink, $max_num, $limit_to_same_domain );
-	else
-		return array(); // TODO: return dummy data
+	return array();
 }
 
 /**
