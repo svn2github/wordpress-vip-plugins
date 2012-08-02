@@ -15,33 +15,49 @@
 
 function fb_get_like_button($options = array()) {
 	$params = fb_build_social_plugin_params($options);
-
+	
 	return '<div class="fb-like fb-social-plugin" ' . $params . ' ></div>';
 }
 
 function fb_like_button_automatic($content) {
 	$options = get_option('fb_options');
-
-	$new_content = '';
-
-	switch ($options['like']['position']) {
-		case 'top':
-			$new_content = fb_get_like_button($options['like']) . $content;
-			break;
-		case 'bottom':
-			$new_content = $content . fb_get_like_button($options['like']);
-			break;
-		case 'both':
-			$new_content = fb_get_like_button($options['like']) . $content;
-			$new_content .= fb_get_like_button($options['like']);
-			break;
-	}
-
-	if ( empty( $options['like']['show_on_homepage'] ) && is_singular() ) {
-		$content = $new_content;
-	}
-	elseif ( isset($options['like']['show_on_homepage']) ) {
-		$content = $new_content;
+	
+	global $post;
+	
+	if ( isset ( $post ) ) {
+		if ( isset($options['like']['show_on_homepage']) ) {
+			$options['like']['href'] = get_permalink($post->ID);
+		}
+		
+		$new_content = '';
+	
+		switch ($options['like']['position']) {
+			case 'top':
+				$new_content = fb_get_like_button($options['like']) . $content;
+				break;
+			case 'bottom':
+				$new_content = $content . fb_get_like_button($options['like']);
+				break;
+			case 'both':
+				$new_content = fb_get_like_button($options['like']) . $content;
+				$new_content .= fb_get_like_button($options['like']);
+				break;
+		}
+	
+		$show_indiv = get_post_meta( $post->ID, 'fb_social_plugin_settings_box_like', true );
+		
+		if ( is_home() && isset ( $options['like']['show_on_homepage'] ) ) {
+			$content = $new_content;
+		}
+		elseif ( ( 'default' == $show_indiv || empty( $show_indiv ) ) && isset ( $options['like']['show_on'] ) ) {		
+			if ( is_page() && ( $options['like']['show_on'] == 'all pages' || $options['like']['show_on'] == 'all posts and pages' ) )
+				$content = $new_content;
+			elseif ( is_single() && ( $options['like']['show_on'] == 'all posts' || $options['like']['show_on'] == 'all posts and pages' ) )
+				$content = $new_content;
+		}
+		elseif ( 'show' == $show_indiv ) {
+			$content = $new_content;
+		}
 	}
 
 	return $content;
@@ -152,7 +168,7 @@ function fb_get_like_fields_array($placement) {
 													),
 										array('name' => 'width',
 													'type' => 'text',
-													'default' => '250',
+													'default' => '450',
 													'help_text' => __( 'The width of the plugin, in pixels.', 'facebook' ),
 													'sanitization_callback' => 'intval',
 													),
@@ -171,7 +187,7 @@ function fb_get_like_fields_array($placement) {
 													),
 										array('name' => 'font',
 													'type' => 'dropdown',
-													'default' => 'arial',
+													'default' => 'lucida grande',
 													'options' => array('arial' => 'arial', 'lucida grande' => 'lucida grande', 'segoe ui' => 'segoe ui', 'tahoma' => 'tahoma', 'trebuchet ms' => 'trebuchet ms', 'verdana' => 'verdana'),
 													'help_text' => __( 'The font of the button.', 'facebook' ),
 													),
@@ -183,6 +199,12 @@ function fb_get_like_fields_array($placement) {
 													'default' => 'both',
 													'options' => array('top' => 'top', 'bottom' => 'bottom', 'both' => 'both'),
 													'help_text' => __( 'Where the button will display on the page or post.', 'facebook' ),
+													);
+		$array['children'][] = array('name' => 'show_on',
+													'type' => 'dropdown',
+													'default' => 'all posts and pages',
+													'options' => array('all posts' => 'all posts', 'all pages' => 'all pages', 'all posts and pages' => 'all posts and pages', 'individual posts and pages' => 'individual posts and pages' ),
+													'help_text' => __( 'Whether the plugin will appear on all posts or pages by default. If "individual posts and pages" is selected, you must explicitly set each post and page to display the plugin.', 'facebook' ),
 													);
 		$array['children'][] = array('name' => 'show_on_homepage',
 													'type' => 'checkbox',

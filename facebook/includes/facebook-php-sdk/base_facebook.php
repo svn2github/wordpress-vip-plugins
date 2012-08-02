@@ -15,13 +15,13 @@
  * under the License.
  */
 
-if ( ! class_exists( 'FacebookApiException' ) ):
+if ( ! class_exists( 'WP_FacebookApiException' ) ):
 /**
  * Thrown when an API call returns an exception.
  *
  * @author Naitik Shah <naitik@facebook.com>
  */
-class FacebookApiException extends Exception
+class WP_FacebookApiException extends Exception
 {
   /**
    * The result from the API server that represents the exception information.
@@ -36,7 +36,9 @@ class FacebookApiException extends Exception
   public function __construct($result) {
     $this->result = $result;
 
-    $code = isset($result['error_code']) ? $result['error_code'] : 0;
+    //when api call fails (no available transport, i.e. cURL etc. not working), error code comes
+    // out as string 'http_failure', but $code needs to be int. is_int returns false if !isset()
+    $code = is_int($result['error_code']) ? $result['error_code'] : 0;
 
     if (isset($result['error_description'])) {
       // OAuth 2.0 Draft 10 style
@@ -51,7 +53,7 @@ class FacebookApiException extends Exception
       $msg = 'Unknown Error. Check getResult()';
     }
 
-    //parent::__construct($msg, $code);
+    parent::__construct($msg, $code);
   }
 
   /**
@@ -101,7 +103,7 @@ class FacebookApiException extends Exception
 }
 endif;
 
-if ( ! class_exists( 'BaseFacebook' ) ):
+if ( ! class_exists( 'WP_BaseFacebook' ) ):
 /**
  * Provides access to the Facebook Platform.  This class provides
  * a majority of the functionality needed, but the class is abstract
@@ -111,7 +113,7 @@ if ( ! class_exists( 'BaseFacebook' ) ):
  *
  * @author Naitik Shah <naitik@facebook.com>
  */
-abstract class BaseFacebook
+abstract class WP_BaseFacebook
 {
   /**
    * Version.
@@ -213,7 +215,7 @@ abstract class BaseFacebook
    * Set the Application ID.
    *
    * @param string $appId The Application ID
-   * @return BaseFacebook
+   * @return WP_BaseFacebook
    */
   public function setAppId($appId) {
     $this->appId = $appId;
@@ -233,7 +235,7 @@ abstract class BaseFacebook
    * Set the App Secret.
    *
    * @param string $apiSecret The App Secret
-   * @return BaseFacebook
+   * @return WP_BaseFacebook
    * @deprecated
    */
   public function setApiSecret($apiSecret) {
@@ -245,7 +247,7 @@ abstract class BaseFacebook
    * Set the App Secret.
    *
    * @param string $appSecret The App Secret
-   * @return BaseFacebook
+   * @return WP_BaseFacebook
    */
   public function setAppSecret($appSecret) {
     $this->appSecret = $appSecret;
@@ -275,7 +277,7 @@ abstract class BaseFacebook
    * Extend an access token, while removing the short-lived token that might have been generated via client-side flow.
    * Thanks to http://stackoverflow.com/questions/486896/adding-a-parameter-to-the-url-with-javascript for the workaround
    */
-  public function getExtendedAccessToken() {
+  public function setExtendedAccessToken() {
     try {
       // need to circumvent json_decode by calling _oauthRequest
       // directly, since response isn't JSON format.
@@ -287,7 +289,7 @@ abstract class BaseFacebook
           'grant_type'=>'fb_exchange_token',
           'fb_exchange_token'=>$this->getAccessToken(),
         ));
-      } catch (FacebookApiException $e) {
+      } catch (WP_FacebookApiException $e) {
         // most likely that user very recently revoked authorization.
         // In any event, we don't have an access token, so say so.
         return false;
@@ -313,7 +315,7 @@ abstract class BaseFacebook
    * Set the file upload support status.
    *
    * @param boolean $fileUploadSupport The file upload support status.
-   * @return BaseFacebook
+   * @return WP_BaseFacebook
    */
   public function setFileUploadSupport($fileUploadSupport) {
     $this->fileUploadSupport = $fileUploadSupport;
@@ -346,7 +348,7 @@ abstract class BaseFacebook
    * to use it.
    *
    * @param string $access_token an access token.
-   * @return BaseFacebook
+   * @return WP_BaseFacebook
    */
   public function setAccessToken($access_token) {
     $this->accessToken = $access_token;
@@ -615,7 +617,7 @@ abstract class BaseFacebook
   /**
    * Constructs and returns the name of the cookie that
    * potentially houses the signed request for the app user.
-   * The cookie is not set by the BaseFacebook class, but
+   * The cookie is not set by the WP_BaseFacebook class, but
    * it may be set by the JavaScript SDK.
    *
    * @return string the name of the cookie that would house
@@ -627,7 +629,7 @@ abstract class BaseFacebook
 
   /**
    * Constructs and returns the name of the coookie that potentially contain
-   * metadata. The cookie is not set by the BaseFacebook class, but it may be
+   * metadata. The cookie is not set by the WP_BaseFacebook class, but it may be
    * set by the JavaScript SDK.
    *
    * @return string the name of the cookie that would house metadata.
@@ -677,7 +679,7 @@ abstract class BaseFacebook
     try {
       $user_info = $this->api('/me');
       return $user_info['id'];
-    } catch (FacebookApiException $e) {
+    } catch (WP_FacebookApiException $e) {
       return 0;
     }
   }
@@ -736,7 +738,7 @@ abstract class BaseFacebook
                           'client_secret' => $this->getAppSecret(),
                           'redirect_uri' => $redirect_uri,
                           'code' => $code));
-    } catch (FacebookApiException $e) {
+    } catch (WP_FacebookApiException $e) {
       // most likely that user very recently revoked authorization.
       // In any event, we don't have an access token, so say so.
       return false;
@@ -761,7 +763,7 @@ abstract class BaseFacebook
    * @param array $params Method call object
    *
    * @return mixed The decoded response object
-   * @throws FacebookApiException
+   * @throws WP_FacebookApiException
    */
   protected function _restserver($params) {
     // generic application level parameters
@@ -809,7 +811,7 @@ abstract class BaseFacebook
    * @param array $params The query/post data
    *
    * @return mixed The decoded response object
-   * @throws FacebookApiException
+   * @throws WP_FacebookApiException
    */
   protected function _graph($path, $method = 'GET', $params = array()) {
     if (is_array($method) && empty($params)) {
@@ -844,7 +846,7 @@ abstract class BaseFacebook
    * @param array $params The query/post data
    *
    * @return string The decoded response object
-   * @throws FacebookApiException
+   * @throws WP_FacebookApiException
    */
   protected function _oauthRequest($url, $params) {
     if (!isset($params['access_token'])) {
@@ -907,7 +909,7 @@ abstract class BaseFacebook
     }
 
     if ($result === false) {
-      $e = new FacebookApiException(array(
+      $e = new WP_FacebookApiException(array(
         'error_code' => curl_errno($ch),
         'error' => array(
         'message' => curl_error($ch),
@@ -1127,7 +1129,7 @@ abstract class BaseFacebook
    *                      by a failed API call.
    */
   protected function throwAPIException($result) {
-    $e = new FacebookApiException($result);
+    $e = new WP_FacebookApiException($result);
     switch ($e->getType()) {
       // OAuth 2.0 Draft 00 style
       case 'OAuthException':
@@ -1267,7 +1269,7 @@ abstract class BaseFacebook
   abstract protected function setPersistentData($key, $value);
 
   /**
-   * Get the data for $key, persisted by BaseFacebook::setPersistentData()
+   * Get the data for $key, persisted by WP_BaseFacebook::setPersistentData()
    *
    * @param string $key The key of the data to retrieve
    * @param boolean $default The default value to return if $key is not found

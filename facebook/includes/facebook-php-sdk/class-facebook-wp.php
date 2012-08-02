@@ -1,6 +1,6 @@
 <?php
 
-if ( ! class_exists( 'Facebook' ) )
+if ( ! class_exists( 'WP_Facebook' ) )
 	require_once( dirname( __FILE__ ) . '/facebook.php' );
 
 /**
@@ -8,7 +8,7 @@ if ( ! class_exists( 'Facebook' ) )
  *
  * @since 1.0
  */
-class Facebook_WP extends Facebook {
+class Facebook_WP_Extend extends WP_Facebook {
 	/**
 	 * Override Facebook PHP SDK cURL function with WP_HTTP
 	 * Facebook PHP SDK is POST-only
@@ -24,26 +24,81 @@ class Facebook_WP extends Facebook {
 		global $wp_version;
 
 		if ( empty( $url ) || empty( $params ) )
-			throw new FacebookApiException( array( 'error_code' => 400, 'error' => array( 'type' => 'makeRequest', 'message' => 'Invalid parameters and/or URI passed to makeRequest' ) ) );
-
+			throw new WP_FacebookApiException( array( 'error_code' => 400, 'error' => array( 'type' => 'makeRequest', 'message' => 'Invalid parameters and/or URI passed to makeRequest' ) ) );
+			
 		$params = array(
 			'redirection' => 0,
 			'httpversion' => '1.1',
 			'timeout' => 60,
 			'user-agent' => apply_filters( 'http_headers_useragent', 'WordPress/' . $wp_version . '; ' . get_bloginfo( 'url' ) . '; facebook-php-' . self::VERSION . '-wp' ),
-			'headers' => array( 'Expect:' ),
+			'headers' => array( 'Connection' => 'close' , 'Content-type' => 'application/x-www-form-urlencoded'),
 			'sslverify' => false, // warning: might be overridden by 'https_ssl_verify' filter
 			'body' => http_build_query( $params, '', '&' )
 		);
 
 		$response = wp_remote_post( $url, $params );
-		if ( is_wp_error( $response ) )
-			throw new FacebookApiException( array( 'error_code' => $response->get_error_code(), 'error_msg' => $response->get_error_message() ) );
-		else if ( wp_remote_retrieve_response_code( $response ) != '200' )
-			throw new FacebookApiException( array( 'error_code' => wp_remote_retrieve_response_code( $response ), 'error' => array( 'type' => 'WP_HTTP', 'message' => 'HTTP Status not OK' ) ) );
-
+		
+		if ( is_wp_error( $response ) ) {
+			throw new WP_FacebookApiException( array( 'error_code' => $response->get_error_code(), 'error_msg' => $response->get_error_message() ) );
+		}
+		else if ( wp_remote_retrieve_response_code( $response ) != '200' ) {
+			$fb_response = json_decode( $response['body'] );
+			
+			$error_subcode = '';
+			
+			if ( isset( $fb_response->error->error_subcode ) ) {
+				$error_subcode = $fb_response->error->error_subcode;
+			}
+			
+			throw new WP_FacebookApiException(array(
+        'error_code' => $fb_response->error->code,
+        'error' => array(
+        'message' => $fb_response->error->message,
+        'type' => $fb_response->error->type,
+        ),
+      ));
+		}
+		
 		return wp_remote_retrieve_body( $response );
 	}
+  
+  /**
+   * Extend an access token, while removing the short-lived token that might have been generated via client-side flow.
+   * Thanks to http://stackoverflow.com/questions/486896/adding-a-parameter-to-the-url-with-javascript for the workaround
+   */
+  public function setExtendedAccessToken() {
+    try {
+      // need to circumvent json_decode by calling _oauthRequest
+      // directly, since response isn't JSON format.
+      $access_token_response =
+        $this->_oauthRequest(
+          $this->getUrl('graph', '/oauth/access_token'),
+          $params = array(    'client_id' => $this->getAppId(),
+          'client_secret' => $this->getAppSecret(),
+          'grant_type'=>'fb_exchange_token',
+          'fb_exchange_token'=>$this->getAccessToken(),
+        ));
+      } catch (WP_FacebookApiException $e) {
+        // most likely that user very recently revoked authorization.
+        // In any event, we don't have an access token, so say so.
+        return false;
+      }
+  
+      if (empty($access_token_response)) {
+        return false;
+      }
+      
+      $response_params = array();
+      parse_str($access_token_response, $response_params);
+      
+      if (!isset($response_params['access_token'])) {
+        return false;
+      }
+      
+      $this->destroySession();
+      
+      $this->setPersistentData('access_token', $response_params['access_token']);
+  }
 
   /**
    * Provides the implementations of the inherited abstract

@@ -42,20 +42,36 @@ function fb_get_comments_count() {
 }
 
 function fb_comments_automatic($content) {
-	if ( comments_open( get_the_ID() ) && post_type_supports( get_post_type(), 'comments' ) ) {
-		if ( is_singular() ) {
+	global $post;
+	
+	if ( isset ( $post ) ) {
+		if ( comments_open( get_the_ID() ) && post_type_supports( get_post_type(), 'comments' ) ) {
 			$options = get_option('fb_options');
-
-			foreach($options['comments'] as $param => $val) {
-				$param = str_replace('_', '-', $param);
-
-				$params['data-' . $param] = $val;
+			$show_indiv = get_post_meta( $post->ID, 'fb_social_plugin_settings_box_comments', true );
+			if ( ! is_home() && ( 'default' == $show_indiv || empty( $show_indiv ) ) && $options['comments']['show_on'] ) {
+				if ( ( is_page() && ( $options['comments']['show_on'] == 'all pages' || $options['comments']['show_on'] == 'all posts and pages' ) )
+						or ( is_single() &&  ( $options['comments']['show_on'] == 'all posts' || $options['comments']['show_on'] == 'all posts and pages' ) ) )
+				{
+					foreach( $options['comments'] as $param => $val ) {
+						$param = str_replace( '_', '-', $param );
+		
+						$params[$param] = $val;
+					}
+		
+					$content .= fb_get_comments( $params );
+				}
 			}
-
-			$content .= fb_get_comments($params);
-		}
-		else {
-			$content .= fb_get_comments_count();
+			elseif ( 'show' == $show_indiv ) {
+				foreach( $options['comments'] as $param => $val ) {
+					$param = str_replace( '_', '-', $param );
+				
+					$params[$param] = $val;
+				}
+				
+				$content .= fb_get_comments( $params );
+			}
+			//elseif ( 'no' == $show_indiv ) {
+			//}
 		}
 	}
 
@@ -65,35 +81,37 @@ function fb_comments_automatic($content) {
 function fb_get_fb_comments_seo() {
 	global $facebook;
 	global $post;
-
-	$url = get_permalink();
 	
-	if ( false === ( $comments = get_transient( 'fb_comments_' . $post->ID ) ) ) {
-		try {
-			$comments = $facebook->api('/comments', array('ids' => $url));
-		}
-			catch (FacebookApiException $e) {
+	if ( isset( $post ) ) {
+		$url = get_permalink();
+	
+		if ( false === ( $comments = get_transient( 'fb_comments_' . $post->ID ) ) ) {
+			try {
+				$comments = $facebook->api('/comments', array('ids' => $url));
+			}
+				catch (WP_FacebookApiException $e) {
+			}
+			
+			set_transient( 'fb_comments_' . $post->ID, $comments, 60*15 );
 		}
 		
-		set_transient( 'fb_comments_' . $post->ID, $comments, 60*15 );
+		if ( ! isset( $comments[$url] ) )
+			return '';
+	
+		$output = '<noscript><ol class="commentlist">';
+	
+		foreach ($comments[$url]['comments']['data'] as $key => $comment_info) {
+			$unix_timestamp = strtotime($comment_info['created_time']);
+			$output .= '<li id="' . esc_attr( 'comment-' . $key ) . '">
+				<p><a href="' . esc_url( 'http://www.facebook.com/' . $comment_info['from']['id'], array( 'http', 'https' ) ) . '">' . esc_html( $comment_info['from']['name'] ) . '</a>:</p>
+				<p class="metadata">' . date('F jS, Y', $unix_timestamp) . ' at ' . date('g:i a', $unix_timestamp) . '</p>
+				' . $comment_info['message'] . '
+				</li>';
+		}
+	
+		$output .= '</ol></noscript>';
 	}
 	
-	if ( ! isset( $comments[$url] ) )
-		return '';
-
-	$output = '<noscript><ol class="commentlist">';
-
-	foreach ($comments[$url]['comments']['data'] as $key => $comment_info) {
-		$unix_timestamp = strtotime($comment_info['created_time']);
-		$output .= '<li id="' . esc_attr( 'comment-' . $key ) . '">
-			<p><a href="' . esc_url( 'http://www.facebook.com/' . $comment_info['from']['id'], array( 'http', 'https' ) ) . '">' . esc_html( $comment_info['from']['name'] ) . '</a>:</p>
-			<p class="metadata">' . date('F jS, Y', $unix_timestamp) . ' at ' . date('g:i a', $unix_timestamp) . '</p>
-			' . $comment_info['message'] . '
-			</li>';
-	}
-
-	$output .= '</ol></noscript>';
-
 	return $output;
 }
 
@@ -131,6 +149,12 @@ function fb_get_comments_fields_array() {
 													'options' => array('light' => 'light', 'dark' => 'dark'),
 													'help_text' => 'The color scheme of the plugin.',
 													),
+										array('name' => 'show_on',
+													'type' => 'dropdown',
+													'default' => 'all posts and pages',
+													'options' => array('all posts' => 'all posts', 'all pages' => 'all pages', 'all posts and pages' => 'all posts and pages', 'individual posts and pages' => 'individual posts and pages' ),
+													'help_text' => __( 'Whether the plugin will appear on all posts or pages by default. If "individual posts and pages" is selected, you must explicitly set each post and page to display the plugin.', 'facebook' ),
+													)
 										);
 
 	return $array;

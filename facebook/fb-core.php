@@ -1,4 +1,10 @@
 <?php
+add_action( 'init', 'fb_init' );
+add_action( 'admin_notices', 'fb_install_warning' );
+add_action( 'admin_notices', 'fb_ssl_warning' );
+//add_action( 'admin_notices', 'fb_rate_message' );
+add_action( 'wp_enqueue_scripts', 'fb_style' );
+
 /**
  * Display an admin-facing warning if the current user hasn't authenticated with Facebook yet
  *
@@ -9,10 +15,75 @@ function fb_install_warning() {
 
 	$page = (isset($_GET['page']) ? $_GET['page'] : null);
 
-	if ((empty($options['app_id']) || empty($options['app_secret'])) && $page != 'facebook/fb-admin-menu.php' && current_user_can( 'manage_options' ) ) {
-		fb_admin_dialog( sprintf( __('You must %sconfigure the plugin</a> to enable Facebook for WordPress.', 'facebook' ), '<a href="admin.php?page=facebook/fb-admin-menu.php">' ), true);
+	if ((empty($options['app_id']) || empty($options['app_secret'])) && $page != 'facebook-settings' && current_user_can( 'manage_options' ) ) {
+		fb_admin_dialog( sprintf( __('You must %sconfigure the plugin%s to enable Facebook for WordPress.', 'facebook' ), '<a href="admin.php?page=facebook-settings">', '</a>' ), true);
 	}
 }
+
+/**
+ * Display an admin-facing warning if openSSL is not installed properly
+ *
+ * @since 1.0.2
+ */
+function fb_ssl_warning() {
+	$options = get_option( 'fb_options' );
+
+	$page = (isset($_GET['page']) ? $_GET['page'] : null);
+
+	if ( ! wp_http_supports( array( 'ssl' => true ) )  && current_user_can( 'manage_options' ) ) {
+		$msg = 'SSL must be enabled on your server for Facebook Social Publisher to work.';
+		if ( $options['social_publisher']['enabled'] ) {
+			unset($options['social_publisher']['enabled']);
+			update_option( 'fb_options', $options );
+			$msg .= ' As a result, Social Publisher has been disabled.';
+		}
+		fb_admin_dialog( __( $msg, 'facebook' ), true );
+	}
+}
+
+/**
+ * Display an admin-facing message to rate the plugin
+ *
+ * @since 1.0
+ */
+/*
+function fb_rate_message() {
+	$options = get_option('fb_options');
+	
+  global $current_user;
+  
+	$user_id = $current_user->ID;
+	
+	$page = (isset($_GET['page']) ? $_GET['page'] : null);
+
+	if ( !empty($options['app_id']) && !empty( $options['app_secret'] ) && current_user_can( 'publish_posts' ) && !get_user_meta( $user_id, 'fb_rate_message_ignore_notice', true )
+      && ( !empty( $options['social_publisher'] ) || !empty( $options['like_button'] ) || !empty( $options['subscribe_button'] ) || !empty( $options['send_button'] ) || !empty( $options['comments'] ) || !empty( $options['recommendations_bar'] ) ) ) {
+    $like_button_options = array(
+       "enabled" => "true", 
+       "send" => "true", 
+       "layout" => "button_count", 
+       "action" => "like", 
+       "colorscheme" => "light", 
+       "font" => "arial", 
+       "position" => "both", 
+       "ref" => "wp",
+       "href" => "http://developers.facebook.com/wordpress",
+    );
+    
+		fb_admin_dialog( sprintf( __( '%1$sEnjoying the Facebook plugin? Please like it, %2$srate it,  and mark it as working%3$s! Having a problem? %4$sReport it%5$s. &nbsp;|&nbsp; %6$sDismiss%7$s' ), fb_get_like_button($like_button_options), '<a href="http://wordpress.org/extend/plugins/facebook/" target="_blank">', '</a>', '<a href="http://wordpress.org/support/plugin/facebook" target="_blank">', '</a>', '<a href="' . get_admin_url() . '?fb_rate_message_ignore=1' . '">', '</a>' ), false);
+	}
+}
+
+add_action('admin_init', 'fb_rate_message_ignore');
+function fb_rate_message_ignore() {
+	global $current_user;
+	$user_id = $current_user->ID;
+	
+	if ( isset($_GET['fb_rate_message_ignore']) && '1' == $_GET['fb_rate_message_ignore'] ) {
+		fb_update_user_meta($user_id, 'fb_rate_message_ignore_notice', 'true');
+	}
+}
+*/
 
 /**
  * Inits the Facebook JavaScript SDK.
@@ -33,10 +104,6 @@ function fb_js_sdk_setup() {
 		'xfbml' => true,
 		'oauth' => true
 	) );
-
-	// enforce minimum requirements
-	if ( empty( $args['appId'] ) )
-		return;
 
 	echo '<script type="text/javascript">window.fbAsyncInit=function(){FB.init(' . json_encode( $args ) . ');';
 	do_action( 'fb_async_init', $args );
@@ -73,13 +140,12 @@ function fb_init() {
 	if ( empty( $options['app_id'] ) )
 		return;
 	
-	
 	// appId and secret are required by BaseFacebook
 	if ( ( ! empty( $options['app_id'] ) && ! empty( $options['app_secret'] ) ) ) {
-	 $facebook = new Facebook_WP(array(
-		'appId'  => $options['app_id'],
-		'secret' => $options['app_secret'],
-	 ));
+		$facebook = new Facebook_WP_Extend(array(
+			'appId'  => $options['app_id'],
+			'secret' => $options['app_secret'],
+		));
 	}
 
 	add_action( 'wp_head', 'fb_js_sdk_setup' );
@@ -164,7 +230,7 @@ function fb_get_locale() {
 		$locale = 'en_US';
 	}
 
-	return $locale;
+	return apply_filters('fb_locale', $locale); // filter the locale in case somebody has a weird case and needs to change it
 }
 
 /**
@@ -175,4 +241,3 @@ function fb_get_locale() {
 function fb_style() {
 	wp_enqueue_style( 'fb', plugins_url( 'style/style.css', __FILE__), array(), '1.0' );
 }
-?>

@@ -17,13 +17,13 @@
 
 require_once( dirname(__FILE__) . '/base_facebook.php' );
 
-if ( ! class_exists( 'Facebook' ) ):
+if ( ! class_exists( 'WP_Facebook' ) ):
 
 /**
- * Extends the BaseFacebook class with the intent of using
+ * Extends the WP_BaseFacebook class with the intent of using
  * PHP sessions to store user ids and access tokens.
  */
-class Facebook extends BaseFacebook
+class WP_Facebook extends WP_BaseFacebook
 {
   /**
    * Identical to the parent constructor, except that
@@ -32,14 +32,10 @@ class Facebook extends BaseFacebook
    * we discover them.
    *
    * @param Array $config the application configuration.
-   * @see BaseFacebook::__construct in facebook.php
+   * @see WP_BaseFacebook::__construct in facebook.php
    */
   public function __construct($config) {
-    /*
-	// Disabled 6/17 ^DB
-    if (!session_id()) {
-      session_start();
-    } */
+    
     parent::__construct($config);
   }
 

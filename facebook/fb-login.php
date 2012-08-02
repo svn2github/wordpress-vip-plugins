@@ -6,7 +6,6 @@
  * @since 1.0
  */
 function fb_check_connected_accounts() {
-
 	$current_user = wp_get_current_user();
 
 	global $facebook;
@@ -24,7 +23,7 @@ function fb_check_connected_accounts() {
 	$fb_data = fb_get_user_meta($current_user->ID, 'fb_data', true);
 	
 	//if no, show message prompting to connect
-	if (empty($fb_data['fb_uid']) && isset($options['social_publisher']) && $options['social_publisher']['enabled']) {
+	if ( empty( $fb_data['fb_uid'] ) && isset( $options['social_publisher'] ) && isset( $options['social_publisher']['enabled'] ) ) {
 		$fb_user = fb_get_current_user();
 		
 		if ($fb_user) {
@@ -37,7 +36,7 @@ function fb_check_connected_accounts() {
 			fb_update_user_meta($current_user->ID, 'fb_data', $fb_user_data);
 		}
 		else {
-			fb_admin_dialog( __('Facebook social publishing is enabled. <a href="#" onclick="authFacebook(); return false;">Link your Facebook account to your WordPress account</a> to get full functionality, including adding new Posts to your Timeline.', 'facebook' ), true);
+			fb_admin_dialog( sprintf( __('Facebook social publishing is enabled. %sLink your Facebook account to your WordPress account</a> to get full functionality, including adding new Posts to your Timeline.', 'facebook' ), '<a href="#" onclick="authFacebook(); return false;">' ), true);
 		}
 	}
 	else {
@@ -55,7 +54,7 @@ function fb_extend_access_token() {
 		return;
 	
 	if ( false === ( $test = get_transient( 'fb_extended_access_token_' . $facebook->getUser() ) ) ) {
-		$facebook->getExtendedAccessToken();
+		$facebook->setExtendedAccessToken();
 		
 		//the extended token should be good for a couple of months, but lets refresh it every couple of weeks just in case
 		set_transient( 'fb_extended_access_token_' . $facebook->getUser(), 'extended', 60*60*24*14 );
@@ -78,7 +77,6 @@ function fb_get_current_user() {
 
 		return $user;
 	}
-	catch (FacebookApiException $e) {
+	catch (WP_FacebookApiException $e) {
 	}
 }
-?>
