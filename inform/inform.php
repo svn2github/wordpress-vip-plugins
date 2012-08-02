@@ -134,6 +134,9 @@ if (!class_exists('inform_plugin')) {
 			
 			// inform
 			$this -> tags_save($i_post_id, 'inform', $_POST[$this -> s_taxonomy.'-tags']);
+			
+			// set processed flag
+			update_post_meta($i_post_id, '_'.$this -> s_taxonomy.'_processed', TRUE);
 		}
 		
 		/**
@@ -274,7 +277,7 @@ if (!class_exists('inform_plugin')) {
 			?><label style="vertical-align:top">IAB tags:</label> <?php
 			?><textarea name="<?php echo $this -> s_taxonomy; ?>-iabs"><?php
 			
-			// inform tags
+			// IAB tags
 			$a_tags = isset($_GET['post']) ? $this -> tags($_GET['post'], 'iab', 0, TRUE) : array();
 			foreach ($a_tags as $i => $a_tag) {
 				$a_tags[$i] = $a_tag['label'].$this -> s_delim_tag_pair.$a_tag['rel'];
@@ -286,8 +289,8 @@ if (!class_exists('inform_plugin')) {
 			
 			wp_nonce_field('save_tags', $this -> s_taxonomy.'_nonce');
 			
-			// processed flag; assume if saved once has been processed
-			if (isset($_GET['post'])) {
+			// processed flag
+			if (isset($_GET['post']) && get_post_meta((int) $_GET['post'], '_'.$this -> s_taxonomy.'_processed')) {
 				?><input type="hidden" name="inform_processed" value="1" /><?php
 			}
 			

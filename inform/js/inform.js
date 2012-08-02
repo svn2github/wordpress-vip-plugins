@@ -503,7 +503,7 @@ var InformTagger = function () {
 		
 		$.post(ajaxurl + '?action=' + self.wpAjaxProxy(), oData, function (sResponse) {
 			self.parseResponse(sResponse);
-			self.btnProcess().val('Get tags').after('<input type="hidden" name="inform_processed" />');
+			self.btnProcess().val('Get tags').after('<input type="hidden" name="inform_processed" value="1" />');
 		});
 	};
 	
