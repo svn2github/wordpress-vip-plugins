@@ -58,6 +58,7 @@ Filter the following and change according to your needs:
 = 0.4 =
 
 * New dropdown that recent posts which can be adding to zones, props metromatic and Metro UK
+* New filter: zoninator_posts_per_page -- to override the default posts_per_page setting
 
 = 0.3 =
 

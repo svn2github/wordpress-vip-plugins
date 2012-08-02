@@ -73,6 +73,7 @@ class Zoninator
 		
 		$this->zone_lock_period = apply_filters( 'zoninator_zone_lock_period', $this->zone_lock_period );
 		$this->zone_max_lock_period = apply_filters( 'zoninator_zone_max_lock_period', $this->zone_max_lock_period );
+		$this->posts_per_page = apply_filters( 'zoninator_posts_per_page', $this->posts_per_page );
 	}
 	
 	function init() {
@@ -500,12 +501,12 @@ class Zoninator
 		$latest_query = new WP_Query( $args );
 		?>
 		<div class="zone-search-wrapper">
-			<label for="zone-post-search-latest"><?php _e( 'Add Recent Content', 'zontinator' );?></label><br />
+			<label for="zone-post-search-latest"><?php _e( 'Add Recent Content', 'zoninator' );?></label><br />
 			<select name="search-posts" id="zone-post-latest">
 				<option value="">Choose latest post</option>
 				<?php			
 				while ( $latest_query->have_posts() ) : $latest_query->the_post();
-					echo sprintf( '<option value="%d">%s (%s)</option>', get_the_ID(), get_the_title(), get_the_time( get_option( 'date_format' ) ) );
+					echo sprintf( '<option value="%d">%s</option>', get_the_ID(), get_the_title() );
 				endwhile;
 				wp_reset_postdata();
 				?>
