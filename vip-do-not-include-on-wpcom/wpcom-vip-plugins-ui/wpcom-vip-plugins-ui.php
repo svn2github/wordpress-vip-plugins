@@ -205,6 +205,8 @@ class WPcom_VIP_Plugins_UI {
 
 		add_action( 'admin_menu', array( $this, 'action_admin_menu_add_menu_item' ) );
 
+		add_action( 'wpcom_vip_plugins_ui_menu_page', array( $this, 'cleanup_active_plugins_option' ) );
+
 		add_action( 'admin_post_' . self::ACTION_PLUGIN_ACTIVATE, array( $this, 'action_admin_post_plugin_activate' ) );
 		add_action( 'admin_post_' . self::ACTION_PLUGIN_DEACTIVATE, array( $this, 'action_admin_post_plugin_deactivate' ) );
 	}
@@ -390,6 +392,19 @@ class WPcom_VIP_Plugins_UI {
 	}
 
 	/**
+	 * Removes any invalid plugins from the option, i.e. when they're deleted.
+	 */
+	public function cleanup_active_plugins_option() {
+		$active_plugins = $this->get_active_plugins_option();
+
+		foreach ( $active_plugins as $active_plugin ) {
+			if ( ! $this->validate_plugin( $active_plugin ) ) {
+				$this->deactivate_plugin( $active_plugin, true );
+			}
+		}
+	}
+
+	/**
 	 * Generates the URL to activate a VIP plugin.
 	 *
 	 * @param string $plugin The slug of the VIP plugin to activate.
@@ -490,11 +505,12 @@ class WPcom_VIP_Plugins_UI {
 	 * Deactivates a plugin.
 	 *
 	 * @param string $plugin The slug of the VIP plugin to deactivate.
+	 * @param string $force Whether to bypass the validation check or not. Allows disabling invalid plugins.
 	 * @return boolean True if the plugin was deactivated, false if an error was encountered.
 	 */
-	public function deactivate_plugin( $plugin ) {
+	public function deactivate_plugin( $plugin, $force = false ) {
 
-		if ( ! $this->validate_plugin( $plugin ) ) {
+		if ( ! $force && ! $this->validate_plugin( $plugin ) ) {
 			return false;
 		}
 
