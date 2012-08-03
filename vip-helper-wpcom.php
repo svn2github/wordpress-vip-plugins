@@ -127,11 +127,21 @@ function _vip_admin_gallery_css_extras() {
 <?php
 }
 
+/**
+ * Completely disable enhanced feed functionality
+ */
+function wpcom_vip_disable_enhanced_feeds() {
+	remove_filter( 'add_to_feed', 'add_categories_to_feed' );
+	remove_filter( 'add_to_feed', 'add_tags_to_feed' );
+
+	vip_remove_enhanced_feed_images();
+	wpcom_vip_remove_feed_tracking_bug();
+}
+
 /*
  * Do not display the images in enhanced feeds
  * @author nickmomrik
  */
-
 function vip_remove_enhanced_feed_images() {
 	remove_filter( 'add_to_feed', 'add_delicious_to_feed' );
 	remove_filter( 'add_to_feed', 'add_facebook_to_feed' );
