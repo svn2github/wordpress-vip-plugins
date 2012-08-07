@@ -1,14 +1,17 @@
 <?php
 /*
-Plugin Name: Add Meta Tags
-Plugin URI: http://www.g-loaded.eu/2006/01/05/add-meta-tags-wordpress-plugin/
-Description: Adds the <em>Description</em> and <em>Keywords</em> XHTML META tags to your blog's <em>front page</em> and to each one of the <em>posts</em>, <em>static pages</em> and <em>category archives</em>. This operation is automatic, but the generated META tags can be fully customized. Also, the inclusion of other META tags, which do not need any computation, is possible. Please read the tips and all other info provided at the <a href="options-general.php?page=add-meta-tags.php">configuration panel</a>.
-Version: 1.6-WPCOM
-Author: George Notaras, Thorsten Ott
-Author URI: http://www.g-loaded.eu/
+Plugin Name: Add Meta Tags Mod
+Description: Adds the <em>Description</em> and <em>Keywords</em> XHTML META tags to your blog's <em>front page</em> and to each one of the <em>posts</em>, <em>static pages</em> and <em>category archives</em>. This operation is automatic, but the generated META tags can be fully customized. Please read the tips and all other info provided at the <a href="options-general.php?page=add-meta-tags.php">configuration panel</a>.
+Version: 1.7-WPCOM
+Author: George Notaras, Automattic
 */
 
 /*
+  This is significantly modified version of the add-meta-tags plugin.
+
+  Original plugin by George Notaras (http://www.g-loaded.eu).
+  Additional contributions by Thorsten Ott, Josh Betz, and others.
+
   Copyright 2007 George Notaras <gnot [at] g-loaded.eu>, CodeTRAX.org
 
   Licensed under the Apache License, Version 2.0 (the "License");
