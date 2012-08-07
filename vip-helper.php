@@ -345,7 +345,7 @@ function vip_doubleclick_dartiframe_redirect() {
 }
 function _vip_doubleclick_dartiframe_redirect() {
 	$dart_file = get_stylesheet_directory() . '/DARTIframe.html';
-	if ( strpos( $_SERVER[ 'REQUEST_URI' ], 'DARTIframe.html' ) !== false && file_exists( $dart_file ) ) {
+	if ( stripos( $_SERVER[ 'REQUEST_URI' ], 'DARTIframe.html' ) !== false && file_exists( $dart_file ) ) {
 		header( 'Content-Type: text/html' );
 		echo file_get_contents( $dart_file );
 		exit;
