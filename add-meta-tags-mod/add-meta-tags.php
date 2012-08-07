@@ -82,7 +82,10 @@ class Add_Meta_Tags {
 	}
 
 	function enqueue_scripts() {
-		wp_enqueue_script( 'add-meta-tags', plugins_url( 'js/add-meta-tags.js', __FILE__), array( 'jquery') );
+		global $pagenow;
+		if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) ) {
+			wp_enqueue_script( 'add-meta-tags', plugins_url( 'js/add-meta-tags.js', __FILE__), array( 'jquery') );
+		}
 	}
 
 	/*
