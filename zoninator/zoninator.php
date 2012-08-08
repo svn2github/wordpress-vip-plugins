@@ -416,7 +416,7 @@ class Zoninator
 						<?php if( $zone_id ) : ?>
 							<h3><?php _e( 'Zone Content', 'zoninator' ); ?></h3>
 						
-							<?php $this->zone_admin_recent_posts_dropdown(); ?>
+							<?php $this->zone_admin_recent_posts_dropdown( $zone_id ); ?>
 							
 							<?php $this->zone_admin_search_form(); ?>
 							
@@ -485,10 +485,12 @@ class Zoninator
 		<?php
 	}
 
-	function zone_admin_recent_posts_dropdown() {
-		// TODO: exclude posts already in zone
+	function zone_admin_recent_posts_dropdown( $zone_id ) {
+
 		$limit = $this->posts_per_page;
 		$post_types = $this->get_supported_post_types();
+		$zone_posts = $this->get_zone_posts( $zone_id );
+		$zone_post_ids = wp_list_pluck( $zone_posts, 'ID' );
 
 		$args = apply_filters( 'zoninator_recent_posts_args', array(
 			'posts_per_page' => $limit,
@@ -496,6 +498,8 @@ class Zoninator
 			'orderby' => 'post_date',
 			'post_type' => $post_types,
 			'ignore_sticky_posts' => true,
+			'post_status' => array( 'publish', 'future' ),
+			'post__not_in' => $zone_post_ids,
 		) );
 
 		$latest_query = new WP_Query( $args );

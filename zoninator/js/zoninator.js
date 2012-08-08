@@ -49,8 +49,11 @@ var zoninator = {}
 		});
 
 		zoninator.$zonePostLatest.change(function() {
-			if ($(this).val()) {
-				zoninator.addPost($(this).val());
+			var $this = $(this),
+				post_id = $this.val();
+			if ( post_id ) {
+				zoninator.addPost( post_id );
+				$this.find( '[value="' + post_id + '"]' ).remove();
 			}
 		});
 
