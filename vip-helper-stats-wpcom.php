@@ -3,14 +3,14 @@
  *	VIP Helper Functions for Statistics that are specific to WordPress.com
  *
  * wpcom_vip_get_stats_csv() and wpcom_vip_get_stats_xml() are output compatible to
- * stats_get_csv() provided by http://wordpress.org/extend/plugins/stats/ 
+ * stats_get_csv() provided by http://wordpress.org/extend/plugins/stats/
  *
  * To add these functions to your theme add
  *
  *    wpcom_vip_load_helper_stats();
  *
- * in the theme's 'functions.php'. This should be wrapped in a 
- * 
+ * in the theme's 'functions.php'. This should be wrapped in a
+ *
  *     if ( function_exists('function_name') ) { // WPCOM specific
  *
  * so you don't load it in your local environment. This will help alert you if
@@ -22,13 +22,13 @@
  * Return top posts as array
  * Reproduces the result of /wp-admin/index.php?page=stats&blog=<blogid>&view=postviews&numdays=30&summarize returning the top 10 posts if called with default params
    Sample Array:
- 	Array ( 
+ 	Array (
 		[0] => Array (
-		 	[post_id] => 1 
+		 	[post_id] => 1
 			[post_title] => Post Title 1
-			[post_permalink] => http://permalink/ 
-			[views] => 321896 
-		) 
+			[post_permalink] => http://permalink/
+			[views] => 321896
+		)
 	)
  * @param integer $num_days The length of the desired time frame. Default is 30. Maximum 90 days
  * @param integer $limit The maximum number of records to return. Default is 10. Maximum 100.
@@ -73,7 +73,7 @@ function wpcom_vip_get_stats_array( $table = 'views', $end_date = false, $num_da
 }
 
 /*
- * Return stats as csv 
+ * Return stats as csv
  * @param string $table table for stats can be views, postviews, referrers, searchterms, clicks. Default is views.
  * @param string $end_data The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01) and default is UTC date.
  * @param integer $num_days The length of the desired time frame. Default is 1. Maximum 90 days
@@ -124,7 +124,7 @@ function wpcom_vip_get_stats_xml( $table = 'views', $end_date = false, $num_days
 /*
  * ONLY INTERNAL FUNCTIONS FROM HERE ON, USE ONLY wpcom_vip_get_stats_csv() and wpcom_vip_get_stats_xml()
  */
- 
+
 function wpcom_vip_csv_expand_post( $post ) {
 	return array( $post->ID, $post->post_title, $post->permalink );
 }
@@ -143,17 +143,17 @@ function wpcom_vip_csv_quote( $v ) {
 function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $return_array = false ) {
 	if ( empty( $rows ) )
 		return "Error: zero rows returned.";
-		
+
 	$result = '';
-	
+
 	switch ( $table ) {
-	
+
 		case 'views' :
 			if ( !is_null( $summarize ) )
 				$_rows = array( array( 'date' => '-', 'views' => array_sum( array_map( create_function( '$row', 'return $row["views"];' ), $rows ) ) ) );
 			else
 				$_rows =& $rows;
-				
+
 			array_unshift( $_rows, array( 'date', 'views' ) );
 			break;
 
@@ -173,11 +173,11 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 					$posts[$k] = true;
 					if ( !is_null( $summarize ) )
 						$_rows[$k] = array( $date, &$posts[$k], $_rows[$k][2] + $v );
-					else 
+					else
 						$_rows[] = array( $date, &$posts[$k], $v );
 				}
 			}
-			
+
 			// sort by views
 			if ( !is_null( $summarize ) ) {
 				$_head = array_shift( $_rows );
@@ -189,7 +189,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 				krsort( $_rows );
 				array_unshift( $_rows, $_head );
 			}
-			
+
 			foreach ( stats_get_posts( array_keys( $posts ), $GLOBALS['blog_id'] ) as $id => $post )
 				$posts[$id] = wpcom_vip_csv_expand_post( $post );
 			break;
@@ -213,7 +213,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 						$_rows[] = array( $date, $k, $v );
 	}
 
-	
+
 	if ( true === $return_array ) {
 		$mapping = array_shift( $_rows );
 		$out = array();
@@ -222,10 +222,10 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 				case "postviews":
 					$out[] = array( 'date' => $values[0], 'post_id' => $values[1][0], 'post_title' => $values[1][1], 'post_permalink' => $values[1][2], 'views' => $values[2] );
 					break;
-				case "views": 
+				case "views":
 					$out[] = array( 'date' => $values['date'], 'views' => $values['views'] );
 					break;
-				case "referrers": 
+				case "referrers":
 					$out[] = array( 'date' => $values[0], 'referrer' => $values[1], 'views' => $values[2] );
 					break;
 				case "searchterms":
@@ -239,10 +239,10 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 					break;
 			}
 		}
-		
+
 		if ( $limit > 0 && count( $out ) > $limit + 1 )
 			$out = array_slice( $out, 0, $limit + 1 );
-		
+
 		// Remove date col from summarized data
 		if ( !is_null( $summarize ) ) {
 			foreach ( $out as $key => $row ) {
@@ -255,7 +255,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 
 	if ( $limit > 0 && count( $_rows ) > $limit + 1 )
 		$_rows = array_slice( $_rows, 0, $limit + 1 );
-	
+
 	foreach ( $_rows as $row ) {
 		// Remove date col from summarized data
 		if ( !is_null( $summarize ) )
@@ -309,7 +309,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
 					if ( 0 < $k )
 						$post_ids[] = $k;
 
-			foreach ( stats_get_posts( $post_ids, $GLOBALS['blog_id'] ) as $id => $post ) 
+			foreach ( stats_get_posts( $post_ids, $GLOBALS['blog_id'] ) as $id => $post )
 				$posts[$id] = wpcom_vip_csv_expand_post( $post );
 
 			foreach ( $rows as $date => $day_rows ) {
@@ -354,7 +354,7 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 
 	if ( $limit > 100 )
 		$limit = 100;
-	else 
+	else
 		$limit = (int) $limit;
 
 	if ( $num_days > 90 )
@@ -373,7 +373,7 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 	if ( is_callable( "stats_get_$table" ) ) {
 		$result = call_user_func_array( "stats_get_$table", $args );
 	}
-	
+
 	return $result;
 }
 
