@@ -121,6 +121,46 @@ function wpcom_vip_get_stats_xml( $table = 'views', $end_date = false, $num_days
 	return $xml;
 }
 
+/**
+ * Returns the number of pageviews for a given post ID. Default to the current post.
+ *
+ * @param int $post_id The post ID to fetch stats for. Defaults to the $post global's value.
+ * @param int $num_days How many days to go back to include in the stats. Default is 1. Maximum 90 days.
+ * @param string $end_data The last day of the desired time frame. Format is 'Y-m-d' (e.g. 2007-05-01) and default is today's UTC date.
+ * @return int|false Number of pageviews or false on error.
+ */
+function wpcom_vip_get_post_pageviews( $post_id = null, $num_days = 1, $end_date = false ) {
+	global $post, $wpdb;
+
+	if ( empty( $post_id ) && ! empty( $post->ID ) )
+		$post_id = $post->ID;
+
+	$post_id = absint( $post_id );
+
+	if ( empty( $post_id ) )
+		return false;
+
+	// At least 1 but no more than 90
+	$num_days = max( 1, min( 90, intval( $num_days ) ) );
+
+	$cache_key = 'views_' . $wpdb->blogid . '_' . $post_id . '_' . $num_days . '_' . $end_date;
+
+	$views = wp_cache_get( $cache_key, 'vip_stats' );
+
+	if ( false === $views ) {
+		$views = 0;
+
+		$data = stats_get_daily_history( false, $wpdb->blogid, 'postviews', 'post_id', $end_date, $num_days, $wpdb->prepare( "AND post_id = %d", $post_id ), 1, true );
+
+		if ( is_array( $data ) )
+			$views = (int) array_pop( array_pop( $data ) );
+
+		wp_cache_set( $cache_key, $views, 'vip_stats', 3600 );
+	}
+
+	return $views;
+}
+
 /*
  * ONLY INTERNAL FUNCTIONS FROM HERE ON, USE ONLY wpcom_vip_get_stats_csv() and wpcom_vip_get_stats_xml()
  */
