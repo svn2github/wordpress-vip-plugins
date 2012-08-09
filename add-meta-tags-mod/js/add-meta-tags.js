@@ -6,22 +6,29 @@ counter = {
 		    $title = $('#mt_seo_title'),
 		    $desc = $('#mt_seo_description');
 
-		t.buildCounter( $title, 70, 'title' )
-		t.buildCounter( $desc, 140, '<code>meta</code> description' );
+		if ( $title.length ) {
+			t.buildCounter( $title, 70, 'title' );
 
-		$title.keyup( function() {
-			t.updateTitle();
-		});
-		$desc.keyup( function() {
-			t.updateDesc();
-		});
+			$title.keyup( function() {
+				t.updateTitle();
+			});
 
-		$title.live('change', function() {
-			t.updateTitle();
-		});
-		$desc.live('change', function() {
-			t.updateDesc();
-		});
+			$title.live('change', function() {
+				t.updateTitle();
+			});
+		}
+
+		if ( $desc.length ) {
+			t.buildCounter( $desc, 140, '<code>meta</code> description' );
+
+			$desc.keyup( function() {
+				t.updateDesc();
+			});
+
+			$desc.live('change', function() {
+				t.updateDesc();
+			});
+		}
 	},
 
 	buildCounter : function( el, count, desc ) {
@@ -36,8 +43,12 @@ counter = {
 
 	updateTitle : function() {
 		var t = this,
-		    $title = $('#mt_seo_title'),
-		    count = $title.val().replace('%title%', originalTitle).length,
+		    $title = $('#mt_seo_title');
+
+		if ( ! $title.length )
+			return;
+
+		var count = $title.val().replace('%title%', originalTitle).length,
 		    limit = $title.attr('data-limit') || 70,
 		    originalTitle = $('#title').val();
 
@@ -47,8 +58,12 @@ counter = {
 
 	updateDesc : function() {
 		var t = this,
-		    $desc = $('#mt_seo_description'),
-		    count = $desc.val().length,
+		    $desc = $('#mt_seo_description');
+
+		if ( ! $desc.length )
+			return;
+
+		var count = $desc.val().length,
 		    limit = $desc.attr('data-limit') || 140;
 
 		$desc.siblings( '.mt_counter' ).find( '.count' ).replaceWith( t.updateCounter( count, limit ) );
