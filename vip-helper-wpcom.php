@@ -719,3 +719,11 @@ function wpcom_get_option_lock( $lock_name ) {
 
 	return $lock;
 }
+
+/**
+ * Allows non-author users to submit any tags allowed via $allowedposttags instead of just $allowedtags
+ */
+function wpcom_vip_allow_more_html_in_comments() {
+	remove_filter( 'pre_comment_content', 'wp_filter_kses' ); 
+	add_filter( 'pre_comment_content', 'wp_filter_post_kses' );
+}
