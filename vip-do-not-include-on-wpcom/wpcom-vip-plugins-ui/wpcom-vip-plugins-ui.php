@@ -26,9 +26,9 @@ class WPcom_VIP_Plugins_UI {
 	const MENU_SLUG = 'wpcom-vip-plugins';
 
 	/**
-	 * @var string VIP menu's slug.
+	 * @var string Parent menu's slug.
 	 */
-	const VIP_MENU_SLUG = 'vip-dashboard';
+	var $parent_menu_slug = 'vip-dashboard';
 
 	/**
 	 * @var string Action: Plugin activation.
@@ -131,6 +131,12 @@ class WPcom_VIP_Plugins_UI {
 		// Allow people to customize what capability is required in order to view this menu
 		$this->capability = apply_filters( 'wpcom_vip_plugins_ui_capability', 'manage_options' );
 
+		// Allow people to change the positioning of the menu
+		// Default for localhost should be under plugins.php
+		if ( !$this->is_wpcom_vip() )
+			$this->parent_menu_slug = 'plugins.php';
+		$this->parent_menu_slug = apply_filters( 'wpcom_vip_plugins_ui_parent_menu_slug', $this->parent_menu_slug );
+
 		$this->hidden_plugins = array(
 			'vip-do-not-include-on-wpcom', // Local dev helper
 			'internacional', // Not ready yet (ever?)
@@ -147,6 +153,7 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-wpcom',
 			'storify',
 		);
+		$this->hidden_plugins = apply_filters( 'wpcom_vip_plugins_ui_hidden_plugins', $this->hidden_plugins );
 
 		$this->fpp_plugins = array(
 			'chartbeat'     => array(
@@ -228,11 +235,15 @@ class WPcom_VIP_Plugins_UI {
 	 * Adds the new menu item and registers a few more hook callbacks relating to the menu page.
 	 */
 	public function action_admin_menu_add_menu_item() {
-		if ( $this->is_wpcom_vip() ) {
-			$this->hook_suffix = add_submenu_page( self::VIP_MENU_SLUG, __( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' ), __( 'Plugins & Services', 'wpcom-vip-plugins-ui' ), $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
+
+		if ( $this->parent_menu_slug == 'plugins.php' ) {
+			$page_title = __( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' );
+			$menu_label = __( 'WP.com VIP Plugins', 'wpcom-vip-plugins-ui' );
 		} else {
-			$this->hook_suffix = add_plugins_page( __( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' ), __( 'WP.com VIP Plugins', 'wpcom-vip-plugins-ui' ), $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
+			$page_title = __( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' );
+			$menu_label = __( 'Plugins & Services', 'wpcom-vip-plugins-ui' );
 		}
+		$this->hook_suffix = add_submenu_page( $this->parent_menu_slug, $page_title, $menu_label, $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 
 		add_action( 'admin_print_styles-' . $this->hook_suffix, array( $this, 'menu_page_css' ) );
 
