@@ -33,8 +33,9 @@ class Html_Helper {
 			}
 		}
 	}
+
 	/**
-	 * this method supports unlimited arguments,
+	 * This method supports unlimited arguments,
 	 * each argument represents html value
 	 */
 	function table_row() {
@@ -55,7 +56,7 @@ class Html_Helper {
 	function input( $type, $name, $data = null, $attrs = array() ) {
 		if ($type == 'select')
 			return $this->_select( $name, $data, $attrs );
-		elseif ( in_array($type, array( 'text', 'hidden', 'submit', 'file' ) ) )
+		elseif ( in_array( $type, array( 'text', 'hidden', 'submit', 'file' ) ) )
 			return $this->_text( $name, $type,  $data, $attrs ) ;
 	}
 	
@@ -65,7 +66,7 @@ class Html_Helper {
 	 * @access private
 	 */
 	function _text ( $name = '', $type='text', $data = '', $attrs = array() ) {
-		return '<input type="' . esc_attr( $type ) . '" value="'. esc_attr( $data ) . '" name="' . esc_attr( $name ) . '" '.$this->_format_attributes($attrs) . ' />';
+		return '<input type="' . esc_attr( $type ) . '" value="'. esc_attr( $data ) . '" name="' . esc_attr( $name ) . '" '.$this->_format_attributes( $attrs ) . ' />';
 	}
 	
 	/**
@@ -104,7 +105,9 @@ class Html_Helper {
 		echo '</form>';
 	}
 	/**
-	 * cast to string and return with leading zero
+	 * Cast to string and return with leading zero
+	 * @param int $number
+	 * @todo Why is this here?
 	 */
 	function leading_zero( $number ) {
 		$number = (string) $number;
@@ -115,7 +118,7 @@ class Html_Helper {
 	}
 
 	/**
-	 * renders html element
+	 * Renders html element
 	 *
 	 * @param string $tag one of allowed tags
 	 * @param string content innerHTML content of tag
@@ -126,39 +129,43 @@ class Html_Helper {
 	function element( $tag, $content, $params = array(), $escape = true ) {
 	  $allowed = apply_filters( 'hh_allowed_html_elements' , array( 'div', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'td', 'option', 'label', 'textarea' ) );
 	  $attr_string = $this->_format_attributes( $params );
-	  if ( in_array ( $tag, $allowed) )
+	  if ( in_array ( $tag, $allowed ) )
 	  return "<{$tag} {$attr_string}>" . ( $escape ? esc_html ( $content ) : $content ) . "</{$tag}>";
 	}
 
 	/**
-	 * format and return string of allowed html attrs
+	 * Formats and returns string of allowed html attrs
 	 *
 	 * @param array $attrs
+	 * @return string attributes
 	 */
 	function _format_attributes( $attrs = array() ) {
 		$attr_string = '';
 	  	foreach ( (array) $attrs as $attr => $value ) {
 		  if ( in_array( $attr, $this->_allowed_html_attrs() ) )
-			$attr_string .= " {$attr}='" . esc_attr ( filter_var ($value, FILTER_SANITIZE_STRING ) ) . "'";
+			$attr_string .= " {$attr}='" . esc_attr ( $value ) . "'";
 		}
 		return $attr_string;
 	}
+
 	/**
-	 * validates and returns url as A HTML element
+	 * Validates and returns url as A HTML element
 	 *
 	 * @param string $url any valid url
 	 * @param string $title
 	 * @param $params array of html attributes
+	 * @return string html link
 	 */
 	function a( $url, $title = '', $params = array() ) {
 		$attr_string = $this->_format_attributes( $params );
 		if ( filter_var( trim ( $url ), FILTER_VALIDATE_URL ) )
 			return '<a href="' . esc_url( trim( $url ) ) . '" ' . $attr_string . '>' . ( $title != '' ? esc_html ( $title ) : esc_url( trim( $url ) ) ) . '</a>';
 	}
+
 	/**
-	 * returns allowed HTML attributes
+	 * Returns allowed HTML attributes
 	 */
 	function _allowed_html_attrs() {
-		return apply_filters( 'hh_allowed_html_attributes', array( 'href', 'class', 'id', 'value', 'action', 'name', 'method', 'selected', 'checked', 'for' ) );
+		return apply_filters( 'hh_allowed_html_attributes', array( 'href', 'class', 'id', 'value', 'action', 'name', 'method', 'selected', 'checked', 'for', 'multiple' ) );
 	}
 }

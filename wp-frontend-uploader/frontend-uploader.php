@@ -3,7 +3,7 @@
 Plugin Name: UGC Frontend Uploader
 Description: Allow your visitors to upload content and moderate it.
 Author: Rinat Khaziev
-Version: 0.1.1
+Version: 0.2
 Author URI: http://digitallyconscious.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
 // Define our paths and urls and bootstrap
-define( 'UGC_VERSION', '0.1.1' );
+define( 'UGC_VERSION', '0.2' );
 define( 'UGC_ROOT' , dirname( __FILE__ ) );
 define( 'UGC_FILE_PATH' , UGC_ROOT . '/' . basename( __FILE__ ) );
 define( 'UGC_URL' , plugins_url( '/', __FILE__ ) );
@@ -70,12 +70,20 @@ class Frontend_Uploader {
 	if ( !wp_verify_nonce( $_POST['nonceugphoto'], 'upload_ugphoto' ) )  {
 		wp_redirect ( add_query_arg( array( 'response' => 'nonce-failure' ), $_POST['_wp_http_referer'] ) );
 		exit;
-	} // if nonce is invalid, redirect to referer and display error flash notice
+	} // If nonce is invalid, redirect to referer and display error flash notice
 
 	if ( !empty( $_FILES ) && intval( $_POST['post_ID'] ) != 0 ) {
-		foreach ( $_FILES as $k => $v ) {
+		// File field name could be user defined, so we just pick 
+		$files = current( $_FILES );
+		
+		for( $i = 0; $i < count( $_FILES['photo']['name'] ); $i++ ) {
+			$fields = array('name','type', 'tmp_name', 'error', 'size' );
+			foreach ( $fields as $field ) {
+				$k[$field] = $files[$field][$i]; 
+			}
+
 			// Iterate through files, and save upload if it's one of allowed MIME types
-			if ( in_array( $v['type'], $this->allowed_mime_types ) )  {
+			if ( in_array( $k['type'], $this->allowed_mime_types ) )  {
 				// Setup some default values
 				// However, you can make additional changes on 'fu_after_upload' action
 				$post_overrides = array(
@@ -83,11 +91,11 @@ class Frontend_Uploader {
 					'post_title' => isset( $_POST['caption'] ) && ! empty( $_POST['caption'] ) ? filter_var( $_POST['caption'], FILTER_SANITIZE_STRING ) : 'Unnamed',
 					'post_content' => !empty( $_POST['name'] ) ? 'Courtesy of ' . filter_var($_POST['name'], FILTER_SANITIZE_STRING) : '',
 				);
-				$media_ids[] =  media_handle_upload( $k, intval( $_POST['post_ID'] ), $post_overrides );
+				$media_ids[] =  media_handle_sideload( $k, intval( $_POST['post_ID'] ), $post_overrides['post_title'], $post_overrides );
 			}
-		} 
+		}
 	}
-	
+
 	// Allow additional setup
 	// Pass array of attachment ids 
 	do_action( 'fu_after_upload', $media_ids );
@@ -98,10 +106,10 @@ class Frontend_Uploader {
   }
 
 	function admin_list() {
-		$title = 'Manage UGC';
+		$title = __( 'Manage UGC', 'frontend-uploader' );
 		set_current_screen( 'upload' );
-		if ( !current_user_can( 'upload_files' ) )
-			wp_die( __( 'You do not have permission to upload files.' ) );
+		if ( ! current_user_can( 'upload_files' ) )
+			wp_die( __( 'You do not have permission to upload files.', 'frontend-uploader' ) );
 
 		$wp_list_table = new FE_WP_Media_List_Table();
 
@@ -187,7 +195,7 @@ if ( !empty($message) ) { ?>
 	}
 
 	function add_menu_item() {
-		add_media_page('Manage UGC', 'Manage UGC', 'edit_posts', 'manage_frontend_uploader', array( $this, 'admin_list' ) );
+		add_media_page( __( 'Manage UGC', 'frontend-uploader' ), __( 'Manage UGC', 'frontend-uploader' ), 'edit_posts', 'manage_frontend_uploader', array( $this, 'admin_list' ) );
 	}
 
 	function approve_photo() {
@@ -222,6 +230,7 @@ if ( !empty($message) ) { ?>
 			'value' => '',
 			'type' => '',
 			'class' => '',
+			'multiple' => 'false',
 		), $atts ) );
 		switch ( $tag ):
 			case 'textarea':
@@ -233,11 +242,21 @@ if ( !empty($message) ) { ?>
 					false );
 			break;
 			case 'input':
+				$atts = array( 'id' => $id, 'class' => $class, 'multiple' => $multiple );
+				// Workaround for HTML5 multiple attribute
+				if ( $multiple == 'false' ) 
+					unset( $atts['multiple'] ); 
+
+				// Allow multiple file upload by default. 
+				// To do so, we need to add array notation to name field: []
+				if (  !strpos( $name, '[]' ) )
+					$name = $name . '[]';
+					
 				echo $this->html->element( 'label',
 					$description .
-					$this->html->input( $type, $name, $value, array('id' => $id, 'class' => $class ) )
+					$this->html->input( $type, $name, $value, $atts )
 					,
-					array('for' => $id ),
+					array( 'for' => $id ),
 					false );
 			// @todo implement select and checkboxes
 			// For now additional customization is available via do_action( 'fu_additional_html' );
@@ -253,7 +272,7 @@ if ( !empty($message) ) { ?>
 	function upload_form( $atts, $content = null ) {
 		extract( shortcode_atts( array(
 			'description' => '',
-			'title' => 'Upload a photo',
+			'title' => __( 'Upload a photo', 'frontend-uploader' ),
 			'type' => '',
 			'class' => 'validate',
 		), $atts ) );	
@@ -264,7 +283,8 @@ if ( !empty($message) ) { ?>
 	  <div class="ugc-inner-wrapper">
 		  <h2><?php echo esc_html( $title ) ?></h2>		  
 <?php
-		echo $this->user_response();
+		if ( !empty( $_GET['response'] ) )
+			echo $this->user_response( $_GET['response'] );
 		// We have some customizations, nice!
 		// Let's parse them
 		if ( $content ):
@@ -272,7 +292,7 @@ if ( !empty($message) ) { ?>
 		// Or render default form	
 		else:
 			do_shortcode( ' [textarea name="caption" class="textarea" id="ug_caption" description="Description (optional)"]	   
-						    [input type="file" name="photo" id="ug_photo" class="required" description="Your Photo"]
+						    [input type="file" name="photo" id="ug_photo" class="required" description="Your Photo" multiple=""]
 							[input type="submit" class="btn" value="Submit"]');
 ?>	  		
 <?php endif; ?>		  
@@ -291,15 +311,15 @@ if ( !empty($message) ) { ?>
 	/**
 	 * Render notice for user
 	 */
-	function user_response() {
-		if ( empty( $_GET['response'] ) ) 
+	function user_response( $response ) {
+		if ( empty( $response ) ) 
 			return;
-		switch($_GET['response']) {
+		switch( $response ) {
 			case 'ugc-sent':
-				$title ='Your file was successfully uploaded!';
+				$title = __( 'Your file was successfully uploaded!', 'frontend-uploader' );
 			break;
 			case 'nonce-failure':
-				$title = 'Security check failed';
+				$title = __( 'Security check failed', 'frontend-uploader' );
 			break;
 			default:
 			    $title = '';
