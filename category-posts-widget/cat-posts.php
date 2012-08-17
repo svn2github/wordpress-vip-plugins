@@ -24,7 +24,9 @@ function jl_cat_posts_widget( $args, $widget_args = 1 ) {
 	$options = get_option('widget_cat_posts');
 	if ( !isset($options[$number]) )
 		return;
-	
+
+	$options[$number] = apply_filters( 'jl_cat_posts_widget_options', $options[$number], $args );
+
 	$cat_id = empty($options[$number]['cat']) ? 1 : $options[$number]['cat'];
 	$title_link = (bool) $options[$number]['title_link'];
 	$excerpt = (bool) $options[$number]['excerpt'];
