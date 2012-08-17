@@ -411,6 +411,7 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 		$via_callback = create_function( '', sprintf( 'return "%s";', $via ) );
 	}
 
+	add_filter( 'jetpack_sharing_twitter_via', $via_callback );
 	add_filter( 'sharing_twitter_via', $via_callback );
 }
 
