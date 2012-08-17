@@ -412,7 +412,6 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 	}
 
 	add_filter( 'jetpack_sharing_twitter_via', $via_callback );
-	add_filter( 'sharing_twitter_via', $via_callback );
 }
 
 /**
