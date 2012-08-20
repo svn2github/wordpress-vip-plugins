@@ -34,7 +34,7 @@ function super_sticky_set_post_types() {
 	if(!empty($post_types)) {
 		$checked_post_types = super_sticky_post_types();
 		foreach($post_types as $post_type) { ?>
-			<div><input type="checkbox" id="post_type_<?php echo $post_type; ?>" name="sticky_custom_post_types[]" value="<?php echo $post_type; ?>" <?php checked(in_array($post_type, $checked_post_types)); ?> /> <label for="post_type_<?php echo $post_type; ?>"><?php echo $post_type; ?></label></div><?php
+			<div><input type="checkbox" id="<?php echo esc_attr( 'post_type_' . $post_type ); ?>" name="sticky_custom_post_types[]" value="<?php echo esc_attr( $post_type ); ?>" <?php checked(in_array($post_type, $checked_post_types)); ?> /> <label for="<?php echo esc_attr( 'post_type_' . $post_type ); ?>"><?php echo esc_html( $post_type ); ?></label></div><?php
 		}
 	}
 	else
