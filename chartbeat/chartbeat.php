@@ -245,13 +245,20 @@ function add_chartbeat_footer() {
 		// if visitor is admin AND tracking is off, do not load chartbeat
 		if ( current_user_can( 'manage_options') && get_option('chartbeat_trackadmins') == 0)
 			return;
+
+		if ( apply_filters( 'chartbeat_config_use_canonical', true ) )
+			$use_canonical = 'true';
+		else
+			$use_canonical = 'false';
 		?>
 
 		<!-- /// LOAD CHARTBEAT /// -->
 		<script type="text/javascript">
 		var _sf_async_config={};
-		_sf_async_config.uid = <?php print intval( $user_id ); ?>;
-		<?php $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
+		_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
+		_sf_async_config.useCanonical = <?php echo $use_canonical; ?>;
+		<?php
+		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 		if ($enable_newsbeat) { ?>
 			_sf_async_config.domain = '<?php echo esc_js( $domain ); ?>';
