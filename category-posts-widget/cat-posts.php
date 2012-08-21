@@ -68,7 +68,6 @@ function jl_cat_posts_widget( $args, $widget_args = 1 ) {
 		$jl_cat_posts_widget .= '</ul>';
 		$jl_cat_posts_widget .= $after_widget;
 	
-		$news = $snoopy->results;
 		wp_cache_set($cache_key, $jl_cat_posts_widget, 'widget');
 	} 
 	echo $jl_cat_posts_widget;
