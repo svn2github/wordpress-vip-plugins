@@ -3,7 +3,7 @@
 Plugin Name: Sticky Custom Post Types
 Plugin URI: http://superann.com/sticky-custom-post-types/
 Description: Enables support for sticky custom post types. Set options in Settings &rarr; Reading.
-Version: 1.2.2
+Version: 1.2.2 WPCOM
 Author: Ann Oyama
 Author URI: http://superann.com
 License: GPL2
@@ -61,13 +61,8 @@ function super_sticky_admin_init() {
 
 add_action('admin_init', 'super_sticky_admin_init', 20);
 
-function super_sticky_post_types($posts=false) {
-	$post_types = get_option('sticky_custom_post_types');
-	if(!is_array($post_types))
-		$post_types = array();
-	if($posts)
-		$post_types[] = 'post';
-	return $post_types;
+function super_sticky_post_types() {
+	return (array) get_option( 'sticky_custom_post_types', array() );
 }
 
 function super_sticky_meta() { global $post; ?>
@@ -83,13 +78,29 @@ function super_sticky_add_meta_box() {
 add_action('admin_init', 'super_sticky_add_meta_box');
 
 function super_sticky_posts_filter($query) {
-	if($query->is_home && !$query->get('suppress_filters'))
-		if(super_sticky_filter('home'))
-			$query->set('post_type', super_sticky_post_types(true));
-		else
-			$query->set('post_type', 'post');
-	return $query;
+	if ( $query->is_main_query() && $query->is_home() && ! $query->get( 'suppress_filters' ) && super_sticky_filter( 'home' ) ) {
+
+		$super_sticky_post_types = super_sticky_post_types();
+
+		if ( ! empty( $super_sticky_post_types ) ) {
+			$post_types = array();
+
+			$query_post_type = $query->get( 'post_type' );
+
+			if ( empty( $query_post_type ) ) {
+				$post_types[] = 'post';
+			} elseif ( is_string( $query_post_type ) ) {
+				$post_types[] = $query_post_type;
+			} elseif ( is_array( $query_post_type ) ) {
+				$post_types = $query_post_type;
+			}
+
+			$post_types = array_merge( $post_types, $super_sticky_post_types );
+
+			$query->set( 'post_type', $post_types );
+		}
+	}
 }
 
-add_filter('pre_get_posts', 'super_sticky_posts_filter');
+add_action('pre_get_posts', 'super_sticky_posts_filter');
 ?>
