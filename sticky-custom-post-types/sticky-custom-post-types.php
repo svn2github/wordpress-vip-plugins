@@ -93,6 +93,8 @@ function super_sticky_posts_filter($query) {
 				$post_types[] = $query_post_type;
 			} elseif ( is_array( $query_post_type ) ) {
 				$post_types = $query_post_type;
+			} else {
+				return; // Unexpected value
 			}
 
 			$post_types = array_merge( $post_types, $super_sticky_post_types );
