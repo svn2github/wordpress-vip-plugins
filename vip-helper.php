@@ -365,56 +365,6 @@ function vip_multiple_moderators($emails) {
 	add_filter( 'wpcom_vip_multiple_moderators', create_function( '$existing', 'return array_merge( $existing, ' . var_export( $emails, true ) . ' );') );
 }
 
-/*
- * DEPRECATED *
- * This function is no longer necessary. On 3/26/2010 we deployed code that automatically adds the mtime query string to
- * all css|gif|jpeg|jpg|js|png|swf|ico files serverd from the CDN that occur before wp_footer(). This invalidates the browser cache.
- * We also recently made changes that invalidate the file at the CDN when a new copy is committed to SVN.
- *
- * Add an mtime query string to a filename URL.
- *
- * CSS, JS and images hosted in WordPress.com themes are served 
- * through a content delivery network (CDN) for improved visitor experience.
- * For theme files loaded from s?.wordpress.com checking in 
- * an update/modification of the file will not (currently) result 
- * in the CDN cache being flushed.
- * 
- * For style.css and other CSS stylesheet links in index.php header
- * WordPress sitewide automatically appends 
- * an mtime query string, ?m=[date] in the source (wp_head hook).
- *
- * This function can be used so the filename or query string do not have to be manually updated each time a file is modified.
- *
- * Examples:
- * echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/print.css' );
- * echo wpcom_vip_cache_buster( get_bloginfo('template_directory') . '/images/rss-icon.jpg' );
- * 
- * @author nickmomrik
- */
-function wpcom_vip_cache_buster( $url, $mtime = null ) {
-	if ( strpos($url, '?m=') )
-		return $url;
-
-	if ( is_null($mtime) ) {
-		$parts = parse_url( $url );
-
-		if ( !isset($parts['path']) || empty($parts['path']) ) {
-			$mtime = false;
-		} else {
-			$file = ABSPATH . ltrim( $parts['path'], '/' );
-
-			if ( !$mtime = @filemtime( $file ) )
-				$mtime = false;
-		}
-	}
-
-	if ( !$mtime )
-		return $url;
-
-	list($url, $q) = explode( '?', $url, 2); //Get rid of any query string
-	return "$url?m=$mtime";
-}
-
 /**
  * Automatically insert meta description tag into posts/pages. 
  * - can be configured to use either first X chars/words of the post content or post excerpt if available
