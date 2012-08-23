@@ -393,6 +393,13 @@ function wpcom_vip_disable_postpost() {
 
 function wpcom_vip_enable_opengraph() {
 	add_filter( 'jetpack_enable_open_graph', '__return_true', 99 ); // hook later so we don't run into the WP.com filter which disables open graph tags for VIPs
+
+	// Disable the Facebook plugin's Open Graph tags
+	add_action( 'template_redirect', '_wpcom_vip_disable_fb_plugin_opengraph' ); 
+}
+function _wpcom_vip_disable_fb_plugin_opengraph() {
+	if ( function_exists( 'fb_add_og_protocol' ) )
+		remove_action( 'wp_head', 'fb_add_og_protocol' );
 }
 
 /**
