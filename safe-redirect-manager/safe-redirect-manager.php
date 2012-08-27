@@ -75,12 +75,11 @@ class SRM_Safe_Redirect_Manager {
 	 * @return void
 	 */
 	public function action_print_logo_css() {
-		global $post;
-		if ( is_object( $post ) && $this->redirect_post_type == $post->post_type ) {
+		if ( $this->is_whitelisted_page() ) {
 		?>
 			<style type="text/css">
 				#icon-tools {
-					background: url("<?php echo plugins_url(); ?>/safe-redirect-manager/images/icon32x32.png") no-repeat top left !important;
+					background: url("<?php echo plugins_url( 'images/icon32x32.png', __FILE__ ); ?>") no-repeat top left !important;
 					margin-right: 0;
 				}
 				#visibility {
@@ -99,6 +98,13 @@ class SRM_Safe_Redirect_Manager {
 	public function filter_bulk_actions() {
 		return array();
 	}
+
+	/**
+	 * Whether or not this is an admin page specific to the plugin
+	 */
+	private function is_whitelisted_page() {
+		return (bool) ( get_post_type() == $this->redirect_post_type || ( isset( $_GET['post_type'] ) && $this->redirect_post_type == $_GET['post_type'] ) );
+	}
 	
 	/**
 	 * Echoes admin message if redirect chains exist
@@ -108,8 +114,8 @@ class SRM_Safe_Redirect_Manager {
 	 * @return void
 	 */
 	public function action_redirect_chain_alert() {
-		global $post, $hook_suffix;
-		if ( is_object( $post ) && $this->redirect_post_type == $post->post_type ) {
+		global $hook_suffix;
+		if ( $this->is_whitelisted_page() ) {
 			if ( $this->check_for_possible_redirect_loops() ) {
 			?>
 				<div class="updated">
