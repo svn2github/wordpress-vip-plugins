@@ -241,7 +241,7 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 
 	// staticize_subdomain() converts the URL to use one of our CDN's (the main reason to use this function)
 	// The "en" is there as staticize_subdomain() expects the passed URL to be something.wordpress.com
-	$thumburl = 'http://en.wordpress.com/imgpress?url=' . urlencode( $url ) . "&resize={$width},{$height}";
+	$thumburl = 'http://en.wordpress.com/imgpress?url=' . rawurlencode( $url ) . "&resize={$width},{$height}";
 
 	// On WP.com, serve from our CDN if available
 	if ( function_exists( 'staticize_subdomain' ) )
