@@ -22,7 +22,7 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 	if ( 'id' == $field )
 		return get_term_by( $field, $value, $taxonomy, $output, $filter );
 
-	$cache_key = $field . '_' . $value;
+	$cache_key = $field . '_' . md5( $value );
 	$term_id = wp_cache_get( $cache_key, 'get_term_by' );
 
 	if ( false === $term_id ) {
@@ -67,4 +67,21 @@ add_action( 'transition_post_status', 'wpcom_vip_flush_get_page_by_title_cache',
 function wpcom_vip_flush_get_page_by_title_cache( $new_status, $old_status, $post ) {
 	if ( 'publish' == $new_status || 'publish' == $old_status )
 		wp_cache_delete( $post->post_type . '_' . sanitize_key( $post->post_title ), 'get_page_by_title' );
+}
+
+
+function wpcom_vip_get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
+	$cache_key = $post_type . '_' . sanitize_key( $page_path );
+	$page_id = wp_cache_get( $cache_key, 'get_page_by_path' );
+
+	if ( $page_id === false ) {
+		$page = get_page_by_path( $page_path, $output, $post_type );
+		$page_id = $page ? $page->ID : 0;
+		wp_cache_set( $cache_key, $page_id, 'get_page_by_path' ); // We only store the ID to keep our footprint small
+	}
+
+	if ( $page_id )
+		return get_page( $page_id, $output );
+
+	return null;
 }
