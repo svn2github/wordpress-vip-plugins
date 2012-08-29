@@ -8,6 +8,7 @@ $coauthors_plus_guest_authors_whitelist = array(
 		'vip/newyorkobserver',
 		'vip/sc-beautyhigh',
 		'vip/sc-stylecaster',
+		'vip/sc-vivant',
 		'vip/thoughtcatalog',
 		'vip/time-lifestyle',
 		'vip/healthcommon',
