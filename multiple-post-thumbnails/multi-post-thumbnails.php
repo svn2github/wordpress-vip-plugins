@@ -127,9 +127,12 @@ if (!class_exists('MultiPostThumbnails')) {
 			if ($calling_post && $calling_post->post_type != $this->post_type) {
 				return $form_fields;
 			}
+			
+			if(isset($_REQUEST['context']) && $_REQUEST['context'] != $this->id)
+				return $form_fields;
 
 			$ajax_nonce = wp_create_nonce("set_post_thumbnail-{$this->post_type}-{$this->id}-{$calling_post_id}");
-			$link = sprintf('<a id="%4$s-%1$s-thumbnail-%2$s" class="%1$s-thumbnail" href="#" onclick="MultiPostThumbnailsSetAsThumbnail(\'%2$s\', \'%1$s\', \'%4$s\', \'%5$s\');return false;">Set as %3$s</a>', $this->id, $post->ID, $this->label, $this->post_type, $ajax_nonce);
+			$link = sprintf('<a id="%4$s-%1$s-thumbnail-%2$s" class="%1$s-thumbnail button" href="#" onclick="MultiPostThumbnailsSetAsThumbnail(\'%2$s\', \'%1$s\', \'%4$s\', \'%5$s\');return false;">Set as %3$s</a>', $this->id, $post->ID, $this->label, $this->post_type, $ajax_nonce);
 			$form_fields["{$this->post_type}-{$this->id}-thumbnail"] = array(
 				'label' => $this->label,
 				'input' => 'html',
@@ -149,7 +152,7 @@ if (!class_exists('MultiPostThumbnails')) {
 				return;
 
 			add_thickbox();
-			wp_enqueue_script( "featured-image-custom", plugins_url( 'js/multi-post-thumbnails-admin.js', __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script( "featured-image-custom", plugins_url( 'js/multi-post-thumbnails-admin.js', __FILE__ ), array( 'jquery', 'media-upload' ) );
 		}
 
 		/**
@@ -236,8 +239,10 @@ if (!class_exists('MultiPostThumbnails')) {
 		 */
 		private function post_thumbnail_html($thumbnail_id = NULL) {
 			global $content_width, $_wp_additional_image_sizes, $post_ID;
-
-			$set_thumbnail_link = sprintf('<p class="hide-if-no-js"><a title="%1$s" href="%2$s" id="set-%3$s-%4$s-thumbnail" class="thickbox">%%s</a></p>', esc_attr__( "Set {$this->label}" ), get_upload_iframe_src('image'), $this->post_type, $this->id);
+			$image_library_url = get_upload_iframe_src('image');
+			 // if TB_iframe is not moved to end of query string, thickbox will remove all query args after it.
+			$image_library_url = add_query_arg( array( 'context' => $this->id, 'TB_iframe' => 1 ), remove_query_arg( 'TB_iframe', $image_library_url ) );
+			$set_thumbnail_link = sprintf('<p class="hide-if-no-js"><a title="%1$s" href="%2$s" id="set-%3$s-%4$s-thumbnail" class="thickbox">%%s</a></p>', esc_attr__( "Set {$this->label}" ), $image_library_url, $this->post_type, $this->id);
 			$content = sprintf($set_thumbnail_link, esc_html__( "Set {$this->label}" ));
 
 
