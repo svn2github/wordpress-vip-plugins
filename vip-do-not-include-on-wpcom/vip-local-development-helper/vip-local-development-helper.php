@@ -250,5 +250,5 @@ function wpcom_vip_theme_dir( $theme = '' ) {
 	$theme = ltrim( $theme, '/' );
 	$theme = str_replace( 'vip/', '', $theme );
 
-	return trailingslashit( sprintf( '%s/themes/vip/%s', WP_CONTENT_DIR, $theme ) );
+	return sprintf( '%s/themes/vip/%s', WP_CONTENT_DIR, $theme );
 }
