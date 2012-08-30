@@ -128,7 +128,10 @@ if (!class_exists('MultiPostThumbnails')) {
 				return $form_fields;
 			}
 			
-			if(isset($_REQUEST['context']) && $_REQUEST['context'] != $this->id)
+			$referer = wp_get_referer();
+			$query_vars = wp_parse_args(parse_url($referer, PHP_URL_QUERY));
+			
+			if( (isset($_REQUEST['context']) && $_REQUEST['context'] != $this->id) || (isset($query_vars['context']) && $query_vars['context'] != $this->id) )
 				return $form_fields;
 
 			$ajax_nonce = wp_create_nonce("set_post_thumbnail-{$this->post_type}-{$this->id}-{$calling_post_id}");
