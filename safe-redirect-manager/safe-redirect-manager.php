@@ -4,7 +4,7 @@ Plugin Name: Safe Redirect Manager
 Plugin URI: http://www.10up.com
 Description: Easily and safely manage HTTP redirects.
 Author: Taylor Lovett (10up LLC), VentureBeat
-Version: 1.1
+Version: 1.2
 Author URI: http://www.10up.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -82,7 +82,7 @@ class SRM_Safe_Redirect_Manager {
 					background: url("<?php echo plugins_url( 'images/icon32x32.png', __FILE__ ); ?>") no-repeat top left !important;
 					margin-right: 0;
 				}
-				#visibility {
+				#visibility, .view-switch {
 					display: none;
 				}
 			</style>
@@ -297,8 +297,11 @@ class SRM_Safe_Redirect_Manager {
 		$columns['title'] = __( 'Redirect From', 'safe-redirect-manager' );
 		
 		// Move date column to the back
-		unset($columns['date']);
+		unset( $columns['date'] );
 		$columns['date'] = __( 'Date', 'safe-redirect-manager' );
+		
+		// get rid of checkboxes
+		unset( $columns['cb'] );
 		
 		return $columns;
 	}
@@ -342,7 +345,7 @@ class SRM_Safe_Redirect_Manager {
 	 * Registers post types for plugin
 	 *
 	 * @since 1.0
-	 * @uses register_post_type, _x, plugins_url
+	 * @uses register_post_type, _x, plugins_url, apply_filters
 	 * @return void
 	 */
 	public function action_register_post_types() {
@@ -361,6 +364,18 @@ class SRM_Safe_Redirect_Manager {
 			'parent_item_colon' => '',
 			'menu_name' => __( 'Safe Redirect Manager', 'safe-redirect-manager' )
 		);
+		$redirect_capability = 'manage_options';
+		$redirect_capability = apply_filters( 'srm_restrict_to_capability', $redirect_capability );
+		$capabilities = array(
+			'edit_post' => $redirect_capability,
+			'read_post' => $redirect_capability,
+			'delete_post' => $redirect_capability,
+			'edit_posts' => $redirect_capability,
+			'edit_others_posts' => $redirect_capability,
+			'publish_posts' => $redirect_capability,
+			'read_private_posts' => $redirect_capability
+		);
+		
 		$redirect_args = array(
 		  'labels' => $redirect_labels,
 		  'public' => false,
@@ -370,6 +385,7 @@ class SRM_Safe_Redirect_Manager {
 		  'query_var' => false,
 		  'rewrite' => false,
 		  'capability_type' => 'post',
+		  'capabilities' => $capabilities,
 		  'has_archive' => false, 
 		  'hierarchical' => false,
 		  'register_meta_box_cb' => array( $this, 'action_redirect_rule_metabox' ),
