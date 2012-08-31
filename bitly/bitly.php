@@ -200,6 +200,16 @@ function bitly_get_url( $post_id = null ) {
 }
 
 /**
+ * Generate short_url for use in bitly_process_posts()
+ */
+function bitly_generate_short_url( $post_id ) {
+	global $bitly;
+	if ( is_object( $bitly ) && is_callable( $bitly, 'generate_bitly_url' ) )
+		return call_user_func( $bitly, 'generate_bitly_url', $post_id );
+	return false;
+}
+
+/**
  * Filter to replace the default shortlink
  */
 function bitly_shortlink( $shortlink, $id, $context ) {
@@ -245,7 +255,7 @@ function bitly_process_posts() {
 
 		// process these posts
 		foreach( $posts as $p ) {
-			Bitly::generate_bitly_url( $p->ID );
+			bitly_generate_short_url( $p->ID );
 		}
 	} else {
 
