@@ -182,7 +182,7 @@ class WPcom_VIP_Plugins_UI {
 			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
-				'description' => 'Powering personalized video across all screens.',
+				'description' => 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
 			),
 			'postrelease-vip'        => array(
 				'name'        => 'PostRelease',
