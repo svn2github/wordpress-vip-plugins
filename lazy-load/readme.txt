@@ -60,7 +60,10 @@ This will lazy load <em>all</em> your images.
 
 = 0.5 =
 
+* Fix lazyload_images_add_placeholders by adding missing return, props Kevin Smith
+* Lazy load avatars, props i8ramin
 * Don't lazy load images in the Dashboard
+* Better compatibility with Jetpack Carousel
 
 = 0.4 =
 
