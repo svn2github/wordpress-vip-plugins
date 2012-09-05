@@ -133,8 +133,7 @@ class Zoninator
 
 	function admin_enqueue_scripts() {
 		if( $this->is_zoninator_page() ) {
-			wp_enqueue_script( 'zoninator-jquery-ui', ZONINATOR_URL . 'js/jquery-ui/jquery-ui-zoninator.min.js', array( 'jquery' ), ZONINATOR_VERSION, true );
-			wp_enqueue_script( 'zoninator-js', ZONINATOR_URL . 'js/zoninator.js', array( 'jquery', 'zoninator-jquery-ui' ), ZONINATOR_VERSION, true );
+			wp_enqueue_script( 'zoninator-js', ZONINATOR_URL . 'js/zoninator.js', array( 'jquery', 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse', 'jquery-ui-position', 'jquery-ui-sortable', 'jquery-ui-autocomplete' ), ZONINATOR_VERSION, true );
 			
 			$options = array(
 				'baseUrl' => $this->_get_zone_page_url(),
