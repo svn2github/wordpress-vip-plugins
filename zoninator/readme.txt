@@ -1,9 +1,9 @@
 === Zone Manager (Zoninator) ===
 Contributors: batmoo, automattic
 Tags: zones, post order, post list, posts, order, zonination, content curation, curation, content management
-Requires at least: 3.3
+Requires at least: 3.4
 Tested up to: 3.4.1
-Stable tag: 0.3
+Stable tag: 0.4
 License: GPLv2
 
 Curation made easy! Create "zones" then add and order your content!
@@ -59,6 +59,7 @@ Filter the following and change according to your needs:
 
 * New dropdown that recent posts which can be adding to zones, props metromatic and Metro UK
 * New filter: zoninator_posts_per_page -- to override the default posts_per_page setting
+* Use core bundled versions of jQuery UI
 
 = 0.3 =
 
