@@ -137,12 +137,7 @@ function wpcom_vip_load_helper() {
 */
 function wpcom_vip_load_helper_wpcom() {
 	$includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-wpcom.php';
-
-	if ( function_exists( 'wpcom_is_vip' ) ) {
-		require_once( $includepath );
-	} else {
-		die( "wpcom_vip_load_helper_wpcom() should only be called on WordPress.com as it contains WordPress.com-specific code." );
-	}
+	require_once( $includepath );
 }
 
 /*
