@@ -13,6 +13,7 @@ $coauthors_plus_guest_authors_whitelist = array(
 		'vip/time-lifestyle',
 		'vip/healthcommon',
 		'vip/pmc-movieline',
+		'vip/vanguardadvisors',
 	);
 if ( !in_array( get_option( 'stylesheet' ), $coauthors_plus_guest_authors_whitelist ) )
 	add_filter( 'coauthors_guest_authors_enabled', '__return_false' );
