@@ -753,7 +753,7 @@ class Add_Meta_Tags {
 
 		// Bail if not a valid post type
 		$options = get_option("add_meta_tags_opts");
-		$valid_post_types = array_merge( array( 'post', 'page' ), array_keys( $options['custom_post_types'] ) );
+		$valid_post_types = array_merge( array( 'post', 'page' ), array_keys( (array) $options['custom_post_types'] ) );
 		if( ! isset( $_POST['post_type'] ) || ! in_array( $_POST['post_type'], $valid_post_types ) )
 			return;
 
@@ -850,7 +850,7 @@ class Add_Meta_Tags {
 		
 		if ( isset( $posts[0] ) && 'page' == $posts[0]->post_type )
 			$cmpvalues = $options['page_options'];
-		elseif ( isset( $posts[0] ) && ( 'post' === $posts[0]->post_type || array_key_exists( $posts[0]->post_type, $options['custom_post_types'] ) ) )
+		elseif ( isset( $posts[0] ) && ( 'post' === $posts[0]->post_type || array_key_exists( $posts[0]->post_type, (array) $options['custom_post_types'] ) ) )
 			$cmpvalues = $options['post_options'];
 		else
 			$cmpvalues = array();
