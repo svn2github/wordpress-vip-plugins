@@ -96,6 +96,14 @@ class Add_Meta_Tags {
 	function add_mt_seo_box() {
 		add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), 'post', 'normal' );
 		add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), 'page', 'normal' );
+
+		// Add meta boxes for any custom post types
+		$options = get_option("add_meta_tags_opts");
+		if ( ! empty($options['custom_post_types']) ) {
+			foreach ( $options['custom_post_types'] as $post_type => $enabled ) {
+				add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), $post_type, 'normal' );
+	}
+		}
 	}
 
 	function amt_add_pages() {
@@ -125,6 +133,7 @@ class Add_Meta_Tags {
 				"site_wide_meta"	=> strip_tags( $_POST["site_wide_meta"], '<meta>' ),
 				"post_options"      => ( is_array( $_POST["post_options"] ) ) ? $this->amt_clean_array( $_POST["post_options"] ) : array(),
 				"page_options"      => ( is_array( $_POST["page_options"] ) ) ? $this->amt_clean_array( $_POST["page_options"] ) : array(),
+				"custom_post_types" => ( isset($_POST["custom_post_types"]) && is_array( $_POST["custom_post_types"] ) ) ? $this->amt_clean_array( $_POST["custom_post_types"] ) : array(),
 				);
 			update_option("add_meta_tags_opts", $options);
 			$this->amt_show_info_msg(__('Add-Meta-Tags options saved.', 'add-meta-tags'));
@@ -150,13 +159,37 @@ class Add_Meta_Tags {
 
 		$post_options = $options['post_options'];
 		$page_options = $options['page_options'];
+		$custom_post_types = $options['custom_post_types'];
 		
 		// good defaults is the hallmark of good software
 		if ( !is_array( $post_options ) )
 			$post_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
 		if ( !is_array( $page_options ) )
 			$page_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
+		if ( ! is_array( $custom_post_types ) )
+			$custom_post_types = array();
 		
+		$registered_post_types = get_post_types( array(
+			'public'   => true,
+			'show_ui'  => true,
+			'_builtin' => false,
+		), 'objects' );
+
+		// Because the options page is a single print() statement, and
+		// registered post types are variable, we will do sanity checks here and
+		// generate the html that's used in the print() statement. Store
+		// checkbox HTML in an array so we can easily join them with a comma
+		$post_type_checkboxes = array();
+		if ( $registered_post_types ) {
+			foreach ( $registered_post_types as $post_type ) {
+				$post_type_checkboxes[] = '<label>' . esc_html( $post_type->labels->name ) . ' (' . $post_type->name . ') : <input type="checkbox" name="custom_post_types[' . esc_attr( $post_type->name ) . ']" value="true" ' . checked( isset($options['custom_post_types'][$post_type->name]), true, false )  . ' /></label>';
+			}
+			$registered_post_type_checkbox_html = implode( ' , ', $post_type_checkboxes );
+		} else {
+			$registered_post_type_checkbox_html = __('No public custom post types are registered.', 'add-meta-tags');
+		}
+		$registered_post_type_checkbox_html .= '<br /><span class="description">' . __('Not seeing a custom post type you expect?  Post types must have the following parameters: public, show_ui', 'add-meta-tags') . '</span>';
+
 		/*
 		Configuration Page
 		*/
@@ -224,6 +257,11 @@ class Add_Meta_Tags {
 			' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_keywords]" value="true" ' . ( ( $post_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> , 
 			' . __( 'Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_meta]" value="true" ' . ( ( $post_options["mt_seo_meta"] ) ? 'checked="checked"' : '' ) . ' />
 			</p>
+
+			<p><strong>' . __('Enable for the following post types:', 'add-meta-tags') . '</strong>
+			' . $registered_post_type_checkbox_html . '
+			</p>
+
 			<p class="submit">
 				<input type="submit" name="info_update" value="'.__('Update Options', 'add-meta-tags').' &raquo;" />
 			</p>
@@ -442,7 +480,7 @@ class Add_Meta_Tags {
 
 		if ( isset( $posts[0] ) && 'page' == $posts[0]->post_type )
 			$cmpvalues = $options['page_options'];
-		elseif ( isset( $posts[0] ) && 'post' == $posts[0]->post_type )
+		elseif ( isset( $posts[0] ) && ( 'post' === $posts[0]->post_type || array_key_exists( $posts[0]->post_type, $options['custom_post_types'] ) ) )
 			$cmpvalues = $options['post_options'];
 		else 
 			$cmpvalues = array();
@@ -713,7 +751,10 @@ class Add_Meta_Tags {
 		if ( 'post' !== strtolower( $_SERVER['REQUEST_METHOD'] ) || !isset($_POST[$field_name]) )
 			return;
 
-		if( !isset( $_POST['post_type'] ) || !in_array( $_POST['post_type'], array( 'post', 'page' ) ) )
+		// Bail if not a valid post type
+		$options = get_option("add_meta_tags_opts");
+		$valid_post_types = array_merge( array( 'post', 'page' ), array_keys( $options['custom_post_types'] ) );
+		if( ! isset( $_POST['post_type'] ) || ! in_array( $_POST['post_type'], $valid_post_types ) )
 			return;
 
 		$post_type = $_POST['post_type'];
@@ -723,7 +764,8 @@ class Add_Meta_Tags {
 			return;
 
 		// Checks user caps
-		if ( !current_user_can( 'edit_' . $post_type, $post_id ) )
+		$post_type_object = get_post_type_object($post_type);
+		if ( ! current_user_can( $post_type_object->cap->edit_post, $post_id ) )
 			return;
 
 		// Already have data?
@@ -808,7 +850,7 @@ class Add_Meta_Tags {
 		
 		if ( isset( $posts[0] ) && 'page' == $posts[0]->post_type )
 			$cmpvalues = $options['page_options'];
-		elseif ( isset( $posts[0] ) && 'post' == $posts[0]->post_type )
+		elseif ( isset( $posts[0] ) && ( 'post' === $posts[0]->post_type || array_key_exists( $posts[0]->post_type, $options['custom_post_types'] ) ) )
 			$cmpvalues = $options['post_options'];
 		else
 			$cmpvalues = array();
