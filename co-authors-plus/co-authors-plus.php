@@ -31,6 +31,8 @@ define( 'COAUTHORS_PLUS_URL', plugin_dir_url( __FILE__ ) );
 
 require_once( dirname( __FILE__ ) . '/template-tags.php' );
 
+require_once( dirname( __FILE__ ) . '/php/class-coauthors-template-filters.php' );
+
 if ( defined('WP_CLI') && WP_CLI )
 	require_once( dirname( __FILE__ ) . '/php/class-wp-cli.php' );
 
@@ -49,16 +51,14 @@ class coauthors_plus {
 	var $_pages_whitelist = array( 'post.php', 'post-new.php' );
 
 	var $ajax_search_fields = array( 'display_name', 'first_name', 'last_name', 'user_login', 'ID', 'user_email' );
-		
+
 	/**
 	 * __construct()
 	 */
 	function __construct() {
 
-		load_plugin_textdomain( 'co-authors-plus', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-
 		// Register our models
-		add_action( 'init', array( $this, 'register_models' ) );
+		add_action( 'init', array( $this, 'action_init' ) );
 
 		// Load admin_init function
 		add_action( 'admin_init', array( $this,'admin_init' ) );
@@ -112,7 +112,10 @@ class coauthors_plus {
 	 * Register the taxonomy used to managing relationships,
 	 * and the custom post type to store our author data
 	 */
-	function register_models() {
+	function action_init() {
+
+		// Allow Co-Authors Plus to be easily translated
+		load_plugin_textdomain( 'co-authors-plus', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 		// Register new taxonomy so that we can store all of the relationships
 		$args = array(
@@ -137,6 +140,11 @@ class coauthors_plus {
 			if ( apply_filters( 'coauthors_guest_authors_force', false ) ) {
 				$this->force_guest_authors = true;
 			}
+		}
+
+		// Maybe automatically apply our template tags
+		if ( apply_filters( 'coauthors_auto_apply_template_tags', false ) ) {
+			new CoAuthors_Template_Filters;
 		}
 
 	}
@@ -424,9 +432,14 @@ class coauthors_plus {
 			
 			$count = 1;
 			foreach( $authors as $author ) :
-				$user_login = sanitize_title( $author->user_login );
+				$args = array(
+						'author_name' => $author->user_login,
+					);
+				if ( 'post' != $post->post_type )
+					$args['post_type'] = $post->post_type;
+				$author_filter_url = add_query_arg( $args, admin_url( 'edit.php' ) );
 				?>
-				<a href="<?php echo esc_url( get_admin_url( null, 'edit.php?author_name=' . $user_login ) ); ?>"><?php echo esc_html( $author->display_name ); ?></a><?php echo ( $count < count( $authors ) ) ? ',' : ''; ?>
+				<a href="<?php echo esc_url( $author_filter_url ); ?>"><?php echo esc_html( $author->display_name ); ?></a><?php echo ( $count < count( $authors ) ) ? ',' : ''; ?>
 				<?php
 				$count++;
 			endforeach;
@@ -564,11 +577,12 @@ class coauthors_plus {
 				$author_name = get_userdata( $query->get( 'author' ) )->user_login;
 
 			$terms = array();
-			$terms[] = get_term_by( 'slug', $author_name, $this->coauthor_taxonomy );
+			if ( $author_term = get_term_by( 'slug', $author_name, $this->coauthor_taxonomy ) )
+				$terms[] = $author_term;
 			$coauthor = $this->get_coauthor_by( 'login', $author_name );
 			// If this coauthor has a linked account, we also need to get posts with those terms
-			if ( !empty( $coauthor->linked_account ) ) {
-				$terms[] = get_term_by( 'slug', $coauthor->linked_account, $this->coauthor_taxonomy );
+			if ( !empty( $coauthor->linked_account ) && $guest_author_term = get_term_by( 'slug', $author_name, $this->coauthor_taxonomy ) ) {
+				$terms[] = $guest_author_term;
 			}
 
 			// Whether or not to include the original 'post_author' value in the query
