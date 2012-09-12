@@ -264,7 +264,7 @@ if (!class_exists('MultiPostThumbnails')) {
 				$content_width = $old_content_width;
 			}
 
-			return $content;
+			return apply_filters( 'multi-post-thumbnail-html', $content, $this );
 		}
 
 		/**
