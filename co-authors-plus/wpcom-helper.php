@@ -5,6 +5,7 @@
  */
 $coauthors_plus_guest_authors_whitelist = array(
 		'vip/dawn-urdu',
+		'vip/dawn-urdu-mobile',
 		'vip/newyorkobserver',
 		'vip/sc-beautyhigh',
 		'vip/sc-stylecaster',
