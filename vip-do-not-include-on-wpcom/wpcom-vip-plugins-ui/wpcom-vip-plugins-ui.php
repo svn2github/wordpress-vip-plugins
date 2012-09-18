@@ -152,6 +152,7 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
 			'storify',
+			'daylife',			
 		);
 		$this->hidden_plugins = apply_filters( 'wpcom_vip_plugins_ui_hidden_plugins', $this->hidden_plugins );
 
@@ -159,10 +160,6 @@ class WPcom_VIP_Plugins_UI {
 			'chartbeat'     => array(
 				'name'        => 'Chartbeat',
 				'description' => 'Real-time data for big-time publishers.',
-			),
-			'daylife'       => array(
-				'name'        => 'Daylife',
-				'description' => 'Daylife. Simply Amazing Cloud Publishing.',
 			),
 			'facebook'       => array(
 				'name'        => 'Facebook',
@@ -175,10 +172,6 @@ class WPcom_VIP_Plugins_UI {
 			'mediapass'     => array(
 				'name'        => 'MediaPass Subscriptions',
 				'description' => 'Monetize your content with recurring subscriptions made easy.',
-			),
-			'wibiya-mobile' => array(
-				'name'        => 'Mobilize with Wibiya',
-				'description' => 'Instantly transform your blog into a stunning, mobile site!',
 			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
