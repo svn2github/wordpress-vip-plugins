@@ -14,7 +14,10 @@ class wp_xmlrpc_client extends WP_HTTP_IXR_Client implements wp_client {
 
 	    // @TODO check port, timeout etc
 		$server = untrailingslashit( get_post_meta( $site_ID, 'syn_site_url', true ) );
-		$server = esc_url_raw( $server . '/xmlrpc.php' );
+		if ( false === strpos( $server, 'xmlrpc.php' ) )
+			$server = esc_url_raw( trailingslashit( $server ) . 'xmlrpc.php' );
+		else
+			$server = esc_url_raw( $server );
 
 	    parent::__construct( $server );
         $this->username = get_post_meta( $site_ID, 'syn_site_username', true);
@@ -36,10 +39,13 @@ class wp_xmlrpc_client extends WP_HTTP_IXR_Client implements wp_client {
         $args['wp_password'] = $post['post_password'];
 
 	    // @TODO extend this to custom taxonomies
-	    $args['terms_names'] = array(
-		    'category' => wp_get_object_terms( $post_ID, 'category', array('fields' => 'names') ),
-		    'post_tag' => wp_get_object_terms( $post_ID, 'post_tag', array('fields' => 'names') )
-	    );
+	    $args['terms_names'] = array();
+
+		if ( is_object_in_taxonomy( $post['post_type'], 'category' ) )
+		    $args['terms_names']['category'] = wp_get_object_terms( $post_ID, 'category', array('fields' => 'names') );
+
+		if ( is_object_in_taxonomy( $post['post_type'], 'post_tag' )  )
+			$args['terms_names']['post_tag'] = wp_get_object_terms( $post_ID, 'post_tag', array('fields' => 'names') );
 
 	    // post meta
 	    $custom_fields= array();
@@ -227,7 +233,7 @@ class wp_xmlrpc_client extends WP_HTTP_IXR_Client implements wp_client {
 
 	public static function save_settings( $site_ID ) {
 
-		str_replace( '/xmlrpc.php', '', $_POST['site_url'] );
+		$_POST['site_url'] = str_replace( '/xmlrpc.php', '', $_POST['site_url'] );
 
 		update_post_meta( $site_ID, 'syn_site_url', esc_url_raw( $_POST['site_url'] ) );
 		update_post_meta( $site_ID, 'syn_site_username', sanitize_text_field( $_POST['site_username'] ) );
