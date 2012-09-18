@@ -174,6 +174,20 @@ function wpcom_vip_get_loaded_plugins() {
 }
 
 /**
+ * Returns the raw path to the VIP themes dir
+ */
+function wpcom_vip_themes_root() {
+	return WP_CONTENT_DIR . '/themes/vip';
+}
+
+/**
+ * Returns the non-CDN uri to the VIP themes dir
+ */
+function wpcom_vip_themes_root_uri() {
+	return content_url( '/themes/vip' );
+}
+
+/**
  * Filter plugins_url() so that it works for plugins inside the shared VIP plugins directory or a theme directory.
  * Props to the GigaOm dev team for coming up with this method.
  */
