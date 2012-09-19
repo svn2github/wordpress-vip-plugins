@@ -80,12 +80,43 @@ function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = 
  *           'sourcetype' => string (site source: same_domain, wpcom, partners)
  *
 */
-
-function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true){
-	if ( function_exists( 'get_flaptor_related' ) )
+function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ) {
+	if ( function_exists( 'get_flaptor_related' ) ) {
 		return get_flaptor_related( $max_num, $additional_stopwords, $exclude_own_titles );
-	else
-		return array(); // TODO: return dummy data
+	} else {
+		// Fallback for local environments where flaptor isn't available
+		$related_posts = array();
+
+		$host = parse_url( home_url(), PHP_URL_HOST );
+		$source_info = array(
+			'sourcename' => get_bloginfo( 'name' ),
+			'sourceurl' => home_url(),
+			'sourcetype' => 'same_domain',
+		);
+
+		$post_id = get_the_ID();
+		$related_query_args = array(
+			'posts_per_page' => $max_num,
+		);
+
+		$categories = get_the_category( $post_id );
+		if ( ! empty( $categories ) )
+			$related_query_args[ 'cat' ] = $categories[0]->term_id;
+
+		$related_query = new WP_Query( $related_query_args );
+
+		foreach ( $related_query->get_posts() as $related_post ) {
+			$related_post_id = $related_post->ID;
+			$related_posts[] = array(
+				'url' => get_permalink( $related_post_id ),
+				'title' => get_the_title( $related_post_id ),
+				'timestamp' => get_the_time( 'Y-m-d', $related_post_id ),
+				'host' => $host,
+				'source' => $source_info,
+			);
+		}
+		return $related_posts;
+	}
 }
 
 /*
