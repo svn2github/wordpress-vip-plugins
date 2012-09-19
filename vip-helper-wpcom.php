@@ -52,12 +52,23 @@ function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true
  * 	<li><a href="URL">Title</a></li>
  * </ul>
 */
-
 function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ){
-	if ( function_exists( 'flaptor_related_inline' ) )
+	if ( function_exists( 'flaptor_related_inline' ) ) {
 		return flaptor_related_inline( $max_num, $additional_stopwords, $exclude_own_titles );
-	else
-		return array(); // TODO: return dummy data
+	} else {
+		// Fallback for local environments where flaptor isn't available
+		$related_output = '';
+		$related_posts = wpcom_vip_get_flaptor_related_posts( $max_num, $additional_stopwords, $exclude_own_titles );
+
+		if ( ! empty( $related_posts ) ) {
+			$related_output .= '<ul>';
+			foreach( $results as $result ) {
+				$related_output .= '<li><a href="' . esc_url( $result['url'] ) . '">'. esc_html( $result['title'] ) . '</a></li>';
+			}
+			$related_output .= '</ul>';
+		}
+		return $related_output;
+	}
 }
 
 /**
