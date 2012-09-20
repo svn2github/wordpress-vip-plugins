@@ -29,9 +29,23 @@ class WPcom_Thumbnail_Editor {
 	public $post_meta = 'wpcom_thumbnail_edit';
 
 	/**
+	 * Determine if we want to use a dimension map or not
+	 */
+	public $use_ratio_map = false;
+
+	/**
+	 * An array that maps specific aspect ratios to image size strings. Should be defined by user to be accurate.
+	 */
+	public $image_ratio_map = array();
+
+	/**
 	 * Initialize the class by registering various hooks.
 	 */
 	function __construct() {
+
+		$args = apply_filters( 'wpcom_thumbnail_editor_args', array(
+			'image_ratio_map' => false,
+		) );
 
 		// Transform the ImgPress URL into a CDN URL
 		if ( function_exists( 'staticize_subdomain' ) )
@@ -56,6 +70,26 @@ class WPcom_Thumbnail_Editor {
 			// Display status messages
 			if ( ! empty( $_GET['wtereset'] ) || ! empty( $_GET['wteupdated'] ) )
 				add_action( 'admin_notices', array( &$this, 'output_thumbnail_message' ) );
+		}
+
+		// using a global for now, maybe these values could be set in constructor in future?
+		if( is_array( $args['image_ratio_map'] ) ) {
+			$this->use_ratio_map = true;
+
+			// Validate image sizes
+			global $_wp_additional_image_sizes;
+			foreach ( $args['image_ratio_map'] as $ratio => $image_sizes ) {
+				$ratio_map[ $ratio ] = array();
+
+				foreach ( $image_sizes as $image_size ) {
+					if ( array_key_exists( $image_size, $_wp_additional_image_sizes ) )
+						$ratio_map[ $ratio ][] = $image_size;
+				}
+
+				if ( empty( $ratio_map[ $ratio ] ) )
+					unset( $ratio_map[ $ratio ] );
+			}
+			$this->image_ratio_map = $ratio_map;
 		}
 	}
 
@@ -102,7 +136,8 @@ class WPcom_Thumbnail_Editor {
 	 * @return string The HTML for the form field.
 	 */
 	public function get_attachment_field_html( $attachment ) {
-		$sizes = $this->get_intermediate_image_sizes();
+
+		$sizes = $this->use_ratio_map ? $this->get_image_sizes_by_ratio() : $this->get_intermediate_image_sizes();
 
 		if ( empty( $sizes ) )
 			return '<p>' . __( 'No thumbnail sizes could be found that are cropped. For now this functionality only supports cropped thumbnails.', 'wpcom-thumbnail-editor' ) . '</p>';
@@ -121,8 +156,17 @@ class WPcom_Thumbnail_Editor {
 
 			$html .= '<div>';
 
-			foreach ( $sizes as $size ) {
+			// key wont really matter if its not using a dimension map
+			foreach ( $sizes as $key => $size ) {
+
+				$image_name = $this->use_ratio_map ? $key : $size;
+
 				$edit_url = admin_url( 'admin.php?action=wpcom_thumbnail_edit&id=' . intval( $attachment->ID ) . '&size=' . urlencode( $size ) );
+
+				// add an extra query var if were using a ratio map
+				if( $this->use_ratio_map ) {
+					$edit_url = add_query_arg( 'ratio', $key, $edit_url );
+				}
 
 				// We need to get the fullsize thumbnail so that the cropping is properly done
 				$thumbnail = image_downsize( $attachment->ID, $size );
@@ -140,7 +184,7 @@ class WPcom_Thumbnail_Editor {
 						$html .= ' target="_blank"';
 
 					$html .= '>';
-						$html .= '<strong>' . esc_html( $size ) . '</strong><br />';
+						$html .= '<strong>' . esc_html( $image_name ) . '</strong><br />';
 						$html .= '<img src="' . esc_url( $thumbnail_url ) . '" alt="' . esc_attr( $size ) . '" />';
 					$html .= '</a>';
 				$html .= '</div>';
@@ -175,7 +219,10 @@ class WPcom_Thumbnail_Editor {
 		$parent_file = 'upload.php';
 		$submenu_file = 'upload.php';
 
-		$title = sprintf( __( 'Edit Thumbnail: %s', 'wpcom-thumbnail-editor' ), $size );
+		// adjust the image name if were using a ratio map
+		$image_name = isset( $_REQUEST['ratio'] ) ? $_REQUEST['ratio'] : $size;
+
+		$title = sprintf( __( 'Edit Thumbnail: %s', 'wpcom-thumbnail-editor' ), $image_name );
 
 		wp_enqueue_script( 'imgareaselect' );
 		wp_enqueue_style( 'imgareaselect' );
@@ -471,6 +518,24 @@ class WPcom_Thumbnail_Editor {
 	}
 
 	/**
+	 * Gets the first size defined for each dimension. All images are assumed to be cropped
+	 *
+	 * @todo Add validation that image sizes are of the cropped variety?
+	 * @return array Array of image size strings.
+	 */
+	public function get_image_sizes_by_ratio() {
+
+		$ratios = array_keys( $this->image_ratio_map );
+
+		foreach( $ratios as $ratio ) {
+			if( isset( $this->image_ratio_map[$ratio][0] ) )
+				$sizes[$ratio] = $this->image_ratio_map[$ratio][0];
+		}
+
+		return $sizes;
+	}
+
+	/**
 	 * Returns the width and height of a given thumbnail size.
 	 *
 	 * @param $size string Thumbnail size name.
@@ -530,7 +595,42 @@ class WPcom_Thumbnail_Editor {
 
 		$sizes[$size] = $coordinates;
 
+		// save meta for all the related sizes to if were using a ratio map
+		if( $this->use_ratio_map ) {
+
+			$related_sizes = $this->get_related_sizes( $size );
+
+			// add the same meta value to the related sizes
+			if( count( $related_sizes ) ) {
+				foreach( $related_sizes as $related_size ){
+					$sizes[$related_size] = $coordinates;
+				}
+			}
+		}
+
 		update_post_meta( $attachment_id, $this->post_meta, $sizes );
+	}
+
+	/**
+	 * Find the siblings of the passed size so we can apply the coordinates to them too.
+	 *
+	 * @return array Array of related image size strings
+	 */
+	public function get_related_sizes( $size ) {
+
+		$related_sizes = array();
+
+		// find out which ratio map the size belongs to
+		foreach( $this->image_ratio_map as $ratio => $ratio_sizes ) {
+			foreach( $ratio_sizes as $ratio_size ) {
+				if( $ratio_size == $size ){
+					$related_sizes = $this->image_ratio_map[$ratio];
+					break 2;
+				}
+			}
+		}
+
+		return $related_sizes;
 	}
 
 	/**
@@ -548,6 +648,16 @@ class WPcom_Thumbnail_Editor {
 			return false;
 
 		unset( $sizes[$size] );
+
+		// also unset related sizes
+		if( $this->use_ratio_map ) {
+			$related_sizes = $this->get_related_sizes( $size );
+			if( count( $related_sizes ) ) {
+				foreach( $related_sizes as $related_size ){
+					unset( $sizes[$related_size] );
+				}
+			}
+		}
 
 		return update_post_meta( $attachment_id, $this->post_meta, $sizes );
 	}
@@ -593,6 +703,7 @@ class WPcom_Thumbnail_Editor {
 	}
 }
 
-$GLOBALS['WPcom_Thumbnail_Editor'] = new WPcom_Thumbnail_Editor;
-
-?>
+// initializing the class on init so we can filter the args
+add_action( 'init', function() {
+	$GLOBALS['WPcom_Thumbnail_Editor'] = new WPcom_Thumbnail_Editor;
+} );
