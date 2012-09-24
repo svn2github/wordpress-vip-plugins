@@ -14,7 +14,7 @@ wpcom_vip_load_helper_wpcom(); // vip-helper-wpcom.php
 
 // Load the WordPress.com dependent helper files, only on WordPress.com (for now)
 if ( WPCOM_IS_VIP_ENV ) {
-	wpcom_vip_load_helper_stats(); // vip-helper-wpcom.php
+	wpcom_vip_load_helper_stats(); // vip-helper-stats-wpcom.php
 } else {
 	// Local helpers that add WP.com functionality
 	require_once( __DIR__ . '/vip-do-not-include-on-wpcom/is-mobile.php' );
