@@ -281,45 +281,15 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	if ( function_exists( 'new_file_urls' ) )
 		$url = new_file_urls( $url );
 
-	$thumburl = wpcom_vip_get_photon_url( $url, array( 'resize' => "{$width},{$height}" ) );
+	// staticize_subdomain() converts the URL to use one of our CDN's (the main reason to use this function)
+	// The "en" is there as staticize_subdomain() expects the passed URL to be something.wordpress.com
+	$thumburl = 'http://en.wordpress.com/imgpress?url=' . rawurlencode( $url ) . "&resize={$width},{$height}";
+
+	// On WP.com, serve from our CDN if available
+	if ( function_exists( 'staticize_subdomain' ) )
+		$thumburl = staticize_subdomain( $thumburl );
 
 	return ( $escape ) ? esc_url( $thumburl ) : $thumburl;
-}
-
-/**
- * Generates a Photon URL.
- *
- * @see http://developer.wordpress.com/docs/photon/
- *
- * @param string $image_url URL to the publicly accessible image you want to manipulate
- * @param array $args An array of arguments, i.e. array( 'w' => '300', 'filter' => 'grayscale' )
- * @return string The raw final URL. You should run this through esc_url() before displaying it.
- */
-function wpcom_vip_get_photon_url( $image_url, $args ) {
-
-	$image_url_parts = parse_url( $image_url );
-
-	// Unable to parse
-	if ( ! is_array( $image_url_parts ) )
-		return $image_url;
-
-	$image_url = $image_url_parts['host'] . $image_url_parts['path'];
-
-	// Figure out which CDN subdomain to use
-	srand( crc32( $image_url ) );
-	$subdomain = rand( 0, 2 );
-	srand();
-
-	$photon_url  = ( is_ssl() ) ? 'https://' : 'http://';
-	$photon_url .= 'i' . $subdomain . '.wp.com/';
-	$photon_url .= $image_url;
-
-	// See http://core.trac.wordpress.org/ticket/17923
-	$args = array_map( 'rawurlencode', $args );
-
-	$photon_url = add_query_arg( $args, $photon_url );
-
-	return $photon_url;
 }
 
 /*
