@@ -326,7 +326,7 @@ function wpcom_vip_get_photon_url( $image_url, $args ) {
 	$photon_url .= 'i' . $subdomain . '.wp.com/';
 	$photon_url .= $image_host_path;
 
-	if ( ! empty( $args ) && is_array( $args ) ) {
+	if ( is_array( $args ) ) {
 		// For certain arguments that are unlikely to be used more than once,
 		// convert any value arrays into comma-separated strings. This makes
 		// using parameters like "resize" or "crop" easier.
