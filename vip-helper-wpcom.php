@@ -324,7 +324,7 @@ function wpcom_vip_get_photon_url( $image_url, $args ) {
 
 	$photon_url = add_query_arg( $args, $photon_url );
 
-	return $photon_url . '#' . $image_url;
+	return $photon_url;
 }
 
 /*
