@@ -153,6 +153,9 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-wpcom',
 			'storify',
 			'daylife',			
+
+			// deprecated
+			'livefyre', // use livefyre3 instead
 		);
 		$this->hidden_plugins = apply_filters( 'wpcom_vip_plugins_ui_hidden_plugins', $this->hidden_plugins );
 
@@ -165,7 +168,7 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Facebook',
 				'description' => 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
 			),
-			'livefyre'      => array(
+			'livefyre3'      => array(
 				'name'        => 'Livefyre',
 				'description' => 'Replace comments with live conversations connected to the social web.',
 			),
