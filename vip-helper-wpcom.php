@@ -277,11 +277,11 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	$width = (int) $width;
 	$height = (int) $height;
 
-	// ImgPress doesn't currently support redirects, so help it out by doing http://foobar.wordpress.com/files/ to http://foobar.files.wordpress.com/
+	// Photon doesn't support redirects, so help it out by doing http://foobar.wordpress.com/files/ to http://foobar.files.wordpress.com/
 	if ( function_exists( 'new_file_urls' ) )
 		$url = new_file_urls( $url );
 
-	$thumburl = wpcom_vip_get_photon_url( $url, array( 'resize' => "{$width},{$height}" ) );
+	$thumburl = wpcom_vip_get_photon_url( $url, array( 'resize' => array( $width, $height ) ) );
 
 	return ( $escape ) ? esc_url( $thumburl ) : $thumburl;
 }
@@ -292,7 +292,7 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
  * @see http://developer.wordpress.com/docs/photon/
  *
  * @param string $image_url URL to the publicly accessible image you want to manipulate
- * @param array $args An array of arguments, i.e. array( 'w' => '300', 'filter' => 'grayscale' )
+ * @param array|string $args An array of arguments, i.e. array( 'w' => '300', 'resize' => array( 123, 456 ), 'filter' => array( 'negate', 'grayscale' ) ), or in string form (w=123&h=456)
  * @return string The raw final URL. You should run this through esc_url() before displaying it.
  */
 function wpcom_vip_get_photon_url( $image_url, $args ) {
@@ -326,10 +326,27 @@ function wpcom_vip_get_photon_url( $image_url, $args ) {
 	$photon_url .= 'i' . $subdomain . '.wp.com/';
 	$photon_url .= $image_host_path;
 
-	// See http://core.trac.wordpress.org/ticket/17923
-	$args = array_map( 'rawurlencode', $args );
+	if ( ! empty( $args ) && is_array( $args ) ) {
+		// For certain arguments that are unlikely to be used more than once,
+		// convert any value arrays into comma-separated strings. This makes
+		// using parameters like "resize" or "crop" easier.
+		foreach ( $args as $arg => $value ) {
+			if ( ! is_array( $value ) )
+				continue;
 
-	$photon_url = add_query_arg( $args, $photon_url );
+			if ( in_array( $arg, array( 'crop', 'fit', 'resize', 'colorize' ) ) )
+				$args[$arg] = implode( ',', $value );
+		}
+
+		// See http://core.trac.wordpress.org/ticket/17923
+		$args = array_map( 'rawurlencode_deep', $args );
+
+		$photon_url = add_query_arg( $args, $photon_url );
+	}
+	// You can pass a query string for complicated requests but where you still want CDN subdomain help, etc.
+	else {
+		$photon_url .= '?' . $args;
+	}
 
 	return $photon_url;
 }
