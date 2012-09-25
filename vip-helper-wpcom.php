@@ -308,6 +308,13 @@ function wpcom_vip_get_photon_url( $image_url, $args ) {
 	if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) )
 		return $image_url;
 
+	// Photon doesn't support query strings so we ignore them.
+	// However some source images are served via PHP so check the no-query-string extension.
+	// For future proofing, this is a blacklist of common issues rather than a whitelist.
+	$extension = pathinfo( $image_url_parts['path'], PATHINFO_EXTENSION );
+	if ( empty( $extension ) || in_array( $extension, array( 'php' ) ) )
+		return $image_url;
+
 	$image_host_path = $image_url_parts['host'] . $image_url_parts['path'];
 
 	// Figure out which CDN subdomain to use
