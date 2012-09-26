@@ -9,17 +9,12 @@ Author URI:   http://vip.wordpress.com/
 
 **************************************************************************/
 
-class WPcom_Thumbnail_Editor {
+// You should be loading vip-init.php but just incase...
+if ( ! function_exists( 'wpcom_vip_get_photon_url' ) )
+	require_once( dirname( __DIR__ ) . '/vip-helper-wpcom.php' );
 
-	/**
-	 * URL to the ImgPress API endpoint.
-	 *
-	 * Our ImgPress API is a powerful query string based image manipulation
-	 * service that we'll be using to positionally crop and resize the image.
-	 *
-	 * @var string
-	 */
-	public $imgpress_url = 'http://en.wordpress.com/imgpress';
+
+class WPcom_Thumbnail_Editor {
 
 	/**
 	 * Post meta key name, for storing crop coordinates.
@@ -46,10 +41,6 @@ class WPcom_Thumbnail_Editor {
 		$args = apply_filters( 'wpcom_thumbnail_editor_args', array(
 			'image_ratio_map' => false,
 		) );
-
-		// Transform the ImgPress URL into a CDN URL
-		if ( function_exists( 'staticize_subdomain' ) )
-			$this->imgpress_url = staticize_subdomain( $this->imgpress_url );
 
 		// When a thumbnail is requested, intercept the request and return the custom thumbnail
 		if ( ! function_exists( 'is_private_blog' ) || ( function_exists( 'is_private_blog' ) && ! is_private_blog() ) )
@@ -142,9 +133,12 @@ class WPcom_Thumbnail_Editor {
 		if ( empty( $sizes ) )
 			return '<p>' . __( 'No thumbnail sizes could be found that are cropped. For now this functionality only supports cropped thumbnails.', 'wpcom-thumbnail-editor' ) . '</p>';
 
-		// ImgPress has to be able to access the source images
-		if ( function_exists( 'is_private_blog' ) && is_private_blog() )
-			return '<p>' . sprintf( __( "The custom thumbnail cropping functionality doesn't work on sites <a href='%s'>marked as private</a>.", 'wpcom-thumbnail-editor' ), admin_url( 'options-privacy.php' ) ) . '</p>';
+		// Photon has to be able to access the source images
+		if ( function_exists( 'is_private_blog' ) && is_private_blog() ) {
+			return '<p>' . sprintf( __( "The WordPress.com VIP custom thumbnail cropping functionality doesn't work on sites <a href='%s'>marked as private</a>.", 'wpcom-thumbnail-editor' ), admin_url( 'options-privacy.php' ) ) . '</p>';
+		} elseif ( 'localhost' == $_SERVER['HTTP_HOST'] ) {
+			return '<p>' . __( "The WordPress.com VIP custom thumbnail cropping functionality needs the images be publicly accessible in order to work, which isn't possible when you're developing locally.", 'wpcom-thumbnail-editor' ) . '</p>';
+		}
 
 		$html = '<p class="hide-if-js">' . __( 'You need to enable Javascript to use this functionality.', 'wpcom-thumbnail-editor' ) . '</p>';
 
@@ -171,11 +165,8 @@ class WPcom_Thumbnail_Editor {
 				// We need to get the fullsize thumbnail so that the cropping is properly done
 				$thumbnail = image_downsize( $attachment->ID, $size );
 
-				// Now resize it again via ImgPress to fit in a box
-				$thumbnail_url = add_query_arg( array(
-					'url' => urlencode( $thumbnail[0] ),
-					'fit' => urlencode( '250,250' ),
-				), $this->imgpress_url );
+				// Resize the thumbnail to fit into a small box so it's displayed at a reasonable size
+				$thumbnail_url = wpcom_vip_get_photon_url( $thumbnail[0], array( 'fit' => array( 250, 250 ) ) );
 
 				$html .= '<div style="float:left;margin:0 20px 20px 0;min-width:250px;">';
 					$html .= '<a href="' . esc_url( $edit_url ) . '"';
@@ -685,18 +676,20 @@ class WPcom_Thumbnail_Editor {
 
 		list( $selection_x1, $selection_y1, $selection_x2, $selection_y2 ) = $coordinates;
 
-		$url = add_query_arg(
+		$url = wpcom_vip_get_photon_url(
+			wp_get_attachment_url( $attachment_id ),
 			array(
-				// First get the source image URL
-				'url'    => urlencode( wp_get_attachment_url( $attachment_id ) ),
-
-				// Then add on the cropping coordinates (upper left location and then width/height)
-				'crop'   => urlencode( $selection_x1 . 'px,' . $selection_y1 . 'px,' . ( $selection_x2 - $selection_x1 ) . 'px,' . ( $selection_y2 - $selection_y1 ) . 'px' ),
-
-				// Finally resize the cropped image to the size of the thumbnail
-				'resize' => urlencode( $thumbnail_size['width'] . ',' . $thumbnail_size['height'] ),
-			),
-			$this->imgpress_url
+				'crop' => array( 
+					$selection_x1 . 'px',
+					$selection_y1 . 'px',
+					( $selection_x2 - $selection_x1 ) . 'px',
+					( $selection_y2 - $selection_y1 ) . 'px',
+				),
+				'resize' => array(
+					$thumbnail_size['width'],
+					$thumbnail_size['height'],
+				),
+			)
 		);
 
 		return array( $url, $thumbnail_size['width'], $thumbnail_size['height'], true );
