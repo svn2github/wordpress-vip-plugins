@@ -292,7 +292,7 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
  * @see http://developer.wordpress.com/docs/photon/
  *
  * @param string $image_url URL to the publicly accessible image you want to manipulate
- * @param array|string $args An array of arguments, i.e. array( 'w' => '300', 'resize' => array( 123, 456 ), 'filter' => array( 'negate', 'grayscale' ) ), or in string form (w=123&h=456)
+ * @param array|string $args An array of arguments, i.e. array( 'w' => '300', 'resize' => array( 123, 456 ) ), or in string form (w=123&h=456)
  * @return string The raw final URL. You should run this through esc_url() before displaying it.
  */
 function wpcom_vip_get_photon_url( $image_url, $args ) {
@@ -307,6 +307,30 @@ function wpcom_vip_get_photon_url( $image_url, $args ) {
 	// Unable to parse
 	if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) )
 		return $image_url;
+
+	if ( is_array( $args ) ){
+		// Convert values that are arrays into strings
+		foreach ( $args as $arg => $value ) {
+			if ( is_array( $value ) ) {
+				$args[$arg] = implode( ',', $value );
+			}
+		}
+
+		// Encode values
+		// See http://core.trac.wordpress.org/ticket/17923
+		$args = rawurlencode_deep( $args );
+	}
+
+	// You can't run a Photon URL through Photon again because query strings are stripped.
+	// So if the image is already a Photon URL, append the new arguments to the existing URL.
+	if ( in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) ) ) {
+		$photon_url = add_query_arg( $args, $image_url );
+
+		if ( is_ssl() )
+			$photon_url = str_replace( 'http://', 'https://', $photon_url );
+
+		return $photon_url;
+	}
 
 	// Photon doesn't support query strings so we ignore them.
 	// However some source images are served via PHP so check the no-query-string extension.
@@ -327,20 +351,6 @@ function wpcom_vip_get_photon_url( $image_url, $args ) {
 	$photon_url .= $image_host_path;
 
 	if ( is_array( $args ) ) {
-		// For certain arguments that are unlikely to be used more than once,
-		// convert any value arrays into comma-separated strings. This makes
-		// using parameters like "resize" or "crop" easier.
-		foreach ( $args as $arg => $value ) {
-			if ( ! is_array( $value ) )
-				continue;
-
-			if ( in_array( $arg, array( 'crop', 'fit', 'resize', 'colorize' ) ) )
-				$args[$arg] = implode( ',', $value );
-		}
-
-		// See http://core.trac.wordpress.org/ticket/17923
-		$args = array_map( 'rawurlencode_deep', $args );
-
 		$photon_url = add_query_arg( $args, $photon_url );
 	}
 	// You can pass a query string for complicated requests but where you still want CDN subdomain help, etc.
