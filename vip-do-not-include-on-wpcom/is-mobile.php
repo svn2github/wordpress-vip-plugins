@@ -1,40 +1,37 @@
 <?php
-/*
- * is_mobile() checks the user agent to determine if the browser is a mobile device
- *
- * By default, is_mobile() visitors get a mobile theme: http://en.support.wordpress.com/themes/mobile-themes/
- * VIP sites can use their own mobile theme by contacting VIP Support.
- *
- * VIP version of this is manually synced from WPCOM code.
- */
 
-$ua_info = new user_agent_info();
+$ua_info = new Jetpack_User_Agent_Info();
 
 function is_mobile( $kind = 'any', $return_matched_agent = false ) {
+	return jetpack_is_mobile( $kind, $return_matched_agent );
+}
+
+function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $kinds = array( 'smart' => false, 'dumb' => false, 'any' => false );
 	static $first_run = true;
 	static $matched_agent = '';
-	global $ua_info;
+
+	$ua_info = new Jetpack_User_Agent_Info();
 
 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) )
 		return false;
 
-	if( $ua_info->is_android_tablet() )
+	if( $ua_info->is_android_tablet() &&  $ua_info->is_kindle_touch() === false )
 		return false;
-	
+
 	if( $ua_info->is_blackberry_tablet() )
 		return false;
 
 	if ( $first_run ) {
 		$first_run = false;
- 
+
 		//checks for iPhoneTier devices & RichCSS devices
 		if ( $ua_info->isTierIphone() || $ua_info->isTierRichCSS() ) {
 			 $kinds['smart'] = true;
 		     $matched_agent = $ua_info->matched_agent;
 		}
-	
-		if ( !$kinds['smart'] ) { 
+
+		if ( !$kinds['smart'] ) {
 			// if smart, we are not dumb so no need to check
 			$dumb_agents = $ua_info->dumb_agents;
 			$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
@@ -86,11 +83,11 @@ function is_bot() {
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		$bot_agents = array(
-			'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'chtml generic', 'crawler', 'fastmobilecrawl',
-			'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'heritrix', 'ia_archiver', 'irlbot',
+			'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'bingbot', 'chtml generic', 'crawler', 'fastmobilecrawl',
+			'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'googlebot-mobile', 'heritrix', 'ia_archiver', 'irlbot',
 			'infoseek', 'jumpbot', 'lycos', 'mediapartners', 'mediobot', 'motionbot', 'msnbot', 'mshots', 'openbot',
 			'pythumbnail', 'scooter', 'slurp', 'snapbot', 'spider', 'surphace scout', 'taptubot', 'technoratisnoop',
-			'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot', 
+			'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot',
 		);
 
 		foreach ( $bot_agents as $bot_agent ) {
@@ -124,8 +121,8 @@ function is_ipad( $type = 'ipad-any' ) {
  Is_android_tablet() can be used to check the User Agent for an android tablet
  Assumes 'Android' should be in the user agent, but not 'mobile'
  See http://mobileprojects.wordpress.com/2011/06/15/we-received-a-request-from-cnn-to-serve/
- 
- DEPRECATED: use is_android_tablet in the user_agent_info class
+
+ DEPRECATED: use is_android_tablet in the Jetpack_User_Agent_Info class
  */
 function is_android_tablet( ) {
 
@@ -137,53 +134,53 @@ function is_android_tablet( ) {
 	$pos_android = strpos($agent, 'android');
 	$pos_mobile = strpos($agent, 'mobile');
     $post_android_app = strpos($agent, 'wp-android');
-	
+
 	if ( $pos_android !== false && $pos_mobile === false && $post_android_app === false )
-		return true;	
+		return true;
 	else
 		return false;
 }
 
-
-class user_agent_info {
+class Jetpack_User_Agent_Info {
 
 	var $useragent;
 	var $matched_agent;
     var $isTierIphone; //Stores whether is the iPhone tier of devices.
     var $isTierRichCss; //Stores whether the device can probably support Rich CSS, but JavaScript (jQuery) support is not assumed.
     var $isTierGenericMobile; //Stores whether it is another mobile device, which cannot be assumed to support CSS or JS (eg, older BlackBerry, RAZR)
-	
+
     private $_platform = null; //Stores the device platform name
 	const PLATFORM_WINDOWS 			= 'windows';
 	const PLATFORM_IPHONE 			= 'iphone';
 	const PLATFORM_IPOD 			= 'ipod';
 	const PLATFORM_IPAD 			= 'ipad';
 	const PLATFORM_BLACKBERRY 		= 'blackberry';
+	const PLATFORM_BLACKBERRY_10 	= 'blackberry_10';
 	const PLATFORM_SYMBIAN			= 'symbian_series60';
 	const PLATFORM_SYMBIAN_S40		= 'symbian_series40';
 	const PLATFORM_J2ME_MIDP		= 'j2me_midp';
 	const PLATFORM_ANDROID 			= 'android';
 	const PLATFORM_ANDROID_TABLET	= 'android_tablet';
-    
-	var $dumb_agents = array( 
-		'nokia', 'blackberry', 'philips', 'samsung', 'sanyo', 'sony', 'panasonic', 'webos', 
+
+	var $dumb_agents = array(
+		'nokia', 'blackberry', 'philips', 'samsung', 'sanyo', 'sony', 'panasonic', 'webos',
 		'ericsson', 'alcatel', 'palm',
 		'windows ce', 'opera mini', 'series60', 'series40',
 		'au-mic,', 'audiovox', 'avantgo', 'blazer',
 		'danger', 'docomo', 'epoc',
-		'ericy', 'i-mode', 'ipaq',  'midp-', 
-		'mot-', 'netfront', 'nitro', 
+		'ericy', 'i-mode', 'ipaq',  'midp-',
+		'mot-', 'netfront', 'nitro',
 		'palmsource',  'pocketpc', 'portalmmm',
 		'rover', 'sie-',
 		'symbian', 'cldc-', 'j2me',
 		'smartphone', 'up.browser', 'up.link',
-		'up.link', 'vodafone/', 'wap1.', 'wap2.', 'mobile',
+		'up.link', 'vodafone/', 'wap1.', 'wap2.', 'mobile', 'googlebot-mobile',
 	);
-	
+
    //The constructor. Initializes default variables.
-   function user_agent_info()
-   { 	
-   		if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) ) 
+   function Jetpack_User_Agent_Info()
+   {
+   		if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) )
        		$this->useragent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
    }
 
@@ -201,6 +198,8 @@ class user_agent_info {
 	   		return 'android_tablet';
 	   	elseif ( $this->is_android() )
 	   		return 'android';
+	   	elseif ( $this->is_blackberry_10() )
+	   		return 'blackberry_10';
 	   	elseif ( $this->is_blackbeberry() )
 	   		return 'blackberry';
 	   	elseif ( $this->is_WindowsPhone7() )
@@ -250,22 +249,22 @@ class user_agent_info {
 	   			}
 	   		}
 	   	}
-	
+
 	   	return false;
    }
-   
+
    /**
     * This method detects the mobile device's platform. All return strings are from the class constants.
-    * Note that this function returns the platform name, not the UA name/type. You should use a different function 
+    * Note that this function returns the platform name, not the UA name/type. You should use a different function
     * if you need to test the UA capabilites.
-    *  
+    *
     * @return string Name of the platform, false otherwise.
     */
    public function get_platform() {
    	if ( isset( $this->_platform ) ) {
    		return $this->_platform;
    	}
-   	   	
+
     if ( strpos( $this->useragent, 'windows phone os 7' ) !== false ) {
    		$this->_platform = self::PLATFORM_WINDOWS;
    	}
@@ -290,6 +289,9 @@ class user_agent_info {
     elseif ( $this->is_kindle_fire() ) {
    		$this->_platform = self::PLATFORM_ANDROID_TABLET;
    	}
+   	elseif ( $this->is_blackberry_10() ) {
+   		$this->_platform = self::PLATFORM_BLACKBERRY_10;
+   	}
    	elseif ( strpos( $this->useragent, 'blackberry' ) !== false ) {
    		$this->_platform = self::PLATFORM_BLACKBERRY;
    	}
@@ -307,10 +309,10 @@ class user_agent_info {
    	}
    	else
    		$this->_platform = false;
-   	
+
    		return $this->_platform;
    }
-   
+
 	/*
 	 * This method detects for UA which can display iPhone-optimized web content.
 	 * Includes iPhone, iPod Touch, Android, WebOS, Fennec (Firefox mobile), etc.
@@ -334,6 +336,12 @@ class user_agent_info {
 		}
 		elseif ( $this->is_WindowsPhone7() ) {
 			$this->matched_agent = 'win7';
+			$this->isTierIphone = true;
+			$this->isTierRichCss = false;
+			$this->isTierGenericMobile = false;
+		}
+		elseif ( $this->is_blackberry_10() ) {
+			$this->matched_agent = 'blackberry-10';
 			$this->isTierIphone = true;
 			$this->isTierRichCss = false;
 			$this->isTierGenericMobile = false;
@@ -386,8 +394,14 @@ class user_agent_info {
 			$this->isTierRichCss = false;
 			$this->isTierGenericMobile = false;
 		}
+		elseif ( $this->is_kindle_touch() ) {
+			$this->matched_agent = 'kindle-touch';
+			$this->isTierIphone = true;
+			$this->isTierRichCss = false;
+			$this->isTierGenericMobile = false;
+		}
 		else {
-			$this->isTierIphone = false;			
+			$this->isTierIphone = false;
 		}
 		return $this->isTierIphone;
 	}
@@ -426,7 +440,8 @@ class user_agent_info {
 				$this->isTierRichCss = true;
 				$this->isTierGenericMobile = false;
 			}
-		} else {
+		}
+		else {
 			$this->isTierRichCss = false;
 		}
 
@@ -436,15 +451,15 @@ class user_agent_info {
 
 	/*
 	 *  Detects if the current UA is the default iPhone or iPod Touch Browser.
-	 *  
-	 *  DEPRECATED: use is_iphone_or_ipod 
-	 *  
+	 *
+	 *  DEPRECATED: use is_iphone_or_ipod
+	 *
 	 */
 	function is_iphoneOrIpod(){
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua,'ipod' ) !== false ) ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -455,27 +470,27 @@ class user_agent_info {
 		else
 			return false;
 	}
-	
-		
+
+
 	/*
 	 *  Detects if the current UA is iPhone Mobile Safari or another iPhone or iPod Touch Browser.
-	 *  
+	 *
 	 *  They type can check for any iPhone, an iPhone using Safari, or an iPhone using something other than Safari.
-	 *  
-	 *  Note: If you want to check for Opera mini, Opera mobile or Firefox mobile (or any 3rd party iPhone browser), 
-	 *  you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'. 
+	 *
+	 *  Note: If you want to check for Opera mini, Opera mobile or Firefox mobile (or any 3rd party iPhone browser),
+	 *  you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'.
 	 *  Otherwise those browsers will be 'catched' by the iphone string.
-	 *  
+	 *
 	 */
 	function is_iphone_or_ipod( $type = 'iphone-any' ) {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$is_iphone = ( strpos( $ua, 'iphone' ) !== false ) || ( strpos( $ua,'ipod' ) !== false );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
-		
+
 		if ( 'iphone-safari' == $type )
 			return $is_iphone && $is_safari;
 		elseif ( 'iphone-not-safari' == $type )
@@ -483,7 +498,7 @@ class user_agent_info {
 		else
 			return $is_iphone;
 	}
-	
+
 	/*
 	 *  Detects if the current UA is Twitter for iPhone
 	 * Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_5 like Mac OS X; nb-no) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPhone
@@ -491,7 +506,7 @@ class user_agent_info {
 	function is_twitter_for_iphone( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'twitter for iphone' ) !== false )
@@ -499,7 +514,7 @@ class user_agent_info {
 		else
 			return false;
 	}
-	
+
 	/*
 	 * Detects if the current UA is Twitter for iPad
 	 * Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPad
@@ -507,7 +522,7 @@ class user_agent_info {
 	function is_twitter_for_ipad( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'twitter for ipad' ) !== false )
@@ -524,12 +539,12 @@ class user_agent_info {
 	function is_facebook_for_iphone( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if( strpos( $ua, 'iphone' ) === false )
 			return false;
-		
+
 		if ( strpos( $ua, 'facebook' ) !== false  && strpos( $ua, 'ipad' ) === false )
 			return true;
 		else if ( strpos( $ua, 'fbforiphone' ) !== false && strpos( $ua, 'tablet' ) === false )
@@ -537,7 +552,7 @@ class user_agent_info {
 		else
 			return false;
 	}
-	
+
 	/*
 	 * Detects if the current UA is Facebook for iPad
 	 * - Mozilla/5.0 (iPad; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/5.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US;FBSF/1.0]
@@ -546,47 +561,47 @@ class user_agent_info {
 	function is_facebook_for_ipad( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-		
+
 		if ( strpos( $ua, 'ipad' ) === false )
 			return false;
-		
+
 		if ( strpos( $ua, 'facebook' ) !== false || strpos( $ua, 'fbforiphone' ) !== false  )
 			return true;
 		else
 			return false;
 	}
-	
+
 	/*
 	 *  Detects if the current UA is WordPress for iOS
 	 */
 	function is_wordpress_for_ios( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( strpos( $ua, 'wp-iphone' ) !== false )
 			return true;
 		else
 			return false;
 	}
-	
+
 	/*
 	 * Detects if the current device is an iPad.
 	 * They type can check for any iPad, an iPad using Safari, or an iPad using something other than Safari.
-	 * 
-	 * Note: If you want to check for Opera mini, Opera mobile or Firefox mobile (or any 3rd party iPad browser), 
-	 * you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'. 
+	 *
+	 * Note: If you want to check for Opera mini, Opera mobile or Firefox mobile (or any 3rd party iPad browser),
+	 * you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'.
 	 * Otherwise those browsers will be 'catched' by the ipad string.
-	 *  
+	 *
 	*/
 	function is_ipad( $type = 'ipad-any' ) {
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-		
+
 		$is_ipad = ( false !== strpos( $ua, 'ipad' ) );
 		$is_safari = ( false !== strpos( $ua, 'safari' ) );
-	
+
 		if ( 'ipad-safari' == $type )
 			return $is_ipad && $is_safari;
 		elseif ( 'ipad-not-safari' == $type )
@@ -594,7 +609,7 @@ class user_agent_info {
 		else
 			return $is_ipad;
 	}
-	
+
 	/*
 	 * Detects if the current browser is Firefox Mobile (Fennec)
 	 *
@@ -615,16 +630,16 @@ class user_agent_info {
 			return false;
 	}
 
-	
+
 	/*
 	 * Detects if the current browser is Opera Mobile
-	 * 
+	 *
 	 * What is the difference between Opera Mobile and Opera Mini?
 	 * - Opera Mobile is a full Internet browser for mobile devices.
-	 * - Opera Mini always uses a transcoder to convert the page for a small display. 
-	 * (it uses Opera advanced server compression technology to compress web content before it gets to a device. 
-	 *  The rendering engine is on Opera's server.) 
-	 * 
+	 * - Opera Mini always uses a transcoder to convert the page for a small display.
+	 * (it uses Opera advanced server compression technology to compress web content before it gets to a device.
+	 *  The rendering engine is on Opera's server.)
+	 *
 	 * Opera/9.80 (Windows NT 6.1; Opera Mobi/14316; U; en) Presto/2.7.81 Version/11.00"
 	 */
 	function is_opera_mobile( ) {
@@ -639,7 +654,7 @@ class user_agent_info {
 		else
 			return false;
 	}
-		
+
 
 	/*
 	 * Detects if the current browser is Opera Mini
@@ -665,7 +680,7 @@ class user_agent_info {
 		else
 			return false;
 	}
-	
+
 	/*
 	 * Detects if the current browser is Opera Mini, but not on a smart device OS(Android, iOS, etc)
 	 * Used to send users on dumb devices to m.wor
@@ -677,16 +692,16 @@ class user_agent_info {
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( self::is_opera_mini() ) {
-			if ( strpos( $ua, 'android' ) !== false  || strpos( $ua, 'iphone' ) !== false || strpos( $ua, 'ipod' ) !== false   
+			if ( strpos( $ua, 'android' ) !== false  || strpos( $ua, 'iphone' ) !== false || strpos( $ua, 'ipod' ) !== false
 		 	|| strpos( $ua, 'ipad' ) !== false || strpos( $ua, 'blackberry' ) !== false)
 				return false;
-			else 
+			else
 				return true;
 		} else {
 			return false;
 		}
 	}
-		
+
 	/*
 	 * Detects if the current browser is Opera Mobile or Mini.
 	 * DEPRECATED: use is_opera_mobile or is_opera_mini
@@ -719,7 +734,7 @@ class user_agent_info {
 	function is_WindowsPhone7() {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'windows phone os 7' ) === false ) {
@@ -742,7 +757,7 @@ class user_agent_info {
 	function is_PalmWebOS() {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'webos' ) === false ) {
@@ -765,14 +780,14 @@ class user_agent_info {
 	function is_TouchPad() {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 		return false;
-		
+
 		$http_user_agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( false !== strpos( $http_user_agent, 'hp-tablet' )  || false !== strpos( $http_user_agent, 'hpwos' ) || false !== strpos( $http_user_agent, 'touchpad' ) ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
 	   			return false;
 	   		else
 	   			return true;
-		} 
+		}
 		else
 			return false;
 	}
@@ -792,11 +807,11 @@ class user_agent_info {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 		return false;
-	
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
 	   		return false;
-		
+
 		$pos_webkit = strpos( $agent, 'webkit' );
 		if ( $pos_webkit !== false ) {
 			//First, test for WebKit, then make sure it's either Symbian or S60.
@@ -809,22 +824,22 @@ class user_agent_info {
 		} elseif ( strpos( $agent, 'nokia' ) !== false && strpos( $agent,'series60' ) !== false ) {
 			return true;
 		}
-		 
+
 	    return false;
 	}
-	
+
 	/*
-	 * 
+	 *
 	 * Detects if the device platform is the Symbian Series 60.
-	 * 
+	 *
 	 */
 	function is_symbian_platform() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 		return false;
-	
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-		
+
 		$pos_webkit = strpos( $agent, 'webkit' );
 		if ( $pos_webkit !== false ) {
 			//First, test for WebKit, then make sure it's either Symbian or S60.
@@ -837,48 +852,48 @@ class user_agent_info {
 		} elseif ( strpos( $agent, 'nokia' ) !== false && strpos( $agent,'series60' ) !== false ) {
 			return true;
 		} elseif ( strpos( $agent, 'opera mini' ) !== false ) {
-			if( strpos( $agent,'symbianos' ) !== false || strpos( $agent,'symbos' ) !== false || strpos( $agent,'series 60' ) !== false ) 
+			if( strpos( $agent,'symbianos' ) !== false || strpos( $agent,'symbos' ) !== false || strpos( $agent,'series 60' ) !== false )
 			return true;
 		}
-		 
+
 	    return false;
 	}
-	
+
 	/*
-	 * 
+	 *
 	 * Detects if the device platform is the Symbian Series 40.
-	 * Nokia Browser for Series 40 is a proxy based browser, previously known as Ovi Browser. 
+	 * Nokia Browser for Series 40 is a proxy based browser, previously known as Ovi Browser.
 	 * This browser will report 'NokiaBrowser' in the header, however some older version will also report 'OviBrowser'.
-	 * 
+	 *
 	 */
 	function is_symbian_s40_platform() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 		return false;
-	
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-		
+
 		if ( strpos( $agent, 'series40' ) !== false ) {
-			if( strpos( $agent,'nokia' ) !== false || strpos( $agent,'ovibrowser' ) !== false || strpos( $agent,'nokiabrowser' ) !== false ) 
+			if( strpos( $agent,'nokia' ) !== false || strpos( $agent,'ovibrowser' ) !== false || strpos( $agent,'nokiabrowser' ) !== false )
 			return true;
 		}
-		 
+
 	    return false;
 	}
-	
+
 	function is_J2ME_platform() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-	
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-		
+
 		if ( strpos( $agent, 'j2me/midp' ) !== false ) {
 			return true;
 		} elseif ( strpos( $agent, 'midp' ) !== false && strpos( $agent, 'cldc' ) ) {
 			return true;
 		}
-		 
+
 	    return false;
 	}
 
@@ -890,12 +905,12 @@ class user_agent_info {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 		return false;
-		
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		$pos_maemo = strpos( $agent, 'maemo' );
 		if ( $pos_maemo === false ) return false;
-		
+
 		//Must be Linux + Tablet, or else it could be something else.
 		if ( strpos( $agent, 'tablet' ) !== false && strpos( $agent, 'linux' ) !== false ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -905,7 +920,7 @@ class user_agent_info {
 		} else
 			return false;
 	}
-	
+
 	/*
 	 * Detects if the current UA is a MeeGo device (Nokia Smartphone).
 	 */
@@ -913,7 +928,7 @@ class user_agent_info {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'meego' ) === false ) {
@@ -964,8 +979,8 @@ class user_agent_info {
 		else
 			return false;
 	}
-	
-	
+
+
 	/**
 	 * Detects if the current browser is the Native Android Tablet browser.
 	 * 	Assumes 'Android' should be in the user agent, but not 'mobile'
@@ -976,7 +991,7 @@ class user_agent_info {
 	function is_android_tablet( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		$pos_android = strpos( $agent, 'android' );
@@ -988,13 +1003,13 @@ class user_agent_info {
 				return false;
 			else
 				return true;
-		} else 
+		} else
 			return false;
 	}
 
 	/**
 	 * Detects if the current browser is the Kindle Fire Native browser.
-	 * 
+	 *
 	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true
 	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=false
 	 *
@@ -1003,34 +1018,54 @@ class user_agent_info {
 	function is_kindle_fire( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$agent    = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$pos_silk = strpos( $agent, 'silk/' );
 		$pos_silk_acc = strpos( $agent, 'silk-accelerated=' );
-		if ( $pos_silk !== false && $pos_silk_acc !== false ) 
+		if ( $pos_silk !== false && $pos_silk_acc !== false )
 	   		return true;
 		else
 			return false;
 	}
-	
-	//Detect if user agent is the WordPress.com Windows 8 app (used for custom oauth stylesheet)
+
+
+/**
+ 	* Detects if the current browser is the Kindle Touch Native browser
+ 	*
+ 	* Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+
+ 	*
+ 	* @return boolean true if the browser is Kindle monochrome Native browser otherwise false
+ 	*/
+ 	function is_kindle_touch( ) {
+ 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
+ 			return false;
+ 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+ 		$pos_kindle_touch = strpos( $agent, 'kindle/3.0+' );
+ 		if ( $pos_kindle_touch !== false && self::is_kindle_fire() === false )
+ 			return true;
+ 		else
+ 			return false;
+ 		}
+
+
+	// Detect if user agent is the WordPress.com Windows 8 app (used for custom oauth stylesheet)
 	function is_windows8_auth( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$pos = strpos( $agent, 'msauthhost' );
-		if ( $pos !== false ) 
+		if ( $pos !== false )
 	   		return true;
 		else
 			return false;
 	}
-	
+
 	/*
 	 * is_blackberry_tablet() can be used to check the User Agent for a RIM blackberry tablet
-	 * The user agent of the BlackBerry® Tablet OS follows a format similar to the following: 
+	 * The user agent of the BlackBerry® Tablet OS follows a format similar to the following:
 	 * Mozilla/5.0 (PlayBook; U; RIM Tablet OS 1.0.0; en-US) AppleWebKit/534.8+ (KHTML, like Gecko) Version/0.0.1 Safari/534.8+
-	 * 
+	 *
 	 */
 	function is_blackberry_tablet() {
 
@@ -1040,7 +1075,7 @@ class user_agent_info {
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$pos_playbook = stripos( $agent, 'PlayBook' );
 		$pos_rim_tablet = stripos( $agent, 'RIM Tablet' );
-		
+
 		if ( ($pos_playbook === false) || ($pos_rim_tablet === false) )
 		{
 			return false;
@@ -1048,7 +1083,7 @@ class user_agent_info {
 			return true;
 		}
 	}
-	
+
 	/*
 	 is_blackbeberry() can be used to check the User Agent for a blackberry device
 	 Note that opera mini on BB matches this rule.
@@ -1057,8 +1092,9 @@ class user_agent_info {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		
 		$pos_blackberry = strpos( $agent, 'blackberry' );
 		if ( $pos_blackberry !== false ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -1069,12 +1105,20 @@ class user_agent_info {
 			return false;
 		}
 	}
-	
-	
+
+	/*
+	 is_blackberry_10() can be used to check the User Agent for a BlackBerry 10 device.
+	*/
+	function is_blackberry_10() {
+		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
+	}
+
 	/**
 	 * Retrieve the blackberry OS version.
 	 *
 	 * Return strings are from the following list:
+	 * - blackberry-10
 	 * - blackberry-7
 	 * - blackberry-6
 	 * - blackberry-torch //only the first edition. The 2nd edition has the OS7 onboard and doesn't need any special rule.
@@ -1090,19 +1134,22 @@ class user_agent_info {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-	
+
+		if ( self::is_blackberry_10() )
+			return 'blackberry-10';
+		
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-	
+
 		$pos_blackberry = stripos( $agent, 'blackberry' );
 		if ( $pos_blackberry === false ) {
 			//not a blackberry device
 			return false;
 		}
-	
+
 		//blackberry devices OS 6.0 or higher
 		//Mozilla/5.0 (BlackBerry; U; BlackBerry 9670; en) AppleWebKit/534.3+ (KHTML, like Gecko) Version/6.0.0.286 Mobile Safari/534.3+
 		//Mozilla/5.0 (BlackBerry; U; BlackBerry 9800; en) AppleWebKit/534.1+ (KHTML, Like Gecko) Version/6.0.0.141 Mobile Safari/534.1+
-		//Mozilla/5.0 (BlackBerry; U; BlackBerry 9900; en-US) AppleWebKit/534.11+ (KHTML, like Gecko) Version/7.0.0 Mobile Safari/534.11+ 
+		//Mozilla/5.0 (BlackBerry; U; BlackBerry 9900; en-US) AppleWebKit/534.11+ (KHTML, like Gecko) Version/7.0.0 Mobile Safari/534.11+
 		$pos_webkit = stripos( $agent, 'webkit' );
 		if ( $pos_webkit !== false ) {
 			//detected blackberry webkit browser
@@ -1122,9 +1169,9 @@ class user_agent_info {
 					//if doesn't match returns the minimun version with a webkit browser. we should never fall here.
 					return 'blackberry-6'; //not a BB device that match our rule.
 				}
-			}			 
+			}
 		}
-		
+
 		//blackberry devices <= 5.XX
 		//BlackBerry9000/5.0.0.93 Profile/MIDP-2.0 Configuration/CLDC-1.1 VendorID/179
 		if ( preg_match( '#BlackBerry\w+\/([\d\.]+)#i', $agent, $matches ) ) {
@@ -1132,7 +1179,7 @@ class user_agent_info {
 		} else {
 			return false; //not a BB device that match our rule.
 		}
-	
+
 		$version_num = explode( '.', $version );
 
 		if( is_array( $version_num ) === false || count( $version_num ) <= 1 )
@@ -1143,25 +1190,26 @@ class user_agent_info {
 			return 'blackberry-4.7';
 		} elseif ( $version_num[0] == 4 && $version_num[1] == 6 ) {
 			return 'blackberry-4.6';
-		} elseif ( $version_num[0] == 4 && $version_num[1] == 5 ) { 
+		} elseif ( $version_num[0] == 4 && $version_num[1] == 5 ) {
 			return 'blackberry-4.5';
 		} else {
 			return false;
 		}
-	
+
 		return false;
 	}
-	
+
 	/**
-	 * Retrieve the blackberry browser version.  
-	 * 
-	 * Return string are from the following list: 
+	 * Retrieve the blackberry browser version.
+	 *
+	 * Return string are from the following list:
+	 * - blackberry-10
 	 * - blackberry-webkit
 	 * - blackberry-5
 	 * - blackberry-4.7
 	 * - blackberry-4.6
-	 * 	
-	 * @return string Type of the BB browser. 
+	 *
+	 * @return string Type of the BB browser.
 	 * If browser's version is not found, detect_blackbeberry_browser_version will return boolean false.
 	 */
 	function detect_blackberry_browser_version() {
@@ -1171,8 +1219,11 @@ class user_agent_info {
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
+		if ( self::is_blackberry_10() )
+			return 'blackberry-10';
+		
 		$pos_blackberry = strpos( $agent, 'blackberry' );
-		if ( $pos_blackberry === false ) { 
+		if ( $pos_blackberry === false ) {
 			//not a blackberry device
 			return false;
 		}
@@ -1206,7 +1257,7 @@ class user_agent_info {
 		}
 		return false;
 	}
-	
+
 	//Checks if a visitor is coming from one of the WordPress mobile apps
 	function is_mobile_app() {
 
@@ -1217,7 +1268,7 @@ class user_agent_info {
 
 		if ( isset( $_SERVER['X_USER_AGENT'] ) && preg_match( '|wp-webos|', $_SERVER['X_USER_AGENT'] ) )
 			return true; //wp4webos 1.1 or higher
-			
+
 		$app_agents = array( 'wp-android', 'wp-blackberry', 'wp-iphone', 'wp-nokia', 'wp-webos', 'wp-windowsphone' );
 
 		foreach ( $app_agents as $app_agent ) {
@@ -1226,5 +1277,5 @@ class user_agent_info {
 		}
 		return false;
 	}
-	
+
 }
