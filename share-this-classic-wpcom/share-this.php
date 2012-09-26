@@ -631,7 +631,7 @@ if ( !function_exists('akst_share_link') ) {
 		if (in_array($akst_action, array('page'))) {
 			return '';
 		}
-		if (is_feed() || (function_exists('akm_check_mobile') && akm_check_mobile())) {
+		if (is_feed() || (function_exists('jetpack_check_mobile') && jetpack_check_mobile())) {
 			$onclick = '';
 		}
 		else {
