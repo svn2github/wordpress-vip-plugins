@@ -117,30 +117,6 @@ function is_ipad( $type = 'ipad-any' ) {
 		return $is_ipad;
 }
 
-/*
- Is_android_tablet() can be used to check the User Agent for an android tablet
- Assumes 'Android' should be in the user agent, but not 'mobile'
- See http://mobileprojects.wordpress.com/2011/06/15/we-received-a-request-from-cnn-to-serve/
-
- DEPRECATED: use is_android_tablet in the Jetpack_User_Agent_Info class
- */
-function is_android_tablet( ) {
-
-	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
-
-	$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-
-	$pos_android = strpos($agent, 'android');
-	$pos_mobile = strpos($agent, 'mobile');
-    $post_android_app = strpos($agent, 'wp-android');
-
-	if ( $pos_android !== false && $pos_mobile === false && $post_android_app === false )
-		return true;
-	else
-		return false;
-}
-
 class Jetpack_User_Agent_Info {
 
 	var $useragent;
