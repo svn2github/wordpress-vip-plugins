@@ -33,7 +33,7 @@ class LazyLoad_Images {
 
 	static function add_image_placeholders( $content ) {
 		// Don't lazyload for feeds, previews, mobile
-		if( is_feed() || is_preview() || ( function_exists( 'is_mobile' ) && is_mobile() ) )
+		if( is_feed() || is_preview() || ( function_exists( 'jetpack_is_mobile' ) && jetpack_is_mobile() ) )
 			return $content;
 
 		// Don't lazy-load if the content has already been run through previously
