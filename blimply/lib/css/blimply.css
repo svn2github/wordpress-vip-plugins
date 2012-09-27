@@ -1,0 +1,16 @@
+.blimply-wrapper textarea {
+	width: 98%;
+}
+
+.blimply-wrapper label, .blimply-wrapper strong {
+	font-weight: bold;
+	line-height: 1.3em;
+	margin-top: 5px;
+	padding-left: 2px;	
+}
+
+.blimply-wrapper strong { margin-bottom: 5px; display: block;}
+
+.blimply-wrapper label.selectit {
+	font-weight: normal;
+}
