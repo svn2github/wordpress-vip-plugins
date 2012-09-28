@@ -1263,6 +1263,10 @@ class SyndicatedPost {
 			// FIXME: Option for what to fill a blank title with...
 		endif;
 
+		// WPCOM: never allow 1 (super admin) as the author
+		if ( function_exists( 'wpcom_get_blog_owner' ) && 1 == $out['post_author'] )
+			$out['post_author'] = wpcom_get_blog_owner();
+
 		return $out;
 	}
 
