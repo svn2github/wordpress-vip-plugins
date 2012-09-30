@@ -126,6 +126,12 @@ class EF_Dashboard extends EF_Module {
 		global $edit_flow;
 		
 		$statuses = $this->get_post_statuses();
+		$statuses[] = (object)array(
+				'name' => __( 'Scheduled', 'edit-flow' ),
+				'description' => '',
+				'slug' => 'future',
+			);
+		$statuses = apply_filters( 'ef_dashboard_post_status_widget_statuses', $statuses );
 		// If custom statuses are enabled, we'll output a link to edit the terms just below the post counts
 		if ( $this->module_enabled( 'custom_status' ) )
 			$edit_custom_status_url = add_query_arg( 'page', 'ef-custom-status-settings', get_admin_url( null, 'admin.php' ) );
@@ -136,19 +142,19 @@ class EF_Dashboard extends EF_Module {
 		<div class="table">
 			<table>
 				<tbody>
+					<?php $post_count = wp_count_posts( 'post' ); ?>
 					<?php foreach($statuses as $status) : ?>
-						<?php $filter_link = esc_url($this->filter_posts_link($status->slug)) ?>
+						<?php $filter_link = $this->filter_posts_link( $status->slug ); ?>
 						<tr>
 							<td class="b">
-								<a href="<?php echo $filter_link; ?>">
+								<a href="<?php echo esc_url( $filter_link ); ?>">
 									<?php
-									$post_count = wp_count_posts( 'post' );
 									$slug = $status->slug;
 									echo esc_html( $post_count->$slug ); ?>
 								</a>
 							</td>
 							<td>
-								<a href="<?php echo $filter_link; ?>"><?php echo esc_html( $status->name ); ?></a>
+								<a href="<?php echo esc_url( $filter_link ); ?>"><?php echo esc_html( $status->name ); ?></a>
 							</td>
 						</tr>
 							
@@ -156,7 +162,7 @@ class EF_Dashboard extends EF_Module {
 				</tbody>
 			</table>
 			<?php if ( isset( $edit_custom_status_url ) ) : ?>
-				<span class="small"><a href="<?php echo $edit_custom_status_url; ?>"><?php _e( 'Edit Custom Statuses', 'edit-flow' ); ?></a></span>
+				<span class="small"><a href="<?php echo esc_url( $edit_custom_status_url ); ?>"><?php _e( 'Edit Custom Statuses', 'edit-flow' ); ?></a></span>
 			<?php endif; ?>
 		</div>
 		<?php
