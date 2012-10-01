@@ -8,10 +8,10 @@ Lets you use <a href="http://analytics.google.com">Google Analytics</a> to track
 your WordPress site statistics.  It is easily configurable to:
 
 * Not log anything in the admin area
-* Log 404 errors as /404/{url}?referrer={referrer}
-* Log searches as /search/{search}?referrer={referrer}
-* Log outgoing links as /outgoing/{url}?referrer={referrer}
+* Log 404 errors as events
+* Log outgoing links as events
 * Not log any user roles (administrators, editors, authors, etc)
+* Use custom variables
 
 ## Installation
 
@@ -25,6 +25,15 @@ WP Google Analytics has a config page under the settings tab in the admin area
 of your site.  You can paste your tracking code from Google into the textarea on
 this page.
 
+**How do I track searches?**
+
+WP Google Analytics used to help you track site searches before Google Analytics
+started doing this natively.  While we still support tracking searches for
+backwards compatibility, this feature has been deprecated and will eventually be
+removed.  To track searches in Google Analytics follow this
+<a href="http://support.google.com/analytics/bin/answer.py?hl=en&answer=1012264">Google support article</a>.
+WordPress uses 's' as the query parameter.
+
 **Can't I just paste the Google Analytics code into my template file?**
 
 Absolutely, however in order to get a better idea of what is going on with your
@@ -34,6 +43,15 @@ easily do all these things.
 
 
 ## Changelog
+
+### 1.3.0
+* Refactored to use settings API - Props danielbachhuber
+* Convert to singleton and instatiate class
+* Convert tracking code field to ID, keeping backwards compat - Props danielbachhuber
+* Custom variable support - Props danielbachhuber
+* Track outgoing links and 404s as events
+* Made the whole plugin translatable
+* Deprecated tracking searches
 
 ### 1.2.5
 * Fixed some notices. Props westi

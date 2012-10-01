@@ -3,12 +3,14 @@
  * Plugin Name: WP Google Analytics
  * Plugin URI: http://bluedogwebservices.com/wordpress-plugin/wp-google-analytics/
  * Description: Lets you use <a href="http://analytics.google.com">Google Analytics</a> to track your WordPress site statistics
- * Version: 1.3-working
+ * Version: 1.3.0
  * Author: Aaron D. Campbell
  * Author URI: http://ran.ge/
+ * License: GPLv2 or later
+ * Text Domain: wp-google-analytics
  */
 
-define('WGA_VERSION', '1.3-working');
+define('WGA_VERSION', '1.3.0');
 
 /*  Copyright 2006  Aaron D. Campbell  (email : wp_plugins@xavisys.com)
 
@@ -46,6 +48,7 @@ class wpGoogleAnalytics {
 	 * @return void
 	 */
 	private function __construct() {
+		add_filter( 'init',                     array( $this, 'init_locale' ) );
 		add_action( 'admin_init',               array( $this, 'admin_init' ) );
 		add_action( 'admin_menu',               array( $this, 'admin_menu' ) );
 		add_action( 'get_footer',               array( $this, 'insert_code' ) );
@@ -62,11 +65,15 @@ class wpGoogleAnalytics {
 		return self::$instance;
 	}
 
+	public function init_locale() {
+		load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	}
+
 	/**
 	 * This adds the options page for this plugin to the Options page
 	 */
 	public function admin_menu() {
-		add_options_page(__('Google Analytics'), __('Google Analytics'), 'manage_options', self::$page_slug, array( $this, 'settings_view' ) );
+		add_options_page(__('Google Analytics', 'wp-google-analytics'), __('Google Analytics', 'wp-google-analytics'), 'manage_options', self::$page_slug, array( $this, 'settings_view' ) );
 	}
 
 	/**
@@ -95,8 +102,8 @@ class wpGoogleAnalytics {
 	 */
 	public function field_additional_items() {
 		$addtl_items = array(
-				'log_404s'       => __( 'Log 404 errors as /404/{url}?referrer={referrer}', 'wp-google-analytics' ),
-				'log_searches'   => __( 'Log searches as /search/{search}?referrer={referrer}', 'wp-google-analytics' ),
+				'log_404s'       => __( 'Log 404 errors as events', 'wp-google-analytics' ),
+				'log_searches'   => sprintf( __( 'Log searches as /search/{search}?referrer={referrer} (<a href="%s">deprecated</a>)', 'wp-google-analytics' ), 'http://wordpress.org/extend/plugins/wp-google-analytics/faq/' ),
 				'log_outgoing'   => __( 'Log outgoing links as events', 'wp-google-analytics' ),
 			);
 		foreach( $addtl_items as $id => $label ) {
@@ -124,10 +131,10 @@ class wpGoogleAnalytics {
 			$value = ( isset( $custom_vars[$i]['value'] ) ) ? $custom_vars[$i]['value'] : '';
 			$scope = ( isset( $custom_vars[$i]['scope'] ) ) ? $custom_vars[$i]['scope'] : 0;
 			echo '<label for="wga_custom_var_' . $i . '_name"><strong>' . $i . ')</strong>&nbsp;' . __( 'Name', 'wp-google-analytics' ) . '&nbsp;';
-			echo '<input id="wga_' . $i . '" type="text" name="wga[custom_vars][' . $i . '][name]" value="' . esc_attr( $name ) . '" />';
+			echo '<input id="wga_custom_var_' . $i . '" type="text" name="wga[custom_vars][' . $i . '][name]" value="' . esc_attr( $name ) . '" />';
 			echo '</label>&nbsp;&nbsp;';
 			echo '<label for="wga_custom_var_' . $i . '_value">' . __( 'Value', 'wp-google-analytics' ) . '&nbsp;';
-			echo '<input id="wga_' . $i . '" type="text" name="wga[custom_vars][' . $i . '][value]" value="' . esc_attr( $value ) . '" />';
+			echo '<input id="wga_custom_var_' . $i . '" type="text" name="wga[custom_vars][' . $i . '][value]" value="' . esc_attr( $value ) . '" />';
 			echo '</label>&nbsp;&nbsp;';
 			echo '<label for="wga_custom_var_' . $i . '_scope">' . __( 'Scope', 'wp-google-analytics' ) . '&nbsp;';
 			echo '<select id="wga_custom_var_' . $i . '_scope" name="wga[custom_vars][' . $i . '][scope]">';
@@ -207,7 +214,7 @@ class wpGoogleAnalytics {
 	public function settings_view() {
 ?>
 		<div class="wrap">
-			<h2><?php _e('Google Analytics Options') ?></h2>
+			<h2><?php _e('Google Analytics Options', 'wp-google-analytics') ?></h2>
 			<form action="options.php" method="post" id="wp_google_analytics">
 				<?php
 					settings_fields( 'wga' );
@@ -291,9 +298,8 @@ class wpGoogleAnalytics {
 
 		$track = array();
 		if (is_404() && (!isset($wga['log_404s']) || $wga['log_404s'] != 'false')) {
-			//Set track for 404s, if it's a 404, and we are supposed to
-			$track['data'] = $_SERVER['REQUEST_URI'];
-			$track['code'] = '404';
+			// This is a 404 and we are supposed to track them
+			$custom_vars[] = "_gaq.push( [ '_trackEvent', '404', document.location.href, document.referrer ] );";
 		} elseif (is_search() && (!isset($wga['log_searches']) || $wga['log_searches'] != 'false')) {
 			//Set track for searches, if it's a search, and we are supposed to
 			$track['data'] = $_REQUEST['s'];
