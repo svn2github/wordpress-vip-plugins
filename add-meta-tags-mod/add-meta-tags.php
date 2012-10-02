@@ -65,7 +65,7 @@ class Add_Meta_Tags {
 		add_action( 'save_post',             array( $this, 'mt_seo_save_meta' ) );
 
 		add_action( 'admin_menu',            array( $this, 'amt_add_pages' ) );
-		add_action( 'admin_menu',            array( $this, 'add_mt_seo_box' ) );
+		add_action( 'add_meta_boxes',        array( $this, 'add_mt_seo_box' ) );
 
 		add_action( 'wp_head',               array( $this, 'amt_add_meta_tags' ), 0 );
 		add_action( 'admin_head',            array( $this, 'mt_seo_style' ) );
@@ -93,17 +93,9 @@ class Add_Meta_Tags {
 	Admin Panel
 	*/
 
-	function add_mt_seo_box() {
-		add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), 'post', 'normal' );
-		add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), 'page', 'normal' );
-
-		// Add meta boxes for any custom post types
-		$options = get_option("add_meta_tags_opts");
-		if ( ! empty($options['custom_post_types']) ) {
-			foreach ( $options['custom_post_types'] as $post_type => $enabled ) {
-				add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), $post_type, 'normal' );
-	}
-		}
+	function add_mt_seo_box( $post_type ) {
+		if ( $this->is_supported_post_type( $post_type ) )
+			add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), $post_type, 'normal' );
 	}
 
 	function amt_add_pages() {
@@ -478,12 +470,14 @@ class Add_Meta_Tags {
 		$options = get_option("add_meta_tags_opts");
 		$site_wide_meta = $options["site_wide_meta"];
 
-		if ( isset( $posts[0] ) && 'page' == $posts[0]->post_type )
-			$cmpvalues = $options['page_options'];
-		elseif ( isset( $posts[0] ) && ( 'post' === $posts[0]->post_type || array_key_exists( $posts[0]->post_type, $options['custom_post_types'] ) ) )
-			$cmpvalues = $options['post_options'];
-		else 
+		if ( isset( $posts[0] ) && $this->is_supported_post_type( $posts[0]->post_type ) ) {
+			if ( 'page' == $posts[0]->post_type )
+				$cmpvalues = $options['page_options'];
+			else
+				$cmpvalues = $options['post_options'];
+		} else {
 			$cmpvalues = array();
+		}
 
 		if ( !is_array( $cmpvalues ) )
 			$cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
@@ -848,12 +842,14 @@ class Add_Meta_Tags {
 
 		$options = get_option("add_meta_tags_opts");
 		
-		if ( isset( $posts[0] ) && 'page' == $posts[0]->post_type )
-			$cmpvalues = $options['page_options'];
-		elseif ( isset( $posts[0] ) && ( 'post' === $posts[0]->post_type || array_key_exists( $posts[0]->post_type, (array) $options['custom_post_types'] ) ) )
-			$cmpvalues = $options['post_options'];
-		else
+		if ( isset( $posts[0] ) && $this->is_supported_post_type( $posts[0]->post_type ) ) {
+			if ( 'page' == $posts[0]->post_type )
+				$cmpvalues = $options['page_options'];
+			else
+				$cmpvalues = $options['post_options'];
+		} else {
 			$cmpvalues = array();
+		}
 		
 		if ( !is_array( $cmpvalues ) )
 			$cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
@@ -878,6 +874,16 @@ class Add_Meta_Tags {
 			}
 		}
 		return $mt_seo_title;
+	}
+
+	function is_supported_post_type( $post_type ) {
+		$options = get_option( 'add_meta_tags_opts' );
+
+		if ( empty( $options['custom_post_types'] ) )
+			$options['custom_post_types'] = array();
+
+		$supported_post_types = array_merge( array( 'post', 'page' ), array_keys( $options['custom_post_types'] ) );
+		return array_key_exists( $post_type, $supported_post_types );
 	}
 
 }
