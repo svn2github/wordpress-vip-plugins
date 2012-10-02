@@ -94,8 +94,9 @@ class Add_Meta_Tags {
 	*/
 
 	function add_mt_seo_box( $post_type ) {
-		if ( $this->is_supported_post_type( $post_type ) )
+		if ( $this->is_supported_post_type( $post_type ) ) {
 			add_meta_box( 'mt_seo', 'SEO', array( $this, 'mt_seo_meta_box' ), $post_type, 'normal' );
+		}
 	}
 
 	function amt_add_pages() {
@@ -883,7 +884,7 @@ class Add_Meta_Tags {
 			$options['custom_post_types'] = array();
 
 		$supported_post_types = array_merge( array( 'post', 'page' ), array_keys( $options['custom_post_types'] ) );
-		return array_key_exists( $post_type, $supported_post_types );
+		return in_array( $post_type, $supported_post_types );
 	}
 
 }
