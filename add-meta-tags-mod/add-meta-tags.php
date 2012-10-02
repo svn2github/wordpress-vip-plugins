@@ -490,7 +490,7 @@ class Add_Meta_Tags {
 		if ( empty( $cmpvalues ) )
 			return;
 		
-		if ( is_single() || is_page() ) {
+		if ( is_singular() ) {
 			/*
 			Add META tags to Single Page View or Page
 			*/
