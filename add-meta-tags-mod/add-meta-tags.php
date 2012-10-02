@@ -658,7 +658,8 @@ class Add_Meta_Tags {
 		$my_metatags = apply_filters( 'amt_metatags', $my_metatags );
 
 		if ($my_metatags) {
-			echo "\n<!-- META Tags added by Add-Meta-Tags WordPress plugin. Get it at: http://www.g-loaded.eu/ -->" . $my_metatags . "\n" . $this->amt_get_site_wide_metatags($site_wide_meta) . "\n\n";
+			echo $my_metatags . PHP_EOL;
+			echo $this->amt_get_site_wide_metatags($site_wide_meta) . PHP_EOL;
 		}
 	}
 
