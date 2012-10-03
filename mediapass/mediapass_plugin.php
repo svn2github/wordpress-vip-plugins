@@ -47,8 +47,15 @@ class MediaPass_Plugin {
 	const OPT_PLACEMENT_AUTHORS		= 'mp_placement_authors';
 	const OPT_PLACEMENT_TAGS		= 'mp_placement_tags';
 	const OPT_PLACEMENT_DATES		= 'mp_placement_dates';
+	const OPT_PLACEMENT_PAGES		= 'mp_placement_pages';
 	
-	const OPT_DEFAULT_PLACEMENT_MODE	=	'overlay';
+	const OPT_INCLUDED_POSTS = 'mp_included_posts'; // Posts that have been made premium even if their meta data are not premium
+	const OPT_EXCLUDED_POSTS = 'mp_excluded_posts'; // Posts that have been excluded from being premium if their meta data are premium
+	const OPT_DEFAULT_PLACEMENT_MODE = 'mp_paywall_style'; // The default paywall style (either inpage or page overlay)
+	const OPT_NUM_INPAGE_PARAGRAPHS = 'mp_num_inpage_paragraphs'; // Number of paragraphs to show by default in InPage overlay
+	
+	
+	//const OPT_DEFAULT_PLACEMENT_MODE	=	'overlay';
 	
 	const OPT_ACCESS_TOKEN			= 'mp_access_token';
 	const OPT_REFRESH_TOKEN			= 'mp_refresh_token';
@@ -68,9 +75,14 @@ class MediaPass_Plugin {
 		if( is_admin() ) {
 			add_action('admin_init', array(&$this,'init_for_admin'));
 			add_action('admin_menu', array(&$this,'add_admin_panel'));
+			// Add Settings Link in Plugin Panel
+			add_filter( 'plugin_action_links', array(&$this,'init_plugin_actions'), 10, 2 );
 		} 
 		
 		add_action('init', array(&$this,'init'));
+		// Add the teaser
+		add_filter('the_content', array(&$this, "add_content_teaser"), get_the_content());
+		add_filter('content_save_pre', array(&$this, 'add_save_shortcodes') ); // save any new shortcodes that were added
 	}
 	
 	public static function nonce_for($for) {
@@ -97,13 +109,52 @@ class MediaPass_Plugin {
 		// not used yet, assuming always vip
 		$partner = $this->is_vip() ? "wp-vip" : "wp";
 		
-		self::$auth_login_url 		= $p . 'account/auth/?partner=wp-vip&client_id='. $c .'&scope='. $p . 'auth.html&response_type=token&redirect_uri=';
-		self::$auth_register_url 	= $p . 'account/authregister/?partner=wp-vip&client_id='. $c .'&scope=' . $p . 'auth.html&response_type=token&redirect_uri='; 
+		self::$auth_login_url 		= $p . 'account/auth/?partner='. $partner .'&client_id='. $c .'&scope='. $p . 'auth.html&response_type=token&redirect_uri=';
+		self::$auth_register_url 	= $p . 'account/authregister/?partner='. $partner .'&client_id='. $c .'&scope=' . $p . 'auth.html&response_type=token&redirect_uri='; 
 		$this->auth_refresh_url		= $p . 'oauth/refresh?client_id='. $c .'&scope=' . $p . 'auth.html&grant_type=refresh_token&redirect_uri=';
 		$this->auth_deauth_url		= $p . 'oauth/unauthorize?client_id='. $c .'&scope=' . $p . 'auth.html&redirect_uri=';
 		
 		$this->api_client = new MediaPass('','',self::API_ENV);
 	}
+	
+	public function has_premium_meta($the_post){
+		$HasPremiumCategory = false;
+		$HasPremiumTag = false;
+		$HasPremiumAuthor = false;
+
+		//print_r($the_post);
+		// Check if the Post has a premium category
+		$selected = get_option(self::OPT_PLACEMENT_CATEGORIES);
+		$selected = empty($selected) ? array() : $selected;
+		if(!empty($selected) ){
+			$post_categories = get_the_category( $the_post->ID );
+			$post_category_ids = ! empty( $post_categories ) ? wp_list_pluck( $post_categories, 'term_id' ) : array();
+			$category_overlap = array_intersect($selected, $post_category_ids);
+		
+			if( ! empty( $category_overlap  ) ) {
+				$HasPremiumCategory = true;
+			}
+		}
+		
+		// Check if tht post has a premium author
+		$selected = get_option(self::OPT_PLACEMENT_AUTHORS);
+		$selected = empty($selected) ? array() : $selected;
+		if( in_array( $the_post->post_author, $selected ) ) {
+			$HasPremiumAuthor = true;
+		}	
+			
+		// Check if the post has a premium tag
+		$selected = get_option(self::OPT_PLACEMENT_TAGS);
+		$selected = empty($selected) ? array() : $selected;
+		$tags = get_the_tags( $the_post->ID );
+		$tag_ids = ! empty( $tags ) ? wp_list_pluck( $tags, 'term_id' ) : array();
+		$tag_overlap = array_intersect($selected, $tag_ids);
+		if( ! empty( $tag_overlap ) ) {
+			$HasPremiumTag = true;
+		}
+	
+		return ($HasPremiumTag || $HasPremiumAuthor || $HasPremiumCategory);
+	}	
 	
 	private function set_site_identifier_options() {
 		$mp_base_url = split("/", site_url());
@@ -130,7 +181,13 @@ class MediaPass_Plugin {
 		wp_register_script( 'fieldselection'  , plugins_url('/js/fieldselection.min.js',__FILE__));
 		wp_register_script( 'formfieldlimiter', plugins_url('/js/formfieldlimiter.js', __FILE__));
 		
-		wp_register_script( 'highcharts', 'http://www.highcharts.com/js/highcharts.js');
+		wp_register_script( 'jqplot', plugins_url('/js/jquery.jqplot.js', __FILE__));
+		wp_register_script( 'excanvas', plugins_url('/js/excanvas.js', __FILE__));
+		wp_register_script( 'barrender', plugins_url('/js/plugins/jqplot.barRenderer.js', __FILE__));
+		wp_register_script( 'axisrenderer', plugins_url('/js/plugins/jqplot.categoryAxisRenderer.js', __FILE__));
+		wp_register_script( 'pointlabels', plugins_url('/js/plugins/jqplot.pointLabels.js', __FILE__));
+		wp_register_style('chartingstyle', plugins_url('/styles/charting.css', __FILE__));
+		
 		
 		wp_register_style( 'jquery-ui-style-flick', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/flick/jquery-ui.css', true);
 	}
@@ -156,10 +213,42 @@ class MediaPass_Plugin {
 			wp_enqueue_script('formfieldlimiter');
 			wp_enqueue_style('thickbox');
 		} else if( $the_page == 'mediapass' || $the_page == 'mediapass_reporting') {
-			wp_enqueue_script('highcharts');
 			wp_enqueue_script('MPAdminCharts');		
 		}
 	}
+	
+	public function add_content_teaser($content){
+		global $post;
+		
+		if (is_single() || is_page()){
+			$excerpt = $post->post_excerpt;
+			if ($excerpt == ""){
+				$excerpt = $this->wp2_trim_excerpt($content);
+			}
+			if ($excerpt != ""){
+				$content = "<div id=\"media-pass-tease\" style=\"display:none;\">" . $excerpt . "</div>" . $content;
+			}
+		}
+		return $content;
+	}
+	private function wp2_trim_excerpt($text) { // Fakes an excerpt if needed
+	  if ($text != "") {
+		$text = MediaPass_ContentHelper::strip_all_shortcodes($text);
+		$text = str_replace('\]\]\>', ']]&gt;', $text);
+        $text = preg_replace('@<script[^>]*?>.*?</script>@si', '', $text);
+        $text = strip_tags($text, '<p>');
+		$text = strip_tags($text);
+		$excerpt_length = 15; // number of words to show
+		$words = explode(' ', $text, $excerpt_length + 1);
+		if (count($words)> $excerpt_length) {
+		  array_pop($words);
+		  array_push($words, '...');
+		  $text = implode(' ', $words);
+		}
+	  }
+	return $text;
+	}
+	
 	
 	public function add_editor_buttons($buttons) {
    		array_push($buttons, "overlay_button", "inpage_button", "video_button");
@@ -180,7 +269,54 @@ class MediaPass_Plugin {
 	   {
 	     add_filter('mce_external_plugins'	, array(&$this, 'add_editor_plugins') );
 	     add_filter('mce_buttons'			, array(&$this, 'add_editor_buttons') );
+		 add_filter('content_edit_pre'		, array(&$this, 'add_edit_shortcodes') );
 	   }
+	}
+	
+	public function add_edit_shortcodes($content){
+		$content = MediaPass_Plugin_ContentFilters::mp_content_placement_exemptions($content, false);
+		return $content;
+	}
+	public function add_save_shortcodes($content){
+		global $post;
+		$excluded_posts = get_option(MediaPass_Plugin::OPT_EXCLUDED_POSTS);
+		$included_posts = get_option(MediaPass_Plugin::OPT_INCLUDED_POSTS);
+
+		$PremiumMeta = MediaPass_Plugin::has_premium_meta($post);
+		$Protection = MediaPass_ContentHelper::has_existing_protection($content);
+		
+		if ($PremiumMeta && $Protection){
+			if (isset($included_posts[$post->ID])){
+				unset($included_posts[$post->ID]);
+			}
+			// Remove any exclusions
+			if (isset($excluded_posts[$post->ID])){
+				unset($excluded_posts[$post->ID]);
+			}
+		} else if (!$PremiumMeta && $Protection){
+			$included_posts[$post->ID] = true;
+			// Remove any exclusions
+			if (isset($excluded_posts[$post->ID])){
+				unset($excluded_posts[$post->ID]);
+			}
+		} else if ($PremiumMeta && !$Protection){
+			if (isset($included_posts[$post->ID])){
+				unset($included_posts[$post->ID]);
+			}
+			$excluded_posts[$post->ID] = true;
+		} else if (!$PremiumMeta && !$Protection){
+			if (isset($included_posts[$post->ID])){
+				unset($included_posts[$post->ID]);
+			}
+			// Remove any exclusions
+			if (isset($excluded_posts[$post->ID])){
+				unset($excluded_posts[$post->ID]);
+			}
+		}
+		update_option( MediaPass_Plugin::OPT_EXCLUDED_POSTS , $excluded_posts );
+		update_option( MediaPass_Plugin::OPT_INCLUDED_POSTS , $included_posts );		
+		
+		return $content;
 	}
 	
 	public function init_for_admin() {
@@ -191,11 +327,32 @@ class MediaPass_Plugin {
 		$this->content_list_extensions = new MediaPass_Plugin_ContentListExtensions();
 		
 		add_action('add_meta_boxes', array(&$this,'add_meta_to_editor'));
+
 	}
+	
+	// Function to add Settings Link on Plugin Page
+	public function init_plugin_actions ( $links, $file ) {
+		if( $file == 'mediapass/mediapass.php' && function_exists( "admin_url" ) ) {
+			$settings_link = '<a href="' . admin_url( 'options-general.php?page=mediapass' ) . '">' . __('Settings') . '</a>';
+			array_unshift( $links, $settings_link ); // before other links
+		}
+		return $links;
+	}
+
 	
 	public function init() {
 		if( ! $this->has_publisher_data() ) {
 			$this->get_publisher_data();
+		}
+		
+		// Initialize Options that are potentially empty
+		$default_placement_mode = get_option(self::OPT_DEFAULT_PLACEMENT_MODE);
+		if (empty($default_placement_mode)){
+			update_option( self::OPT_DEFAULT_PLACEMENT_MODE, 'overlay' );
+		}
+		$num_inpage_paragraphs = get_option(self::OPT_NUM_INPAGE_PARAGRAPHS);
+		if (empty($num_inpage_paragraphs)){
+			update_option( self::OPT_NUM_INPAGE_PARAGRAPHS, 1 );
 		}
 		
 		$this->content_filters = new MediaPass_Plugin_ContentFilters();
@@ -203,26 +360,46 @@ class MediaPass_Plugin {
 	
 	// check if installed domain matches the user account domain
 	private function check_mp_match() {
-		if( ! $this->has_publisher_data() ) {
-			add_action('admin_notices', array(&$this, 'print_mismatch_error') );
+		$error_shown = false; // use this to stop multiple error messages
+		if (!empty($_GET['error']) && $_GET['error'] == "access_denied"){
+			// if access_token passed then don't show the error, they have access
+			if (empty($_GET['access_token'])){
+				add_action('admin_notices', array(&$this, 'print_access_denied_message') );
+				$error_shown = true;
+			}
 		}
 	
 		if (!empty($_GET['deauthed'])) {
 			add_action('admin_notices', array(&$this, 'print_deauthed_message') );
+			$error_shown = true;
+		}
+		
+		if (!$error_shown){
+			if( !$this->has_publisher_data() ) {
+				add_action('admin_notices', array(&$this, 'print_mismatch_error') );
+			}
 		}
 	}
 
 	public function print_mismatch_error() {
-		echo "<div class='error'><p>The Web site you have installed the MediaPass plugin on doesn't have an associated MediaPass.com account. Please <a href='admin.php?page=mediapass'>connect your account here</a> or contact support@mediapass.com for help.</div>";
+		echo "<div class='error'><p>The Web site you have installed the MediaPass plugin on doesn't have an associated MediaPass.com account. Please <a href=\"" . esc_url( MediaPass_Plugin::$auth_login_url . urlencode( "http" . ( is_ssl() ? "s" : null) . "://" . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] ) ) . "\">connect your account here</a> or contact <a href=\"mailto:support@mediapass.com\">support@mediapass.com</a> for help.</div>";
 	}
 
 	public	function print_deauthed_message() {
 		echo "<div class='error'><p>You have successfully de-authorized this plugin and unlinked your MediaPass account.</p></div>";
 	}
+	
+	public function print_error_message($error_msg){
+		echo "<div class='error'>" . $error_msg . "</div>";
+	}
+
+	public	function print_access_denied_message() {
+		echo "<div class='error'><p>Incorrect Email and Password. <a href=\"" . esc_url( MediaPass_Plugin::$auth_login_url . urlencode( "http" . ( is_ssl() ? "s" : null) . "://" . $_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] ) ) . "\">Click here</a> to try again.</p></div>";
+	}
 
 	private function has_publisher_data() {
 		return get_option( self::OPT_USER_ID ) != 0;	
-	}
+	}	
 	
 	private function get_publisher_data() {
 		// Prevent repeated lookups across pageloads when a site isn't authorized
@@ -258,6 +435,7 @@ class MediaPass_Plugin {
 			$this->get_publisher_data();
 			
 			// Activate site and set the default mode to EXCLUDE.
+			$this->api_client = new MediaPass( $access_token, $id , self::API_ENV );
 			
 			$site_activation = new stdClass;
 			$site_activation->id = $id;
@@ -265,8 +443,12 @@ class MediaPass_Plugin {
 			$site_activation->default_filter_type = 0;
 			
 			$this->api_client->update_network_site($site_activation);
+			
+			$this->api_client->set_placement_status("excluded");
+			// Activate the paywall
+			$this->api_client->set_paywall_status(1); // active
 		}
-	
+		
 		$mp_user_ID 		= get_option(self::OPT_USER_NUMBER  );
 		$mp_access_token 	= get_option(self::OPT_ACCESS_TOKEN );
 		$mp_refresh_token 	= get_option(self::OPT_REFRESH_TOKEN);
@@ -280,11 +462,11 @@ class MediaPass_Plugin {
 			add_menu_page('MediaPass General Information', 'MediaPass', 'read', 'mediapass',array(&$this,'menu_default'), plugins_url('images/logo-icon-16x16.png',__FILE__) );
 			
 			add_submenu_page('mediapass', 'MediaPass Account Information', 'Account Info', 'edit_others_posts', 'mediapass_accountinfo',array(&$this,'menu_account_info'));
+			add_submenu_page('mediapass', 'MediaPass Metered Settings', 'Plugin Settings', 'edit_others_posts', 'mediapass_metered_settings',array(&$this,'menu_metered'));
 			add_submenu_page('mediapass', 'MediaPass Reporting', 'Reporting', 'edit_others_posts', 'mediapass_reporting', array(&$this,'menu_reporting'));
 			add_submenu_page('mediapass', 'MediaPass Placement Configuration', 'Placement', 'edit_others_posts', 'mediapass_placement', array(&$this,'menu_placement'));
 		    add_submenu_page('mediapass', 'MediaPass Price Points', 'Price Points', 'manage_options', 'mediapass_pricepoints',array(&$this,'menu_price_points'));
 		    add_submenu_page('mediapass', 'MediaPass Update Benefits', 'Logo and Benefits', 'edit_others_posts', 'mediapass_benefits',array(&$this,'menu_benefits'));
-			add_submenu_page('mediapass', 'MediaPass Metered Settings', 'Metered Settings', 'edit_others_posts', 'mediapass_metered_settings',array(&$this,'menu_metered'));
 			add_submenu_page('mediapass', 'MediaPass Network Settings', 'Network Settings', 'manage_options', 'mediapass_network_settings',array(&$this,'menu_network'));
 		    add_submenu_page('mediapass', 'MediaPass FAQs, Terms and Conditions', 'FAQs', 'edit_posts', 'mediapass_faqs_tc',array(&$this,'menu_faqs_tc'));
 		    add_submenu_page('mediapass', 'De-authorize MediaPass Account', 'De-Authorize', 'manage_options', 'mediapass_deauth',array(&$this,'menu_deauth'));
@@ -292,6 +474,19 @@ class MediaPass_Plugin {
 			// Disabled for now, pending further development and refinement.
 			//
 			// add_submenu_page('mediapass', 'MediaPass eCPM Floor', 'eCPM Floor', 'administrator', 'mediapass_ecpm_floor',array(&$this,'menu_ecpm_floor'));
+			$excluded_posts = get_option(self::OPT_EXCLUDED_POSTS);
+			if (!$excluded_posts){
+				update_option( self::OPT_EXCLUDED_POSTS , array());
+			}
+			$included_posts = get_option(self::OPT_INCLUDED_POSTS);
+			if (!$included_posts){
+				update_option( self::OPT_INCLUDED_POSTS , array());
+			}
+			add_filter('media_upload_tabs', array(&$this, 'remove_from_url_tab'));
+			//echo "i: ";
+			//print_r($included_posts);
+			//echo "<br />e: ";
+			//print_r($excluded_posts);
 		} else {
 			add_menu_page('MediaPass General Information', 'MediaPass', 'read', 'mediapass',array(&$this,'menu_signup'));
 		}
@@ -318,7 +513,7 @@ class MediaPass_Plugin {
 		echo '<div class="misc-pub-section">Protect Full Page</div>';
 		echo '<div class="misc-pub-section">Protect Partial Page Content</div>';
 		echo '<div class="misc-pub-section">Protect Video</div>';
-		echo '<p class="howto">TIP: For in-page or video content protection, hilight the content in the editor you wish to protect and select the appropriate protection type above.</p>';
+		echo '<p class="howto">TIP: For in-page or video content protection, highlight the content in the editor you wish to protect and select the appropriate protection type above.</p>';
 	}
 	
 	public function print_init_quicktags(){
@@ -333,13 +528,25 @@ class MediaPass_Plugin {
 			include_once('includes/error.php');
 		}
 	}
-	
+
 	public function menu_reporting() {
-		wp_enqueue_script('jquery-ui-datepicker');
-		wp_enqueue_script('jquery-ui-tabs');
-		wp_enqueue_style('jquery-ui-style-flick');
+		wp_enqueue_script('jqplot');
+		wp_enqueue_script('excanvas');
+		wp_enqueue_script('barrender');
+		wp_enqueue_script('axisrenderer');
+		wp_enqueue_script('pointlabels');
+		wp_enqueue_style('chartingstyle');
+		//wp_enqueue_script('jquery-ui-tabs');
+//wp_enqueue_style('jquery-ui-style-flick');
 		
-		include_once('includes/reporting.php');	
+		$data = array(
+			"monthly" => json_encode($this->api_client->get_monthly_data()),
+			"yearly" => json_encode($this->api_client->get_yearly_data())
+		);
+		
+		$this->render_or_error($data, 'includes/reporting.php');
+		
+		//include_once('includes/reporting.php');	
 	}
 	
 	public function menu_signup() {
@@ -353,9 +560,39 @@ class MediaPass_Plugin {
 		if ($this->is_valid_http_post_action(self::NONCE_METERED) && $ok) {
 			list( $status, $count ) = array( $_POST['Status'], $_POST['Count'] );
 		
-			$data = $this->api_client->set_request_metering_status( $status, $count );
+			$flag = true;
+			if ($status == "" || (strtolower($status) != "on" && strtolower($status) != "off")) {
+				$this->print_error_message("<p>Please select a status of On or Off</p>");
+				$flag = false;
+			}
+
+			if (strval($count) != "0" && intval($count) == 0){
+				$this->print_error_message("<p>Please enter the number of page views a user can access prior to paywall prompt</p>");
+				$flag = false;
+			} else if ($count < 0) {
+				$this->print_error_message("<p>Please enter a positive number of page views a user can access prior to paywall prompt</p>");
+				$flag = false;
+			}
+			if ($flag) {
+				$data = $this->api_client->set_request_metering_status( $status, intval($count) );
+			}
+			
+			// Update the options for inpage number of paragraphs and default paywal style
+			if (strval($_POST['NumInPageParagraphs']) != "0" && intval($_POST['NumInPageParagraphs']) == 0){
+				$this->print_error_message("<p>Please enter the number of paragraphs in the In Page view before the overlay</p>");
+				$flag = false;
+			} else {
+				update_option( self::OPT_NUM_INPAGE_PARAGRAPHS, intval($_POST['NumInPageParagraphs']) );
+			}
+			if ($_POST['DefaultPlacementMode'] != "overlay" && $_POST['DefaultPlacementMode'] != "inpage"){
+				$this->print_error_message("<p>Please enter the default paywall style</p>");
+				$flag = false;
+			} else {
+				update_option( self::OPT_DEFAULT_PLACEMENT_MODE, $_POST['DefaultPlacementMode'] );
+			}
+			
 		} else {
-			$data = $this->api_client->get_request_metering_status();
+			$data = $this->api_client->get_request_metering_status(); // we want to refresh the form so they can see what they did
 		}
 		
 		$this->render_or_error($data,'includes/metered.php');	
@@ -371,11 +608,16 @@ class MediaPass_Plugin {
 		include_once('includes/placement.php');
 	}
 	
+	// Remove FROM URL in media library in benefits:
+	public function remove_from_url_tab($tabs) {
+		unset($tabs['type_url']);
+		return $tabs;
+	}
+	
 	public function menu_benefits() {
 		$user_number = get_option(self::OPT_USER_NUMBER);
 		
 		if ($this->is_valid_http_post_action(self::NONCE_BENEFITS)) {
-			
 			if (!empty($_POST['upload_image'])) {
 				$pathinfo = pathinfo($_POST['upload_image']);
 				if (in_array($pathinfo['extension'], array('jpg', 'jpeg'))) {
@@ -383,7 +625,13 @@ class MediaPass_Plugin {
 				}
 			}
 			
-			$benefit = $this->api_client->set_benefits_text( $_POST['benefits'] );
+			if (!empty($_POST['benefits'])){
+				$benefits = $_POST['benefits'];
+				if (strlen($benefits) > 1000){
+					$benefits = substr($benefits, 0, 1000);
+				}
+				$benefit = $this->api_client->set_benefits_text( $_POST['benefits'] );
+			}
 		} else {
 			$benefit = $this->api_client->get_benefits_text();
 		}
@@ -545,7 +793,8 @@ class MediaPass_Plugin {
 			self::OPT_INSTALLED_URL		, self::OPT_USER_ID, self::OPT_USER_URL, self::OPT_USER_ERROR, 
 			self::OPT_USER_NUMBER		, self::OPT_PLACEMENT_CATEGORIES, self::OPT_PLACEMENT_AUTHORS, 
 			self::OPT_PLACEMENT_DATES	, self::OPT_PLACEMENT_TAGS		, self::OPT_ACCESS_TOKEN, 
-			self::OPT_REFRESH_TOKEN		, self::OPT_DEFAULT_PLACEMENT_MODE
+			self::OPT_REFRESH_TOKEN		, self::OPT_DEFAULT_PLACEMENT_MODE,
+			self::OPT_EXCLUDED_POSTS, self::OPT_NUM_INPAGE_PARAGRAPHS, self::OPT_INCLUDED_POSTS
 		);
 		
 		foreach($opts as $o){

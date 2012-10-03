@@ -6,7 +6,7 @@
 		return '<noscript><meta http-equiv="REFRESH" content="0; url=' . esc_url( $noscript_url ) . '"></noscript>
 		<script type="text/javascript" src="' . esc_url( $script_url ) . '"></script>
 		<script type="text/javascript">MediaPass.init(' . intval( get_option( MediaPass_Plugin::OPT_USER_ID ) ) . ', { asset: \'' . esc_js( get_option( MediaPass_Plugin::OPT_USER_NUMBER ) ) . '\'});</script>
-		<div id="media-pass-tease" style="display:none;">' . do_shortcode( $content ) . '</div>';
+		<div id="media-pass-tease">' . do_shortcode( $content ) . '</div>';
 	}
 	
 	function mediapass_inpage_shortcode( $atts, $content = null ) {

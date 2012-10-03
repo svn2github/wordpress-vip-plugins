@@ -4,11 +4,11 @@ Plugin Name: MediaPass Subscriptions
 Plugin URI: http://www.mediapass.com/
 Description: Integrate your MediaPass Account to manage Premium Subscriptions to your WordPress site.
 Author: MediaPass Inc.
-Version: 0.9.2
+Version: v2.1
 Author URI: http://www.mediapass.com/
 */
 /*
-    Copyright (C) 2011 Media Pass Inc.
+    Copyright (C) 2012 Media Pass Inc.
  
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

@@ -5,6 +5,7 @@ class MediaPass_Plugin_ContentListExtensions {
 	const TARGET_TAG	  = 'tag-list-update-protection';
 	const TARGET_AUTHOR	  = 'author-list-update-protection';
 	const TARGET_POST	  = 'content-list-update-protection';
+	const TARGET_PAGE	  = 'page-list-update-protection';
 	
 	private function can_protect_posts() {
 		return current_user_can('publish_posts');
@@ -24,6 +25,9 @@ class MediaPass_Plugin_ContentListExtensions {
 			add_action('manage_posts_custom_column'	, array(&$this,'add_post_custom_column'));
 			add_action('admin_head-edit.php'		, array(&$this,'add_bulk_post_actions'));
 			add_action('admin_print_footer_scripts' , array(&$this,'print_list_extensions_script'));
+			
+			add_action('manage_pages_columns'		, array(&$this,'add_post_list_column'));
+			add_action('manage_pages_custom_column' , array(&$this,'add_page_custom_column'));			
 		}  
 		
 		if( $this->can_protect_meta() ) {
@@ -39,6 +43,7 @@ class MediaPass_Plugin_ContentListExtensions {
 		
 		add_action('wp_ajax_content-list-update-protection' , array(&$this,'action_update_post_protection'));
 		add_action('wp_ajax_author-list-update-protection'  , array(&$this,'action_update_author_protection'));
+		add_action('wp_ajax_page-list-update-protection'  , array(&$this,'action_update_page_protection'));
 		add_action('wp_ajax_category-list-update-protection', array(&$this,'action_update_category_protection'));
 		add_action('wp_ajax_tag-list-update-protection'		, array(&$this,'action_update_tag_protection'));
 	}
@@ -100,6 +105,18 @@ class MediaPass_Plugin_ContentListExtensions {
 		
 		return $this->dump_protection_markup($result, $user);
 	}
+
+	public function add_page_custom_column($column){
+		global $post;
+		
+		if( $column !== 'mediapass' ) {
+			return;
+		}
+		
+		$result = MediaPass_ContentHelper::has_existing_protection($post->post_content);
+		
+		echo $this->dump_protection_markup($result, $post->ID);
+	}
 	
 	public function add_post_custom_column($column) {
 		global $post;
@@ -109,6 +126,18 @@ class MediaPass_Plugin_ContentListExtensions {
 		}
 		
 		$result = MediaPass_ContentHelper::has_existing_protection($post->post_content);
+		$included_posts = get_option(MediaPass_Plugin::OPT_INCLUDED_POSTS);
+		if (isset($included_posts[$post->ID])){
+			$result = $included_posts[$post->ID];
+		}
+		if (MediaPass_Plugin::has_premium_meta($post)){
+			$result = true;
+		}
+		$excluded_posts = get_option(MediaPass_Plugin::OPT_EXCLUDED_POSTS);
+		if (isset($excluded_posts[$post->ID])){
+			$result = false;
+		}
+		
 		
 		echo $this->dump_protection_markup($result, $post->ID);
 	}
@@ -136,6 +165,8 @@ class MediaPass_Plugin_ContentListExtensions {
 			$opts->targetAction = self::TARGET_TAG;
 		} else if( $screen->base == 'users' ) {
 			$opts->targetAction = self::TARGET_AUTHOR;
+		} else if( $screen->base == 'pages' ) {
+			$opts->targetAction = self::TARGET_PAGE;
 		} else {
 			$opts->targetAction = self::TARGET_POST;
 		}
@@ -219,6 +250,78 @@ class MediaPass_Plugin_ContentListExtensions {
 	public function action_update_author_protection() {
 		$this->action_update_content_protection(self::TARGET_AUTHOR,MediaPass_Plugin::OPT_PLACEMENT_AUTHORS);
 	}
+	public function action_update_page_protection() {
+		check_ajax_referer( self::TARGET_PAGE, 'nonce' );
+		
+		if( ! $this->can_protect_posts() ) { die(); }
+		
+		$data = json_decode(stripslashes($_POST['data']),true);
+		
+		$posts  = $data['selectedPosts'];
+		$action = $data['actionRequested'];
+		
+		$processed = array();
+		
+		foreach($posts as $p) {
+			$the_post = get_post($p);
+			
+			//if( $action == 'remove' && MediaPass_ContentHelper::has_existing_protection($the_post->post_content) ) {
+			//	$the_post->post_content = MediaPass_ContentHelper::strip_all_shortcodes($the_post->post_content);
+			//}
+			
+			wp_update_post($the_post);
+			
+			// If the post belongs to a Premium Category, Tag, or Author but the user marks it as Free then we should exclude it
+			// If the post has been previously excluded and the user wants to add it back to be Premium then remove the post from the Exclusion
+			
+			// Alter the exclusion options
+			$excluded_posts = get_option(MediaPass_Plugin::OPT_EXCLUDED_POSTS);
+			$included_posts = get_option(MediaPass_Plugin::OPT_INCLUDED_POSTS);
+			
+			if (MediaPass_Plugin::has_premium_meta($the_post)){
+				if ($action == 'remove'){
+					// Remove inclusion, this post is now free
+					$included_posts[$the_post->ID] = false;
+					unset($included_posts[$the_post->ID]);
+					// Add an exclusion, so the post is free even if it has premium meta data
+					$excluded_posts[$the_post->ID] = true;
+				} else {
+					// Add this inclusion, this post is now premium
+					$included_posts[$the_post->ID] = true;
+					// Remove any exclusions
+					if (isset($excluded_posts[$the_post->ID])){
+						unset($excluded_posts[$the_post->ID]);
+					}
+				}
+			} else { 
+				// This will include or not include posts without premium meta data
+				if ($action == 'remove'){
+					$included_posts[$the_post->ID] = false;
+					unset($included_posts[$the_post->ID]);
+				} else {
+					$included_posts[$the_post->ID] = true;
+					// Remove any exclusions
+					if (isset($excluded_posts[$the_post->ID])){
+						unset($excluded_posts[$the_post->ID]);
+					}
+				}
+			}
+			
+			update_option( MediaPass_Plugin::OPT_EXCLUDED_POSTS , $excluded_posts );
+			update_option( MediaPass_Plugin::OPT_INCLUDED_POSTS , $included_posts );
+			
+			array_push($processed,$p);
+		}
+		
+		$resp = array();
+		$resp['result'] = "success";
+		$resp['updatedStatus'] = $action == 'remove' ? 'unprotected' : 'protected';
+		$resp['updatedPosts'] = $processed;
+		
+		echo json_encode($resp);
+		
+		die();
+	}		
 	
 	public function action_update_post_protection() {
 		check_ajax_referer( self::TARGET_POST, 'nonce' );
@@ -235,16 +338,54 @@ class MediaPass_Plugin_ContentListExtensions {
 		foreach($posts as $p) {
 			$the_post = get_post($p);
 			
-			if( $action == 'remove' || MediaPass_ContentHelper::has_existing_protection($the_post->post_content) ) {
-				$the_post->post_content = MediaPass_ContentHelper::strip_all_shortcodes($the_post->post_content);
-			} else {
-				$the_post->post_content = '[mpoverlay]' . $the_post->post_content . '[/mpoverlay]';
+			//if( $action == 'remove' && MediaPass_ContentHelper::has_existing_protection($the_post->post_content) ) {
+			//	$the_post->post_content = MediaPass_ContentHelper::strip_all_shortcodes($the_post->post_content);
+			//}
+
+			wp_update_post($the_post);
+			
+			// If the post belongs to a Premium Category, Tag, or Author but the user marks it as Free then we should exclude it
+			// If the post has been previously excluded and the user wants to add it back to be Premium then remove the post from the Exclusion
+			
+			// Alter the exclusion options
+			$excluded_posts = get_option(MediaPass_Plugin::OPT_EXCLUDED_POSTS);
+			$included_posts = get_option(MediaPass_Plugin::OPT_INCLUDED_POSTS);
+			
+			if (MediaPass_Plugin::has_premium_meta($the_post)){
+				if ($action == 'remove'){
+					// Remove inclusion, this post is now free
+					$included_posts[$the_post->ID] = false;
+					unset($included_posts[$the_post->ID]);
+					// Add an exclusion, so the post is free even if it has premium meta data
+					$excluded_posts[$the_post->ID] = true;
+				} else {
+					// Add this inclusion, this post is now premium
+					$included_posts[$the_post->ID] = true;
+					// Remove any exclusions
+					if (isset($excluded_posts[$the_post->ID])){
+						unset($excluded_posts[$the_post->ID]);
+					}
+				}
+			} else { 
+				// This will include or not include posts without premium meta data
+				if ($action == 'remove'){
+					$included_posts[$the_post->ID] = false;
+					unset($included_posts[$the_post->ID]);
+				} else {
+					$included_posts[$the_post->ID] = true;
+					// Remove any exclusions
+					if (isset($excluded_posts[$the_post->ID])){
+						unset($excluded_posts[$the_post->ID]);
+					}
+				}
 			}
 			
-			wp_update_post($the_post);
+			update_option( MediaPass_Plugin::OPT_EXCLUDED_POSTS , $excluded_posts );
+			update_option( MediaPass_Plugin::OPT_INCLUDED_POSTS , $included_posts );
 			
 			array_push($processed,$p);
 		}
+
 		
 		$resp = array();
 		$resp['result'] = "success";

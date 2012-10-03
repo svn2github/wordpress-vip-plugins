@@ -191,7 +191,8 @@ class MediaPass {
 			$response['Status'] = 'fail';
 		}
 		
-		if( defined('WP_DEBUG') ) {
+		//if( true || defined('WP_DEBUG') ) {
+		if (defined('WP_DEBUG')){
 			echo '<!-- MP API CALL RESPONSE: '. $request_ok . '\r\n';
 			var_dump($result);
 			var_dump($response);
@@ -363,6 +364,71 @@ class MediaPass {
 		return $data;
 	}
 	
+	public function get_paywall_status(){
+		$data = $this->api_call(array(
+			'method' => 'GET',
+			'action' => 'paywall/active',
+			'params' => array(
+				$this->asset_id
+			)
+		));
+		
+		return $data;
+	}
+	
+	// status is either active = 1 or inactive = 0
+	public function set_paywall_status($status){
+		$data = $this->api_call(array(
+			'method' => 'POST',
+			'action' => 'paywall/active',
+			'content_type' => 'application/json',
+			'body' => array(
+				'Id' => $this->asset_id,
+				'Active' => $status
+			)
+		));
+		
+		return $data;
+	}
+	
+	public function get_included_placement(){
+		$data = $this->api_call(array(
+			'method' => 'GET',
+			'action' => 'placement/included',
+			'params' => array(
+				$this->asset_id
+			)
+		));
+		
+		return $data;
+	}
+	
+	public function get_placement_status(){
+		$data = $this->api_call(array(
+			'method' => 'GET',
+			'action' => 'placement/setting',
+			'params' => array(
+				$this->asset_id
+			)
+		));
+		
+		return $data;
+	}
+	
+	// status is either "excluded" or "included"
+	public function set_placement_status($status){
+		$data = $this->api_call(array(
+			'method' => 'POST',
+			'action' => 'placement/setting',
+			'params' => array(
+				'Status' => $status,
+				'Id' => $this->asset_id
+			)
+		));
+		
+		return $data;
+	}
+	
 	
 	/* Request Metering Management */
 	
@@ -381,20 +447,37 @@ class MediaPass {
 	/**
 	 * Set the status and request count associated with request metering.
 	 * 
-	 * @param string $status "On" or "Off"
+	 * @param string $status "On"=1 or "Off"=0
 	 * @param int $count Request count threshold for access prompting
+	 *
+	 * If $status = "On" then $count will be updated, else it won't be
 	 */
 	public function set_request_metering_status( $status, $count ) {
-		$data = $this->api_call(array(
-			'method' => 'POST',
-			'action' => 'metered',
-			'body' => array(
-				'Id' => $this->asset_id,
-				'Status' => $status,
-				'Count' => $count
-			)
-		));
-		
+		if ($status == "On"){
+			if ($count == 0){
+				$count = 10;
+			}
+			$arr = array(
+				'method' => 'POST',
+				'action' => 'metered',
+				'body' => array(
+					'Id' => $this->asset_id,
+					'Status' => "On",
+					'Count' => $count
+				)
+			);		
+		} else {
+			$arr = array(
+				'method' => 'GET',
+				'action' => 'metered/off',
+				'version' => 'v2',
+				'params' => array(
+					$this->asset_id
+				)
+			);
+		}
+		$data = $this->api_call($arr);
+
 		return $data;
 	}
 	
@@ -504,10 +587,27 @@ class MediaPass {
 			)
 		));
 	}
+	
+	public function get_monthly_data () {
+		return $this->api_call(array(
+			'method' => 'GET',
+			'action' => 'report/chart/1'
+		));
+	}
+	public function get_yearly_data () {
+		return $this->api_call(array(
+			'method' => 'GET',
+			'action' => 'report/chart/2'
+		));
+	}
 } 
 
 class MediaPass_ContentHelper {
 	const PROTECTION_TAG_RE = '/\[\/*mp(inpage|overlay|video)\]/';
+	const PROTECTION_INPAGE_RE = '/\[\/*mpinpage\]/';
+	const PROTECTION_OVERLAY_RE = '/\[\/*mpoverlay\]/';
+	const PROTECTION_VIDEO_RE = '/\[\/*mpvideo\]/';
+	const PARAPGRAPH_RE = '/(<p>|<br>|<br \/>|\\r\\n|\\r|\\n)/';//'/[<p>]|[\n]/';
 	
 	public static function strip_all_shortcodes( $content ) {
 		return preg_replace( self::PROTECTION_TAG_RE,'',$content);
@@ -517,16 +617,90 @@ class MediaPass_ContentHelper {
 		return preg_match(self::PROTECTION_TAG_RE, $content) > 0;
 	}
 	
-	public static function enable_overlay($content) {
+	public static function enable_overlay($content, $protection_type = "", $IsEditMode = false) {
+		// determine the existing protection
+		if ($protection_type == ""){
+			$protection_type = self::get_existing_protection_type($content);
+			$content_saved = $content;
+			
+		}
 		$content = self::strip_all_shortcodes($content);
 		
-		$content = '[mpoverlay]' . $content . '[/mpoverlay]';
+		//$content = '[mpoverlay]' . $content . '[/mpoverlay]';
+		if ($protection_type == ""){
+			//$content = '[mpinpage]' . $content . '[/mpinpage]';
+			$default_placement_mode = get_option(MediaPass_Plugin::OPT_DEFAULT_PLACEMENT_MODE);
+			
+			if ($default_placement_mode == "inpage"){
+				// This is where we decide how many paragraphs to default to
+				$num_inpage_paragraphs = get_option(MediaPass_Plugin::OPT_NUM_INPAGE_PARAGRAPHS);
+				if (empty($num_inpage_paragraphs)){
+					$num_inpage_paragraphs = 1;
+				}
+				
+				// parse the content and look for paragraph tags
+				$arr_paragraphs = preg_split(self::PARAPGRAPH_RE, ($content));
+				if (count($arr_paragraphs) > $num_inpage_paragraphs){
+					// construct a RE to split the string at the right point and insert the shortcodes
+					$content = "";
+					$i = 0;
+					$j = 0;
+					while (((!$IsEditMode && $i < $num_inpage_paragraphs+1) || ($IsEditMode && $i < $num_inpage_paragraphs)) && $j < count($arr_paragraphs)){
+						if ($arr_paragraphs[$j] != ""){
+							if ($i != 0){
+								$content = $content . "\n\n";
+							}
+							$content = $content . "<p>" . str_replace("</p>", "", $arr_paragraphs[$j]) . "</p>";
+							$i = $i + 1;
+						}
+						$j = $j + 1;
+					}
+					$add_mpinpage = true;
+					while ($j < count($arr_paragraphs)){
+						if ($arr_paragraphs[$j] != ""){
+							if ($i != 0){
+								$content = $content . "\n\n";
+							}
+							if ($add_mpinpage){
+								$content = $content . "[mpinpage]";
+								$add_mpinpage = false;
+							}
+							$content = $content . "<p>" . str_replace("</p>", "", $arr_paragraphs[$j]) . "</p>";
+						}
+						$j = $j + 1;
+					}
+					if ($add_mpinpage){
+						$content = $content . "[mpinpage]";
+					}
+					$content = $content . "[/mpinpage]";
+				} else {
+					$content = '[mpinpage]' . $content . '[/mpinpage]';
+				}
+			} else {
+				$protection_type = "overlay";
+			}
+		}
+		// Add the overlays if we need them
+		if ($protection_type == "video"){ 
+			$content = '[mpvideo]' . $content . '[/mpvideo]';
+		} else if ($protection_type == "overlay"){ 
+			$content = '[mpoverlay]' . $content . '[/mpoverlay]';
+		} else if ($protection_type == "inpage"){
+			$content = $content_saved; // they already probably specified their inpage shortcodes
+		}
 		
 		return $content;
 	}
 	
 	public static function get_existing_protection_type( $content ) {
-		
+		if (preg_match(self::PROTECTION_INPAGE_RE, $content) > 0){
+			return "inpage";
+		} else if (preg_match(self::PROTECTION_VIDEO_RE, $content) > 0){
+			return "video";
+		} else if (preg_match(self::PROTECTION_OVERLAY_RE, $content) > 0){
+			return "overlay";
+		}
+		return "";
 	}
 }
 
