@@ -297,6 +297,12 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
  */
 function wpcom_vip_get_photon_url( $image_url, $args ) {
 
+	// This Photon helper function will be making it's way into Jetpack
+	if ( function_exists( 'jetpack_photon_url' ) )
+		return jetpack_photon_url( $image_url, $args );
+
+	// The rest of this is deprecated, but still here until jetpack_photon_url() makes it into the next Jetpack major release
+
 	$image_url = trim( $image_url );
 
 	if ( empty( $image_url ) )
