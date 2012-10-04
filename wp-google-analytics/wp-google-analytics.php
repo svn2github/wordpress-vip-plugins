@@ -103,6 +103,13 @@ class wpGoogleAnalytics {
 							),
 					),
 				array(
+						'token'            => '%context%',
+						'callback'         => array( $this, 'token_context' ),
+						'callback_returns' => 'string',
+						'description'      => __( 'Which view the visitor is on', 'wp-google-analytics' ),
+						'retval'           => __( "Samples: 'home', 'category', 'post', 'author'" ),
+					),
+				array(
 						'token'            => '%the_date%',
 						'callback'         => 'get_the_date',
 						'callback_returns' => 'string',
@@ -402,17 +409,10 @@ class wpGoogleAnalytics {
 			$all_tokens = wp_list_pluck( $this->tokens, 'token' );
 			if ( in_array( $custom_var['value'], $all_tokens ) ) {
 				$token = array_pop( wp_filter_object_list( $this->tokens, array( 'token' => $custom_var['value'] ) ) );
-				if ( is_callable( $token['callback'] ) )
-					$replace = call_user_func( $token['callback'] );
-				else
-					$replace = '';
-
-				if ( ! empty( $token['callback_returns'] ) && 'bool' == $token['callback_returns'] )
-					$replace = ( $replace ) ? 'true' : 'false';
 
 				// Allow tokens to return empty values for specific contexts
+				$ignore = false;
 				if ( ! empty( $token['ignore_when'] ) ) {
-					$ignore = false;
 					foreach( (array)$token['ignore_when'] as $conditional ) {
 						if ( is_callable( $conditional ) ) {
 							$ignore = call_user_func( $conditional );
@@ -420,10 +420,18 @@ class wpGoogleAnalytics {
 								break;
 						}
 					}
-					if ( $ignore )
-						$replace = '';
 				}
 
+				// If we aren't set to ignore this context, possibly execute the callback
+				if ( ! $ignore && ! empty( $token['callback'] ) && is_callable( $token['callback'] ) )
+					$replace = call_user_func( $token['callback'] );
+				else
+					$replace = '';
+
+				if ( ! empty( $token['callback_returns'] ) && 'bool' == $token['callback_returns'] )
+					$replace = ( $replace ) ? 'true' : 'false';
+
+				// Replace our token with the value
 				$custom_var['value'] = str_replace( $custom_var['value'], $replace, $custom_var['value'] );
 			}
 
@@ -526,6 +534,31 @@ class wpGoogleAnalytics {
 	 */
 	public function token_the_category() {
 		return implode( ', ', wp_list_pluck( (array)get_the_category(), 'name' ) );
+	}
+
+	/**
+	 * Callback for %context% token
+	 */
+	public function token_context() {
+		if ( is_admin() ) {
+			return 'admin';
+		} else if ( is_home() || is_front_page() ) {
+			return 'home';
+		} else if ( is_tax() || is_tag() || is_category() ) {
+			return get_queried_object()->taxonomy;
+		} else if ( is_author() ) {
+			return 'author';
+		} else if ( is_singular() || is_single() || is_page() ) {
+			return get_post_type();
+		} else if ( is_search() ) {
+			return 'search';
+		} else if ( is_date() ) {
+			return 'date';
+		} else if ( is_archive() ) {
+			return 'archive';
+		} else if ( is_404() ) {
+			return '404';
+		}
 	}
 
 	/**
