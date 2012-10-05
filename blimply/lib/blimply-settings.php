@@ -4,7 +4,7 @@ class Blimply_Settings {
     private $settings_api;
 
     function __construct() {
-        $this->settings_api = WeDevs_Settings_API::getInstance();
+        $this->settings_api = new WeDevs_Settings_API;
 
         add_action( 'admin_init', array( $this, 'admin_init' ) );
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
@@ -52,14 +52,6 @@ class Blimply_Settings {
                     'default' => 'Title'
                 ),
                 array(
-                    'name' => BLIMPLY_PREFIX . '_name',
-                    'label' => __( 'Urban Airship Application Slug!', 'blimply' ),
-                    'desc' => __( 'Something like my-test-app.', 'blimply' ),
-                    'type' => 'text',
-                    'std' => __( 'my-blimply', 'blimply' ),
-                    'class'=> 'nohtml'
-                ),
-                array(
                     'name' => BLIMPLY_PREFIX . '_app_key',
                     'label'=> __( 'Application API Key', 'blimply' ),
                     'desc'=> __( '22 character long app key( like SYk74m98TOiUhHHHHb5l_Q.', 'blimply' ),
@@ -70,11 +62,19 @@ class Blimply_Settings {
                 array(
                     'name' => BLIMPLY_PREFIX . '_app_secret',
                     'label'=> __( 'Application Master Secret', 'blimply' ),
-                    'desc'=> __( '22 character long app master secret( like SYk74m98TOiUhHHHHb5l_Q.', 'blimply' ),
+                    'desc'=> __( '22 character long app master secret( like SYk74m98TOiUhHHHHb5l_Q. )', 'blimply' ),
                     'type'=> 'text',
                     'std' => __( 'my-blimply', 'blimply' ),
                     'class'=> 'nohtml'
                 ),
+                array(
+                    'name' => BLIMPLY_PREFIX . '_allow_broadcast',
+                    'label'=> __( 'Allow Broadcast Notifications', 'blimply' ),
+                    'desc'=> __( 'You may enable broadcast pushes that all your users will get, no matter their settings in-app', 'blimply' ),
+                    'type'=> 'checkbox',
+                    'std' => __( 'my-blimply', 'blimply' ),
+                    'class'=> 'nohtml'
+                ),                
             ),
         );
 

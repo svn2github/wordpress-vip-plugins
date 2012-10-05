@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.2
+Version: 0.2.1
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.2' );
+define( 'BLIMPLY_VERSION', '0.2.1' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
@@ -176,6 +176,8 @@ class Blimply {
 	 *
 	 */
 	function _send_broadcast_or_push( $alert, $tag ) {
+		// Strip escape slashes, otherwise double escaping would happen
+		$alert = stripcslashes( $alert );
 		$payload = array( 'aps' => array( 'alert' => $alert, 'badge' => '+1' ) );
 		if ( $tag === 'broadcast' ) {
 			$response =  $this->request( $this->airship, 'broadcast', $payload );
@@ -216,11 +218,13 @@ class Blimply {
 				echo $tag->name;
 				echo '</label><br/>';
 			}
-			echo '<input type="radio" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
-			echo '<label class="selectit" for="blimply_tag_broadcast" style="margin-left: 4px">';
-			_e( 'Broadcast (send to all tags)', 'blimply' );
-			echo '</label><br/>';
 
+			if ( $this->options['blimply_allow_broadcast'] == 'on' ) {
+				echo '<input type="radio" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
+				echo '<label class="selectit" for="blimply_tag_broadcast" style="margin-left: 4px">';
+				_e( 'Broadcast (send to all tags)', 'blimply' );
+				echo '</label><br/>';
+			}
 
 			echo '<br/><input type="hidden" id="" name="blimply_push" value="0" />';
 			echo '<input type="checkbox" id="blimply_push" name="blimply_push" value="1" disabled="disabled" />';
@@ -278,10 +282,13 @@ class Blimply {
 			echo $tag->name;
 			echo '</label><br/>';
 		}
-		echo '<label class="selectit" for="blimply_tag_broadcast" style="margin-left: 4px">';
-		echo '<input type="radio" style="float:left" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
-		_e( 'Broadcast (send to all tags)', 'blimply' );
-		echo '</label><br/>';
+
+		if ( $this->options['blimply_allow_broadcast'] == 'on' ) {
+			echo '<label class="selectit" for="blimply_tag_broadcast" style="margin-left: 4px">';
+			echo '<input type="radio" style="float:left" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
+			_e( 'Broadcast (send to all tags)', 'blimply' );
+			echo '</label><br/>';
+		}	
 ?>
 			<p class="submit">
 				<input type="hidden" name="action" id="blimply-push-action" value="blimply-send-push" />
