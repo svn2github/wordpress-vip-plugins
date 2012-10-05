@@ -42,7 +42,7 @@ class Post_Meta_Inspector
 			}
 		</style>
 
-		<?php $custom_fields = get_post_custom(); ?>
+		<?php $custom_fields = get_post_meta( get_the_ID() ); ?>
 		<table>
 			<thead>
 				<tr>
@@ -51,11 +51,16 @@ class Post_Meta_Inspector
 				</tr>
 			</thead>
 			<tbody>
-		<?php foreach( $custom_fields as $key => $value ) : ?>
+		<?php foreach( $custom_fields as $key => $values ) :
+				if ( apply_filters( 'pmi_ignore_post_meta_key', '__return_false', $key ) )
+					continue;
+		?>
+			<?php foreach( $values as $value ) : ?>
 			<tr>
 				<td class="key-column"><?php echo esc_html( $key ); ?></td>
-				<td class="value-column"><code><?php echo var_export( $value, true ); ?></code></td>
+				<td class="value-column"><code><?php echo esc_html( var_export( $value, true ) ); ?></code></td>
 			</tr>
+			<?php endforeach; ?>
 		<?php endforeach; ?>
 			</tbody>
 		</table>
