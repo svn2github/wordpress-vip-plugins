@@ -17,7 +17,8 @@ if ( WPCOM_IS_VIP_ENV ) {
 	wpcom_vip_load_helper_stats(); // vip-helper-stats-wpcom.php
 } else {
 	// Local helpers that add WP.com functionality
-	require_once( __DIR__ . '/vip-do-not-include-on-wpcom/is-mobile.php' );
+	if ( ! function_exists( 'jetpack_is_mobile' ) )
+		require_once( __DIR__ . '/vip-do-not-include-on-wpcom/is-mobile.php' );
 	require_once( __DIR__ . '/vip-do-not-include-on-wpcom/wpcom-functions.php' );
 }
 
