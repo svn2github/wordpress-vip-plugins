@@ -1,7 +1,13 @@
 <?php
 
-interface wp_client {
+interface WP_Client {
 
+	/**
+	 * Return Client Data
+	 * @return array array( 'id' => (string) $transport_name, 'modes' => array( 'push', 'pull' ), 'name' => (string) $name );
+	 */
+	public static function get_client_data();
+	 
 	/**
 	 * Creates a new post in the slave site.
 	 *
@@ -29,6 +35,24 @@ interface wp_client {
 	 * @return  boolean true on success false on failure.
 	 */
 	public function delete_post( $ext_ID );
+
+    /**
+     * Retrieves a single post from a slave site.
+     *
+     * @param   int  $ext_ID  Slave post ID to retrieve.
+     *
+     * @return  boolean true on success false on failure.
+     */
+    public function get_post( $ext_ID );
+
+    /**
+     * Retrieves a list of posts from a slave site.
+     *
+     * @param   array   $args  Arguments when retrieving posts.
+     *
+     * @return  boolean true on success false on failure.
+     */
+    public function get_posts( $args = array() );
 
 	/**
 	 * Test the connection with the slave site.
