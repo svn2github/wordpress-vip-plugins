@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.2.1
+Version: 0.2.2
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.2.1' );
+define( 'BLIMPLY_VERSION', '0.2.2' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
@@ -49,7 +49,7 @@ class Blimply {
 		add_action( 'update_option_blimply_options', array( $this, 'sync_airship_tags' ), 5, 2 );
 		add_action( 'register_taxonomy', array( $this, 'after_register_taxonomy' ), 5, 3 );
 		add_action( 'create_term', array( $this, 'action_create_term' ), 5, 3 );
-		add_action( 'init', array( $this, 'l10n' ) );
+		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'wp_dashboard_setup', array( $this, 'dashboard_setup' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
 		add_action( 'wp_ajax_blimply-send-push', array( $this, 'handle_ajax_post' ) );
@@ -60,7 +60,20 @@ class Blimply {
 			wp_add_dashboard_widget( 'dashboard_blimply', __( 'Send a Push Notification' ), array( $this, 'dashboard_widget' ) );
 	}
 
-	function l10n() {
+	/**
+	 *  Init hook
+	 * 
+	 */
+	function action_init() {
+		register_taxonomy( 'blimply_tags', array( 'post' ), array(
+				'public' => false,
+				'labels' => array(
+					'name' => __( 'Urban Airship Tags', 'blimply' ),
+					'singular_name' => __( 'Urban Airship Tags', 'blimply' ),
+				),
+				'show_in_nav_menus' => false,
+				'show_ui' => false
+			) );
 		load_plugin_textdomain( 'blimply', false, dirname( plugin_basename( __FILE__ ) ) . '/lib/languages/' );
 	}
 	/**
@@ -80,15 +93,6 @@ class Blimply {
 		// Although we can, there's no UI for switching Airships.
 		$this->airship = &$this->airships[ $this->options['blimply_name'] ];
 		// We don't use built-in WP UI, instead we choose tag in custom Blimply meta box
-		register_taxonomy( 'blimply_tags', array( 'post' ), array(
-				'public' => false,
-				'labels' => array(
-					'name' => __( 'Urban Airship Tags', 'blimply' ),
-					'singular_name' => __( 'Urban Airship Tags', 'blimply' ),
-				),
-				'show_in_nav_menus' => false,
-				'show_ui' => false
-			) );
 		$this->tags = get_terms( 'blimply_tags', array( 'hide_empty' => 0 ) );
 	}
 
