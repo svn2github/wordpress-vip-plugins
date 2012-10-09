@@ -3,12 +3,23 @@
  Plugin Name: PostRelease VIP
  Plugin URI: http://www.postrelease.com
  Description: PostRelease VIP
- Version: 0.1
+ Version: 1.2
  Author: PostRelease
  Author URI: http://www.postrelease.com
  */
+ 
+/*
++-----------------------------------------------------------------------------------------
+| Version | Date       | Notes
+|---------|-------------------------------------------------------------------------------
+| 1.0     | 2012/08/01 | First release live
+| 1.1     | 2012/10/05 | Returning blog URL as the blog name as fallback
+| 1.2     | 2012/10/08 | Added filters for date and author (display as Promoted)
++-----------------------------------------------------------------------------------------
+*/
+ 
 define('PRX_CUSTOM_TYPE', 'pr_sponsored_post'); //custom post type created for our template post 
-define('PRX_WP_PLUGIN_VERSION', '0.1');
+define('PRX_WP_PLUGIN_VERSION', '1.2');
 define('PRX_DB_VERSION', 1);
 
 require_once( dirname(__FILE__) .'/config.php' );
@@ -21,6 +32,16 @@ add_action('wp_enqueue_scripts', 'postrelease_wp_enqueue_scripts', 1);
 add_action('admin_menu', 'postrelease_create_menu'); // create custom plugin settings menu
 add_filter('query_vars', 'postrelease_add_query_vars');
 add_action('template_redirect', 'postrelease_template_redirect');
+add_action('the_author', 'postrelease_the_author');
+add_filter('author_link', 'postrelease_author_link', 100, 2);
+add_action('the_author_display_name', 'postrelease_the_author_display_name');
+add_filter('get_the_date', 'postrelease_get_the_date', 10, 2);
+add_filter('get_the_time', 'postrelease_get_the_time', 10, 2);
+
+if (!function_exists('wpcom_is_vip')) {
+	register_activation_hook( __FILE__, 'postrelease_notify_activate' );
+	register_deactivation_hook( __FILE__, 'postrelease_notify_deactivate' );	
+}
 
 /**
  * Appends the PostRelease javascript to header 
@@ -51,11 +72,10 @@ function postrelease_init() {
  * adds his publication to the PostRelease network. 
  */
 function postrelease_activate() {
-	/* Flush the rewrite rules */
 	if ( ! function_exists( 'wpcom_is_vip' ) ) {
-		flush_rewrite_rules();
+		flush_rewrite_rules(); //not vip
 	} else {
-		do_action( 'postrelease_activate' );
+		do_action( 'postrelease_activate' ); //vip
 	}
 }
 
@@ -373,7 +393,7 @@ function postrelease_send_success_response() {
 function postrelease_generate_security_key() {
 	//if key already exists
 	if( false != get_option('prx_plugin_key', false) ) { 
-		print('FAIL: Key already generated');
+		print('FAIL: key already exists');
 		return;
 	}
 
@@ -384,7 +404,7 @@ function postrelease_generate_security_key() {
 		$output = json_encode($data);
 		print($output);
 	} else {
-		print('FAIL: Invalid IP');
+		print('FAIL: IP authentication error');
 	}
 }
 
@@ -395,7 +415,7 @@ function postrelease_generate_security_key() {
  */
 function postrelease_get_status() {
 	$response = array();
-	$response['PublicationTitle'] = get_bloginfo('name');
+	$response['PublicationTitle'] = postrelease_get_blog_name();
 	$response['Enabled'] = get_option('prx_plugin_activated');
 	$response['PlatformVersion'] = get_bloginfo('version');
 	$response['PluginVersion'] = PRX_WP_PLUGIN_VERSION.'.vip';
@@ -416,7 +436,7 @@ function postrelease_get_check() {
 	$response['db_version'] = PRX_DB_VERSION;
 	$response['php_version'] = phpversion();
 	$response['wordpress_version'] = get_bloginfo('version');
-	$response['blog_title'] = get_bloginfo('name');
+	$response['blog_title'] = postrelease_get_blog_name();
 	$response['template_post_id'] = get_option('prx_template_post_id', '-1');
 	$response['prx_dev'] = PRX_DEV;
 	$output = json_encode($response);
@@ -447,4 +467,103 @@ function postrelease_enable_plugin( $enable ) {
 		$data['result'] = 1;
 	}
 	print json_encode($data);
+}
+
+/**
+ * Return the blog name.
+ * If it's not set, return the blog URL. 
+ */
+function postrelease_get_blog_name() {
+	if(strlen(trim(get_bloginfo('name'))) == 0) {
+		return site_url();
+	} else {
+		return get_bloginfo('name');	
+	}
+}
+
+/**
+ * Change author display name to "Promoted" in secondary impression
+ */
+function postrelease_the_author($author) {
+	global $post;
+	$template_post_id = get_option('prx_template_post_id');
+	if(isset($post) && $post->ID == get_option('prx_template_post_id', -1)) {
+		$author = 'Promoted';
+	}
+	return $author;
+}
+
+/**
+ * Change author display name to "Promoted" in secondary impression 
+ */
+function postrelease_the_author_display_name($author) {
+	global $post;
+	$template_post_id = get_option('prx_template_post_id');
+	if(isset($post) && $post->ID == get_option('prx_template_post_id', -1)) {
+		$author = 'Promoted';
+	}
+	return $author;
+}
+
+/**
+ * Change author link to blog homepage URL in secondary impression
+ */
+function postrelease_author_link($link, $author_id) {
+	global $post;
+	if(isset($post) && $post->ID == get_option('prx_template_post_id', -1)) {
+		$link = home_url();
+	}
+	return $link;
+}
+
+/**
+ * Change date to today's date in secondary impression
+ * We do not want to display that fake date of 1/1/1960
+ */
+function postrelease_get_the_date($date, $d) {	
+	global $post;
+	if($post->ID == get_option('prx_template_post_id', -1)) {
+		$date = date($d, time());		
+	}
+	return $date;
+}
+
+/**
+ * Change date to today's date in secondary impression
+ * We do not want to display that fake date of 1/1/1960
+ */
+function postrelease_get_the_time($the_time, $d) {
+	global $post;
+	if($post->ID == get_option('prx_template_post_id', -1)) {
+		$the_time = date($d, time());	
+	}
+	return $the_time;	
+}
+
+/**
+ * Notify the PostRelease server that the plugin in this publication was activated 
+ */
+function postrelease_notify_activate() {
+	//notify PostRelease team that plugin was activated
+	$args = array(
+		'method' => 'POST',
+		'timeout' => 2,
+		'user-agent' => 'Wordpress_plugin',
+		'sslverify' => true,
+	);
+	$response = wp_remote_post( PRX_POSTRELEASE_SERVER . '/plugins/Api/PluginActivated?url=' . site_url(), $args );		
+}
+
+/**
+ * Notify the PostRelease server that the plugin in this publication was deactivated
+ */
+function postrelease_notify_deactivate() {
+	//notify PostRelease team that plugin was deactivated
+	$args = array(
+		'method' => 'POST',
+		'timeout' => 2,
+		'user-agent' => 'Wordpress_plugin',
+		'sslverify' => true,
+	);
+	$response = wp_remote_post( PRX_POSTRELEASE_SERVER . '/plugins/Api/PluginDeactivated?url=' . site_url(), $args );		
 }
