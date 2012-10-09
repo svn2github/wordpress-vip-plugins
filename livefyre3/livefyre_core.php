@@ -39,23 +39,24 @@ class Livefyre_core {
 
         $client_key = $this->ext->get_option( 'livefyre_domain_key', '' );
         $profile_domain = $this->ext->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
+        $tld = $this->ext->get_option( 'livefyre_tld', LF_DEFAULT_TLD );
         $dopts = array(
-            'livefyre_tld' => LF_DEFAULT_TLD
+            'livefyre_tld' => $tld
         );
-        $uses_default_tld = (strpos(LF_DEFAULT_TLD, 'livefyre.com') === 0);
-        $this->lf_domain_object = new Livefyre_Domain( $profile_domain, $client_key, null, $dopts);
+        $uses_default_tld = ( $tld === LF_DEFAULT_TLD );
+        $this->lf_domain_object = new Livefyre_Domain( $profile_domain, $client_key, null, $dopts );
         $site_id = $this->ext->get_option( 'livefyre_site_id' );
         $this->site = $this->lf_domain_object->site( 
             $site_id, 
             trim( $this->ext->get_option( 'livefyre_site_key' ) )
         );
         $this->debug_mode = false;
-        $this->top_domain = ( $profile_domain == LF_DEFAULT_PROFILE_DOMAIN ? LF_DEFAULT_TLD : $profile_domain );
-        $this->http_url = ( $uses_default_tld ? "http://www." . LF_DEFAULT_TLD : "http://" . LF_DEFAULT_TLD );
+        $this->top_domain = ( $profile_domain == LF_DEFAULT_PROFILE_DOMAIN ? $tld : $profile_domain );
+        $this->http_url = "http://" . $tld;
         $this->api_url = "http://api.$this->top_domain";
         $this->quill_url = "http://quill.$this->top_domain";
         $this->admin_url = "http://admin.$this->top_domain";
-        $this->assets_url = "http://zor." . LF_DEFAULT_TLD;
+        $this->assets_url = "http://zor." . $tld;
         $this->bootstrap_url = "http://bootstrap.$this->top_domain";
         
         // for non-production environments, we use a dev url and prefix the path with env name

@@ -224,8 +224,11 @@ class Livefyre_Admin {
 		// Site Key / livefyre_site_key: This is a hex encoded string. Validation should be lite as the format can change.
         register_setting($settings_section, 'livefyre_site_key', 'esc_attr'); 
 
-		// Network name / livefyre_domain_name: This is a string of the form "{something}.fyre.co" OR "livefyre.com"
+		// Network name / livefyre_domain_name / profile domain: This is a string of the form "{something}.fyre.co" OR "livefyre.com"
         register_setting($settings_section, 'livefyre_domain_name', 'esc_attr');
+
+		// default TLD Domain
+        register_setting($settings_section, 'livefyre_tld', 'esc_attr');
 
 		// Network Key / livefyre_domain_key: This is a hex encoded string. Validation should be lite as the format can change.
         register_setting($settings_section, 'livefyre_domain_key', 'esc_attr');
@@ -238,6 +241,12 @@ class Livefyre_Admin {
         add_settings_field('livefyre_domain_name',
             'Livefyre Network Name',
             array( &$this, 'domain_name_callback' ),
+            $name,
+            $settings_section);
+
+        add_settings_field('livefyre_tld',
+            'Livefyre Network Name',
+            array( &$this, 'tld_callback' ),
             $name,
             $settings_section);
 
@@ -295,6 +304,12 @@ class Livefyre_Admin {
     function domain_name_callback() {
     
         echo "<input name='livefyre_domain_name' value='" . esc_attr( get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN ) ) ."' />";
+        
+    }
+    
+    function tld_callback() {
+    
+        echo "<input name='livefyre_tld' value='" . esc_attr( get_option( 'livefyre_tld', LF_DEFAULT_TLD  ) ) ."' />";
         
     }
     
