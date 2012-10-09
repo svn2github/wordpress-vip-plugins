@@ -189,6 +189,8 @@ class MediaPass_Plugin {
 		wp_register_style('chartingstyle', plugins_url('/styles/charting.css', __FILE__));
 		
 		
+		wp_register_style('tcstyle', plugins_url('/styles/tc.css', __FILE__));
+		
 		wp_register_style( 'jquery-ui-style-flick', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/flick/jquery-ui.css', true);
 	}
 	
@@ -757,6 +759,7 @@ class MediaPass_Plugin {
 	}
 	
 	public function menu_faqs_tc() {
+		wp_enqueue_style('tcstyle');
 		if ( ! function_exists( 'fetch_feed' ) )
 			include_once(ABSPATH . WPINC . '/feed.php');
 			
@@ -765,6 +768,7 @@ class MediaPass_Plugin {
 		if (!is_wp_error($faq_feed)) {
 			$faq_items = $faq_feed->get_items(0, $faq_feed->get_item_quantity(5));
 		}
+		
 		
 		include_once('includes/faq_tc.php');
 	}
