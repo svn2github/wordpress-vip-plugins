@@ -1,0 +1,24 @@
+#pmc-post-savior-notice {
+	position: fixed;
+	z-index: 150010;
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+	display: none;
+	padding: 30px;
+	top: 50%;
+	width: 20%;
+	left: 50%;
+	margin: -10% 0 0 -10%;
+	opacity: 0.7;
+	-moz-opacity: 0.7;
+	filter: alpha(opacity=70);
+	color: #FFFFFF;
+	font-size: 1.5em;
+	text-align: center;
+	background-color: #000000;
+}
+
+#backtoblog {
+	display: none;
+}
