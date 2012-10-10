@@ -154,7 +154,7 @@ if( !class_exists( 'post_revision_workflow' ) ) {
 		function settings_field( $args=array() ) {
 			$id = array_key_exists( 'label_for', $args ) && !empty( $args['label_for'] ) ? $args['label_for'] : 'dpn_reviewers';
 ?>
-	<input class="widefat" type="text" name="<?php echo $id ?>" id="<?php echo $id ?>" value="<?php echo implode( ';', $this->get_reviewers(false) ) ?>"/>
+	<input class="widefat" type="text" name="<?php echo $id ?>" id="<?php echo $id ?>" value="<?php echo esc_attr( implode( ';', $this->get_reviewers(false) ) ); ?>"/>
 <?php
 			if( is_network_admin() ) {
 ?>
@@ -178,13 +178,13 @@ if( !class_exists( 'post_revision_workflow' ) ) {
 						if( function_exists( 'get_mnetwork_option' ) )
 							$r = get_mnetwork_option( 'dpn_reviewers', '' );
 			} elseif( !$fallback && is_network_admin() ) {
-				$r = get_site_option( 'dpn_reviewers', '' );
+				$r = get_site_option( 'dpn_reviewers', array() );
 			} else {
-				$r = get_option( 'dpn_reviewers', '' );
+				$r = get_option( 'dpn_reviewers', array() );
 			}
 			
 			if( !$fallback )
-				return empty( $r ) ? '' : $r;
+				return empty( $r ) ? array() : $r;
 			
 			$this->reviewers = empty( $r ) ? get_bloginfo( 'admin_email' ) : maybe_unserialize( $r );
 			return $this->reviewers;
@@ -343,7 +343,6 @@ if( !class_exists( 'post_revision_workflow' ) ) {
 			$revision_compare_link = admin_url( 'revision.php?action=diff&post_type=' . $post->post_type . '&right=' . $post->ID . '&left=' . $last_revision );
 			$body = sprintf( __( "New changes have been made to \"%s\" at <%s>. ", $this->text_domain ), $post->post_title, get_permalink( $post->ID ) );
 			if( 'draft' == $dowhat ) {
-
 				$body .= __( "The author has requested that you review the new changes and determine whether to remove or approve them. These changes will not appear on the public website until you approve them.\n\n", $this->text_domain );
 			} else {
 				$body .= __( "The modifications have been published, but the author of the page has requested you be notified of them.\n\n", $this->text_domain );

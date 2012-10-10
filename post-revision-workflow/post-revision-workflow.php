@@ -24,20 +24,19 @@ License: GPL2
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-if( !class_exists( 'post_revision_workflow' ) ) {
-	$curpath = str_replace( basename( __FILE__ ), '', realpath( __FILE__ ) );
-	if( file_exists( $curpath . '/class-post-revision-workflow.php' ) )
-		require_once( $curpath . '/class-post-revision-workflow.php' );
-	elseif( file_exists( $curpath . '/post-revision-workflow/class-post-revision-workflow.php' ) )
-		require_once( $curpath . '/post-revision-workflow/class-post-revision-workflow.php' );
+if( ! class_exists( 'post_revision_workflow' ) ) {
+	require_once( dirname( __FILE__ ) . '/class-post-revision-workflow.php' );
 }
 
 if( class_exists( 'post_revision_workflow' ) ) {
-	add_action( 'plugins_loaded', 'init_revision_workflow' );
-	function init_revision_workflow() {
+	function init_post_revision_workflow() {
 		return new post_revision_workflow;
 	}
-/*} else {
-	wp_die( 'The post-revision-workflow class definition could not be found in ' . $curpath . '/class-post-revision-workflow.php' . ' or ' . $curpath . '/post-revision-workflow/class-post-revision-workflow.php' );*/
+
+	if ( ! did_action( 'plugins_loaded' ) ) {
+		add_action( 'plugins_loaded', 'init_post_revision_workflow' );
+	} else {
+		init_post_revision_workflow();
+	}
 }
 ?>
