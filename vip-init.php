@@ -24,6 +24,3 @@ if ( WPCOM_IS_VIP_ENV ) {
 
 // Load the "works everywhere" helper file
 wpcom_vip_load_helper(); // vip-helper.php
-
-// Shared plugins we want to load for everyone
-wpcom_vip_load_plugin( 'pmc-post-savior' );
