@@ -545,20 +545,20 @@ if ( !class_exists( "Easy_CF" ) ) {
 					foreach($field as $field_name => $field_value){
 	
 						// check label
-						if ( !empty( $field_value ) && $field_name == 'label' && !preg_match( "#^[a-zA-Z0-9_-\s:]+$#miU", $field_value ) ) {
-							$this->add_admin_notice( sprintf( __( "Field label %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:]" ), $field_value, $group_id ) );
+						if ( !empty( $field_value ) && $field_name == 'label' && !preg_match( "#^[a-zA-Z0-9_-\s:,]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field label %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:,]" ), $field_value, $group_id ) );
 							continue;
 						}
 	
 						// check hint
-						if ( !empty( $field_value ) && $field_name == 'hint' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.\,]+$#miU", $field_value ) ) {
-							$this->add_admin_notice( sprintf( __( "Field hint %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field_value, $group_id ) );
+						if ( !empty( $field_value ) && $field_name == 'hint' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.,]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field hint %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.,]" ), $field_value, $group_id ) );
 							continue;
 						}
 	
 						// check error_msg
-						if ( !empty( $field_value ) && $field_name == 'error_msg' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.\,]+$#miU", $field_value ) ) {
-							$this->add_admin_notice( sprintf( __( "Field error_msg %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.]" ), $field_value, $group_id ) );
+						if ( !empty( $field_value ) && $field_name == 'error_msg' && !preg_match( "#^[a-zA-Z0-9_-\s:/\.,]+$#miU", $field_value ) ) {
+							$this->add_admin_notice( sprintf( __( "Field error_msg %s for group %s contains invalid chars use only [a-zA-Z0-9_-\s:/\.,]" ), $field_value, $group_id ) );
 							continue;
 						}
 	
