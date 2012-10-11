@@ -4,6 +4,7 @@
  * only enable it for specific VIP themes
  */
 $coauthors_plus_guest_authors_whitelist = array(
+		'vip/cartercenterorg',
 		'vip/dawn-urdu',
 		'vip/dawn-urdu-mobile',
 		'vip/newyorkobserver',
