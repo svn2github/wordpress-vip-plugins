@@ -24,6 +24,6 @@
 	?></tags>
 	<?php endif; // mysiteapp_should_hide_sidebar ?>
 	<logout>
-		<url><?php echo mysiteapp_logout_url_wrapper() ?></url>
+		<url><![CDATA[<?php echo mysiteapp_logout_url_wrapper() ?>]]></url>
 	</logout>
 </sidebar>

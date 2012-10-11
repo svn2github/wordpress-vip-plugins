@@ -27,7 +27,7 @@ if (!$should_hide_posts) {
 		query_posts($args);
 	}
 }
-mysiteapp_get_header();
+get_template_part('header');
 ?><title><![CDATA[]]></title>
 <posts>
 <?php
@@ -45,5 +45,5 @@ if (!$should_hide_posts && have_posts()) {
 } ?>
 </posts>
 <?php
-mysiteapp_get_sidebar();
-mysiteapp_get_footer('nav');
+get_template_part('sidebar');
+get_template_part('footer', 'nav');

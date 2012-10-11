@@ -9,7 +9,7 @@ if (function_exists('get_the_author_meta')) {
 } else {
 	$avatar = null;
 }
-$avatar_url = mysiteapp_extract_url($avatar);
+$avatar_url = uppsite_extract_src_url($avatar);
 ?>
 <mysiteapp>
 	<user ID="<?php echo $user->ID ?>" user_level="<?php echo $user->wp_user_level ?>">

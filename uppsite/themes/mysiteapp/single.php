@@ -2,7 +2,7 @@
 /**
  * Single post Page
  */
-mysiteapp_get_header();
+get_template_part('header');
 ?><title><![CDATA[]]></title><?php
 if (have_posts()) {
 	while (mysiteapp_clean_output('have_posts')) {
@@ -16,4 +16,4 @@ if (have_posts()) {
 		comments_template();
 	}
 }
-mysiteapp_get_footer('nav');
+get_template_part('footer', 'nav');

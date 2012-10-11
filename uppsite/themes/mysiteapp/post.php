@@ -11,7 +11,7 @@ if (function_exists('get_the_author_meta')) {
 } elseif (function_exists('get_the_author_id')) {
 	$avatar = get_avatar(get_the_author_id());
 }
-$avatar_url = mysiteapp_extract_url($avatar);
+$avatar_url = uppsite_extract_src_url($avatar);
 
 $show_post_content = get_query_var('mysiteapp_should_show_post');
 
@@ -27,8 +27,8 @@ if ($show_post_content) {
 	comments_num="<?php echo get_comments_number(); ?>"
 	comments_open="<?php echo comments_open() ? "true" : "false" ?>"
 	facebook_comments="<?php echo isset($options['fbcomment']) ? "true" : "false" ?>">
-	<permalink><?php the_permalink(); ?></permalink>
-	<thumb_url><?php echo mysiteapp_extract_thumbnail(); ?></thumb_url>
+	<permalink><![CDATA[<?php the_permalink(); ?>]]></permalink>
+	<thumb_url><![CDATA[<?php echo mysiteapp_extract_thumbnail(); ?>]]></thumb_url>
 	<title><![CDATA[<?php echo html_entity_decode(get_the_title(), ENT_QUOTES, 'UTF-8'); ?>]]></title>
 	<time><![CDATA[<?php the_time('m/d/y G:i'); ?>]]></time>
 	<unix_time><![CDATA[<?php the_time('U'); ?>]]></unix_time>
@@ -43,7 +43,7 @@ if ($show_post_content) {
 		<![CDATA[<?php echo html_entity_decode(mysiteapp_fix_videos($content), ENT_QUOTES, 'UTF-8'); ?>]]>
 	</content>
 	<?php endif;?>
-	<comments_link><?php comments_link(); ?></comments_link>
+	<comments_link><![CDATA[<?php comments_link(); ?>]]></comments_link>
 	<?php if ($show_post_content): ?>
 		<tags><?php if(function_exists('the_tags')) the_tags(); ?></tags>
 	<?php endif; ?>

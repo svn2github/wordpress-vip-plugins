@@ -1,127 +1,183 @@
-=== iPhone, Android and WP7 Native Mobile  Apps by UppSite ===
+=== UppSite - Go Mobile ===
 Contributors: mysiteapp
-Donate link: http://www.uppsite.com/
-Tags: mobile, apps, iphone, android, windows phone 7, uppsite, appsite, eppsite, app, apping, money, free
+Donate link: https://www.uppsite.com/
+Tags: mobile, apps, iphone, ipad, ios, android, windows phone 7, uppsite, appsite, eppsite, app, apping, money, free, webapp, web app, html5, native
 Requires at least: 2.0.2
 Tested up to: 3.5-alpha
 Stable tag: trunk
 
-WordPress site into an iPhone, Android and Windows Phone 7 native apps.UppSite Plugin is a 2 minutes wizard that will do it for you!
+WordPress site into an iPhone, iPad, Android, Windows Phone 7 native & Web apps. UppSite is a 2 minutes wizard that does it for you!
 
 == Description ==
 
-iPhone, Android and Windows Phone 7 native apps are what people are looking for!
-UppSite.com is a service that transforms your Wordpress blog into iPhone, Android, and other mobile apps - for FREE! No credit card, no forced donations: simply register your blog with [UppSite.com](http://www.uppsite.com/?utm_source=wordpress&utm_medium=description&utm_campaign=plugin-page "http://www.UppSite.com") and install this plugin in order to create your blog free mobile-apps!
+Install this plugin to enjoy the easiest, fastest and most advanced way to convert your WordPress site into fully-functional and customizable iPhone, iPad, Android and Windows Phone native applications, as well as a one-of-kind HTML5, native-style mobile web application.
+
+It’s free to get started with your apps (no credit card required, no forced donations). Welcome to the Mobile Era!
+
+[vimeo http://vimeo.com/39822359]
 
 = Features =
-* Increase your website engagement with Push notifications.
-* Your readers can comment on your website from the app itself.
-* Adjusting your website quickly and easily to fit the screen of a Smartphone.
-* Sharing through email, facebook and twitter, right from the app.
-* Multiple mobile operating-systems (iOS, Android and more).
-* Webmasters can update their blogs with new posts via their Smartphones.
-* Design and customize your app to match your website logos and icons.
-* Compatible with most other plugins.
-* Can be submitted under your own developer accounts on the application-stores.
-* Free!
+*   <strong>True Mobile Presence, means</strong> -
+    
+    ✓ **Better Reach** - UppSite supports all major mobile platforms. **iOS, Android,  Windows Phone and HTML5**. We got you mobile-covered all around.
+    
+    ✓ **Better Discovery** - Whether people stumble upon your site while browsing on their mobile devices, or look for your content in the app stores, you will be present! And to make it easy, **UppSite submits your applications to the app stores for you** (under your name and account).
+    
+    ✓ **Better Engagement and Retention** - UppSite features an **advanced push notification system** that allows you to notify your audience of new posts and bring them back to your site. Additionally, UppSite supports integrated commenting. Your readers can **comment on your posts and join the discussion from within the app** (and yes, we support Facebook Comments & Disqus).
+    
+    ✓ **Better Monetization** (if you care about revenues) - UppSite integrates advanced Mobile Advertising technologies. Serve effective mobile ads and increase your inventory performance.
+*   <strong>Seamless Integration with WordPress</strong> - Keep operating your site as usual. After you install this plugin, no additions or modifications are required. UppSite’s plugin will seamlessly deliver the content that’s on your regular desktop site to your mobile applications.
+*   <strong>Customizable</strong> - Customize your app to make it truly your own branded asset. Upload icons, logos and splash screens, change colors, texts and display layout. You can preview your app on your device, before publishing it.
+*   <strong>Manageable</strong> - Log on to your dashboard at UppSite.com to manage all your apps in one place. You stay in control, and among other things can update your apps, change design and view latest stats of your app’s performance (launching soon).  
+*   <strong>Social</strong> - We’re social to the bone. Users can log-in and share via Facebook, Twitter and email.
+*   Did we mention you can get it for <strong>Free ☺</strong>
 
 = Compatibility =
-UppSite Wordpress Plugin is compatible with most plugins out there, including the following:
+UppSite’s Plugin is compatible and plays really nice with most plugins out there, including but not limited to the following:
 
-* Facebook Comments plugins
-* Most Cache plugins
+* Facebook
+* Disqus
+* Most Cache Plugins
 * WPTouch
 * SEO All-in-one
 * WordPress SEO by Yoast
+* Facebook Comments plugins
 * Google Analytics plugins
 * YouTube plugins
+And many, many more!
 
-and many many more!
+= Why we do this? =
 
-= Why have NATIVE mobile-apps with UppSite for your blog? =
-1. The mobile-apps UppSite creates for your blog will encourage people to engage with your blog - allowing them to be automatically informed of new posts with Push Notifications. Also, users are able to comment your blog posts. 
-1. Your logo will appear on people's iPhone and Android desktops.
-1. It's free!
+We at UppSite believe that any web publisher and content creator deserves the best mobile presence. 
 
-= How much time until I have my own native apps? =
-Once you finish registering for UppSite (and installing our plugin on the way), you will be requested to apply your website for app creation ("Create My Apps" button on final registration step). After that, your website will be subject to our staff review (which usually takes about 2-3 days), making sure that your website qualifies for all the application-stores your requested to appear on (Apple AppStore and Google Market for instance). After approval, you will be notified by email, and your apps will appear on application stores shortly: for Google Market it takes almost immediately upon UppSite approval, whereas in Apple Appstore it might even take a good two weeks (sadly, it does not depend on us). You will also be notified be email upon appearing on the stores. 
+Mobile has significantly changed how people consume content these days. More and more we attempt to access and consume content from our smart mobile devices. However, mobile is a new form factor and users expect to enjoy seamless experiences extending the functionality and UI design that is characteristic to their devices. Shrinking websites to fit a mobile screen is simply not enough. In the mobile era publishers and content creators should, so we believe, engage with their audiences in a mobile way. 
+
+True, going mobile is normally a tedious task that requires tens of thousand of dollars, months of development work and dealings with many outlets and providers to get your app out on the market. Gladly, this is not the case with UppSite. We’ve set out to bridge the mobile gap for all publishers by providing a dead-simple and fast solution to turn a site into a mobile application, without compromising the quality of the end result. From creation to publication we make this process as easy as it gets, and as affordable as you could only imagine. Our apps (native & webapp), although created in less than two minutes deliver all the features and functionality that you’d expect from the most cutting-edge apps out there, and cater to the needs of publishers of all sizes. 
+
+Visit [www.uppsite.com](https://www.uppsite.com/?utm_source=wordpress&utm_medium=newinstructions&utm_campaign=plugin-page&utm_content=learnmore "https://www.UppSite.com") to learn more about why and how UppSite is democratizing the world of mobile applications, and what it means for you.
+
+Have a question or request, or just want to set up a time to speak with us, then please email us at support@uppsite.com.
 
 == Installation ==
 
-In order to turn your forum into mobile-apps, please follow these simple steps:
+Installing UppSite and creating your apps could not have been easier. After you install our plugin and activate it from your WordPress Dashboard, simply take the following steps:
 
-= Register Your Website with UppSite =
+1.	Go to [www.uppsite.com](https://www.uppsite.com/?utm_source=wordpress&utm_medium=newinstructions&utm_campaign=plugin-page&utm_content=installation "https://www.UppSite.com")
+1.	Enter your site’s URL in the URL box on our homepage, and click the Go Mobile Now button
+1.	Follow our 2 minutes, super-easy process to get your apps set up
 
-Note: If you have already registered your website on UppSite.com, you may go directly to Step 5: Install the UppSite plugin on your Wordpress blog.
-
-1. First, go to [UppSite.com](http://www.uppsite.com/?utm_source=wordpress&utm_medium=instructions&utm_campaign=plugin-page "http://www.UppSite.com") 
-1. Enter your website and click on the "Start" button:
-1. Create a new user account by entering your email address and a username of your choice. Your password will be emailed to the email you input, so it is important to enter a correct address. When done, press the "Register" button.
-1. On the next page, you will be offered to download the UppSite plugin file onto your computer.
-   Since you already downloaded it from Wordpress.org, you may skip this part.
-1. = Install the UppSite plugin on your Wordpress blog =
- * In a new browser window, login to
-your blog. The login page should be http://www.EXAMPLE-WEBSITE.com/wp-login.php
- * If you were not redirected automatically to the blog Dashboard, select ‘Dashboard’ from the top menu.
- * Select the ‘Plugins’ option from the menu on the left.
- * Next, select the ‘Add New’ option.
- * Then, select the ‘Upload’ option from the top menu.
- * If a form should appear, please fill it in your relevant FTP account details. If you do not have your FTP account details, please contact your hosting provider and request them. 
- * Choose the plugin file from your computer and press ‘Install Now’.
- * If a special message appears on the top part of your blog Dashboard requesting you to configure the plugin, please follow the instructions attached to this message.
-1. Back on UppSite's website registration process, at the bottom of the plugin download page, now click on the "I'VE SUCCESSFULLY INSTALLED THE PLUGIN, LET'S CONTINUE" button.
-1. On the new page, please fill out the final registration form. The information on this form will produce your mobile apps. Upon completing the form, click "Finish" and then, click on “Create My Apps” when it appears on the pop-up window.
-1. That’s it! Your apps will be created shortly. You will be notified by email when your apps are uploaded to the Application Stores selected on step 7 of this guide.
+Done!
 
 == Frequently Asked Questions ==
 
-= How do I get mobile-apps? =
+<h3>General</h3>
 
-You simply have to register free at [UppSite.com](http://www.uppsite.com/?utm_source=wordpress&utm_medium=faq&utm_campaign=plugin-page "http://www.UppSite.com") and install the UppSite Wordpress plugin (this one).
+= What is UppSite? =
+UppSite is the fastest, easiest and most advanced way to convert your website into a native mobile application, as well as a mobile web application, at just a click of a button. Our platform is 100% automatic, requires zero technical skills and will turn your site into an app in a matter of minutes. UppSite makes no changes to the desktop version of your site, and allows you to keep operating your site and updating your content as usual. Additionally, UppSite provides publishers with tools to better engage and retain their audience on mobile devices, as well as monetize their content via mobile advertising networks. 
 
-= Is it really FREE?! How come? =
+= Can I make money from my app? =
+Yes, all of our users have the ability to make some profit from their applications. Our applications come with a built-in Ads system and users with a basic plan get ad revenues. More advanced plans allow users to integrate their apps with their own ad-networks.
 
-Yes, creating mobile-apps with UppSite.com is free! The mobile-apps created for you are accompanied with small ads shown to your users, which you and UppSite receive revenue over. 
+<h3>Registration and setting-up</h3>
 
-= My blog starts showing XML output since I installed your plugin. Why? =
-You are probably using a cache plugin (such as W3 Total Cache or WP Super Cache), but did not add the exception for: MySiteApp.
-On your blog, please go to the cache plugin settings, from there to "user-agent" settings, and add the word "MySiteApp" (without quotes) to the user-agent exception list.
+= How do I create an UppSite application? =
+Creating an application is as easy as 1-2-3! Simply type-in your website’s URL address on UppSite’s homepage, and we’ll guide you through an extremely short and easy process that will turn your website into a mobile application in less than 2 minutes.
 
-= How much time until I have my own native apps? =
-Once you finish registering for UppSite (and installing our plugin on the way), you will be requested to apply your website for app creation ("Create My Apps" button on final registration step). After that, your website will be subject to our staff review (which usually takes about 2-3 days), making sure that your website qualifies for all the application-stores your requested to appear on (Apple AppStore and Google Market for instance). After approval, you will be notified by email, and your apps will appear on application stores shortly: for Google Market it takes almost immediately upon UppSite approval, whereas in Apple Appstore it might even take a good two weeks (sadly, it does not depend on us). You will also be notified be email upon appearing on the stores. 
+<h3>Customization</h3>
 
-= Why do I need the API key & API secret for UppSite plugin? =
-On your blog's Dashboard, you are able to input API key & API secret to the UppSite plugin settings page. This information allows your blog to send Push Notifications to your app users, once they install your blog.
+= Can I choose my application's <em>splash screen, title or icon</em>? =
+Yes! After creating your application you can change your app's splash screen, title and icon. You can use our editor or upload images of your own. These images can be changed from your Dashboard at any time.
 
-= What happens if I don't supply an API key & API secret? =
-Well, nothing actually happens - and that includes your apps will not provide your users Push Notifications. Everything else will be just find, and you will be able to get free native apps with UppSite even so.
-You should note though, that Push Notifications are a major feature native apps have over web apps. Disabling it by not providing the API key & secret to plugin settings will reduce intraction users have with your blog. 
+= Can I customize the way my app looks like? =
+All of our users have the ability to customize their application. You can change your app's background and display layout. Stay tuned as we will soon release a variety of custom themes that will allow you to entirely change the look & feel of your app. 
+
+= When will these changes take place? =
+Changes made to your website's design will immediately be reflected in your app on the UppSites Portal. On native Android & iOS apps changes will take place on the next version release. A minor version release cycle is usually 2-4 weeks.
+
+= Can I change my app's name? =
+Yes! As long as this name is not being used by any other app on our service, you can change your app's name on the UppSites Portal app.
+
+Please note that if you already have a native app with our service, then the name of your app cannot be changed again as stipulated by the terms and conditions governing Apple’s App Store, Google Play and Windows Marketplace.
+
+<h3>Publishing</h3>
+
+= How much does it cost to create a WebApp and publish my native application on the various stores? =
+Creating a mobile web application and publishing your app on the UppSites Portal app is completely free of charge! Creating a native app with UppSite is also free to anyone with a valid developer account with Google Play, Windows Phone and/or Apple’s iOS.
+
+= How do I upload my application to a store? =
+You don't. We do it for you! All our users are automatically published on the UppSites Portal app. If you have a valid developer account with Google Play, Windows Phone and/or Apple’s iOS, you can opt to submit your apps to the respective stores. All you need to do is simply update your dev account details on our secured dashboard and we'll take it from there!
+
+= Why do I need applications for various devices? =
+Different mobile devices run on different operating systems, that's why a different application is required for each operating system. Apple's iPhone and iPad run on iOS, while many Samsung, HTC, LG and Motorola devices run on Android. In order to reach a large audience, applications must be created for a wide range of devices and, therefore, for different operating systems.
+
+= How soon will my native app be available for download? =
+After we’ve created your app it will be published on the UppSites Portal app immediately.
+In case you’ve entered valid credentials for your Google Android Developer account, Windows Phone Developer account, or iOS Developer account, your app will be submitted to the relevant stores in 1-3 days after approval. Following submission, publication is subject to the stores' processing time, which in most cases is as follows:
+
+* Google Play: Up to 48 hours.
+* Apple App Store: 2-14 business days (sadly, it does not depend on us).
+
+We will notify you via email promptly after your app has been approved and is available in each store.
+
 
 == Screenshots ==
 
-1. Android app showing a blog posts list, by its excerpt.
-2. Android app showing a comment.
-3. Android app showing the share dialog for Twitter, Facebook and Email.
+1. iOS app showing its main page with the newest posts.
+2. iOS app showing a specific post.
+3. iOS app showing post comments.
+4. Android app showing a blog post.
+5. Android app showing the blog's main page.
+6. Sharing options inside the app (Android).
+7. Android app menu.
 
 == Changelog ==
 
-= 4.1 =
-* Allows every plugin in WordPress.com VIP to run before
+= 4.0.3 =
+* Better WebApp interface when accessed from Facebook and Twitter
+
+= 4.0.2 =
+* Fixes few display issues with the webapp
+* Resolved an issue with multiple redirects if a blog had a static page as front page
 
 = 4.0.1 =
 * Added support for "The Attached Image" and "Get The Image" plugins
 * Processing shortcodes inside the post content
+* Integrated the webapp
+* Added selection screen
 
 = 4.0 =
 * Version for WordPress.com VIP
 
+= 3.3.9 =
+* Temporary disabled preferences fetching mechanism, until next version
+
+= 3.3.8 =
+* Added instructions for API Key & Secret insertion
+
+= 3.3.7 =
+* Resolved warnings displayed upon unsuccessful communication with UppSite's service
+
+= 3.3.6 =
+* Fixed issues with "All in One SEO" plugin
+
+= 3.3.5 =
+* Resolved Fatal exception with W3 Total Cache
+
+= 3.3.4 =
+* Resolved problems with the 'WP Super Cache' & 'W3 Total Cache' plugins
+
+= 3.3.3 =
+* Fixed an issue with the new Facebook plugin
+
+= 3.3.2 =
+* Fixed an issue causing the admin login to fail in some cases
+
 = 3.3.1 =
-* Added support for the upcoming mobile applications
+* Fixed login issues when wp-login.php is not accessible
 
 = 3.3 =
 * Added "Basic Facebook Social Plugins" support
 * Added "Zamango Page Navigation" support
-* Fixed login issues when wp-login.php is not accessible
 * Replaced unused report buttons with a 'Download' button for error report on the WP-Admin
 
 

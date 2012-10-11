@@ -2,6 +2,6 @@
 /**
  * 404 - Page not found
  */
-mysiteapp_get_header();
+get_template_part('header');
 ?><error><![CDATA[Sorry, this page does not exist]]></error>
-<?php mysiteapp_get_footer(); ?>
+<?php get_template_part('footer'); ?>
