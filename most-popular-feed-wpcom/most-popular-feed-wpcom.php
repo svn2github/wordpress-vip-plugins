@@ -37,10 +37,10 @@ function mostpopular_feed_query( $args = array() ) {
         $topposts = array();
 
         $topposts = array_shift(stats_get_daily_history(false, $wpdb->blogid, 'postviews', 'post_id', false, $mostpopular_duration, '', 100, true));
-        
+
 		if ( $topposts ) {
 
-            $tpcacheid = md5( "topposts_" . $mostpopular_duration . $wpdb->blogid );
+            $tpcacheid = md5( "topposts_" . $mostpopular_duration . '_' . $wpdb->blogid );
             wp_cache_add( $tpcacheid, $topposts, 'output', $args['cachelife'] );
             
 			foreach ( $topposts as $id => $views ) {
@@ -82,7 +82,7 @@ function mostpopular_max_duration( $my_duration ) {
 
 function mostpopular_order_by_views( $orderby ) {
     global $wpdb,$filtered_post_ids;
-    
+
     if ( !empty( $filtered_post_ids ) ) {
         $posts_order = join( ",", $filtered_post_ids );
         $orderby = "FIELD($wpdb->posts.ID, $posts_order)";
