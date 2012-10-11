@@ -87,6 +87,9 @@ if ( ! function_exists( 'wpcom_vip_set_cdn_url' ) ):
  * @param bool Whether the custom CDN host should be used in the admin context as well.
  */
 function wpcom_vip_load_custom_cdn( $cdn_host_media, $cdn_host_static = '', $include_admin = false ) {
+	if ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED )
+		return;
+
 	if ( ! WPCOM_IS_VIP_ENV )
 		return;
 
