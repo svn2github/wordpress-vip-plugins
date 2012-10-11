@@ -84,6 +84,8 @@ function mostpopular_order_by_views( $orderby ) {
     global $wpdb,$filtered_post_ids;
 
     if ( !empty( $filtered_post_ids ) ) {
+		$filtered_post_ids = array_filter( $filtered_post_ids, 'is_numeric' );
+
         $posts_order = join( ",", $filtered_post_ids );
         $orderby = "FIELD($wpdb->posts.ID, $posts_order)";
     }
