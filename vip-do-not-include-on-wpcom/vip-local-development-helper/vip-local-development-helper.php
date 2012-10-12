@@ -188,6 +188,13 @@ function wpcom_vip_themes_root_uri() {
 }
 
 /**
+ * Returns the non-CDN URI to the specified path. Must be the full path, e.g. dirname( __FILE__ )
+ */
+function wpcom_vip_noncdn_uri( $path ) {
+	return sprintf( '%s/%s', wpcom_vip_themes_root_uri(), str_replace( wpcom_vip_themes_root(), '', $path ) );
+}
+
+/**
  * Filter plugins_url() so that it works for plugins inside the shared VIP plugins directory or a theme directory.
  * Props to the GigaOm dev team for coming up with this method.
  */
