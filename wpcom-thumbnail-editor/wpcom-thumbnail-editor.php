@@ -135,7 +135,7 @@ class WPcom_Thumbnail_Editor {
 
 		// Photon has to be able to access the source images
 		if ( function_exists( 'is_private_blog' ) && is_private_blog() ) {
-			return '<p>' . sprintf( __( "The WordPress.com VIP custom thumbnail cropping functionality doesn't work on sites <a href='%s'>marked as private</a>.", 'wpcom-thumbnail-editor' ), admin_url( 'options-privacy.php' ) ) . '</p>';
+			return '<p>' . sprintf( __( "The WordPress.com VIP custom thumbnail cropping functionality doesn't work on sites <a href='%s'>marked as private</a>.", 'wpcom-thumbnail-editor' ), admin_url( 'options-reading.php' ) ) . '</p>';
 		} elseif ( 'localhost' == $_SERVER['HTTP_HOST'] ) {
 			return '<p>' . __( "The WordPress.com VIP custom thumbnail cropping functionality needs the images be publicly accessible in order to work, which isn't possible when you're developing locally.", 'wpcom-thumbnail-editor' ) . '</p>';
 		}
