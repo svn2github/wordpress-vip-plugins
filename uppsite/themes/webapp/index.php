@@ -6,6 +6,7 @@
         html, body {
             height: 100%;
         }
+
         #appLoadingIndicator {
             position: absolute;
             top: 50%;
@@ -16,9 +17,10 @@
             height: 48px;
             background: url(<?php echo MYSITEAPP_WEBAPP_RESOURCES ?>/uppsite_loading.gif) no-repeat;
         }
+
     </style>
     <script type="text/javascript">
-        var UPPSITE_ROOT_URL = "<?php echo esc_js( get_template_directory_uri() ); ?>/";
+        var UPPSITE_ROOT_URL = "<?php echo esc_js( uppsite_get_webapp_dir_uri() ); ?>/";
         var UPPSITE_BLOG_URL = "<?php echo esc_js( home_url( '/' ) ); ?>";
         var UPPSITE_BLOG_NAME = "<?php echo esc_js( get_bloginfo("name") ); ?>";
         var UPPSITE_ADS = <?php echo mysiteapp_get_ads(); ?>;

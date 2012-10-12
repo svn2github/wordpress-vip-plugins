@@ -195,6 +195,7 @@ class MySiteAppPlugin {
                     // Add functionality of post thumbnails
                     add_theme_support( 'post-thumbnails');
                 }
+                do_action('uppsite_is_running');
             }
         }
     }

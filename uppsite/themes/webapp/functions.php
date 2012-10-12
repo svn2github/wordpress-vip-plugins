@@ -7,13 +7,25 @@ define('UPPSITE_DEFAULT_ANALYTICS_KEY', "BDF2JD6ZXWX69Y9BZQBC");
 
 if (isset($_REQUEST['uppsite_request'])) {
     // Sets a constant containing the request type.
-	define('UPPSITE_AJAX', sanitize_text_field($_REQUEST['uppsite_request']));
+    define('UPPSITE_AJAX', sanitize_text_field($_REQUEST['uppsite_request']));
 
     // If using ajax, don't return the static page (if defined)
     update_option('show_on_front', 'posts');
 
     /** Remove redirect canonical, as it causes multiple redirects during ajax requests */
     remove_filter('template_redirect', 'redirect_canonical');
+}
+
+/**
+ * Helper function to get the non-cdn url for this
+ * @return string   The URL for the webapp directory
+ */
+function uppsite_get_webapp_dir_uri() {
+    if ( function_exists( 'wpcom_vip_noncdn_uri' ) ) {
+        return trailingslashit( wpcom_vip_noncdn_uri( dirname( __FILE__ ) ) );
+    } else {
+        return get_template_directory_uri();
+    }
 }
 
 function uppsite_get_appid() {
@@ -80,17 +92,17 @@ function uppsite_get_comment_member(){
  * @return array
  */
 function uppsite_get_comment() {
-	global $comment;
-	return array(
-		'comment_ID' => get_comment_ID(),
-		'post_id' => get_the_ID(),
-		'isApproved' => $comment->comment_approved == '0' ? "false" : "true",
-		'permalink' => get_permalink(),
-		'comment_date' => get_comment_date( '', 0 ),
-		'unix_time' => get_comment_date( 'U', 0 ),
-		'comment_content' => get_comment_text( 0 ),
-		'comment_author' => uppsite_get_comment_member(get_comment_ID()),
-	);
+    global $comment;
+    return array(
+        'comment_ID' => get_comment_ID(),
+        'post_id' => get_the_ID(),
+        'isApproved' => $comment->comment_approved == '0' ? "false" : "true",
+        'permalink' => get_permalink(),
+        'comment_date' => get_comment_date( '', 0 ),
+        'unix_time' => get_comment_date( 'U', 0 ),
+        'comment_content' => get_comment_text( 0 ),
+        'comment_author' => uppsite_get_comment_member(get_comment_ID()),
+    );
 }
 
 /**
@@ -148,20 +160,20 @@ function uppsite_match($pattern, $subject) {
 function uppsite_process_post($with_content = false) {
     $thumb_url = mysiteapp_extract_thumbnail();
 
-	$ret = array(
-		'id' => get_the_ID(),
-		'permalink' => get_permalink(),
-		'title' => html_entity_decode(get_the_title(), ENT_QUOTES, 'UTF-8'),
-		'member' => uppsite_get_member(),
-		'excerpt' => get_the_excerpt(),
-		'time' => apply_filters('the_time', get_the_time( 'm/d/y G:i' ), 'm/d/y G:i'),
-		'unix_time' => apply_filters('the_time', get_the_time( 'U' ), 'U'),
-		'comments_link' => get_comments_link(),
+    $ret = array(
+        'id' => get_the_ID(),
+        'permalink' => get_permalink(),
+        'title' => html_entity_decode(get_the_title(), ENT_QUOTES, 'UTF-8'),
+        'member' => uppsite_get_member(),
+        'excerpt' => get_the_excerpt(),
+        'time' => apply_filters('the_time', get_the_time( 'm/d/y G:i' ), 'm/d/y G:i'),
+        'unix_time' => apply_filters('the_time', get_the_time( 'U' ), 'U'),
+        'comments_link' => get_comments_link(),
         'comments_num' => get_comments_number(),
         'comments_open' => comments_open(),
-		'tags' => uppsite_posts_list('get_the_tag_list', false),
-		'categories' => uppsite_posts_list('wp_list_categories', false),
-	);
+        'tags' => uppsite_posts_list('get_the_tag_list', false),
+        'categories' => uppsite_posts_list('wp_list_categories', false),
+    );
     if ($with_content || is_null($thumb_url)) {
         ob_start();
         the_content();
@@ -178,14 +190,14 @@ function uppsite_process_post($with_content = false) {
         $ret['content'] = $post_content;
     } else {
         // Trim the title to fit the view
-    	$maxChar = is_null($ret['thumb_url']) ? UPPSITE_MAX_TITLE_LENGTH + 15 : UPPSITE_MAX_TITLE_LENGTH;
-    	$maxChar += (isset($_GET['view']) && $_GET['view'] == "excerpt") ? 0 : -10;
-    	$orgLen = uppsite_strlen($ret['title']);
-	    if ($orgLen > $maxChar) {
+        $maxChar = is_null($ret['thumb_url']) ? UPPSITE_MAX_TITLE_LENGTH + 15 : UPPSITE_MAX_TITLE_LENGTH;
+        $maxChar += (isset($_GET['view']) && $_GET['view'] == "excerpt") ? 0 : -10;
+        $orgLen = uppsite_strlen($ret['title']);
+        if ($orgLen > $maxChar) {
             $matches = uppsite_match("(.{0," . $maxChar . "})\s", $ret['title']);
-	    	$ret['title'] = rtrim($matches[1]);
-	    	$ret['title'] .= (uppsite_strlen($ret['title']) == $orgLen) ? "" : " ..."; // Adding elipssis only if string was actually trimmed (because of regex)
-	    }
+            $ret['title'] = rtrim($matches[1]);
+            $ret['title'] .= (uppsite_strlen($ret['title']) == $orgLen) ? "" : " ..."; // Adding elipssis only if string was actually trimmed (because of regex)
+        }
     }
     return $ret;
 }
@@ -214,14 +226,14 @@ function uppsite_posts_list($funcname, $echo = true) {
  * @return string Template path
  */
 function uppsite_get_webapp_page($template) {
-	if (!defined('UPPSITE_AJAX')) {
-		return $template;
-	}
-	if (function_exists('uppsite_func_' . UPPSITE_AJAX)) {
-		call_user_func('uppsite_func_' . UPPSITE_AJAX);
-		return null;
-	}
-	$page = TEMPLATEPATH . "/" . UPPSITE_AJAX . "-ajax.php";
+    if (!defined('UPPSITE_AJAX')) {
+        return $template;
+    }
+    if (function_exists('uppsite_func_' . UPPSITE_AJAX)) {
+        call_user_func('uppsite_func_' . UPPSITE_AJAX);
+        return null;
+    }
+    $page = TEMPLATEPATH . "/" . UPPSITE_AJAX . "-ajax.php";
     if (!file_exists($page)) {
         $page = TEMPLATEPATH . "/index-ajax.php";
     }
@@ -298,9 +310,9 @@ function uppsite_get_analytics_key() {
 }
 
 function uppsite_get_pref_direction() {
-	$options = get_option(MYSITEAPP_OPTIONS_PREFS);
-	
-	return isset($options['direction']) ? $options['direction'] : 'ltr';
+    $options = get_option(MYSITEAPP_OPTIONS_PREFS);
+
+    return isset($options['direction']) ? $options['direction'] : 'ltr';
 }
 
 /**
@@ -343,3 +355,40 @@ add_filter('login_redirect', 'uppsite_redirect_login', 10, 3);
 
 /** Hook comment redirect **/
 add_filter('comment_post_redirect', 'uppsite_redirect_comment', 10, 3);
+
+/** Fix youtube iframe to flash object on iOS (to be rendered in YouTube app) */
+function uppsite_fix_youtube($content) {
+    $userAgent = $_SERVER['HTTP_USER_AGENT'];
+    if (strpos($userAgent, "iPhone") === false &&
+        strpos($userAgent, "iPad") === false &&
+        strpos($userAgent, "iPod") === false) {
+        return $content;
+    }
+    // Match the iframe pattern, to find
+    if (!preg_match_all("/<iframe[^>]*src=\"[^\"]*youtube.com[^\"]*\"[^>]*>[^<]*<\/iframe>/x", $content, $matches)) {
+        return $content;
+    }
+    foreach ($matches[0] as $iframe) {
+        preg_match_all("/(src|width|height)=(?:\"|')([^\"']+)(?:\"|')/", $iframe, $fields);
+        $vals = array(
+            "height" => "",
+            "width" => "",
+            "src" => ""
+        );
+        $videoId = "";
+        for ($i = 0; $i < count($fields[0]); $i++) {
+            $key = $fields[1][$i];
+            $vals[$key] = $fields[2][$i];
+            if ($key == "src") {
+                $vals[$key] = preg_replace("/([^\?]+)\??(.*)/", "$1", $vals[$key]);
+                preg_match("/\/embed\/(.+)/", $vals[$key], $parts);
+                $vals['videoId'] = $parts[1];
+                $vals[$key] = str_replace("/embed/", "/watch?v=", $vals[$key]);
+            }
+        }
+        $replacement = '<p><img class="uppsite-youtube-video" vid="' . $vals['src'] . '" src="http://i.ytimg.com/vi/' . $vals['videoId'] . '/0.jpg"/><img src="" height="10" width="10"/></p>';
+        $content = str_replace($iframe, $replacement, $content);
+    }
+    return $content;
+}
+add_filter('the_content', 'uppsite_fix_youtube', 100); // Run last

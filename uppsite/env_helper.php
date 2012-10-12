@@ -9,7 +9,7 @@
  * @return bool Is WP.com VIP env
  */
 function mysiteapp_is_wpcom_vip() {
-    return function_exists('wpcom_vip_load_plugin');
+    return function_exists( 'wpcom_vip_load_plugin' ) || function_exists( 'wpcom_is_vip' );
 }
 
 /**
@@ -154,7 +154,26 @@ function uppsite_activated() {
 /** Activation hook */
 register_activation_hook(dirname(__FILE__) . "/uppsite.php", 'uppsite_activated');
 
-if (!mysiteapp_is_wpcom_vip()):
+if (mysiteapp_is_wpcom_vip()):
+    // Fixes for VIP sites
+    /**
+     * Include the functions.php file of the original theme, to run extra code from it.
+     *
+     * @note This must run before the plugin overrides the theme name!
+     */
+    function uppsite_vip_include_original_functions() {
+        $templateDir = get_template_directory();
+        include_once( $templateDir . "/functions.php" );
+
+        // Remove all actions we know that interrupt the behaviour
+        remove_all_filters('after_setup_theme');
+        remove_all_filters('widgets_init');
+        remove_all_filters('get_the_excerpt');
+        remove_all_filters('excerpt_more');
+        remove_all_filters('excerpt_length');
+    }
+    add_action('uppsite_is_running', 'uppsite_vip_include_original_functions');
+else:
     // Fixes for various plugins, only in standalone env.
 
     // SEO Plugins
@@ -224,4 +243,4 @@ if (!mysiteapp_is_wpcom_vip()):
     }
     add_action('admin_init','mysiteapp_fix_cache_plugins',10);
 
-endif; // if (!mysiteapp_is_wpcom_vip()):
+endif; // if (mysiteapp_is_wpcom_vip()):
