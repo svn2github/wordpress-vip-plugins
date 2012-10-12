@@ -4,7 +4,7 @@ Plugin Name: Safe Redirect Manager
 Plugin URI: http://www.10up.com
 Description: Easily and safely manage HTTP redirects.
 Author: Taylor Lovett (10up LLC), VentureBeat
-Version: 1.4-working
+Version: 1.4.1
 Author URI: http://www.10up.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -51,6 +51,7 @@ class SRM_Safe_Redirect_Manager {
 	 * @return object
 	 */
 	public function __construct() {
+		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'init', array( $this, 'action_register_post_types' ) );
 		add_action( 'parse_request', array( $this, 'action_parse_request' ), 0 );
 		add_action( 'after_theme_setup', array( $this, 'action_load_texthost' ) );
@@ -61,7 +62,6 @@ class SRM_Safe_Redirect_Manager {
 		add_filter( 'post_updated_messages', array( $this, 'filter_redirect_updated_messages' ) );
 		add_action( 'admin_notices', array( $this, 'action_redirect_chain_alert' ) );	
 		add_filter( 'the_title', array( $this, 'filter_admin_title' ), 100, 2 );
-		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
 		add_filter( 'bulk_actions-' . 'edit-redirect_rule', array( $this, 'filter_bulk_actions' ) );
 		add_action( 'admin_print_styles-edit.php', array( $this, 'action_print_logo_css' ), 10, 1 );
 		add_action( 'admin_print_styles-post.php', array( $this, 'action_print_logo_css' ), 10, 1 );
@@ -228,6 +228,9 @@ class SRM_Safe_Redirect_Manager {
 		update_post_meta( $post_id, $this->meta_key_redirect_from, $sanitized_redirect_from );
 		update_post_meta( $post_id, $this->meta_key_redirect_to, $sanitized_redirect_to );
 		update_post_meta( $post_id, $this->meta_key_redirect_status_code, $sanitized_status_code );
+		
+		// We need to update the cache after creating this redirect
+		$this->update_redirect_cache();
 		
 		return $post_id;
 	}
@@ -476,6 +479,13 @@ class SRM_Safe_Redirect_Manager {
 			} else {
 				delete_post_meta( $post_id, $this->meta_key_redirect_status_code );
 			}
+			
+			/**
+			 * This fixes an important bug where the redirect cache was not up-to-date. Previously the cache was only being
+			 * updated on transition_post_status which gets called BEFORE save post. But since save_post is where all the important
+			 * redirect info is saved, updating the cache before it is not sufficient.
+			 */
+			$this->update_redirect_cache();
 		}
 	}
 	
@@ -592,8 +602,8 @@ class SRM_Safe_Redirect_Manager {
 	 * @uses load_plugin_textdomain, plugin_basename
 	 * @return void
 	 */
-	public function action_admin_init() {
-		load_plugin_textdomain( 'safe-redirect-manager', false, dirname( plugin_basename( __FILE__ ) ) . '/localization/' );
+	public function action_init() {
+		load_plugin_textdomain( 'safe-redirect-manager', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 	
 	/**
@@ -663,18 +673,30 @@ class SRM_Safe_Redirect_Manager {
 	 * Check current url against redirects
 	 *
 	 * @since 1.0
-	 * @param object $current_request
 	 * @uses esc_url_raw, wp_safe_redirect, untrailingslashit, get_transient, add_filter
 	 * @return void
 	 */
-	public function action_parse_request( $current_request ) {
-		
-			// get requested path and add a / before it
-		$requested_path = '/' . ltrim( trim( $current_request->request ), '/' );
+	public function action_parse_request() {
 		
 		// get redirects from cache or recreate it
 		if ( false === ( $redirects = get_transient( $this->cache_key_redirects ) ) ) {
 			$redirects = $this->update_redirect_cache();
+		}
+		
+		// If we have no redirects, there is no need to continue
+		if ( empty( $redirects ) )
+			return;
+		
+		// get requested path and add a / before it
+		$requested_path = sanitize_text_field( $_SERVER['REQUEST_URI'] );
+		
+		/**
+		 * If WordPress resides in a directory that is not the public root, we have to chop
+		 * the pre-WP path off the requested path.
+		 */
+		$parsed_site_url = parse_url( site_url() );
+		if ( '/' != $parsed_site_url['path'] ) {
+			$requested_path = preg_replace( '@' . $parsed_site_url['path'] . '@i', '', $requested_path, 1 );
 		}
 		
 		foreach ( $redirects as $redirect ) {
@@ -692,7 +714,7 @@ class SRM_Safe_Redirect_Manager {
 			}
 			
 			// check if requested path is the same as the redirect from path
-			$matched_path = ( $requested_path == $redirect_from );
+			$matched_path = ( untrailingslashit( $requested_path ) == $redirect_from );
 			
 			// check if the redirect_from ends in a wildcard
 			if ( !$matched_path && (strrpos( $redirect_from, '*' ) == strlen( $redirect_from ) - 1) ) {
