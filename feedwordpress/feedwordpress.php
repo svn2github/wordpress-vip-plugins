@@ -1336,8 +1336,14 @@ class FeedWordPress {
 	/*static*/ function fetch ($url, $force_feed = true) {
 		$feed = new SimplePie();
 		$feed->set_feed_url($url);
-		$feed->set_cache_class('WP_Feed_Cache');
-		$feed->set_file_class('WP_SimplePie_File');
+                if ( version_compare( SIMPLEPIE_VERSION, '1.3-dev', '>' ) ) {
+                        $feed->set_cache_location( 'wp-transient' );
+                        $feed->registry->register( 'Cache', 'WP_Feed_Cache_Transient' );
+                        $feed->registry->register( 'File', 'FeedWordPress_File' );
+                } else {
+                        $feed->set_cache_class( 'WP_Feed_Cache' );
+                        $feed->set_file_class( 'FeedWordPress_File' );
+                }
 		$feed->set_content_type_sniffer_class('FeedWordPress_Content_Type_Sniffer');
 		$feed->set_file_class('FeedWordPress_File');
 		$feed->force_feed($force_feed);
