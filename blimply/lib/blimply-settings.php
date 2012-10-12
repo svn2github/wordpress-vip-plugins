@@ -31,7 +31,10 @@ class Blimply_Settings {
                 'id' => 'urban_airship',
                 'title' => __( 'Urban Airship Settings', 'blimply' )
             ),
-
+            array(
+                'id' => 'blimply_sounds',
+                'title' => __( 'Push Sounds', 'blimply' )
+            ),            
         );
         return $sections;
     }
@@ -75,8 +78,20 @@ class Blimply_Settings {
                     'std' => __( 'my-blimply', 'blimply' ),
                     'class'=> 'nohtml'
                 ),                
-            ),
+            )
         );
+
+        $tags = get_terms( 'blimply_tags', array( 'hide_empty' => 0 ) );
+        foreach ( (array) $tags as $tag ) {
+            $settings_fields['blimply_sounds'][] = array(
+                'name' => BLIMPLY_PREFIX . '_sound_' . $tag->slug,
+                'label'=> __( 'Sound for tag: ' . $tag->name , 'blimply' ),
+                'desc'=> __( 'You may specify a sound that will accompany your push. Must match filename of a sound bundled in your app. Leave blank for default. Ex: my_sound.caf', 'blimply' ),
+                'type'=> 'text',
+                'std' => __( '', 'blimply' ),
+                'class'=> 'nohtml'
+                );
+        }
 
         return $settings_fields;
     }

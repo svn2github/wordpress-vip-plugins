@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.2.2
+Version: 0.2.3
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.2.2' );
+define( 'BLIMPLY_VERSION', '0.2.3' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
@@ -87,6 +87,7 @@ class Blimply {
 			return;
 
 		$this->options = get_option( 'urban_airship' );
+		$this->sounds = get_option( 'blimply_sounds' );
 		$this->airships[ $this->options['blimply_name'] ] = new Airship( $this->options['blimply_app_key'], $this->options['blimply_app_secret'] );
 		// Pass the reference to convenience var
 		// We don't use multiple Airships yet.
@@ -153,7 +154,7 @@ class Blimply {
 
 		if ( 1 == $_POST['blimply_push'] ) {
 			$alert = !empty( $_POST['blimply_push_alert'] ) ? esc_attr( $_POST['blimply_push_alert'] ) : esc_attr( $_POST['post_title'] );
-			$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'] );
+			$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], get_permalink( $post_id ) );
 			update_post_meta( $post_id, 'blimply_push_sent', true );
 		}
 	}
@@ -179,14 +180,24 @@ class Blimply {
 	 * @param string  $tag
 	 *
 	 */
-	function _send_broadcast_or_push( $alert, $tag ) {
+	function _send_broadcast_or_push( $alert, $tag, $url = false ) {
 		// Strip escape slashes, otherwise double escaping would happen
 		$alert = stripcslashes( $alert );
 		$payload = array( 'aps' => array( 'alert' => $alert, 'badge' => '+1' ) );
+		// Add a URL if any, to be handled by apps
+		if ( $url ) 
+			$payload['aps']['url'] = $url;
+
+
 		if ( $tag === 'broadcast' ) {
 			$response =  $this->request( $this->airship, 'broadcast', $payload );
 		} else {
 			// Adding tags field to payload, no problem.
+			if ( isset( $this->sounds["blimply_sound_{$tag}"] ) && !empty( $this->sounds["blimply_sound_{$tag}"] ) ) 
+				$payload['aps']['sound'] = $this->sounds["blimply_sound_{$tag}"];
+			else
+				$payload['aps']['sound'] = 'default';
+
 			$payload['tags'] = array( $tag );
 			$response = $this->request( $this->airship, 'push', $payload );
 		}
