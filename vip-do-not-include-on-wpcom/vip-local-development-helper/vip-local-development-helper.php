@@ -184,14 +184,17 @@ function wpcom_vip_themes_root() {
  * Returns the non-CDN uri to the VIP themes dir
  */
 function wpcom_vip_themes_root_uri() {
-	return content_url( '/themes/vip' );
+	if ( ! is_admin() )
+		return home_url( '/wp-content/themes/vip' );
+	else
+		return content_url( '/themes/vip' );
 }
 
 /**
  * Returns the non-CDN URI to the specified path. Must be the full path, e.g. dirname( __FILE__ )
  */
 function wpcom_vip_noncdn_uri( $path ) {
-	return sprintf( '%s/%s', wpcom_vip_themes_root_uri(), str_replace( wpcom_vip_themes_root(), '', $path ) );
+	return sprintf( '%s%s', wpcom_vip_themes_root_uri(), str_replace( wpcom_vip_themes_root(), '', $path ) );
 }
 
 /**
