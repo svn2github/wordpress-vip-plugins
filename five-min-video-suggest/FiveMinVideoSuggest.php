@@ -99,6 +99,12 @@ class FiveMinVideoSuggest {
 		add_settings_field( 'aol_videoSuggest_api_name', 'API Name', array( $this, 'settings_api_field_callback' ), 'media', 'aol_videoSuggest_main' );
 
 		add_filter( 'plugin_action_links_' . plugin_basename(__FILE__), array( $this, 'plugin_action_links' ) );
+
+		// doing this on all admin pages because, at least for tc, $allowedpost tags is used on more than just the post editor
+		global $allowedposttags;
+		$new_attributes = array( 'data-product' => array(), 'data-params' => array() );
+		if ( isset( $allowedposttags[ 'img' ] ) && is_array( $allowedposttags[ 'img' ] ) )
+			$allowedposttags[ 'img' ] = array_merge( $allowedposttags[ 'img' ], $new_attributes );
 	}
 
 	function sanitize_options( $input ) {
