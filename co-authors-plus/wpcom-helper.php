@@ -15,6 +15,9 @@ $coauthors_plus_guest_authors_whitelist = array(
 		'vip/time-lifestyle',
 		'vip/healthcommon',
 		'vip/pmc-movieline',
+		'vip/pgoa-ap',
+		'vip/pgoa-relish',
+		'vip/pgoa-spry',
 		'vip/vanguardadvisors',
 	);
 if ( !in_array( get_option( 'stylesheet' ), $coauthors_plus_guest_authors_whitelist ) )
