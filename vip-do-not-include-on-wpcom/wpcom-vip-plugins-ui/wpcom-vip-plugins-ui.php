@@ -153,6 +153,7 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-wpcom',
 			'storify',
 			'daylife',			
+			'five-min-video-suggest',
 
 			// deprecated
 			'livefyre', // use livefyre3 instead
