@@ -654,12 +654,14 @@ class Add_Meta_Tags {
 			}
 		}
 
+		if ( $site_wide_meta ) 
+			$my_metatags .= $this->amt_get_site_wide_metatags($site_wide_meta) . PHP_EOL;
+
 		// WP.com -- allow filtering of the meta tags
 		$my_metatags = apply_filters( 'amt_metatags', $my_metatags );
 
 		if ($my_metatags) {
 			echo $my_metatags . PHP_EOL;
-			echo $this->amt_get_site_wide_metatags($site_wide_meta) . PHP_EOL;
 		}
 	}
 
