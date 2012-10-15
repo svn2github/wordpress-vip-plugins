@@ -76,18 +76,6 @@ function is_bot() {
 	return Jetpack_User_Agent_Info::is_bot();
 }
 
-/*
-  is_ipad() can be used to check the User Agent for an iPad device
-
-  They type can check for any iPad, an iPad using Safari, or an iPad using something other than Safari
-*/
-
-function is_ipad( $type = 'ipad-any' ) {
-	_deprecated_function( __FUNCTION__, 'always', 'Jetpack_User_Agent_Info::is_ipad()' );
-
-	return Jetpack_User_Agent_Info::is_ipad( $type );
-}
-
 class Jetpack_User_Agent_Info {
 
 	var $useragent;
