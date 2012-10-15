@@ -710,7 +710,7 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 	
 	// send all reads to master
 	$srtm_backup = $changed_srtm = false;
-	if ( true <> $wpdb->srtm ) {
+	if ( true <> $wpdb->srtm && is_callable( $wpdb, 'send_reads_to_masters' ) ) {
 		$changed_srtm = true;
 		$srtm_backup = $wpdb->srtm;
 		$wpdb->send_reads_to_masters();
