@@ -70,12 +70,6 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	return $kinds[$kind];
 }
 
-function is_bot() {
-	_deprecated_function( __FUNCTION__, 'always', 'Jetpack_User_Agent_Info::is_bot()' );
-
-	return Jetpack_User_Agent_Info::is_bot();
-}
-
 class Jetpack_User_Agent_Info {
 
 	var $useragent;
