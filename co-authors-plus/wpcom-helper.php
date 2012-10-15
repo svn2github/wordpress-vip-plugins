@@ -12,7 +12,7 @@ $coauthors_plus_guest_authors_whitelist = array(
 		'vip/sc-stylecaster',
 		'vip/sc-vivant',
 		'vip/thoughtcatalog',
-		'vip/time-lifestyle',
+		'vip/lifestyle',
 		'vip/healthcommon',
 		'vip/pmc-movieline',
 		'vip/pgoa-ap',
