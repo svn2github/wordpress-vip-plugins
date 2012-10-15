@@ -6,12 +6,6 @@
  * @hide-in-jetpack
  */
 
-function is_mobile( $kind = 'any', $return_matched_agent = false ) {
-	_deprecated_function( __FUNCTION__, 'always', 'jetpack_is_mobile()' );
-
-	return jetpack_is_mobile( $kind, $return_matched_agent );
-}
-
 function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $kinds = array( 'smart' => false, 'dumb' => false, 'any' => false );
 	static $first_run = true;
