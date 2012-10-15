@@ -3,14 +3,14 @@
  * Plugin Name: WP Google Analytics
  * Plugin URI: http://bluedogwebservices.com/wordpress-plugin/wp-google-analytics/
  * Description: Lets you use <a href="http://analytics.google.com">Google Analytics</a> to track your WordPress site statistics
- * Version: 1.3.1
+ * Version: 1.4.0
  * Author: Aaron D. Campbell
  * Author URI: http://ran.ge/
  * License: GPLv2 or later
  * Text Domain: wp-google-analytics
  */
 
-define('WGA_VERSION', '1.3.1');
+define('WGA_VERSION', '1.4.0');
 
 /*  Copyright 2006  Aaron D. Campbell  (email : wp_plugins@xavisys.com)
 
@@ -55,6 +55,7 @@ class wpGoogleAnalytics {
 		add_action( 'admin_menu',               array( $this, 'admin_menu' ) );
 		add_action( 'get_footer',               array( $this, 'insert_code' ) );
 		add_action( 'wp_enqueue_scripts',       array( $this, 'track_outgoing' ) );
+		add_filter( 'plugin_action_links',      array( $this, 'add_plugin_page_links' ), 10, 2 );
 	}
 
  	/**
@@ -68,7 +69,7 @@ class wpGoogleAnalytics {
 	}
 
 	public function init() {
-		load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		load_plugin_textdomain( 'wp-google-analytics', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 		$this->tokens = array(
 				array(
@@ -524,8 +525,7 @@ class wpGoogleAnalytics {
 	 * If we track outgoing links, this will enqueue our javascript file
 	 */
 	public function track_outgoing() {
-		$wga = $this->_get_options();
-		if ( 'true' == $wga['log_outgoing'] && (!defined('XMLRPC_REQUEST') || !XMLRPC_REQUEST) && ( ! is_admin() || $wga['ignore_admin_area'] == 'false') )
+		if ( 'true' == $this->_get_options( 'log_outgoing' ) && (!defined('XMLRPC_REQUEST') || !XMLRPC_REQUEST) && ( ! is_admin() || 'false' == $this->_get_options( 'ignore_admin_area' ) ) )
 			wp_enqueue_script( 'wp-google-analytics', plugin_dir_url( __FILE__ ) . 'wp-google-analytics.js', array( 'jquery' ), '0.0.3' );
 	}
 
@@ -566,6 +566,14 @@ class wpGoogleAnalytics {
 	 */
 	public function token_the_tags() {
 		return implode( ', ', wp_list_pluck( (array)get_the_tags(), 'name' ) );
+	}
+
+	public function add_plugin_page_links( $links, $file ){
+		if ( plugin_basename( __FILE__ ) == $file ) {
+			$link = '<a href="' . admin_url( 'options-general.php?page=' . self::$page_slug ) . '">' . __( 'Settings', 'wp-google-analytics' ) . '</a>';
+			array_unshift( $links, $link );
+		}
+		return $links;
 	}
 
 }

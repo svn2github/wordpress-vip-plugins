@@ -4,14 +4,24 @@ Lets you use <a href="http://analytics.google.com">Google Analytics</a> to track
 
 ## Description
 
-Lets you use <a href="http://analytics.google.com">Google Analytics</a> to track
-your WordPress site statistics.  It is easily configurable to:
+WP Google Analytics makes it easy to track your site's usage, with lots of
+helpful additional data.
 
-* Not log anything in the admin area
-* Log 404 errors as events
-* Log outgoing links as events
-* Not log any user roles (administrators, editors, authors, etc)
-* Use custom variables
+Features:
+
+* Uses Google's asynchronous tracking method which is faster and more reliable.
+* Automatically tracks site speed
+* Option to log outgoing links as events
+* Option to log 404 errors as events
+* Use custom variables in Google Analytics to track additional data on pageviews including:
+	* Author
+	* Categories
+	* Tags
+	* Context (such as home, category, post, author, etc)
+	* Date
+	* Logged in
+	* Anything - Use the built-in filter to add your own!
+* Allows you to ignore any user roles (administrators, editors, authors, etc)
 
 ## Installation
 
@@ -41,8 +51,18 @@ site, it is often nice to have your own activities ignored, track 404s, searches
 and even where users go when they leave your site.  WP Google Analytics lets you
 easily do all these things.
 
+**What tokens are support for custom variables?**
+
+All the built-in tokens are described on the settings page.  You can also add
+your own using the 'wga_tokens' filter.
 
 ## Changelog
+
+### 1.4.1
+* Fix undefined index notice for users upgrading from pre-1.3.0
+
+### 1.4.0
+* Support for tokens in custom variables
 
 ### 1.3.1
 * Fixed custom variables not being tracked
