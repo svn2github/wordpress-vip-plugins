@@ -58,7 +58,7 @@ function get_the_image( $args = array() ) {
 	/* Set the default arguments. */
 	$defaults = array(
 		'meta_key' => array( 'Thumbnail', 'thumbnail' ),
-		'post_id' => $post->ID,
+		'post_id' => isset($post->ID) ? $post->ID : 0,
 		'attachment' => true,
 		'the_post_thumbnail' => true, // WP 2.9+ image function
 		'size' => 'thumbnail',
@@ -83,6 +83,10 @@ function get_the_image( $args = array() ) {
 
 	/* Merge the input arguments and the defaults. */
 	$args = wp_parse_args( $args, $defaults );
+	
+	if( empty($args['post_id']) ) {
+		return false;
+	}
 
 	/* If $default_size is given, overwrite $size. */
 	if ( !is_null( $args['default_size'] ) )
