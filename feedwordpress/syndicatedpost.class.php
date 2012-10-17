@@ -296,7 +296,17 @@ class SyndicatedPost {
 			if (isset($this->feedmeta['tags']) and is_array($this->feedmeta['tags'])) :
 				$this->post['tags_input'] = array_merge($this->post['tags_input'], $this->feedmeta['tags']);
 			endif;
+
 			$this->post['tags_input'] = apply_filters('syndicated_item_tags', $this->post['tags_input'], $this);
+
+			// debug start
+			if ( 'm.si.com' == parse_url( home_url(), PHP_URL_HOST ) ) {
+				$debug_no_tax_after = empty( $this->post['tax_input']['league'] );
+				if ( $debug_no_tax_after )
+					xmpp_message( 'batmoo@im.wordpress.com', sprintf( "No league tax found for post #%s (%s)", $this->post['guid'], $this->link->uri() ) );
+			}
+			// debug end
+
 		endif;
 	} /* SyndicatedPost::SyndicatedPost() */
 
