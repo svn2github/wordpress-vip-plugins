@@ -313,7 +313,6 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 
 * Allow columns to be optional when creating and editing ad codes, introduced new filter acm_ad_code_args
 * Remove acm_provider_columns filter
-* Fix for Google Adsense
 
 = 0.2.2 (June 5, 2012) =
 * New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
