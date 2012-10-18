@@ -1005,7 +1005,7 @@ class SyndicatedPost {
 				}
 				else {
 					$post_id = $post->ID;
-					$stored_update_hashes = get_post_custom_values('syndication_item_hash', $post_id);
+					$stored_update_hashes = $this->get_uncached_post_meta( $post_id, 'syndication_item_hash' );
 					if (count($stored_update_hashes) > 0) :
 						$stored_update_hash = $stored_update_hashes[0];
 						$update_hash_changed = ($stored_update_hash != $this->update_hash());
@@ -1018,7 +1018,7 @@ class SyndicatedPost {
 					$last_rev_ts = gmmktime($backref[4], $backref[5], $backref[6], $backref[2], $backref[3], $backref[1]);
 					$updated_ts = $this->updated(/*fallback=*/ true, /*default=*/ NULL);
 
-					$frozen_values = get_post_custom_values('_syndication_freeze_updates', $post_id);
+					$frozen_values = $this->get_uncached_post_meta( $post_id, '_syndication_freeze_updates' );
 					$frozen_post = (count($frozen_values) > 0 and 'yes' == $frozen_values[0]);
 					$frozen_feed = ('yes' == $this->link->setting('freeze updates', 'freeze_updates', NULL));
 
@@ -1580,6 +1580,13 @@ class SyndicatedPost {
 		endswitch;
 		return $ret;		
 	} // function SyndicatedPost::use_api ()
+
+	function get_uncached_post_meta( $post_id, $meta_key, $single = false ) {
+		if ( function_exists( 'wpcom_uncached_get_post_meta' ) )
+			return wpcom_uncached_get_post_meta( $post_id, $meta_key, $single );
+		else
+			return get_post_meta( $post_id, $meta_key, $single );
+	}
 
 } /* class SyndicatedPost */
 
