@@ -1,5 +1,10 @@
 <?php
 /**
+ * Ensure Edit Flow is instantiated
+ */
+add_action( 'after_setup_theme', 'EditFlow' );
+
+/**
  * Don't load caps on install for WP.com. Instead, let's add
  * them with the WP.com + core caps approach
  */
