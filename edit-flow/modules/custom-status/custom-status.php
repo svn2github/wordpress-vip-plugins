@@ -53,7 +53,6 @@ class EF_Custom_Status extends EF_Module {
 				'status-position-updated' => __( "Status order updated.", 'edit-flow' ),
 			),					
 			'autoload' => false,
-			'load_frontend' => true, // Load on the frontend so that previewing posts with custom statuses works
 			'settings_help_tab' => array(
 				'id' => 'ef-custom-status-overview',
 				'title' => __('Overview', 'edit-flow'),
@@ -61,7 +60,7 @@ class EF_Custom_Status extends EF_Module {
 				),
 			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/custom-statuses/">Custom Status Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
-		$this->module = $edit_flow->register_module( 'custom_status', $args );		
+		$this->module = EditFlow()->register_module( 'custom_status', $args );		
 		
 	}
 		
@@ -112,26 +111,13 @@ class EF_Custom_Status extends EF_Module {
 	 */
 	function install() {
 			
-		$default_terms = array( 
-			array(
-				'term' => __( 'Draft', 'edit-flow' ),
-				'args' => array(
-					'slug' => 'draft',
-					'description' => __( 'Post is a draft; not ready for review or publication.', 'edit-flow' ),
-				),
-			),
-			array(
-				'term' => __( 'Pending Review' ),
-				'args' => array(
-					'slug' => 'pending',
-					'description' => __( 'Post needs to be reviewed by an editor.', 'edit-flow' ),
-				),
-			),
+		$default_terms = array(
 			array( 
 				'term' => __( 'Pitch', 'edit-flow' ),
 				'args' => array(
 					'slug' => 'pitch',
 					'description' => __( 'Idea proposed; waiting for acceptance.', 'edit-flow' ),
+					'position' => 1,
 				),
 			),
 			array(
@@ -139,6 +125,7 @@ class EF_Custom_Status extends EF_Module {
 				'args' => array(
 					'slug' => 'assigned',
 					'description' => __( 'Post idea assigned to writer.', 'edit-flow' ),
+					'position' => 2,
 				),
 			),
 			array(
@@ -146,8 +133,25 @@ class EF_Custom_Status extends EF_Module {
 				'args' => array(
 					'slug' => 'in-progress',
 					'description' => __( 'Writer is working on the post.', 'edit-flow' ),
+					'position' => 3,
 				),
 			), 
+			array(
+				'term' => __( 'Draft', 'edit-flow' ),
+				'args' => array(
+					'slug' => 'draft',
+					'description' => __( 'Post is a draft; not ready for review or publication.', 'edit-flow' ),
+					'position' => 4,
+				),
+			),
+			array(
+				'term' => __( 'Pending Review' ),
+				'args' => array(
+					'slug' => 'pending',
+					'description' => __( 'Post needs to be reviewed by an editor.', 'edit-flow' ),
+					'position' => 5,
+				),
+			),
 		);
 
 		// Okay, now add the default statuses to the db if they don't already exist 
@@ -182,6 +186,11 @@ class EF_Custom_Status extends EF_Module {
 
 			// Technically we've run this code before so we don't want to auto-install new data
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
+		}
+		// Upgrade path to v0.7.4
+		if ( version_compare( $previous_version, '0.7.4', '<' ) ) {
+			// Custom status descriptions become base64_encoded, instead of maybe json_encoded.
+			$this->upgrade_074_term_descriptions( self::taxonomy_key );
 		}
 		
 	}
@@ -393,8 +402,10 @@ class EF_Custom_Status extends EF_Module {
 	 * @return array|WP_Error $response The Term ID and Term Taxonomy ID
 	 */
 	function add_custom_status( $term, $args = array() ) {
-		// Don't reallly need to encode the description here because our helper method handles plain strings
-		$response = wp_insert_term( $term, self::taxonomy_key, $args );
+		$slug = ( ! empty( $args['slug'] ) ) ? $args['slug'] : sanitize_title( $term );
+		unset( $args['slug'] );
+		$encoded_description = $this->get_encoded_description( $args );
+		$response = wp_insert_term( $term, self::taxonomy_key, array( 'slug' => $slug, 'description' => $encoded_description ) );
 		return $response;
 		
 	}

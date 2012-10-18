@@ -66,7 +66,7 @@ class EF_User_Groups extends EF_Module {
 				),
 			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/user-groups/">User Groups Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
-		$this->module = $edit_flow->register_module( 'user_groups', $args );
+		$this->module = EditFlow()->register_module( 'user_groups', $args );
 		
 	}
 	
@@ -190,7 +190,12 @@ class EF_User_Groups extends EF_Module {
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
 
 		}
-		
+		// Upgrade path to v0.7.4
+		if ( version_compare( $previous_version, '0.7.4', '<' ) ) {
+			// Usergroup descriptions become base64_encoded, instead of maybe json_encoded.
+			$this->upgrade_074_term_descriptions( self::taxonomy_key );
+		}
+
 	}
 	
 	/**

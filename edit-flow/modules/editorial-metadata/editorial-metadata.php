@@ -68,9 +68,7 @@ class EF_Editorial_Metadata extends EF_Module {
 				),
 			'settings_help_sidebar' => __( '<p><strong>For more information:</strong></p><p><a href="http://editflow.org/features/editorial-metadata/">Editorial Metadata Documentation</a></p><p><a href="http://wordpress.org/tags/edit-flow?forum_id=10">Edit Flow Forum</a></p><p><a href="https://github.com/danielbachhuber/Edit-Flow">Edit Flow on Github</a></p>', 'edit-flow' ),
 		);
-		$edit_flow->register_module( $this->module_name, $args );		
-		
-		
+		EditFlow()->register_module( $this->module_name, $args );
 	}
 	
 	/**
@@ -174,6 +172,11 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( version_compare( $previous_version, '0.7' , '<' ) ) {
 			// Technically we've run this code before so we don't want to auto-install new data
 			$edit_flow->update_module_option( $this->module->name, 'loaded_once', true );
+		}
+		// Upgrade path to v0.7.4
+		if ( version_compare( $previous_version, '0.7.4', '<' ) ) {
+			// Editorial metadata descriptions become base64_encoded, instead of maybe json_encoded.
+			$this->upgrade_074_term_descriptions( self::metadata_taxonomy );
 		}
 		
 	}
@@ -594,7 +597,6 @@ class EF_Editorial_Metadata extends EF_Module {
 	 */
 	function get_editorial_metadata_term_by( $field, $value ) {
 
-		
 		$term = get_term_by( $field, $value, self::metadata_taxonomy );
 		if ( ! $term || is_wp_error( $term ) )
 			return $term;

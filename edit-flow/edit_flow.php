@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.7.4-working
+Version: 0.7.4-alpha1
 Author URI: http://editflow.org/
 
 Copyright 2009-2012 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.7.4-working' );
+define( 'EDIT_FLOW_VERSION' , '0.7.4-alpha1' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
@@ -42,29 +42,51 @@ class edit_flow {
 	var $options_group_name = 'edit_flow_options';
 
 	/**
-	 * Constructor
+	 * @var EditFlow The one true EditFlow
 	 */
-	function __construct() {
-		
-		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+	private static $instance;
 
-		$this->modules = (object)array();
+	/**
+	 * Main EditFlow Instance
+	 *
+	 * Insures that only one instance of EditFlow exists in memory at any one
+	 * time. Also prevents needing to define globals all over the place.
+	 *
+	 * @since EditFlow 0.7.4
+	 * @staticvar array $instance
+	 * @uses EditFlow::setup_globals() Setup the globals needed
+	 * @uses EditFlow::includes() Include the required files
+	 * @uses EditFlow::setup_actions() Setup the hooks and actions
+	 * @see EditFlow()
+	 * @return The one true EditFlow
+	 */
+	public static function instance() {
+		if ( ! isset( self::$instance ) ) {
+			self::$instance = new edit_flow;
+			self::$instance->setup_globals();
+			self::$instance->load_modules();
+			self::$instance->setup_actions();
+			// Backwards compat for when we promoted use of the $edit_flow global
+			global $edit_flow;
+			$edit_flow = self::$instance;
+		}
+		return self::$instance;
+	}
 
-		// Load all of our modules. 'ef_loaded' happens after 'plugins_loaded' so other plugins can
-		// hook into the action we have at the end
-		add_action( 'ef_loaded', array( $this, 'action_ef_loaded_load_modules' ) );
-		
-		// Load the module options later on, and offer a function to happen way after init
-		add_action( 'init', array( $this, 'action_init' ) );
-		add_action( 'init', array( $this, 'action_init_after' ), 1000 );
-		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
-		
+	private function __construct() {
+		/** Do nothing **/
+	}
+
+	private function setup_globals() {
+
+		$this->modules = new stdClass();
+
 	}
 
 	/**
 	 * Include the common resources to Edit Flow and dynamically load the modules
 	 */
-	function action_ef_loaded_load_modules() {
+	private function load_modules() {
 
 		// We use the WP_List_Table API for some of the table gen
 		if ( !class_exists( 'WP_List_Table' ) )
@@ -112,12 +134,30 @@ class edit_flow {
 		do_action( 'ef_modules_loaded' );
 		
 	}
-	
+
+	/**
+	 * Setup the default hooks and actions
+	 *
+	 * @since EditFlow 0.7.4
+	 * @access private
+	 * @uses add_action() To add various actions
+	 */
+	private function setup_actions() {
+		add_action( 'init', array( $this, 'action_init' ) );
+		add_action( 'init', array( $this, 'action_init_after' ), 1000 );
+
+		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
+
+		do_action_ref_array( 'editflow_after_setup_actions', array( &$this ) );
+	}
+
 	/**
 	 * Inititalizes the Edit Flows!
 	 * Loads options for each registered module and then initializes it if it's active
 	 */
 	function action_init() {
+
+		load_plugin_textdomain( 'edit-flow', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		
 		// Load all of the module options
 		$this->load_module_options();
@@ -130,7 +170,7 @@ class edit_flow {
 		
 		do_action( 'ef_init' );
 	}
-	
+
 	/**
 	 * Initialize the plugin for the admin 
 	 */
@@ -186,12 +226,11 @@ class edit_flow {
 			'messages' => array(
 				'settings-updated' => __( 'Settings updated.', 'edit-flow' ),
 				'form-error' => __( 'Please correct your form errors below and try again.', 'edit-flow' ),
-				'nonce-failed' => __( 'Cheatin&#8217; uh?' ),
-				'invalid-permissions' => __( 'You do not have necessary permissions to complete this action.' ),
+				'nonce-failed' => __( 'Cheatin&#8217; uh?', 'edit-flow' ),
+				'invalid-permissions' => __( 'You do not have necessary permissions to complete this action.', 'edit-flow' ),
 				'missing-post' => __( 'Post does not exist', 'edit-flow' ),
 			),
 			'autoload' => false, // autoloading a module will remove the ability to enable or disable it
-			'load_frontend' => false, // Whether or not the module should be loaded on the frontend too
 		);
 		if ( isset( $args['messages'] ) )
 			$args['messages'] = array_merge( (array)$args['messages'], $defaults['messages'] );
@@ -217,11 +256,9 @@ class edit_flow {
 	 * If a given option isn't yet set, then set it to the module's default (upgrades, etc.)
 	 */
 	function load_module_options() {
+
 		foreach ( $this->modules as $mod_name => $mod_data ) {
-			// Don't load modules on the frontend unless they're explictly defined as such
-			if ( !is_admin() && !$mod_data->load_frontend )
-				continue;
-			
+
 			$this->modules->$mod_name->options = get_option( $this->options_group . $mod_name . '_options' );
 			foreach ( $mod_data->default_options as $default_key => $default_value ) {
 				if ( !isset( $this->modules->$mod_name->options->$default_key ) )
@@ -243,9 +280,6 @@ class edit_flow {
 	 */
 	function action_init_after() {
 		foreach ( $this->modules as $mod_name => $mod_data ) {
-			// Don't load modules on the frontend unless they're explictly defined as such
-			if ( !is_admin() && !$mod_data->load_frontend )
-				continue;
 
 			if ( isset( $this->modules->$mod_name->options->post_types ) )
 				$this->modules->$mod_name->options->post_types = $this->helpers->clean_post_type_options( $this->modules->$mod_name->options->post_types, $mod_data->post_type_support );	
@@ -308,17 +342,7 @@ class edit_flow {
 
 }
 
-// Create new instance of the edit_flow object
-global $edit_flow;
-$edit_flow = new edit_flow();
-
-/**
- * ef_loaded()
- * Allow dependent plugins and core actions to attach themselves in a safe way
- */
-function ef_loaded() {
-	do_action( 'ef_loaded' );
+function EditFlow() {
+	return edit_flow::instance();
 }
-add_action( 'plugins_loaded', 'ef_loaded', 20 );
-
-?>
+add_action( 'plugins_loaded', 'EditFlow' );
