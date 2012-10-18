@@ -63,11 +63,11 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 	 */
 	public function __construct() {
 		parent::__construct( array(
-			'singular'=> 'google_adsense_acm_wp_list_table',
-			'plural' => 'google_adsense_acm_wp_list_table',
-			'ajax'	=> true
-		) );
-	 }
+				'singular'=> 'google_adsense_acm_wp_list_table',
+				'plural' => 'google_adsense_acm_wp_list_table',
+				'ajax' => true
+			) );
+	}
 
 	/**
 	 * Specify table columns
@@ -82,14 +82,13 @@ class Google_AdSense_ACM_WP_List_Table extends ACM_WP_List_Table {
 			'priority'       => __( 'Priority', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
-
-		return apply_filters( 'acm_list_table_columns', $columns );
+		return parent::get_columns( $columns );
 	}
 
 	/**
 	 * Output ad slot in table
 	 *
-	 * @param array $item
+	 * @param array   $item
 	 * @uses esc_html, this::row_actions_output
 	 * @return string
 	 */
