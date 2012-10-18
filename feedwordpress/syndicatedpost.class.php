@@ -1114,12 +1114,6 @@ class SyndicatedPost {
 			endif;
 		endif;
 
-		if ( 'm.si.com' == parse_url( home_url(), PHP_URL_HOST )
-			&& false !== strpos( $this->link->uri(), 'mlb.si.com' )
-			) {
-			xmpp_message( 'batmoo@im.wordpress.com', sprintf( "Post %s; freshness: %s; current user: %s; ", $this->post['guid'], $freshness, var_export( wp_get_current_user(), true ) ) );
-		}
-
 		if (!$this->filtered() and $freshness > 0) :
 			unset($this->post['named']);
 			$this->post = apply_filters('syndicated_post', $this->post, $this);
