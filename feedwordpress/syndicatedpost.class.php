@@ -299,14 +299,6 @@ class SyndicatedPost {
 
 			$this->post['tags_input'] = apply_filters('syndicated_item_tags', $this->post['tags_input'], $this);
 
-			// debug start
-			if ( 'm.si.com' == parse_url( home_url(), PHP_URL_HOST ) ) {
-				$debug_no_tax_after = empty( $this->post['tax_input']['league'] );
-				if ( $debug_no_tax_after )
-					xmpp_message( 'batmoo@im.wordpress.com', sprintf( "No league tax found for post #%s (%s)", $this->post['guid'], $this->link->uri() ) );
-			}
-			// debug end
-
 		endif;
 	} /* SyndicatedPost::SyndicatedPost() */
 
@@ -1121,7 +1113,13 @@ class SyndicatedPost {
 				endif;
 			endif;
 		endif;
-		
+
+		if ( 'm.si.com' == parse_url( home_url(), PHP_URL_HOST )
+			&& false !== strpos( $this->link->uri(), 'mlb.si.com' )
+			) {
+			xmpp_message( 'batmoo@im.wordpress.com', sprintf( "Post %s; freshness: %s; filtered: %s", $this->post['guid'], $freshness, $this->filtered() ) );
+		}
+
 		if (!$this->filtered() and $freshness > 0) :
 			unset($this->post['named']);
 			$this->post = apply_filters('syndicated_post', $this->post, $this);
