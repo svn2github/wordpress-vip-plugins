@@ -19,6 +19,7 @@ $coauthors_plus_guest_authors_whitelist = array(
 		'vip/pgoa-relish',
 		'vip/pgoa-spry',
 		'vip/vanguardadvisors',
+		'vip/boygeniusreport',
 	);
 if ( !in_array( get_option( 'stylesheet' ), $coauthors_plus_guest_authors_whitelist ) )
 	add_filter( 'coauthors_guest_authors_enabled', '__return_false' );
