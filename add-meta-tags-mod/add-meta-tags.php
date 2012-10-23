@@ -523,12 +523,12 @@ class Add_Meta_Tags {
 					/*
 					  If there is a custom field, use it
 					*/
-					$my_metatags .= "\n<meta name=\"description\" content=\"" . $this->amt_clean_desc( $mt_seo_description ) . "\" />";
+					$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc( $mt_seo_description ) ) . "\" />";
 				} elseif ( is_single() ) {
 					/*
 					  Else, use the post's excerpt. Only for Single Post View (not valid for Pages)
 					*/
-					$my_metatags .= "\n<meta name=\"description\" content=\"" . $this->amt_clean_desc( $this->amt_get_the_excerpt() ) . "\" />";
+					$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc( $this->amt_get_the_excerpt() ) ) . "\" />";
 				}
 			}
 			/*
@@ -578,19 +578,17 @@ class Add_Meta_Tags {
 									$mt_seo_keywords = str_replace("%tags%", $this->amt_get_post_tags(), $mt_seo_keywords);
 								}
 						}
-						$my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower($mt_seo_keywords) . "\" />";
+						$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( strtolower($mt_seo_keywords) ) . "\" />";
 					} elseif ( is_single() ) {
 						/*
 						  Add keywords automatically.
 						  Keywords consist of the post's categories and the post's tags (tags exist in WordPress 2.3 or newer).
 						  Only for Single Post View (not valid for Pages)
 						*/
-						$my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower( $this->amt_get_keywords_from_post_cats() );
+						$post_keywords = strtolower( $this->amt_get_keywords_from_post_cats() );
 						$post_tags = strtolower( $this->amt_get_post_tags() );
-						if ( $post_tags ) {
-							$my_metatags .= ", " . $post_tags;
-						}
-						$my_metatags .= "\" />";
+
+						$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( $post_keywords .', '. $post_tags ) .'" />';
 					}
 				}
 			}
@@ -612,12 +610,12 @@ class Add_Meta_Tags {
 				/*
 				If $site_description is empty, then use the blog description from the options
 				*/
-				$my_metatags .= "\n<meta name=\"description\" content=\"" . $this->amt_clean_desc(get_bloginfo('description')) . "\" />";
+				$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc(get_bloginfo('description')) ) . "\" />";
 			} else {
 				/*
 				If $site_description has been set, then use it in the description meta-tag
 				*/
-				$my_metatags .= "\n<meta name=\"description\" content=\"" . $this->amt_clean_desc($site_description) . "\" />";
+				$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc($site_description) ) . "\" />";
 			}
 			/*
 			Keywords
@@ -626,12 +624,12 @@ class Add_Meta_Tags {
 				/*
 				If $site_keywords is empty, then all the blog's categories are added as keywords
 				*/
-				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . $this->amt_get_all_categories() . "\" />";
+				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( $this->amt_get_all_categories() ) . "\" />";
 			} else {
 				/*
 				If $site_keywords has been set, then these keywords are used.
 				*/
-				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . $site_keywords . "\" />";
+				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( $site_keywords ) . "\" />";
 			}
 
 
@@ -642,7 +640,7 @@ class Add_Meta_Tags {
 
 			$cur_cat_desc = category_description();
 			if ( $cur_cat_desc ) {
-				$my_metatags .= "\n<meta name=\"description\" content=\"" . $this->amt_clean_desc($cur_cat_desc) . "\" />";
+				$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc($cur_cat_desc) ) . "\" />";
 			}
 			
 			/*
@@ -650,7 +648,7 @@ class Add_Meta_Tags {
 			*/
 			$cur_cat_name = single_cat_title($prefix = '', $display = false );
 			if ( $cur_cat_name ) {
-				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . strtolower($cur_cat_name) . "\" />";
+				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( strtolower($cur_cat_name) ) . "\" />";
 			}
 		}
 
