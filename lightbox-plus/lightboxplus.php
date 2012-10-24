@@ -134,7 +134,6 @@ if (!class_exists('wp_lightboxplus')) {
 		$lightboxPlusJavaScript = "";
 		$lightboxPlusJavaScript .= '<script type="text/javascript">'.$this->endLine();
 		$lightboxPlusJavaScript .= 'jQuery(function($){'.$this->endLine();
-		$lightboxPlusJavaScript .= '  $(document).ready(function(){'.$this->endLine();
 		$lightboxPlusJavaScript .= '  $.fn.colorbox.settings.transition = "'.$transition.'";'.$this->endLine();
 		$lightboxPlusJavaScript .= '  $.fn.colorbox.settings.speed = '.$speed.';'.$this->endLine();
 		$lightboxPlusJavaScript .= '  $.fn.colorbox.settings.maxWidth = "'.$maxWidth.'";'.$this->endLine();
@@ -159,7 +158,6 @@ if (!class_exists('wp_lightboxplus')) {
 			$lightboxPlusJavaScript .= '  $("a[rel*=\'lightbox\']").colorbox();'.$this->endLine();
 		}
 
-		$lightboxPlusJavaScript .= '  });'.$this->endLine();
 		$lightboxPlusJavaScript .= '});'.$this->endLine();
 		$lightboxPlusJavaScript .= '</script>'.$this->endLine();
     
