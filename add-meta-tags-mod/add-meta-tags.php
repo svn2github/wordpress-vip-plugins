@@ -56,6 +56,7 @@ class Add_Meta_Tags {
 			'mt_seo_title' => array( __( 'Title (optional) :', 'add-meta-tags' ), 'text', __( 'The text entered here will alter the &lt;title&gt; tag using the wp_title() function. Use <code>%title%</code> to include the original title or leave empty to keep original title. i.e.) altered title <code>%title%</code>', 'add-meta-tags' ) ),
 			'mt_seo_description' => array( __( 'Description (optional) :', 'add-meta-tags' ), 'textarea', __( 'This text will be used as description meta information. Left empty a description is automatically generated i.e.) an other description text', 'add-meta-tags' ) ),
 			'mt_seo_keywords' => array( __( 'Keywords (optional) :', 'add-meta-tags' ), 'text', __( 'Provide a comma-delimited list of keywords for your blog. Leave it empty to use the post\'s keywords for the "keywords" meta tag. When overriding the post\'s keywords, the tag <code>%cats%</code> can be used to insert the post\'s categories, add the tag <code>%tags%</code>, to include the post\'s tags i.e.) keyword1, keyword2,%tags% %cats%', 'add-meta-tags' ) ),
+			'mt_seo_google_news_meta' => array( __( 'Google News Keywords (optional) :', 'add-meta-tags' ), 'text', __( 'Provide a comma-delimited list of keywords for your blog. You can add up to ten phrases for a given article, and all keywords are given equal value.', 'add-meta-tags' ) ),
 			'mt_seo_meta' => array( __( 'Additional Meta tags (optional) :', 'add-meta-tags' ), 'textarea', __( 'Provide the full XHTML code of META tags you would like to be included in this post/page. i.e.) &lt;meta name="robots" content="index,follow" /&gt;', 'add-meta-tags' ) ),
 		);
 	}
@@ -156,9 +157,9 @@ class Add_Meta_Tags {
 		
 		// good defaults is the hallmark of good software
 		if ( !is_array( $post_options ) )
-			$post_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
+			$post_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true, 'mt_seo_google_news_meta' => true );
 		if ( !is_array( $page_options ) )
-			$page_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
+			$page_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true, 'mt_seo_google_news_meta' => true );
 		if ( ! is_array( $custom_post_types ) )
 			$custom_post_types = array();
 		
@@ -249,6 +250,7 @@ class Add_Meta_Tags {
 			' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_description]" value="true" ' . ( ( $post_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> , 
 			' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_keywords]" value="true" ' . ( ( $post_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> , 
 			' . __( 'Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_meta]" value="true" ' . ( ( $post_options["mt_seo_meta"] ) ? 'checked="checked"' : '' ) . ' />
+			' . __( 'Google News Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_google_news_meta]" value="true" ' . ( ( $post_options["mt_seo_google_news_meta"] ) ? 'checked="checked"' : '' ) . ' />
 			</p>
 
 			<p><strong>' . __('Enable for the following post types:', 'add-meta-tags') . '</strong>
@@ -271,6 +273,7 @@ class Add_Meta_Tags {
 			' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_description]" value="true" ' . ( ( $page_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> , 
 			' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_keywords]" value="true" ' . ( ( $page_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> , 
 			' . __( 'Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_meta]" value="true" ' . ( ( $page_options["mt_seo_meta"] ) ? 'checked="checked"' : '' ) . ' />
+			' . __( 'Google News Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_google_news_meta]" value="true" ' . ( ( $page_options["mt_seo_google_news_meta"] ) ? 'checked="checked"' : '' ) . ' />
 			</p>
 			<p class="submit">
 				<input type="submit" name="info_update" value="'.__('Update Options', 'add-meta-tags').' &raquo;" />
@@ -481,7 +484,7 @@ class Add_Meta_Tags {
 		}
 
 		if ( !is_array( $cmpvalues ) )
-			$cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
+			$cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true, 'mt_seo_google_news_meta' => true );
 
 		$cmpvalues = $this->amt_clean_array( $cmpvalues );
 		$my_metatags = "";
@@ -494,7 +497,6 @@ class Add_Meta_Tags {
 			/*
 			Add META tags to Single Page View or Page
 			*/
-
 			foreach( (array) $this->mt_seo_fields as $field_name => $field_data )  {
 				${$field_name} = (string) get_post_meta( $posts[0]->ID, $field_name, true );
 
@@ -541,6 +543,17 @@ class Add_Meta_Tags {
 				*/
 				$my_metatags .= "\n" . $mt_seo_meta;
 			}
+			/*
+			Google News Meta
+			Custom post field "mt-seo-google-news-meta" adds additional meta tags
+			*/
+			if ( !empty($mt_seo_google_news_meta) && true == $cmpvalues['mt_seo_google_news_meta'] ) {
+				/*
+				If there is a custom field, use it
+				*/
+				$my_metatags .= '<meta name="news_keywords" content="' . esc_attr( $mt_seo_google_news_meta ) . '" />';
+			}
+
 
 
 			/*
@@ -700,7 +713,7 @@ class Add_Meta_Tags {
 			$cmpvalues = $options['post_options'];
 
 		if ( !is_array( $cmpvalues ) )
-			$cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
+			$cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true, 'mt_seo_google_news_meta' => true );
 
 		$cmpvalues = $this->amt_clean_array( $cmpvalues );
 
