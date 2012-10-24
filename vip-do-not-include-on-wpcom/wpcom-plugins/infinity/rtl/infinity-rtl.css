@@ -1,3 +1,5 @@
+/* This file was automatically generated on Oct 10 2012 16:57:21 */
+
 /* =Infinity Styles
 -------------------------------------------------------------- */
 
@@ -30,7 +32,7 @@
 	font-weight: bold;
 	height: 14px;
 	line-height: 10px;
-	margin-right: 10px;
+	margin-left: 10px;
 	width: 14px;
 }
 #infinite-handle span:hover:before {
@@ -56,7 +58,7 @@
 #infinite-footer {
 	position: fixed;
 		bottom: -50px;
-		left: 0;
+		right: 0;
 	width: 100%;
 }
 #infinite-footer a {
@@ -71,7 +73,7 @@
 	background: rgba( 255, 255, 255, 0.8 );
 	border-color: #ccc;
 	border-color: rgba( 0, 0, 0, 0.2 );
-	border-radius: 2px 2px 0 0;
+	border-radius: 2px 0 0 2px;
 	border-style: solid;
 	border-width: 1px 1px 0 1px;
 	margin: 0 auto;
@@ -87,16 +89,16 @@
 	line-height: 25px;
 }
 #infinite-footer .blog-info {
-	float: left;
+	float: right;
 	overflow: hidden;
-	text-align: left;
+	text-align: right;
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	width: 40%;
 }
 #infinite-footer .blog-credits {
 	font-weight: normal;
-	float: right;
+	float: left;
 	width: 60%;
 }
 #infinite-footer .blog-info a {
@@ -107,7 +109,7 @@
 #infinite-footer .blog-credits {
 	color: #888;
 	font-size: 12px;
-	text-align: right;
+	text-align: left;
 }
 #infinite-footer .blog-credits a {
 	color: #666;
