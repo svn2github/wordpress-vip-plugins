@@ -591,16 +591,6 @@ function wpcom_vip_enable_likes() {
 }
 
 /**
- * Disables the OnSwipe theme for mobile browsers.
- * OnSwipe can also be disabled from the WordPress admin. This can function
- * automate disabling OnSwipe on a theme by theme basis, and will override the value
- * in the WordPress admin.
- */
- function wpcom_vip_disable_onswipe() {
- 	add_filter( 'onswipe_is_disabled', '__return_true' );
- }
-
-/**
  * Sets the default for subscribe to comments to off
  */
 function wpcom_vip_disable_default_subscribe_to_comments() {
