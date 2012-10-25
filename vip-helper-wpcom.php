@@ -600,6 +600,14 @@ function wpcom_vip_enable_likes() {
  	add_filter( 'onswipe_is_disabled', '__return_true' );
  }
 
+ /**
+  * Whether or not the OnSwipe/PadPressed theme is active for a site
+  * Active means the OnSwipe theme is loaded on the current pageview
+  */
+function wpcom_vip_is_onswipe_active() {
+	return defined( 'PADPRESS_IS_ACTIVE' ) && true === PADPRESS_IS_ACTIVE;
+}
+
 /**
  * Sets the default for subscribe to comments to off
  */
