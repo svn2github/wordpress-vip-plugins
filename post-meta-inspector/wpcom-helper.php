@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Ignore Akismet keys as they're not relevant
  */
