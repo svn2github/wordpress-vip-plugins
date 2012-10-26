@@ -26,11 +26,6 @@ class WPcom_VIP_Plugins_UI {
 	const MENU_SLUG = 'wpcom-vip-plugins';
 
 	/**
-	 * @var string Parent menu's slug.
-	 */
-	var $parent_menu_slug = 'vip-dashboard';
-
-	/**
 	 * @var string Action: Plugin activation.
 	 */
 	const ACTION_PLUGIN_ACTIVATE = 'wpcom-vip-plugins_activate';
@@ -51,9 +46,14 @@ class WPcom_VIP_Plugins_UI {
 	public $plugin_folder;
 
 	/**
-	 * @var string Required capability to access this plugin's features.
+	 * @var string Required capability to access this plugin's features. Use the "wpcom_vip_plugins_ui_capability" filter to change this.
 	 */
-	public $capability;
+	public $capability = 'manage_options';
+
+	/**
+	 * @var string Parent menu's slug. Use the "wpcom_vip_plugins_ui_parent_menu_slug" filter to change this.
+	 */
+	public $parent_menu_slug = 'vip-dashboard';
 
 	/**
 	 * @var string The $hook_suffix value for the menu page.
@@ -128,14 +128,10 @@ class WPcom_VIP_Plugins_UI {
 	private function setup_globals() {
 		$this->plugin_folder = WP_CONTENT_DIR . '/themes/vip/plugins';
 
-		// Allow people to customize what capability is required in order to view this menu
-		$this->capability = apply_filters( 'wpcom_vip_plugins_ui_capability', 'manage_options' );
-
 		// Allow people to change the positioning of the menu
 		// Default for localhost should be under plugins.php
-		if ( !$this->is_wpcom_vip() )
+		if ( ! $this->is_wpcom_vip() )
 			$this->parent_menu_slug = 'plugins.php';
-		$this->parent_menu_slug = apply_filters( 'wpcom_vip_plugins_ui_parent_menu_slug', $this->parent_menu_slug );
 
 		$this->hidden_plugins = array(
 			'vip-do-not-include-on-wpcom', // Local dev helper
@@ -152,13 +148,12 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
 			'storify',
-			'daylife',			
+			'daylife',
 			'five-min-video-suggest',
 
 			// deprecated
 			'livefyre', // use livefyre3 instead
 		);
-		$this->hidden_plugins = apply_filters( 'wpcom_vip_plugins_ui_hidden_plugins', $this->hidden_plugins );
 
 		$this->fpp_plugins = array(
 			'chartbeat'     => array(
@@ -197,15 +192,38 @@ class WPcom_VIP_Plugins_UI {
 	}
 
 	/**
-	 * Set up the plugin's various hooks.
+	 * Set up the plugin's various early hooks.
 	 *
 	 * @access private
+	 * @uses add_option() To register an option
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
 		add_option( self::OPTION_ACTIVE_PLUGINS, array() );
 
 		add_action( 'plugins_loaded', array( $this, 'include_active_plugins' ), 0 );
+
+		add_action( 'init', array( $this, 'action_init' ) );
+	}
+
+	/** Public Hook Callback Methods ******************************************/
+
+	/**
+	 * Now that we've given the theme time to register its own filters, 
+	 * set up the rest of the plugin's hooks and run some filters.
+	 *
+	 * @uses add_action() To add various actions
+	 */
+	public function action_init() {
+		// Allow people to customize what capability is required in order to view this menu
+		$this->capability       = apply_filters( 'wpcom_vip_plugins_ui_capability',       $this->capability );
+
+		// Controls where this menu is added
+		$this->parent_menu_slug = apply_filters( 'wpcom_vip_plugins_ui_parent_menu_slug', $this->parent_menu_slug );
+
+		// Allows hiding of certain plugins from the UI
+		$this->hidden_plugins   = apply_filters( 'wpcom_vip_plugins_ui_hidden_plugins',   $this->hidden_plugins );
+
 
 		add_action( 'admin_menu', array( $this, 'action_admin_menu_add_menu_item' ) );
 
@@ -215,12 +233,8 @@ class WPcom_VIP_Plugins_UI {
 		add_action( 'admin_post_' . self::ACTION_PLUGIN_DEACTIVATE, array( $this, 'action_admin_post_plugin_deactivate' ) );
 	}
 
-	/** Public Hook Callback Methods ******************************************/
-
 	/**
 	 * Includes any active plugin files that are enabled via the UI/option.
-	 *
-	 * @access private
 	 */
 	public function include_active_plugins() {
 		foreach ( $this->get_active_plugins_option() as $plugin ) {
