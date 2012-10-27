@@ -62,7 +62,7 @@ function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = 
 
 		if ( ! empty( $related_posts ) ) {
 			$related_output .= '<ul>';
-			foreach( $results as $result ) {
+			foreach( $related_posts as $result ) {
 				$related_output .= '<li><a href="' . esc_url( $result['url'] ) . '">'. esc_html( $result['title'] ) . '</a></li>';
 			}
 			$related_output .= '</ul>';
