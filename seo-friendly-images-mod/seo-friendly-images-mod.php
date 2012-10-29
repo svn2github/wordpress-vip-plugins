@@ -191,7 +191,8 @@ function seo_friendly_images_process($matches) {
 		$cats=get_the_category();
 		if (!in_array('title=', $pieces)) {
 			$titletext_rep=str_replace("%title", $post->post_title, $titletext_rep);
-			$titletext_rep=str_replace("%name", $source[0], $titletext_rep);
+			if ( isset( $source[0] ) )
+				$titletext_rep=str_replace("%name", $source[0], $titletext_rep);
 			$titletext_rep=str_replace("%category", $cats[0]->slug, $titletext_rep);
 			
 		
@@ -208,7 +209,8 @@ function seo_friendly_images_process($matches) {
 		}
 		if (!in_array('alt=', $pieces) ) {
 			$alttext_rep=str_replace("%title", $post->post_title, $alttext_rep);
-			$alttext_rep=str_replace("%name", $source[0], $alttext_rep);
+			if ( isset( $source[0] ) )
+				$alttext_rep=str_replace("%name", $source[0], $alttext_rep);
 			$alttext_rep=str_replace("%category", $cats[0]->slug, $alttext_rep);
 			
 			$alttext_rep=str_replace("\"", "", $alttext_rep);
