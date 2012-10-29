@@ -53,10 +53,12 @@
 			document.getElementById(disqus_container_id).innerHTML = '';
 		})
 		config.callbacks.onReady.push(function() {
+/*
 			// sync comments in the background so we don't block the page
 			var req = new XMLHttpRequest();
 			req.open('GET', '?cf_action=sync_comments&post_id=<?php echo $post->ID; ?>', true);
 			req.send(null);
+*/
 		});
 		
 		<?php do_action('disqus_config_js'); // call action for custom Disqus config js ?>
