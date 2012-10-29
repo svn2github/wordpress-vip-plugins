@@ -29,7 +29,11 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 
 		$columns = $this->get_columns();
 		$hidden = array();
-		$sortable = array();
+		$sortable = array(
+				'display_name'       => array( 'display_name', 'ASC' ),
+				'first_name'         => array( 'first_name', 'ASC' ),
+				'last_name'          => array( 'last_name', 'ASC' ),
+			);
 		$this->_column_headers = array( $columns, $hidden, $sortable );
 
 		$paged = ( isset( $_REQUEST['paged'] ) ) ? intval( $_REQUEST['paged'] ) : 1;
@@ -40,9 +44,25 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 				'posts_per_page' => $per_page,
 				'post_type'      => $coauthors_plus->guest_authors->post_type,
 				'post_status'    => 'any',
-				'orderby'        => 'post_title',
+				'orderby'        => 'title',
 				'order'          => 'ASC',
 			);
+
+		if ( isset( $_REQUEST['orderby'] ) ) {
+			switch( $_REQUEST['orderby'] ) {
+				case 'display_name':
+					$args['orderby'] = 'title';
+					break;
+				case 'first_name':
+				case 'last_name':
+					$args['orderby'] = 'meta_value';
+					$args['meta_key'] = $coauthors_plus->guest_authors->get_post_meta_key( $_REQUEST['orderby'] );
+					break;
+			}
+		}
+		if ( isset( $_REQUEST['order'] ) && in_array( strtoupper( $_REQUEST['order'] ), array( 'ASC', 'DESC' ) ) ) {
+			$args['order'] = strtoupper( $_REQUEST['order'] );
+		}
 
 		$this->filters = array(
 				'show-all'                => __( 'Show all', 'co-authors-plus' ),
@@ -114,6 +134,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 				'last_name'      => __( 'Last Name', 'co-authors-plus' ),
 				'user_email'     => __( 'E-mail', 'co-authors-plus' ),
 				'linked_account' => __( 'Linked Account', 'co-authors-plus' ),
+				'posts'          => __( 'Posts', 'co-authors-plus' ),
 			);
 		return $columns;
 	}
@@ -187,6 +208,17 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 			}
 		}
 		return '';
+	}
+
+	/**
+	 * Render the published post count column
+	 */
+	function column_posts( $item ) {
+		global $coauthors_plus;
+		$term = $coauthors_plus->get_author_term( $item );
+		if ( ! $term )
+			return '';
+		return '<a href="' . esc_url( add_query_arg( 'author_name', $item->user_login, admin_url( 'edit.php' ) ) ) . '">' . $term->count . '</a>';
 	}
 
 	/**

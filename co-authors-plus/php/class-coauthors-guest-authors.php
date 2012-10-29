@@ -199,18 +199,17 @@ class CoAuthors_Guest_Authors
 			wp_die( __( "Guest author can't be deleted because it doesn't exist.", 'co-authors-plus' ) );
 
 		// Perform the reassignment if needed
+		$guest_author_term = $coauthors_plus->get_author_term( $guest_author );
 		switch( $_POST['reassign'] ) {
 			// Leave assigned to the current linked account
 			case 'leave-assigned':
-				$guest_author_term = get_term_by( 'slug', $guest_author->user_login, $coauthors_plus->coauthor_taxonomy );
-				$linked_account_term = get_term_by( 'slug', $guest_author->linked_account, $coauthors_plus->coauthor_taxonomy );
+				$linked_account_term = $coauthors_plus->get_author_term( get_user_by( 'login', $guest_author->linked_account ) );
 				// If they aren't the same, delete the guest author term and reassign those to the linked account term
 				if ( $guest_author_term->term_id != $linked_account_term->term_id )
 					wp_delete_term( $guest_author_term->term_id, $coauthors_plus->coauthor_taxonomy, array( 'default' => $linked_account_term->term_id, 'force_default' => true ) );
 				break;
 			// Remove the byline, but don't delete the post
 			case 'remove-byline':
-				$guest_author_term = get_term_by( 'slug', $guest_author->user_login, $coauthors_plus->coauthor_taxonomy );
 				wp_delete_term( $guest_author_term->term_id, $coauthors_plus->coauthor_taxonomy );
 				break;
 			default:
@@ -278,6 +277,7 @@ class CoAuthors_Guest_Authors
 		// Enqueue our guest author CSS on the related pages
 		if ( $this->parent_page == $pagenow && isset( $_GET['page'] ) && $_GET['page'] == 'view-guest-authors' ) {
 			wp_enqueue_style( 'guest-authors-css', COAUTHORS_PLUS_URL . 'css/guest-authors.css', false, COAUTHORS_PLUS_VERSION );
+			wp_enqueue_script( 'guest-authors-js', COAUTHORS_PLUS_URL . 'js/guest-authors.js', false, COAUTHORS_PLUS_VERSION );
 		}
 	}
 
@@ -332,16 +332,16 @@ class CoAuthors_Guest_Authors
 			// Leave mapped to a linked account
 			if ( get_user_by( 'login', $guest_author->linked_account ) ) {
 				echo '<li><label for="leave-assigned">';
-				echo '<input type="radio" id="leave-assigned" name="reassign" value="leave-assigned" /> ' . sprintf( __( 'Leave posts assigned to the mapped user, %s.', 'co-authors-plus' ), $guest_author->linked_account );
+				echo '<input type="radio" id="leave-assigned" class="reassign-option" name="reassign" value="leave-assigned" />&nbsp;&nbsp;' . sprintf( __( 'Leave posts assigned to the mapped user, %s.', 'co-authors-plus' ), $guest_author->linked_account );
 				echo '</label></li>';
 			}
 			// Remove bylines from the posts
 			echo '<li><label for="remove-byline">';
-			echo '<input type="radio" id="remove-byline" name="reassign" value="remove-byline" /> ' . __( 'Remove byline from posts (but leave each post in its current status).', 'co-authors-plus' );
+			echo '<input type="radio" id="remove-byline" class="reassign-option" name="reassign" value="remove-byline" />&nbsp;&nbsp;' . __( 'Remove byline from posts (but leave each post in its current status).', 'co-authors-plus' );
 			echo '</label></li>';
 			// @todo Reassign to another user
 			echo '</ul></fieldset>';
-			submit_button( __( 'Confirm Deletion', 'co-authors-plus' ) );
+			submit_button( __( 'Confirm Deletion', 'co-authors-plus' ), 'secondary', 'submit', true, array( 'disabled' => 'disabled' ) );
 			echo '</form>';
 			echo '</div>';
 		} else {
@@ -541,28 +541,10 @@ class CoAuthors_Guest_Authors
 			update_post_meta( $post_id, $key, $value );
 		}
 
-		// Ensure there's a proper 'author' term for this coauthor
-		$author_slug = get_post_meta( $post->ID, $this->get_post_meta_key( 'user_login' ), true );
-		if ( empty( $author_slug ) && isset( $temp_slug ) )
-			$author_slug = $temp_slug;
-		if( !term_exists( $author_slug, $coauthors_plus->coauthor_taxonomy ) ) {
-			$args = array( 'slug' => $author_slug );
-			wp_insert_term( $author_slug, $coauthors_plus->coauthor_taxonomy, $args );
-		}
+		$author = $this->get_guest_author_by( 'ID', $post_id );
+		$author_term = $coauthors_plus->update_author_term( $author );
 		// Add the author as a post term
-		wp_set_post_terms( $post_id, array( $author_slug ), $coauthors_plus->coauthor_taxonomy, false );
-
-		// Update the taxonomy term to include details about the user for searching
-		$search_values = array();
-		$guest_author = $this->get_guest_author_by( 'id', $post_id );
-		$term = get_term_by( 'slug', $guest_author->user_login, $coauthors_plus->coauthor_taxonomy );
-		foreach( $coauthors_plus->ajax_search_fields as $search_field ) {
-			$search_values[] = $guest_author->$search_field;
-		}
-		$args = array(
-				'description' => implode( ' ', $search_values ),
-			);
-		wp_update_term( $term->term_id, $coauthors_plus->coauthor_taxonomy, $args );
+		wp_set_post_terms( $post_id, array( $author_term->slug ), $coauthors_plus->coauthor_taxonomy, false );
 	}
 
 	/**
@@ -574,6 +556,7 @@ class CoAuthors_Guest_Authors
 		global $wpdb;
 
 		switch( $key ) {
+			case 'ID':
 			case 'id':
 				$query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID=%d", $value );
 				$post_id = $wpdb->get_var( $query );
@@ -591,7 +574,8 @@ class CoAuthors_Guest_Authors
 			case 'login':
 			case 'user_login':
 			case 'linked_account':
-				if ( 'login' == $key )
+			case 'user_nicename':
+				if ( 'login' == $key || 'user_nicename' == $key )
 					$key = 'user_login';
 				$query = $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s AND meta_value=%s;", $this->get_post_meta_key( $key ), $value );
 				$post_id = $wpdb->get_var( $query );
@@ -624,7 +608,7 @@ class CoAuthors_Guest_Authors
 		$guest_author['user_login'] = urldecode( $guest_author['user_login'] );
 
 		// Hack to model the WP_User object
-		$guest_author['user_nicename'] = $guest_author['user_login'];
+		$guest_author['user_nicename'] = sanitize_title( $guest_author['user_login'] );
 		$guest_author['type'] = 'guest-author';
 		return (object)$guest_author;
 	}
@@ -773,66 +757,42 @@ class CoAuthors_Guest_Authors
 		}
 
 		// Make sure the author term exists and that we're assigning it to this post type
-		$coauthors_plus->refresh_coauthor_term( $args['user_login'] );
-		wp_set_post_terms( $post_id, array( $args['user_login'] ), $coauthors_plus->coauthor_taxonomy, false );
+		$author_term = $coauthors_plus->update_author_term( $this->get_guest_author_by( 'ID', $post_id ) );
+		wp_set_post_terms( $post_id, array( $author_term->slug ), $coauthors_plus->coauthor_taxonomy, false );
 
 		return $post_id;
 	}
 
 	/**
 	 * Create a guest author from an existing WordPress user
+	 *
+	 * @since 0.7
+	 *
+	 * @param int $user_id ID for a WordPress user
+	 * @return int|WP_Error $retval ID for the new guest author on success, WP_Error on failure
 	 */
 	function create_guest_author_from_user_id( $user_id ) {
-		global $coauthors_plus;
 
 		$user = get_user_by( 'id', $user_id );
-		if ( !$user )
+		if ( ! $user )
 			return new WP_Error( 'invalid-user', __( 'No user exists with that ID', 'co-authors-plus' ) );
 
-		$post_name = $this->get_post_meta_key( $user->user_login );
-		if ( $this->get_guest_author_by( 'post_name', $post_name ) )
-			return new WP_Error( 'profile-exists', __( "Profile already exists for {$user->user_login}", 'co-authors-plus' ) );
-
-		// Create the user as a new guest
-		$new_post = array(
-				'post_title' => $user->display_name,
-				'post_name' => $post_name,
-				'post_type' => $this->post_type,
-			);
-		$post_id = wp_insert_post( $new_post, true );
-		if ( is_wp_error( $post_id ) )
-			return $post_id;
-
-		$fields = $this->get_guest_author_fields();
-		foreach( $fields as $field ) {
+		$guest_author = array();
+		foreach( $this->get_guest_author_fields() as $field ) {
 			$key = $field['key'];
-			$pm_key = $this->get_post_meta_key( $field['key'] );
-			update_post_meta( $post_id, $pm_key, $user->$key );
+			if ( ! empty( $user->$key ) )
+				$guest_author[$key] = $user->$key;
 		}
-
-		// Ensure there's an 'author' term for this user/guest author
-		if( !term_exists( $user->user_login, $coauthors_plus->coauthor_taxonomy ) ) {
-			$args = array(
-				'slug' => $user->user_login
-			);
-			wp_insert_term( $user->user_login, $coauthors_plus->coauthor_taxonomy, $args );
-		}
-		// Add the author as a post term
-		wp_set_post_terms( $post_id, array( $user->user_login ), $coauthors_plus->coauthor_taxonomy, false );
-
-		// Update the taxonomy term to include details about the user for searching
-		$search_values = array();
-		$guest_author = $this->get_guest_author_by( 'id', $post_id );
-		$term = get_term_by( 'slug', $user->user_login, $coauthors_plus->coauthor_taxonomy );
-		foreach( $coauthors_plus->ajax_search_fields as $search_field ) {
-			$search_values[] = $guest_author->$search_field;
-		}
-		$args = array(
-				'description' => implode( ' ', $search_values ),
-			);
-		wp_update_term( $term->term_id, $coauthors_plus->coauthor_taxonomy, $args );
-
-		return $post_id;
+		// Don't need the old user ID
+		unset( $guest_author['ID'] );
+		// Retain the user mapping and try to produce an unique user_login based on the name.
+		$guest_author['linked_account'] = $guest_author['user_login'];
+		if ( $guest_author['display_name'] != $guest_author['user_login'] )
+			$guest_author['user_login'] = sanitize_title( $guest_author['display_name'] );
+		else
+			$guest_author['user_login'] = sanitize_title( $guest_author['first_name'] . ' ' . $guest_author['last_name'] );
+		$retval = $this->create( $guest_author );
+		return $retval;
 	}
 
 	/**
@@ -850,7 +810,7 @@ class CoAuthors_Guest_Authors
 		$new_actions = array();
 		if ( $guest_author = $this->get_guest_author_by( 'linked_account', $user_object->user_login ) ) {
 			$edit_guest_author_link = get_edit_post_link( $guest_author->ID );
-			$new_actions['edit-guest-author'] = '<a href="' . esc_url( $edit_guest_author_link ) . '">' . __( 'Edit CA+ Profile', 'co-authors-plus' ) . '</a>';
+			$new_actions['edit-guest-author'] = '<a href="' . esc_url( $edit_guest_author_link ) . '">' . __( 'Edit Profile', 'co-authors-plus' ) . '</a>';
 		} else {
 			$query_args = array(
 					'action' => 'cap-create-guest-author',
@@ -858,7 +818,7 @@ class CoAuthors_Guest_Authors
 					'nonce' => wp_create_nonce( 'create-guest-author' ),
 				);
 			$create_guest_author_link = add_query_arg( $query_args, admin_url( $this->parent_page ) );
-			$new_actions['create-guest-author'] = '<a href="' . esc_url( $create_guest_author_link ) . '">' . __( 'Create CA+ Profile', 'co-authors-plus' ) . '</a>';
+			$new_actions['create-guest-author'] = '<a href="' . esc_url( $create_guest_author_link ) . '">' . __( 'Create Profile', 'co-authors-plus' ) . '</a>';
 		}
 
 		return $new_actions + $actions;
