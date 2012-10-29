@@ -1123,19 +1123,28 @@ class coauthors_plus {
 		$coauthor_slug = 'cap-' . $coauthor->user_nicename;
 		if ( $term = get_term_by( 'slug', $coauthor_slug, $this->coauthor_taxonomy ) ) {
 			wp_update_term( $term->term_id, $this->coauthor_taxonomy, array( 'description' => $term_description ) );
+			$new_term_id = $term->term_id;
 		} else {
 			$args = array(
 				'slug'          => $coauthor_slug,
 				'description'   => $term_description,
 			);
 			$new_term = wp_insert_term( $coauthor->user_login, $this->coauthor_taxonomy, $args );
-			// Migrate the old term if there was one
-			if ( $old_term = get_term_by( 'slug', $coauthor->user_nicename, $this->coauthor_taxonomy ) ) {
+			$new_term_id = $new_term['term_id'];
+		}
+		// Migrate the old term if there was one
+		if ( $old_term = get_term_by( 'slug', $coauthor->user_nicename, $this->coauthor_taxonomy ) ) {
+			if ( $old_term->count < 10 ) {
 				$args = array(
-						'default' => $new_term['term_id'],
+						'default' => $new_term_id,
 						'force_default' => true,
 					);
 				wp_delete_term( $old_term->term_id, $this->coauthor_taxonomy, $args );
+			} else {
+				if ( false === wp_cache_get( 'coauthors-plus-debug-' . $coauthor->user_nicename ) ) {
+					wp_mail( 'daniel@a8c.com', '[' . site_url() . '] ' . $coauthor->user_nicename . ' has too many posts for the term to be deleted', var_export( $old_term, true ) );
+					wp_cache_set( 'coauthors-plus-debug-' . $coauthor->user_nicename, 'apple' );
+				}
 			}
 		}
 		wp_cache_delete( 'author-term-' . $coauthor->user_nicename, 'co-authors-plus' );
