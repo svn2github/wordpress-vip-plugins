@@ -541,7 +541,7 @@ function vip_refresh_random_posts_all_ids() {
 	else 
 		$where_add = $vip_get_random_post_ids_where_add;
 
-	$all_ids_query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE 1 $where_add" );
+	$all_ids_query = "SELECT ID FROM $wpdb->posts WHERE 1 $where_add";
 	$all_ids_query = apply_filters( 'vip_get_random_posts_all_ids_query', $all_ids_query );
 	$all_ids = $wpdb->get_results( $all_ids_query );
 	if ( empty( $all_ids ) || is_wp_error( $all_ids ) ) 
