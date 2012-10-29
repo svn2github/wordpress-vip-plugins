@@ -2569,7 +2569,7 @@ Author URI: http://intensedebate.com
 		// Get comments with post=0
 		$offset = 0;
 		// Using direct queries because get_comments() doesn't give access to post_ID=0, or date ranges
-		while ( $comments = $wpdb->get_col( $wpdb->prepare( "SELECT `comment_ID` FROM {$wpdb->comments} WHERE `comment_post_ID` = 0 AND `comment_date_gmt` BETWEEN '2010-07-16 00:00:00' AND '2010-07-23 00:00:00' LIMIT $offset, 50" ) ) ) {
+		while ( $comments = $wpdb->get_col( $wpdb->prepare( "SELECT `comment_ID` FROM {$wpdb->comments} WHERE `comment_post_ID` = 0 AND `comment_date_gmt` BETWEEN '2010-07-16 00:00:00' AND '2010-07-23 00:00:00' LIMIT %d, 50", $offset ) ) ) {
 			foreach ( $comments as $comment ) {
 				// Check date
 				wp_delete_comment( $comment, true );
