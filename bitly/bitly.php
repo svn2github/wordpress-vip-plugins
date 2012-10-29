@@ -231,8 +231,7 @@ function bitly_process_posts() {
 	global $wpdb;
 	
 	// get 100 published posts that don't have a bitly url
-	$query = $wpdb->prepare(
-		"
+	$query = "
 		SELECT $wpdb->posts.ID
 		FROM $wpdb->posts
 		WHERE NOT EXISTS (
@@ -246,8 +245,7 @@ function bitly_process_posts() {
 		GROUP BY $wpdb->posts.ID
 		ORDER BY $wpdb->posts.post_date DESC
 		LIMIT 0, 100
-		"
-	);
+	";
 	
 	$posts = $wpdb->get_results( $query );
 	
