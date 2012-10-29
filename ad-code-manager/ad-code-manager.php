@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Rinat Khaziev, Jeremy Felt, Daniel Bachhuber, Automattic, doejo
-Version: 0.3
+Version: 0.3.1-working
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.3' );
+define( 'AD_CODE_MANAGER_VERSION', '0.3.1-working' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -907,6 +907,12 @@ class Ad_Code_Manager {
 		foreach ( (array)$output_tokens as $token => $val ) {
 			$output_html = str_replace( $token, $val, $output_html );
 		}
+
+		/**
+		 * Configuration filter: acm_output_html_after_tokens_processed
+		 * In some rare cases you might want to filter html after the tokens are processed
+		 */
+		$output_html = apply_filters( 'acm_output_html_after_tokens_processed', $output_html, $tag_id );
 
 		// Print the ad code
 		echo $output_html;
