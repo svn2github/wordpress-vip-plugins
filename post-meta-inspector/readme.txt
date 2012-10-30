@@ -16,9 +16,13 @@ Originally developed for [WordPress.com VIP](http://vip.wordpress.com/)-hosted c
 
 == Screenshots ==
 
-1. See which rewrite rules match a given URL (and the priorites they match in)
+1. See the metadata associated with any post using the post meta box
 
-== Changelog == 
+== Changelog ==
+
+= 1.1 (??? ??, 2012) =
+= New filter 'pmi_toggle_long_value_length' let's you optionally convert long post meta values to a "Click to view" UX. Thanks [cfg](https://github.com/cfg) for the pull request
+= Bug fix: Add CSS rules to prevent long code blocks from flowing outside of the meta box. Thanks [cfg](https://github.com/cfg) for the pull request
 
 = 1.0 (Oct. 5, 2012) =
 * Initial release
