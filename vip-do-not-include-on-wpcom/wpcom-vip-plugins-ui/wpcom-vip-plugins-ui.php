@@ -153,6 +153,7 @@ class WPcom_VIP_Plugins_UI {
 
 			// deprecated
 			'livefyre', // use livefyre3 instead
+			'feedwordpress', // breaks all the time
 		);
 
 		$this->fpp_plugins = array(
