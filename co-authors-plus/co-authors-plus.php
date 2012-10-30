@@ -1140,12 +1140,13 @@ class coauthors_plus {
 						'force_default' => true,
 					);
 				wp_delete_term( $old_term->term_id, $this->coauthor_taxonomy, $args );
-			} else {
-				if ( false === wp_cache_get( 'coauthors-plus-debug-' . $coauthor->user_nicename ) ) {
-					wp_mail( 'daniel@a8c.com', '[' . site_url() . '] ' . $coauthor->user_nicename . ' has too many posts for the term to be deleted', var_export( $old_term, true ) );
-					wp_cache_set( 'coauthors-plus-debug-' . $coauthor->user_nicename, 'apple' );
-				}
 			}
+			// else {
+			// 	if ( false === wp_cache_get( 'coauthors-plus-debug-' . $coauthor->user_nicename ) ) {
+			// 		wp_mail( 'daniel@a8c.com', '[' . site_url() . '] ' . $coauthor->user_nicename . ' has too many posts for the term to be deleted', var_export( $old_term, true ) );
+			// 		wp_cache_set( 'coauthors-plus-debug-' . $coauthor->user_nicename, 'apple' );
+			// 	}
+			// }
 		}
 		wp_cache_delete( 'author-term-' . $coauthor->user_nicename, 'co-authors-plus' );
 		return get_term_by( 'slug', $coauthor_slug, $this->coauthor_taxonomy );
