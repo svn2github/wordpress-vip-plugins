@@ -393,11 +393,15 @@ class CoAuthors_Guest_Authors
 
 		// Taken from grist_authors.
 		$linked_account_key = $this->get_post_meta_key( 'linked_account' );
-		$linked_account = get_user_by( 'login', get_post_meta( $post->ID, $linked_account_key, true ) );
-		if ( is_object( $linked_account ) )
-			$linked_account_id = $linked_account->ID;
+		$linked_account = get_post_meta( $post->ID, $linked_account_key, true );
+		if ( $user = get_user_by( 'login', $linked_account ) )
+			$linked_account_id = $user->ID;
 		else
 			$linked_account_id = -1;
+
+		// If user_login is the same as linked account, don't let the association be removed
+		if ( $linked_account == $existing_slug )
+			add_filter( 'wp_dropdown_users', array( $this, 'filter_wp_dropdown_users_to_disable' ) );
 
 		echo '<p><label>' . __( 'WordPress User Mapping', 'co-authors-plus' ) . '</label> ';
 		wp_dropdown_users( array(
@@ -408,6 +412,15 @@ class CoAuthors_Guest_Authors
 			'selected' => $linked_account_id,
 		) );
 		echo '</p>';
+
+		remove_filter( 'wp_dropdown_users', array( $this, 'filter_wp_dropdown_users_to_disable' ) );
+	}
+
+	/**
+	 * Make a wp_dropdown_users disabled
+	 */
+	public function filter_wp_dropdown_users_to_disable( $output ) {
+		return str_replace( '<select ', '<select disabled="disabled" ', $output );
 	}
 
 	/**
@@ -563,6 +576,7 @@ class CoAuthors_Guest_Authors
 				if ( empty( $post_id ) )
 					return false;
 				break;
+			case 'user_nicename':
 			case 'post_name':
 				// @todo look for a more performant way of gathering this data
 				$value = $this->get_post_meta_key( $value );
@@ -574,8 +588,7 @@ class CoAuthors_Guest_Authors
 			case 'login':
 			case 'user_login':
 			case 'linked_account':
-			case 'user_nicename':
-				if ( 'login' == $key || 'user_nicename' == $key )
+				if ( 'login' == $key )
 					$key = 'user_login';
 				// Ensure we aren't doing the lookup by the prefixed value
 				if ( 'user_login' == $key )
@@ -640,13 +653,11 @@ class CoAuthors_Guest_Authors
 						'key'      => 'first_name',
 						'label'    => __( 'First Name', 'co-authors-plus'),
 						'group'    => 'name',
-						'required' => true,
 					),
 				array(
 						'key'      => 'last_name',
 						'label'    => __( 'Last Name', 'co-authors-plus'),
 						'group'    => 'name',
-						'required' => true,
 					),
 				array(
 						'key'      => 'user_login',
@@ -734,8 +745,9 @@ class CoAuthors_Guest_Authors
 			}
 
 			// The user login field shouldn't collide with any existing users
-			if ( 'user_login' == $field['key'] && $coauthors_plus->get_coauthor_by( 'user_login', $args['user_login'] ) ) {
-				return new WP_Error( 'duplicate-field', __( 'user_login field is already in use', 'co-authors-plus' ) );
+			if ( 'user_login' == $field['key'] && $existing_coauthor = $coauthors_plus->get_coauthor_by( 'user_login', $args['user_login'] ) ) {
+				if ( 'guest-author' == $existing_coauthor->type )
+					return new WP_Error( 'duplicate-field', __( 'user_login cannot duplicate existing guest author or mapped user', 'co-authors-plus' ) );
 			}
 
 		}
@@ -743,7 +755,7 @@ class CoAuthors_Guest_Authors
 		// Create the primary post object
 		$new_post = array(
 				'post_title'      => $args['display_name'],
-				'post_name'       => $this->get_post_meta_key( $args['user_login'] ),
+				'post_name'       => sanitize_title( $this->get_post_meta_key( $args['user_login'] ) ),
 				'post_type'       => $this->post_type,
 			);
 		$post_id = wp_insert_post( $new_post, true );
@@ -785,15 +797,18 @@ class CoAuthors_Guest_Authors
 			$key = $field['key'];
 			if ( ! empty( $user->$key ) )
 				$guest_author[$key] = $user->$key;
+			else
+				$guest_author[$key] = '';
 		}
 		// Don't need the old user ID
 		unset( $guest_author['ID'] );
 		// Retain the user mapping and try to produce an unique user_login based on the name.
 		$guest_author['linked_account'] = $guest_author['user_login'];
-		if ( $guest_author['display_name'] != $guest_author['user_login'] )
+		if ( ! empty( $guest_author['display_name'] ) && $guest_author['display_name'] != $guest_author['user_login'] )
 			$guest_author['user_login'] = sanitize_title( $guest_author['display_name'] );
-		else
+		else if ( ! empty( $guest_author['first_name'] ) && ! empty( $guest_author['last_name'] ) )
 			$guest_author['user_login'] = sanitize_title( $guest_author['first_name'] . ' ' . $guest_author['last_name'] );
+
 		$retval = $this->create( $guest_author );
 		return $retval;
 	}
