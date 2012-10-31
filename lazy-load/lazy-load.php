@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Lazy Load
  * Description: Lazy load images to improve page load times. Uses jQuery.sonar to only load an image when it's visible in the viewport.
- * Version: 0.5
+ * Version: 0.6
  *
  * Code by the WordPress.com VIP team, TechCrunch 2011 Redesign team, and Jake Goldman (10up LLC).
  * Uses jQuery.sonar by Dave Artz (AOL): http://www.artzstudio.com/files/jquery-boston-2010/jquery.sonar/ 
@@ -14,11 +14,14 @@ if ( ! class_exists( 'LazyLoad_Images' ) ) :
 
 class LazyLoad_Images {
 
-	const version = '0.5';
+	const version = '0.6';
 
 	static function init() {
 		if ( is_admin() )
 			return;
+
+		if ( ! apply_filters( 'lazyload_is_enabled', true ) )
+			return $content;
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ) );
 		add_filter( 'the_content', array( __CLASS__, 'add_image_placeholders' ), 99 ); // run this later, so other content filters have run, including image_add_wh on WP.com
@@ -33,7 +36,7 @@ class LazyLoad_Images {
 
 	static function add_image_placeholders( $content ) {
 		// Don't lazyload for feeds, previews, mobile
-		if( is_feed() || is_preview() || ( function_exists( 'jetpack_is_mobile' ) && jetpack_is_mobile() ) )
+		if( is_feed() || is_preview() )
 			return $content;
 
 		// Don't lazy-load if the content has already been run through previously
@@ -58,6 +61,6 @@ function lazyload_images_add_placeholders( $content ) {
 	return LazyLoad_Images::add_image_placeholders( $content );
 }
 
-LazyLoad_Images::init();
+add_action( 'init', array( 'LazyLoad_Images', 'init' ) );
 
 endif;
