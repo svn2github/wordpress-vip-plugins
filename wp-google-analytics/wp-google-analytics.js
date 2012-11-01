@@ -2,7 +2,7 @@
 
 	// Adds :external for grabbing external links
 	$.expr[':'].external = function(obj) {
-		return !obj.href.match(/^mailto\:/) && !obj.href.match(/^javascript\:/) && (obj.hostname != location.hostname);
+		return obj.href && !obj.href.match(/^mailto\:/) && !obj.href.match(/^javascript\:/) && (obj.hostname != location.hostname);
 	};
 
 	// Document ready.
