@@ -15,13 +15,16 @@ if ( ! class_exists( 'LazyLoad_Images' ) ) :
 class LazyLoad_Images {
 
 	const version = '0.6';
+	protected static $enabled = true;
 
 	static function init() {
 		if ( is_admin() )
 			return;
 
-		if ( ! apply_filters( 'lazyload_is_enabled', true ) )
-			return $content;
+		if ( ! apply_filters( 'lazyload_is_enabled', true ) ) {
+			self::$enabled = false;
+			return;
+		}
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ) );
 		add_filter( 'the_content', array( __CLASS__, 'add_image_placeholders' ), 99 ); // run this later, so other content filters have run, including image_add_wh on WP.com
@@ -35,6 +38,9 @@ class LazyLoad_Images {
 	}
 
 	static function add_image_placeholders( $content ) {
+		if ( ! self::is_enabled() )
+			return $content;
+
 		// Don't lazyload for feeds, previews, mobile
 		if( is_feed() || is_preview() )
 			return $content;
@@ -50,6 +56,10 @@ class LazyLoad_Images {
 		$content = preg_replace( '#<img([^>]+?)src=[\'"]?([^\'"\s>]+)[\'"]?([^>]*)>#', sprintf( '<img${1}src="%s" data-lazy-src="${2}"${3}><noscript><img${1}src="${2}"${3}></noscript>', $placeholder_image ), $content );
 
 		return $content;
+	}
+
+	static function is_enabled() {
+		return self::$enabled;
 	}
 
 	static function get_url( $path = '' ) {
