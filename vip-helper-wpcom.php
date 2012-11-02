@@ -138,11 +138,12 @@ function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopword
 
 function vip_contrib_add_upload_cap() {
 	add_action( 'init', '_vip_contrib_add_upload_cap');
+	add_action( 'xmlrpc_call', '_vip_contrib_add_upload_cap' ); // User is logged in after 'init' for XMLRPC
 }
 function _vip_contrib_add_upload_cap() {
 	global $wp_user_roles, $wp_roles, $current_user;
 
-	if ( !is_admin() || !strpos($_SERVER['SERVER_NAME'], 'wordpress.com') )
+	if ( ( ! is_admin() || ! strpos($_SERVER['SERVER_NAME'], 'wordpress.com') ) && ! defined( 'XMLRPC_REQUEST' ) )
 		return; // only works on wp.com, not wp.org
 
 	$wp_user_roles['contributor']['capabilities']['upload_files'] = true;
