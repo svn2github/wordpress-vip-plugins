@@ -4,7 +4,7 @@
  Plugin URI: http://www.uppsite.com/learnmore/
  Description: Uppsite is a fully automated plugin to transform your blog into native smartphone apps. <strong>**** DISABLING THIS PLUGIN WILL PREVENT YOUR APP USERS FROM USING THE APPS! ****</strong>
  Author: UppSite
- Version: 4.0.3
+ Version: 4.0.5
  Author URI: https://www.uppsite.com
  */
 
@@ -13,7 +13,7 @@ require_once( dirname(__FILE__) . '/fbcomments_page.inc.php' );
 if (!defined('MYSITEAPP_AGENT')):
 
 /** Plugin version **/
-define('MYSITEAPP_PLUGIN_VERSION', '4.0.3');
+define('MYSITEAPP_PLUGIN_VERSION', '4.0.5');
 
 /** Theme name in cookie **/
 define('MYSITEAPP_WEBAPP_PREF_THEME', 'uppsite_theme_select');
@@ -61,9 +61,16 @@ define('MYSITEAPP_FACEBOOK_COMMENTS_URL','http://graph.facebook.com/comments/?id
 define('MYSITEAPP_VIDEO_WIDTH', 270);
 /** One day in seconds */
 define('MYSITEAPP_ONE_DAY', 86400); // 60*60*24
-
 /** Number of posts that will contain content if the display mode is "first full, rest ..." */
 define('MYSITEAPP_BUFFER_POSTS_COUNT', 5);
+/** Homepage Number of posts  */
+define('MYSITEAPP_HOMEPAGE_POSTS', 5);
+/** Homepage - number of maximum categories to show */
+define('MYSITEAPP_HOMEPAGE_MAX_CATEGORIES', 10);
+/** Homepage - Number of minimum posts in each category */
+define('MYSITEAPP_HOMEPAGE_DEFAULT_MIN_POSTS', 2);
+/** Homepage - Default cover image for fresh WordPress installation */
+define('MYSITEAPP_HOMEPAGE_FRESH_COVER', 'http://static.uppsite.com/plugin/cover.png');
 
 // Few constants
 if (!defined('MYSITEAPP_PLUGIN_BASENAME'))
@@ -135,7 +142,7 @@ class MySiteAppPlugin {
      * List of mobile user agents
      * @var array
      */
-    var $_mobile_ua = array(
+    static $_mobile_ua = array(
         "WebTV",
         "AvantGo",
         "Blazer",
@@ -186,17 +193,14 @@ class MySiteAppPlugin {
         /** Admin panel options **/
         if (is_admin()) {
             require_once( dirname(__FILE__) . '/uppsite_options.php' );
-        } else {
-            $this->detect_user_agent();
-
-            // Hooking the templates loading, if addressed from a native app
-            if ($this->is_mobile || $this->is_app) {
-                if (function_exists('add_theme_support')) {
-                    // Add functionality of post thumbnails
-                    add_theme_support( 'post-thumbnails');
-                }
-                do_action('uppsite_is_running');
+        }
+        $this->detect_user_agent();
+        if ($this->is_mobile || $this->is_app) {
+            if (function_exists('add_theme_support')) {
+                // Add functionality of post thumbnails
+                add_theme_support( 'post-thumbnails');
             }
+            do_action('uppsite_is_running');
         }
     }
 
@@ -210,7 +214,7 @@ class MySiteAppPlugin {
             $this->is_app = true;
             $this->new_template = MYSITEAPP_TEMPLATE_APP;
         } elseif (mysiteapp_should_show_landing() || mysiteapp_should_show_webapp()) {
-            if (preg_match('/('.implode('|', $this->_mobile_ua).')/i', $_SERVER['HTTP_USER_AGENT'])) {
+            if (preg_match('/('.implode('|', self::$_mobile_ua).')/i', $_SERVER['HTTP_USER_AGENT'])) {
                 // Mobile user (from some browser)
                 $this->is_mobile = true;
                 $this->new_template = $this->get_webapp_template();
@@ -545,7 +549,7 @@ function mysiteapp_call_error( $function ) {
 }
 /**
  * Extracts the src url form an html tag.
- * @param $html The HTML content
+ * @param $html string The HTML content
  * @return string|null The url if found, or null
  */
 function uppsite_extract_src_url($html) {
@@ -556,11 +560,31 @@ function uppsite_extract_src_url($html) {
 }
 
 /**
+ * Try and extract the first image in the post, to be used as thumbnail image.
+ * If an image is found, it is removed from the content.
+ * @param &$content string Post content
+ * @return mixed
+ */
+function uppsite_extract_image_from_post_content(&$content) {
+    if (!preg_match("/<img[^>]*src=\"([^\"]+)\"[^>]*>/", $content, $matches)) {
+        return null;
+    }
+    if (strpos($matches[0], "uppsite-youtube-video") !== false) {
+        // Don't extract youtube video images.
+        return null;
+    }
+    $content = str_replace($matches[0], "", $content);
+    return $matches[1];
+}
+
+/**
  * Extracts the thumbnail url of the post by iterating
  * over popular plugins that provide the thumbnail image url
  * @note This function should be called inside the post loop.
+ * @param $content string If present, search in the post content and remove the image.
+ * @return string URL for the thumbnail
  */
-function mysiteapp_extract_thumbnail() {
+function mysiteapp_extract_thumbnail(&$content = null) {
     $thumb_url = null;
     
     if (function_exists('has_post_thumbnail') && has_post_thumbnail()) {
@@ -582,7 +606,21 @@ function mysiteapp_extract_thumbnail() {
         }
     }
     
-    if (!empty($thumb_url)) {
+    if (empty($thumb_url)) {
+        if (mysiteapp_is_fresh_wordpress_installation()) {
+            // On fresh installation - put UppSite cover to make the homepage look good
+            $thumb_url = MYSITEAPP_HOMEPAGE_FRESH_COVER;
+        } else {
+            if (is_null($content)) {
+                ob_start();
+                the_content();
+                $content = ob_get_contents();
+                ob_get_clean();
+            }
+            $thumb_url = uppsite_extract_image_from_post_content($content);
+        }
+    } else {
+        // Found via the helper functions
         $thumb_url = uppsite_extract_src_url($thumb_url);
     }
     return $thumb_url;
@@ -661,7 +699,6 @@ function mysiteapp_post_new_process($post_id) {
 
     global $msap;
     if ($msap->is_app) {
-        $the_post = wp_is_post_revision($post_id);
         $arr = array(
                 'user' => array('ID' => get_current_user_id()),
                 'postedit' => array(
@@ -857,10 +894,10 @@ function mysiteapp_admin_init() {
 
     $options = get_option(MYSITEAPP_OPTIONS_OPTS); // Options might change in mysiteapp_prefs_init()
     if (!isset($options['minisite_shown'])) {
-    	$options['minisite_shown'] = isset($options['visited_minisite']);
-    	update_option(MYSITEAPP_OPTIONS_OPTS, $options);
+        $options['minisite_shown'] = isset($options['visited_minisite']);
+        update_option(MYSITEAPP_OPTIONS_OPTS, $options);
 
-    	if (!$options['minisite_shown']) {
+        if (!$options['minisite_shown']) {
             // Only redirect if need to show the minisite
             wp_safe_redirect(menu_page_url('uppsite-settings', false));
             exit;
@@ -1082,7 +1119,7 @@ function mysiteapp_fix_content_more($more){
  * Returns the layout of the posts, as the mobile application
  * wishes to display it.
  * 
- * @return string    Enum: full / ffull_rexcerpt / ffull_rtitle / title / excerpt
+ * @return string    Enum: full / ffull_rexcerpt / ffull_rtitle / title / excerpt / homepage
  */
 function mysiteapp_get_posts_layout() {
     $posts_list_view = isset($_REQUEST['posts_list_view']) ? esc_html(stripslashes($_REQUEST['posts_list_view'])) : "";
@@ -1093,6 +1130,7 @@ function mysiteapp_get_posts_layout() {
         case "ffull_rtitle":
         case "title":
         case "excerpt":
+        case "homepage":
             return $posts_list_view;
     }
     return "";
@@ -1338,6 +1376,108 @@ function mysiteapp_future_post_push($post_id) {
     }
 }
 
+/**
+ * Helper function for getting the current query to parse
+ * @return WP_Query  A custom query made by the plugin, or the global query if none.
+ */
+function mysiteapp_get_current_query() {
+    global $mysiteapp_cur_query, $wp_query;
+    return !is_null($mysiteapp_cur_query) ? $mysiteapp_cur_query : $wp_query;
+}
+/**
+ * Sets a custom query to be handled in the plugin
+ * @param $query array The query params to construct WP_Query
+ */
+function mysiteapp_set_current_query($query) {
+    global $mysiteapp_cur_query;
+    $mysiteapp_cur_query = new WP_Query($query);
+    return $mysiteapp_cur_query;
+}
+
+/** Homepage functionality */
+
+/**
+ * @return bool  Is it homepage display mode requested
+ */
+function mysiteapp_should_show_homepage() {
+    return mysiteapp_get_posts_layout() == "homepage";
+}
+
+/**
+ * @note    Enforcing max allowed posts in carousel - 15
+ * @return int Number of posts to return for the carousel
+ */
+function mysiteapp_homepage_carousel_posts_num() {
+    $num = MYSITEAPP_HOMEPAGE_POSTS;
+    if (isset($_REQUEST['homepage_post']) && is_numeric($_REQUEST['homepage_post'])) {
+        $num = min( abs($_REQUEST['homepage_post']), 15 );
+    }
+    return $num;
+}
+
+/**
+ * @note    Enforcing max allowed posts per category
+ * @return int Number of posts in each grouped category
+ */
+function mysiteapp_homepage_cat_posts() {
+    $num = MYSITEAPP_HOMEPAGE_DEFAULT_MIN_POSTS;
+    if (isset($_REQUEST['posts_num']) && is_numeric($_REQUEST['posts_num'])) {
+        $num = min( abs($_REQUEST['posts_num']), 15 );
+    }
+    return $num;
+}
+
+/**
+ * @note Used by the mobile applications to calculate the deltas after data refresh.
+ * @return bool  Show only posts without grouped categories
+ */
+function mysiteapp_homepage_is_only_show_posts() {
+    return isset($_REQUEST['onlyposts']);
+}
+
+/**
+ * Adds a post that appears in the Homepage Carousel to the list of excluded posts in the following list.
+ * @param $post_id   int The post id
+ */
+function mysiteapp_homepage_add_post($post_id){
+    global $homepage_post_ids;
+    if (!is_array($homepage_post_ids)) {
+        $homepage_post_ids = array();
+    }
+    array_push($homepage_post_ids, $post_id);
+
+}
+/**
+ * @return array    List of post ids to exclude from post queries.
+ */
+function mysiteapp_homepage_get_excluded_posts() {
+    global $homepage_post_ids;
+    return !is_array($homepage_post_ids) ? array() : $homepage_post_ids;
+}
+
+/**
+ * Guesses whether this is a fresh installation (only 1 published posts)
+ *
+ * @return bool Is this a fresh installation of WordPress or not
+ */
+function mysiteapp_is_fresh_wordpress_installation(){
+     return wp_count_posts()->publish == 1;
+}
+
+/**
+ * Searches for popular categories and orders them in descending order
+ *
+ * @return array Category ids of popular categories
+ */
+function mysiteapp_homepage_get_popular_categories() {
+    $pop_cat = get_categories( 'order=desc&orderby=count&number=' . MYSITEAPP_HOMEPAGE_MAX_CATEGORIES );
+    $result = array();
+    foreach($pop_cat as $cat){
+        $result[] = $cat->term_id;
+    }
+    return $result;
+}
+ 
 /** Webapp theme selection **/
 add_action('wp', 'mysiteapp_set_webapp_theme');
 /** Webapp activation */

@@ -88,6 +88,12 @@ function uppsite_change_webapp($state) {
         }
         update_option('bnc_iphone_pages', $v);
     }
+    // Fix cache plugins
+    if (!mysiteapp_is_wpcom_vip()) {
+        uppsite_cache_fix_wp_super_cache(MySiteAppPlugin::$_mobile_ua, $state); // Add/remove mobile
+        uppsite_cache_fix_w3_total_cache(MySiteAppPlugin::$_mobile_ua, $state); // Add/remove mobile
+    }
+
     update_option(MYSITEAPP_OPTIONS_DATA, $myOpts);
 }
 
@@ -154,6 +160,98 @@ function uppsite_activated() {
 /** Activation hook */
 register_activation_hook(dirname(__FILE__) . "/uppsite.php", 'uppsite_activated');
 
+/** Cache plugins fix helpers */
+/**
+ * Adds/removes a list of User-Agents to the rejected User-Agents list to cache of WP-Super-Cache
+ * @param $userAgents   Array of user agents
+ * @param bool $add     true to add, false to remove
+ */
+function uppsite_cache_fix_wp_super_cache($userAgents, $add = true) {
+    if (function_exists('wp_cache_edit_rejected_ua')) {
+        global $valid_nonce, $cache_rejected_user_agent;
+        $shouldUpdate = false;
+        foreach ($userAgents as $ua) {
+            if ($add) {
+                // Add to list
+                if (!in_array($ua, $cache_rejected_user_agent)) {
+                    $cache_rejected_user_agent[] = $ua;
+                    $shouldUpdate = true;
+                }
+            } else {
+                // Remove from list
+                $uakey = array_search($ua, $cache_rejected_user_agent);
+                if ($uakey !== false) {
+                    unset($cache_rejected_user_agent[$uakey]);
+                    $shouldUpdate = true;
+                }
+            }
+        }
+        if ($shouldUpdate) {
+            $valid_nonce = true;
+            ob_start();
+            $_POST['wp_rejected_user_agent'] = implode("\n", $cache_rejected_user_agent);
+            wp_cache_edit_rejected_ua();
+            ob_end_clean();
+        }
+    }
+}
+
+/**
+ * Adds/removes a list of User-Agents to the rejected User-Agents list to cache of W3 Total Cache
+ * @param $userAgents   Array of user agents
+ * @param bool $add     true to add, false to remove
+ */
+function uppsite_cache_fix_w3_total_cache($userAgents, $add = true) {
+    if (class_exists('W3_Plugin_TotalCacheAdmin') &&
+        (!isset($_REQUEST['page']) || stristr($_REQUEST['page'], "w3tc_") === false)) {
+        // Make changes only if the user isn't modifying W3 Total Cache settings
+        $w3_config = & w3_instance('W3_Config');
+        $w3_total_cache_plugins = array('PgCache', 'Minify', 'Cdn');
+        $save = array();
+        foreach ($w3_total_cache_plugins as $w3tc_plugin) {
+            // Search for the Rejected UAs for each plugin
+            $key = strtolower($w3tc_plugin) . '.reject.ua';
+            $rejectArr = $w3_config->get_array($key);
+            $shouldUpdate = false;
+            foreach ($userAgents as $ua) {
+                if ($add) {
+                    // Add to list
+                    if (!in_array($ua, $rejectArr)) {
+                        array_push($rejectArr, $ua);
+                        $shouldUpdate = true;
+                    }
+                } else {
+                    // Remove from list
+                    $uakey = array_search($ua, $rejectArr);
+                    if ($uakey !== false) {
+                        unset($rejectArr[$uakey]);
+                        $shouldUpdate = true;
+                    }
+                }
+            }
+            if ($shouldUpdate) {
+                $w3_config->set($key, $rejectArr);
+                // Schedule saving for each plugin
+                $save[] = $w3tc_plugin;
+            }
+        }
+        if (count($save) > 0) {
+            $w3_config->save(false);
+            foreach ($save as $plugin) {
+                $w3tc_admin_instance = & w3_instance('W3_Plugin_' . $plugin . 'Admin');
+                if (!is_null($w3tc_admin_instance)) {
+                    if (method_exists($w3tc_admin_instance, 'write_rules_core')) {
+                        $w3tc_admin_instance->write_rules_core();
+                    }
+                    if (method_exists($w3tc_admin_instance, 'write_rules_cache')) {
+                        $w3tc_admin_instance->write_rules_cache();
+                    }
+                }
+            }
+        }
+    }
+}
+
 if (mysiteapp_is_wpcom_vip()):
     // Fixes for VIP sites
     /**
@@ -195,51 +293,16 @@ else:
 
     // Cache plugins
     function mysiteapp_fix_cache_plugins() {
+        // Build list of rejected UAs
+        $userAgents = array(MYSITEAPP_AGENT);
+        if (mysiteapp_should_show_webapp() || mysiteapp_should_show_landing()) {
+            $userAgents = array_merge($userAgents, MySiteAppPlugin::$_mobile_ua);
+        }
         // WP Super Cache
-        if (function_exists('wp_cache_edit_rejected_ua')) {
-            global $valid_nonce, $cache_rejected_user_agent;
-            if (!in_array(MYSITEAPP_AGENT, $cache_rejected_user_agent)) {
-                $cache_rejected_user_agent[] = MYSITEAPP_AGENT;
-                $valid_nonce = true;
-                ob_start();
-                $_POST['wp_rejected_user_agent'] = implode("\n", $cache_rejected_user_agent);
-                wp_cache_edit_rejected_ua();
-                ob_end_clean();
-            }
-        }
+        uppsite_cache_fix_wp_super_cache($userAgents);
+
         // W3 Total Cache
-        if (class_exists('W3_Plugin_TotalCacheAdmin') &&
-            (!isset($_REQUEST['page']) || stristr($_REQUEST['page'], "w3tc_") === false)) {
-            // Make changes only if the user isn't modifying W3 Total Cache settings
-            $w3_config = & w3_instance('W3_Config');
-            $w3_total_cache_plugins = array('PgCache', 'Minify', 'Cdn');
-            $save = array();
-            foreach ($w3_total_cache_plugins as $w3tc_plugin) {
-                // Search for the Rejected UAs for each plugin
-                $key = strtolower($w3tc_plugin) . '.reject.ua';
-                $rejectArr = $w3_config->get_array($key);
-                if (!in_array(MYSITEAPP_AGENT, $rejectArr)) {
-                    array_push($rejectArr, MYSITEAPP_AGENT);
-                    $w3_config->set($key, $rejectArr);
-                    // Schedule saving for each plugin
-                    $save[] = $w3tc_plugin;
-                }
-            }
-            if (count($save) > 0) {
-                $w3_config->save(false);
-                foreach ($save as $plugin) {
-                    $w3tc_admin_instance = & w3_instance('W3_Plugin_' . $plugin . 'Admin');
-                    if (!is_null($w3tc_admin_instance)) {
-                        if (method_exists($w3tc_admin_instance, 'write_rules_core')) {
-                            $w3tc_admin_instance->write_rules_core();
-                        }
-                        if (method_exists($w3tc_admin_instance, 'write_rules_cache')) {
-                            $w3tc_admin_instance->write_rules_cache();
-                        }
-                    }
-                }
-            }
-        }
+        uppsite_cache_fix_w3_total_cache($userAgents);
     }
     add_action('admin_init','mysiteapp_fix_cache_plugins',10);
 

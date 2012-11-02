@@ -3,6 +3,14 @@
  * Index page
  */
 $should_hide_posts = mysiteapp_should_hide_posts();
+$show_homepage_display = mysiteapp_should_show_homepage();
+$wrap_with_homepage_tags = $show_homepage_display && !mysiteapp_homepage_is_only_show_posts();
+if ($show_homepage_display) {
+    query_posts(array(
+        'showposts' => mysiteapp_homepage_carousel_posts_num()
+    ));
+}
+
 if (!$should_hide_posts) {
 	$posts_layout = mysiteapp_get_posts_layout();
 	$uppsite_options = get_option('uppsite_options');
@@ -30,20 +38,10 @@ if (!$should_hide_posts) {
 get_template_part('header');
 ?><title><![CDATA[]]></title>
 <posts>
-<?php
-if (!$should_hide_posts && have_posts()) {
-	$iterator = 0;
-	// Avoid 'loop_end' output, if any
-	while (mysiteapp_clean_output('have_posts')) {
-		// Avoid 'loop_start' output, if any (some plugins make it)
-		mysiteapp_clean_output('the_post');
-		
-		mysiteapp_print_post($iterator, $posts_layout);
-		
-		$iterator++;
-	}
-} ?>
+    <?php if ($wrap_with_homepage_tags): ?><homepage><?php endif; ?>
+    <?php if (!$should_hide_posts) { get_template_part( 'the_loop' ); } ?>
+    <?php if ($wrap_with_homepage_tags): ?></homepage><?php endif; ?>
 </posts>
 <?php
-get_template_part('sidebar');
+get_template_part($show_homepage_display ? 'homepage' : 'sidebar');
 get_template_part('footer', 'nav');
