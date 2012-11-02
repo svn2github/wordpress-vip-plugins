@@ -239,7 +239,7 @@ class Livefyre_Admin {
             $name);
 
         add_settings_field('livefyre_domain_name',
-            'Livefyre Network Name',
+            'Livefyre Host',
             array( &$this, 'domain_name_callback' ),
             $name,
             $settings_section);
