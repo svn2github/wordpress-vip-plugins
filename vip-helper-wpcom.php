@@ -24,21 +24,6 @@ function vip_allow_title_orphans() {
 	remove_filter('the_title', 'widont');
 }
 
-// Deprecated
-function vip_related_posts($before = '', $after = '') {
-	return;
-}
-
-// Deprecated
-function vip_display_related_posts( $limit_to_same_domain = true ) {
-	return;
-}
-
-// Deprecated
-function wpcom_vip_get_related_posts( $max_num = 5, $limit_to_same_domain = true ){
-	return array();
-}
-
 /**
  * Experimental: VIP Related posts using WordPress.com search, based on the content of the post
  * Use wpcom_vip_flaptor_related_posts() as a template tag.
