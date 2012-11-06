@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.6.0
+	Version: 1.7.3
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.6.0-WIP');
+define('KAPOST_BYLINE_VERSION', '1.7.3-WIP');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -169,65 +169,36 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 	return true;
 }
 
-function kapost_byline_verify_analytics_url($url)
-{
-	if(empty($url)) return false;
-
-	$hash	= md5($url);
-	$hashes = array('7dd0fdf1c9ddf706f2d7db3ac9394f47',
-					'6d24b20936cc0813222f0d811bbf3cae',
-					'8a0e9264f92e006f5655b4c19d4cab10',
-					'2e80e3bdbcfc7099625a183b058d6117',
-					'07231c6f8912f13f1fa43436b5854590',
-					'58619923a812c8175c245f6180ba9669',
-					'84573bbf41383a6a8fc402f9a550c434');
-
-	foreach($hashes as $h)
-	{
-		if($hash == $h)
-			return true;
-	}
-
-	return false;
-}
-
-function kapost_byline_the_content($content)
+function kapost_byline_inject_analytics() 
 {
 	global $post;
 
-	if(isset($post) && ($post->post_status == 'publish') && strpos($content, '<!-- END KAPOST ANALYTICS CODE -->') !== FALSE)
-		define('KAPOST_BYLINE_ANALYTICS_IN_BODY', true);
+	if(!is_single())
+		return;
 
-	return $content;
-}
-
-function kapost_inject_footer_script() 
-{
-	global $post;
-
-	if(!isset($post) || ($post->post_status != 'publish') || defined('KAPOST_BYLINE_ANALYTICS_IN_BODY'))
+	if(!isset($post) || ($post->post_status != 'publish') || (strpos($post->post_content, '<!-- END KAPOST ANALYTICS CODE -->') !== FALSE))
 		return;
 
 	$kapost_analytics = get_post_meta($post->ID, '_kapost_analytics', true);
 	if(empty($kapost_analytics))
 		return;
 
-	if(kapost_byline_verify_analytics_url($kapost_analytics['url']) == false)
-		return;
+	$url = "http://savoy-prod.heroku.com";
 
-	$post_id	= esc_js($kapost_analytics['post_id']);
-	$author_id	= esc_js($kapost_analytics['author_id']);
-	$newsroom_id= esc_js($kapost_analytics['newsroom_id']);
-	$categories = esc_js($kapost_analytics['categories']);
-	$url		= esc_js($kapost_analytics['url']);
+	$post_id = esc_js($kapost_analytics['post_id']);
+
+	if(isset($kapost_analytics['site_id']))
+		$site_id = esc_js($kapost_analytics['site_id']);
+	else
+		$site_id = '';
 
 echo "<!-- BEGIN KAPOST ANALYTICS CODE -->
 <script type=\"text/javascript\">
 <!--
-var _kapost_data = _kapost_data || [];
-_kapost_data.push([1, '$post_id', '$author_id', '$newsroom_id', '$categories']);
+var _kaq = _kaq || [];
+_kaq.push([2, '$post_id', '$site_id']);
 (function(){
-var ka = document.createElement('script'); ka.async=true; ka.id='kp_tracker'; ka.src='$url/javascripts/tracker.js';
+var ka = document.createElement('script'); ka.async=true; ka.id='ka_tracker'; ka.src='$url/ka.js';
 var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka, s);
 })();
 //--> 
@@ -235,9 +206,7 @@ var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ka
 <!-- END KAPOST ANALYTICS CODE -->";
 }
 
-add_filter('the_content', 'kapost_byline_the_content');
-add_filter('the_content_feed', 'kapost_byline_the_content');
-add_action('wp_footer', 'kapost_inject_footer_script');
+add_action('wp_footer', 'kapost_byline_inject_analytics');
 
 function kapost_byline_xmlrpc_version()
 {
@@ -325,6 +294,10 @@ function kapost_byline_xmlrpc_editPost($args)
 		return $result;
 	}
 
+	// to avoid double escaping the content structure in wp_editPost
+	// point data to the original structure
+	$data = $args[3];
+
 	$content_struct = array();
 	$content_struct['post_type'] = $post->post_type; 
 	$content_struct['post_status'] = $publish ? 'publish' : 'draft';
@@ -347,7 +320,7 @@ function kapost_byline_xmlrpc_editPost($args)
 	if(isset($data['categories']) && !empty($data['categories']) && is_array($data['categories']))
 		$content_struct['terms_names']['category'] = $data['categories'];
 
-	$result = $wp_xmlrpc_server->wp_editPost(array($blog_id, $username, $password, $post_id, $content_struct));
+	$result = $wp_xmlrpc_server->wp_editPost(array($blog_id, $args[1], $args[2], $args[0], $content_struct));
 
 	if($result === true)
 		kapost_byline_update_post($post_id, $custom_fields, $uid, $blog_id);
