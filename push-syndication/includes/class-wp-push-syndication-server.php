@@ -1181,4 +1181,3 @@ class WP_Push_Syndication_Server {
     }
 
 }
-
