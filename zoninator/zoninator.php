@@ -150,6 +150,7 @@ class Zoninator
 			// For mobile support
 			// http://github.com/furf/jquery-ui-touch-punch
 			wp_enqueue_script( 'jquery-ui-touch-punch', ZONINATOR_URL . 'js/jquery.ui.touch-punch.min.js', array( 'jquery-ui-core', 'jquery-ui-widget', 'jquery-ui-mouse' ) );
+
 		}
 	}
 	
@@ -828,6 +829,8 @@ class Zoninator
 		}
 
 		clean_term_cache( $this->get_zone_id( $zone ), $this->zone_taxonomy ); // flush cache for our zone term and related APC caches
+
+		do_action( 'zoninator_add_zone_posts', $posts, $zone );
 	}
 	
 	function remove_zone_posts( $zone, $posts = null ) {
@@ -847,6 +850,8 @@ class Zoninator
 		}
 
 		clean_term_cache( $this->get_zone_id( $zone ), $this->zone_taxonomy ); // flush cache for our zone term and related APC caches
+
+		do_action( 'zoninator_remove_zone_posts', $posts, $zone );
 	}
 
 	function get_zone_posts( $zone, $args = array() ) {
