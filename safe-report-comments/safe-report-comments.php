@@ -5,9 +5,9 @@ Plugin Script: safe-report-comments.php
 Plugin URI: http://wordpress.org/extend/plugins/safe-report-comments/
 Description: This script gives visitors the possibility to flag/report a comment as inapproriate. 
 After reaching a threshold the comment is moved to moderation. If a comment is approved once by a moderator future reports will be ignored.
-Version: 0.2
-Author: Thorsten Ott
-Author URI: http://blog.webzappr.com
+Version: 0.3-working
+Author: Thorsten Ott, Daniel Bachhuber, Automattic
+Author URI: http://automattic.com
 */
 
 if ( !class_exists( "Safe_Report_Comments" ) ) {
@@ -20,7 +20,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		private $_auto_init = true;
 		private $_storagecookie = 'sfrc_flags';
 		
-		public $plugin_url = '/wp-content/themes/vip/plugins/safe-report-comments';		// adjust to reflect custom installations or leave empty
+		public $plugin_url = false;
 		
 		public $thank_you_message = 'Thank you for your feedback. We will look into it.';
 		public $invalid_nonce_message = 'It seems you already reported this comment. <!-- nonce invalid -->';
@@ -38,9 +38,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		public $transient_lifetime = 86400; // lifetime of fallback transients. lower to keep things usable and c
 		
 		public function __construct( $auto_init=true ) {
-			if ( empty( $this->plugin_url ) )
-				$this->plugin_url = WP_PLUGIN_URL . '/safe-report-comments';
-		
+
 			$this->_admin_notices = get_transient( $this->_plugin_prefix . '_notices' );
 			if ( !is_array( $this->_admin_notices ) ) 
 				$this->_admin_notices = array();
@@ -48,11 +46,11 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			$this->_auto_init = $auto_init;
 			
 			if ( !is_admin() || ( defined( 'DOING_AJAX' ) && true === DOING_AJAX ) ) {
-				$this->frontend_init();
+				add_action( 'init', array( $this, 'frontend_init' ) );
 			} else if ( is_admin() ) {
-				$this->backend_init();
+				add_action( 'admin_init', array( $this, 'backend_init' ) );
 			}
-			add_action( 'comment_unapproved_to_approved', array( &$this, 'mark_comment_moderated' ), 10, 1 );
+			add_action( 'comment_unapproved_to_approved', array( $this, 'mark_comment_moderated' ), 10, 1 );
 			
 			// apply some filters to easily alter the frontend messages 
 			// add_filter( 'safe_report_comments_thank_you_message', 'alter_message' ); // this or similar will do the job
@@ -69,33 +67,53 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 * - register_admin_panel
 		 * - admin_header
 		 */
-		protected function backend_init() {
+		public function backend_init() {
 			do_action( 'safe_report_comments_backend_init' );
+
+			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Allow comment flagging' ), array( $this, 'comment_flag_enable' ), 'discussion', 'default' );
+			register_setting( 'discussion', $this->_plugin_prefix . '_enabled' );
+
+			if ( ! $this->is_enabled() )
+				return;
+
+			add_settings_field( $this->_plugin_prefix . '_threshold', __( 'Flagging threshold' ), array( $this, 'comment_flag_threshold' ), 'discussion', 'default' );
+			register_setting( 'discussion', $this->_plugin_prefix . '_threshold', array( $this, 'check_threshold' ) );
+			add_filter('manage_edit-comments_columns', array( $this, 'add_comment_reported_column' ) );
+			add_action('manage_comments_custom_column', array( $this, 'manage_comment_reported_column' ), 10, 2);
 				
-			add_action( 'admin_menu', array( &$this, 'register_admin_panel' ) );
-			add_action( 'admin_head', array( &$this, 'admin_header' ) );
+			add_action( 'admin_menu', array( $this, 'register_admin_panel' ) );
+			add_action( 'admin_head', array( $this, 'admin_header' ) );
 		}
 
 		/*
 		 * Initialize frontend functions
 		 */
-		protected function frontend_init() {
-			if ( $this->is_enabled() ) {
-				global $current_blog;
-				do_action( 'safe_report_comments_frontend_init' );
+		public function frontend_init() {
+			
+			if ( ! $this->is_enabled() )
+				return;
+
+			if ( ! $this->plugin_url )
+				$this->plugin_url = plugins_url( false, __FILE__ );
+
+			do_action( 'safe_report_comments_frontend_init' );
+			
+			add_action( 'wp_ajax_safe_report_comments_flag_comment', array( $this, 'flag_comment' ) );
+			add_action( 'wp_ajax_nopriv_safe_report_comments_flag_comment', array( $this, 'flag_comment' ) );
+			
+			add_action( 'wp_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
+
+			if ( $this->_auto_init ) 
+				add_filter( 'comment_reply_link', array( $this, 'add_flagging_link' ) );
+			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
 				
-				add_action( 'wp_ajax_safe_report_comments_flag_comment', array( &$this, 'flag_comment' ) );
-				add_action( 'wp_ajax_nopriv_safe_report_comments_flag_comment', array( &$this, 'flag_comment' ) );
-				
-				add_action( 'wp_head', array( &$this, 'frontend_header' ) );
-				wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ) );
-				wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'SafeCommentsAjax', array( 'ajaxurl' => $current_blog->siteurl . '/wp-admin/admin-ajax.php' ) ); // slightly dirty but needed due to possible problems with mapped domains
-				if ( $this->_auto_init ) 
-					add_filter( 'comment_reply_link', array( &$this, 'add_flagging_link' ) );
-				add_action( 'comment_report_abuse_link', array( &$this, 'print_flagging_link' ) );
-					
-				add_action( 'template_redirect', array( $this, 'add_test_cookie' ) ); // need to do this at template_redirect because is_feed isn't available yet
-			}
+			add_action( 'template_redirect', array( $this, 'add_test_cookie' ) ); // need to do this at template_redirect because is_feed isn't available yet
+		}
+
+		public function action_enqueue_scripts() {
+
+			wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ) );
+			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'SafeCommentsAjax', array( 'ajaxurl' => home_url( '/wp-admin/admin-ajax.php' ) ) ); // slightly dirty but needed due to possible problems with mapped domains
 		}
 
 		public function add_test_cookie() {
@@ -107,34 +125,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 					@setcookie(TEST_COOKIE, 'WP Cookie check', 0, SITECOOKIEPATH, COOKIE_DOMAIN);
 			}
 		}
-		
-		/*
-		 */
-		public function register_admin_panel() {
-			add_settings_field( $this->_plugin_prefix . '_enabled', __( 'Allow comment flagging' ), array( &$this, 'comment_flag_enable' ), 'discussion', 'default' );
-			register_setting( 'discussion', $this->_plugin_prefix . '_enabled' );
-			
-			if ( $this->is_enabled() ) {
-				add_settings_field( $this->_plugin_prefix . '_threshold', __( 'Flagging threshold' ), array( &$this, 'comment_flag_threshold' ), 'discussion', 'default' );
-				register_setting( 'discussion', $this->_plugin_prefix . '_threshold', array( &$this, 'check_threshold' ) );
-				add_filter('manage_edit-comments_columns', array( &$this, 'add_comment_reported_column' ) );
-				add_action('manage_comments_custom_column', array( &$this, 'manage_comment_reported_column' ), 10, 2);
-			}
-		}
-		
-		/*
-		 * Add CSS style 
-		 */
-		public function frontend_header() {
-?>
-<style type="text/css">
-.hide-if-no-js {
-	display: none;
-}
-</style>
-<?php
-		}
-		
+
 		/*
 		 * Add necessary header scripts 
 		 * Currently only used for admin notices
@@ -142,7 +133,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		public function admin_header() {
 			// print admin notice in case of notice strings given
 			if ( !empty( $this->_admin_notices ) ) {
-					add_action('admin_notices' , array( &$this, 'print_admin_notice' ) );
+					add_action('admin_notices' , array( $this, 'print_admin_notice' ) );
 			}
 ?>
 <style type="text/css">
