@@ -126,7 +126,7 @@ class WP_Storify {
 		add_action( 'storify_edit', array( &$this, 'cache_purge' ), 10, 1 );
 
 		//upgrade DB
-		add_action( 'admin_init', array( &$this, 'upgrade' ) );
+		//add_action( 'admin_init', array( &$this, 'upgrade' ) ); // VIP (2012-11-08): disabled as it kills sites with really large numbers of posts
 
 	}
 
