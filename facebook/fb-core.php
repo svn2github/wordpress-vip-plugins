@@ -112,7 +112,7 @@ function fb_js_sdk_setup() {
 	$locale = fb_get_locale();
 	if ( ! $locale )
 		return;
-	wp_enqueue_script( 'fb-connect', ( is_ssl() ? 'https' : 'http' ) . '://connect.facebook.net/' . $locale . '/all.js', array(), null, true );
+	//wp_enqueue_script( 'fb-connect', ( is_ssl() ? 'https' : 'http' ) . '://connect.facebook.net/' . $locale . '/all.js', array(), null, true );
 
 	add_action( 'wp_footer', 'fb_root' );
 }
