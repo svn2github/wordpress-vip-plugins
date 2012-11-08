@@ -287,7 +287,7 @@ if( !class_exists( 'post_revision_workflow' ) ) {
 			
 			$this->done = true;
 			
-			if( !wp_verify_nonce( $_REQUEST['_dpn_nonce'], 'dpn-nonce' ) )
+			if( ! isset( $_REQUEST['_dpn_nonce'] ) || !wp_verify_nonce( $_REQUEST['_dpn_nonce'], 'dpn-nonce' ) )
 				return $post_ID;
 			if( !isset( $_REQUEST['dpn_notify'] ) || 0 == $_REQUEST['dpn_notify'] )
 				return $post_ID;
