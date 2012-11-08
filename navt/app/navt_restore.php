@@ -150,7 +150,7 @@ if( $doin_the_deed ) {
                         //navt_write_debug(NAVT_RESTORE, sprintf("added item\n"), $icfg[$new_item[GRP]][$id]);
                     }
 
-                    update_progress(&$iter, $inc, &$pl, $plugin_url);
+                    update_progress($iter, $inc, $pl, $plugin_url);
                     flush();
                 }
             }
