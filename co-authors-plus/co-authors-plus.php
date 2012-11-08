@@ -3,7 +3,7 @@
 Plugin Name: Co-Authors Plus
 Plugin URI: http://wordpress.org/extend/plugins/co-authors-plus/
 Description: Allows multiple authors to be assigned to a post. This plugin is an extended version of the Co-Authors plugin developed by Weston Ruter.
-Version: 2.7-alpha1
+Version: 3.0-beta1
 Author: Mohammad Jangda, Daniel Bachhuber, Automattic
 Copyright: 2008-2012 Shared and distributed between Mohammad Jangda, Daniel Bachhuber, Weston Ruter
 
@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'COAUTHORS_PLUS_VERSION', '2.7-alpha1' );
+define( 'COAUTHORS_PLUS_VERSION', '3.0-beta1' );
 
 define( 'COAUTHORS_PLUS_PATH', dirname( __FILE__ ) );
 define( 'COAUTHORS_PLUS_URL', plugin_dir_url( __FILE__ ) );
@@ -184,6 +184,8 @@ class coauthors_plus {
 		add_filter( 'manage_users_columns', array( $this, '_filter_manage_users_columns' ) );
 		add_filter( 'manage_users_custom_column', array( $this, '_filter_manage_users_custom_column' ), 10, 3 );
 
+		add_action( 'load-edit.php', array( $this, 'load_edit' ) );
+
 	}
 
 	/**
@@ -233,10 +235,10 @@ class coauthors_plus {
 	 * @param string $key Key to search by (slug,email)
 	 */
 	function get_coauthor_by( $key, $value ) {
-		global $coauthors_plus;
+
 		// If Guest Authors are enabled, prioritize those profiles
 		if ( $this->is_guest_authors_enabled() ) {
-			$guest_author = $coauthors_plus->guest_authors->get_guest_author_by( $key, $value );
+			$guest_author = $this->guest_authors->get_guest_author_by( $key, $value );
 			if ( is_object( $guest_author ) ) {
 				return $guest_author;
 			}
@@ -265,7 +267,7 @@ class coauthors_plus {
 				// However, if guest authors are enabled and there's a guest author linked to this
 				// user account, we want to use that instead
 				if ( $this->is_guest_authors_enabled() ) {
-					$guest_author = $coauthors_plus->guest_authors->get_guest_author_by( 'linked_account', $user->user_login );
+					$guest_author = $this->guest_authors->get_guest_author_by( 'linked_account', $user->user_login );
 					if ( is_object( $guest_author ) )
 						$user = $guest_author;
 				}
@@ -460,8 +462,9 @@ class coauthors_plus {
 			return $value;
 		// We filter count_user_posts() so it provides an accurate number
 		$numposts = count_user_posts( $user_id );
+		$user = get_user_by( 'id', $user_id );
 		if ( $numposts > 0 ) {
-			$value .= "<a href='edit.php?author=$user_id' title='" . esc_attr__( 'View posts by this author' ) . "' class='edit'>";
+			$value .= "<a href='edit.php?author_name=$user->user_nicename' title='" . esc_attr__( 'View posts by this author', 'co-authors-plus' ) . "' class='edit'>";
 			$value .= $numposts;
 			$value .= '</a>';
 		} else {
@@ -653,6 +656,13 @@ class coauthors_plus {
 					$data['post_author'] = get_user_by( 'user_login', $coauthor->linked_account )->ID;
 				} else if ( $coauthor->type == 'wpuser' )
 					$data['post_author'] = $coauthor->ID;
+				// Refresh their post publish count too
+				if ( 'publish' == $postarr['post_status'] || 'publish' == get_post_status( $postarr['ID'] ) ) {
+					foreach( $coauthors as $coauthor ) {
+						if ( $author_term = $this->get_author_term( $coauthor ) )
+							$this->update_author_term_post_count( $author_term );
+					}
+				}
 			}
 		}
 
@@ -963,6 +973,43 @@ class coauthors_plus {
 		);
 		wp_localize_script( 'co-authors-plus-js', 'coAuthorsPlusStrings', $js_strings );
 
+	}
+
+	/**
+	 * load-edit.php is when the screen has been set up
+	 */
+	function load_edit() {
+
+		$screen = get_current_screen();
+		if ( in_array( $screen->post_type, $this->supported_post_types ) )
+			add_filter( 'views_' . $screen->id, array( $this, 'filter_views' ) );
+	}
+
+	/**
+	 * Filter the view links that appear at the top of the Manage Posts view
+	 */
+	function filter_views( $views ) {
+
+		if ( array_key_exists( 'mine', $views ) )
+			return $views;
+
+		$views = array_reverse( $views );
+		$all_view = array_pop( $views );
+		$mine_args = array(
+				'author_name'           => wp_get_current_user()->user_nicename,
+			);
+		if ( 'post' != get_post_type() )
+			$mine_args['post_type'] = get_post_type();
+		if ( ! empty( $_REQUEST['author_name'] ) && wp_get_current_user()->user_nicename == $_REQUEST['author_name'] )
+			$class = ' class="current"';
+		else
+			$class = '';
+		$views['mine'] = $view_mine = '<a' . $class . ' href="' . add_query_arg( $mine_args, admin_url( 'edit.php' ) ) . '">' . __( 'Mine', 'co-authors-plus' ) . '</a>';
+
+		$views['all'] = str_replace( $class, '', $all_view );
+		$views = array_reverse( $views );
+
+		return $views;
 	}
 
 	/**
