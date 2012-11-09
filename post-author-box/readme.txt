@@ -3,8 +3,8 @@ Contributors: danielbachhuber
 Donate link: http://danielbachhuber.com/
 Tags: posts, authors, metadata, post author
 Requires at least: 3.0
-Tested up to: 3.3
-Stable tag: 1.3
+Tested up to: 3.4.2
+Stable tag: 1.4
 
 A supremely customizable way to add information about the author at the top or bottom of a post, page, or other view.
 
@@ -47,6 +47,9 @@ You can use basic HTML and CSS for styling.
 
 == Upgrade Notice ==
 
+= 1.4 =
+Filter search values on init so any newly registered tokens appear in the admin UI as well
+
 = 1.3 = 
 Coding standards cleanup. No functional changes.
 
@@ -57,6 +60,9 @@ Use `<?php post_author_box(); ?>` as a template tag within any loop in your them
 Display the Post Author Box on the homepage, in a feed or with other views of post content and support for three new tokens including %post_modified_date%
 
 == Changelog ==
+
+= 1.4 (Nov. 8, 2012) =
+* Filter search values on init so any newly registered tokens appear in the admin UI as well
 
 = 1.3 (Apr. 26, 2012) =
 * Coding standards cleanup
