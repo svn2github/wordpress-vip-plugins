@@ -34,6 +34,7 @@ TODO:
 * PHPDoc
 * Offset parameter in ES query to make paging
 * Fix non-working "size" (count) ES parameter
+* Search refinement using parameters like category, tags, authors, etc.
 
 **************************************************************************/
 
