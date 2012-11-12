@@ -99,13 +99,17 @@ class WPCOM_elasticsearch {
 		if ( ! $query->is_main_query() || ! $query->is_search() )
 			return $sql;
 
-		$search_query = es_api_query_index( array(
+		$es_query_args = array(
 			'multi_match' => array(
-				'query' => $query->query_vars['s'],
+				'query'  => $query->query_vars['s'],
 				'fields' => array( 'title', 'content' ),
 			),
 			'size' => $query->query_vars['posts_per_page'],
-		) );
+		);
+
+		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
+
+		$search_query = es_api_query_index( $es_query_args );
 
 		if ( ! $search_query ) {
 			$this->found_posts = 0;
