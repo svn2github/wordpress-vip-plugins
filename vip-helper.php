@@ -1,8 +1,8 @@
 <?php
 /*
  * VIP Helper Functions
- * 
- * These functions can all be used in your local WordPress environment. Add 
+ *
+ * These functions can all be used in your local WordPress environment. Add
 require_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper.php' );
  * in the theme's functions.php to use this
  */
@@ -109,7 +109,7 @@ function vip_regex_redirects( $vip_redirects_array = array(), $with_querystring 
 		$uri = parse_url( $uri, PHP_URL_PATH );
 
 	if( $uri && '/' != $uri ) { // don't process for homepage
-		
+
 		foreach ( $vip_redirects_array as $old_url => $new_url ) {
 			if ( preg_match( $old_url, $uri, $matches ) ) {
 				$redirect_uri = preg_replace( $old_url, $new_url, $uri );
@@ -173,7 +173,7 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 		$http_api_args['timeout'] = $timeout;
 		$response = wp_remote_get( $url, $http_api_args );
 	}
-	
+
 	// Was the request successful?
 	if ( $server_up && ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
 		$content = wp_remote_retrieve_body( $response );
@@ -187,7 +187,7 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 			$cache_header = trim( $cache_header );
 			// When multiple cache-control directives are returned, they are comma separated
 			foreach ( explode( ',', $cache_header ) as $cache_control ) {
-				// In this scenario, only look for the max-age directive 
+				// In this scenario, only look for the max-age directive
 				if( 'max-age' == substr( trim( $cache_control ), 0, 7 ) )
 					list( $cache_header_type, $cache_header_time ) = explode( '=', trim( $cache_control ) );
 			}
@@ -277,7 +277,7 @@ function _disable_autosave() {
 
 /*
  * Redirect http://blog.wordpress.com/feed/ to $target URL
- * Don't redirect if a feed service user agent, because that could result 
+ * Don't redirect if a feed service user agent, because that could result
  * in a loop.
  * Can be executed before wp init b/c checks the URI directly to see if main feed
  * ex. vip_main_feed_redirect( 'http://feeds.feedburner.com/ourfeeds/thefeed' );
@@ -293,7 +293,7 @@ function vip_main_feed_redirect( $target ) {
 /*
  * True if any of the formats of the main feed are requested
  * @author lloydbudd
- */ 
+ */
 function wpcom_vip_is_main_feed_requested() {
 	$toMatch = '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed|rss)/?$#i';
 	$request = $_SERVER['REQUEST_URI'];
@@ -304,15 +304,15 @@ function wpcom_vip_is_main_feed_requested() {
  * True if feed service user agent
  * batcache aware so that does not serve matched user agents from cache
  * @author lloydbudd
- */ 
+ */
 function wpcom_vip_is_feedservice_ua() {
 	if ( function_exists( 'wpcom_feed_cache_headers' ) ) {
 		// Workaround so that no feed request served from nginx wpcom-feed-cache
-		// If you are checking you must already know is a feed 
+		// If you are checking you must already know is a feed
 		// and don't want any requests cached
 		// ASSUMPTION: you've already confirmed is_feed() b/f calling
 		// wpcom_vip_is_feedservice_ua
-			header( "X-Accel-Expires: 0" ); 
+			header( "X-Accel-Expires: 0" );
 	}
 	if ( function_exists( 'vary_cache_on_function' ) ) { // batcache variant
 		vary_cache_on_function(
@@ -323,8 +323,8 @@ function wpcom_vip_is_feedservice_ua() {
 }
 
 /*
- * For flash hosted elsewhere to work it looks for crossdomain.xml in 
- * the host's * web root. If requested, this function echos 
+ * For flash hosted elsewhere to work it looks for crossdomain.xml in
+ * the host's * web root. If requested, this function echos
  * the crossdomain.xml file in the theme's root directory
  * @author lloydbudd
  */
@@ -366,20 +366,20 @@ function vip_multiple_moderators($emails) {
 }
 
 /**
- * Automatically insert meta description tag into posts/pages. 
+ * Automatically insert meta description tag into posts/pages.
  * - can be configured to use either first X chars/words of the post content or post excerpt if available
- * - can use category description for category archive pages if available 
- * - can use tag description for tag archive pages if available 
+ * - can use category description for category archive pages if available
+ * - can use tag description for tag archive pages if available
  * - can use blog description for everything else
  * - can use a default description if no suitable value is found
- * - can use the value of a custom field as description 
+ * - can use the value of a custom field as description
  *
  * @usage
  * // add a custom configuration via filter
  * function set_wpcom_vip_meta_desc_settings( $settings ) {
  * 		return array( 'length' => 10, 'length_unit' => 'char|word', 'use_excerpt' => true, 'add_category_desc' => true, 'add_tag_desc' => true, 'add_other_desc' => true, 'default_description' => '', 'custom_field_key' => '' );
  * }
- * add_filter( 'wpcom_vip_meta_desc_settings', 'set_wpcom_vip_meta_desc_settings' ); 
+ * add_filter( 'wpcom_vip_meta_desc_settings', 'set_wpcom_vip_meta_desc_settings' );
  * add_action( 'wp_head', 'wpcom_vip_meta_desc' );
  *
  * @author Thorsten Ott
@@ -392,7 +392,7 @@ function wpcom_vip_meta_desc() {
 }
 
 function wpcom_vip_get_meta_desc() {
-	$default_settings = array(	
+	$default_settings = array(
 		'length' => 25,              // amount of length units to use for the meta description
 		'length_unit' => 'word',     // the length unit can be either "word" or "char"
 		'use_excerpt' => true,       // if the post/page has an excerpt it will overwrite the generated description if this is set to true
@@ -415,7 +415,7 @@ function wpcom_vip_get_meta_desc() {
 		// check for a custom field holding a description
 		if ( !empty( $custom_field_key ) ) {
 			$post_custom = get_post_custom_values( $custom_field_key, $post->ID );
-			if ( !empty( $post_custom ) ) 
+			if ( !empty( $post_custom ) )
 				$text = $post_custom[0];
 		}
 		// check for an excerpt we can use
@@ -432,7 +432,7 @@ function wpcom_vip_get_meta_desc() {
 		$text = apply_filters( 'the_content', $text ); // make sure it's save
 		$text = trim( strip_tags( $text ) ); // get rid of tags and html fragments
 		if ( empty( $text ) && !empty( $default_description ) )
-			$text = $default_description;	
+			$text = $default_description;
 
 	} else if( is_category() && true == $add_category_desc ) {
 		$category = $wp_query->get_queried_object();
@@ -467,7 +467,7 @@ function wpcom_vip_get_meta_desc() {
 			$text = mb_strimwidth( $text, 0, $length, '...' );
 		}
 	}
-	
+
 	return $text;
 }
 
@@ -494,18 +494,18 @@ function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 
 	if ( empty( $vip_get_random_post_ids_where_add ) )
 		$where_add = "AND post_status='publish' AND post_type='post'";
-	else 
+	else
 		$where_add = $vip_get_random_post_ids_where_add;
 
 	$random_posts = array();
-	
+
 	if ( !has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) || !$all_ids = wp_cache_get( 'vip_random_posts_ids_' . md5( $where_add ), 'vip_get_random_posts_all_ids' ) ) {
 		$all_ids = vip_refresh_random_posts_all_ids();
 	}
 
-	if ( empty( $all_ids ) || is_wp_error( $all_ids ) ) 
+	if ( empty( $all_ids ) || is_wp_error( $all_ids ) )
 		return false;
-	
+
 	$seed = hexdec( substr( md5( microtime() ), -8 ) ) & 0x7fffffff;
 	mt_srand( $seed );
 
@@ -519,7 +519,7 @@ function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 		$random_id = mt_rand( $min_id, $max_id );
 		if ( isset( $vip_get_random_posts_rnd_ids[$random_id] ) )
 			continue;
-			
+
 		$vip_get_random_posts_rnd_ids[$random_id] = $all_ids[$random_id]->ID;
 	} while( count( $vip_get_random_posts_rnd_ids ) < $amount && $cycles <= $max_cycles );
 
@@ -538,13 +538,13 @@ function vip_refresh_random_posts_all_ids() {
 	global $wpdb, $vip_get_random_post_ids_where_add;
 	if ( empty( $vip_get_random_post_ids_where_add ) )
 		$where_add = "AND post_status='publish' AND post_type='post'";
-	else 
+	else
 		$where_add = $vip_get_random_post_ids_where_add;
 
 	$all_ids_query = "SELECT ID FROM $wpdb->posts WHERE 1 $where_add";
 	$all_ids_query = apply_filters( 'vip_get_random_posts_all_ids_query', $all_ids_query );
 	$all_ids = $wpdb->get_results( $all_ids_query );
-	if ( empty( $all_ids ) || is_wp_error( $all_ids ) ) 
+	if ( empty( $all_ids ) || is_wp_error( $all_ids ) )
 		return false;
 
 	if ( has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) )
@@ -553,8 +553,8 @@ function vip_refresh_random_posts_all_ids() {
 	return $all_ids;
 }
 
-/** 
- * An extended version of wp_remote_get() 
+/**
+ * An extended version of wp_remote_get()
  * This function prevents interruption of service due to slow 3rd party providers.
  * Once the timeout is hit an error counter is increased up to a threshold value. Once this value
  * is reached a fallback value or error object is returned until a retry time is reached.
@@ -566,14 +566,14 @@ function vip_refresh_random_posts_all_ids() {
  * $response = vip_safe_wp_remote_get( $url );
  * if ( is_wp_error( $response ) )
  * 		echo 'no value available';
- * else 
+ * else
  * 		echo wp_remote_retrieve_body( $response );
- * 
+ *
  * // get a url with 1 second timeout, cancel remote calls for 60 seconds after 1 failed attempts in 60 seconds occured
  * // display 'n/a' on failure
  * $response = vip_safe_wp_remote_get( $url, 'n/a', 1, 1, 60 );
  * echo $response;
- * 
+ *
  * @see http://codex.wordpress.org/HTTP_API
  * @author tottdev
  */
@@ -601,8 +601,8 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 
 	$option = wp_cache_get( $cache_key, $cache_group );
 
-	// check if the timeout was hit and obey the option and return the fallback value 
-	if ( false !== $option && time() - $option['time'] < $retry ) { 
+	// check if the timeout was hit and obey the option and return the fallback value
+	if ( false !== $option && time() - $option['time'] < $retry ) {
 		if ( $option['hits'] >= $threshold )
 			return ( $fallback_value ) ? $fallback_value : new WP_Error('remote_get_disabled', $option );
 	}
@@ -611,22 +611,22 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	$response = wp_remote_get( $url, array_merge( $args, array( 'timeout' => $timeout ) ) );
 	$end = microtime( true );
 
-	$elapsed = ( $end - $start ) > $timeout; 
+	$elapsed = ( $end - $start ) > $timeout;
 	if ( true === $elapsed ) {
-		if ( false !== $option && $option['hits'] < $threshold ) 
+		if ( false !== $option && $option['hits'] < $threshold )
 			wp_cache_set( $cache_key, array( 'time' => floor( $end ), 'hits' => $option['hits']+1 ), $cache_group, $retry );
-		else if ( false !== $option && $option['hits'] == $threshold ) 
+		else if ( false !== $option && $option['hits'] == $threshold )
 			wp_cache_set( $cache_key, array( 'time' => floor( $end ), 'hits' => $threshold ), $cache_group, $retry );
 		else
 			wp_cache_set( $cache_key, array( 'time' => floor( $end ), 'hits' => 1 ), $cache_group, $retry );
 	}
 	else {
-		if ( false !== $option && $option['hits'] > 0 && time() - $option['time'] < $retry ) 
+		if ( false !== $option && $option['hits'] > 0 && time() - $option['time'] < $retry )
 			wp_cache_set( $cache_key, array( 'time' => $option['time'], 'hits' => $option['hits']-1 ), $cache_group, $retry );
-		else 
+		else
 			wp_cache_delete( $cache_key, $cache_group);
 	}
-	
+
 	if ( is_wp_error( $response ) ) {
 		// Log errors for internal WP.com debugging
 		error_log( "vip_safe_wp_remote_get: Blog ID {$blog_id}: Fetching $url with a timeout of $timeout failed. Result: " . maybe_serialize( $response ) );
@@ -638,13 +638,13 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	return $response;
 }
 
-/** 
+/**
  * Disable comment counts in "Right Now" Dashboard widget as it can take a while to query this.
  */
 function disable_right_now_comment_count() {
 	if ( !is_admin() )
 		return;
-	
+
 	add_filter( 'wp_count_comments', '_disable_right_now_comment_count_filter', 0 );
 	add_action( 'wp_print_scripts', '_disable_right_now_comment_count_css' );
 }
@@ -695,7 +695,7 @@ function wpcom_vip_get_user_profile( $email_or_id ) {
 		$email = $user->user_email;
 	}
 
-	$hashed_email = md5( strtolower( trim( $email ) ) );	
+	$hashed_email = md5( strtolower( trim( $email ) ) );
 	$profile_url = esc_url_raw( sprintf( '%s.gravatar.com/%s.php', ( is_ssl() ? 'https://secure' : 'http://www' ), $hashed_email ), array( 'http', 'https' ) );
 
 	$profile = wpcom_vip_file_get_contents( $profile_url, 1, 900 );
@@ -739,7 +739,7 @@ function wpcom_vip_email_has_gravatar( $email ) {
 /**
  * Check that a URL matches a given whitelist
  *
- * Example whitelist: array( 'mydomain.com', 'mydomain.net' ) 
+ * Example whitelist: array( 'mydomain.com', 'mydomain.net' )
  */
 function wpcom_vip_is_valid_domain( $url, $whitelisted_domains ) {
 	$domain = parse_url( $url, PHP_URL_HOST );
