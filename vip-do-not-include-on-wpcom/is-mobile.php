@@ -1,9 +1,6 @@
 <?php
 /*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
+ * This file has been deprecated in favour of http://plugins.svn.wordpress.org/jetpack/trunk/class.jetpack-user-agent.php
  */
 
 function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
