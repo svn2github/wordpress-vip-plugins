@@ -100,6 +100,7 @@ class WPCOM_elasticsearch {
 		$page = ( empty( $query->query_vars['paged'] ) ) ? 1 : absint( $query->query_vars['paged'] );
 
 		$es_query_args = array(
+			//'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
 			'multi_match' => array(
 				'query'  => $query->query_vars['s'],
 				'fields' => array( 'title', 'content' ),
@@ -120,7 +121,7 @@ class WPCOM_elasticsearch {
 		// Get the post IDs of the results
 		$post_ids = array();
 		foreach ( $search_query->getResults() as $result ) {
-			$source = $result->getSource();
+			$source = $result->getData();
 			$post_ids[] = $source['id'];
 		}
 
