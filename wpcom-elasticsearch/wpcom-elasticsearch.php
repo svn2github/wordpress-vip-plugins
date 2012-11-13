@@ -111,7 +111,7 @@ class WPCOM_elasticsearch {
 
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
 
-		$search_query = es_api_query_index( $es_query_args );
+		$search_query = es_api_query_index( $es_query_args, 'blog-search' );
 
 		if ( ! $search_query ) {
 			$this->found_posts = 0;
