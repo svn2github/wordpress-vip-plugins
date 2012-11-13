@@ -140,17 +140,23 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 
 	$extra_args = wp_parse_args( $extra_args, $extra_args_defaults );
 
+	$cache_key       = md5( serialize( array_merge( $extra_args, array( 'url' => $url ) ) ) );
+	$backup_key      = $cache_key . '_backup';
+	$disable_get_key = $cache_key . '_disable';
+	$cache_group     = 'wpcom_vip_file_get_contents';
 
-	// $url = esc_url_raw( $url );
-
-	$cache_key = md5( $url );
-	$backup_key = 'backup:' . $cache_key;
-	$cache_group = 'wpcom_vip_file_get_contents';
-	$disable_get_key = 'disable:' . $cache_key;
+	// Temporary legacy keys to prevent mass cache misses during our key switch
+	$old_cache_key       = md5( $url );
+	$old_backup_key      = 'backup:' . $old_cache_key;
+	$old_disable_get_key = 'disable:' . $old_cache_key;
 
 	// Let's see if we have an existing cache already
 	// Empty strings are okay, false means no cache
 	if ( false !== $cache = wp_cache_get( $cache_key, $cache_group) )
+		return $cache;
+
+	// Legacy
+	if ( false !== $cache = wp_cache_get( $old_cache_key, $cache_group) )
 		return $cache;
 
 	// The timeout can be 1 to 10 seconds, we strongly recommend no more than 3 seconds
@@ -165,6 +171,10 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 
 	// Check to see if previous attempts have failed
 	if ( false !== wp_cache_get( $disable_get_key, $cache_group ) ) {
+		$server_up = false;
+	}
+	// Legacy
+	elseif ( false !== wp_cache_get( $old_disable_get_key, $cache_group ) ) {
 		$server_up = false;
 	}
 	// Otherwise make the remote request
@@ -214,6 +224,15 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	}
 	// Okay, it wasn't successful. Perhaps we have a backup result from earlier.
 	elseif ( $content = wp_cache_get( $backup_key, $cache_group ) ) {
+		// If a remote request failed, log why it did
+		if ( $response && ! is_wp_error( $response ) ) {
+			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
+		} elseif ( $response ) { // is WP_Error object
+			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		}
+	}
+	// Legacy
+	elseif ( $content = wp_cache_get( $old_backup_key, $cache_group ) ) {
 		// If a remote request failed, log why it did
 		if ( $response && ! is_wp_error( $response ) ) {
 			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
