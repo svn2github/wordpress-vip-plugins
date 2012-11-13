@@ -32,8 +32,6 @@ http://www.gnu.org/licenses/gpl-2.0.html
 TODO:
 
 * PHPDoc
-* Offset parameter in ES query to make paging
-* Fix non-working "size" (count) ES parameter
 * Search refinement using parameters like category, tags, authors, etc.
 
 **************************************************************************/
@@ -99,12 +97,15 @@ class WPCOM_elasticsearch {
 		if ( ! $query->is_main_query() || ! $query->is_search() )
 			return $sql;
 
+		$page = ( empty( $query->query_vars['paged'] ) ) ? 1 : absint( $query->query_vars['paged'] );
+
 		$es_query_args = array(
 			'multi_match' => array(
 				'query'  => $query->query_vars['s'],
 				'fields' => array( 'title', 'content' ),
 			),
 			'size' => $query->query_vars['posts_per_page'],
+			'from' => ( $page - 1 ) * $query->query_vars['posts_per_page'], // Offset
 		);
 
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
