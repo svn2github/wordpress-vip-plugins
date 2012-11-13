@@ -15,7 +15,6 @@
 				max_height = $img.attr( 'data-full-height' );
 
 			$img.hide()
-				.removeAttr( 'data-full-src' )
 				.attr( 'data-responsive-loaded', 'true' );
 
 			// if the image doesn't have a given dimension, set to screen dimension.

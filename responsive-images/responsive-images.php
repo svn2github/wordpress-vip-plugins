@@ -51,7 +51,7 @@ class Responsive_Images {
 
 				// Move the src to a data attribute and replace with a placeholder
 				if ( 'src' == $name ) {
-					$new_image_src = urldecode( $value );
+					$new_image_src = html_entity_decode( urldecode( $value ) );
 
 					parse_str( parse_url( $new_image_src, PHP_URL_QUERY ), $image_args );
 
