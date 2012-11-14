@@ -9,11 +9,6 @@ Author URI:   http://vip.wordpress.com/
 
 **************************************************************************/
 
-// You should be loading vip-init.php but just incase...
-if ( ! function_exists( 'wpcom_vip_get_photon_url' ) )
-	require_once( dirname( __DIR__ ) . '/vip-helper-wpcom.php' );
-
-
 class WPcom_Thumbnail_Editor {
 
 	/**
