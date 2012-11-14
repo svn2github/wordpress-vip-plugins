@@ -166,7 +166,7 @@ class WPcom_Thumbnail_Editor {
 				$thumbnail = image_downsize( $attachment->ID, $size );
 
 				// Resize the thumbnail to fit into a small box so it's displayed at a reasonable size
-				$thumbnail_url = wpcom_vip_get_photon_url( $thumbnail[0], array( 'fit' => array( 250, 250 ) ) );
+				$thumbnail_url = jetpack_photon_url( $thumbnail[0], array( 'fit' => array( 250, 250 ) ) );
 
 				$html .= '<div style="float:left;margin:0 20px 20px 0;min-width:250px;">';
 					$html .= '<a href="' . esc_url( $edit_url ) . '"';
@@ -676,7 +676,7 @@ class WPcom_Thumbnail_Editor {
 
 		list( $selection_x1, $selection_y1, $selection_x2, $selection_y2 ) = $coordinates;
 
-		$url = wpcom_vip_get_photon_url(
+		$url = jetpack_photon_url(
 			wp_get_attachment_url( $attachment_id ),
 			array(
 				'crop' => array( 
