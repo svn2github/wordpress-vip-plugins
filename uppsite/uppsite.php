@@ -4,7 +4,7 @@
  Plugin URI: http://www.uppsite.com/learnmore/
  Description: Uppsite is a fully automated plugin to transform your blog into native smartphone apps. <strong>**** DISABLING THIS PLUGIN WILL PREVENT YOUR APP USERS FROM USING THE APPS! ****</strong>
  Author: UppSite
- Version: 4.0.5
+ Version: 4.1
  Author URI: https://www.uppsite.com
  */
 
@@ -13,12 +13,14 @@ require_once( dirname(__FILE__) . '/fbcomments_page.inc.php' );
 if (!defined('MYSITEAPP_AGENT')):
 
 /** Plugin version **/
-define('MYSITEAPP_PLUGIN_VERSION', '4.0.5');
+define('MYSITEAPP_PLUGIN_VERSION', '4.1');
 
 /** Theme name in cookie **/
 define('MYSITEAPP_WEBAPP_PREF_THEME', 'uppsite_theme_select');
 /** Theme save time in cookie **/
 define('MYSITEAPP_WEBAPP_PREF_TIME', 'uppsite_theme_time');
+/** Preview flag **/
+define('MYSITEAPP_WEBAPP_PREVIEW', 'uppsite_preview');
 
 /** UppSite's data option key */
 define('MYSITEAPP_OPTIONS_DATA', 'uppsite_data');
@@ -46,11 +48,11 @@ define('MYSITEAPP_PUSHSERVICE', MYSITEAPP_WEBSERVICES_URL.'/push/notification.ph
 /** URL for report generator **/
 define('MYSITEAPP_APP_DOWNLOAD_SETTINGS', MYSITEAPP_WEBSERVICES_URL.'/settings/options_response.php');
 /** URL for fetching native app link **/
-define('MYSITEAPP_APP_NATIVE_URL', MYSITEAPP_WEBSERVICES_URL.'/getapplink.php');
+define('MYSITEAPP_APP_NATIVE_URL', MYSITEAPP_WEBSERVICES_URL.'/getapplink.php?v=2');
 /** URL for fetching API key & secret **/
 define('MYSITEAPP_AUTOKEY_URL', MYSITEAPP_WEBSERVICES_URL.'/autokeys.php');
 /** URL for fetching app preferences **/
-define('MYSITEAPP_PREFERENCES_URL', MYSITEAPP_WEBSERVICES_URL.'/preferences.php');
+define('MYSITEAPP_PREFERENCES_URL', MYSITEAPP_WEBSERVICES_URL . '/preferences.php?ver=' . MYSITEAPP_PLUGIN_VERSION);
 /** URL for the minisite upon plugin installation */
 define('MYSITEAPP_WEBAPP_MINISITE', MYSITEAPP_WEBSERVICES_URL.'/webapp/minisite.php?website=');
 /** URL for resrouces */
@@ -85,21 +87,60 @@ if (!defined('WP_PLUGIN_DIR'))
     define( 'WP_PLUGIN_DIR', WP_CONTENT_DIR.'/plugins');
 
 /**
+ * Helps to preview the webapp without the need of activating it
+ * @return bool Show the webapp or not (even if turned off)
+ */
+function mysiteapp_should_preview_webapp() {
+    if (isset($_COOKIE[MYSITEAPP_WEBAPP_PREVIEW]) && $_COOKIE[MYSITEAPP_WEBAPP_PREVIEW]) {
+        return true;
+    }
+    if (isset($_REQUEST['uppPreview'])) {
+        $previewRequest = $_REQUEST['uppPreview'];
+        $hash = md5(get_bloginfo('pingback_url'));
+        if ($previewRequest == $hash) {
+            // Save a cookie for later use (as following AJAX requests for the webapp data will be without the query string)
+            setcookie(MYSITEAPP_WEBAPP_PREVIEW, true, time() + 60*60*24*30);
+            return true;
+        }
+    }
+    return false;
+}
+/**
  * Tells whether the webapp should be enabled (according to activation and display mode)
+ * @note    We can request for it with a special query string that contain the md5 of xmlrpc url
  * @return bool Webapp should be enabled
  */
 function mysiteapp_should_show_webapp() {
+    $os = MySiteAppPlugin::detect_specific_os();
+    if ($os == "wp") {
+        // Windows Phone support in webapp isn't completed yet
+        return false;
+    }
     $options = get_option(MYSITEAPP_OPTIONS_OPTS);
-    return isset($options['activated']) && $options['activated'] && isset($options['webapp_mode']) &&
-        ($options['webapp_mode'] == "all" || $options['webapp_mode'] == "webapp_only");
+    return (isset($options['activated']) && $options['activated'] && isset($options['webapp_mode']) &&
+        ($options['webapp_mode'] == "all" || $options['webapp_mode'] == "webapp_only")) || mysiteapp_should_preview_webapp();
 }
 
 /**
- * @return string   Native app url (or null if no such app exists)
+ * @param $type string  What type of information the caller wish to retrieve (can be - url / identifier / store_url)
+ * @param $os string    App OS (can be null, then we will try to fetch the current OS's link)
+ * @return string   Native app information (or null if no such app/info exists)
  */
-function uppsite_get_native_link() {
+function uppsite_get_native_app($type = "url", $os = null) {
+    if (is_null($os)) {
+        $os = MySiteAppPlugin::detect_specific_os();
+    }
+    if (!in_array($type, array("url", "identifier", "store_url", "banner"))) {
+        // Sanitize the $type argument
+        return;
+    }
     $options = get_option(MYSITEAPP_OPTIONS_DATA);
-    return isset($options['native_url']) ? $options['native_url'] : null;
+    if (!isset($options['native_apps'])) {
+        return null;
+    }
+    $apps = $options['native_apps'];
+    return isset($apps[$os]) && array_key_exists($type, $apps[$os]) ? $apps[$os][$type] : null;
+
 }
 
 /**
@@ -110,8 +151,9 @@ function mysiteapp_should_show_landing() {
     $options = get_option(MYSITEAPP_OPTIONS_OPTS);
     $showLanding = isset($options['activated']) && $options['activated'] && isset($options['webapp_mode']) &&
         ($options['webapp_mode'] == "all" || $options['webapp_mode'] == "landing_only");
-    if ($showLanding && $options['webapp_mode'] == "landing_only") {
-        $showLanding = $showLanding && !is_null(uppsite_get_native_link());
+    if ($showLanding && !mysiteapp_should_show_webapp()) {
+        // "Landing only" or ("all" and "Windows Phone" client)
+        $showLanding = $showLanding && !is_null(uppsite_get_native_app());
     }
     return $showLanding;
 }
@@ -139,6 +181,29 @@ class MySiteAppPlugin {
     var $new_template = null;
 
     /**
+     * User agents of specific OSes
+     * @var array
+     */
+    static $_mobile_ua_os = array(
+        "ios" => array(
+            "iPhone",
+            "iPad",
+            "iPod"
+        ),
+        "android" => array(
+            "Android"
+        ),
+        "wp" => array(
+            "Windows Phone"
+        )
+    );
+
+    /**
+     * @var Current specific os (from $_mobile_ua_os), if identified
+     */
+    static $os = null;
+
+    /**
      * List of mobile user agents
      * @var array
      */
@@ -155,8 +220,6 @@ class MySiteAppPlugin {
         "Digital Paths",
         "UP.Browser",
         "Mazingo",
-        "iPhone",
-        "iPod",
         "Mobile",
         "T68",
         "Syncalot",
@@ -182,10 +245,9 @@ class MySiteAppPlugin {
         "Opera Mini",
         "NetFront",
         "BlackBerry",
-        "PSP",
-        "Android"
+        "PSP"
     );
-    
+
     /**
      * Constructor
      */
@@ -214,7 +276,7 @@ class MySiteAppPlugin {
             $this->is_app = true;
             $this->new_template = MYSITEAPP_TEMPLATE_APP;
         } elseif (mysiteapp_should_show_landing() || mysiteapp_should_show_webapp()) {
-            if (preg_match('/('.implode('|', self::$_mobile_ua).')/i', $_SERVER['HTTP_USER_AGENT'])) {
+            if (preg_match('/('.implode('|', self::$_mobile_ua).')/i', $_SERVER['HTTP_USER_AGENT']) || mysiteapp_should_preview_webapp()) {
                 // Mobile user (from some browser)
                 $this->is_mobile = true;
                 $this->new_template = $this->get_webapp_template();
@@ -258,6 +320,27 @@ class MySiteAppPlugin {
     function has_custom_theme() {
         return !is_null($this->new_template);
     }
+
+    /**
+     * @return string|null  A specific os from $_mobile_ua_os
+     */
+    static function detect_specific_os() {
+        if (is_null(self::$os)) {
+            foreach (self::$_mobile_ua_os as $osName => $ua) {
+                if (preg_match('/(' . implode('|', $ua) . ')/i', $_SERVER['HTTP_USER_AGENT'])) {
+                    self::$os = $osName;
+                    break;
+                }
+            }
+        }
+        return self::$os;
+    }
+}
+
+// Because PHP doesn't have static constructors, we merge all the user agents
+// together here, in global context
+foreach (MySiteAppPlugin::$_mobile_ua_os as $osName => $osUA) {
+    MySiteAppPlugin::$_mobile_ua = array_merge(MySiteAppPlugin::$_mobile_ua, $osUA);
 }
 
 /**
@@ -416,22 +499,21 @@ function mysiteapp_print_post($iterator = 0, $posts_layout = 'full') {
  * Helper function for converting html lists to xml
  * @param string $thelist  Output of the list
  * @param string $nodeName List type (category / tag / archive)
+ * @param string $idParam Search for /$idParam-(\d+)/ for id
  * @return string   A XML-formatted list
  */
-function mysiteapp_list($thelist, $nodeName) {
+function mysiteapp_list($thelist, $nodeName, $idParam = "") {
     global $msap;
     if ($msap->is_app) {
-        preg_match_all('/href=["\'](.*?)["\'](.*?)>(.*?)<\/a>/', $thelist, $result);
+        preg_match_all('/(?:class="[^"]*'.$idParam.'-(\d+)[^"]*".*?)?href=["\'](.*?)["\'].*?>(.*?)<\/a>/ms', $thelist, $result);
         $total = count($result[1]);
         $thelist = "";
         for ($i=0; $i<$total; $i++) {
-            $thelist .= sprintf(
-                "\t<%s>\n\t\t<title><![CDATA[%s]]></title>\n\t\t<permalink><![CDATA[%s]]></permalink>\n\t</%s>\n",
-                $nodeName,
-                $result[3][$i],
-                $result[1][$i],
-                $nodeName
-            );
+            $curId = $result[1][$i];
+            $thelist .= "\t<" . $nodeName . ( $curId ? " id=\"" . $curId ."\"" : "" ) .">\n\t\t";
+            $thelist .= "<title><![CDATA[" . $result[3][$i] . "]]></title>\n\t\t";
+            $thelist .= "<permalink><![CDATA[" . $result[2][$i] ."]]></permalink>\n\t";
+            $thelist .= "</" . $nodeName .">\n";
         }
     }
     return $thelist;
@@ -443,7 +525,7 @@ function mysiteapp_list($thelist, $nodeName) {
  * @return string    XML List of categories
  */
 function mysiteapp_list_cat($thelist){
-    return mysiteapp_list($thelist, 'category');
+    return mysiteapp_list($thelist, 'category', 'cat-item');
 }
 
 /**
@@ -469,7 +551,7 @@ function mysiteapp_list_archive($thelist){
  * @return string XML output
  */
 function mysiteapp_list_pages($thelist){
-    return mysiteapp_list($thelist, 'page');
+    return mysiteapp_list($thelist, 'page', 'page-item');
 }
 /**
  * Links list
@@ -560,6 +642,32 @@ function uppsite_extract_src_url($html) {
 }
 
 /**
+ * In some cases, the thumb image also appear in the post, and we with to remove it. Because it can appear in more than
+ * one size, we will search for the other size it might appear in.
+ * @note This function will be only called
+ * @param &$content string  Post content
+ * @param $thumb string Thumb url
+ */
+function uppsite_nullify_thumb(&$content, &$thumb) {
+    // Try to remove the image from the post
+    if (preg_match("/(.*?)(?:-)(\\d{1,4})([_x\\-]?\\d{0,4})(\\.[a-zA-Z]{1,4}.*)/", $thumb, $imgParts)) {
+        // Images of type 'http://nocamels.com/wp-content/uploads/2012/02/sellAring-55x55.jpg' has size modifiers
+        // that may not appear inside the post, so we will try to search for pictures with the same name
+        $sizeModifier = $imgParts[2];
+        if (is_numeric($sizeModifier) && intval($sizeModifier) < 50) {
+            // We guess that image galleries might be of url GALLERY-0.png, GALLERY-1.png and on, such as
+            // https://testrpcblog.files.wordpress.com/2012/03/assassins-creed-iii-20120326034850652-000.jpg?w=458
+            // so we return the full url
+            // So - do nothing
+        } else {
+            // Guessing we can remove the size modifiers, and give a better "thumb"
+            $thumb = $imgParts[1] . $imgParts[4];
+        }
+    }
+    $content = preg_replace("/<img[^>]*src=\"". str_replace("/", "\\/", $thumb) ."[^>]*>/ms", "", $content);
+}
+
+/**
  * Try and extract the first image in the post, to be used as thumbnail image.
  * If an image is found, it is removed from the content.
  * @param &$content string Post content
@@ -622,6 +730,10 @@ function mysiteapp_extract_thumbnail(&$content = null) {
     } else {
         // Found via the helper functions
         $thumb_url = uppsite_extract_src_url($thumb_url);
+        if (!is_null($content)) {
+            // Search for the original image in post, and remove it to remove doubles.
+            uppsite_nullify_thumb($content, $thumb_url);
+        }
     }
     return $thumb_url;
 }
@@ -771,7 +883,7 @@ function mysiteapp_sign_message($message){
  */
 function mysiteapp_is_need_new_link(){
     $dataOptions = get_option(MYSITEAPP_OPTIONS_DATA);
-    $lastCheck = isset($dataOptions['last_native_url_check']) ? $dataOptions['last_native_url_check'] : 0;
+    $lastCheck = isset($dataOptions['last_native_check']) ? $dataOptions['last_native_check'] : 0;
     // Should update once in a day
     return time() > $lastCheck + MYSITEAPP_ONE_DAY;
 }
@@ -808,7 +920,7 @@ function mysiteapp_prefs_init($forceUpdate = false) {
                     'uppsite_key' => $data['key'],
                     'uppsite_secret' => $data['secret'],
                     'prefs_update' => 0,
-                    'last_native_url_check' => 0
+                    'last_native_check' => 0
                 );
                 update_option(MYSITEAPP_OPTIONS_DATA, $dataOptions);
 
@@ -920,7 +1032,7 @@ function mysiteapp_get_app_links(){
         return false;
 
     $hash = mysiteapp_sign_message($options['uppsite_key']);
-    $get = '?api_key='.$options['uppsite_key'].'&hash='.$hash;
+    $get = '&api_key='.$options['uppsite_key'].'&hash='.$hash;
     
     $response = wp_remote_get(MYSITEAPP_APP_NATIVE_URL.$get);
     if (is_wp_error($response)) {
@@ -929,9 +1041,9 @@ function mysiteapp_get_app_links(){
 
     $data = json_decode($response['body'],true);
     if ($data) {
-        $options['native_url'] = $data['url'];
+        $options['native_apps'] = $data;
         // Set updated in this time
-        $options['last_native_url_check'] = time();
+        $options['last_native_check'] = time();
         update_option(MYSITEAPP_OPTIONS_DATA, $options);
     }
 }
@@ -1257,7 +1369,7 @@ function mysiteapp_remote_activation() {
             case "uppsite_key":
             case "uppsite_secret":
             case "prefs_update":
-            case "last_native_url_check":
+            case "last_native_check":
                 $dataOpts[$key] = $val;
                 break;
             case "activated":
@@ -1289,6 +1401,22 @@ function mysiteapp_get_ads() {
         $ret['matomy_zone_id'] = $prefs['matomy_zone_id'];
     }
     return json_encode($ret);
+}
+/**
+ * Returns data from the preferences
+ * @param $key string   Key to search
+ * @param $default  mixed   Default value to return if key is empty
+ * @return mixed    The value for this key, or null if no prefs/key not found
+ */
+function mysiteapp_get_prefs_value($key, $default = null) {
+    $prefs = get_option(MYSITEAPP_OPTIONS_PREFS);
+    if ($prefs === false || !array_key_exists($key, $prefs)) {
+        return $default ? $default : null;
+    }
+    if (!is_null($default) && empty($prefs[$key])) {
+        return $default;
+    }
+    return $prefs[$key];
 }
 /**
  * @return bool Has visited the site through the minisite? (Updated via remote)
@@ -1377,6 +1505,24 @@ function mysiteapp_future_post_push($post_id) {
 }
 
 /**
+ * Appends Apple's smart banner to the header only when having iOS app, and using the regular theme
+ * (wp_head hook)
+ */
+function mysiteapp_append_native_link() {
+    global $msap, $wp;
+    if ($msap->has_custom_theme()) {
+        // Mobile app / native / landing
+        return;
+    }
+
+    $appleId = uppsite_get_native_app("identifier", "ios");
+    if (!is_null($appleId) && uppsite_get_native_app("banner", "ios")) {
+        $currentUrl = add_query_arg( $wp->query_string, '', home_url( $wp->request ) );
+        print '<meta name="apple-itunes-app" content="app-id=' . $appleId . ', app-argument=' . esc_attr($currentUrl) . '"/>';
+    }
+}
+
+/**
  * Helper function for getting the current query to parse
  * @return WP_Query  A custom query made by the plugin, or the global query if none.
  */
@@ -1404,15 +1550,26 @@ function mysiteapp_should_show_homepage() {
 }
 
 /**
+ * @return array    Returns an array with homepage settings (if any)
+ */
+function uppsite_homepage_get_settings() {
+    $hpSettings = mysiteapp_get_prefs_value('homepage_settings');
+    return !is_null($hpSettings) ? json_decode($hpSettings, true) : array();
+}
+
+/**
  * @note    Enforcing max allowed posts in carousel - 15
  * @return int Number of posts to return for the carousel
  */
 function mysiteapp_homepage_carousel_posts_num() {
     $num = MYSITEAPP_HOMEPAGE_POSTS;
+    $homepageSettings = uppsite_homepage_get_settings();
     if (isset($_REQUEST['homepage_post']) && is_numeric($_REQUEST['homepage_post'])) {
-        $num = min( abs($_REQUEST['homepage_post']), 15 );
+        $num = $_REQUEST['homepage_post'];
+    } elseif (isset($homepageSettings['homepage_post']) && is_numeric($homepageSettings['homepage_post'])) {
+        $num = $homepageSettings['homepage_post'];
     }
-    return $num;
+    return min( abs($num), 15 );
 }
 
 /**
@@ -1421,10 +1578,26 @@ function mysiteapp_homepage_carousel_posts_num() {
  */
 function mysiteapp_homepage_cat_posts() {
     $num = MYSITEAPP_HOMEPAGE_DEFAULT_MIN_POSTS;
+    $homepageSettings = uppsite_homepage_get_settings();
     if (isset($_REQUEST['posts_num']) && is_numeric($_REQUEST['posts_num'])) {
-        $num = min( abs($_REQUEST['posts_num']), 15 );
+        $num = $_REQUEST['posts_num'];
+    } elseif (isset($homepageSettings['posts_num']) && is_numeric($homepageSettings['posts_num'])) {
+        $num = $homepageSettings['posts_num'];
     }
-    return $num;
+    return min( abs($num), 15 );
+}
+
+/**
+ * @note    Enforcing max rotate interval
+ * @return int Number of seconds for the carousel to rotate
+ */
+function mysiteapp_homepage_carousel_rotate_interval() {
+    $num = 5;
+    $homepageSettings = uppsite_homepage_get_settings();
+    if (isset($homepageSettings['rotate_interval']) && is_numeric($homepageSettings['rotate_interval'])) {
+        $num = $homepageSettings['rotate_interval'];
+    }
+    return min( abs($num), 30 );
 }
 
 /**
@@ -1526,6 +1699,8 @@ add_action('wp_ajax_uppsite_visited_minisite', 'mysiteapp_visited_minisite');
 add_action('publish_post','mysiteapp_new_post_push', 10, 1);
 add_action('publish_future_post','mysiteapp_future_post_push', 10, 1);
 
+/** Append smart banners to the header */
+add_action('wp_head', 'mysiteapp_append_native_link');
 
 
 endif; /*if (!defined('MYSITEAPP_AGENT')):*/

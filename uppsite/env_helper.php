@@ -270,7 +270,7 @@ if (mysiteapp_is_wpcom_vip()):
         remove_all_filters('excerpt_more');
         remove_all_filters('excerpt_length');
     }
-    add_action('uppsite_is_running', 'uppsite_vip_include_original_functions');
+    add_action('uppsite_is_running', 'uppsite_vip_include_original_functions', 1); // Run before any other action is running.
 else:
     // Fixes for various plugins, only in standalone env.
 
@@ -307,3 +307,17 @@ else:
     add_action('admin_init','mysiteapp_fix_cache_plugins',10);
 
 endif; // if (mysiteapp_is_wpcom_vip()):
+
+/**
+ * Disables interruping plugins in all envs.
+ */
+function uppsite_fix_interrupting_plugins() {
+    // Disable Lazy Load plugin
+    // The problem is that the 1x1 trans pixel is the "src" attr of all the pictures, thus causing us to get
+    // it instead of the real picture, so we will disable it.
+    add_action('lazyload_is_enabled', function($state) {
+        return false;
+    });
+}
+
+add_action('uppsite_is_running', 'uppsite_fix_interrupting_plugins', 15);

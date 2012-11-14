@@ -125,6 +125,7 @@ function mysiteapp_settings_uppsite_webapp(){
  */
 function mysiteapp_settings_uppsite_hidden() {
 	echo "<input type='hidden' name='uppsite_options[uppsite_plugin_version]' value='" . esc_attr( MYSITEAPP_PLUGIN_VERSION ) . "' />";
+	echo "<input type='hidden' name='uppsite_options[minisite_shown]' value='true' />"; // Ensure the minisite won't be displayed twice
 }
 
 /**

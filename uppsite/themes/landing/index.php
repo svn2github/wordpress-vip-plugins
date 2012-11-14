@@ -1,6 +1,8 @@
 <?php
-$native_url = uppsite_get_native_link();
+$native_url = uppsite_get_native_app('url');
 $base_dir = get_template_directory_uri();
+$app_name = mysiteapp_get_prefs_value('app_name');
+$app_name = !is_null($app_name) ? esc_html($app_name) : get_bloginfo('name');
 ?><html>
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -20,11 +22,12 @@ $base_dir = get_template_directory_uri();
             return false;
         }
     </script>
+    <title><?php echo $app_name ?></title>
 </head>
 <body>
 <div class="main-wrapper">
     <div id="top_container">
-        <h1><?php bloginfo('name');?> </h1>
+        <h1><?php echo $app_name ?></h1>
         <?php if (!is_null($native_url)): ?>
         <div class="button_image_wrapper">
             <a href='<?php echo esc_url( $native_url ); ?>'><img src='<?php echo esc_url( $base_dir . '/images/button1.png' ) ?>'/></a>

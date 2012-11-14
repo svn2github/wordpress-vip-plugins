@@ -11,12 +11,13 @@ if ($query->have_posts()) {
 
     // `mysiteapp_clean_output` - Avoid 'loop_end' output, if any
     while (mysiteapp_clean_output(array($query, 'have_posts'))) {
+        // Avoid 'loop_start' output, if any (some plugins make it)
+        // and make $GLOBALS['post'] populated for the next function (get_the_ID())
+        mysiteapp_clean_output(array($query, 'the_post'));
 
         // Adds the post to the list of excluded posts (will not be used if not in "homepage" view mode)
         mysiteapp_homepage_add_post(get_the_ID());
 
-        // Avoid 'loop_start' output, if any (some plugins make it)
-        mysiteapp_clean_output(array($query, 'the_post'));
         mysiteapp_print_post($iterator, $posts_layout);
 
         $iterator++;

@@ -132,6 +132,10 @@ We will notify you via email promptly after your app has been approved and is av
 
 == Changelog ==
 
+= 4.1 =
+* Added support for homepage display in the webapp.
+* Improved performance and stability of the webapp
+
 = 4.0.5 =
 * Added support for homepage display in mobile apps.
 * Fixed an issue caused when using mod_pagespeed of Apache with webapp.

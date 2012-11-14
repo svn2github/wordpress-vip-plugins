@@ -8,10 +8,9 @@
         $cats_ar = array_splice($cats_ar, 0, 15);
 
         foreach ($cats_ar as $cat) {
-            $number_of_posts_cat = mysiteapp_homepage_cat_posts();
             $cat_query = array(
                 'cat' => $cat,
-                'posts_per_page' =>  $number_of_posts_cat
+                'posts_per_page' =>  mysiteapp_homepage_cat_posts()
             );
 
             if (!mysiteapp_is_fresh_wordpress_installation()) {
