@@ -139,8 +139,6 @@ function uppsite_match($pattern, $subject) {
  * @param &$content string  Post content
  */
 function uppsite_process_body_filters(&$content) {
-	return $content; // VIP: disabled for now
-
     $prefs = get_option(MYSITEAPP_OPTIONS_PREFS);
     if (!is_array($prefs) || !array_key_exists('body_filter', $prefs)) {
         return;
