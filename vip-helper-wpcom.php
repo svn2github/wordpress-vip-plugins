@@ -272,15 +272,6 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	return ( $escape ) ? esc_url( $thumburl ) : $thumburl;
 }
 
-/**
- * DEPRECATED: Use jetpack_photon_url() instead. It's in Jetpack.
- *
- * @see http://developer.wordpress.com/docs/photon/
- */
-function wpcom_vip_get_photon_url( $image_url, $args ) {
-	return jetpack_photon_url( $image_url, $args );
-}
-
 /*
 
 Our Top Posts widget ( http://en.support.wordpress.com/widgets/top-posts-widget/ ) uses a display_top_posts() function to display a list of popular posts.
