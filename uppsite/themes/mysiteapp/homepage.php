@@ -6,6 +6,7 @@
 
         // Restrict maximum categories to iterate over.
         $cats_ar = array_splice($cats_ar, 0, 15);
+		$cats_ar = array_map( 'sanitize_text_field', $cats_ar );
 
         foreach ($cats_ar as $cat) {
             $cat_query = array(
