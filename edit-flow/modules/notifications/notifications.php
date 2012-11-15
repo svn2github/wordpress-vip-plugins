@@ -337,7 +337,7 @@ class EF_Notifications extends EF_Module {
 			
 			$post_id = $post->ID;
 			$post_title = ef_draft_or_post_title( $post_id );
-			$post_type = ucwords( $post->post_type );
+			$post_type = get_post_type_object( $post->post_type )->labels->singular_name;
 
 			if( 0 != $current_user->ID ) {
 				$current_user_display_name = $current_user->display_name;
@@ -444,7 +444,7 @@ class EF_Notifications extends EF_Module {
 		$current_user = wp_get_current_user();
 	
 		$post_id = $post->ID;
-		$post_type = ucwords( $post->post_type );
+		$post_type = get_post_type_object( $post->post_type )->labels->singular_name;
 		$post_title = ef_draft_or_post_title( $post_id );
 	
 		// Check if this a reply
@@ -518,6 +518,9 @@ class EF_Notifications extends EF_Module {
 		
 		if( $recipients && ! is_array( $recipients ) )
 			$recipients = explode( ',', $recipients );
+
+		$subject = apply_filters( 'ef_notification_send_email_subject', $subject, $action, $post );
+		$message = apply_filters( 'ef_notification_send_email_message', $message, $action, $post );
 		
 		if( EF_NOTIFICATION_USE_CRON ) {
 			$this->schedule_emails( $recipients, $subject, $message, $message_headers );

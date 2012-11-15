@@ -98,9 +98,11 @@ class EF_Custom_Status extends EF_Module {
 		add_filter( 'manage_pages_columns', array( $this, '_filter_manage_posts_columns' ) );
 		add_action( 'manage_pages_custom_column', array( $this, '_filter_manage_posts_custom_column' ) );	
 		
-		// These two methods are hacks for fixing bugs in WordPress core
+		// These four methods are hacks for fixing bugs in WordPress core
 		add_action( 'admin_init', array( $this, 'check_timestamp_on_publish' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'fix_custom_status_timestamp' ) );
+		add_action( 'wp_insert_post', array( $this, 'fix_post_name' ), 10, 2 );
+		add_filter( 'editable_slug', array( $this, 'fix_editable_slug' ) );
 		
 	}
 	
@@ -1232,11 +1234,7 @@ class EF_Custom_Status extends EF_Module {
 		// Don't run this if Edit Flow isn't active, or we're on some other page
 		if ( !isset( $edit_flow ) || $pagenow != 'post.php' || !isset( $_POST ) )
 			return $data;
-		$custom_statuses = get_terms( 'post_status', array( 'get' => 'all' ) );
-		$status_slugs = array();
-		foreach( $custom_statuses as $custom_status ) {
-			$status_slugs[] = $custom_status->slug;
-		}
+		$status_slugs = wp_list_pluck( get_terms( 'post_status', array( 'get' => 'all' ) ), 'slug' );
 		$ef_normalize_post_date_gmt = true;
 		// We're only going to normalize the post_date_gmt if the user hasn't set a custom date in the metabox
 		// and the current post_date_gmt isn't already future or past-ized
@@ -1251,6 +1249,69 @@ class EF_Custom_Status extends EF_Module {
 				$data['post_date_gmt'] = '0000-00-00 00:00:00';
 		return $data;
 	}
+
+	/**
+	 * Another hack! hack! hack! until core better supports custom statuses
+	 *
+	 * @since 0.7.4 
+	 *
+	 * Keep the post_name value empty for posts with custom statuses
+	 * Unless they've set it customly
+	 * @see https://github.com/danielbachhuber/Edit-Flow/issues/123
+	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2530
+	 * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/post.php#L2646
+	 */
+	public function fix_post_name( $post_id, $post ) {
+		global $pagenow;
+
+		// Only modify if we're using a pre-publish status on a supported custom post type
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+		if ( 'post.php' != $pagenow 
+			|| ! in_array( $post->post_status, $status_slugs ) 
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) ) )
+			return;
+
+		// The slug has been set by the meta box
+		if ( ! empty( $_POST['post_name'] ) )
+			return;
+
+		global $wpdb;
+
+		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
+		clean_post_cache( $post_id );
+	}
+	/**
+	 * Another hack! hack! hack! until core better supports custom statuses
+	 *
+	 * @since 0.7.4
+	 *
+	 * If the post_name for the object is empty, set it to sanitize_title() of post_title
+	 * However, we only want to do this the first time it's called on the page (slug editor)
+	 * and not in the post metabox, because the latter will set the value
+	 */
+	public function fix_editable_slug( $slug ) {
+		global $pagenow;
+
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			return $slug;
+
+		$post = get_post( get_the_ID() );
+
+		// Only modify if we're using a pre-publish status on a supported custom post type
+		$status_slugs = wp_list_pluck( $this->get_custom_statuses(), 'slug' );
+		if ( 'post.php' != $pagenow
+			|| ! in_array( $post->post_status, $status_slugs ) 
+			|| ! in_array( $post->post_type, $this->get_post_types_for_module( $this->module ) )
+			|| ! empty( $post->post_name ) )
+			return $slug;
+
+		$slug = sanitize_title( $post->post_title );
+		remove_filter( current_filter(), array( $this, __FUNCTION__ ) );
+
+		return $slug;
+
+	}
+
 		
 }
 
