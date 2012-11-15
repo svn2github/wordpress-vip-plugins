@@ -56,7 +56,6 @@
 		<a href="<?php get_option('home'); ?>"><?php bloginfo('name'); ?></a> is proudly powered by
 		<a href="http://wordpress.org/">WordPress</a><br />
 		<a href="<?php the_permalink(); ?>"><?php the_permalink(); ?></a> printed on <?php echo gmdate(get_option('date_format'), current_time('timestamp')); ?>
-		<!-- <?php echo get_num_queries(); ?> queries. <?php timer_stop(1); ?> seconds. -->
 	</p>
 </div>
 </div>
