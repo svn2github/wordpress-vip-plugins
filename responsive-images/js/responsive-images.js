@@ -10,18 +10,26 @@
 		jQuery( 'img[data-full-src]' ).each( function( i ) {
 			var img = this,
 				$img = $(img),
-				src = $img.attr( 'data-full-src' ),
-				max_width = $img.attr( 'data-full-width' ),
-				max_height = $img.attr( 'data-full-height' );
+				src = $img.data( 'full-src' ),
+				max_width = $img.data( 'full-width' ),
+				max_height = $img.data( 'full-height' ),
+				size_ratio = max_height / max_width,
+				crop = (src.indexOf('crop=1') != -1),
+				img_width,
+				img_height;
 
 			$img.hide()
-				.attr( 'data-responsive-loaded', 'true' );
+				.data( 'responsive-loaded', 'true' );
 
 			// if the image doesn't have a given dimension, set to screen dimension.
-			// if the image does have a dimension, set to screen if image dimension is bigger.
-			// otherwise default to image dimension.
-			var img_width = ! max_width || max_width > screen_width ? screen_width : max_width;
-			var img_height = max_height ? max_height : null;
+			// if the image does have a dimension, set to screen if image dimension is bigger, 
+			// proportionately if the crop value is passed in. otherwise default to image dimension.
+			img_width = ! max_width || max_width > screen_width ? screen_width : max_width;
+
+			if(max_height && max_width && crop)
+				img_height = parseInt( (img_width == max_width) ? max_height : size_ratio * img_width );
+			else if(max_height)
+				img_height = max_height;
 
 			if ( img_width )
 				src = responsive_add_query_arg( 'w', img_width, src );
