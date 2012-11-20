@@ -92,7 +92,7 @@ function vip_powered_wpcom_img_html( $image ) {
 		);
 
 		if ( array_key_exists( $image, $vip_powered_wpcom_images ) )
-				return '<a href="' . esc_url( vip_powered_wpcom_url() ) . '" rel="generator"><img src="' . esc_url( plugins_url( 'images/' . $vip_powered_wpcom_images[$image][0], __FILE__ ) ) . '" width="' . esc_attr( $vip_powered_wpcom_images[$image][1] ) . '" height="' . esc_attr( $vip_powered_wpcom_images[$image][2] ) . '" /></a>';
+				return '<a href="' . esc_url( vip_powered_wpcom_url() ) . '" rel="generator nofollow"><img src="' . esc_url( plugins_url( 'images/' . $vip_powered_wpcom_images[$image][0], __FILE__ ) ) . '" width="' . esc_attr( $vip_powered_wpcom_images[$image][1] ) . '" height="' . esc_attr( $vip_powered_wpcom_images[$image][2] ) . '" /></a>';
 		else
 			return '';
 }
@@ -100,7 +100,7 @@ function vip_powered_wpcom_img_html( $image ) {
 function vip_powered_wpcom( $display = 'text', $before_text = 'Powered by ' ) {
 	switch ($display) {
 		case 'text':
-			$output = $before_text . '<a href="' . esc_url( vip_powered_wpcom_url() ) . '" rel="generator">WordPress.com VIP</a>';
+			$output = $before_text . '<a href="' . esc_url( vip_powered_wpcom_url() ) . '" rel="generator nofollow">WordPress.com VIP</a>';
 			break;
 		case 1:
 		case 2:
@@ -120,11 +120,3 @@ function vip_powered_wpcom( $display = 'text', $before_text = 'Powered by ' ) {
 function vip_powered_wpcom_url() {
 	return 'http://vip.wordpress.com/';
 }
-
-/*
-add_action( 'wp_footer', 'vip_powered_wpcom_footer_check' );
-function vip_powered_wpcom_footer_check() {
-	if ( !is_active_widget( false, false, 'vip_powered_wpcom' ) )
-		echo vip_powered_wpcom();
-}
-*/
