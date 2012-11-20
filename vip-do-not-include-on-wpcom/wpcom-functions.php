@@ -26,7 +26,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 
 		$result = update_user_meta( $user_id, $meta_key, $meta_value );
 
-		if ( $return )
+		if ( $result )
 			do_action( 'updated_user_attribute', $user_id, $meta_key, $meta_value );
 
 		return $result;
