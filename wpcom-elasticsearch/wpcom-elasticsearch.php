@@ -130,7 +130,7 @@ class WPCOM_elasticsearch {
 
 		// Replace the search SQL with one that fetches the exact posts we want in the order we want
 		$post_ids_string = implode( ',', array_map( 'absint', $post_ids ) );
-		return "SELECT * FROM $wpdb->posts WHERE ID IN(" . $post_ids_string . ") ORDER BY find_in_set(ID, '" . $post_ids_string . "') /* ES search results */";
+		return "SELECT * FROM {$wpdb->posts} WHERE {$wpdb->posts}.ID IN( {$post_ids_string} ) ORDER BY FIELD( {$wpdb->posts}.ID, '{$post_ids_string}' ) /* ES search results */";
 	}
 
 	public function filter__found_posts_query( $sql, $query ) {
