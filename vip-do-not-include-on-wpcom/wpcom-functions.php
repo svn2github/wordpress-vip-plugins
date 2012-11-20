@@ -22,7 +22,14 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	 * @return bool True on successful update, false on failure.
 	 */
 	function update_user_attribute( $user_id, $meta_key, $meta_value ) {
-		return update_user_meta( $user_id, $meta_key, $meta_value );
+		do_action( 'updating_user_attribute', $user_id, $meta_key, $meta_value );
+
+		$result = update_user_meta( $user_id, $meta_key, $meta_value );
+
+		if ( $return )
+			do_action( 'updated_user_attribute', $user_id, $meta_key, $meta_value );
+
+		return $result;
 	}
 
 	/**
@@ -58,6 +65,8 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	 * @return bool True deletion completed and false if user_id is not a number.
 	 */
 	function delete_user_attribute( $user_id, $meta_key, $meta_value = '' ) {
+		do_action( 'deleted_user_attribute', $user_id, $meta_key, $meta_value );
+
 		return delete_user_meta( $user_id, $meta_key, $meta_value );
 	}
 
