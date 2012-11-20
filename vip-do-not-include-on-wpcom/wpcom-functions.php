@@ -40,10 +40,10 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	function get_user_attribute( $user_id, $meta_key ) {
 		if ( !$usermeta = get_user_meta( $user_id, $meta_key ) )
 			return false;
-			
+
 		if ( count($usermeta) == 1 )
 			return reset($usermeta);
-			
+
 		return $usermeta;
 	}
 
