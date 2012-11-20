@@ -194,6 +194,10 @@ function wpcom_vip_themes_root_uri() {
  * Returns the non-CDN URI to the specified path. Must be the full path, e.g. dirname( __FILE__ )
  */
 function wpcom_vip_noncdn_uri( $path ) {
+	// Be gentle on Windows, borrowed from core, see plugin_basename
+	$path = str_replace( '\\','/', $path ); // sanitize for Win32 installs
+	$path = preg_replace( '|/+|','/', $path ); // remove any duplicate slash
+
 	return sprintf( '%s%s', wpcom_vip_themes_root_uri(), str_replace( wpcom_vip_themes_root(), '', $path ) );
 }
 
