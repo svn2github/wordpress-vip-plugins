@@ -65,9 +65,11 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	 * @return bool True deletion completed and false if user_id is not a number.
 	 */
 	function delete_user_attribute( $user_id, $meta_key, $meta_value = '' ) {
+		$result = delete_user_meta( $user_id, $meta_key, $meta_value );
+
 		do_action( 'deleted_user_attribute', $user_id, $meta_key, $meta_value );
 
-		return delete_user_meta( $user_id, $meta_key, $meta_value );
+		return $result;
 	}
 
 	// These functions are defined on WordPress.com and can be a common source of frustration for VIP devs
