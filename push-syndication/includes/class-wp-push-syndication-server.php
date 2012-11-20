@@ -50,6 +50,25 @@ class WP_Push_Syndication_Server {
 
     public function init() {
 
+        $capability = apply_filters( 'syn_syndicate_cap', 'manage_options' );
+
+        $post_type_capabilities = array(
+				    'edit_post' => $capability,
+				    'read_post' => $capability,
+				    'delete_post' => $capability,
+				    'edit_posts' => $capability,
+				    'edit_others_posts' => $capability,
+				    'publish_posts' => $capability,
+				    'read_private_posts' => $capability
+        );
+				
+        $taxonomy_capabilities = array(
+            'manage_terms' => 'manage_categories',
+            'edit_terms'   => 'manage_categories',
+            'delete_terms' => 'manage_categories',
+            'assign_terms' => 'edit_posts',
+        );
+				
         register_post_type( 'syn_site', array(
             'labels' => array(
                 'name'              => __( 'Sites' ),
@@ -61,7 +80,7 @@ class WP_Push_Syndication_Server {
                 'view_item'         => __( 'View Site' ),
                 'search_items'      => __( 'Search Sites' ),
             ),
-            'description'           => __( 'Sites in the netowrk' ),
+            'description'           => __( 'Sites in the network' ),
             'public'                => false,
             'show_ui'               => true,
             'publicly_queryable'    => false,
@@ -73,6 +92,7 @@ class WP_Push_Syndication_Server {
             'supports'              => array( 'title' ),
             'can_export'            => true,
             'register_meta_box_cb'  => array( $this, 'site_metaboxes' ),
+            'capabilities'          => $post_type_capabilities,
         ));
 
         register_taxonomy( 'syn_sitegroup', 'syn_site', array(
@@ -96,6 +116,7 @@ class WP_Push_Syndication_Server {
                 'show_in_nav_menus'     => false,
                 'hierarchical'          => true,
                 'rewrite'               => false,
+                'capabilities'          => $taxonomy_capabilities,
         ));
 
         $this->push_syndicate_default_settings = array(
@@ -144,7 +165,6 @@ class WP_Push_Syndication_Server {
 	}
 	
     public function admin_init() {
-
         // @TODO define more parameters
 		$name_match = '#class-wp-(.+)-client\.php#';
 		
@@ -163,7 +183,7 @@ class WP_Push_Syndication_Server {
 					}
 			}
 		}
-
+        $this->push_syndicate_transports = apply_filters( 'syn_transports', $this->push_syndicate_transports );
 		// register styles and scripts
         wp_register_style( 'syn_sites', plugins_url( 'css/sites.css', __FILE__ ), array(), $this->version  );
 
@@ -199,7 +219,7 @@ class WP_Push_Syndication_Server {
     }
 
     public function register_syndicate_settings() {
-        add_submenu_page( 'options-general.php', esc_html__( 'Push Syndication Settings', 'push-syndication' ), esc_html__( 'Push Syndication', 'push-syndication' ), 'manage_options', 'push-syndicate-settings', array( $this, 'display_syndicate_settings' ) );
+        add_submenu_page( 'options-general.php', esc_html__( 'Push Syndication Settings', 'push-syndication' ), esc_html__( 'Push Syndication', 'push-syndication' ), apply_filters('syn_syndicate_cap', 'manage_options'), 'push-syndicate-settings', array( $this, 'display_syndicate_settings' ) );
     }
 
     public function display_syndicate_settings() {
@@ -1135,9 +1155,9 @@ class WP_Push_Syndication_Server {
             if( $site_enabled != 'on' )
                 continue;
 
-            $inserted_posts = get_post_meta( $site->ID, 'syn_inserted_posts', true);
-            $transport_type = get_post_meta( $site->ID, 'syn_transport_type', true);
-            $client         = WP_Client_Factory::get_client( $transport_type  ,$site->ID );
+            $inserted_posts = get_post_meta( $site->ID, 'syn_inserted_posts', true );
+            $transport_type = get_post_meta( $site->ID, 'syn_transport_type', true );
+            $client         = WP_Client_Factory::get_client( $transport_type, $site->ID );
             $posts          = $client->get_posts();
 
             if( empty( $posts ) )
