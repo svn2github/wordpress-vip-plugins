@@ -3,7 +3,9 @@ ob_start();
 $all_posts = array();
 while (have_posts()) {
     the_post();
-    $all_posts[] = uppsite_process_post();
+    if ( !uppsite_should_filter( get_permalink() ) ) {
+        $all_posts[] = uppsite_process_post();
+    }
 }
 
 $total_count = wp_count_posts()->publish;

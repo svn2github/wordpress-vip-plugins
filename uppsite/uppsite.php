@@ -895,7 +895,7 @@ function mysiteapp_needs_prefs_update() {
     $dataOptions = get_option(MYSITEAPP_OPTIONS_DATA);
     $lastCheck = isset($dataOptions['prefs_update']) ? $dataOptions['prefs_update'] : 0;
     // Should update once in 12 hours
-    return time() > $lastCheck + (MYSITEAPP_ONE_DAY / 2);
+    return time() > $lastCheck + (MYSITEAPP_ONE_DAY / 2);
 }
 
 /**
@@ -1363,14 +1363,17 @@ function mysiteapp_remote_activation() {
 
     // Allow only some keys, and into specific tables.
     $opts = get_option(MYSITEAPP_OPTIONS_OPTS);
+    $refreshPrefs = false;
     foreach ($data as $key=>$val) {
         switch ($key) {
             case "app_id":
             case "uppsite_key":
             case "uppsite_secret":
-            case "prefs_update":
             case "last_native_check":
                 $dataOpts[$key] = $val;
+                break;
+            case "update_prefs":
+                $refreshPrefs = true;
                 break;
             case "activated":
             case "webapp_mode":
@@ -1381,6 +1384,9 @@ function mysiteapp_remote_activation() {
     }
     update_option(MYSITEAPP_OPTIONS_DATA ,$dataOpts);
     update_option(MYSITEAPP_OPTIONS_OPTS, $opts);
+    if ($refreshPrefs) {
+        mysiteapp_prefs_init(true);
+    }
 }
 
 /**
@@ -1400,6 +1406,12 @@ function mysiteapp_get_ads() {
         $ret['matomy_site_id'] = $prefs['matomy_site_id'];
         $ret['matomy_zone_id'] = $prefs['matomy_zone_id'];
     }
+    $state_arr = array(
+        '0' => 'none',
+        '1' => 'top',
+        '2' => 'bottom'
+    );
+    $ret['ad_state'] = array_key_exists($prefs['ad_state'], $state_arr) ? $state_arr[$prefs['ad_state']] : 1;
     return json_encode($ret);
 }
 /**

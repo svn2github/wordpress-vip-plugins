@@ -1,17 +1,17 @@
 <?php
-$app_name = mysiteapp_get_prefs_value('app_name');
-$app_name = !is_null($app_name) ? esc_html($app_name) : get_bloginfo('name');
-
+$app_name = mysiteapp_get_prefs_value('app_name', get_bloginfo('name'));
+$has_tabbar = mysiteapp_get_prefs_value('menu_type') ? mysiteapp_get_prefs_value('menu_type') == 0 : true;
 $has_homepage = mysiteapp_get_prefs_value('has_homepage') ? mysiteapp_get_prefs_value('has_homepage') == "true" : false;
 $has_homepage &= MySiteAppPlugin::detect_specific_os() != "android"; // Homepage on Android isn't functional.
-$has_tabbar = mysiteapp_get_prefs_value('menu_type') ? mysiteapp_get_prefs_value('menu_type') == 0 : true;
 
-$direction = mysiteapp_get_prefs_value('direction') ? mysiteapp_get_prefs_value('direction') : 'ltr';
+$navbar_img = mysiteapp_get_prefs_value('navbar_background_url', '');
+$direction = mysiteapp_get_prefs_value('direction', 'ltr');
+$hideLogin = mysiteapp_get_prefs_value('hide_login','false');
 ?>
 <!DOCTYPE html>
 <html>
 <head>
-    <title><?php echo $app_name; ?></title>
+    <title><?php echo esc_html( $app_name ); ?></title>
     <style type="text/css">
         html, body {
             height: 100%;
@@ -31,6 +31,7 @@ $direction = mysiteapp_get_prefs_value('direction') ? mysiteapp_get_prefs_value(
     <script type="text/javascript">
         var UPPSITE_ROOT_URL = "<?php echo esc_js( uppsite_get_webapp_dir_uri() ); ?>/";
         var UPPSITE_BLOG_URL = "<?php echo esc_js( home_url( '/' ) ); ?>";
+        var UPPSITE_NAVBAR_IMG = "<?php echo esc_js( $navbar_img ); ?>";
         var UPPSITE_BLOG_NAME = "<?php echo esc_js( $app_name ); ?>";
         var UPPSITE_ADS = <?php echo mysiteapp_get_ads(); ?>;
         var UPPSITE_PLUGIN_VERSION = "<?php echo esc_js( mysiteapp_get_plugin_version() ); ?>";
@@ -43,6 +44,8 @@ $direction = mysiteapp_get_prefs_value('direction') ? mysiteapp_get_prefs_value(
         var UPPSITE_IS_TABBAR = <?php echo $has_tabbar ? "true" : "false" ?>;
         var UPPSITE_COLOURS = <?php echo json_encode(uppsite_get_colours()); ?>;
         var UPPSITE_HOMEPAGE_CAROUSEL_TIMER = <?php echo mysiteapp_homepage_carousel_rotate_interval() ?>;
+        var UPPSITE_HIDE_LOGIN  = <?php echo $hideLogin; ?>;
+        var UPPSITE_CUR_URL = "<?php echo esc_js( home_url( '/' ) ) ?>";
     </script>
     <script type="text/javascript" id="placeholder"></script>
     <script type="text/javascript" src="<?php echo MYSITEAPP_WEBSERVICES_URL . "/js/webapp_helper.js"?>"></script>

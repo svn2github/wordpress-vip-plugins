@@ -139,11 +139,10 @@ function uppsite_match($pattern, $subject) {
  * @param &$content string  Post content
  */
 function uppsite_process_body_filters(&$content) {
-    $prefs = get_option(MYSITEAPP_OPTIONS_PREFS);
-    if (!is_array($prefs) || !array_key_exists('body_filter', $prefs)) {
+    $filters = json_decode(mysiteapp_get_prefs_value('body_filter', null));
+    if (count($filters) == 0) {
         return;
     }
-    $filters = json_decode($prefs['body_filter']);
     $tmpContent = $content;
     foreach ($filters as $filter) {
         $search = "/" . $filter[0] . "/ms"; // Set PRCE regex - with MULTILINE and DOTALL params.
@@ -164,6 +163,32 @@ function uppsite_is_homepage_carousel() {
 }
 
 /**
+ * Checks if the object should be filtered from results by checking its permalink
+ * @param $obj  Object/Array of data that needs to be checked
+ * @return boolean  Whether this object should be filtered or not.
+ */
+function uppsite_should_filter($obj) {
+    $permalink = null;
+    if ( is_object($obj) && isset($obj->permalink) ) {
+        $permalink = $obj->permalink;
+    } elseif ( is_array($obj) && array_key_exists('permalink', $obj) ) {
+        $permalink = $obj['permalink'];
+    } elseif ( is_string($obj) ) {
+        $permalink = $obj;
+    }
+    $url_filters = json_decode(mysiteapp_get_prefs_value('url_filter', null), true);
+    if (empty($permalink) || count($url_filters) == 0) {
+        return false;
+    }
+    foreach ($url_filters as $filter) {
+        if (uppsite_match($filter, $permalink)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Returns the post information
  * @param bool $with_content Include the content or not?
  * @return array
@@ -179,9 +204,7 @@ function uppsite_process_post($with_content = false) {
         'unix_time' => apply_filters('the_time', get_the_time( 'U' ), 'U'),
         'comments_link' => get_comments_link(),
         'comments_num' => get_comments_number(),
-        'comments_open' => comments_open(),
-        'tags' => uppsite_posts_list('get_the_tag_list', false),
-        'categories' => uppsite_posts_list('wp_list_categories', false)
+        'comments_open' => comments_open()
     );
     $post_content = null;
     if ($with_content) {
@@ -194,8 +217,6 @@ function uppsite_process_post($with_content = false) {
 
     if ($with_content) {
         uppsite_process_body_filters($post_content);
-        /** TEMPORARY REMOVE GALLERIES! */
-        $post_content = preg_replace("/\*\*\*GALLERY.+?\*\*\*/ms", "", $post_content);
         $ret['content'] = $post_content;
     }
 
@@ -228,7 +249,16 @@ function uppsite_process_post($with_content = false) {
  */
 function uppsite_posts_list($funcname, $echo = true) {
     $list = call_user_func($funcname, array('echo' => false));
-    $arr = uppsite_format_html_to_array($list);
+    $tmpArr = uppsite_format_html_to_array($list);
+
+    // Filter posts
+    $arr = array();
+    foreach ($tmpArr as $val) {
+        if ( !uppsite_should_filter( $val ) ) {
+            $arr[] = $val;
+        }
+    }
+
     if (!$echo) {
         return $arr;
     }

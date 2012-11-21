@@ -12,8 +12,10 @@ $all_posts = array();
 $carouselPosts = array();
 while (have_posts()) {
     the_post();
-    $carouselPosts[] = uppsite_process_post();
-    mysiteapp_homepage_add_post(get_the_ID());
+    if ( !uppsite_should_filter( get_permalink() ) ) {
+        $carouselPosts[] = uppsite_process_post();
+        mysiteapp_homepage_add_post(get_the_ID());
+    }
 }
 $all_posts[] = array(
     'id' => 0,
@@ -25,6 +27,11 @@ $all_posts[] = array(
 $cats_array = array_splice(uppsite_homepage_get_categories(), 0, 15); // Restrict maximum categories to iterate over.
 
 foreach ($cats_array as $cat) {
+    $category_link = get_category_link($cat);
+    if ( uppsite_should_filter($category_link) ) {
+        // Check if we need to skip some categories.
+        continue;
+    }
     // Perform query for posts in this category
     $cat_query = array(
         'cat' => $cat,
@@ -40,13 +47,16 @@ foreach ($cats_array as $cat) {
         $current_cat = get_category_by_slug($query->get('category_name'));
         while ($query->have_posts()) {
             $query->the_post(); // Will populate $GLOBALS['post']
+            if (uppsite_should_filter( get_permalink() )) {
+                continue;
+            }
             $cur_post = uppsite_process_post();
 
             // Make sure we won't get the same post again.
             mysiteapp_homepage_add_post(get_the_ID());
 
             $cur_post['category'] = $current_cat->name;
-            $cur_post['category_link'] = get_category_link($cat);
+            $cur_post['category_link'] = $category_link;
 
             $all_posts[] = $cur_post;
         }

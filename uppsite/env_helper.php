@@ -315,9 +315,7 @@ function uppsite_fix_interrupting_plugins() {
     // Disable Lazy Load plugin
     // The problem is that the 1x1 trans pixel is the "src" attr of all the pictures, thus causing us to get
     // it instead of the real picture, so we will disable it.
-    add_action('lazyload_is_enabled', function($state) {
-        return false;
-    });
+    add_action('lazyload_is_enabled', create_function('$state', 'return false;'));
 }
 
 add_action('uppsite_is_running', 'uppsite_fix_interrupting_plugins', 15);
