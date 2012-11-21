@@ -29,7 +29,14 @@ function pabx_add_replace_values( $tokens ) {
 	$tokens['%coauthors%'] = coauthors( null, null, null, null, false );
 	$tokens['%coauthors_posts_links%'] = coauthors_posts_links( null, null, null, null, false );
 	$tokens['%coauthors_firstnames%'] = coauthors_firstnames( null, null, null, null, false );
-	// Modify the %avatar% token to maybe use the coauthor
+	// Modify these tokens too, because they might be guest authors
+	$tokens['%display_name%'] = $coauthor->display_name;
+	$tokens['%first_name%'] = $coauthor->first_name;
+	$tokens['%last_name%'] = $coauthor->last_name;
+	$tokens['%description%'] = $coauthor->description;
+	$tokens['%email%'] = $coauthor->email;
+	$tokens['%jabber%'] = $coauthor->jabber;
+	$tokens['%aim%'] = $coauthor->aim;
 	$tokens['%avatar%'] = get_avatar( $coauthor->user_email );
 	return $tokens;
 }
