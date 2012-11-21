@@ -275,8 +275,12 @@ class CoAuthors_Guest_Authors
 			die();
 
 		$search = sanitize_text_field( $_GET['q'] );
+		if ( ! empty( $_GET['guest_author'] ) )
+			$ignore = array( $this->get_guest_author_by( 'ID', (int)$_GET['guest_author'] )->user_login );
+		else
+			$ignore = array();
 
-		$results = wp_list_pluck( $coauthors_plus->search_authors( $search ), 'user_login' );
+		$results = wp_list_pluck( $coauthors_plus->search_authors( $search, $ignore ), 'user_login' );
 		$retval = array();
 		foreach( $results as $user_login ) {
 			$coauthor = $coauthors_plus->get_coauthor_by( 'user_login', $user_login );
@@ -345,7 +349,25 @@ class CoAuthors_Guest_Authors
 
 			wp_enqueue_style( 'guest-authors-css', COAUTHORS_PLUS_URL . 'css/guest-authors.css', false, COAUTHORS_PLUS_VERSION );
 			wp_enqueue_script( 'guest-authors-js', COAUTHORS_PLUS_URL . 'js/guest-authors.js', false, COAUTHORS_PLUS_VERSION );
+		} else if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) && $this->post_type == get_post_type() ) {
+			add_action( 'admin_head', array( $this, 'change_title_icon' ) );
 		}
+	}
+
+	/**
+	 * Change the icon appearing next to the title
+	 * Core doesn't allow us to filter screen_icon(), so changing the ID is the next best thing
+	 *
+	 * @since 3.0.1
+	 */
+	function change_title_icon() {
+		?>
+		<script type="text/javascript">
+			jQuery(document).ready(function($){
+				$('#icon-edit').attr('id', 'icon-users');
+			});
+		</script>
+		<?php
 	}
 
 	/**
@@ -423,7 +445,7 @@ class CoAuthors_Guest_Authors
 			// Hidden stuffs
 			echo '<input type="hidden" name="action" value="delete-guest-author" />';
 			wp_nonce_field( 'delete-guest-author' );
-			echo '<input type="hidden" name="id" value="' . esc_attr( (int)$_GET['id'] ) . '" />';
+			echo '<input type="hidden" id="id" name="id" value="' . esc_attr( (int)$_GET['id'] ) . '" />';
 			echo '<fieldset><ul style="list-style-type:none;">';
 			// Reassign to another user
 			echo '<li class="hide-if-no-js"><label for="reassign-another">';
