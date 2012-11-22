@@ -40,10 +40,8 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 		//Defaults
 		$instance = wp_parse_args( (array) $instance, array('display' => 'text') );
 
-		$display = $instance['display'];
-		$bg_color_preview = $instance['bg_color_preview'];
-		if ( '' == $bg_color_preview )
-			$bg_color_preview = '#ffffff';
+		$display          = !empty( $instance['display']          ) ? $instance['display']          : '';
+		$bg_color_preview = !empty( $instance['bg_color_preview'] ) ? $instance['bg_color_preview'] : '#ffffff';
 
 		$choices = array(
 			'text' => 'Text Link',
@@ -53,7 +51,7 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 			4 => 'Light 166x26 Image',
 			5 => 'Light 208x56 Image',
 			6 => 'Light 295x56 Image'
-			);
+		);
 
 		echo "<p>Display option. Images have a transparent background.<br />
 			<select id='" . $this->get_field_id( 'display' ) . "' name='" . $this->get_field_name( 'display' ) . "'>";
