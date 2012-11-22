@@ -38,19 +38,17 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 
 	function form( $instance ) {
 		//Defaults
-		$instance = wp_parse_args( (array) $instance, array('display' => 'text') );
-
-		$display          = !empty( $instance['display']          ) ? $instance['display']          : '';
+		$instance         = wp_parse_args( (array) $instance, array( 'display' => 'text' ) );
+		$display          = !empty( $instance['display']          ) ? $instance['display']          : 'text';
 		$bg_color_preview = !empty( $instance['bg_color_preview'] ) ? $instance['bg_color_preview'] : '#ffffff';
-
-		$choices = array(
+		$choices          = array(
 			'text' => 'Text Link',
-			1 => 'Dark 166x26 Image',
-			2 => 'Dark 208x56 Image',
-			3 => 'Dark 295x56 Image',
-			4 => 'Light 166x26 Image',
-			5 => 'Light 208x56 Image',
-			6 => 'Light 295x56 Image'
+			1      => 'Dark 166x26 Image',
+			2      => 'Dark 208x56 Image',
+			3      => 'Dark 295x56 Image',
+			4      => 'Light 166x26 Image',
+			5      => 'Light 208x56 Image',
+			6      => 'Light 295x56 Image'
 		);
 
 		echo "<p>Display option. Images have a transparent background.<br />
