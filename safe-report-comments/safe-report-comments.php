@@ -5,7 +5,7 @@ Plugin Script: safe-report-comments.php
 Plugin URI: http://wordpress.org/extend/plugins/safe-report-comments/
 Description: This script gives visitors the possibility to flag/report a comment as inapproriate. 
 After reaching a threshold the comment is moved to moderation. If a comment is approved once by a moderator future reports will be ignored.
-Version: 0.3
+Version: 0.3.1
 Author: Thorsten Ott, Daniel Bachhuber, Automattic
 Author URI: http://automattic.com
 */
@@ -112,8 +112,16 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 
 		public function action_enqueue_scripts() {
 
+			// Use home_url() if domain mapped to avoid cross-domain issues
+			if ( home_url() != site_url() )
+				$ajaxurl = home_url( '/wp-admin/admin-ajax.php' );
+			else
+				$ajaxurl = admin_url( 'admin-ajax.php' );
+
+			$ajaxurl = apply_filters( 'safe_report_comments_ajax_url', $ajaxurl );
+
 			wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ) );
-			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'SafeCommentsAjax', array( 'ajaxurl' => home_url( '/wp-admin/admin-ajax.php' ) ) ); // slightly dirty but needed due to possible problems with mapped domains
+			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'SafeCommentsAjax', array( 'ajaxurl' => $ajaxurl ) ); // slightly dirty but needed due to possible problems with mapped domains
 		}
 
 		public function add_test_cookie() {
