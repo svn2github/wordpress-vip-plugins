@@ -639,13 +639,13 @@ function wpcom_disable_mobile_app_promotion() {
 /**
  * Enables term_order functionality
  */
-function enable_term_order_functionality() {
+function wpcom_vip_enable_term_order_functionality() {
 	$db_version = get_option( 'db_version' );
 	$cmp_db_version = 6846;
 	if ( $db_version >= $cmp_db_version )
-		add_action( 'set_object_terms', '_enable_term_order_functionality', 1, 6 );
+		add_action( 'set_object_terms', '_wpcom_vip_enable_term_order_functionality', 1, 6 );
 }
-function _enable_term_order_functionality( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+function _wpcom_vip_enable_term_order_functionality( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
 	global $wpdb;
 	$t = get_taxonomy( $taxonomy );
 	if ( ! $append && isset( $t->sort ) && $t->sort ) {
