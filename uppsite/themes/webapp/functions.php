@@ -342,7 +342,7 @@ function uppsite_redirect_login($url, $queryRedirectTo, $user) {
  * Hook redirection after commenting
  */
 function uppsite_redirect_comment() {
-    print json_encode(array('success' => false));
+    print json_encode(array('success' => true));
     exit;
 }
 
