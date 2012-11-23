@@ -340,7 +340,7 @@ function post_now_published( $post_id ) {
 	if ( true == $post_update && !($has_been_twittered == 'yes')) {
 		 global $post;
 		 $post = get_post( $post_id );
-		 setup_postdata( $Post );
+		 setup_postdata( $post );
 
 			$i = 'New blog entry \'' . the_title('','',false) . '\' - ' . get_permalink();
 
