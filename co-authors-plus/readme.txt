@@ -3,7 +3,7 @@ Contributors: batmoo, danielbachhuber, automattic
 Tags: authors, users, multiple authors, coauthors, multi-author, publishing
 Tested up to: 3.4.2
 Requires at least: 3.3
-Stable tag: 3.0.1
+Stable tag: 3.0.2
 
 Assign multiple bylines to posts, pages, and custom post types via a search-as-you-type input box
 
@@ -33,6 +33,9 @@ When a user is deleted from WordPress, they will be removed from all posts for w
 Bug fixes and minor enhancements
 
 == Changelog ==
+
+= 3.0.2 (Nov. 23, 2012) =
+* Bug fix: Fall back to non-pretty permalinks when the author permastruct is empty, so that coauthors_posts_links() doesn't link to the homepage
 
 = 3.0.1 (Nov. 21, 2012) =
 * Add your own custom columns to the guest authors table using filters. Props [cfg](https://github.com/cfg)
