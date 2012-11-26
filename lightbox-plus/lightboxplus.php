@@ -54,7 +54,7 @@ if (!class_exists('wp_lightboxplus')) {
 	    if ($autoLightbox != 1) {
         add_filter('the_content', array(&$this, 'lightboxPlusReplace'));
       }
-      add_action("init", array(&$this, "addScripts"));
+      add_action("wp_enqueue_scripts", array(&$this, "addScripts"));
 
     }
 
