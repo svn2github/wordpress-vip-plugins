@@ -129,7 +129,7 @@ function _vip_contrib_add_upload_cap() {
 	global $wp_user_roles, $wp_roles, $current_user;
 
 	// only works on wp.com, not wp.org
-	if ( ! function_exists( 'wpcom_is_vip' ) || ! wpcom_is_vip() )
+	if ( ! function_exists( 'wpcom_is_vip' ) )
 		return;
 
 	if ( ! is_admin() && ! defined( 'XMLRPC_REQUEST' ) )
