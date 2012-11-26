@@ -24,3 +24,18 @@ function edit_flow_wpcom_load_modules() {
 	if ( method_exists( $edit_flow, 'action_ef_loaded_load_modules' ) )
 		$edit_flow->action_ef_loaded_load_modules();
 }
+
+/**
+ * Share A Draft on WordPress.com breaks when redirect canonical is enabled
+ * get_permalink() doesn't respect custom statuses
+ *
+ * @see http://core.trac.wordpress.org/browser/tags/3.4.2/wp-includes/canonical.php#L113
+ */
+add_filter( 'redirect_canonical', 'edit_flow_wpcom_redirect_canonical' );
+function edit_flow_wpcom_redirect_canonical( $redirect ) {
+
+	if ( ! empty( $_GET['shareadraft'] ) )
+		return false;
+
+	return $redirect;
+}
