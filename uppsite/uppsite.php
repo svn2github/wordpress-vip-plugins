@@ -262,6 +262,13 @@ class MySiteAppPlugin {
                 // Add functionality of post thumbnails
                 add_theme_support( 'post-thumbnails');
             }
+		$this->original_template = get_template();
+		$this->original_stylesheet = get_stylesheet();
+		$this->original_template_directory = get_template_directory();
+		$this->original_template_directory_uri = get_template_directory_uri();
+		$this->original_stylesheet_directory = get_stylesheet_directory();
+		$this->original_stylesheet_directory_uri = get_stylesheet_directory_uri();
+
             do_action('uppsite_is_running');
         }
     }
