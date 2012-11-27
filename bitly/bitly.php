@@ -213,12 +213,14 @@ function bitly_generate_short_url( $post_id ) {
  * Filter to replace the default shortlink
  */
 function bitly_shortlink( $shortlink, $id, $context ) {
-	
-	if( $context == 'post' ) {
+
+	if ( 'post' == $context || ( 'query' == $context && is_single() ) ) {
+		if ( 'query' == $context )
+			$id = get_queried_object_id();
 		$bitly = bitly_get_url( $id );
 		if( $bitly ) $shortlink = esc_url( $bitly );
 	}
-	
+
 	return $shortlink;
 }
 add_filter( 'pre_get_shortlink', 'bitly_shortlink', 10, 3 );
