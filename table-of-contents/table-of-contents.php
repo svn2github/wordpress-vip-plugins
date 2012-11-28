@@ -15,7 +15,7 @@ class Table_Of_Contents {
 	}
 
 	function load_filters() {
-		if ( is_page() ) {
+		if ( is_singular() || is_page() || is_singular() ) {
 			add_filter( 'the_content', array( __CLASS__, 'add_overview_h3' ) );
 			add_filter( 'the_content', array( __CLASS__, 'add_toc' ) );
 		}
@@ -23,7 +23,7 @@ class Table_Of_Contents {
 
 	function add_toc( $content ) {
 		// only affect the main post and not post in custom queries
-		if ( get_the_ID() != get_queried_object_id() )
+		if ( get_the_ID() != get_queried_object_id() || ! in_array( get_post_type(), apply_filters( 'toc_post_types', array( 'page' ) ) ) )
 			return $content;
 
 		$toc = '';
