@@ -221,6 +221,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 			// sort by views
 			if ( !is_null( $summarize ) ) {
 				$_head = array_shift( $_rows );
+				$_srows = array();
 				foreach( $_rows as $key => $vals ) {
 					$_srows[$vals[2]] = $vals;
 				}
