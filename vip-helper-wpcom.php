@@ -445,6 +445,15 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 	}
 
 	add_filter( 'jetpack_sharing_twitter_via', $via_callback );
+	add_filter( 'jetpack_open_graph_tags', function( $tags ) use ( $via ) {
+		if ( isset( $tags['twitter:site'] ) ) {
+			if ( empty( $via ) )
+				unset( $tags['twitter:site'] );
+			else
+				$tags['twitter:site'] = '@' . $via;
+		}
+		return $tags;
+	}, 99 ); // later so we run after Twitter Cards have run
 }
 
 /**
