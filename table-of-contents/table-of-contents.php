@@ -49,7 +49,7 @@ class Table_Of_Contents {
 
 	function add_overview_h3( $content ) {
 		// only affect the main post and not post in custom queries
-		if ( get_the_ID() != get_queried_object_id() )
+		if ( get_the_ID() != get_queried_object_id() || ! in_array( get_post_type(), apply_filters( 'toc_post_types', array( 'page' ) ) ) )
 			return $content;
 
 		$h3s = self::get_tags( 'h3', $content );
