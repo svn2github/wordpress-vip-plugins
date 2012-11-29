@@ -1,3 +1,4 @@
+<?php
 /**
  * Plugin Name: WPCOM Description for Media Popup
  * Description: Allows you to restore the Description field in the media popup.
