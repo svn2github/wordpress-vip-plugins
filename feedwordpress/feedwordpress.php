@@ -1496,8 +1496,7 @@ class FeedWordPress {
 
 class FeedWordPress_File extends WP_SimplePie_File {
 	function FeedWordPress_File ($url, $timeout = 10, $redirects = 5, $headers = null, $useragent = null, $force_fsockopen = false) {
-		if ( empty( $useragent ) )
-			$useragent = 'WordPress.com VIP/FeedWordPress';
+		$useragent = 'WordPress.com VIP/FeedWordPress';
 		parent::__construct($url, $timeout, $redirects, $headers, $useragent, $force_fsockopen);
 
 		// SimplePie makes a strongly typed check against integers with
