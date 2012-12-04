@@ -1,13 +1,19 @@
 <?php
 $native_url = uppsite_get_native_app('url');
 $base_dir = get_template_directory_uri();
-$app_name = mysiteapp_get_prefs_value('app_name');
-$app_name = !is_null($app_name) ? esc_html($app_name) : get_bloginfo('name');
+$app_name = mysiteapp_get_prefs_value('app_name', get_bloginfo('name'));
+$navbar_img = mysiteapp_get_prefs_value('navbar_background_url', null);
+$landing_bg = mysiteapp_get_prefs_value('landing_background_url', MYSITEAPP_LANDING_DEFAULT_BG);
+
+$isAndroid = MySiteAppPlugin::detect_specific_os() == "android";
+$hideMenus = json_decode(mysiteapp_get_prefs_value('hide_menus', '[]'), true);
+$branded = in_array('about', $hideMenus);
 ?><html>
 <head>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0"/>
-    <link type="text/css" rel="stylesheet" href="<?php echo $base_dir ?>/style.css"/>
+    <link type="text/css" rel="stylesheet" href="<?php echo $base_dir ?>/assets/css/layout.css"/>
+    <link type="text/css" rel="stylesheet" media="only screen and (-webkit-min-device-pixel-ratio: 2)" href="<?php echo $base_dir ?>/assets/css/retina.css" />
     <script type="text/javascript">
         var is_permanent = "";
         function remember_func(elem) {
@@ -21,33 +27,49 @@ $app_name = !is_null($app_name) ? esc_html($app_name) : get_bloginfo('name');
             window.location = elem.href + is_permanent;
             return false;
         }
+
+        var resizeFunc = function() {
+            var height = (window.innerHeight) ? window.innerHeight : $(window).height;
+            if (document.body) {
+                document.body.style.minHeight = height + "px";
+            }
+            window.scrollTo(0, 1);
+        };
+        document.addEventListener("DOMContentLoaded", resizeFunc, this);
+        window.onresize = resizeFunc;
     </script>
     <title><?php echo $app_name ?></title>
 </head>
-<body>
+<body<?php if (!empty($landing_bg)) { ?> style="background-image: url(<?php echo $landing_bg; ?>)"<?php } ?>>
 <div class="main-wrapper">
     <div id="top_container">
-        <h1><?php echo $app_name ?></h1>
-        <?php if (!is_null($native_url)): ?>
-        <div class="button_image_wrapper">
-            <a href='<?php echo esc_url( $native_url ); ?>'><img src='<?php echo esc_url( $base_dir . '/images/button1.png' ) ?>'/></a>
+        <div class="header">
+            <?php if (!empty($navbar_img)) { ?>
+                <img src="<?php echo $navbar_img; ?>" class="site-logo" />
+            <?php } else { ?>
+                <h1><?php echo $app_name; ?></h1>
+            <?php } ?>
         </div>
+        <?php if (!is_null($native_url)): ?>
+        <a class="button download <?php if ($isAndroid) { ?>android<?php } else { ?>ios<?php } ?>" href='<?php echo esc_url( $native_url ); ?>'>
+            <span>Download the free app</span>
+        </a>
         <?php endif; ?>
         <?php if (mysiteapp_should_show_webapp()): ?>
-        <div class="button_image_wrapper">
-            <a href='<?php echo esc_url( add_query_arg( 'msa_theme_select', 'webapp' ) ) ?>' onclick='return btn_selected(this);'><img src='<?php echo esc_url( $base_dir . '/images/button2.png' ); ?>'/></a>
-        </div>
+        <a class="button webapp" href='<?php echo esc_url( add_query_arg( 'msa_theme_select', 'webapp' ) ) ?>' onclick='return btn_selected(this);'>
+            <span>Browse mobile website</span>
+        </a>
         <?php endif; ?>
-        <div class="button_image_wrapper">
-            <a href='<?php echo esc_url( add_query_arg( 'msa_theme_select', 'normal' ) ); ?>' onclick='return btn_selected(this);'><img src='<?php echo esc_url( $base_dir . '/images/button3.png' ) ?>'/></a>
-        </div>
-        <div class="save_text_wrapper">
-            <h5>Don't show this screen again</h5>
+        <a class="button desktop" href='<?php echo esc_url( add_query_arg( 'msa_theme_select', 'normal' ) ) ?>' onclick='return btn_selected(this);'>
+            <span>Browse regular website</span>
+        </a>
+        <div class="save-box">
             <input id="save_box" class="input_save" type="checkbox" name="save" value="" checked="checked" onchange="remember_func(this);"/>
+            <label for="save_box">Save my selection</label>
         </div>
     </div>
     <div id="bottom_container">
-        <img src="<?php echo esc_url( $base_dir . '/images/uppsite_logo.png' ); ?>"/>
+        <?php if (!$branded): ?><a href="https://www.uppsite.com" class="powered-by-link"><span class="powered-by">powered by </span><span class="uppsite-bw-logo">UppSite</span></a><?php endif; ?>
     </div>
 </div>
 <script type="text/javascript">

@@ -351,7 +351,7 @@ function uppsite_redirect_comment() {
  * @return string   The analytics key
  */
 function uppsite_get_analytics_key() {
-    return UPPSITE_DEFAULT_ANALYTICS_KEY;
+    return mysiteapp_get_prefs_value('analytics_key', UPPSITE_DEFAULT_ANALYTICS_KEY);
 }
 
 /**

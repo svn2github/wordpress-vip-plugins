@@ -4,7 +4,6 @@
  */
 $should_hide_posts = mysiteapp_should_hide_posts();
 if (!$should_hide_posts) {
-	$posts_layout = mysiteapp_get_posts_layout();
 	$uppsite_options = get_option('uppsite_options');
 	$paged = (get_query_var('paged') ? get_query_var('paged') : ( isset($page) ? $page : 1 ) );
 	if (is_front_page() && (!isset($uppsite_options['option_homepagelist']) || $uppsite_options['option_homepagelist']=='Yes')) {
@@ -12,6 +11,7 @@ if (!$should_hide_posts) {
 		$args = array(
 			'showposts' => 10,
 			'paged' => $paged,
+            'order' => 'desc'
 		);
 		// Disable "Sticky" in apps?
 		if (isset($uppsite_options['option_sticky']) && $uppsite_options['option_sticky'] == "Yes") {
@@ -38,7 +38,7 @@ if (!$should_hide_posts && have_posts()) {
 		// Avoid 'loop_start' output, if any (some plugins make it)
 		mysiteapp_clean_output('the_post');
 		
-		mysiteapp_print_post($iterator, $posts_layout);
+		mysiteapp_print_post($iterator);
 		
 		$iterator++;
 	}

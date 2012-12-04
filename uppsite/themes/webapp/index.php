@@ -6,7 +6,7 @@ $has_homepage &= MySiteAppPlugin::detect_specific_os() != "android"; // Homepage
 
 $navbar_img = mysiteapp_get_prefs_value('navbar_background_url', '');
 $direction = mysiteapp_get_prefs_value('direction', 'ltr');
-$hideLogin = mysiteapp_get_prefs_value('hide_login','false');
+$hideMenus = mysiteapp_get_prefs_value('hide_menus', '[]');
 ?>
 <!DOCTYPE html>
 <html>
@@ -44,7 +44,7 @@ $hideLogin = mysiteapp_get_prefs_value('hide_login','false');
         var UPPSITE_IS_TABBAR = <?php echo $has_tabbar ? "true" : "false" ?>;
         var UPPSITE_COLOURS = <?php echo json_encode(uppsite_get_colours()); ?>;
         var UPPSITE_HOMEPAGE_CAROUSEL_TIMER = <?php echo mysiteapp_homepage_carousel_rotate_interval() ?>;
-        var UPPSITE_HIDE_LOGIN  = <?php echo $hideLogin; ?>;
+        var UPPSITE_HIDE_MENUS  = <?php echo $hideMenus; ?>;
         var UPPSITE_CUR_URL = "<?php echo esc_js( home_url( '/' ) ) ?>";
     </script>
     <script type="text/javascript" id="placeholder"></script>

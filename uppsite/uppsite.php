@@ -4,7 +4,7 @@
  Plugin URI: http://www.uppsite.com/learnmore/
  Description: Uppsite is a fully automated plugin to transform your blog into native smartphone apps. <strong>**** DISABLING THIS PLUGIN WILL PREVENT YOUR APP USERS FROM USING THE APPS! ****</strong>
  Author: UppSite
- Version: 4.1
+ Version: 4.2
  Author URI: https://www.uppsite.com
  */
 
@@ -13,7 +13,7 @@ require_once( dirname(__FILE__) . '/fbcomments_page.inc.php' );
 if (!defined('MYSITEAPP_AGENT')):
 
 /** Plugin version **/
-define('MYSITEAPP_PLUGIN_VERSION', '4.1');
+define('MYSITEAPP_PLUGIN_VERSION', '4.2');
 
 /** Theme name in cookie **/
 define('MYSITEAPP_WEBAPP_PREF_THEME', 'uppsite_theme_select');
@@ -73,6 +73,8 @@ define('MYSITEAPP_HOMEPAGE_MAX_CATEGORIES', 10);
 define('MYSITEAPP_HOMEPAGE_DEFAULT_MIN_POSTS', 2);
 /** Homepage - Default cover image for fresh WordPress installation */
 define('MYSITEAPP_HOMEPAGE_FRESH_COVER', 'http://static.uppsite.com/plugin/cover.png');
+/** Landing page - Default background image */
+define('MYSITEAPP_LANDING_DEFAULT_BG', 'http://static.uppsite.com/webapp/landing-background.jpg');
 
 // Few constants
 if (!defined('MYSITEAPP_PLUGIN_BASENAME'))
@@ -262,12 +264,13 @@ class MySiteAppPlugin {
                 // Add functionality of post thumbnails
                 add_theme_support( 'post-thumbnails');
             }
-		$this->original_template = get_template();
-		$this->original_stylesheet = get_stylesheet();
-		$this->original_template_directory = get_template_directory();
-		$this->original_template_directory_uri = get_template_directory_uri();
-		$this->original_stylesheet_directory = get_stylesheet_directory();
-		$this->original_stylesheet_directory_uri = get_stylesheet_directory_uri();
+
+            $this->original_template = get_template();
+            $this->original_stylesheet = get_stylesheet();
+            $this->original_template_directory = get_template_directory();
+            $this->original_template_directory_uri = get_template_directory_uri();
+            $this->original_stylesheet_directory = get_stylesheet_directory();
+            $this->original_stylesheet_directory_uri = get_stylesheet_directory_uri();
 
             do_action('uppsite_is_running');
         }
@@ -492,11 +495,10 @@ function mysiteapp_fix_videos(&$subject) {
  * Prints the post according to the layout
  *
  * @param int $iterator    Post number in the loop
- * @param string $posts_layout    Post layout
  */
-function mysiteapp_print_post($iterator = 0, $posts_layout = 'full') {
+function mysiteapp_print_post($iterator = 0) {
     global $msap;
-    set_query_var('mysiteapp_should_show_post', mysiteapp_should_show_post_content($iterator, $posts_layout));
+    set_query_var('mysiteapp_should_show_post', mysiteapp_should_show_post_content($iterator));
     if ($msap->is_app) {
         get_template_part('post');
     }
@@ -642,6 +644,10 @@ function mysiteapp_call_error( $function ) {
  * @return string|null The url if found, or null
  */
 function uppsite_extract_src_url($html) {
+    if (strpos($html, "http") === 0) {
+        // This is a URL
+        return $html;
+    }
     if (preg_match("/src=[\"']([\s\S]+?)[\"']/", $html, $match)) {
         return $match[1];
     }
@@ -661,7 +667,7 @@ function uppsite_nullify_thumb(&$content, &$thumb) {
         // Images of type 'http://nocamels.com/wp-content/uploads/2012/02/sellAring-55x55.jpg' has size modifiers
         // that may not appear inside the post, so we will try to search for pictures with the same name
         $sizeModifier = $imgParts[2];
-        if (is_numeric($sizeModifier) && intval($sizeModifier) < 50) {
+        if (is_numeric($sizeModifier) && intval($sizeModifier) < 50 || empty($imgParts[3])) {
             // We guess that image galleries might be of url GALLERY-0.png, GALLERY-1.png and on, such as
             // https://testrpcblog.files.wordpress.com/2012/03/assassins-creed-iii-20120326034850652-000.jpg?w=458
             // so we return the full url
@@ -671,13 +677,12 @@ function uppsite_nullify_thumb(&$content, &$thumb) {
             $thumb = $imgParts[1] . $imgParts[4];
         }
     }
-    $content = preg_replace("/<img[^>]*src=\"". str_replace("/", "\\/", $thumb) ."[^>]*>/ms", "", $content);
+    $content = preg_replace("/<img[^>]*src=\"". preg_quote($thumb, "/") ."[^>]*>/ms", "", $content);
 }
 
 /**
  * Try and extract the first image in the post, to be used as thumbnail image.
- * If an image is found, it is removed from the content.
- * @param &$content string Post content
+ * @param &$content string Post content (By ref, to save the copy of large data)
  * @return mixed
  */
 function uppsite_extract_image_from_post_content(&$content) {
@@ -688,8 +693,63 @@ function uppsite_extract_image_from_post_content(&$content) {
         // Don't extract youtube video images.
         return null;
     }
-    $content = str_replace($matches[0], "", $content);
-    return $matches[1];
+    return $matches[0]; // Will be stripped later
+}
+
+/**
+ * Enum of the various functionalities available via mysiteapp_extract_thumbnail
+ * (Every value is a different bit)
+ */
+class UppSiteImageAlgo {
+    // Try using 'has_post_thumbnail' function
+    const NATIVE_FUNC = 0x1;
+    // Try using 'The Attached Image' plugin
+    const THE_ATTACHED_IMAGE = 0x2;
+    // Try using 'Get The Image' plugin
+    const GET_THE_IMAGE = 0x4;
+    // Try getting custom post field
+    const CUSTOM_FIELD = 0x8;
+    // Try the first image in post
+    const FIRST_IMAGE = 0x10;
+
+    // All options!
+    const ALL = 0xFFFFFFFF;
+}
+
+/**
+ * @return array Sanitized "thumbnail_algo" data from the preferences
+ */
+function uppsite_get_image_algos() {
+    $imageAlgos = mysiteapp_get_prefs_value('thumbnail_algo',
+        array(
+            'type' => UppSiteImageAlgo::ALL,
+            'extra' => null
+        )
+    );
+    // Sanitize
+    if (!is_array($imageAlgos)) {
+        $imageAlgos = json_decode($imageAlgos, true);
+        if (!is_array($imageAlgos)) {
+            // Failed to decode
+            $imageAlgos = array();
+        }
+    }
+    if (!array_key_exists('type', $imageAlgos)) {
+        $imageAlgos['type'] = UppSiteImageAlgo::ALL;
+    }
+    if (!array_key_exists('extra', $imageAlgos)) {
+        $imageAlgos['extra'] = null;
+    }
+    return $imageAlgos;
+}
+
+/**
+ * @param $imageAlgos   Array of "thumbnail_algo" from uppsite_get_image_algos()
+ * @param $imageAlgoType    The algorithm type to check
+ * @return bool Is the algorithm present in the algo structure
+ */
+function uppsite_has_image_algo(&$imageAlgos, $imageAlgoType) {
+    return ($imageAlgos['type'] & $imageAlgoType) > 0;
 }
 
 /**
@@ -701,27 +761,41 @@ function uppsite_extract_image_from_post_content(&$content) {
  */
 function mysiteapp_extract_thumbnail(&$content = null) {
     $thumb_url = null;
-    
-    if (function_exists('has_post_thumbnail') && has_post_thumbnail()) {
+
+    // Image algo is being used to decide how the thumbnail should be fetched
+    $imageAlgos = uppsite_get_image_algos();
+
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::NATIVE_FUNC) &&
+        function_exists('has_post_thumbnail') && has_post_thumbnail()) {
         // Built-in function
         $thumb_url = get_the_post_thumbnail();
     }
-    if (empty($thumb_url) && function_exists('the_attached_image')) {
+
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::THE_ATTACHED_IMAGE) &&
+        empty($thumb_url) && function_exists('the_attached_image')) {
         // The Attached Image plugin
         $temp_thumb = the_attached_image('img_size=thumb&echo=false');
         if (!empty($temp_thumb)) {
             $thumb_url = $temp_thumb;
         }
     }
-    if (empty($thumb_url) && function_exists('get_the_image')) {
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::GET_THE_IMAGE) &&
+        empty($thumb_url) && function_exists('get_the_image')) {
         // Get The Image plugin
         $temp_thumb = get_the_image(array('size' => 'thumbnail', 'echo' => false, 'link_to_post' => false));
         if (!empty($temp_thumb)) {
             $thumb_url = $temp_thumb;
         }
     }
-    
-    if (empty($thumb_url)) {
+
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::CUSTOM_FIELD) &&
+        empty($thumb_url) && !is_null($imageAlgos['extra'])) {
+        // Try getting a custom field from the post
+        $thumb_url = get_post_meta(get_the_ID(), $imageAlgos['extra'], true);
+    }
+
+    if (uppsite_has_image_algo($imageAlgos, UppSiteImageAlgo::FIRST_IMAGE) &&
+        empty($thumb_url)) {
         if (mysiteapp_is_fresh_wordpress_installation()) {
             // On fresh installation - put UppSite cover to make the homepage look good
             $thumb_url = MYSITEAPP_HOMEPAGE_FRESH_COVER;
@@ -734,7 +808,8 @@ function mysiteapp_extract_thumbnail(&$content = null) {
             }
             $thumb_url = uppsite_extract_image_from_post_content($content);
         }
-    } else {
+    }
+    if (!empty($thumb_url)) {
         // Found via the helper functions
         $thumb_url = uppsite_extract_src_url($thumb_url);
         if (!is_null($content)) {
@@ -1263,11 +1338,9 @@ function mysiteapp_get_posts_layout() {
  * - First post & in 'First full, Rest title' / 'First full, Rest excerpt'
  * 
  * @param int $iterator    Number of the post (zero-based)
- * @param string $posts_list_view    The posts layout
  */
-function mysiteapp_should_show_post_content($iterator = 0, $posts_layout = null) {
-    if ($posts_layout == null)
-        $posts_layout = mysiteapp_get_posts_layout();
+function mysiteapp_should_show_post_content($iterator = 0) {
+    $posts_layout = mysiteapp_get_posts_layout();
     if (
             empty($posts_layout) || // Not set
             $posts_layout == 'full' || // Full post
@@ -1418,7 +1491,7 @@ function mysiteapp_get_ads() {
         '1' => 'top',
         '2' => 'bottom'
     );
-    $ret['ad_state'] = array_key_exists($prefs['ad_state'], $state_arr) ? $state_arr[$prefs['ad_state']] : 1;
+    $ret['ad_state'] = array_key_exists($prefs['ad_state'], $state_arr) ? $state_arr[$prefs['ad_state']] : 'top';
     return json_encode($ret);
 }
 /**

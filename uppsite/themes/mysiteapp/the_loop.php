@@ -18,7 +18,7 @@ if ($query->have_posts()) {
         // Adds the post to the list of excluded posts (will not be used if not in "homepage" view mode)
         mysiteapp_homepage_add_post(get_the_ID());
 
-        mysiteapp_print_post($iterator, $posts_layout);
+        mysiteapp_print_post($iterator);
 
         $iterator++;
     }

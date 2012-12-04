@@ -132,8 +132,15 @@ We will notify you via email promptly after your app has been approved and is av
 
 == Changelog ==
 
+= 4.2 =
+* "Featured image" is selected in a better way
+* Improved the gallery view in the webapp
+* New "Landing page" layout
+* Addressed few design issues
+* Another performance iteration on the webapp
+
 = 4.1 =
-* Added support for homepage display in the webapp.
+* Added support for homepage display in the webapp
 * Improved performance and stability of the webapp
 
 = 4.0.5 =

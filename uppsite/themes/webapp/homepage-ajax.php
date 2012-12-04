@@ -1,7 +1,8 @@
 <?php
 // Get only X posts for carousel
 query_posts(array(
-    'showposts' => mysiteapp_homepage_carousel_posts_num()
+    'posts_per_page' => mysiteapp_homepage_carousel_posts_num(),
+    'order' => 'desc'
 ));
 
 // Start buffering
@@ -35,7 +36,8 @@ foreach ($cats_array as $cat) {
     // Perform query for posts in this category
     $cat_query = array(
         'cat' => $cat,
-        'posts_per_page' => mysiteapp_homepage_cat_posts()
+        'posts_per_page' => mysiteapp_homepage_cat_posts(),
+        'order' => 'desc'
     );
     if (!mysiteapp_is_fresh_wordpress_installation()) {
         $cat_query['post__not_in'] = mysiteapp_homepage_get_excluded_posts();

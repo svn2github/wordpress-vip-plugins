@@ -254,17 +254,16 @@ function uppsite_cache_fix_w3_total_cache($userAgents, $add = true) {
 
 if (mysiteapp_is_wpcom_vip()):
     // Fixes for VIP sites
-	function uppsite_vip_load_original_functions() {
-		add_action( 'setup_theme', 'uppsite_vip_include_original_functions', 1 );
+    function uppsite_vip_load_original_functions() {
+        add_action( 'setup_theme', 'uppsite_vip_include_original_functions', 1 );
 	}
-
     /**
      * Include the functions.php file of the original theme, to run extra code from it.
      *
      * @note This must run before the plugin overrides the theme name!
      */
     function uppsite_vip_include_original_functions() {
-	global $msap;
+        global $msap;
         $templateDir = $msap->original_template_directory;
         include_once( $templateDir . "/functions.php" );
 
