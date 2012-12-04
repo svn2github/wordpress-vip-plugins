@@ -87,4 +87,15 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		}
 		add_filter( 'the_title_rss', 'wido' );
 	endif;
+
+	/**
+	 * Initiate a job to flush rewrite rules
+	 * There's a lot of magic behind the scenes on WordPress.com
+	 * In the local environment, we can just flush rewrite rules
+	 */
+	if ( ! function_exists( 'wpcom_initiate_flush_rewrite_rules' ) ) :
+		function wpcom_initiate_flush_rewrite_rules() {
+			flush_rewrite_rules( false );
+		}
+	endif;
 endif;
