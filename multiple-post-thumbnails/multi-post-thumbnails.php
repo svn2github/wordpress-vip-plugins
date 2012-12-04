@@ -103,8 +103,6 @@ if (!class_exists('MultiPostThumbnails')) {
 			global $post;
 			$thumbnail_id = get_post_meta($post->ID, "{$this->post_type}_{$this->id}_thumbnail_id", true);
 			echo $this->post_thumbnail_html($thumbnail_id);
-
-			do_action( 'multipostthumbnails-metabox', $this->id, $this ); // WPCOM Mod
 		}
 
 		/**
