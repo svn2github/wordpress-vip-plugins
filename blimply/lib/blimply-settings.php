@@ -21,8 +21,11 @@ class Blimply_Settings {
     }
 
     function admin_menu() {
-        add_options_page( __( 'Blimply Settings', 'blimply' ), __( 'Blimply Settings', 'blimply' ), 'manage_options', 'blimply_settings', array( $this, 'plugin_page' ) );
-        add_options_page( __( 'Urban Airship Tags', 'blimply' ), __( 'Urban Airship Tags', 'blimply' ), 'manage_options', 'edit-tags.php?taxonomy=blimply_tags' );
+			
+			  $manage_cap = apply_filters('blimpbly_manage_cap', 'manage_options');
+			
+        add_options_page( __( 'Blimply Settings', 'blimply' ), __( 'Blimply Settings', 'blimply' ), $manage_cap, 'blimply_settings', array( $this, 'plugin_page' ) );
+        add_options_page( __( 'Urban Airship Tags', 'blimply' ), __( 'Urban Airship Tags', 'blimply' ), $manage_cap, 'edit-tags.php?taxonomy=blimply_tags' );
     }
 
     function get_settings_sections() {
