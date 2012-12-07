@@ -145,32 +145,32 @@ function wpcom_vip_load_helper_wpcom() {
  *
 */
 function wpcom_vip_load_helper_stats() {
-        $includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-stats-wpcom.php';
+	$includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-stats-wpcom.php';
 
-        if ( function_exists( 'wpcom_is_vip' ) ) {
-                require_once( $includepath );
-        } else {
-                die( "wpcom_vip_load_helper_stats() should only be called on WordPress.com as it contains WordPress.com-specific code." );
-        }
+	if ( function_exists( 'wpcom_is_vip' ) ) {
+		require_once( $includepath );
+	} else {
+		die( "wpcom_vip_load_helper_stats() should only be called on WordPress.com as it contains WordPress.com-specific code." );
+	}
 }
 
 function wpcom_vip_add_loaded_plugin( $plugin ) {
 	global $vip_loaded_plugins;
-	
-	if( ! isset( $vip_loaded_plugins ) )
+
+	if ( ! isset( $vip_loaded_plugins ) )
 		$vip_loaded_plugins = array();
-	
+
 	array_push( $vip_loaded_plugins, $plugin );
 }
 
 function wpcom_vip_get_loaded_plugins() {
 	global $vip_loaded_plugins;
-	
-	if( ! isset( $vip_loaded_plugins ) )
+
+	if ( ! isset( $vip_loaded_plugins ) )
 		$vip_loaded_plugins = array();
-	
+
 	return $vip_loaded_plugins;
-	
+
 }
 
 /**
@@ -184,10 +184,11 @@ function wpcom_vip_themes_root() {
  * Returns the non-CDN uri to the VIP themes dir
  */
 function wpcom_vip_themes_root_uri() {
-	if ( ! is_admin() )
+	if ( ! is_admin() ) {
 		return home_url( '/wp-content/themes/vip' );
-	else
+	} else {
 		return content_url( '/themes/vip' );
+	}
 }
 
 /**
@@ -229,7 +230,7 @@ add_filter( 'plugins_url', 'wpcom_vip_plugins_url', 10, 3 );
 
 /**
  * Return a URL for given VIP theme and path. Does not work with VIP shared plugins.
- * 
+ *
  * @param $path string Path to suffix to the theme URL
  * @param $theme string Name of the theme folder
  *
@@ -250,10 +251,11 @@ function wpcom_vip_theme_url( $path = '', $theme = '' ) {
 	$path = ltrim( $path, '/' );
 
 	// We pass in a dummy file to plugins_url even if it doesn't exist, otherwise we get a URL relative to the parent of the theme folder (i.e. /themes/vip/)
-	if ( is_dir( $theme_folder ) )
+	if ( is_dir( $theme_folder ) ) {
 		return plugins_url( $path, $theme_file );
-	elseif( is_dir( $theme_folder_alt ) )
+	} elseif ( is_dir( $theme_folder_alt ) ) {
 		return plugins_url( $path, $theme_file_alt );
+	}
 
 	return false;
 }
