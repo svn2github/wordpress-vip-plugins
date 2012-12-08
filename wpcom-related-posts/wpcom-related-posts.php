@@ -229,7 +229,7 @@ class WPCOM_Related_Posts {
 			} else if ( in_array( $args['post_type'], get_post_types() ) && 'all' != $args['post_type'] ) {
 				$es_args['filters']['type']['value'] = $args['post_type'];
 			}
-			$related_es_query = es_api_query_index( $es_args, 'related-posts' );
+			$related_es_query = es_api_search_index( $es_args, 'related-posts' );
 			if ( is_object( $related_es_query ) )
 				$related_posts = array_map( 'get_post', wp_list_pluck( $related_es_query->getResults(), 'id' ) );
 			else
