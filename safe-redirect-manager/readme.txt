@@ -3,7 +3,7 @@ Contributors: tlovett1, tollmanz, taylorde, 10up, jakemgold, danielbachhuber, Ve
 Tags: http redirects, redirect manager, url redirection, safe http redirection
 Requires at least: 3.1
 Tested up to: 3.4.2
-Stable tag: 1.4.2
+Stable tag: 1.5
 
 Safely and easily manage your website's HTTP redirects.
 
@@ -24,7 +24,12 @@ Extract the zip file and just drop the contents in the wp-content/plugins/ direc
 
 == Changelog ==
 
-= 1.4.3 (??? ?? 2012) =
+= 1.6 (??? ??, 2012) =
+* Bulk delete redirects from the Manage Redirects screen
+* wp-cli coverage including subcommands for creating, deleting, and listing redirects, and importing .htaccess files
+
+= 1.5 (Nov. 7 2012) =
+* Regular expressions allowed in redirects
 * New filter 'srm_registered_redirects' allows you to conditionally unset redirects based on context, user permissions, etc. Thanks [jtsternberg](https://github.com/jtsternberg) for the pull request.
 
 = 1.4.2 (Oct. 17, 2012) =

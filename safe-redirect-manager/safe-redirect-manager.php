@@ -4,7 +4,7 @@ Plugin Name: Safe Redirect Manager
 Plugin URI: http://www.10up.com
 Description: Easily and safely manage HTTP redirects.
 Author: Taylor Lovett (10up LLC), VentureBeat
-Version: 1.4.3-working
+Version: 1.6-working
 Author URI: http://www.10up.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,6 +24,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
+
+if ( defined( 'WP_CLI' ) && WP_CLI )
+	require_once dirname( __FILE__ ) . '/inc/wp-cli.php';
 
 class SRM_Safe_Redirect_Manager {
 
@@ -63,7 +66,7 @@ class SRM_Safe_Redirect_Manager {
 		add_filter( 'post_updated_messages', array( $this, 'filter_redirect_updated_messages' ) );
 		add_action( 'admin_notices', array( $this, 'action_redirect_chain_alert' ) );
 		add_filter( 'the_title', array( $this, 'filter_admin_title' ), 100, 2 );
-		add_filter( 'bulk_actions-' . 'edit-redirect_rule', array( $this, 'filter_bulk_actions' ) );
+		add_filter( 'bulk_actions-edit-' . $this->redirect_post_type, array( $this, 'filter_bulk_actions' ) );
 		add_action( 'admin_print_styles-edit.php', array( $this, 'action_print_logo_css' ), 10, 1 );
 		add_action( 'admin_print_styles-post.php', array( $this, 'action_print_logo_css' ), 10, 1 );
 		add_action( 'admin_print_styles-post-new.php', array( $this, 'action_print_logo_css' ), 10, 1 );
@@ -188,13 +191,17 @@ class SRM_Safe_Redirect_Manager {
 	}
 
 	/**
-	 * Removes bulk actions from post manager
+	 * Limit the bulk actions available in the Manage Redirects view
 	 *
 	 * @since 1.0
 	 * @return array
 	 */
-	public function filter_bulk_actions() {
-		return array();
+	public function filter_bulk_actions( $actions ) {
+
+		// No bulk editing at this time
+		unset( $actions['edit'] );
+
+		return $actions;
 	}
 
 	/**
@@ -203,35 +210,49 @@ class SRM_Safe_Redirect_Manager {
 	 * @param string $redirect_from
 	 * @param string $redirect_to
 	 * @param int $status_code
+	 * @param bool $enable_regex
+	 * @param string $post_status
 	 * @since 1.3
 	 * @uses wp_insert_post, update_post_meta
-	 * @return int
+	 * @return int|WP_Error
 	 */
-	public function create_redirect( $redirect_from, $redirect_to, $status_code ) {
+	public function create_redirect( $redirect_from, $redirect_to, $status_code = 302, $enable_regex = false, $post_status = 'publish' ) {
+		global $wpdb;
+
 		$sanitized_redirect_from = $this->sanitize_redirect_from( $redirect_from );
 		$sanitized_redirect_to = $this->sanitize_redirect_to( $redirect_to );
 		$sanitized_status_code = absint( $status_code );
+		$sanitized_enable_regex = (bool)$enable_regex;
+		$sanitized_post_status = sanitize_key( $post_status );
 
 		// check and make sure no parameters are empty or invalid after sanitation
-		if ( empty( $sanitized_redirect_from ) || empty( $sanitized_redirect_to ) || ! in_array( $sanitized_status_code, $this->valid_status_codes ) )
-			return 0;
+		if ( empty( $sanitized_redirect_from ) || empty( $sanitized_redirect_to ) )
+			return new WP_Error( 'invalid-argument', __( 'Redirect from and/or redirect to arguments are invalid.', 'safe-redirect-manager' ) );
+
+		if ( ! in_array( $sanitized_status_code, $this->valid_status_codes ) )
+			return new WP_Error( 'invalid-argument', __( 'Invalid status code.', 'safe-redirect-manager' ) );
+
+		// Check to ensure this redirect doesn't already exist
+		if ( $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta WHERE meta_key=%s AND meta_value=%s", $this->meta_key_redirect_from, $sanitized_redirect_from ) ) )
+			return new WP_Error( 'duplicate-redirect', sprintf( __( 'Redirect already exists for %s', 'safe-redirect-manager' ), $sanitized_redirect_from ) );
 
 		// create the post
 		$post_args = array(
 			'post_type' => $this->redirect_post_type,
-			'post_status' => 'publish',
+			'post_status' => $sanitized_post_status,
 			'post_author' => 1
 		);
 
-		$post_id = wp_insert_post(  $post_args );
+		$post_id = wp_insert_post( $post_args );
 
 		if ( 0 >= $post_id )
-			return 0;
+			return new WP_Error( 'error-creating', __( 'An error occurred creating the redirect.', 'safe-redirect-manager' ) );
 
 		// update the posts meta info
 		update_post_meta( $post_id, $this->meta_key_redirect_from, $sanitized_redirect_from );
 		update_post_meta( $post_id, $this->meta_key_redirect_to, $sanitized_redirect_to );
 		update_post_meta( $post_id, $this->meta_key_redirect_status_code, $sanitized_status_code );
+		update_post_meta( $post_id, $this->meta_key_enable_redirect_from_regex, $sanitized_enable_regex );
 
 		// We need to update the cache after creating this redirect
 		$this->update_redirect_cache();
@@ -452,9 +473,6 @@ class SRM_Safe_Redirect_Manager {
 		unset( $columns['date'] );
 		$columns['date'] = __( 'Date', 'safe-redirect-manager' );
 
-		// get rid of checkboxes
-		unset( $columns['cb'] );
-
 		return $columns;
 	}
 
@@ -649,6 +667,46 @@ class SRM_Safe_Redirect_Manager {
 	}
 
 	/**
+	 * Get redirects from the database
+	 *
+	 * @since 1.6
+	 * @param array $args Any arguments to filter by
+	 * @return array $redirects An array of redirects
+	 */
+	public function get_redirects( $args = array() ) {
+
+		$defaults = array(
+				'posts_per_page'     => 1000,
+				'post_status'        => 'publish',
+			);
+
+		$query_args = array_merge( $defaults, $args );
+
+		// Some arguments that don't need to be configurable
+		$query_args['post_type'] = $this->redirect_post_type;
+		$query_args['no_found_rows'] = false;
+		$query_args['update_term_cache'] = false;
+
+		$redirect_query = new WP_Query( $query_args );
+
+		if ( empty( $redirect_query->posts ) )
+			return array();
+
+		$redirects = array();
+		foreach( $redirect_query->posts as $redirect ) {
+			$redirects[] = array(
+					'ID'                    => $redirect->ID,
+					'post_status'           => $redirect->post_status,
+					'redirect_from'         => get_post_meta( $redirect->ID, $this->meta_key_redirect_from, true ),
+					'redirect_to'           => get_post_meta( $redirect->ID, $this->meta_key_redirect_to, true ),
+					'status_code'           => (int)get_post_meta( $redirect->ID, $this->meta_key_redirect_status_code, true ),
+					'enable_regex'          => (bool)get_post_meta( $redirect->ID, $this->meta_key_enable_redirect_from_regex, true ),
+				);
+		}
+		return $redirects;
+	}
+
+	/**
 	 * Force update on the redirect cache and return cache
 	 *
 	 * @since 1.0
@@ -714,6 +772,7 @@ class SRM_Safe_Redirect_Manager {
 
 		// get requested path and add a / before it
 		$requested_path = sanitize_text_field( $_SERVER['REQUEST_URI'] );
+		$requested_path = stripslashes( $requested_path );
 
 		/**
 		 * If WordPress resides in a directory that is not the public root, we have to chop
