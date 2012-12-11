@@ -230,10 +230,12 @@ class WPCOM_Related_Posts {
 				$es_args['filters']['type']['value'] = $args['post_type'];
 			}
 			$related_es_query = es_api_search_index( $es_args, 'related-posts' );
-			if ( is_object( $related_es_query ) )
-				$related_posts = array_map( 'get_post', wp_list_pluck( $related_es_query->getResults(), 'id' ) );
-			else
-				$related_posts = array();
+			$related_posts = array();
+			if ( is_array( $related_es_query ) && ! empty( $related_es_query['results']['hits'] ) ) {
+				foreach( $related_es_query['results']['hits'] as $hit ) {
+					$related_posts[] = get_post( $hit['_source']['id'] );
+				}
+			}
 			foreach( $related_posts as $key => $related_post ) {
 				// Ignore the current post if it ends up being a related post
 				if ( $post_id == $related_post->ID )
