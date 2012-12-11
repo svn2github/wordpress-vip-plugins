@@ -60,7 +60,7 @@ class WPCOM_elasticsearch {
 	}
 
 	public function setup() {
-		if ( is_admin() || ! function_exists( 'es_api_query_index' ) )
+		if ( is_admin() || ! function_exists( 'es_api_search_index' ) )
 			return;
 
 		// Checks to see if we need to worry about found_posts
@@ -100,33 +100,32 @@ class WPCOM_elasticsearch {
 		$page = ( empty( $query->query_vars['paged'] ) ) ? 1 : absint( $query->query_vars['paged'] );
 
 		$es_query_args = array(
-			//'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
 			'multi_match' => array(
 				'query'  => $query->query_vars['s'],
 				'fields' => array( 'title', 'content' ),
 			),
 			'size' => $query->query_vars['posts_per_page'],
 			'from' => ( $page - 1 ) * $query->query_vars['posts_per_page'], // Offset
+			//'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
 		);
 
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
 
-		$search_query = es_api_query_index( $es_query_args, 'blog-search' );
+		$search_query = es_api_search_index( $es_query_args, 'blog-search' );
 
-		if ( ! $search_query ) {
+		if ( is_wp_error( $search_query ) || ! is_array( $search_query ) || empty( $search_query['results'] ) || empty( $search_query['results']['hits'] ) ) {
 			$this->found_posts = 0;
-			return "SELECT * FROM $wpdb->posts WHERE 1=0";
+			return "SELECT * FROM $wpdb->posts WHERE 1=0 /* ES search results */";
 		}
 
 		// Get the post IDs of the results
 		$post_ids = array();
-		foreach ( $search_query->getResults() as $result ) {
-			$source = $result->getData();
-			$post_ids[] = $source['id'];
+		foreach ( (array) $search_query['results']['hits'] as $result ) {
+			$post_ids[] = $result['_source']['id'];
 		}
 
 		// Total number of results for paging purposes
-		$this->found_posts = $search_query->getTotalHits();
+		$this->found_posts = $search_query['results']['total'];
 
 		// Replace the search SQL with one that fetches the exact posts we want in the order we want
 		$post_ids_string = implode( ',', array_map( 'absint', $post_ids ) );
