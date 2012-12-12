@@ -121,7 +121,14 @@ class WPCOM_elasticsearch {
 		// Get the post IDs of the results
 		$post_ids = array();
 		foreach ( (array) $search_query['results']['hits'] as $result ) {
-			$post_ids[] = $result['_source']['id'];
+			// Fields arg
+			if ( ! empty( $result['fields'] ) && ! empty( $result['fields']['id'] ) ) {
+				$post_ids[] = $result['fields']['id'];
+			}
+			// Full source objects
+			elseif ( ! empty( $result['_source'] ) && ! empty( $result['_source']['id'] ) ) {
+				$post_ids[] = $result['_source']['id'];
+			}
 		}
 
 		// Total number of results for paging purposes
@@ -151,6 +158,6 @@ function WPCOM_elasticsearch() {
 	return WPCOM_elasticsearch::instance();
 }
 
-add_action( 'plugins_loaded', 'WPCOM_elasticsearch' );
+add_action( 'after_setup_theme', 'WPCOM_elasticsearch' );
 
 ?>
