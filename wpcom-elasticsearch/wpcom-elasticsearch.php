@@ -129,6 +129,10 @@ class WPCOM_elasticsearch {
 			elseif ( ! empty( $result['_source'] ) && ! empty( $result['_source']['id'] ) ) {
 				$post_ids[] = $result['_source']['id'];
 			}
+			// Unknown results format
+			else {
+				return $sql;
+			}
 		}
 
 		// Total number of results for paging purposes
