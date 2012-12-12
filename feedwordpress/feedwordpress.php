@@ -194,7 +194,7 @@ if (!FeedWordPress::needs_upgrade()) : // only work if the conditions are safe!
 	add_action('feedwordpress_update', 'fwp_hold_pings');
 	add_action('feedwordpress_update_complete', 'fwp_release_pings');
 
-	add_action('init', 'feedwordpress_clear_cache_magic_url');
+	add_action('init', 'feedwordpress_clear_cache_magic_url', 99);
 
 	# Cron-less auto-update. Hooray!
 	$autoUpdateHook = get_option('feedwordpress_automatic_updates');
