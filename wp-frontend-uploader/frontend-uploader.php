@@ -3,7 +3,7 @@
 Plugin Name: UGC Frontend Uploader
 Description: Allow your visitors to upload content and moderate it.
 Author: Rinat Khaziev
-Version: 0.2.5
+Version: 0.3-dev
 Author URI: http://digitallyconscious.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define our paths and urls and bootstrap
-define( 'UGC_VERSION', '0.2.5' );
+define( 'UGC_VERSION', '0.3-dev' );
 define( 'UGC_ROOT' , dirname( __FILE__ ) );
 define( 'UGC_FILE_PATH' , UGC_ROOT . '/' . basename( __FILE__ ) );
 define( 'UGC_URL' , plugins_url( '/', __FILE__ ) );
@@ -50,7 +50,7 @@ class Frontend_Uploader {
 		$this->allowed_mime_types = apply_filters( 'upload_mimes', get_allowed_mime_types() );
 
 		// Disallow php files no matter what (this is a full list of possible mime types for php scripts)
-		// @todo may be add other executables 
+		// @todo may be add other executables
 		// WP allows any mime-type that's specified within upload_mimes filter
 		// I strongly believe in fail-safe devices
 		// So lets just don't take any chances with php files (at least)
@@ -60,7 +60,7 @@ class Frontend_Uploader {
 			if ( false !== ( $key = array_search( $np, $this->allowed_mime_types ) ) ) {
 				unset( $this->allowed_mime_types[$key] );
 			}
-		}		
+		}
 	}
 
 	function __construct() {
@@ -89,7 +89,7 @@ class Frontend_Uploader {
 		// fu_allowed_mime_types should return array of allowed mime types
 		// HTML helper to render HTML elements
 		$this->html = new Html_Helper;
-		$this->settings = get_option( 'frontend_uploader_settings' ); 
+		$this->settings = get_option( 'frontend_uploader_settings' );
 	}
 
 	/**
@@ -97,17 +97,17 @@ class Frontend_Uploader {
 	 * We don't want that, so we force WHERE statement to post_status = 'inherit'
 	 *
 	 * @todo  probably intermediate workaround
-	 * 
+	 *
 	 * @param  string $where WHERE statement
 	 * @return string WHERE statement
 	 */
 	function filter_posts_where( $where ) {
-		if ( !is_admin() ) 
+		if ( !is_admin() )
 			return $where;
 		$screen = get_current_screen();
 		if ( $screen->base == 'upload' && ( !isset( $_GET['page'] ) || $_GET['page'] != 'manage_frontend_uploader' ) ) {
-			$where = str_replace( "post_status = 'private'", "post_status = 'inherit'", $where );	
-		}		
+			$where = str_replace( "post_status = 'private'", "post_status = 'inherit'", $where );
+		}
 		return $where;
 	}
 
@@ -405,6 +405,18 @@ class Frontend_Uploader {
 			$url = "//ajax.aspnetcdn.com/ajax/jquery.validate/1.9/localization/messages_{$lang[0]}.js";
 			wp_enqueue_script( 'jquery-validate-messages', $url, array( 'jquery' ) );
 		}
+	}
+
+	/**
+	 * 3.5 brings new Media UI
+	 * Unfortunately, we have to specify ids of approved attachments explicitly,
+	 * Otherwise, editors have to pick photos after they have already approved them in "Manage UGC"
+	 *
+	 * This method will search a parent post with a regular expression, and update gallery shortcode with freshly approved attachment ID
+	 * @return [type] [description]
+	 */
+	function update_35_gallery_shortcode() {
+
 	}
 
 }
