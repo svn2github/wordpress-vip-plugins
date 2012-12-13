@@ -151,7 +151,7 @@ class Blimply {
 			return;
 		if ( !current_user_can( apply_filters( 'blimply_push_cap', 'edit_posts' ) ) )
 			return;
-		if ( 1 == get_post_meta( $post->ID, 'blimply_push_sent', true ) )
+		if ( 1 == get_post_meta( $post_id, 'blimply_push_sent', true ) )
 			return;
 
 		if ( 1 == $_POST['blimply_push'] ) {
