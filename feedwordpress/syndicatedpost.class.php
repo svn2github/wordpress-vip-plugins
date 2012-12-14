@@ -1377,6 +1377,10 @@ class SyndicatedPost {
 	function add_rss_meta ($new_status, $old_status, $post) {
 		FeedWordPress::diagnostic('syndicated_posts:meta_data', 'Adding post meta-data: {'.implode(", ", array_keys($this->post['meta'])).'}');
 
+		// not saving the post we're processing; bail.
+		if ( $post->ID != $this->wp_id() )
+			return;
+
 		if ( is_array($this->post) and isset($this->post['meta']) and is_array($this->post['meta']) ) :
 			$postId = $post->ID;
 			
