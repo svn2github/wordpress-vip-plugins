@@ -436,11 +436,4 @@ function kapost_byline_xmlrpc($methods)
 }
 add_filter('xmlrpc_methods', 'kapost_byline_xmlrpc');
 
-?>post_byline_xmlrpc_editPost';
-	$methods['kapost.newMediaObject'] = 'kapost_byline_xmlrpc_newMediaObject';
-	$methods['kapost.getPermalink']	= 'kapost_byline_xmlrpc_getPermalink';
-	return $methods;
-}
-add_filter('xmlrpc_methods', 'kapost_byline_xmlrpc');
-
 ?>
