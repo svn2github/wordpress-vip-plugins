@@ -41,6 +41,8 @@ class WPCOM_elasticsearch {
 	private $do_found_posts;
 	private $found_posts = 0;
 
+	private $search_result;
+
 	private static $instance;
 
 	private function __construct() {
@@ -109,18 +111,19 @@ class WPCOM_elasticsearch {
 			//'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
 		);
 
+		// Use this filter to add whatever facets you want
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
 
-		$search_query = es_api_search_index( $es_query_args, 'blog-search' );
+		$this->search_result = es_api_search_index( $es_query_args, 'blog-search' );
 
-		if ( is_wp_error( $search_query ) || ! is_array( $search_query ) || empty( $search_query['results'] ) || empty( $search_query['results']['hits'] ) ) {
+		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || empty( $this->search_result['results']['hits'] ) ) {
 			$this->found_posts = 0;
 			return "SELECT * FROM $wpdb->posts WHERE 1=0 /* ES search results */";
 		}
 
 		// Get the post IDs of the results
 		$post_ids = array();
-		foreach ( (array) $search_query['results']['hits'] as $result ) {
+		foreach ( (array) $this->search_result['results']['hits'] as $result ) {
 			// Fields arg
 			if ( ! empty( $result['fields'] ) && ! empty( $result['fields']['id'] ) ) {
 				$post_ids[] = $result['fields']['id'];
@@ -136,7 +139,7 @@ class WPCOM_elasticsearch {
 		}
 
 		// Total number of results for paging purposes
-		$this->found_posts = $search_query['results']['total'];
+		$this->found_posts = $this->search_result['results']['total'];
 
 		// Replace the search SQL with one that fetches the exact posts we want in the order we want
 		$post_ids_string = implode( ',', array_map( 'absint', $post_ids ) );
@@ -155,6 +158,15 @@ class WPCOM_elasticsearch {
 			return $found_posts;
 
 		return $this->found_posts;
+	}
+
+	public function get_search_result() {
+		return ( ! empty( $this->search_result ) && ! empty( $this->search_result['results'] ) ) ? $this->search_result['results'] : false;
+	}
+
+	public function get_search_facets() {
+		$search_result = $this->get_search_result();
+		return ( ! empty( $search_result ) && ! empty( $search_result['facets'] ) ) ? $search_result['facets'] : false;
 	}
 }
 
