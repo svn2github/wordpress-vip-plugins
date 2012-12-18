@@ -1,7 +1,10 @@
 <?php
+
+// Don't declare this function on plugin activation because it breaks Jetpack activation in local environments
+if ( ! function_exists( 'jetpack_is_mobile' ) && ( ! isset( $_GET['action'] ) || 'activate' != $_GET['action'] ) ):
+
 /*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
+ * This file has been deprecated in favour of http://plugins.svn.wordpress.org/jetpack/trunk/class.jetpack-user-agent.php
  *
  * @hide-in-jetpack
  */
@@ -1339,3 +1342,4 @@ class Jetpack_User_Agent_Info {
 		return $is_bot;
 	}
 }
+endif;
