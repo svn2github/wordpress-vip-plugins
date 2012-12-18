@@ -681,6 +681,7 @@ class Add_Meta_Tags {
 	*/
 	function mt_seo_meta_box( $post, $meta_box ) {
 		global $pagenow;
+		$this->mt_seo_fields = apply_filters('mt_seo_fields', $this->mt_seo_fields, $post, $meta_box);
 		if ( $post_id = (int) $post->ID ) {
 			foreach( (array) $this->mt_seo_fields as $field_name => $field_data ) {
 				${$field_name} = (string) get_post_meta( $post_id, $field_name, true );
@@ -719,12 +720,14 @@ class Add_Meta_Tags {
 
 		$title = ( '' == $mt_seo_title ) ? get_the_title() : $mt_seo_title;
 		$title = str_replace( '%title%', get_the_title(), $title );
-		echo '<div class="form_field">';
+		echo '<div class="form-field mt_seo_preview form_field">';
 		echo '<h4>Preview</h4>';
+		echo '<div class="mt-form-field-contents">';
 		echo '<div id="mt_snippet">';
 		echo '<a href="#" class="title">' . substr( $title, 0, 70 ) . '</a><br>';
 		echo '<a href="#" class="url">' . get_permalink() . '</a> - <a href="#" class="util">Cached</a>';
 		echo '<p class="desc"><span class="date">' . date( 'd M Y', strtotime( get_the_time( 'r' ) ) ) . '</span> &ndash; <span class="content">' . substr( $mt_seo_description, 0, 140 ) . '</span></p>';
+		echo '</div>';
 		echo '</div>';
 		echo '</div>';
 		
@@ -733,14 +736,14 @@ class Add_Meta_Tags {
 				continue;
 
 			if( 'textarea' == $field_data[1] ) {
-				echo '<div class="form-field"><h4><label for="' . $field_name . '">' . $field_data[0] . '</label></h4>';
-				echo '<p><textarea class="wide-seo-box" rows="4" cols="40" tabindex="' . $tabindex . '" name="' . $field_name . '"';
+				echo '<div class="form-field ' . esc_attr($field_name) . '"><h4><label for="' . $field_name . '">' . $field_data[0] . '</label></h4>';
+				echo '<div class="mt-form-field-contents"><p><textarea class="wide-seo-box" rows="4" cols="40" tabindex="' . $tabindex . '" name="' . $field_name . '"';
 				echo 'id="' . $field_name .'">' . esc_textarea( ${$field_name} ) . '</textarea></p>';
-				echo '<p class="description">' . $field_data[2] . "</p></div>\n";
+				echo '<p class="description">' . $field_data[2] . "</p></div></div>\n";
 			} else if ( 'text' == $field_data[1] ) {
-				echo '<div class="form-field"><h4><label for="' . $field_name .'">' . $field_data[0] . '</label></h4>';
-				echo '<p><input type="text" class="wide-seo-box" tabindex="' . $tabindex . '" name="' . $field_name . '" id="' . $field_name . '" value="' . esc_attr( ${$field_name} ) . '" /></p>';
-				echo '<p class="description">' . $field_data[2] . "</p></div>\n";
+				echo '<div class="form-field ' . esc_attr($field_name) . '"><h4><label for="' . $field_name .'">' . $field_data[0] . '</label></h4>';
+				echo '<div class="mt-form-field-contents"><p><input type="text" class="wide-seo-box" tabindex="' . $tabindex . '" name="' . $field_name . '" id="' . $field_name . '" value="' . esc_attr( ${$field_name} ) . '" /></p>';
+				echo '<p class="description">' . $field_data[2] . "</p></div></div>\n";
 			}
 			$tabindex++;
 		}
