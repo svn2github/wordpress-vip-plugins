@@ -126,3 +126,10 @@ For more information, visit the [Kapost website](http://www.kapost.com).
 
 = 1.0.0 =
 * First version
+ured image support
+
+= 1.0.1 =
+* fixed "publish as draft"
+
+= 1.0.0 =
+* First version
