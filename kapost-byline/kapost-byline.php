@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.7.3
+	Version: 1.7.4
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.7.3-WIP');
+define('KAPOST_BYLINE_VERSION', '1.7.4-WIP');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -404,22 +404,28 @@ function kapost_byline_xmlrpc_getPermalink($args)
 
 	if(!empty($post->post_title) && in_array($post->post_status, array('draft', 'pending', 'auto-draft')))
 	{
-		$post->filter = 'sample';
-		$post->post_status = 'publish';
-		if(empty($post->post_date) || $post->post_date == '0000-00-00 00:00:00')
+		$sample_post = clone $post;
+		$sample_post->filter = 'sample';
+		$sample_post->post_status = 'publish';
+
+		if(empty($sample_post->post_date) || $sample_post->post_date == '0000-00-00 00:00:00')
 		{
-			$post->post_date = current_time('mysql');
-			$post->post_date_gmt = current_time('mysql', 1);
+			$sample_post->post_date = current_time('mysql');
+			$sample_post->post_date_gmt = current_time('mysql', 1);
 		}
-		if(empty($post->post_name))
+
+		if(empty($sample_post->post_name))
 		{
-			$post->post_name = wp_unique_post_slug(sanitize_title($post->post_title), 
-																  $post->ID, 
-																  $post->post_status, 
-																  $post->post_type, 
-																  $post->post_parent);
+			$sample_post->post_name = wp_unique_post_slug(sanitize_title($sample_post->post_title), 
+														  $sample_post->ID, 
+														  $sample_post->post_status, 
+														  $sample_post->post_type, 
+														  $sample_post->post_parent);
 		}
-		return get_permalink($post);
+
+		$sample_permalink = get_permalink($sample_post);
+		if(strpos($sample_permalink, "%") === false) # make sure it doesn't contain %day%, etc.
+			return $sample_permalink;
 	}
 
 	return get_permalink($post);
