@@ -166,7 +166,7 @@ class WPCOM_elasticsearch {
 
 	public function get_search_facets() {
 		$search_result = $this->get_search_result();
-		return ( ! empty( $search_result ) && ! empty( $search_result['facets'] ) ) ? $search_result['facets'] : false;
+		return ( ! empty( $search_result ) && ! empty( $search_result['facets'] ) ) ? $search_result['facets'] : array();
 	}
 }
 
