@@ -108,7 +108,7 @@ class WPCOM_elasticsearch {
 			),
 			'size' => $query->query_vars['posts_per_page'],
 			'from' => ( $page - 1 ) * $query->query_vars['posts_per_page'], // Offset
-			//'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
+			'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
 		);
 
 		// Use this filter to add whatever facets you want
