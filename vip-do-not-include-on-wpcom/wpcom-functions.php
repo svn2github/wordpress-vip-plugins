@@ -155,17 +155,17 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 
 			unset( $args['blog_id'] );
 
-			$curl = curl_init( $service_url );
-			curl_setopt( $curl, CURLOPT_RETURNTRANSFER, true );
-			curl_setopt( $curl, CURLOPT_HTTPHEADER, array('Content-Type: application/json') ); 
-			curl_setopt( $curl, CURLOPT_POST, true );
-			$curl_args = json_encode( $args );
-			curl_setopt( $curl, CURLOPT_POSTFIELDS, $curl_args );
-			$curl_response = curl_exec( $curl );
-			$code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
-			curl_close( $curl );
+			$request = wp_remote_post( $service_url, array(
+				'headers' => array(
+					'Content-Type' => 'application/json',
+				),
+				'body' => json_encode( $args ),
+			) );
 
-			return json_decode( $curl_response, true );
+			if ( is_wp_error( $request ) )
+				return false;
+
+			return json_decode( wp_remote_retrieve_body( $request ), true );
 		}
 	endif; // function_exists( 'es_api_search_index' )
 
