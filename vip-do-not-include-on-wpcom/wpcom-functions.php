@@ -165,7 +165,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			$code = curl_getinfo( $curl, CURLINFO_HTTP_CODE );
 			curl_close( $curl );
 
-			return json_decode( $curl_response );
+			return json_decode( $curl_response, true );
 		}
 	endif; // function_exists( 'es_api_search_index' )
 
