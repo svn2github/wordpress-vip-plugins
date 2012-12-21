@@ -1,0 +1,117 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Column Shortcodes v0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2012-07-20 15:46+0100\n"
+"PO-Revision-Date: 2012-08-14 10:03:31+0000\n"
+"Last-Translator: Codepress <info@codepress.nl>\n"
+"Language-Team: Codepress <info@codepress.nl>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Poedit-Language: \n"
+"X-Poedit-Country: \n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __;_e;__ngettext:1,2;_n:1,2;__ngettext_noop:1,2;_n_noop:1,2;_c,_nc:4c,1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;_nx_noop:4c,1,2;\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Textdomain-Support: yes"
+
+#: column-shortcodes.php:174
+#@ column-shortcodes
+msgid "Select shortcode"
+msgstr "Selecteer shortcode "
+
+#: column-shortcodes.php:208
+#@ column-shortcodes
+msgid "Column shortcodes"
+msgstr "Kolom shortcodes"
+
+#: column-shortcodes.php:231
+#@ column-shortcodes
+msgid "one half"
+msgstr "half"
+
+#: column-shortcodes.php:232
+#@ column-shortcodes
+msgid "one third"
+msgstr "een derde"
+
+#: column-shortcodes.php:233
+#@ column-shortcodes
+msgid "one fourth"
+msgstr "een vierde"
+
+#: column-shortcodes.php:234
+#@ column-shortcodes
+msgid "two third"
+msgstr "tweederde"
+
+#: column-shortcodes.php:235
+#@ column-shortcodes
+msgid "three fourth"
+msgstr "drie vierde"
+
+#: column-shortcodes.php:236
+#@ column-shortcodes
+msgid "one fifth"
+msgstr "een vijfde"
+
+#: column-shortcodes.php:237
+#@ column-shortcodes
+msgid "two fifth"
+msgstr "twee vijfde"
+
+#: column-shortcodes.php:238
+#@ column-shortcodes
+msgid "three fifth"
+msgstr "drie vijfde"
+
+#: column-shortcodes.php:239
+#@ column-shortcodes
+msgid "one sixth"
+msgstr "een zesde"
+
+#: column-shortcodes.php:255
+#@ column-shortcodes
+msgid "last"
+msgstr "laatste"
+
+#. translators: plugin header field 'Name'
+#: column-shortcodes.php:0
+#@ column-shortcodes
+msgid "Column Shortcodes"
+msgstr ""
+
+#. translators: plugin header field 'PluginURI'
+#: column-shortcodes.php:0
+#@ column-shortcodes
+msgid "http://www.codepress.nl/plugins/"
+msgstr ""
+
+#. translators: plugin header field 'Description'
+#: column-shortcodes.php:0
+#@ column-shortcodes
+msgid "Adds shortcodes to easily create columns in your posts or pages"
+msgstr ""
+
+#. translators: plugin header field 'Author'
+#: column-shortcodes.php:0
+#@ column-shortcodes
+msgid "Codepress"
+msgstr ""
+
+#. translators: plugin header field 'AuthorURI'
+#: column-shortcodes.php:0
+#@ column-shortcodes
+msgid "http://www.codepress.nl"
+msgstr ""
+
+#. translators: plugin header field 'Version'
+#: column-shortcodes.php:0
+#@ column-shortcodes
+msgid "0.1"
+msgstr ""
+
