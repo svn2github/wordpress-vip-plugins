@@ -5,6 +5,8 @@
  * We use the core API functions as well as modifying the $wp_user_roles global
  * in case roles are re-initialized and our mods are lost.
  */
+if ( ! defined( 'WPCOM_VIP_CORE_ROLES' ) )
+	define( 'WPCOM_VIP_CORE_ROLES', true );
 
 if ( ! function_exists( 'wpcom_vip_get_role_caps' ) ) :
 /**
