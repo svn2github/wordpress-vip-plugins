@@ -3,7 +3,7 @@
 Plugin Name: Co-Authors Plus
 Plugin URI: http://wordpress.org/extend/plugins/co-authors-plus/
 Description: Allows multiple authors to be assigned to a post. This plugin is an extended version of the Co-Authors plugin developed by Weston Ruter.
-Version: 3.0.3
+Version: 3.0.4-alpha
 Author: Mohammad Jangda, Daniel Bachhuber, Automattic
 Copyright: 2008-2012 Shared and distributed between Mohammad Jangda, Daniel Bachhuber, Weston Ruter
 
@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'COAUTHORS_PLUS_VERSION', '3.0.3' );
+define( 'COAUTHORS_PLUS_VERSION', '3.0.4-alpha' );
 
 define( 'COAUTHORS_PLUS_PATH', dirname( __FILE__ ) );
 define( 'COAUTHORS_PLUS_URL', plugin_dir_url( __FILE__ ) );
@@ -333,6 +333,7 @@ class coauthors_plus {
 							<input type="text" name="coauthorsinput[]" readonly="readonly" value="<?php echo esc_attr( $coauthor->display_name ); ?>" />
 							<input type="text" name="coauthors[]" value="<?php echo esc_attr( $coauthor->user_login ); ?>" />
 							<input type="text" name="coauthorsemails[]" value="<?php echo esc_attr( $coauthor->user_email ); ?>" />
+							<input type="text" name="coauthorsnicenames[]" value="<?php echo esc_attr( $coauthor->user_nicename ); ?>" />
 						</span>
 					</li>
 					<?php
@@ -554,7 +555,8 @@ class coauthors_plus {
 			}
 
 			// Whether or not to include the original 'post_author' value in the query
-			if ( $this->force_guest_authors )
+			// Don't include it if we're forcing guest authors, or it's obvious our query is for a guest author's posts
+			if ( $this->force_guest_authors || stripos( $where, '.post_author = 0)' ) )
 				$maybe_both = false;
 			else
 				$maybe_both = apply_filters( 'coauthors_plus_should_query_post_author', true );
@@ -697,7 +699,7 @@ class coauthors_plus {
 		// Add each co-author to the post meta
 		foreach( array_unique( $coauthors ) as $key => $author_name ){
 
-			$author = $this->get_coauthor_by( 'user_login', $author_name );
+			$author = $this->get_coauthor_by( 'user_nicename', $author_name );
 			$term = $this->update_author_term( $author );
 			$coauthors[$key] = $term->slug;
 		}
@@ -844,7 +846,7 @@ class coauthors_plus {
 		$authors = $this->search_authors( $search, $ignore );
 
 		foreach( $authors as $author ) {
-			echo $author->ID ." | ". $author->user_login ." | ". $author->display_name ." | ". $author->user_email ."\n";
+			echo $author->ID ." | ". $author->user_login ." | ". $author->display_name ." | ". $author->user_email ." | ". $author->user_nicename . "\n";
 		}
 
 		die();
