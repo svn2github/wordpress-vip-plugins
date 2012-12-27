@@ -3,7 +3,7 @@
 Plugin Name: Document Feedback
 Plugin URI: http://danielbachhuber.com/plugins/document-feedback/
 Description: Close the loop &mdash; get feedback from readers on the documentation you write
-Version: 0.1-working
+Version: 1.0-working
 Author: Daniel Bachhuber
 Author URI: http://danielbachhuber.com/
 License: GPLv2 or later
@@ -68,13 +68,14 @@ class Document_Feedback {
 	/**
 	 * Setup actions for the plugin
 	 *
-	 * @since 0.1
+	 * @since 1.0
 	 */
 	private function setup_actions() {
 
 		add_action( 'init',                                        array( $this, 'action_init_initialize_plugin' ) );
 		add_action( 'admin_init',                                  array( $this, 'action_admin_init_add_meta_box' ) );
 		add_action( 'wp_enqueue_scripts',                          array( $this, 'action_wp_enqueue_scripts_add_jquery' ) );
+		add_action( 'admin_enqueue_scripts',                          array( $this, 'action_admin_enqueue_scripts_add_scripts' ) );
 		add_action( 'wp_head',                                     array( $this, 'ensure_ajaxurl' ), 11 );
 		add_action( 'wp_ajax_document_feedback_form_submission',   array( $this, 'action_wp_ajax_handle_form_submission' ) );
 		add_action( 'document_feedback_submitted',                 array( $this, 'send_notification' ), 10, 2 );
@@ -85,7 +86,7 @@ class Document_Feedback {
 	 * Initialize all of the plugin components
 	 * Other plugins can register filters to modify how the plugin runs
 	 *
-	 * @since 0.1
+	 * @since 1.0
 	 */
 	function action_init_initialize_plugin() {
 
@@ -119,7 +120,7 @@ class Document_Feedback {
 	/**
 	 * Hooks and such only to run in the admin
 	 *
-	 * @since 0.1
+	 * @since 1.0
 	 */
 	function action_admin_init_add_meta_box() {
 
@@ -132,16 +133,33 @@ class Document_Feedback {
 	/**
 	 * Add jQuery on relevant pages because we need it
 	 *
-	 * @since 0.1
+	 * @since 1.0
 	 */
 	 function action_wp_enqueue_scripts_add_jquery() {
 	 	global $post;
 	 	if ( is_singular() && in_array( $post->post_type, $this->post_types ) && is_user_logged_in() )
 			wp_enqueue_script( 'jquery' );
 	 }
+	 /**
+	  * Add jQuery admin scripts for pie charts
+	  * 
+	  * @since 1.0
+	  */
+	 function action_admin_enqueue_scripts_add_scripts( $hook ) {
+	 	if( 'post.php' === $hook ) {
+		 	// Load pie chart related scripts
+	 		wp_enqueue_script( 'jquery.sparkline', plugins_url( '/js/jquery.sparkline.min.js', __FILE__ ),
+	 			array( 'jquery' ), '1.0', true );
+	 		
+		 	// Custom Document Feedback JS for pies
+		 	wp_enqueue_style( 'document-feedback', plugins_url( '/css/document-feedback-admin.css', __FILE__ ) );
+	 	}
+	 }
 
 	/**
 	 * Ensure there's an 'ajaxurl' var for us to reference on the frontend
+	 * 
+	 * @since 1.0
 	 */
 	function ensure_ajaxurl() {
 
@@ -166,21 +184,154 @@ class Document_Feedback {
 	/**
 	 * Add a post meta box summarizing the feedback given on a document
 	 *
-	 * @since 0.1
-	 *
-	 * @todo Display the number of positive feedbacks vs. negative feedbacks
-	 * @todo Display the most recent positive and negative feedbacks
+	 * @since 1.0
 	 */
-	function post_meta_box() {
-		?>
-		<p>Nothing here yet.</p>
-		<?php	
+	function post_meta_box( $post ) {
+		$post_id = $post->ID;
+
+		// Get feedback
+		$feedback_comments = $this->get_feedback_comments( $post_id ); 
+		
+		if( 0 < count( $feedback_comments ) ) {
+
+			// Get an array with the count of accept and decline feedback comments
+			$feedback_stats = $this->get_feedback_stats( $feedback_comments );
+			?>
+			<script type="text/javascript">
+				jQuery(document).ready( function() {
+					// Get feedback results
+					var accept = <?php echo esc_js( $feedback_stats['accept'] ); ?>;
+					var decline = <?php echo esc_js( $feedback_stats['decline'] ); ?>;
+					var feedback_stats = [ accept, decline ];
+		
+					// Define pie attributes
+					var pie_options = {
+							type: 'pie',
+							sliceColors: ['#009344', '#B63733'],
+							width: '230px',
+							height: '230px'
+					}
+	
+					// Create the pie
+					jQuery('#document-feedback-chart').sparkline( feedback_stats, pie_options );
+				} );
+			</script>
+			<div id="document-feedback-metabox">
+				<div class="left">
+					<h4>"<?php echo esc_html( $this->strings['prompt'] ); ?>"</h4>
+					<div id="document-feedback-chart"></div>
+					<div id="document-feedback-legend">
+						<div id="document-feedback-legend-accept" class="left"><?php echo esc_html( $this->strings['accept'] ); ?></div>
+						<div id="document-feedback-legend-decline" class="right"><?php echo esc_html( $this->strings['decline'] ); ?></div>
+					</div>
+				</div>
+				<div class="right">
+					<div id="document-feedback-comment-wrapper">
+					<?php 
+						$feedback_count = count( $feedback_comments ); 
+						for( $i = 0; $i < $feedback_count; $i++ ) { 
+							global $comment;
+							$comment = $feedback_comments[ $i ];
+
+							if ( empty( $comment->comment_content ) )
+								continue;
+
+							?>
+						<article class="comment">
+							<footer class="comment-meta">
+								<div class="comment-author vcard">
+								<?php 
+									printf( __( '%1$s on %2$s <span class="says">said:</span>', 'document-feedback' ),
+										sprintf( '<span class="fn">%s</span>', $comment->comment_author ),
+										sprintf( '<time pubdate datetime="%1$s">%2$s</time>',
+											get_comment_time( 'c' ),
+											/* translators: 1: date, 2: time */
+											sprintf( __( '%1$s at %2$s', 'document-feedback' ), get_comment_date(), get_comment_time() )
+										)
+									);
+								?>	
+								</div>
+							</footer>
+				
+							<div class="comment-content <?php echo esc_attr( $comment->comment_approved ); ?>">
+								<p><?php echo esc_html( $comment->comment_content ); ?></p>
+							</div>
+						</article>
+					<?php 
+						unset( $comment );
+					} ?>
+					</div>
+				</div>
+			</div>
+			<?php
+		} else { ?>
+			<p><?php _e( 'No feedback has been submitted yet.', 'document-feedback' ); ?></p>
+		<?php 
+		}
+	}
+	
+	/**
+	 * Fetch feedback from the comments table
+	 * 
+	 * @param int $post_id the post ID for the comments query
+	 * 
+	 * @since 1.0
+	 * 
+	 */
+	function get_feedback_comments( $post_id ) {
+
+		$comment_args = array(
+				'post_id' => $post_id,
+				'type'    => 'document-feedback',
+				'order'   => 'DESC',
+		);
+		
+		// Fetch the comments with the correct status as a filter to the where clause
+  		add_filter( 'comments_clauses', array( $this, 'filter_feedback_comments_clauses' ), 10, 2 );
+		$feedback_comments = get_comments( $comment_args );
+  		remove_filter( 'comments_clauses', array( $this, 'filter_feedback_comments_clauses' ) );
+		
+ 		return $feedback_comments;
+	}
+	
+	/**
+	 * Count the accept and decline feedback
+	 * 
+	 * @param comments $feedback_comments an array with the comment objects
+	 * 
+	 * @return array accept and decline comments
+	 * 
+	 * @since 1.0
+	 * 
+	 * @todo looping feedback to save two SQL count queries, optimize if needed (run 2 count queries and one select with limit)
+	 * 
+	 */
+	function get_feedback_stats( $feedback_comments ) {
+		$accept = 0;
+		$decline = 0;
+
+		// Count feedback
+		foreach( $feedback_comments as $comment ) {
+			if( $comment->comment_approved == 'df-accept' ) {
+				$accept++;
+			} else if( $comment->comment_approved == 'df-decline' ) {
+				$decline++;
+			}	
+		}
+		
+		// Array to return with stats
+		$feedback_stats = array(
+			'accept' => $accept,
+			'decline' => $decline,	
+		);
+
+		return $feedback_stats;	
 	}
 
 	/**
 	 * Handle a Document Feedback form submission
 	 *
-	 * @since 0.1
+	 * @since 1.0
 	 */
 	function action_wp_ajax_handle_form_submission() {
 
@@ -291,7 +442,7 @@ class Document_Feedback {
 	 * Send the document author a notification when feedback
 	 * is submitted
 	 *
-	 * @since 0.1
+	 * @since 1.0
 	 *
 	 * @param int $comment_id The feedback ID
 	 * @param int $post_id The post ID for the relevant document
@@ -327,7 +478,7 @@ class Document_Feedback {
 	 * Append the document feedback form to the document
 	 * We're using ob_*() functions to maintain readability of the form
 	 *
-	 * @since 0.1
+	 * @since 1.0
 	 */
 	function filter_the_content_append_feedback_form( $the_content ) {
 		global $post;
@@ -485,7 +636,24 @@ class Document_Feedback {
 			return $the_content . '<div id="document-feedback">' . $data . '</div>';
 		}
 	}
+	
+	/**
+	 * Filter the feedback comments - add accept and decline clauses as comment_approved
+	 * 
+	 * @since 1.0
+	 * 
+	 */
+	function filter_feedback_comments_clauses( $clauses, $query ) {
+		$expected_type_clause = "( comment_approved = '0' OR comment_approved = '1' )";
+		// filter if we are looking for the feedback comments
+		if( isset( $clauses['where'] ) && false !== strpos( $clauses['where'], $expected_type_clause ) ) {
+			$correct_type_clause = "comment_approved IN ( 'df-accept', 'df-decline' ) ";
+			
+			$clauses['where'] = str_replace( $expected_type_clause , $correct_type_clause, $clauses['where'] );
+		}
 
+		return $clauses;
+	}
 }
 
 }
