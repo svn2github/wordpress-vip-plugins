@@ -1,11 +1,11 @@
 <?php
 /*
 Plugin Name: Document Feedback
-Plugin URI: http://danielbachhuber.com/plugins/document-feedback/
+Plugin URI: http://wordpress.org/extend/plugins/document-feedback/
 Description: Close the loop &mdash; get feedback from readers on the documentation you write
-Version: 1.0-working
-Author: Daniel Bachhuber
-Author URI: http://danielbachhuber.com/
+Version: 1.0
+Author: Daniel Bachhuber, Automattic
+Author URI: http://automattic.com/
 License: GPLv2 or later
 */
 
@@ -78,6 +78,7 @@ class Document_Feedback {
 		add_action( 'admin_enqueue_scripts',                          array( $this, 'action_admin_enqueue_scripts_add_scripts' ) );
 		add_action( 'wp_head',                                     array( $this, 'ensure_ajaxurl' ), 11 );
 		add_action( 'wp_ajax_document_feedback_form_submission',   array( $this, 'action_wp_ajax_handle_form_submission' ) );
+		add_action( 'document_feedback_submitted',                 array( $this, 'set_throttle_transient' ), 10, 2 );
 		add_action( 'document_feedback_submitted',                 array( $this, 'send_notification' ), 10, 2 );
 		add_filter( 'the_content',                                 array( $this, 'filter_the_content_append_feedback_form' ) );
 	}
@@ -89,6 +90,8 @@ class Document_Feedback {
 	 * @since 1.0
 	 */
 	function action_init_initialize_plugin() {
+
+		load_plugin_textdomain( 'document-feedback', null, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 
 		// Set up all of our plugin options but they can only be modified by filter
 		$this->options = array(
@@ -406,11 +409,6 @@ class Document_Feedback {
 		if ( ! $is_comment_updated ) 
 			$this->do_ajax_response( 'error', array( 'message' => __( 'Comment not updated.', 'document-feedback' ) ) );
 
-		// successfully update a comment!
-		// add a transient first so no extra feedback is allowed.
-		$transient_option = $this->options['transient_prefix'] . $comment['user_id'] . '_' . $post_id;
-		set_transient( $transient_option, $transient_option, $this->options['throttle_limit'] );
-
 		do_action( 'document_feedback_submitted', $comment_id, $post_id );
 
 		// send a happy response
@@ -439,6 +437,19 @@ class Document_Feedback {
 	}
 
 	/**
+	 * Set the throttle transient
+	 *
+	 * @since 1.0
+	 *
+	 */
+	public function set_throttle_transient( $comment_id, $post_id ) {
+
+		$comment = get_comment( $comment_id );
+		$transient_option = $this->options['transient_prefix'] . $comment->user_id . '_' . $post_id;
+		set_transient( $transient_option, $transient_option, $this->options['throttle_limit'] );
+	}
+
+	/**
 	 * Send the document author a notification when feedback
 	 * is submitted
 	 *
@@ -462,10 +473,12 @@ class Document_Feedback {
 		if ( ! $post )
 			return;
 
+		$feedback_type = ( 'df-accept' == $comment->comment_approved ) ? __( 'positive', 'document-feedback' ) : __( 'negative', 'document-feedback' );
+
 		$subject = '[' . get_bloginfo( 'name' ) . '] ' . sprintf( __( "Feedback received on '%s'", 'document-feedback' ), $post->post_title );
-		$message = sprintf( __( 'You\'ve received new feedback from %1$s (%2$s):', 'document-feedback' ), $comment->comment_author, $comment->comment_author_email ) . PHP_EOL . PHP_EOL;
+		$message = sprintf( __( 'You\'ve received new %1$s feedback from %2$s (%3$s):', 'document-feedback' ), $feedback_type, $comment->comment_author, $comment->comment_author_email ) . PHP_EOL . PHP_EOL;
 		$message .= '"' . $comment->comment_content . '"' . PHP_EOL . PHP_EOL;
-		$message .= sprintf( __( 'You can view/edit the document here: ', 'document-feedback' ) ) . get_permalink( $post_id );
+		$message .= sprintf( __( 'You can view/edit the document here: ', 'document-feedback' ) ) . get_edit_post_link( $post_id, '' );
 
 		$document_author = get_user_by( 'id', $post->post_author );
 		$notification_recipients = apply_filters( 'document_feedback_notification_recipients', array( $document_author->user_email ), $comment_id, $post_id );
