@@ -38,7 +38,7 @@
  */
 function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = false ) {
 	global $wpdb;
-	$cache_id = md5( 'top|' . $wpdb->blogid . '|' . 'postviews' . '|' . $end_date . '|' . $num_days . '|' . $limit );
+	$cache_id = md5( '2013-01-01-top|' . $wpdb->blogid . '|' . 'postviews' . '|' . $end_date . '|' . $num_days . '|' . $limit );
 	$arr = wp_cache_get( $cache_id, 'vip_stats' );
 	if ( !$arr ) {
 		$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', 200 );
@@ -391,7 +391,7 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 		$table = 'views';
 
 	if ( ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $end_date ) )
-		$end_date = $GLOBALS['today'];
+		$end_date = stats_today( $blog_id );
 
 	if ( $limit > 100 )
 		$limit = 100;
