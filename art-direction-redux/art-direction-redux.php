@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Art Direction Redux
  * Plugin URI:
- * Description: Per-post styles for new age art direction. Based on the original Art Direction plugin (http://wordpress.org/extend/plugins/art-direction/) by No‘l Jackson.
+ * Description: Per-post styles for new age art direction. Based on the original <a href="http://wordpress.org/extend/plugins/art-direction/">Art Direction</a> plugin by No&#235;l Jackson.
  * Author: Automattic
  * Version: 1.0
  * License: GPLv2+
