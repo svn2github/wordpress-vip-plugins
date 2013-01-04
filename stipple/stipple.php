@@ -51,12 +51,16 @@
     $opts = get_option('stipple_options');
 
     if($opts['custom_stipple_load']) {
+// WPCOM Start: disabled due to security issues
+/*
       wp_enqueue_script('stipple_load_full',
         $plugin_path . 'js/full_loader.js',
         Array('stipple'), false, true);
 
       wp_localize_script('stipple_load_full', 'STIPPLE_SETTINGS', array(
         'custom_loader' => $opts['custom_stipple_load_data']));
+*/
+// WPCOM End
     } else if($opts['site_id']) {
       wp_enqueue_script('stipple_load_simple',
         $plugin_path . 'js/simple_loader.js',

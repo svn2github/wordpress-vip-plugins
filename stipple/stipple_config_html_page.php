@@ -52,13 +52,18 @@ _stippleq.push(['load', '". esc_js( $site_id ) . "', {
         </td>
       </tr>
 
+<?php
+// WPCOM Start: disabled due to security concerns
+/*
       <tr valign="top">
         <th scope="row"><input id="stipple-use-custom-load" name="stipple_options[custom_stipple_load]" type="radio" value="1" <?php checked('1', $stipple_load); ?> onclick="document.getElementById('stipple_site_id').disabled = true;document.getElementById('stipple_custom_load_data').disabled = false;"/> <label for="stipple-use-custom-load">Use Custom <code>STIPPLE.load</code>:</label></th>
         <td>
           <textarea id="stipple_custom_load_data" rows="8" cols="26" name="stipple_options[custom_stipple_load_data]" <?php disabled(Array('0', '2'), $stipple_load); ?>><?php echo esc_html( $stipple_load_data ); ?></textarea>
         </td>
       </tr>
-
+*/
+// WPCOM End
+?>
       <tr valign="top">
         <th scope="row"><input id="stipple-no-load" name="stipple_options[custom_stipple_load]" type="radio" value="2" <?php checked('2', $stipple_load); ?> onclick="document.getElementById('stipple_site_id').disabled = true;document.getElementById('stipple_custom_load_data').disabled = true;"/> <label for="stipple-no-load">Install Stipple, but don't call <code>STIPPLE.load</code>. I will add <code>stippleit-sid</code> classes to my images.</label></th>
       </tr>
