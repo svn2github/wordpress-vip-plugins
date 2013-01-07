@@ -169,4 +169,148 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		}
 	endif; // function_exists( 'es_api_search_index' )
 
+	if ( ! function_exists( 'wpcom_search_api_query' ) ) :
+		// Run an ElasticSearch query using more WordPress-style query arguments
+		// This is a copy/paste, up to date as of r64964 (Jan 7th, 2013)
+		function wpcom_search_api_query( $args, $stat_app_name = 'blog-search' ) {
+			$defaults = array(
+				'blog_id'        => get_current_blog_id(),
+
+				'query'          => null,    // Search phrase
+
+				'post_type'      => 'post',
+				'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
+
+				'author'         => null,
+				'author_name'    => null,
+
+				'orderby'        => null,    // Defaults to 'relevance' if query is set, otherwise 'date'. Pass an array for multiple orders.
+				'order'          => 'DESC',
+
+				'posts_per_page' => 10,
+				'offset'         => null,
+				'paged'          => null,
+			);
+
+			$raw_args = $args; // Keep a copy
+
+			$args = wp_parse_args( $args, $defaults );
+
+			$es_query_args = array(
+				'blog_id' => absint( $args['blog_id'] ),
+				'size'    => absint( $args['posts_per_page'] ),
+			);
+
+			// ES "from" arg (offset)
+			if ( $args['offset'] ) {
+				$es_query_args['from'] = absint( $args['offset'] );
+			} elseif ( $args['paged'] ) {
+				$es_query_args['from'] = min( 0, ( absint( $args['paged'] ) - 1 ) * $es_query_args['size'] );
+			}
+
+			// ES stores usernames, not IDs, so transform
+			if ( ! empty( $args['author'] ) ) {
+				$user = get_user_by( 'id', $args['author'] );
+
+				if ( $user && ! empty( $user->user_login ) ) {
+					$args['author_name'] = $user->user_login;
+				}
+			}
+
+			// Build the filters from the query elements.
+			// Filters rock because they are cached from one query to the next
+			// but they are cached as individual filters, rather than all combined together.
+			// May get performance boost by also caching the top level boolean filter too.
+			$filters = array();
+
+			if ( $args['post_type'] ) {
+				$filters[] = array( 'type' => array( 'value' => $args['post_type'] ) );
+			}
+
+			if ( $args['author_name'] ) {
+				$filters[] = array( 'term' => array( 'author.raw' => $args['author_name'] ) );
+			}
+
+			if ( is_array( $args['terms'] ) ) {
+				foreach ( $args['terms'] as $tax => $terms ) {
+					if ( is_array( $terms ) && ( 0 < count( $terms ) ) ) {
+						switch ( $tax ) {
+							case 'post_tag':
+								$tax_fld = 'tag.raw';
+								break;
+							case 'category':
+								$tax_fld = 'category.raw';
+								break;
+							default:
+								$tax_fld = 'taxonomy_raw.' . $tax;
+								break;
+						}
+						$filters[] = array( 'terms' => array( $tax_fld => (array) $terms ) );
+					}
+				}
+			}
+
+			if ( ! empty( $filters ) ) {
+				$es_query_args['filters'] = array( 'and' => $filters );
+			} else {
+				$es_query_args['filters'] = array( 'match_all' => new stdClass() );
+			}
+
+			// Fill in the query
+			//  todo: add auto phrase searching
+			//  todo: add fuzzy searching to correct for spelling mistakes
+			//  todo: boost title, tag, and category matches
+			if ( $args['query'] ) {
+				$es_query_args['multi_match'] = array(
+					'query'  => $args['query'],
+					'fields' => array( 'title', 'content', 'author', 'tag', 'category' ),
+					'operator'  => 'and',
+				);
+
+				if ( ! $args['orderby'] ) {
+					$args['orderby'] = array( 'relevance' );
+				}
+			} else {
+				if ( ! $args['orderby'] ) {
+					$args['orderby'] = array( 'date' );
+				}
+			}
+
+			// Validate the "order" field
+			switch ( strtolower( $args['order'] ) ) {
+				case 'asc':
+					$args['order'] = 'asc';
+					break;
+				case 'desc':
+				default:
+					$args['order'] = 'desc';
+					break;
+			}
+
+			$es_query_args['sort'] = array();
+			foreach ( (array) $args['orderby'] as $orderby ) {
+				// Translate orderby from WP field to ES field
+				// todo: add support for sorting by title, num likes, num comments, num views, etc
+				switch ( $orderby ) {
+					case 'relevance' :
+						$es_query_args['sort'][] = array( '_score' => array( 'sort' => $args['order'] ) );
+						break;
+					case 'date' :
+						$es_query_args['sort'][] = array( 'date' => array( 'sort' => $args['order'] ) );
+						break;
+					case 'ID' :
+						$es_query_args['sort'][] = array( 'id' => array( 'sort' => $args['order'] ) );
+						break;
+					case 'author' :
+						$es_query_args['sort'][] = array( 'author.raw' => array( 'sort' => $args['order'] ) );
+						break;
+				}
+			}
+			if ( empty( $es_query_args['sort'] ) )
+				unset( $es_query_args['sort'] );
+
+			return es_api_search_index( $es_query_args, $stat_app_name );
+		}
+	endif; // function_exists( 'es_api_search_index' )
+
 endif; // function_exists( 'wpcom_is_vip' )
