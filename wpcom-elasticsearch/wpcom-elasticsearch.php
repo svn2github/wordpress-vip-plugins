@@ -11,7 +11,7 @@ A uthor URI:  http://automattic.com/
 
 **************************************************************************
 
-Copyright (C) 2012 Automattic
+Copyright (C) 2012-2013 Automattic
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License version 2 or greater,
@@ -84,7 +84,7 @@ class WPCOM_elasticsearch {
 		if ( ! $query->is_search() )
 			return $limits;
 
-		if ( empty( $limits ) || ( isset( $query->query_vars['no_found_rows'] ) && $query->query_vars['no_found_rows'] ) ) {
+		if ( empty( $limits ) || $query->get( 'no_found_rows' ) ) {
 			$this->do_found_posts = false;
 		} else {
 			$this->do_found_posts = true;
@@ -99,15 +99,15 @@ class WPCOM_elasticsearch {
 		if ( ! $query->is_main_query() || ! $query->is_search() )
 			return $sql;
 
-		$page = ( empty( $query->query_vars['paged'] ) ) ? 1 : absint( $query->query_vars['paged'] );
+		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
 
 		$es_query_args = array(
 			'multi_match' => array(
-				'query'  => $query->query_vars['s'],
+				'query'  => $query->get( 's' ),
 				'fields' => array( 'title', 'content' ),
 			),
-			'size' => $query->query_vars['posts_per_page'],
-			'from' => ( $page - 1 ) * $query->query_vars['posts_per_page'], // Offset
+			'size' => $query->get( 'posts_per_page' ),
+			'from' => ( $page - 1 ) * $query->get( 'posts_per_page' ), // Offset
 			'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
 		);
 
