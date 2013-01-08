@@ -32,11 +32,14 @@ http://www.gnu.org/licenses/gpl-2.0.html
 TODO:
 
 * PHPDoc
-* Search refinement using parameters like category, tags, authors, etc.
 
 **************************************************************************/
 
 class WPCOM_elasticsearch {
+
+	public $modify_search_form = true;
+
+	public $facets = array();
 
 	private $do_found_posts;
 	private $found_posts = 0;
@@ -78,6 +81,9 @@ class WPCOM_elasticsearch {
 
 		// Since the FOUND_ROWS() query was nuked, we need to supply the total number of found posts
 		add_filter( 'found_posts', array( $this, 'filter__found_posts' ), 5, 2 );
+
+		// Add some basic faceting onto the bottom of the default search form
+		add_filter( 'get_search_form', array( $this, 'filter__get_search_form' ) );
 	}
 
 	public function filter__post_limits_request( $limits, $query ) {
@@ -101,19 +107,49 @@ class WPCOM_elasticsearch {
 
 		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
 
-		$es_query_args = array(
-			'multi_match' => array(
-				'query'  => $query->get( 's' ),
-				'fields' => array( 'title', 'content' ),
-			),
-			'size' => $query->get( 'posts_per_page' ),
-			'from' => ( $page - 1 ) * $query->get( 'posts_per_page' ), // Offset
-			'fields' => array( 'id' ), // Only need IDs, WP will supply the rest
+		// Start building the WP-style search query args
+		// They'll be translated to ES format args later
+		$es_wp_query_args = array(
+			'query'          => $query->get( 's' ),
+			'posts_per_page' => $query->get( 'posts_per_page' ),
+			'paged'          => $page,
 		);
 
-		// Use this filter to add whatever facets you want
+		// Facets
+		if ( ! empty( $this->facets ) ) {
+			$es_wp_query_args['facets'] = $this->facets;
+		}
+
+		// Post type
+		if ( $query->get( 'post_type' ) && 'any' != $query->get( 'post_type' ) ) {
+			$es_wp_query_args['post_type'] = $query->get( 'post_type' );
+		} elseif ( ! empty( $_GET['post_type'] ) ) {
+			$es_wp_query_args['post_type'] = explode( ',', $_GET['post_type'] );
+		} else {
+			$es_wp_query_args['post_type'] = 'post';
+		}
+
+		// Categories
+		if ( $query->get( 'category_name' ) ) {
+			$es_wp_query_args['terms']['category'] = $query->get( 'category_name' );
+		}
+
+		// Tags
+		if ( $query->get( 'tag' ) ) {
+			$es_wp_query_args['terms']['post_tag'] = $query->get( 'tag' );
+		}
+
+		// You can use this filter to modify the search query parameters, such as controlling the post_type.
+		// These arguments are in the format for wpcom_search_api_wp_to_es_args(), i.e. WP-style.
+		$es_wp_query_args = apply_filters( 'wpcom_elasticsearch_wp_query_args', $es_wp_query_args, $query );
+
+		// Convert the WP-style args into ES args
+		$es_query_args = wpcom_search_api_wp_to_es_args( $es_wp_query_args );
+
+		// This filter is harder to use if you're unfamiliar with ES but it allows complete control over the query
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
 
+		// Do the actual search query!
 		$this->search_result = es_api_search_index( $es_query_args, 'blog-search' );
 
 		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || empty( $this->search_result['results']['hits'] ) ) {
@@ -161,12 +197,42 @@ class WPCOM_elasticsearch {
 	}
 
 	public function get_search_result() {
-		return ( ! empty( $this->search_result ) && ! empty( $this->search_result['results'] ) ) ? $this->search_result['results'] : false;
+		return ( ! empty( $this->search_result ) && ! is_wp_error( $this->search_result ) && is_array( $this->search_result ) && ! empty( $this->search_result['results'] ) ) ? $this->search_result['results'] : false;
 	}
 
 	public function get_search_facets() {
 		$search_result = $this->get_search_result();
 		return ( ! empty( $search_result ) && ! empty( $search_result['facets'] ) ) ? $search_result['facets'] : array();
+	}
+
+	public function set_facets( $facets ) {
+		$this->facets = $facets;
+	}
+
+	public function filter__get_search_form( $form ) {
+		if ( ! $this->modify_search_form )
+			return $form;
+
+		$facets = $this->get_search_facets();
+
+		if ( ! $facets )
+			return $form;
+
+		foreach ( $facets as $label => $facet ) {
+			if ( empty( $this->facets[ $label ] ) || empty( $this->facets[ $label ]['query_var'] ) )
+				continue;
+
+			$form .= '<div><h3>' . $label . '</h3>';
+			$form .= '<ul>';
+
+			foreach ( $facet['terms'] as $term ) {
+				$form .= '<li><a href="' . esc_url( add_query_arg( array( 's' => get_query_var( 's' ), $this->facets[ $label ]['query_var'] => $term['term'] ) ) ) . '">' . $term['term'] . '</a> (' . $term['count'] . ')</li>';
+			}
+
+			$form .= '</ul></div>';
+		}
+
+		return $form;
 	}
 }
 
