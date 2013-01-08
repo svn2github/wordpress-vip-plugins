@@ -210,7 +210,7 @@ class WPCOM_elasticsearch {
 	}
 
 	public function filter__get_search_form( $form ) {
-		if ( ! $this->modify_search_form )
+		if ( empty( $this->facets ) || ! $this->modify_search_form )
 			return $form;
 
 		$facets = $this->get_search_facets();
