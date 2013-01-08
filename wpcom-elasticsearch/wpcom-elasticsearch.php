@@ -123,9 +123,14 @@ class WPCOM_elasticsearch {
 		// Post type
 		if ( $query->get( 'post_type' ) && 'any' != $query->get( 'post_type' ) ) {
 			$es_wp_query_args['post_type'] = $query->get( 'post_type' );
-		} elseif ( ! empty( $_GET['post_type'] ) ) {
-			$es_wp_query_args['post_type'] = explode( ',', $_GET['post_type'] );
-		} else {
+		}
+		elseif ( ! empty( $_GET['post_type'] ) && post_type_exists( $_GET['post_type'] ) ) {
+			$es_wp_query_args['post_type'] = $_GET['post_type'];
+		}
+		elseif ( ! empty( $_GET['post_type'] ) && 'any' == $_GET['post_type'] ) {
+			$es_wp_query_args['post_type'] = false;
+		}
+		else {
 			$es_wp_query_args['post_type'] = 'post';
 		}
 
