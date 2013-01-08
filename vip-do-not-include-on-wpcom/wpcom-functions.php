@@ -170,9 +170,19 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	endif; // function_exists( 'es_api_search_index' )
 
 	if ( ! function_exists( 'wpcom_search_api_query' ) ) :
-		// Run an ElasticSearch query using more WordPress-style query arguments
-		// This is a copy/paste, up to date as of r64964 (Jan 7th, 2013)
+		// A wrapper for es_api_search_index() that accepts WP-style args
+		// See wpcom_search_api_wp_to_es_args() for details
+		// This is a copy/paste, up to date as of WP.com r65003 (Jan 7th, 2013)
 		function wpcom_search_api_query( $args, $stat_app_name = 'blog-search' ) {
+			$es_query_args = wpcom_search_api_wp_to_es_args( $args );
+
+			return es_api_search_index( $es_query_args, $stat_app_name );
+		}
+	endif; // function_exists( 'es_api_search_index' )
+
+	if ( ! function_exists( 'wpcom_search_api_wp_to_es_args' ) ) :
+		// Converts WP-style args to ES args
+		function wpcom_search_api_wp_to_es_args( $args ) {
 			$defaults = array(
 				'blog_id'        => get_current_blog_id(),
 
@@ -190,6 +200,8 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 				'posts_per_page' => 10,
 				'offset'         => null,
 				'paged'          => null,
+
+				'facets'         => null,    // array( 'Some Categories' => array( 'type' => 'terms', 'field' => 'category.raw', 'size' => 10, 'query_var' => 'category_name' ) )
 			);
 
 			$raw_args = $args; // Keep a copy
@@ -205,7 +217,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			if ( $args['offset'] ) {
 				$es_query_args['from'] = absint( $args['offset'] );
 			} elseif ( $args['paged'] ) {
-				$es_query_args['from'] = min( 0, ( absint( $args['paged'] ) - 1 ) * $es_query_args['size'] );
+				$es_query_args['from'] = max( 0, ( absint( $args['paged'] ) - 1 ) * $es_query_args['size'] );
 			}
 
 			// ES stores usernames, not IDs, so transform
@@ -233,7 +245,8 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 
 			if ( is_array( $args['terms'] ) ) {
 				foreach ( $args['terms'] as $tax => $terms ) {
-					if ( is_array( $terms ) && ( 0 < count( $terms ) ) ) {
+					$terms = (array) $terms;
+					if ( count( $terms ) ) {
 						switch ( $tax ) {
 							case 'post_tag':
 								$tax_fld = 'tag.raw';
@@ -309,8 +322,15 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			if ( empty( $es_query_args['sort'] ) )
 				unset( $es_query_args['sort'] );
 
-			return es_api_search_index( $es_query_args, $stat_app_name );
+			// Facets
+			if ( ! empty( $args['facets'] ) ) {
+				foreach ( (array) $args['facets'] as $label => $facet ) {
+					$es_query_args['facets'][$label] = array( $facet['type'] => array( 'field' => $facet['field'], 'size' => $facet['size'] ) );
+				}
+			}
+
+			return $es_query_args;
 		}
-	endif; // function_exists( 'es_api_search_index' )
+	endif; // function_exists( 'wpcom_search_api_wp_to_es_args' )
 
 endif; // function_exists( 'wpcom_is_vip' )
