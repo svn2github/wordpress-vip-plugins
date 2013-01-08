@@ -219,7 +219,7 @@ class WPCOM_elasticsearch {
 			return $form;
 
 		foreach ( $facets as $label => $facet ) {
-			if ( empty( $this->facets[ $label ] ) || empty( $this->facets[ $label ]['query_var'] ) )
+			if ( empty( $this->facets[ $label ] ) || empty( $this->facets[ $label ]['query_var'] ) || empty( $facet['terms'] ) )
 				continue;
 
 			$form .= '<div><h3>' . $label . '</h3>';
