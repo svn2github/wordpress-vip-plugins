@@ -151,6 +151,8 @@ class WPCOM_elasticsearch {
 		// Convert the WP-style args into ES args
 		$es_query_args = wpcom_search_api_wp_to_es_args( $es_wp_query_args );
 
+		$es_query_args['fields'] = array( 'post_id' );
+
 		// This filter is harder to use if you're unfamiliar with ES but it allows complete control over the query
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
 
@@ -166,8 +168,8 @@ class WPCOM_elasticsearch {
 		$post_ids = array();
 		foreach ( (array) $this->search_result['results']['hits'] as $result ) {
 			// Fields arg
-			if ( ! empty( $result['fields'] ) && ! empty( $result['fields']['id'] ) ) {
-				$post_ids[] = $result['fields']['id'];
+			if ( ! empty( $result['fields'] ) && ! empty( $result['fields']['post_id'] ) ) {
+				$post_ids[] = $result['fields']['post_id'];
 			}
 			// Full source objects
 			elseif ( ! empty( $result['_source'] ) && ! empty( $result['_source']['id'] ) ) {
@@ -175,7 +177,7 @@ class WPCOM_elasticsearch {
 			}
 			// Unknown results format
 			else {
-				return $sql;
+				return '';//$sql;
 			}
 		}
 
