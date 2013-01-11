@@ -115,33 +115,41 @@ class WPCOM_elasticsearch {
 			'paged'          => $page,
 		);
 
+		// Look for query variables that match registered facets (taxonomies and post_type)
+		foreach ( $this->facets as $label => $facet ) {
+			switch ( $facet['type'] ) {
+				case 'taxonomy':
+					$taxonomy = get_taxonomy( $this->facets[ $label ]['taxonomy'] );
+
+					if ( ! $taxonomy )
+						continue 2;  // switch() is considered a looping structure
+
+					if ( $query->get( $taxonomy->query_var ) )
+						$es_wp_query_args['terms'][ $this->facets[ $label ]['taxonomy'] ] = $query->get( $taxonomy->query_var );
+
+					break;
+
+				case 'post_type':
+					if ( $query->get( 'post_type' ) && 'any' != $query->get( 'post_type' ) ) {
+						$es_wp_query_args['post_type'] = $query->get( 'post_type' );
+					}
+					elseif ( ! empty( $_GET['post_type'] ) && post_type_exists( $_GET['post_type'] ) ) {
+						$es_wp_query_args['post_type'] = $_GET['post_type'];
+					}
+					elseif ( ! empty( $_GET['post_type'] ) && 'any' == $_GET['post_type'] ) {
+						$es_wp_query_args['post_type'] = false;
+					}
+					else {
+						$es_wp_query_args['post_type'] = false;//'post';
+					}
+
+					break;
+			}
+		}
+
 		// Facets
 		if ( ! empty( $this->facets ) ) {
 			$es_wp_query_args['facets'] = $this->facets;
-		}
-
-		// Post type
-		if ( $query->get( 'post_type' ) && 'any' != $query->get( 'post_type' ) ) {
-			$es_wp_query_args['post_type'] = $query->get( 'post_type' );
-		}
-		elseif ( ! empty( $_GET['post_type'] ) && post_type_exists( $_GET['post_type'] ) ) {
-			$es_wp_query_args['post_type'] = $_GET['post_type'];
-		}
-		elseif ( ! empty( $_GET['post_type'] ) && 'any' == $_GET['post_type'] ) {
-			$es_wp_query_args['post_type'] = false;
-		}
-		else {
-			$es_wp_query_args['post_type'] = 'post';
-		}
-
-		// Categories
-		if ( $query->get( 'category_name' ) ) {
-			$es_wp_query_args['terms']['category'] = $query->get( 'category_name' );
-		}
-
-		// Tags
-		if ( $query->get( 'tag' ) ) {
-			$es_wp_query_args['terms']['post_tag'] = $query->get( 'tag' );
 		}
 
 		// You can use this filter to modify the search query parameters, such as controlling the post_type.
@@ -203,7 +211,10 @@ class WPCOM_elasticsearch {
 		return $this->found_posts;
 	}
 
-	public function get_search_result() {
+	public function get_search_result( $raw = false ) {
+		if ( $raw )
+			return $this->search_result;
+
 		return ( ! empty( $this->search_result ) && ! is_wp_error( $this->search_result ) && is_array( $this->search_result ) && ! empty( $this->search_result['results'] ) ) ? $this->search_result['results'] : false;
 	}
 
@@ -226,14 +237,51 @@ class WPCOM_elasticsearch {
 			return $form;
 
 		foreach ( $facets as $label => $facet ) {
-			if ( empty( $this->facets[ $label ] ) || empty( $this->facets[ $label ]['query_var'] ) || empty( $facet['terms'] ) )
+			if ( empty( $this->facets[ $label ] ) || empty( $facet['terms'] ) )
 				continue;
+
+			$query_var = false;
+
+			// All taxonomy terms are going to have the same query_var
+			if( 'taxonomy' == $this->facets[ $label ]['type'] ) {
+				$taxonomy = get_taxonomy( $this->facets[ $label ]['taxonomy'] );
+
+				if ( ! $taxonomy )
+					continue;
+
+				$query_var = $taxonomy->query_var;
+			}
+
 
 			$form .= '<div><h3>' . $label . '</h3>';
 			$form .= '<ul>';
 
-			foreach ( $facet['terms'] as $term ) {
-				$form .= '<li><a href="' . esc_url( add_query_arg( array( 's' => get_query_var( 's' ), $this->facets[ $label ]['query_var'] => $term['term'] ) ) ) . '">' . $term['term'] . '</a> (' . $term['count'] . ')</li>';
+			foreach ( $facet['terms'] as $facet_term ) {
+				switch ( $this->facets[ $label ]['type'] ) {
+					case 'taxonomy':
+						$term = get_term_by( 'id', $facet_term['term'], $this->facets[ $label ]['taxonomy'] );
+
+						if ( ! $term )
+							continue 2; // switch() is considered a looping structure
+
+						$slug      = $term->slug;
+						$name      = $term->name;
+
+						break;
+
+					case 'post_type':
+						$post_type = get_post_type_object( $facet_term['term'] );
+
+						if ( ! $post_type )
+							continue 2;  // switch() is considered a looping structure
+
+						$query_var = 'post_type';//( $post_type->query_var ) ? $post_type->query_var : 'post_type';
+						$slug      = $facet_term['term'];
+						$name      = $post_type->labels->singular_name;
+				}
+
+				$form .= '<li><a href="' .
+				esc_url( add_query_arg( array( 's' => get_query_var( 's' ), $query_var => $slug ) ) ) . '">' . $name . '</a> (' . number_format_i18n( absint( $facet_term['count'] ) ). ')</li>';
 			}
 
 			$form .= '</ul></div>';
