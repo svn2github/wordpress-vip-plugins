@@ -201,7 +201,14 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 				'offset'         => null,
 				'paged'          => null,
 
-				'facets'         => null,    // array( 'Some Categories' => array( 'type' => 'terms', 'field' => 'category.raw', 'size' => 10, 'query_var' => 'category_name' ) )
+				/**
+				 * Facets. Examples:
+				 * array(
+				 *     'Tag'       => array( 'type' => 'taxonomy', 'taxonomy' => 'post_tag', 'count' => 10 ) ),
+				 *     'Post Type' => array( 'type' => 'post_type', 'count' => 10 ) ),
+				 * );
+				 */
+				'facets'         => null,
 			);
 
 			$raw_args = $args; // Keep a copy
@@ -236,7 +243,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			$filters = array();
 
 			if ( $args['post_type'] ) {
-				$filters[] = array( 'type' => array( 'value' => $args['post_type'] ) );
+				$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
 			}
 
 			if ( $args['author_name'] ) {
@@ -249,13 +256,13 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 					if ( count( $terms ) ) {
 						switch ( $tax ) {
 							case 'post_tag':
-								$tax_fld = 'tag.raw';
+								$tax_fld = 'tag.slug';
 								break;
 							case 'category':
-								$tax_fld = 'category.raw';
+								$tax_fld = 'category.slug';
 								break;
 							default:
-								$tax_fld = 'taxonomy_raw.' . $tax;
+								$tax_fld = 'taxonomy_raw.' . $tax . '.slug';
 								break;
 						}
 						$filters[] = array( 'terms' => array( $tax_fld => (array) $terms ) );
@@ -325,7 +332,33 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			// Facets
 			if ( ! empty( $args['facets'] ) ) {
 				foreach ( (array) $args['facets'] as $label => $facet ) {
-					$es_query_args['facets'][$label] = array( $facet['type'] => array( 'field' => $facet['field'], 'size' => $facet['size'] ) );
+					switch ( $facet['type'] ) {
+
+						case 'taxonomy':
+							switch ( $facet['taxonomy'] ) {
+
+								case 'post_tag':
+									$field = 'tag';
+									break;
+
+								case 'category':
+									$field = 'category';
+									break;
+
+								default:
+									$field = 'taxonomy.' . $facet['taxonomy'];
+									break;
+							} // switch $facet['taxonomy']
+
+							$es_query_args['facets'][$label] = array( 'terms' => array( 'field' => $field . '.term_id', 'size' => $facet['count'] ) );
+
+							break;
+						// end case taxonomy
+
+						case 'post_type':
+							$es_query_args['facets'][$label] = array( 'terms' => array( 'field' => 'post_type', 'size' => $facet['count'] ) );
+							break;
+					}
 				}
 			}
 
