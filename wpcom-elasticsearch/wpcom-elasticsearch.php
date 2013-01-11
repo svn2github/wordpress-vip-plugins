@@ -35,9 +35,9 @@ TODO:
 
 **************************************************************************/
 
-class WPCOM_elasticsearch {
+require_once( __DIR__ . '/widget-facets.php' );
 
-	public $modify_search_form = true;
+class WPCOM_elasticsearch {
 
 	public $facets = array();
 
@@ -65,25 +65,31 @@ class WPCOM_elasticsearch {
 	}
 
 	public function setup() {
-		if ( is_admin() || ! function_exists( 'es_api_search_index' ) )
+		if ( ! function_exists( 'es_api_search_index' ) )
 			return;
 
-		// Checks to see if we need to worry about found_posts
-		add_filter( 'post_limits_request', array( $this, 'filter__post_limits_request' ), 999, 2 );
+		add_action( 'widgets_init', array( $this, 'action__widgets_init' ) );
 
-		# Note: Advanced Post Cache hooks in at 10 so it's important to hook in before that
+		if ( ! is_admin() ) {
 
-		// Replaces the standard search query with one that fetches the posts based on post IDs supplied by ES
-		add_filter( 'posts_request', array( $this, 'filter__posts_request' ), 5, 2 );
+			// Checks to see if we need to worry about found_posts
+			add_filter( 'post_limits_request', array( $this, 'filter__post_limits_request' ), 999, 2 );
 
-		// Nukes the FOUND_ROWS() database query
-		add_filter( 'found_posts_query', array( $this, 'filter__found_posts_query' ), 5, 2 );
+			# Note: Advanced Post Cache hooks in at 10 so it's important to hook in before that
 
-		// Since the FOUND_ROWS() query was nuked, we need to supply the total number of found posts
-		add_filter( 'found_posts', array( $this, 'filter__found_posts' ), 5, 2 );
+			// Replaces the standard search query with one that fetches the posts based on post IDs supplied by ES
+			add_filter( 'posts_request', array( $this, 'filter__posts_request' ), 5, 2 );
 
-		// Add some basic faceting onto the bottom of the default search form
-		add_filter( 'get_search_form', array( $this, 'filter__get_search_form' ) );
+			// Nukes the FOUND_ROWS() database query
+			add_filter( 'found_posts_query', array( $this, 'filter__found_posts_query' ), 5, 2 );
+
+			// Since the FOUND_ROWS() query was nuked, we need to supply the total number of found posts
+			add_filter( 'found_posts', array( $this, 'filter__found_posts' ), 5, 2 );
+		}
+	}
+
+	public function action__widgets_init() {
+		register_widget( 'WPCOM_elasticsearch_Widget_Facets' );
 	}
 
 	public function filter__post_limits_request( $limits, $query ) {
@@ -292,32 +298,6 @@ class WPCOM_elasticsearch {
 		}
 
 		return $facets_data;
-	}
-
-	public function filter__get_search_form( $form ) {
-		if ( empty( $this->facets ) || ! $this->modify_search_form )
-			return $form;
-
-		$facets = $this->get_search_facet_data();
-
-		if ( ! $facets )
-			return $form;
-
-		foreach ( $facets as $label => $facet ) {
-			if ( count( $facet['items'] ) < 2 )
-				continue;
-
-				$form .= '<h3>' . $label . '</h3>';
-				$form .= '<ul>';
-
-				foreach ( $facet['items'] as $item ) {
-					$form .= '<li><a href="' . esc_url( $item['url'] ) . '">' . $item['name'] . '</a> (' . number_format_i18n( absint( $item['count'] ) ). ')</li>';
-				}
-
-				$form .= '</ul>';
-		}
-
-		return $form;
 	}
 }
 
