@@ -211,6 +211,10 @@ class WPCOM_elasticsearch {
 		return $this->found_posts;
 	}
 
+	public function set_facets( $facets ) {
+		$this->facets = $facets;
+	}
+
 	public function get_search_result( $raw = false ) {
 		if ( $raw )
 			return $this->search_result;
@@ -223,22 +227,23 @@ class WPCOM_elasticsearch {
 		return ( ! empty( $search_result ) && ! empty( $search_result['facets'] ) ) ? $search_result['facets'] : array();
 	}
 
-	public function set_facets( $facets ) {
-		$this->facets = $facets;
-	}
-
-	public function filter__get_search_form( $form ) {
-		if ( empty( $this->facets ) || ! $this->modify_search_form )
-			return $form;
+	public function get_search_facet_data() {
+		if ( empty( $this->facets ) )
+			return false;
 
 		$facets = $this->get_search_facets();
 
 		if ( ! $facets )
-			return $form;
+			return false;
+
+		$facet_data = array();
 
 		foreach ( $facets as $label => $facet ) {
-			if ( empty( $this->facets[ $label ] ) || empty( $facet['terms'] ) )
+			if ( empty( $this->facets[ $label ] ) )
 				continue;
+
+			$facets_data[ $label ] = $this->facets[ $label ];
+			$facets_data[ $label ]['items'] = array();
 
 			$query_var = false;
 
@@ -252,11 +257,7 @@ class WPCOM_elasticsearch {
 				$query_var = $taxonomy->query_var;
 			}
 
-
-			$form .= '<div><h3>' . $label . '</h3>';
-			$form .= '<ul>';
-
-			foreach ( $facet['terms'] as $facet_term ) {
+			foreach ( (array) $facet['terms'] as $facet_term ) {
 				switch ( $this->facets[ $label ]['type'] ) {
 					case 'taxonomy':
 						$term = get_term_by( 'id', $facet_term['term'], $this->facets[ $label ]['taxonomy'] );
@@ -280,11 +281,40 @@ class WPCOM_elasticsearch {
 						$name      = $post_type->labels->singular_name;
 				}
 
-				$form .= '<li><a href="' .
-				esc_url( add_query_arg( array( 's' => get_query_var( 's' ), $query_var => $slug ) ) ) . '">' . $name . '</a> (' . number_format_i18n( absint( $facet_term['count'] ) ). ')</li>';
+				$facets_data[ $label ]['items'][] = array(
+					'url'       => add_query_arg( array( 's' => get_query_var( 's' ), $query_var => $slug ) ),
+					'query_var' => $query_var,
+					'slug'      => $slug,
+					'name'      => $name,
+					'count'     => $facet_term['count'],
+				);
 			}
+		}
 
-			$form .= '</ul></div>';
+		return $facets_data;
+	}
+
+	public function filter__get_search_form( $form ) {
+		if ( empty( $this->facets ) || ! $this->modify_search_form )
+			return $form;
+
+		$facets = $this->get_search_facet_data();
+
+		if ( ! $facets )
+			return $form;
+
+		foreach ( $facets as $label => $facet ) {
+			if ( count( $facet['items'] ) < 2 )
+				continue;
+
+				$form .= '<h3>' . $label . '</h3>';
+				$form .= '<ul>';
+
+				foreach ( $facet['items'] as $item ) {
+					$form .= '<li><a href="' . esc_url( $item['url'] ) . '">' . $item['name'] . '</a> (' . number_format_i18n( absint( $item['count'] ) ). ')</li>';
+				}
+
+				$form .= '</ul>';
 		}
 
 		return $form;
