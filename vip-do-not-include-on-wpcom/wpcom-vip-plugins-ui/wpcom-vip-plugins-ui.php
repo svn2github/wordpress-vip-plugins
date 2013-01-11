@@ -159,7 +159,7 @@ class WPcom_VIP_Plugins_UI {
 		$this->fpp_plugins = array(
 			'chartbeat'     => array(
 				'name'        => 'Chartbeat',
-				'description' => 'Real-time data for big-time publishers.',
+				'description' => 'Get a free trial to see your site\'s real-time data.',
 			),
 			'facebook'       => array(
 				'name'        => 'Facebook',
