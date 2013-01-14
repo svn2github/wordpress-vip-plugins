@@ -187,12 +187,15 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 				'blog_id'        => get_current_blog_id(),
 
 				'query'          => null,    // Search phrase
+				'query_fields'   => array( 'title', 'content', 'author', 'tag', 'category' ),
 
-				'post_type'      => 'post',
+				'post_type'      => 'post',  // string or an array
 				'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
 
-				'author'         => null,
-				'author_name'    => null,
+				'author'         => null,    // id or an array of ids
+				'author_name'    => array(), // string or an array
+
+				'date_range'     => null,    // array( 'field' => 'date', 'gt' => 'YYYY-MM-dd', 'lte' => 'YYYY-MM-dd' ); date formats: 'YYYY-MM-dd' or 'YYYY-MM-dd HH:MM:SS'
 
 				'orderby'        => null,    // Defaults to 'relevance' if query is set, otherwise 'date'. Pass an array for multiple orders.
 				'order'          => 'DESC',
@@ -227,12 +230,20 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 				$es_query_args['from'] = max( 0, ( absint( $args['paged'] ) - 1 ) * $es_query_args['size'] );
 			}
 
+			if ( !is_array( $args['author_name'] ) ) {
+				$args['author_name'] = array( $args['author_name'] );
+			}
+
 			// ES stores usernames, not IDs, so transform
 			if ( ! empty( $args['author'] ) ) {
-				$user = get_user_by( 'id', $args['author'] );
+				if ( !is_array( $args['author'] ) )
+					$args['author'] = array( $args['author'] );
+				foreach ( $args['author'] as $author ) {
+					$user = get_user_by( 'id', $author );
 
-				if ( $user && ! empty( $user->user_login ) ) {
-					$args['author_name'] = $user->user_login;
+					if ( $user && ! empty( $user->user_login ) ) {
+						$args['author_name'][] = $user->user_login;
+					}
 				}
 			}
 
@@ -243,11 +254,19 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			$filters = array();
 
 			if ( $args['post_type'] ) {
-				$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
+				if ( !is_array( $args['post_type'] ) )
+					$args['post_type'] = array( $args['post_type'] );
+				$filters[] = array( 'terms' => array( 'post_type' => $args['post_type'] ) );
 			}
 
 			if ( $args['author_name'] ) {
-				$filters[] = array( 'term' => array( 'author.raw' => $args['author_name'] ) );
+				$filters[] = array( 'terms' => array( 'author_login' => $args['author_name'] ) );
+			}
+
+			if ( !empty( $args['date_range'] ) && isset( $args['date_range']['field'] ) ) {
+				$field = $args['date_range']['field'];
+				unset( $args['date_range']['field'] );
+				$filters[] = array( 'range' => array( $field => $args['date_range'] ) );
 			}
 
 			if ( is_array( $args['terms'] ) ) {
@@ -283,7 +302,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			if ( $args['query'] ) {
 				$es_query_args['multi_match'] = array(
 					'query'  => $args['query'],
-					'fields' => array( 'title', 'content', 'author', 'tag', 'category' ),
+					'fields' => $args['query_fields'],
 					'operator'  => 'and',
 				);
 
@@ -350,13 +369,34 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 									break;
 							} // switch $facet['taxonomy']
 
-							$es_query_args['facets'][$label] = array( 'terms' => array( 'field' => $field . '.term_id', 'size' => $facet['count'] ) );
+							$es_query_args['facets'][$label] = array(
+								'terms' => array(
+									'field' => $field . '.term_id',
+									'size' => $facet['count'],
+								),
+							);
 
 							break;
-						// end case taxonomy
 
 						case 'post_type':
-							$es_query_args['facets'][$label] = array( 'terms' => array( 'field' => 'post_type', 'size' => $facet['count'] ) );
+							$es_query_args['facets'][$label] = array(
+								'terms' => array(
+									'field' => 'post_type',
+									'size' => $facet['count'],
+								),
+							);
+
+							break;
+
+						case 'date_histogram':
+							$es_query_args['facets'][$label] = array(
+								'date_histogram' => array(
+									'interval' => $facet['interval'],
+									'field'    => ( 'post_date_gmt' == $facet['field'] ) ? 'date_gmt' : 'date',
+									'size'     => $facet['count'],
+								),
+							);
+
 							break;
 					}
 				}
