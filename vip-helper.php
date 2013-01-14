@@ -623,7 +623,7 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 	// check if the timeout was hit and obey the option and return the fallback value
 	if ( false !== $option && time() - $option['time'] < $retry ) {
 		if ( $option['hits'] >= $threshold )
-			return ( $fallback_value ) ? $fallback_value : new WP_Error('remote_get_disabled', $option );
+			return ( $fallback_value ) ? $fallback_value : new WP_Error('remote_get_disabled', 'Remote requests disabled: ' . maybe_serialize( $option ) );
 	}
 
 	$start = microtime( true );
