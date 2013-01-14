@@ -301,7 +301,9 @@ class WPCOM_elasticsearch {
 						switch ( $this->facets[ $label ]['interval'] ) {
 							case 'year':
 								$query_vars = array(
-									'year' => date( 'Y', $timestamp ),
+									'year'     => date( 'Y', $timestamp ),
+									'monthnum' => false,
+									'day'      => false,
 								);
 								$name = date( 'Y', $timestamp );
 								break;
@@ -310,6 +312,7 @@ class WPCOM_elasticsearch {
 								$query_vars = array(
 									'year'     => date( 'Y', $timestamp ),
 									'monthnum' => date( 'n', $timestamp ),
+									'day'      => false,
 								);
 								$name = date( 'F Y', $timestamp );
 								break;
