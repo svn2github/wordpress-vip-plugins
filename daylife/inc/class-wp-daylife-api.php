@@ -13,6 +13,7 @@ class WP_Daylife_API {
 	var $shared_secret;
 	var $source_filter_id;
 	var $url;
+	var $galleries_url;
 	private $_options;
 
 	const protocol = 'jsonrest';
@@ -23,6 +24,7 @@ class WP_Daylife_API {
 		$this->shared_secret = $args['shared_secret'];
 		$this->source_filter_id = $args['source_filter_id'];
 		$this->url = trailingslashit( $args['api_endpoint'] ) . self::protocol . '/publicapi/' . self::version . '/';
+		$this->galleries_url = trailingslashit( $args['galleries_endpoint'] ) . 'json/galleryapi/1.0/';
 	}
 
 	private function request( $call, $args = array() ) {
@@ -38,6 +40,46 @@ class WP_Daylife_API {
 			return false;
 
 		return json_decode( wp_remote_retrieve_body( $response ) );
+	}
+
+	private function request_galleries( $call, $args = array() ) {
+		$url = preg_match("~^(http)s?://~i", $this->galleries_url ) ? $this->galleries_url . $call : 'http://' . $this->galleries_url . $call;
+
+		$response = wp_remote_get( add_query_arg( $args, $url ) );
+		if ( 200 != wp_remote_retrieve_response_code( $response ) )
+			return false;
+
+		return json_decode( wp_remote_retrieve_body( $response ) );
+
+	}
+
+	public function get_all_galleries( $args = array() ) {
+
+		$defaults = array(
+			'page'	=>	1,
+			'sort'	=>	'created'
+		);
+
+		$response = $this->request_galleries( 'getGalleries', wp_parse_args( $args, $defaults ) );
+		if ( $response )
+			return $response->response->payload->galleries;
+
+		return false;
+
+	}
+
+	public function get_gallery_by_id( $args = array() ) {
+
+		$defaults = array(
+			'api_image_width' => apply_filters( 'daylife_api_gallery_image_width', 650 )
+		);
+
+		$response = $this->request_galleries( 'getGallery', wp_parse_args( $args, $defaults ) );
+		if ( $response )
+			return $response->response->payload->gallery->images;
+
+		return false;
+
 	}
 
 	private function _get_start_time() {

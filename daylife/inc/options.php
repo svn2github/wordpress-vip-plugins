@@ -47,6 +47,7 @@ class Daylife_Options {
 		add_settings_field( 'daylife-api-endpoint', __( 'Daylife API Endpoint', 'daylife' ), array( $this, 'text_box' ), 'daylife-options', 'daylife-general', array( 'id' => 'daylife-api-endpoint', 'name' => 'api_endpoint' ) );
 		add_settings_field( 'daylife-start-time', __( 'Search Images Within', 'daylife' ), array( $this, 'start_time_radio' ), 'daylife-options', 'daylife-general', array( 'id' => 'daylife-start-time', 'name' => 'start_time' ) );
 		add_settings_field( 'daylife-post-types', __( 'Post Types Supported', 'daylife' ), array( $this, 'post_types_checkboxes' ), 'daylife-options', 'daylife-general', array( 'id' => 'daylife-post-types', 'name' => 'post_types' ) );
+		add_settings_field( 'daylife-galleries-endpoint', __( 'Smart Galleries Endpoint', 'daylife' ), array( $this, 'text_box' ), 'daylife-options', 'daylife-general', array( 'id' => 'daylife-galleries-endpoint', 'name' => 'galleries_endpoint' ) );
 	}
 
 	public function text_box( $args ) {

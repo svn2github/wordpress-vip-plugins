@@ -5,6 +5,15 @@ jQuery( function($) {
 			$('#daylife-search-button').click();
 		}
 	});
+
+	$('#daylife-gallery-search').keypress( function( event ) {
+		if ( 13 == event.which ) {
+			event.preventDefault();
+			$('#daylife-search-button').click();
+		}
+	});
+
+
 	$('#daylife-search-button').click( function() {
 		var data = {
 			action: 'daylife-image-search',
@@ -17,6 +26,119 @@ jQuery( function($) {
 
 		return false;
 	});
+
+	$('#daylife-gallery-search-button').click( function() {
+		var data = {
+			action: 'daylife-gallery-search',
+			nonce: $('#daylife-gallery-search-nonce-field').val(),
+			keyword: $('#daylife-gallery-search').val()
+		};
+		$.post(ajaxurl, data, function(response) {
+			daylifeUpdateGalleries(response);
+		});
+
+		return false;
+	});
+
+	function daylifeGetImage(response) {
+		var data = {
+			action: 'daylife-get-images',
+			nonce: $('#daylife-gallery-search-nonce-field').val(),
+			daylife_gallery_page: $(this).attr('href').substring(1)
+		};
+		$.post(ajaxurl, data, function(response) {
+			daylifeUpdateGalleries(response);
+		});
+	}
+
+	function daylifeGalleryLoadProgress(response) {
+
+		var countEl = '.daylife-gallery-loader .count';
+		var totalEl = '.daylife-gallery-loader .total';
+
+		var count = $(countEl).html();
+		var total = $(totalEl).html();
+		count++;
+		$(countEl).html(count);
+	
+		if ( count >= total ) {
+			$('.daylife-gallery-loader').hide();
+			$('.daylife-gallery-response button').show();
+			$(countEl).html('0');
+			$(totalEl).html('0');
+			autosave();
+		}
+	}
+
+	function daylifeGalleryPull(response) {
+
+		var images = JSON.parse(response);
+		length = images.length;
+	
+		$('.daylife-gallery-loader .total').html(length);
+		$('.daylife-gallery-loader').show();
+		
+		for( i=0; i < length; i++ ) {
+			var url = images[i].split('|');
+
+			var data = {
+				action: 'daylife-gallery-load-image',
+				nonce: $('#daylife-gallery-add-nonce-field').val(),
+				image_url: url[0],
+				caption: url[1],
+				gallery_total: length,
+				post_id: $('#post_ID').val()
+			}
+			$.post(ajaxurl, data, function(response) {
+				daylifeGalleryLoadProgress(response);
+			})
+		}
+		var data = {
+			action: 'daylife-gallery-shortcode',
+			nonce: $('#daylife-gallery-add-nonce-field').val(),
+			post_id: $('#post_ID').val()
+		}
+		$.post(ajaxurl, data, function(response) {
+			send_to_editor(response);
+		})
+	}
+
+	function daylifeUpdateGalleries(response) {
+		$('.daylife-gallery-response').show();
+		$('.daylife-gallery-response').html( response );
+
+		$('.daylife-gallery-response button').click( function() {
+			var button = $(this);
+			button.hide();
+			var img = $( $(this).siblings( 'img' )[0] );
+			var data = {
+				action: 'daylife-gallery-get-images',
+				nonce: $('#daylife-gallery-add-nonce-field').val(),
+				daylife_url: img.data( 'daylife_url' ),
+				gallery_id: img.data( 'gallery-id' ),
+				post_id: $('#post_ID').val()
+			}
+			$.post(ajaxurl, data, function(response) {
+				daylifeGalleryPull(response);
+			})
+			return false;
+		});
+
+
+		$( '.tablenav .gallery a' ).bind( 'click.daylife-gallery-tablenav', function() {
+			var data = {
+				action: 'daylife-gallery-search',
+				nonce: $('#daylife-gallery-search-nonce-field').val(),
+				daylife_gallery_page: $(this).attr('href').substring(1)
+			};
+			$.post(ajaxurl, data, function(response) {
+				daylifeUpdateGalleries(response);
+			});
+		});
+
+	}
+
+
 	$('#daylife-suggest-button').click( function() {
 		 $('#daylife-search').val('');
 		var data = {
@@ -34,6 +156,8 @@ jQuery( function($) {
 		$('.daylife-response').show();
 		$('.daylife-response').html( response );
 		$('.daylife-response button').click( function() {
+			var button = $(this);
+			button.hide();
 			var img = $( $(this).siblings( 'img' )[0] );
 			var data = {
 				action: 'daylife-image-load',
@@ -50,6 +174,7 @@ jQuery( function($) {
 			}
 			$.post(ajaxurl, data, function(response) {
 				send_to_editor(response);
+				button.show();
 			})
 			return false;
 		});
@@ -68,4 +193,5 @@ jQuery( function($) {
 			});
 		});
 	}
+
 });
