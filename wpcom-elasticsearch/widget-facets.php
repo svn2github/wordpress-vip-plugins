@@ -49,7 +49,7 @@ class WPCOM_elasticsearch_Widget_Facets extends WP_Widget {
 				continue;
 
 			// Some facet types like date_histogram don't support the max results parameter
-			if ( WPCOM_elasticsearch()->facets[ $label ] && WPCOM_elasticsearch()->facets[ $label ]['count'] && $item_count > WPCOM_elasticsearch()->facets[ $label ]['count'] ) {
+			if ( ! empty( WPCOM_elasticsearch()->facets[ $label ] ) && ! empty( WPCOM_elasticsearch()->facets[ $label ]['count'] ) && $item_count > WPCOM_elasticsearch()->facets[ $label ]['count'] ) {
 				$facet['items'] = array_slice( $facet['items'], 0, WPCOM_elasticsearch()->facets[ $label ]['count'] );
 			}
 
