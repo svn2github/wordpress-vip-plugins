@@ -46,14 +46,14 @@ class WPCOM_elasticsearch_Widget_Facets extends WP_Widget {
 			if ( count( $facet['items'] ) < 2 )
 				continue;
 
-				echo '<h3>' . $label . '</h3>';
-				echo '<ul>';
+			echo '<h3>' . $label . '</h3>';
+			echo '<ul>';
 
-				foreach ( $facet['items'] as $item ) {
-					echo '<li><a href="' . esc_url( $item['url'] ) . '">' . $item['name'] . '</a> (' . number_format_i18n( absint( $item['count'] ) ). ')</li>';
-				}
+			foreach ( $facet['items'] as $item ) {
+				echo '<li><a href="' . esc_url( $item['url'] ) . '">' . $item['name'] . '</a> (' . number_format_i18n( absint( $item['count'] ) ). ')</li>';
+			}
 
-				echo '</ul>';
+			echo '</ul>';
 		}
 
 		echo $args['after_widget'];

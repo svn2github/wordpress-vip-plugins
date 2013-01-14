@@ -140,7 +140,7 @@ class WPCOM_elasticsearch {
 						$es_wp_query_args['post_type'] = $query->get( 'post_type' );
 					}
 					elseif ( ! empty( $_GET['post_type'] ) && post_type_exists( $_GET['post_type'] ) ) {
-						$es_wp_query_args['post_type'] = $_GET['post_type'];
+						$es_wp_query_args['post_type'] = explode( ',', $_GET['post_type'] );
 					}
 					elseif ( ! empty( $_GET['post_type'] ) && 'any' == $_GET['post_type'] ) {
 						$es_wp_query_args['post_type'] = false;
@@ -251,8 +251,6 @@ class WPCOM_elasticsearch {
 			$facets_data[ $label ] = $this->facets[ $label ];
 			$facets_data[ $label ]['items'] = array();
 
-			$query_var = false;
-
 			// All taxonomy terms are going to have the same query_var
 			if( 'taxonomy' == $this->facets[ $label ]['type'] ) {
 				$taxonomy = get_taxonomy( $this->facets[ $label ]['taxonomy'] );
@@ -260,39 +258,86 @@ class WPCOM_elasticsearch {
 				if ( ! $taxonomy )
 					continue;
 
-				$query_var = $taxonomy->query_var;
+				$tax_query_var = $taxonomy->query_var;
 			}
 
-			foreach ( (array) $facet['terms'] as $facet_term ) {
+			$items = array();
+			if ( ! empty( $facet['terms'] ) ) {
+				$items = (array) $facet['terms'];
+			}
+			elseif ( ! empty( $facet['entries'] ) ) {
+				$items = (array) $facet['entries'];
+			}
+
+			foreach ( $items as $item ) {
+				$query_vars = array();
+
 				switch ( $this->facets[ $label ]['type'] ) {
 					case 'taxonomy':
-						$term = get_term_by( 'id', $facet_term['term'], $this->facets[ $label ]['taxonomy'] );
+						$term = get_term_by( 'id', $item['term'], $this->facets[ $label ]['taxonomy'] );
 
 						if ( ! $term )
 							continue 2; // switch() is considered a looping structure
 
-						$slug      = $term->slug;
-						$name      = $term->name;
+						$query_vars = array( $tax_query_var => $term->slug );
+						$name       = $term->name;
 
 						break;
 
 					case 'post_type':
-						$post_type = get_post_type_object( $facet_term['term'] );
+						$post_type = get_post_type_object( $item['term'] );
 
 						if ( ! $post_type )
 							continue 2;  // switch() is considered a looping structure
 
-						$query_var = 'post_type';//( $post_type->query_var ) ? $post_type->query_var : 'post_type';
-						$slug      = $facet_term['term'];
-						$name      = $post_type->labels->singular_name;
+						$query_vars = array( 'post_type' => $item['term'] );
+						$name       = $post_type->labels->singular_name;
+
+						break;
+
+					case 'date_histogram':
+						$timestamp = $item['time'] / 1000;
+
+						switch ( $this->facets[ $label ]['interval'] ) {
+							case 'year':
+								$query_vars = array(
+									'year' => date( 'Y', $timestamp ),
+								);
+								$name = date( 'Y', $timestamp );
+								break;
+
+							case 'month':
+								$query_vars = array(
+									'year'     => date( 'Y', $timestamp ),
+									'monthnum' => date( 'n', $timestamp ),
+								);
+								$name = date( 'F Y', $timestamp );
+								break;
+
+							case 'day':
+								$query_vars = array(
+									'year'     => date( 'Y', $timestamp ),
+									'monthnum' => date( 'n', $timestamp ),
+									'day'      => date( 'j', $timestamp ),
+								);
+								$name = date( 'F jS, Y', $timestamp );
+								break;
+
+							default:
+								continue 3; // switch() is considered a looping structure
+						}
+
+						break;
+
+					default:
+						//continue 2; // switch() is considered a looping structure
 				}
 
 				$facets_data[ $label ]['items'][] = array(
-					'url'       => add_query_arg( array( 's' => get_query_var( 's' ), $query_var => $slug ) ),
-					'query_var' => $query_var,
-					'slug'      => $slug,
-					'name'      => $name,
-					'count'     => $facet_term['count'],
+					'url'        => add_query_arg( array_merge( $query_vars, array( 's' => get_query_var( 's' ) ) ) ),
+					'query_vars' => $query_vars,
+					'name'       => $name,
+					'count'      => $item['count'],
 				);
 			}
 		}
