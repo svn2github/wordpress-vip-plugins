@@ -43,15 +43,8 @@ class WPCOM_elasticsearch_Widget_Facets extends WP_Widget {
 		echo $args['before_title'] . $title . $args['after_title'];
 
 		foreach ( $facets as $label => $facet ) {
-			$item_count = count( $facet['items'] );
-
-			if ( $item_count < 2 )
+			if ( count( $facet['items'] ) < 2 )
 				continue;
-
-			// Some facet types like date_histogram don't support the max results parameter
-			if ( ! empty( WPCOM_elasticsearch()->facets[ $label ] ) && ! empty( WPCOM_elasticsearch()->facets[ $label ]['count'] ) && $item_count > WPCOM_elasticsearch()->facets[ $label ]['count'] ) {
-				$facet['items'] = array_slice( $facet['items'], 0, WPCOM_elasticsearch()->facets[ $label ]['count'] );
-			}
 
 			echo '<h3>' . $label . '</h3>';
 			echo '<ul>';

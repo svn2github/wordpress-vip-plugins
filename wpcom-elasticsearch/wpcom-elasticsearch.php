@@ -269,6 +269,11 @@ class WPCOM_elasticsearch {
 				$items = (array) $facet['entries'];
 			}
 
+			// Some facet types like date_histogram don't support the max results parameter
+			if ( count( $items ) > $this->facets[ $label ]['count'] ) {
+				$items = array_slice( $items, 0, $this->facets[ $label ]['count'] );
+			}
+
 			foreach ( $items as $item ) {
 				$query_vars = array();
 
