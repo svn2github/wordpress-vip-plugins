@@ -137,14 +137,33 @@ class WPCOM_elasticsearch {
 
 				case 'post_type':
 					if ( $query->get( 'post_type' ) && 'any' != $query->get( 'post_type' ) ) {
-						$es_wp_query_args['post_type'] = $query->get( 'post_type' );
+						$post_types_via_user = $query->get( 'post_type' );
 					}
-					elseif ( ! empty( $_GET['post_type'] ) && post_type_exists( $_GET['post_type'] ) ) {
-						$es_wp_query_args['post_type'] = $_GET['post_type'];
+					elseif ( ! empty( $_GET['post_type'] ) ) {
+						$post_types_via_user = explode( '+', $_GET['post_type'] );
+					} else {
+						$post_types_via_user = false;
 					}
-					else {
-						$es_wp_query_args['post_type'] = false; // Any post_type
+
+					$post_types = array();
+
+					// Validate post types, making sure they exist and are public
+					if ( $post_types_via_user ) {
+						foreach ( (array) $post_types_via_user as $post_type_via_user ) {
+							$post_type_object = get_post_type_object( $post_type_via_user );
+
+							if ( ! $post_type_object || $post_type_object->exclude_from_search )
+								continue;
+
+							$post_types[] = $post_type_via_user;
+						}
 					}
+
+					// Default to all non-excluded from search post types
+					if ( empty( $post_types ) )
+						$post_types = array_values( get_post_types( array( 'exclude_from_search' => false ) ) );
+
+					$es_wp_query_args['post_type'] = $post_types;
 
 					break;
 			}
@@ -297,7 +316,7 @@ class WPCOM_elasticsearch {
 					case 'post_type':
 						$post_type = get_post_type_object( $item['term'] );
 
-						if ( ! $post_type )
+						if ( ! $post_type || $post_type->exclude_from_search )
 							continue 2;  // switch() is considered a looping structure
 
 						$query_vars = array( 'post_type' => $item['term'] );
