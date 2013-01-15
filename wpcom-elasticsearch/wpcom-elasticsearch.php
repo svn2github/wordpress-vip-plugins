@@ -140,13 +140,10 @@ class WPCOM_elasticsearch {
 						$es_wp_query_args['post_type'] = $query->get( 'post_type' );
 					}
 					elseif ( ! empty( $_GET['post_type'] ) && post_type_exists( $_GET['post_type'] ) ) {
-						$es_wp_query_args['post_type'] = explode( ',', $_GET['post_type'] );
-					}
-					elseif ( ! empty( $_GET['post_type'] ) && 'any' == $_GET['post_type'] ) {
-						$es_wp_query_args['post_type'] = false;
+						$es_wp_query_args['post_type'] = $_GET['post_type'];
 					}
 					else {
-						$es_wp_query_args['post_type'] = false;//'post';
+						$es_wp_query_args['post_type'] = false; // Any post_type
 					}
 
 					break;
@@ -260,7 +257,7 @@ class WPCOM_elasticsearch {
 
 				$tax_query_var = $taxonomy->query_var;
 
-				$existing_term_slugs = ( ! empty( $_GET[ $tax_query_var ] ) ) ? explode( '+', $_GET[ $tax_query_var ] ) : array();
+				$existing_term_slugs = ( get_query_var( $tax_query_var ) ) ? explode( '+', get_query_var( $tax_query_var ) ) : array();
 			}
 
 			$items = array();
