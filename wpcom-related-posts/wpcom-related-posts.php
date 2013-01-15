@@ -37,7 +37,7 @@ class WPCOM_Related_Posts {
 
 	const key = 'wpcom-related-posts';
 
-	private static $instance;
+	protected static $instance;
 
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -48,11 +48,11 @@ class WPCOM_Related_Posts {
 		return self::$instance;
 	}
 
-	private function __construct() {
+	protected function __construct() {
 		/** Don't do anything **/
 	}
 
-	private function setup_actions() {
+	protected function setup_actions() {
 
 		add_action( 'init', array( self::$instance, 'action_init' ) );
 		add_action( 'wp_head', array( self::$instance, 'action_wp_head' ) );
@@ -61,7 +61,7 @@ class WPCOM_Related_Posts {
 		add_action( 'admin_menu', array( self::$instance, 'action_admin_menu' ) );
 	}
 
-	private function setup_filters() {
+	protected function setup_filters() {
 
 		add_filter( 'the_content', array( self::$instance, 'filter_the_content' ) );
 	}
@@ -229,6 +229,7 @@ class WPCOM_Related_Posts {
 			} else if ( in_array( $args['post_type'], get_post_types() ) && 'all' != $args['post_type'] ) {
 				$es_args['filters']['type']['value'] = $args['post_type'];
 			}
+			$es_args = apply_filters( 'wrp_es_api_search_index_args', $es_args, $current_post );
 			$related_es_query = es_api_search_index( $es_args, 'related-posts' );
 			$related_posts = array();
 			if ( is_array( $related_es_query ) && ! empty( $related_es_query['results']['hits'] ) ) {
@@ -267,8 +268,10 @@ class WPCOM_Related_Posts {
 	 * @param int $word_count Maximum number of words to pull
 	 * @return array $keywords The keywords we've found
 	 */
-	private function get_keywords( $text, $word_count = 5 ) {
+	protected function get_keywords( $text, $word_count = 5 ) {
 		$keywords = array();
+		$word_count = apply_filters( 'wrp_keyword_word_count', $word_count );
+		$word_count = min( max( 1, intval($word_count) ), 100 );
 		foreach( (array)explode( ' ', $text ) as $word ) {
 			// Strip characters we don't want
 			$word = trim( $word, '?.;,"' );
