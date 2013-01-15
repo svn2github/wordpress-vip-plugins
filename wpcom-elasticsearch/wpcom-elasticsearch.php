@@ -131,7 +131,7 @@ class WPCOM_elasticsearch {
 						continue 2;  // switch() is considered a looping structure
 
 					if ( $query->get( $taxonomy->query_var ) )
-						$es_wp_query_args['terms'][ $this->facets[ $label ]['taxonomy'] ] = $query->get( $taxonomy->query_var );
+						$es_wp_query_args['terms'][ $this->facets[ $label ]['taxonomy'] ] = explode( '+', $query->get( $taxonomy->query_var ) );
 
 					break;
 
@@ -284,7 +284,18 @@ class WPCOM_elasticsearch {
 						if ( ! $term )
 							continue 2; // switch() is considered a looping structure
 
-						$query_vars = array( $tax_query_var => $term->slug );
+						$slugs = array();
+
+						if ( ! empty( $_GET[ $tax_query_var ] ) )
+							$slugs = explode( '+', $_GET[ $tax_query_var ] );
+
+						// Don't allow refinement on a term we're already refining on
+						if ( in_array( $term->slug, $slugs ) )
+							continue 2;
+
+						$slugs[] = $term->slug;
+
+						$query_vars = array( $tax_query_var => implode( '+', $slugs ) );
 						$name       = $term->name;
 
 						break;
