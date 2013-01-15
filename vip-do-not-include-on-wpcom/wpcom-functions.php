@@ -284,7 +284,9 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 								$tax_fld = 'taxonomy_raw.' . $tax . '.slug';
 								break;
 						}
-						$filters[] = array( 'terms' => array( $tax_fld => (array) $terms ) );
+						foreach ( $terms as $term ) {
+							$filters[] = array( 'term' => array( $tax_fld => $term ) );
+						}
 					}
 				}
 			}
