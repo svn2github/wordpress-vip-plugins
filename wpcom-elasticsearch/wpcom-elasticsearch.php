@@ -259,6 +259,8 @@ class WPCOM_elasticsearch {
 					continue;
 
 				$tax_query_var = $taxonomy->query_var;
+
+				$existing_term_slugs = ( ! empty( $_GET[ $tax_query_var ] ) ) ? explode( '+', $_GET[ $tax_query_var ] ) : array();
 			}
 
 			$items = array();
@@ -284,16 +286,11 @@ class WPCOM_elasticsearch {
 						if ( ! $term )
 							continue 2; // switch() is considered a looping structure
 
-						$slugs = array();
-
-						if ( ! empty( $_GET[ $tax_query_var ] ) )
-							$slugs = explode( '+', $_GET[ $tax_query_var ] );
-
 						// Don't allow refinement on a term we're already refining on
-						if ( in_array( $term->slug, $slugs ) )
+						if ( in_array( $term->slug, $existing_term_slugs ) )
 							continue 2;
 
-						$slugs[] = $term->slug;
+						$slugs = array_merge( $existing_term_slugs, array( $term->slug ) );
 
 						$query_vars = array( $tax_query_var => implode( '+', $slugs ) );
 						$name       = $term->name;
