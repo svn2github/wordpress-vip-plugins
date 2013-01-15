@@ -121,7 +121,7 @@ class WPCOM_elasticsearch {
 			'paged'          => $page,
 		);
 
-		// Look for query variables that match registered facets (taxonomies and post_type)
+		// Look for query variables that match registered and supported facets
 		foreach ( $this->facets as $label => $facet ) {
 			switch ( $facet['type'] ) {
 				case 'taxonomy':
@@ -167,6 +167,32 @@ class WPCOM_elasticsearch {
 
 					break;
 			}
+		}
+
+		// Date
+		if ( $query->get( 'year' ) ) {
+			if ( $query->get( 'monthnum' ) ) {
+				// Padding
+				$date_monthnum = sprintf( '%02d', $query->get( 'monthnum' ) );
+
+				if ( $query->get( 'day' ) ) {
+					// Padding
+					$date_day = sprintf( '%02d', $query->get( 'day' ) );
+
+					$date_start = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $date_day . ' 00:00:00';
+					$date_end   = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $date_day . ' 23:59:59';
+				} else {
+					$days_in_month = date( 't', mktime( 0, 0, 0, $query->get( 'monthnum' ), 14, $query->get( 'year' ) ) ); // 14 = middle of the month so no chance of DST issues
+
+					$date_start = $query->get( 'year' ) . '-' . $date_monthnum . '-01 00:00:00';
+					$date_end   = $query->get( 'year' ) . '-' . $date_monthnum . '-' . $days_in_month . ' 23:59:59';
+				}
+			} else {
+				$date_start = $query->get( 'year' ) . '-01-01 00:00:00';
+				$date_end   = $query->get( 'year' ) . '-12-31 23:59:59';
+			}
+
+			$es_wp_query_args['date_range'] = array( 'field' => 'date', 'gte' => $date_start, 'lte' => $date_end );
 		}
 
 		// Facets
@@ -249,6 +275,7 @@ class WPCOM_elasticsearch {
 		return ( ! empty( $search_result ) && ! empty( $search_result['facets'] ) ) ? $search_result['facets'] : array();
 	}
 
+	// Turns raw ES facet data into data that is more useful in a WordPress setting
 	public function get_search_facet_data() {
 		if ( empty( $this->facets ) )
 			return false;
