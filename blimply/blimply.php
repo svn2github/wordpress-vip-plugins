@@ -154,7 +154,7 @@ class Blimply {
 	function action_save_post( $post_id ) {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE || false  === wp_is_post_revision( $post_id ) )
 			return;
-		if ( !wp_verify_nonce( $_POST['blimply_nonce'], BLIMPLY_FILE_PATH ) )
+		if ( isset( $_POST['blimply_nonce'] ) && !wp_verify_nonce( $_POST['blimply_nonce'], BLIMPLY_FILE_PATH ) )
 			return;
 		if ( !current_user_can( apply_filters( 'blimply_push_cap', 'edit_posts' ) ) )
 			return;
@@ -274,15 +274,16 @@ class Blimply {
 	 */
 	function request( Airship &$airship, $method = '', $args = array(), $tokens = array() ) {
 		if ( in_array( $method, array( 'register', 'deregister', 'feedback', 'push', 'broadcast' ) ) ) {
+			$args = apply_filters( "blimply_{$method}_args", $args, $airship, $tokens );
 			try {
 				$response = $airship->$method( $args, $tokens );
+				return $response;
 			} catch ( Exception $e ) {
 				$exception_class = get_class( $e );
 				if ( is_admin() ) {
 					// @todo implement admin notification of misconfiguration
 				}
 			}
-			return $response;
 		} else {
 			// @todo illegal request
 		}
