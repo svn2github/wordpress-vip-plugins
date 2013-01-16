@@ -30,7 +30,7 @@ class New_Device_Notification {
 	public function admin_init() {
 		global $current_user;
 
-		// IP whitelist
+		// Internal IP whitelist
 		if ( in_array( $_SERVER['REMOTE_ADDR'], array( '72.233.96.227' ) ) )
 			return;
 
@@ -74,6 +74,8 @@ class New_Device_Notification {
 		// As a backup to the cookie, record this IP address (only in memcached for now, proper logging will come later)
 		wp_cache_set( $memcached_key, time(), 'newdevicenotification' );
 
+		add_filter( 'ndn_send_email', array( $this, 'maybe_send_email' ), 10, 2 );
+
 		$this->notify_of_new_device();
 
 	}
@@ -114,7 +116,7 @@ class New_Device_Notification {
 		$installed_time = get_option( 'newdevicenotification_installedtime' );
 		$send_email  = ( time() - $installed_time < (int) apply_filters( 'ndn_grace_period', $this->grace_period ) ) ? false : true;
 
-		$send_email = apply_filters( 'ndn_send_email', $send_email );
+		$send_email = apply_filters( 'ndn_send_email', $send_email, array( 'user' => $current_user, 'location' => $location, 'ip' => $_SERVER['REMOTE_ADDR'] ) );
 
 		// Notify VIP of this
 		$debug_message  = '[NDN] [EMAIL ';
@@ -202,8 +204,22 @@ Feel free to also reply to this e-mail if you have any questions whatsoever.
 
 		return $location;
 	}
+
+	function maybe_send_email( $send_email, $user_info ) {
+		if ( $this->is_user_from_valid_ip( $user_info['ip'] ) )
+			$send_email = false;
+
+		return $send_email;
+	}
+
+	function is_user_from_valid_ip( $ip ) {
+		$whitelisted_ips = apply_filters( 'ndn_ip_whitelist', array() );
+		if ( ! empty( $whitelisted_ips ) && ! in_array( $ip, $whitelisted_ips ) )
+			return false;
+
+		return true;
+	}
 }
 
 $new_device_notification = new New_Device_Notification();
 
-?>
