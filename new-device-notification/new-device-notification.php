@@ -214,10 +214,10 @@ Feel free to also reply to this e-mail if you have any questions whatsoever.
 
 	function is_user_from_valid_ip( $ip ) {
 		$whitelisted_ips = apply_filters( 'ndn_ip_whitelist', array() );
-		if ( ! empty( $whitelisted_ips ) && ! in_array( $ip, $whitelisted_ips ) )
-			return false;
+		if ( ! empty( $whitelisted_ips ) && in_array( $ip, $whitelisted_ips ) )
+			return true;
 
-		return true;
+		return false; // covers two scenarios: invalid ip or no ip whitelist
 	}
 }
 
