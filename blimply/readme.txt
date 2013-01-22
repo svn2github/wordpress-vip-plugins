@@ -2,8 +2,8 @@
 Contributors: rinatkhaziev
 Tags: push, urban airship, notifications, widget, iphone, android, blackberry, ios
 Requires at least: 3.3
-Tested up to: 3.4.2
-Stable tag: 0.2.4
+Tested up to: 3.5.1
+Stable tag: 0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +38,11 @@ There's English .pot file in lib/languages. Translations are welcome.
 Plugin is maintained on [Github](https://github.com/rinatkhaziev/blimply). Comments, issues, and pull requests are welcome. 
 
 == Changelog ==
+
+= 0.3 = 
+* Now include Android payload as well as iOS
+* Various bugfixes (props @voceconnect, @danielbachhuber )
+
 
 = 0.2.4 =
 

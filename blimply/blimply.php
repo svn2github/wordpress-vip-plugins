@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.2.4
+Version: 0.3
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.2.4' );
+define( 'BLIMPLY_VERSION', '0.3' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
@@ -62,7 +62,7 @@ class Blimply {
 
 	/**
 	 *  Init hook
-	 * 
+	 *
 	 */
 	function action_init() {
 		register_taxonomy( 'blimply_tags', array( 'post' ), array(
@@ -87,7 +87,7 @@ class Blimply {
 			return;
 
 		$this->options = get_option( 'urban_airship' );
-		if ( !$this->options ){
+		if ( !$this->options ) {
 			$this->options = array(
 				'blimply_name' => '',
 				'blimply_app_key' => '',
@@ -193,17 +193,23 @@ class Blimply {
 	function _send_broadcast_or_push( $alert, $tag, $url = false ) {
 		// Strip escape slashes, otherwise double escaping would happen
 		$alert = stripcslashes( $alert );
-		$payload = array( 'aps' => array( 'alert' => $alert, 'badge' => '+1' ) );
-		// Add a URL if any, to be handled by apps
-		if ( $url ) 
-			$payload['aps']['url'] = $url;
+		// Include Android and iOS payloads
+		$payload = array(
+			'aps'     => array( 'alert' => $alert, 'badge' => '+1' ),
+			'android' => array( 'alert' => $alert ),
+		);
 
+		// Add a URL if any, to be handled by apps
+		if ( $url ) {
+			$payload['aps']['url'] = $url;
+			$payload['android']['extra']['url'] = $url;
+		}
 
 		if ( $tag === 'broadcast' ) {
 			$response =  $this->request( $this->airship, 'broadcast', $payload );
 		} else {
 			// Adding tags field to payload, no problem.
-			if ( isset( $this->sounds["blimply_sound_{$tag}"] ) && !empty( $this->sounds["blimply_sound_{$tag}"] ) ) 
+			if ( isset( $this->sounds["blimply_sound_{$tag}"] ) && !empty( $this->sounds["blimply_sound_{$tag}"] ) )
 				$payload['aps']['sound'] = $this->sounds["blimply_sound_{$tag}"];
 			else
 				$payload['aps']['sound'] = 'default';
@@ -314,7 +320,7 @@ class Blimply {
 			echo '<input type="radio" style="float:left" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
 			_e( 'Broadcast (send to all tags)', 'blimply' );
 			echo '</label><br/>';
-		}	
+		}
 ?>
 			<p class="submit">
 				<input type="hidden" name="action" id="blimply-push-action" value="blimply-send-push" />
@@ -326,7 +332,7 @@ class Blimply {
 ?>
 					<input type="submit" name="publish" disabled="disabled" id="blimply_push_send" accesskey="p" tabindex="5" class="button-primary" value="<?php  esc_attr_e( 'Send push notification' ) ?>" />
 					<?php endif; ?>
-					<img class="waiting" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
+					<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
 				</span>
 				<br class="clear" />
 			</p>
