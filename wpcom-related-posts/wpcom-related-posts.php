@@ -168,10 +168,9 @@ class WPCOM_Related_Posts {
 	 * Append related posts to the post content
 	 */
 	public function filter_the_content( $the_content ) {
-		global $wp_query, $wp_the_query;
 
 		// Related posts should only be appended on the main loop for is_singular() of acceptable post types
-		if ( $wp_query !== $wp_the_query || ! in_array( get_post_type(), $this->options['post-types'] ) || ! is_singular( get_post_type() ) )
+		if ( ! is_main_query() || ! in_the_loop() || ! in_array( get_post_type(), $this->options['post-types'] ) || ! is_singular( get_post_type() ) )
 			return $the_content;
 
 		$related_posts = $this->get_related_posts();
