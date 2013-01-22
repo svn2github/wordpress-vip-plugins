@@ -174,19 +174,26 @@ class WPCOM_Related_Posts {
 			return $the_content;
 
 		$related_posts = $this->get_related_posts();
+
 		$related_posts_html = array(
 				'<div class="wpcom-related-posts" id="' . esc_attr( 'wpcom-related-posts-' . get_the_ID() ) . '">',
-				'<ul>',
 			);
-		foreach( $related_posts as $related_post ) {
-			$related_posts_html[] = '<li>';
-			if ( has_post_thumbnail( $related_post->ID ) )
-				$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . get_the_post_thumbnail( $related_post->ID ) . '</a>';
 
-			$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . apply_filters( 'the_title', $related_post->post_title ) . '</a>';
-			$related_posts_html[] = '</li>';
+		if ( $related_posts ) {
+			$related_posts_html[] = '<ul>';
+			foreach( $related_posts as $related_post ) {
+				$related_posts_html[] = '<li>';
+
+				if ( has_post_thumbnail( $related_post->ID ) ) {
+					$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . get_the_post_thumbnail( $related_post->ID ) . '</a>';
+				}
+
+				$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . apply_filters( 'the_title', $related_post->post_title ) . '</a>';
+				$related_posts_html[] = '</li>';
+			}
+			$related_posts_html[] = '</ul>';
 		}
-		$related_posts_html[] = '</ul>';
+
 		$related_posts_html[] = '</div>';
 
 		return $the_content . implode( PHP_EOL, $related_posts_html );
