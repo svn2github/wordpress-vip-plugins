@@ -176,13 +176,3 @@ function wpcom_geo_get_user_location() {
 function wpcom_geo_set_default_location( $location ) {
 	WPCOM_Geo_Uniques::set_default_location( $location );
 }
-
-// @deprecated use wpcom_geo_add_location
-function wpcom_geo_add_country( $country ) {
-	WPCOM_Geo_Uniques::add_location( $country );
-}
-
-// @deprecated use wpcom_geo_get_user_location
-function wpcom_geo_get_user_country( $country ) {
-	WPCOM_Geo_Uniques::get_user_location();
-}
