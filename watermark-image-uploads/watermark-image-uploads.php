@@ -32,19 +32,14 @@ class WPcom_Watermark_Uploads {
 		$this->theme_watermark_relative_path = apply_filters( 'wpcom_watermark_image_relative_path', 'images/upload-watermark.png' );
 		$this->theme_wathermark_full_path    = STYLESHEETPATH . '/' . $this->theme_watermark_relative_path;
 
-		// Reset for debugging
-		if ( 'localhost' === $_SERVER['HTTP_HOST'] && ! empty( $_GET['reset_wpcom_watermark_image_uploads'] ) ) {
-			delete_option( self::OPTION_NAME );
-		}
-
 		add_option( self::OPTION_NAME, array() );
 
 		$this->default_settings = array(
 			'watermark_type'             => ( $this->is_enterprise() || ! $this->theme_watermark_exists() ) ? 'none' : 'theme',
 			'watermark_attachment_id'    => false,
-			'watermark_location'         => 'bottomright',
-			'watermark_offset_topbottom' => 5,
-			'watermark_offset_sides'     => 5,
+			//'watermark_location'         => 'bottomright',
+			//'watermark_offset_topbottom' => 5,
+			//'watermark_offset_sides'     => 5,
 		);
 
 		$this->settings = wp_parse_args( (array) get_option( self::OPTION_NAME, array() ), $this->default_settings );
