@@ -3,7 +3,7 @@ Contributors: rinatkhaziev
 Tags: push, urban airship, notifications, widget, iphone, android, blackberry, ios
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 0.3
+Stable tag: 0.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,6 +20,7 @@ You will need an [Urban Airship](http://urbanairship.com/) account in order to b
 1. Activate the plugin through the 'Plugins' menu in WordPress
 1. Set application key and application MASTER secret in 'Settings' -> 'Blimply Settings'
 1. Add Urban Airship tags (optional)
+1. Keep in mind that tags names will be slugified when added to Urban Airship App. So for proper tag handling in your apps use tag->slug not tag->name when you register tags for device
 1. Set sounds for your tags
 1. Enjoy responsibly
 
@@ -38,6 +39,10 @@ There's English .pot file in lib/languages. Translations are welcome.
 Plugin is maintained on [Github](https://github.com/rinatkhaziev/blimply). Comments, issues, and pull requests are welcome. 
 
 == Changelog ==
+
+= 0.3.1 = 
+* Fixed an issue with html entities being displayed not properly.
+* Fixed an issue where instead of post permalink, revision permalink was being sent
 
 = 0.3 = 
 * Now include Android payload as well as iOS
