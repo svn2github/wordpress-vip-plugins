@@ -394,7 +394,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 							$es_query_args['facets'][$label] = array(
 								'date_histogram' => array(
 									'interval' => $facet['interval'],
-									'field'    => ( 'post_date_gmt' == $facet['field'] ) ? 'date_gmt' : 'date',
+									'field'    => ( ! empty( $facet['field'] ) && 'post_date_gmt' == $facet['field'] ) ? 'date_gmt' : 'date',
 									'size'     => $facet['count'],
 								),
 							);
