@@ -154,6 +154,7 @@ class WPcom_VIP_Plugins_UI {
 			// deprecated
 			'livefyre', // use livefyre3 instead
 			'feedwordpress', // breaks all the time
+			'wordtwit-1.3-mod', // use publicize
 		);
 
 		$this->fpp_plugins = array(
