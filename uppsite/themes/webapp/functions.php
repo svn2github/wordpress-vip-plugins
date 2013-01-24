@@ -1,6 +1,12 @@
 <?php
 define('UPPSITE_MAX_TITLE_LENGTH', 45);
 define('UPPSITE_DEFAULT_ANALYTICS_KEY', "BDF2JD6ZXWX69Y9BZQBC");
+
+/** Colours */
+define('MYSITEAPP_WEBAPP_DEFAULT_BIZ_COLOR', '#717880');
+define('MYSITEAPP_WEBAPP_DEFAULT_CONTENT_COLOR', '#1d5ba0');
+define('MYSITEAPP_WEBAPP_DEFAULT_NAVBAR_COLOR', '#f2f2f2');
+
 /**
  * Helper functions for the webapp theme
  */
@@ -8,9 +14,6 @@ define('UPPSITE_DEFAULT_ANALYTICS_KEY', "BDF2JD6ZXWX69Y9BZQBC");
 if (isset($_REQUEST['uppsite_request'])) {
     // Sets a constant containing the request type.
     define('UPPSITE_AJAX', sanitize_text_field($_REQUEST['uppsite_request']));
-
-    // If using ajax, don't return the static page (if defined)
-    update_option('show_on_front', 'posts');
 
     /** Remove redirect canonical, as it causes multiple redirects during ajax requests */
     remove_filter('template_redirect', 'redirect_canonical');
@@ -28,9 +31,12 @@ function uppsite_get_webapp_dir_uri() {
     }
 }
 
+/**
+ * @return int This app's ID
+ */
 function uppsite_get_appid() {
-    $data = get_option(MYSITEAPP_OPTIONS_DATA);
-    return isset($data['app_id']) ? $data['app_id'] : 0;
+    $data = get_option(MYSITEAPP_OPTIONS_DATA, array());
+    return array_key_exists('app_id', $data) ? $data['app_id'] : 0;
 }
 
 /**
@@ -135,6 +141,26 @@ function uppsite_match($pattern, $subject) {
 }
 
 /**
+ * Tells what is the type of the site.
+ * @note    If we are on "combined", there's the "forceBlog" param that will ask to fetch the data as if the site
+ *          is only of type 'content'.
+ * @return bool|int Type of site (UPPSITE_TYPE_*), or false if isn't set yet.
+ */
+function uppsite_get_type() {
+    if (isset($_GET['forceBlog'])) {
+        return UPPSITE_TYPE_CONTENT;
+    }
+    $options = get_option(MYSITEAPP_OPTIONS_OPTS, array());
+    return array_key_exists('site_type', $options) ? $options['site_type'] : false;
+}
+
+function uppsite_is_business_panel() {
+    // Faster than in_array(uppsite_get_type(), array(...))
+    $type = uppsite_get_type();
+    return $type == UPPSITE_TYPE_BOTH || $type == UPPSITE_TYPE_BUSINESS;
+}
+
+/**
  * Process search & replace mechanism (aka "body_filters")
  * @param &$content string  Post content
  */
@@ -147,7 +173,11 @@ function uppsite_process_body_filters(&$content) {
     foreach ($filters as $filter) {
         $search = "/" . $filter[0] . "/ms"; // Set PRCE regex - with MULTILINE and DOTALL params.
         $replace = $filter[1];
-        $tmpContent = preg_replace($search, $replace, $tmpContent);
+        $tmp = preg_replace($search, $replace, $tmpContent);
+        if (!empty($tmp)) {
+            // Apply the replacment only if it doesn't return empty content
+            $tmpContent = $tmp;
+        }
     }
     $content = $tmpContent;
 }
@@ -221,13 +251,14 @@ function uppsite_process_post($with_content = false) {
     }
 
     // Trim the title to fit the view
-    $maxChar = is_null($ret['thumb_url']) ? UPPSITE_MAX_TITLE_LENGTH + 15 : UPPSITE_MAX_TITLE_LENGTH;
+    $maxChar = UPPSITE_MAX_TITLE_LENGTH + ( is_null($ret['thumb_url']) ? 15 : 0 );
     $maxChar += (isset($_GET['view']) && $_GET['view'] == "excerpt") ? 0 : 22;
-    $maxChar += ($with_content) ? +10 : 0;
+    $maxChar += ($with_content) ? 10 : 0;
     if (uppsite_is_homepage_carousel()) {
         $maxChar = 66;
     }
     $orgLen = uppsite_strlen($ret['title']);
+    $newTitle = null;
     if ($orgLen > $maxChar) {
         $matches = uppsite_match("(.{0," . $maxChar . "})\s", $ret['title']);
         $newTitle = rtrim($matches[1]);
@@ -380,19 +411,6 @@ function uppsite_func_create_quick_post() {
 }
 
 /**
- * Seeks for categories to display in homepage -
- * If a list present in prefs, display by it. If not, return the popular categories.
- * @return array    List of categories to display in homepage
- */
-function uppsite_homepage_get_categories() {
-    $settings = uppsite_homepage_get_settings();
-    if (array_key_exists('cats_ar', $settings)) {
-        return $settings['cats_ar'];
-    }
-    return mysiteapp_homepage_get_popular_categories();
-}
-
-/**
  * Transforms a RGB hex color to array with decimal values
  * @param $rgbHex string    String like "#000000"
  * @return array    Array(r, g, b) in decimal values.
@@ -516,8 +534,10 @@ function uppsite_rgb_darken($rgbHex, $percent) {
  * @return array    Array of search & replace
  */
 function uppsite_get_colours() {
-    $navbarColor = mysiteapp_get_prefs_value("navbar_tint_color", "#f2f2f2");
-    $conceptColor = mysiteapp_get_prefs_value("application_global_color", "#1d5ba0");
+    $navbarColor = mysiteapp_get_prefs_value("navbar_tint_color", MYSITEAPP_WEBAPP_DEFAULT_NAVBAR_COLOR);
+    $conceptColor = mysiteapp_get_prefs_value("application_global_color",
+        in_array(uppsite_get_type(), array(UPPSITE_TYPE_BUSINESS, UPPSITE_TYPE_BOTH)) ?
+            MYSITEAPP_WEBAPP_DEFAULT_BIZ_COLOR : MYSITEAPP_WEBAPP_DEFAULT_CONTENT_COLOR);
 
     $navbarDarkColor = uppsite_rgb_darken($navbarColor, 10.3); // 31/3.0 = 10.3%
 
@@ -526,15 +546,112 @@ function uppsite_get_colours() {
 
     $conceptRgb = uppsite_rgbhex2arr($conceptColor); // There is a place where the color is in RGBA, thus can't be in hex.
 
-    return array(
+    $arr = array(
         "#f2f2f2" => $navbarColor, // Navigation color
         "#1d5ba0" => $conceptColor, // Concept color
         "#d8d8d8" => $navbarDarkColor, // Navigation dark color
         "#2574cb" => $conceptLightColor, // Concept light color
         "#154275" => $conceptDarkColor, // Concept dark color
-        "29,91,160" => implode($conceptRgb, ",")
+        "29,91,160" => implode($conceptRgb, ","),
     );
+
+    $background_color = mysiteapp_get_prefs_value('background_color', null);
+    if (!empty($background_color)) {
+        $arr['#E2E7ED'] = $background_color. ' !important; background-image: none';
+    } else {
+        $background_url = mysiteapp_get_prefs_value('background_url', 'http://static.uppsite.com/v3/apps/new_bg.png');
+        $arr['http://static.uppsite.com/v3/apps/webapp_background.png'] = $background_url;
+    }
+
+    return $arr;
 }
+
+/**
+ * @note    Enforcing max rotate interval
+ * @return int Number of seconds for the carousel to rotate
+ */
+function mysiteapp_homepage_carousel_rotate_interval() {
+    $num = 5;
+    $homepageSettings = uppsite_homepage_get_settings();
+    if (isset($homepageSettings['rotate_interval']) && is_numeric($homepageSettings['rotate_interval'])) {
+        $num = $homepageSettings['rotate_interval'];
+    }
+    return min( abs($num), 30 );
+}
+
+/**
+ * show_on_front option hook
+ * @param $val bool Should short circuit?
+ * @return bool|string  false if not ajax class and should get original value, or 'posts' to return the posts list
+ */
+function uppsite_short_circuit_show_on_front($val) {
+    if (!defined('UPPSITE_AJAX')) {
+        return false;
+    }
+    return 'posts';
+}
+
+function uppsite_webapp_get_vcf() {
+    if (!isset($_REQUEST['uppsite_get_vcf'])) { return; }
+    // Choose the right function according to the OS
+    $vCardFunc = null;
+    switch (MySiteAppPlugin::detect_specific_os()) {
+        case "wp":
+        case "android":
+        $vCardFunc = "displayVcard";
+            break;
+        case "ios":
+            $vCardFunc = "displayiOSVcard";
+            break;
+    }
+    if (is_null($vCardFunc)) { return; } // Unsupported device
+
+    $dbInfo = get_option(MYSITEAPP_OPTIONS_BUSINESS);
+    $card = array(
+        'url' => home_url()
+    );
+    if (!empty($dbInfo['name'])) {
+        $card['company'] = $dbInfo['name'];
+    }
+    if (!empty($dbInfo['description'])) {
+        $card['note'] = $dbInfo['description'];
+    }
+    if (!empty($dbInfo['contact_phone'])) {
+        // Sanitize for the card
+        $card['phone'] = preg_replace("/[\.\(\)\s]/im", "", $dbInfo['contact_phone']);
+    }
+    if (!empty($dbInfo['contact_address'])) {
+        $address = $dbInfo['contact_address'];
+        if (!empty($dbInfo['contact_address_vcf'])) {
+            $address = $dbInfo['contact_address_vcf'];
+        } else {
+            $address = implode(";", explode("\n", str_replace(",", "\n", $address)));
+        }
+        $card['address'] = $address;
+    }
+    if (!empty($dbInfo['admin_email'])) {
+        // Using the one defined in the db, not the email of the wordpress admin.
+        $card['email'] = $dbInfo['admin_email'];
+    }
+
+    Vcard_Creator::$vCardFunc($card);
+    exit;
+}
+
+/**
+ * Helper function for converting boolean to its string representation
+ * @param bool $bool    The boolean
+ * @return string   String representation of the boolean
+ */
+function uppsite_webapp_bool_to_str($bool) {
+    return $bool ? "true" : "false";
+}
+
+/** Intercept "get vcf" requests */
+add_filter( 'after_setup_theme', 'uppsite_webapp_get_vcf' );
+
+/** Hook 'show_on_front_option' on ajax calls. */
+add_filter('pre_option_show_on_front', 'uppsite_short_circuit_show_on_front', 10, 1);
 
 /** Hook every template path we modify */
 add_filter('index_template', 'uppsite_get_webapp_page');
@@ -554,12 +671,6 @@ add_filter('comment_post_redirect', 'uppsite_redirect_comment', 10, 3);
 
 /** Fix youtube iframe to flash object on iOS (to be rendered in YouTube app) */
 function uppsite_fix_youtube($content) {
-    $userAgent = $_SERVER['HTTP_USER_AGENT'];
-    if (strpos($userAgent, "iPhone") === false &&
-        strpos($userAgent, "iPad") === false &&
-        strpos($userAgent, "iPod") === false) {
-        return $content;
-    }
     // Match the iframe pattern, to find
     if (!preg_match_all("/<iframe[^>]*src=\"[^\"]*youtube.com[^\"]*\"[^>]*>[^<]*<\/iframe>/x", $content, $matches)) {
         return $content;
@@ -571,7 +682,6 @@ function uppsite_fix_youtube($content) {
             "width" => "",
             "src" => ""
         );
-        $videoId = "";
         for ($i = 0; $i < count($fields[0]); $i++) {
             $key = $fields[1][$i];
             $vals[$key] = $fields[2][$i];
@@ -587,4 +697,6 @@ function uppsite_fix_youtube($content) {
     }
     return $content;
 }
-add_filter('the_content', 'uppsite_fix_youtube', 100); // Run last
+if (MySiteAppPlugin::detect_specific_os() == "ios") {
+    add_filter('the_content', 'uppsite_fix_youtube', 100); // Run last
+}

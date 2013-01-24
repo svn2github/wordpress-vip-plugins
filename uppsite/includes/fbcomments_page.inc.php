@@ -1,10 +1,16 @@
 <?php
+if (!function_exists('mysiteapp_facebook_comments_page')):
 /**
  * Comment using facebook page
  */
-function mysiteapp_facebook_comments_page(){
+function mysiteapp_facebook_comments_page() {
 
-	$url = esc_url_raw( $_GET['url'] ); // Ideally this should have some validation
+	$url = esc_url_raw( $_GET['url'] );
+    if (stripos($url, home_url('/')) === false) {
+        // Validate this url of our blog!
+        return;
+    }
+
 	$screen = absint( $_GET['screen'] );
 	$app_id = absint( $_GET['app'] );
 
@@ -17,14 +23,12 @@ function mysiteapp_facebook_comments_page(){
 	}
 
 ?><html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml">
-
 <head>
 
 <meta name="viewport" content="width=<?php echo esc_attr( $screen_width ); ?>,user-scalable=false" />
 <meta name="viewport" content="initial-scale=1.0" />
-
 </head>
-
+<body>
 <div id="fb-root"></div>
 <script>
 window.fbAsyncInit = function() {
@@ -48,19 +52,10 @@ window.fbAsyncInit = function() {
    }(document));
 </script>
 
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) {return;}
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));
-
-</script>
-
 <div class="fb-comments" data-href="<?php echo esc_url( $url ); ?>" data-num-posts="0" data-width="<?php echo esc_attr( $screen_width ); ?>"></div>
-
-
+</body>
 </html>
-<?php } // mysiteapp_facebook_comments_page ?>
+<?php
+}
+endif;
+// mysiteapp_facebook_comments_page

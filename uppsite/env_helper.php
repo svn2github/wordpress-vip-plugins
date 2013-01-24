@@ -8,8 +8,16 @@
  *
  * @return bool Is WP.com VIP env
  */
-function mysiteapp_is_wpcom_vip() {
+function uppsite_is_wpcom_vip() {
     return function_exists( 'wpcom_vip_load_plugin' ) || function_exists( 'wpcom_is_vip' );
+}
+
+/**
+ * @return int  Platform identifier for the current installation, as stated in UppSite's DB
+ *              (1 - WP standalone, 3 - WP VIP)
+ */
+function uppsite_remote_get_platform() {
+    return uppsite_is_wpcom_vip() ? 3 : 1;
 }
 
 /**
@@ -89,7 +97,7 @@ function uppsite_change_webapp($state) {
         update_option('bnc_iphone_pages', $v);
     }
     // Fix cache plugins
-    if (!mysiteapp_is_wpcom_vip()) {
+    if (!uppsite_is_wpcom_vip()) {
         uppsite_cache_fix_wp_super_cache(MySiteAppPlugin::$_mobile_ua, $state); // Add/remove mobile
         uppsite_cache_fix_w3_total_cache(MySiteAppPlugin::$_mobile_ua, $state); // Add/remove mobile
     }
@@ -131,12 +139,17 @@ add_action('update_option_' . MYSITEAPP_OPTIONS_OPTS, 'uppsite_options_updated',
  * @param $act activated / deactivated
  */
 function uppsite_update_status($act) {
+    if (!in_array($act, array("activated", "deactivated"))) {
+        // Sanitize act
+        return;
+    }
     wp_remote_post(MYSITEAPP_AUTOKEY_URL,
         array(
             'body' => 'status='.$act.'&pingback=' . get_bloginfo('pingback_url'),
             'timeout' => 5
         )
     );
+    do_action("uppsite_is_" . $act);
 }
 
 /**
@@ -252,27 +265,36 @@ function uppsite_cache_fix_w3_total_cache($userAgents, $add = true) {
     }
 }
 
-if (mysiteapp_is_wpcom_vip()):
+/**
+ * @return bool Whether to use a cache bypass techniques where cache systems doesn't support User-Agent groups (currently -
+ *              every site that isn't WP VIP)
+ */
+function uppsite_should_bypass_cache() {
+    return !uppsite_is_wpcom_vip();
+}
+
+/**
+ * Include the functions.php file of the original theme, to run extra code from it.
+ *
+ * @note This must run before the plugin overrides the theme name!
+ */
+function uppsite_include_original_functions() {
+    global $msap;
+    $templateDir = $msap->original_values['template_directory'];
+    include_once( $templateDir . "/functions.php" );
+
+    // Remove all actions we know that interrupt the behaviour
+    remove_all_filters('after_setup_theme');
+    remove_all_filters('widgets_init');
+    remove_all_filters('get_the_excerpt');
+    remove_all_filters('excerpt_more');
+    remove_all_filters('excerpt_length');
+}
+
+if (uppsite_is_wpcom_vip()):
     // Fixes for VIP sites
     function uppsite_vip_load_original_functions() {
-        add_action( 'setup_theme', 'uppsite_vip_include_original_functions', 1 );
-	}
-    /**
-     * Include the functions.php file of the original theme, to run extra code from it.
-     *
-     * @note This must run before the plugin overrides the theme name!
-     */
-    function uppsite_vip_include_original_functions() {
-        global $msap;
-        $templateDir = $msap->original_template_directory;
-        include_once( $templateDir . "/functions.php" );
-
-        // Remove all actions we know that interrupt the behaviour
-        remove_all_filters('after_setup_theme');
-        remove_all_filters('widgets_init');
-        remove_all_filters('get_the_excerpt');
-        remove_all_filters('excerpt_more');
-        remove_all_filters('excerpt_length');
+        add_action( 'setup_theme', 'uppsite_include_original_functions', 1 );
     }
     add_action('uppsite_is_running', 'uppsite_vip_load_original_functions', 1); // Run before any other action is running.
 else:
@@ -296,7 +318,7 @@ else:
     add_action('init', 'mysiteapp_fix_seo_plugins');
 
     // Cache plugins
-    function mysiteapp_fix_cache_plugins() {
+    function uppsite_fix_cache_plugins() {
         // Build list of rejected UAs
         $userAgents = array(MYSITEAPP_AGENT);
         if (mysiteapp_should_show_webapp() || mysiteapp_should_show_landing()) {
@@ -308,9 +330,9 @@ else:
         // W3 Total Cache
         uppsite_cache_fix_w3_total_cache($userAgents);
     }
-    add_action('admin_init','mysiteapp_fix_cache_plugins',10);
+    add_action('admin_init','uppsite_fix_cache_plugins',10);
 
-endif; // if (mysiteapp_is_wpcom_vip()):
+endif; // if (uppsite_is_wpcom_vip()):
 
 /**
  * Disables interruping plugins in all envs.
@@ -319,7 +341,21 @@ function uppsite_fix_interrupting_plugins() {
     // Disable Lazy Load plugin
     // The problem is that the 1x1 trans pixel is the "src" attr of all the pictures, thus causing us to get
     // it instead of the real picture, so we will disable it.
-    add_action('lazyload_is_enabled', create_function('$state', 'return false;'));
+    $falseFunc = create_function('$state', 'return false;');
+    add_action('lazyload_is_enabled', $falseFunc);
+
+    // Disable jetpack's mobile theme
+    add_action('jetpack_check_mobile', $falseFunc);
+
+    // WordPress SEO has the option to "remove ugly permalinks". Yuck.
+    function uppsite_fix_wp_seo($optionsArr) {
+        $pos = array_search('wpseo_permalinks', $optionsArr);
+        if ($pos !== false) {
+            unset($optionsArr[$pos]);
+        }
+        return $optionsArr;
+    }
+    add_action('wpseo_options', 'uppsite_fix_wp_seo');
 }
 
 add_action('uppsite_is_running', 'uppsite_fix_interrupting_plugins', 15);

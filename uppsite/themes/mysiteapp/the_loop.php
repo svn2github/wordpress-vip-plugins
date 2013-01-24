@@ -22,5 +22,7 @@ if ($query->have_posts()) {
 
         $iterator++;
     }
+
+    wp_reset_postdata();
 }
 ?>

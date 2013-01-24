@@ -16,9 +16,5 @@ if (defined('UPPSITE_AJAX')) {
 
     print json_encode(array($single));
 } else {
-    // Direct url, will be forwarded to the webapp with a link to the post.
-    $url = home_url();
-    $id = get_the_ID();
-    wp_safe_redirect($url.'/#post/'.$id);
-    exit;
+    include(dirname(__FILE__) . "/router.php");
 }

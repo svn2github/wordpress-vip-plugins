@@ -1,15 +1,9 @@
 <?php
-// Get only X posts for carousel
-query_posts(array(
-    'posts_per_page' => mysiteapp_homepage_carousel_posts_num(),
-    'order' => 'desc'
-));
-
 // Start buffering
 ob_start();
 $all_posts = array();
 
-/** Carousel items */
+/** Carousel items (The 'pre_get_posts' hook was called before, so items are relevant) */
 $carouselPosts = array();
 while (have_posts()) {
     the_post();
@@ -21,12 +15,14 @@ while (have_posts()) {
 $all_posts[] = array(
     'id' => 0,
     'posts' => $carouselPosts,
-    'category' => ' _Carousel' // Carousel is getting a special category name, that will precede all other cat names.
+    'category' => ' _Carousel', // Carousel is getting a special category name, that will precede all other cat names.
+    'category_order' => 0
 );
 
 /** Categories with posts */
-$cats_array = array_splice(uppsite_homepage_get_categories(), 0, 15); // Restrict maximum categories to iterate over.
+$cats_array = uppsite_homepage_get_categories();
 
+$catOrder = 1;
 foreach ($cats_array as $cat) {
     $category_link = get_category_link($cat);
     if ( uppsite_should_filter($category_link) ) {
@@ -46,7 +42,7 @@ foreach ($cats_array as $cat) {
 
     // Print only categories that exist
     if ($query->have_posts()) {
-        $current_cat = get_category_by_slug($query->get('category_name'));
+        $current_cat = get_category($cat);
         while ($query->have_posts()) {
             $query->the_post(); // Will populate $GLOBALS['post']
             if (uppsite_should_filter( get_permalink() )) {
@@ -59,10 +55,15 @@ foreach ($cats_array as $cat) {
 
             $cur_post['category'] = $current_cat->name;
             $cur_post['category_link'] = $category_link;
-
+            $cur_post['category_order'] = $catOrder;
+            
             $all_posts[] = $cur_post;
         }
+
+        wp_reset_postdata();
     }
+    
+    $catOrder++;
 }
 // End buffering
 ob_end_clean();

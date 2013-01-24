@@ -11,9 +11,13 @@ while (have_posts()) {
 $total_count = wp_count_posts()->publish;
 ob_end_clean();
 
-print json_encode(
-    array(
-        'root' => $all_posts,
-        'total_count' => $total_count
-    )
+if (isset($_GET['noPagination'])) {
+    print json_encode($all_posts);
+} else {
+    print json_encode(
+        array(
+            'root' => $all_posts,
+            'total_count' => $total_count
+        )
 );
+}

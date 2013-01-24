@@ -2,10 +2,9 @@
 // Set content type to XML
 header("Content-Type: text/xml; charset=UTF-8");
 
-$plugin_version = function_exists('mysiteapp_get_plugin_version') ? mysiteapp_get_plugin_version() : null;
 print '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
-<mysiteapp result="true" wordpress_version="<?php echo get_bloginfo('version') ?>" plugin_version="<?php echo $plugin_version ?>">
+<mysiteapp result="true" wordpress_version="<?php echo get_bloginfo('version') ?>" plugin_version="<?php echo MYSITEAPP_PLUGIN_VERSION ?>">
 <?php
 if (function_exists('wp_get_current_user')):
 	$current_user = wp_get_current_user();

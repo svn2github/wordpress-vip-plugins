@@ -4,7 +4,7 @@
  */
 ?>
 <sidebar>
-	<?php if (!mysiteapp_should_hide_sidebar()): ?>
+    <?php if (mysiteapp_should_show_sidebar()): ?>
 	<categorys>
 		<?php wp_list_categories(); ?>
 	</categorys>
@@ -22,7 +22,7 @@
 			 wp_tag_cloud('number=100&echo=true');
 		}
 	?></tags>
-	<?php endif; // mysiteapp_should_hide_sidebar ?>
+    <?php endif; // mysiteapp_should_show_sidebar ?>
 	<logout>
 		<url><![CDATA[<?php echo mysiteapp_logout_url_wrapper() ?>]]></url>
 	</logout>
