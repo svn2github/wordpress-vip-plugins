@@ -1,5 +1,3 @@
-#cpsh {}
-
 /* =Popup
 -------------------------------------------------------------- */
 #cpsh {
@@ -13,6 +11,7 @@
 	width: 224px;
 	margin: 0 0 6px;
 	padding: 0;
+	text-align: left;
 	color: #666;
 	font-size: 13px;
 }
@@ -24,28 +23,29 @@
 	display: block;
 	height: 20px;
 	line-height: 20px;
+	text-align: left;
 	padding-left: 94px;
 	min-width: 130px;
 	text-decoration: none;
-	background: transparent url(../images/columns.png) no-repeat 0 6px;	
+	background: transparent url(../images/columns.png) no-repeat left 6px;
 }
-#cpsh .cp-one_half { background-position: 0 6px; }
-#cpsh .cp-one_half_last { background-position: 0 -14px; }
-#cpsh .cp-one_third { background-position: 0 -34px; }
-#cpsh .cp-one_third_last { background-position: 0 -54px; }
-#cpsh .cp-two_third { background-position: 0 -74px; }
-#cpsh .cp-two_third_last { background-position: 0 -94px; }
-#cpsh .cp-one_fourth { background-position: 0 -114px; }
-#cpsh .cp-one_fourth_last { background-position: 0 -134px; }
-#cpsh .cp-three_fourth { background-position: 0 -154px; }
-#cpsh .cp-three_fourth_last { background-position: 0 -174px; }
-#cpsh .cp-one_fifth { background-position: 0 -194px; }
-#cpsh .cp-one_fifth_last { background-position: 0 -214px; }
-#cpsh .cp-two_fifth { background-position: 0 -234px; }
-#cpsh .cp-two_fifth_last { background-position: 0 -254px; }
-#cpsh .cp-three_fifth { background-position: 0 -274px; }
-#cpsh .cp-three_fifth_last { background-position: 0 -294px; }
-#cpsh .cp-four_fifth { background-position: 0 -314px; }
-#cpsh .cp-four_fifth_last { background-position: 0 -334px; }
-#cpsh .cp-one_sixth { background-position: 0 -354px; }
-#cpsh .cp-one_sixth_last { background-position: 0 -374px; }
+#cpsh .cp-one_half { background-position: left 6px; }
+#cpsh .cp-one_half_last { background-position: left -14px; }
+#cpsh .cp-one_third { background-position: left -34px; }
+#cpsh .cp-one_third_last { background-position: left -54px; }
+#cpsh .cp-two_third { background-position: left -74px; }
+#cpsh .cp-two_third_last { background-position: left -94px; }
+#cpsh .cp-one_fourth { background-position: left -114px; }
+#cpsh .cp-one_fourth_last { background-position: left -134px; }
+#cpsh .cp-three_fourth { background-position: left -154px; }
+#cpsh .cp-three_fourth_last { background-position: left -174px; }
+#cpsh .cp-one_fifth { background-position: left -194px; }
+#cpsh .cp-one_fifth_last { background-position: left -214px; }
+#cpsh .cp-two_fifth { background-position: left -234px; }
+#cpsh .cp-two_fifth_last { background-position: left -254px; }
+#cpsh .cp-three_fifth { background-position: left -274px; }
+#cpsh .cp-three_fifth_last { background-position: left -294px; }
+#cpsh .cp-four_fifth { background-position: left -314px; }
+#cpsh .cp-four_fifth_last { background-position: left -334px; }
+#cpsh .cp-one_sixth { background-position: left -354px; }
+#cpsh .cp-one_sixth_last { background-position: left -374px; }

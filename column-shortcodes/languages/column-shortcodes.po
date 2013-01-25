@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Column Shortcodes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-20 15:46+0100\n"
-"PO-Revision-Date: 2012-07-20 15:46+0100\n"
+"POT-Creation-Date: 2013-01-23 11:01+0100\n"
+"PO-Revision-Date: 2013-01-23 11:02+0100\n"
 "Last-Translator: Codepress <info@codepress.nl>\n"
 "Language-Team: Codepress <info@codepress.nl>\n"
 "MIME-Version: 1.0\n"
@@ -11,55 +11,59 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Poedit-KeywordsList: __;_e\n"
 "X-Poedit-Basepath: .\n"
-"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Generator: Poedit 1.5.4\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPath-1: ..\n"
 
-#: ../column-shortcodes.php:174
+#: ../column-shortcodes.php:222
 msgid "Select shortcode"
 msgstr ""
 
-#: ../column-shortcodes.php:208
+#: ../column-shortcodes.php:255
 msgid "Column shortcodes"
 msgstr ""
 
-#: ../column-shortcodes.php:231
+#: ../column-shortcodes.php:280
 msgid "one half"
 msgstr ""
 
-#: ../column-shortcodes.php:232
+#: ../column-shortcodes.php:281
 msgid "one third"
 msgstr ""
 
-#: ../column-shortcodes.php:233
+#: ../column-shortcodes.php:282
 msgid "one fourth"
 msgstr ""
 
-#: ../column-shortcodes.php:234
+#: ../column-shortcodes.php:283
 msgid "two third"
 msgstr ""
 
-#: ../column-shortcodes.php:235
+#: ../column-shortcodes.php:284
 msgid "three fourth"
 msgstr ""
 
-#: ../column-shortcodes.php:236
+#: ../column-shortcodes.php:285
 msgid "one fifth"
 msgstr ""
 
-#: ../column-shortcodes.php:237
+#: ../column-shortcodes.php:286
 msgid "two fifth"
 msgstr ""
 
-#: ../column-shortcodes.php:238
+#: ../column-shortcodes.php:287
 msgid "three fifth"
 msgstr ""
 
-#: ../column-shortcodes.php:239
+#: ../column-shortcodes.php:288
+msgid "four fifth"
+msgstr ""
+
+#: ../column-shortcodes.php:289
 msgid "one sixth"
 msgstr ""
 
-#: ../column-shortcodes.php:255
+#: ../column-shortcodes.php:305
 msgid "last"
 msgstr ""
-
