@@ -46,8 +46,7 @@ class New_Device_Notification {
 		// Users to skip:
 		// * Super admins (Automattic employees visiting your site)
 		// * Users who don't have /wp-admin/ access
-		// * Anyone using 2-step auth enabled ( http://en.support.wordpress.com/text-messaging/ )
-		if ( is_super_admin() || ! current_user_can( 'edit_posts' ) || sms_user_has_two_step_auth( $current_user->ID ) )
+		if ( is_super_admin() || ! current_user_can( 'edit_posts' ) )
 			return;
 
 		// Set up the per-blog salt
