@@ -92,15 +92,22 @@ class UppSiteBusinessDataMiner {
      * @return string|null  the front page html, or null if couldn't fetch it.
      */
     private function get_front_page() {
-        if (!is_null($this->front_page)) {
+        if ( ! is_null( $this->front_page ) ) {
             return $this->front_page;
         }
 
-        $response = wp_remote_get( home_url() );
-        if ( is_wp_error( $response ) ) {
-            return null;
-        }
-        $this->front_page = $response['body'];
+	$front_page = get_transient( 'uppsite_business_front_page' );
+	if ( false === $front_page ) {
+	        $response = wp_remote_get( home_url() );
+        	if ( is_wp_error( $response ) ) {
+			$this->front_page = '';
+		} else {
+		        $front_page = $response['body'];
+		}
+		set_transient( 'uppsite_business_front_page', $front_page );
+	}
+	$this->front_page = $front_page;
+
         return $this->front_page;
     }
 
