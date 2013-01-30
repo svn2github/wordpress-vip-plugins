@@ -20,6 +20,7 @@ class Ooyala_Options {
 		add_settings_field( 'ooyala-partner-secret', __( 'Partner Secret (v1)', 'ooyalavideo' ), array( $this, 'secret_code' ), 'ooyala-options', 'ooyala-general' );
 		add_settings_field( 'ooyala-api-key', __( 'API Key (v2)', 'ooyalavideo' ), array( $this, 'api_key' ), 'ooyala-options', 'ooyala-general' );
 		add_settings_field( 'ooyala-api-secret', __( 'API Secret (v2)', 'ooyalavideo' ), array( $this, 'api_secret' ), 'ooyala-options', 'ooyala-general' );
+		add_settings_field( 'ooyala-player-id', __( 'Player ID (v3)', 'ooyalavideo' ), array( $this, 'player_id' ), 'ooyala-options', 'ooyala-general' );
 		add_settings_field( 'ooyala-show-in-feed', __( 'Show link to blog post in feed', 'ooyalavideo' ), array( $this, 'show_in_feed' ), 'ooyala-options', 'ooyala-general' );
 		add_settings_field( 'ooyala-video-width', __( 'Video object width', 'ooyalavideo' ), array( $this, 'video_width' ), 'ooyala-options', 'ooyala-general' );
 		add_settings_field( 'ooyala-video-status', __( 'Default video status', 'ooyalavideo' ), array( $this, 'video_status' ), 'ooyala-options', 'ooyala-general' );
@@ -51,6 +52,13 @@ class Ooyala_Options {
 		if ( ! isset( $options['api_secret'] ) )
 			$options['api_secret'] = '';
 		?><input type="text" id="ooyala-api-secret" name="ooyala[api_secret]" value="<?php echo esc_attr( $options['api_secret'] ); ?>" class="regular-text" /><?php
+	}
+
+	public function player_id() {
+		$options = get_option( 'ooyala', array() );
+		if ( ! isset( $options['player_id'] ) )
+			$options['player_id'] = '';
+		?><input type="text" id="ooyala-player-id" name="ooyala[player_id]" value="<?php echo esc_attr( $options['player_id'] ); ?>" class="regular-text" /><?php
 	}
 
 	public function show_in_feed() {

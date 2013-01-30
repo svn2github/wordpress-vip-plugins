@@ -1,4 +1,5 @@
 <?php
+$ooyala = get_option( 'ooyala' );
 if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 	require_once( dirname(__FILE__) . '/class-ooyala-backlot-api.php' );
 ?>
@@ -8,8 +9,8 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 <head>
 <meta charset="<?php bloginfo( 'charset' ); ?>" />
 <title>Ooyala Video</title>
-<?php wp_print_scripts( array( 'jquery', 'ooyala', 'set-post-thumbnail' ) ); ?>
-<?php wp_print_styles( array( 'global', 'media', 'wp-admin', 'colors' ) ); ?>
+<?php wp_print_scripts( array( 'jquery', 'ooyala', 'ooyala-uploader', 'set-post-thumbnail', 'jquery-ui-progressbar' ) ); ?>
+<?php wp_print_styles( array( 'global', 'media', 'wp-admin', 'colors', 'jquery-ui-progressbar' ) ); ?>
 <script type="text/javascript">
 	var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
 	var postId = <?php echo absint( $_GET['post_id'] ); ?>;
@@ -20,7 +21,7 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 	jQuery(document).ready(function () {
 		OV.Popup.init();
 		OV.Popup.resizePop();
-		
+
 		//Make initial reqest to load last few videos
 		OV.Popup.ooyalaRequest( 'last_few' );
 	});
@@ -28,7 +29,7 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 	  	setTimeout(function ()	{ OV.Popup.resizePop(); }, 50);
 	});
 </script>
-<style>	
+<style>
 	body { min-width:300px !important; }
 	.tablenav-pages a { font-weight: normal;}
 	.ooyala-item {float:left; height:146px; width:146px; padding:4px; border:1px solid #DFDFDF; margin:4px; box-shadow: 2px 2px 2px #DFDFDF;}
@@ -37,7 +38,10 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 	.ooyala-item .photo img { width: 128px; height:72px}
 	.ooyala-item .item-title {text-align:center;}
 	#latest-link {font-size: 0.6em; padding-left:10px;}
-	#ov-content-upload label {display:block}	
+	#ov-content-upload label {display:block}
+	.ui-progressbar .ui-progressbar-value { background-image: url(<?php echo plugins_url( 'css/ooyala-uploader/images/pbar-ani.gif' ); ?>); }
+	#progressbar { margin: 5px; width: 80%; }
+
 </style>
 </head>
 <body id="media-upload">
@@ -48,7 +52,7 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 		</ul>
 	</div>
 	<div class="ov-contents">
-		<div id="ov-content-ooyala" class="ov-content">	
+		<div id="ov-content-ooyala" class="ov-content">
 		 	<form name="ooyala-requests-form" action="#">
 				<p id="media-search" class="search-box">
 					<img src="<?php echo $this->plugin_url; ?>img/ooyala100.png" style="vertical-align: middle; margin-right: 10px;"/>
@@ -87,50 +91,53 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 		</div>
 		<div id="ov-content-upload" class="ov-content"  style="display:none;margin:1em">
 			<h3 class="media-title"><?php _e('Upload to Ooyala', 'ooyalavideo' ); ?></h3>
-			<?php
-			// Define any default labels to assign and the dynamic label prefix  
-			// for any user-selected dynamic labels 
+      <label for="assetName">Name: </label>
+      <input type="text" id="ooyala-file-name" value="HTML5 Test"/>
+      <label for="assetDescription">Description: </label>
+      <input type="text" id="ooyala-file-description" value="Blah"/>
+      <input type="file" id="ooyala-file" />
+    <div>
+		<button id="uploadButton" disabled onclick="return startUpload();">Upload!</button>
+		<div id="status"></div>
+    </div>
+    <div id="progressbar" style="display:none;"></div>
+    <script type="text/javascript">
 
-			$options = get_option( 'ooyala' );
-			$status = empty( $options['video_status'] ) ? 'pending' : $options['video_status'];
-			$param_string = OoyalaBacklotAPI::signed_params(array( 
-			  'status' => $status
-			  ));
-		?>
-	 	<fieldset>
-			<script src="//www.ooyala.com/partner/uploadButton?width=100&amp;height=20&amp;label=<?php echo ( urlencode( esc_attr__('Select File', 'ooyalavideo') ) );?>"></script>
-			<script>
-			var ooyalaParams = '<?php echo $param_string ?>';
-			 function onOoyalaUploaderReady( )  { 
-		        try 
-		        { 
-		          ooyalaUploader.setParameters(ooyalaParams); 
-		        } 
-		        catch(e) 
-		        { 
-		          alert(e); 
-		        } 
-
-		        ooyalaUploader.addEventListener('fileSelected', 'ooyalaOnFileSelected');  
-		        ooyalaUploader.addEventListener('progress', 'ooyalaOnProgress');  
-		        ooyalaUploader.addEventListener('complete', 'ooyalaOnUploadComplete');  
-		        ooyalaUploader.addEventListener('error', 'ooyalaOnUploadError');  
-		
-		        document.getElementById('uploadButton').disabled = false;  
-		      }
-			</script>
-		 	<p>
-				<label><?php _e('Filename', 'ooyala_video');?></label>
-				<input id="ooyala_file_name" size="40" /> 
-			</p>
-			<p>
-				<label for><?php _e('Description', 'ooyala_video');?></label>
-	        	<textarea id="ooyala_description" rows="5" cols="40"></textarea>
-			</p>		
-			<p>
-				<button id="uploadButton" onClick="return ooyalaStartUpload();"><?php _e('Upload!', 'ooyala_video');?></button>  <a id="ooyala-status"></a>
-			</p>
-		</fieldset>
+		jQuery('#ooyala-file').change( function(e) {
+			jQuery('#uploadButton').removeAttr("disabled");
+		});
+		function startUpload() {
+			jQuery('#progressbar').show();
+			jQuery('#progressbar').progressbar({value: 0});
+			jQuery('#uploadButton').attr("disabled");
+			var myUploader = new OoyalaUploader({
+				embedCodeReady : function( asset_id ) {
+					// The asset is created on Ooyala and uploading may commence
+					// @todo: Tell the user the upload has started?
+				},
+				uploadProgress : function( asset_id, percent ) {
+					jQuery( "#progressbar" ).progressbar({value: percent});
+				},
+				uploadComplete : function( asset_id ) {
+					// The upload is complete
+				},
+				uploadError : function( asset_id, type, fileName, statusCode, message ) {
+					console.log( message );
+				}
+			});
+			myUploader.uploadFile( document.getElementById('ooyala-file').files[0], {
+				assetCreationUrl : ajaxurl+'?action=ooyala_uploader&request=asset-create',
+				assetUploadingUrl : ajaxurl+'?action=ooyala_uploader&request=asset-upload',
+				assetStatusUpdateUrl : ajaxurl+'?action=ooyala_uploader&request=asset-status',
+				labelCreationUrl : ajaxurl+'?action=ooyala_uploader&request=labels-create',
+				labelAssignmentUrl : ajaxurl+'?action=ooyala_uploader&request=labels-assign',
+				name : jQuery('#ooyala-file-name').val(),
+				description : jQuery('#ooyala-file-description').val(),
+				postProcessingStatus: '<?php echo esc_attr( $ooyala['video_status'] ); ?>'
+			} );
+		}
+    </script>
+        </div>
 		</div>
 	</div>
 </div>
