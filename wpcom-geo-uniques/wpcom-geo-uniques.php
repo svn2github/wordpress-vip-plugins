@@ -170,7 +170,7 @@ function wpcom_geo_add_location( $location ) {
 }
 
 function wpcom_geo_get_user_location() {
-	WPCOM_Geo_Uniques::get_user_location();
+	return WPCOM_Geo_Uniques::get_user_location();
 }
 
 function wpcom_geo_set_default_location( $location ) {
