@@ -736,3 +736,46 @@ function _wpcom_vip_allow_more_html_in_comments() {
 	remove_filter( 'pre_comment_content', 'wp_filter_kses' ); 
 	add_filter( 'pre_comment_content', 'wp_filter_post_kses' );
 }
+
+
+
+/**
+ * Sends an e-mail when a new user accepts an invite to join a site.
+ * Feel free to create your own implementation of this functionality if you wish.
+ */
+function wpcom_vip_notify_on_new_user_added_to_site( $emails ) {
+
+	add_action( 'wpcom_invites_user_accepted_invite', function ( $invitee_login, $invitee_role ) use ( $emails ) {
+		global $current_user;
+
+		$invitee = get_user_by( 'login', $invitee_login );
+
+		if ( ! $invitee || is_wp_error( $invitee ) )
+			return;
+
+		get_currentuserinfo();
+
+		$invitee_name = ( $invitee->display_name != $invitee->user_login ) ? "{$invitee->display_name} ({$invitee->user_login})" : 'someone with the username "' . $invitee->user_login . '"';
+		$inviter_name = ( $current_user->display_name != $current_user->user_login ) ? "{$current_user->display_name} ({$current_user->user_login})" : 'someone with the username "' . $current_user->user_login . '"';
+		$blog_name = get_bloginfo( 'name' ) . ' [' . home_url() . ']';
+
+		wp_mail(
+			$emails,
+			'New User Added To ' . $blog_name,
+			"Hi,
+
+This e-mail is to notify you that {$invitee_name} has accepted an invitation from {$inviter_name} to join {$blog_name}.
+
+Users for this site can be managed here: " . admin_url( 'users.php' ) . "
+
+If you have any questions, feel free to reply to this e-mail.
+
+-- WordPress.com VIP Support",
+			array(
+				'From: WordPress.com VIP Support <vip-support@wordpress.com>',
+			)
+		);
+
+	}, 10, 2 );
+
+}
