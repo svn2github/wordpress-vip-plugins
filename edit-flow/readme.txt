@@ -2,9 +2,9 @@
 Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
-Requires at least: 3.1
+Requires at least: 3.4
 Tested up to: 3.5.1
-Stable tag: 0.7.5
+Stable tag: 0.7.6
 
 Redefining your editorial workflow.
 
@@ -91,6 +91,9 @@ Proper support for custom post types. We removed the option to enable/disable Cu
 New features, including story budget and editorial metadata, a completely rewritten calendar view, and many bug fixes, including one for editorial comments appearing in the admin.
 
 == Changelog ==
+
+= 0.7.6 (Jan. 30, 2013) =
+* Bug fix for 3.4.2 compatibility.
 
 = 0.7.5 (Jan. 29, 2013) =
 * New Japanese localization thanks to [naokomc](https://github.com/naokomc)
