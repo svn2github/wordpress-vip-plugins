@@ -1,10 +1,10 @@
 === Ooyala Video ===
 Ported By: Dave Searle
-Contributors: dsearle, automattic, PeteMall
+Contributors: ooyala, dsearle, automattic, PeteMall, Range
 Tags: embedding, video, embed, portal, ooyala, shortcode
 Requires at least: 3.0
-Tested up to: 3.3
-Stable tag: 1.5
+Tested up to: 3.5
+Stable tag: 1.6.1
 
 Easy embedding of videos for the Ooyala Video Platform.
 Browse your Ooyala videos, and easily insert them into your posts and page.
@@ -25,6 +25,11 @@ Copy the subfolder "ooyala-video" with all included files into the "wp-content/p
 2. The Ooyala GUI allows you to search and insert videos from your Ooyala account. You can search by keyword or choose the last 8 videos uploaded to the account.
 
 == Changelog ==
+
+= 1.6 =
+* Support for V3 Embeds
+* Support for Backlot API v2
+* Added Range as contributor
 
 = 1.5 =
 * Added PeteMall as contributor
