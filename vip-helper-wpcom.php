@@ -759,12 +759,14 @@ function wpcom_vip_notify_on_new_user_added_to_site( $emails ) {
 		$inviter_name = ( $current_user->display_name != $current_user->user_login ) ? "{$current_user->display_name} ({$current_user->user_login})" : 'someone with the username "' . $current_user->user_login . '"';
 		$blog_name = get_bloginfo( 'name' ) . ' [' . home_url() . ']';
 
+		$invitee_role = ( 'editor' == $invitee_role ) ? 'an ' . $invitee_role : 'a ' . $invitee_role;
+
 		wp_mail(
 			$emails,
 			'New User Added To ' . $blog_name,
 			"Hi,
 
-This e-mail is to notify you that {$invitee_name} has accepted an invitation from {$inviter_name} to join {$blog_name}.
+This e-mail is to notify you that {$invitee_name} has accepted an invitation from {$inviter_name} to join {$blog_name} as {$invitee_role}.
 
 Users for this site can be managed here: " . admin_url( 'users.php' ) . "
 
