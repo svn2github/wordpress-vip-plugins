@@ -5,7 +5,7 @@
   Plugin URI: http://www.tinypass.com
   Description: TinyPass:Metered allows for metered access to your WordPress site
   Author: Tinypass
-  Version: 1.0.2
+  Version: 1.0.7
   Author URI: http://www.tinypass.com
  */
 
@@ -53,7 +53,7 @@ function tinypass_init() {
 
 	//process readon ajax requests and return the content without the teaser
 	if (tinypass_is_readon_request()) {
-		$id = (int) $_REQUEST['p'];
+		$id = (int) $_REQUEST['_p'];
 		$query = new WP_Query(array('post_type' => 'any', 'p' => $id));
 
 		if (!$query->have_posts()) {
@@ -151,9 +151,9 @@ function tinypass_intercept_content($content) {
 		//we only want to show if there is a readmore or tpmore
 		if ($c['extended'] && $c['extended'] != "") {
 			$url = get_permalink();
-			$rurl = $url . "?tp-readon=fetch";
+			$rurl = $url . "?tp-readon=fetch&_p=". $post->ID;
 			if (preg_match("/\?/", $url))
-				$rurl = $url . "&tp-readon=fetch";
+				$rurl = $url . "&tp-readon=fetch&_p=". $post->ID;
 
 			$id = hash('md5', $url);
 			$content .= '<div id="' . $id . '" class="extended" style="display:none"></div>';
