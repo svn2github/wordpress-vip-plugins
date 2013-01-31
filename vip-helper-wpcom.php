@@ -745,6 +745,9 @@ function _wpcom_vip_allow_more_html_in_comments() {
  */
 function wpcom_vip_notify_on_new_user_added_to_site( $emails ) {
 
+	if ( ! is_admin() )
+		return;
+
 	add_action( 'wpcom_invites_user_accepted_invite', function ( $invitee_login, $invitee_role ) use ( $emails ) {
 		global $current_user;
 
