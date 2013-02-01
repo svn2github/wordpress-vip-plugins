@@ -110,12 +110,13 @@ class New_Device_Notification {
 
 		$location = $this->ip_to_city( $_SERVER['REMOTE_ADDR'] );
 		$blogname = html_entity_decode( get_bloginfo( 'name' ), ENT_QUOTES );
+		$hostname = gethostbyaddr( $_SERVER['REMOTE_ADDR'] );
 
 		// If we're still in the grace period, don't send an e-mail
 		$installed_time = get_option( 'newdevicenotification_installedtime' );
 		$send_email  = ( time() - $installed_time < (int) apply_filters( 'ndn_grace_period', $this->grace_period ) ) ? false : true;
 
-		$send_email = apply_filters( 'ndn_send_email', $send_email, array( 'user' => $current_user, 'location' => $location, 'ip' => $_SERVER['REMOTE_ADDR'] ) );
+		$send_email = apply_filters( 'ndn_send_email', $send_email, array( 'user' => $current_user, 'location' => $location, 'ip' => $_SERVER['REMOTE_ADDR'], 'hostname' => $hostname ) );
 
 		// Notify VIP of this
 		$debug_message  = '[NDN] [EMAIL ';
@@ -155,7 +156,7 @@ Feel free to also reply to this e-mail if you have any questions whatsoever.
 			$blogname,                                 // 2
 			trailingslashit( home_url() ),             // 3
 			$_SERVER['REMOTE_ADDR'],                   // 4
-			gethostbyaddr( $_SERVER['REMOTE_ADDR'] ),  // 5
+			$hostname,                                 // 5
 			$location->human,                          // 6
 			strip_tags( $_SERVER['HTTP_USER_AGENT'] ), // 7, strip_tags() is better than nothing
 			$current_user->user_login,                 // 8
