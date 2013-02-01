@@ -70,6 +70,7 @@ class WPCOM_Related_Posts {
 
 		$this->default_options = array(
 				'post-types' => array(),
+				'post-count' => 5,
 			);
 		$this->options = get_option( self::key, $this->default_options );
 
@@ -103,6 +104,7 @@ class WPCOM_Related_Posts {
 		register_setting( self::key, self::key, array( self::$instance, 'sanitize_options' ) );
 		add_settings_section( 'general', false, '__return_false', self::key );
 		add_settings_field( 'post-types', __( 'Enable for these post types:', 'wpcom-related-posts' ), array( self::$instance, 'setting_post_types' ), self::key, 'general' );
+		add_settings_field( 'post-count', __( 'Number of posts to display:', 'wpcom-related-posts' ), array( self::$instance, 'setting_post_count' ), self::key, 'general' );
 	}
 
 	public function action_admin_menu() {
@@ -123,6 +125,14 @@ class WPCOM_Related_Posts {
 		}
 	}
 
+	public function setting_post_count() {
+		echo '<select name="' . self::key . '[post-count]">';
+		for( $i = 1; $i <= 10; $i++ ) {
+			echo '<option value="' . $i . '" ' . selected( $i, $this->options['post-count'], false ) . '>' . $i . '</selected>';
+		}
+		echo '</select>';
+	}
+
 	public function sanitize_options( $in ) {
 
 		$out = $this->default_options;
@@ -133,6 +143,11 @@ class WPCOM_Related_Posts {
 			if ( in_array( $maybe_post_type, $valid_post_types ) )
 				$out['post-types'][] = $maybe_post_type;
 		}
+
+		// Validate the post count
+		$out['post-count'] = (int) $in['post-count'];
+		if ( $out['post-count'] < 1 || $out['post-count'] > 10 )
+			$out['post-count'] = $this->default_options['post-count'];
 
 		return $out;
 	}
@@ -208,7 +223,7 @@ class WPCOM_Related_Posts {
 			$post_id = get_the_ID();
 
 		$defaults = array(
-				'posts_per_page'          => 5,
+				'posts_per_page'          => $this->options['post-count'],
 				'post_type'               => get_post_type( $post_id ),
 			);
 		$args = wp_parse_args( $args, $defaults );
