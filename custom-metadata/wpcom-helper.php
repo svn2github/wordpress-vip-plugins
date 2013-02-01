@@ -8,7 +8,12 @@ add_filter( 'custom_metadata_manager_get_sanitize_callback', function( $callback
 }, 999, 3 );
 
 function _wpcom_vip_custom_metadata_force_sanitize( $field_slug, $field, $object_type, $object_id, $value ) {
-	return sanitize_text_field( $value );
+	if ( is_array( $value ) )
+		$value = array_map( 'sanitize_text_field', $value );
+	else
+		$value = sanitize_text_field( $value );
+
+	return $value;
 }
 
 // Force user data to be saved as user attributes instead of user meta
