@@ -478,6 +478,10 @@ class coauthors_plus {
 	public function update_author_term_post_count( $term ) {
 		global $wpdb;
 
+		// stop updating author counts, because the count query is a monster and
+		// it is keeping some masters busy, which prevents INSERT queries from running
+		return;
+
 		$coauthor = $this->get_coauthor_by( 'user_nicename', $term->slug );
 		if ( ! $coauthor )
 			return new WP_Error( 'missing-coauthor', __( 'No co-author exists for that term', 'co-authors-plus' ) );
