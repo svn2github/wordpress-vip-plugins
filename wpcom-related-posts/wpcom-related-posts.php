@@ -278,6 +278,7 @@ class WPCOM_Related_Posts {
 		$keywords = array();
 		$word_count = apply_filters( 'wrp_keyword_word_count', $word_count );
 		$word_count = min( max( 1, intval($word_count) ), 100 );
+		$text = strip_tags( $text );
 		foreach( (array)explode( ' ', $text ) as $word ) {
 			// Strip characters we don't want
 			$word = trim( $word, '?.;,"' );
