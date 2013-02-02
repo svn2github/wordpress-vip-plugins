@@ -52,16 +52,16 @@ function __tinypass_mlite_display(TPPaySettings $ps) {
 	?>
 	<div class="tp-section">
 
-		<div class="desc">Sign up or login to <a href="dashboard.tinypass.com">Tinypass Dashboard</a> to create a new paywall.<br>
+		<div class="desc">Sign up or login to <a href="http://dashboard.tinypass.com" target="_blank">Tinypass Dashboard</a> to create a new paywall.<br>
 			A Paywall ID number will be generated for you.  Copy it to your clipboard
 		</div>
 		<br> <br>
 
 		<div class="info">
 			<div class="heading">Enter your Paywall ID</div>
-			<div class="desc">Create a paywall on the <a href="dashboard.tinypass.com">Tinypass Dashboard</a> and paste the ID number here.</div>
+			<div class="desc">Create a paywall on the <a href="http://dashboard.tinypass.com">Tinypass Dashboard</a> and paste the ID number here.</div>
 			<br>
-			<div class="desc">If you're just testing, create a paywall on the <a href="sandbox.tinypass.com">Tinypass Dashboard</a> and paste the ID number here.</div>
+			<div class="desc">If you're just testing, create a paywall on the <a href="http://sandbox.tinypass.com">Tinypass Dashboard</a> and paste the ID number here.</div>
 		</div>
 		<div class="body">
 

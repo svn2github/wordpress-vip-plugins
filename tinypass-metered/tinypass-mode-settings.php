@@ -27,9 +27,7 @@ function tinypass_mode_settings() {
 		$ps = $ss->validatePaySettings($_POST['tinypass'], $errors);
 		if (count($errors) == 0) {
 			$storage->savePaywallSettings($ss, $ps);
-			$location = 'admin.php?page=TinyPassEditPaywall&rid=' . $ps->getResourceId() . "&msg=" . urlencode(__('Your settings have been saved!'));
-			wp_safe_redirect($location);
-			exit;
+			$_REQUEST['msg'] = 'Your settings have been saved!';
 		}
 	}
 

@@ -5,7 +5,7 @@
   Plugin URI: http://www.tinypass.com
   Description: TinyPass:Metered allows for metered access to your WordPress site
   Author: Tinypass
-  Version: 1.0.7
+  Version: 1.0.8
   Author URI: http://www.tinypass.com
  */
 
@@ -71,7 +71,7 @@ function tinypass_init() {
 
 		$c = tinypass_split_excerpt_and_body($content, false);
 
-		$content = $c['extended'];
+		$content = $c['body'];
 
 		echo $content;
 		exit;
@@ -81,10 +81,10 @@ function tinypass_init() {
 }
 
 /**
- * Add the js-util script
+ * Add the js-readon script
  */
 function tinypass_enqueue_scripts() {
-	wp_enqueue_script('tp-util', TINYPASSS_PLUGIN_PATH . '/js/tp-util.js', array('jquery'), true, true);
+	wp_enqueue_script('tp-readon', TINYPASSS_PLUGIN_PATH . '/js/tp-readon.js', array('jquery'), true, true);
 }
 
 /**
@@ -119,7 +119,7 @@ function tinypass_intercept_content($content) {
 
 	$pwOptions = $storage->getPaywall("pw_config");
 
-	if ($pwOptions->isDisabledForPriviledgesUsers() && is_user_logged_in() && current_user_can('edit_posts') == false) {
+	if ($pwOptions->isDisabledForPriviledgesUsers() && is_user_logged_in() && current_user_can('edit_posts')) {
 		$tpmeter->embed_meter = false;
 	}
 
@@ -131,11 +131,13 @@ function tinypass_intercept_content($content) {
 		$tpmeter->track_page_view = $pwOptions->isTrackHomePage();
 	} else {
 		//check if current post is tagged for restriction
-		$post_terms = get_the_tags( $post->ID );
-		foreach ($post_terms as $term) {
-			if ($pwOptions->tagMatches($term->name)) {
-				$tpmeter->track_page_view = true;
-				break;
+		$post_terms = get_the_tags($post->ID);
+		if ($post_terms) {
+			foreach ($post_terms as $term) {
+				if ($pwOptions->tagMatches($term->name)) {
+					$tpmeter->track_page_view = true;
+					break;
+				}
 			}
 		}
 	}
@@ -146,23 +148,21 @@ function tinypass_intercept_content($content) {
 	if (is_home() && ($pwOptions->isReadOnEnabled())) {
 		$c = tinypass_split_excerpt_and_body($post->post_content, false);
 
-		$content = $c['main'];
+		$content = $c['excerpt'];
 
 		//we only want to show if there is a readmore or tpmore
-		if ($c['extended'] && $c['extended'] != "") {
-			$url = get_permalink();
-			$rurl = $url . "?tp-readon=fetch&_p=". $post->ID;
-			if (preg_match("/\?/", $url))
-				$rurl = $url . "&tp-readon=fetch&_p=". $post->ID;
+		if ($c['body'] && $c['body'] != "") {
+			$permalink = get_permalink();
+			$url = $permalink . (preg_match("/\?/", $permalink) ? "&" : "?") . "tp-readon=fetch&_p=" . $post->ID;
 
-			$id = hash('md5', $url);
-			$content .= '<div id="' . $id . '" class="extended" style="display:none"></div>';
-			$content .= apply_filters('the_content_more_link', '<a href="' . get_permalink() . "\" longdesc=\"Read On\" rid=\"$id\" rurl=\"$rurl\" class=\"readon-link\">Read On</a>", 'Read On');
+			$id = hash('md5', $permalink);
+			$content .= '<div id="slot-' . $id . '" class="extended" style="display:none"></div>';
+			$content .= apply_filters('tinypass_readon', '<a href="' . get_permalink() . "\" readon_desc=\"Read On\" collapse_desc=\"Collapse Post\" id=\"$id\" url=\"$url\" class=\"readon-link\">Read On</a>", $id, $url);
 		}
 	} else if (is_singular()) {
 		$tpmeter->on_show_offer = 'onPostPageShowOffer';
 		$c = tinypass_split_excerpt_and_body($post->post_content);
-		$content = $c['main'] . "<br>" . $c['extended'];
+		$content = $c['excerpt'] . "<br>" . $c['body'];
 	}
 
 	return $content;
@@ -206,6 +206,9 @@ function tinypass_load_settings() {
 	return $ss;
 }
 
+/*
+ * Check if the incoming request is a read on request
+ */
 function tinypass_is_readon_request() {
 	$result = false;
 
@@ -227,8 +230,8 @@ function tinypass_is_readon_request() {
  */
 function tinypass_split_excerpt_and_body($post, $surround = true) {
 
-	$regex = '/<!--more(.*?)?-->|<span id="(.*)"><\/span>/';
-	$tpmore_regex = '/\s*<!--tpmore(.*?)?-->\s*/';
+	$regex = '/(<p>)?\s*<!--more(.*?)?-->(<\/p>)?|(<p>)?\s*<span id="(.*)"><\/span>(<\/p>)?\s*/';
+	$tpmore_regex = '/(<p>)?\s*<!--tpmore(.*?)?-->(<\/p>)?\s*/';
 
 	if (preg_match($tpmore_regex, $post)) {
 		$regex = $tpmore_regex;
@@ -236,20 +239,21 @@ function tinypass_split_excerpt_and_body($post, $surround = true) {
 
 	//Match the new style more links
 	if (preg_match($regex, $post, $matches)) {
-		list($main, $extended) = explode($matches[0], $post, 2);
+		list($excerpt, $body) = explode($matches[0], $post, 2);
 	} else {
-		$main = $post;
-		$extended = '';
+		$excerpt = $post;
+		$body = '';
 	}
 
 	// Strip leading and trailing whitespace
-	$main = preg_replace('/^[\s]*(.*)[\s]*$/', '\\1', $main);
+	$excerpt = preg_replace('/^[\s]*(.*)[\s]*$/', '\\1', $excerpt);
 	if ($surround)
-		$extended = preg_replace('/^[\s]*(.*)[\s]*$/', '\\1', "<div id='tpmore'>" . $extended . "</div>");
+		$body = preg_replace('/^[\s]*(.*)[\s]*$/', '\\1', "<div id='tpmore'>" . $body . "</div>");
 	else
-		$extended = preg_replace('/^[\s]*(.*)[\s]*$/', '\\1', $extended);
+		$body = preg_replace('/^[\s]*(.*)[\s]*$/', '\\1', $body);
 
-	return array('main' => $main, 'extended' => $extended);
+
+	return array('excerpt' => $excerpt, 'body' => $body);
 }
 
 /**
@@ -263,17 +267,16 @@ function tinypass_footer() {
 <script type=\"text/javascript\">
     window._tpm = window._tpm || [];
     window._tpm['paywallID'] = '" . esc_js($tpmeter->paywall_id) . "'; 
-    window._tpm['jquery_trackable_selector'] = '.readon-link';
     window._tpm['sandbox'] = " . ($tpmeter->sandbox ? 'true' : 'false') . " 
     window._tpm['trackPageview'] = " . ($tpmeter->track_page_view ? 'true' : 'false') . "; 
     window._tpm['onShowOffer'] = '" . ($tpmeter->on_show_offer ? esc_js($tpmeter->on_show_offer) : '') . "'; 
-    window._tpm['host'] = 'dishdev.tinypass.com';
+		if(window._tpm['sandbox']) window._tpm['host'] = 'sandbox.tinypass.com';
 	
 		 (function () {
         var _tp = document.createElement('script');
         _tp.type = 'text/javascript';
         var _host = window._tpm['host'] ? window._tpm['host'] : 'code.tinypass.com';
-        _tp.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + _host + '/tinypass-meter.js';
+        _tp.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + _host + '/tpl/d1/tpm.js';
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(_tp, s);
     })();
