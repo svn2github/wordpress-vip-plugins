@@ -263,14 +263,6 @@ function mysiteapp_admin_init() {
 }
 
 /**
- * @return bool Whether push control is available for this site or not.
- */
-function uppsite_push_control_enabled() {
-    $options = get_option(MYSITEAPP_OPTIONS_OPTS, array());
-    return isset($options['push_control']) && $options['push_control'] == '1';
-}
-
-/**
  * Adding the push control button when posting pages.
  * This button allows the user to decide whether to make push notification to his users upon the publish of this post.
  */

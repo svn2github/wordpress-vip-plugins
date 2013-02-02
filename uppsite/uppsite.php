@@ -966,6 +966,14 @@ function uppsite_api_values_set() {
 }
 
 /**
+ * @return bool Whether push control is available for this site or not.
+ */
+function uppsite_push_control_enabled() {
+	$options = get_option(MYSITEAPP_OPTIONS_OPTS, array());
+	return isset($options['push_control']) && $options['push_control'] == '1';
+}
+
+/**
  * Sends notification to UppSite's server in order to send push notification to clients.
  * @param int $post_id  Post id
  * @param null $post_details (optional) Post details
