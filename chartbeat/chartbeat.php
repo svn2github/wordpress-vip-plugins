@@ -512,7 +512,7 @@ function chartbeat_columns($defaults) {
 	if ( ! get_option('chartbeat_userid') )
 		return $defaults;
 
-	$defaults['cb_visits'] = __('Active Vists');
+	$defaults['cb_visits'] = __('Active Visits');
 	return $defaults;
 }
 add_action('manage_posts_custom_column', 'chartbeat_custom_columns', 10, 2);
