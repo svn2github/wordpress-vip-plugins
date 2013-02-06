@@ -22,7 +22,9 @@ class WPCOM_elasticsearch_Widget_Facets extends WP_Widget {
 
 		$facets = WPCOM_elasticsearch()->get_search_facet_data();
 
-		if ( ! $facets )
+		$current_filters = WPCOM_elasticsearch()->get_current_filters();
+
+		if ( ! $facets && ! $current_filters )
 			return;
 
 		$facets_found = false;
@@ -32,7 +34,7 @@ class WPCOM_elasticsearch_Widget_Facets extends WP_Widget {
 				break;
 			}
 		}
-		if ( ! $facets_found )
+		if ( ! $facets_found && ! $current_filters )
 			return;
 
 
@@ -41,8 +43,6 @@ class WPCOM_elasticsearch_Widget_Facets extends WP_Widget {
 		echo $args['before_widget'];
 
 		echo $args['before_title'] . $title . $args['after_title'];
-
-		$current_filters = WPCOM_elasticsearch()->get_current_filters();
 
 		if ( $current_filters ) {
 			echo '<h3>' . __( 'Current Filters', 'wpcom-elasticsearch' ) . '</h3>';
