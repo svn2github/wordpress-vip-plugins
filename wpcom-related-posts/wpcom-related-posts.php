@@ -72,7 +72,9 @@ class WPCOM_Related_Posts {
 				'post-types' => array(),
 				'post-count' => 5,
 			);
-		$this->options = get_option( self::key, $this->default_options );
+		$this->options = get_option( self::key, array() );
+
+		$this->options = wp_parse_args( $this->options, $this->default_options );
 
 		// If Elastic Search exists, let's use that
 		$es_path = WP_CONTENT_DIR . '/plugins/elasticsearch.php';
