@@ -1,10 +1,10 @@
 <?php /*
 
-THIS PLUGIN IS NOT READY FOR USE YET, PLEASE DON'T USE IT :)
+This plugins is still in beta. Want to try it? Contact us. :)
 
 **************************************************************************
 
-P lugin Name: WordPress.com elasticsearch
+P lugin Name: WordPress.com VIP Search
 D escription: Replaces WordPress's core front-end search functionality with one powered by <a href="http://www.elasticsearch.org/">elasticsearch</a>.
 A uthor:      Automattic
 A uthor URI:  http://automattic.com/
@@ -125,13 +125,22 @@ class WPCOM_elasticsearch {
 		foreach ( $this->facets as $label => $facet ) {
 			switch ( $facet['type'] ) {
 				case 'taxonomy':
-					$taxonomy = get_taxonomy( $this->facets[ $label ]['taxonomy'] );
+					$query_var = $this->get_taxonomy_query_var( $this->facets[ $label ]['taxonomy'] );
 
-					if ( ! $taxonomy )
+					if ( ! $query_var )
 						continue 2;  // switch() is considered a looping structure
 
-					if ( $query->get( $taxonomy->query_var ) )
-						$es_wp_query_args['terms'][ $this->facets[ $label ]['taxonomy'] ] = explode( '+', $query->get( $taxonomy->query_var ) );
+					if ( $query->get( $query_var ) )
+						$es_wp_query_args['terms'][ $this->facets[ $label ]['taxonomy'] ] = explode( ',', $query->get( $query_var ) );
+
+					// This plugon's custom "categery" isn't a real query_var, so manually handle it
+					if ( 'category' == $query_var && ! empty( $_GET[ $query_var ] ) ) {
+						$slugs = explode( ',', $_GET[ $query_var ] );
+
+						foreach ( $slugs as $slug ) {
+							$es_wp_query_args['terms'][ $this->facets[ $label ]['taxonomy'] ][] = $slug;
+						}
+					}
 
 					break;
 
@@ -140,7 +149,7 @@ class WPCOM_elasticsearch {
 						$post_types_via_user = $query->get( 'post_type' );
 					}
 					elseif ( ! empty( $_GET['post_type'] ) ) {
-						$post_types_via_user = explode( '+', $_GET['post_type'] );
+						$post_types_via_user = explode( ',', $_GET['post_type'] );
 					} else {
 						$post_types_via_user = false;
 					}
@@ -296,14 +305,21 @@ class WPCOM_elasticsearch {
 
 			// All taxonomy terms are going to have the same query_var
 			if( 'taxonomy' == $this->facets[ $label ]['type'] ) {
-				$taxonomy = get_taxonomy( $this->facets[ $label ]['taxonomy'] );
+				$tax_query_var = $this->get_taxonomy_query_var( $this->facets[ $label ]['taxonomy'] );
 
-				if ( ! $taxonomy )
+				if ( ! $tax_query_var )
 					continue;
 
-				$tax_query_var = $taxonomy->query_var;
+				$existing_term_slugs = ( get_query_var( $tax_query_var ) ) ? explode( ',', get_query_var( $tax_query_var ) ) : array();
 
-				$existing_term_slugs = ( get_query_var( $tax_query_var ) ) ? explode( '+', get_query_var( $tax_query_var ) ) : array();
+				// This plugon's custom "categery" isn't a real query_var, so manually handle it
+				if ( 'category' == $tax_query_var && ! empty( $_GET[ $tax_query_var ] ) ) {
+					$slugs = explode( ',', $_GET[ $tax_query_var ] );
+
+					foreach ( $slugs as $slug ) {
+						$existing_term_slugs[] = $slug;
+					}
+				}
 			}
 
 			$items = array();
@@ -335,7 +351,7 @@ class WPCOM_elasticsearch {
 
 						$slugs = array_merge( $existing_term_slugs, array( $term->slug ) );
 
-						$query_vars = array( $tax_query_var => implode( '+', $slugs ) );
+						$query_vars = array( $tax_query_var => implode( ',', $slugs ) );
 						$name       = $term->name;
 
 						break;
@@ -402,6 +418,103 @@ class WPCOM_elasticsearch {
 		}
 
 		return $facets_data;
+	}
+
+	public function get_current_filters() {
+		$filters = array();
+
+		// Process dynamic query string keys (i.e. taxonomies)
+		foreach ( $this->facets as $label => $facet ) {
+			switch ( $facet['type'] ) {
+				case 'taxonomy':
+					$query_var = $this->get_taxonomy_query_var( $this->facets[ $label ]['taxonomy'] );
+
+					if ( ! $query_var )
+						continue 2;  // switch() is considered a looping structure
+
+					if ( ! empty( $_GET[ $query_var ] ) ) {
+						$slugs = explode( ',', $_GET[ $query_var ] );
+
+						$slug_count = count( $slugs );
+
+						foreach ( $slugs as $slug ) {
+							// Todo: caching here
+							$term = get_term_by( 'slug', $slug, $this->facets[ $label ]['taxonomy'] );
+
+							if ( ! $term || is_wp_error( $term ) )
+								continue;
+
+							$url = ( $slug_count > 1 ) ? add_query_arg( $query_var, implode( ',', array_diff( $slugs, array( $slug ) ) ) ) : remove_query_arg( $query_var );
+
+							$filters[] = array(
+								'url'  => $url,
+								'name' => $term->name,
+							);
+						}
+					}
+
+					break;
+			}
+		}
+
+		// Post type
+		if ( ! empty( $_GET[ 'post_type' ] ) ) {
+			$post_types = explode( ',', $_GET[ 'post_type' ] );
+
+			$post_type_count = count( $post_types );
+
+			foreach ( $post_types as $post_type ) {
+				$post_type_object = get_post_type_object( $post_type );
+
+				if ( ! $post_type_object )
+					continue;
+
+				$url = ( $post_type_count > 1 ) ? add_query_arg( 'post_type', implode( ',', array_diff( $post_types, array( $post_type ) ) ) ) : remove_query_arg( 'post_type' );
+
+				$filters[] = array(
+					'url'  => $url,
+					'name' => $post_type_object->labels->singular_name,
+				);
+			}
+		}
+
+		// Date
+		if ( ! empty( $_GET['year'] ) ) {
+
+			$filters[] = array(
+				'url'  => remove_query_arg( array( 'year', 'monthnum', 'day' ) ),
+				'name' => absint( $_GET['year'] ),
+			);
+
+			if ( ! empty( $_GET['monthnum'] ) ) {
+				$filters[] = array(
+					'url'  => remove_query_arg( array( 'monthnum', 'day' ) ),
+					'name' => date( 'F Y', mktime( 0, 0, 0, absint( $_GET['monthnum'] ), 14, absint( $_GET['year'] ) ) ),
+				);
+
+				if ( ! empty( $_GET['day'] ) ) {
+					$filters[] = array(
+						'url'  => remove_query_arg( 'day' ),
+						'name' => date( 'F jS, Y', mktime( 0, 0, 0, absint( $_GET['monthnum'] ), absint( $_GET['day'] ), absint( $_GET['year'] ) ) ),
+					);
+				}
+			}
+		}
+
+		return $filters;
+	}
+
+	public function get_taxonomy_query_var( $taxonomy_name ) {
+		$taxonomy = get_taxonomy( $taxonomy_name );
+
+		if ( ! $taxonomy || is_wp_error( $taxonomy ) )
+			return false;
+
+		// category_name only accepts a single slug so make a custom, fake query var for categories
+		if ( 'category_name' == $taxonomy->query_var )
+			$taxonomy->query_var = 'category';
+
+		return $taxonomy->query_var;
 	}
 }
 
