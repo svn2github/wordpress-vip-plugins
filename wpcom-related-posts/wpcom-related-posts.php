@@ -227,6 +227,7 @@ class WPCOM_Related_Posts {
 		$defaults = array(
 				'posts_per_page'          => $this->options['post-count'],
 				'post_type'               => get_post_type( $post_id ),
+				'has_terms'               => array(),
 			);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -247,6 +248,24 @@ class WPCOM_Related_Posts {
 					'name'                => parse_url( site_url(), PHP_URL_HOST ),
 					'size'                => (int)$args['posts_per_page'] + 1,
 				);
+			if ( ! empty( $args['has_terms'] ) ) {
+				$filters = array();
+				foreach( (array)$args['has_terms'] as $term ) {
+					switch ( $term->taxonomy ) {
+						case 'post_tag':
+							$tax_fld = 'tag.slug';
+							break;
+						case 'category':
+							$tax_fld = 'category.slug';
+							break;
+						default:
+							$tax_fld = 'taxonomy_raw.' . $term->taxonomy . '.slug';
+							break;
+					}
+					$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
+				}
+				$es_args['filters'] = array( 'and' => $filters );
+			}
 			if ( is_array( $args['post_type'] ) ) {
 				// @todo support for a set of post types
 			} else if ( in_array( $args['post_type'], get_post_types() ) && 'all' != $args['post_type'] ) {
@@ -277,6 +296,18 @@ class WPCOM_Related_Posts {
 			$categories = get_the_category( $post_id );
 			if ( ! empty( $categories ) )
 				$related_query_args[ 'cat' ] = $categories[0]->term_id;
+
+			if ( ! empty( $args['has_terms'] ) ) {
+				$tax_query = array();
+				foreach( (array)$args['has_terms'] as $term ) {
+					$tax_query[] = array(
+							'taxonomy'          => $term->taxonomy,
+							'field'             => 'slug',
+							'terms'             => $term->slug,
+						);
+				}
+				$related_query_args['tax_query'] = $tax_query;
+			}
 
 			$related_query = new WP_Query( $related_query_args );
 			$related_posts = $related_query->get_posts();
