@@ -50,7 +50,7 @@ class WPCOM_elasticsearch_Widget_Facets extends WP_Widget {
 			echo '<ul>';
 
 			foreach ( $current_filters as $filter ) {
-				echo '<li><a href="' . esc_url( $filter['url'] ) . '">' . sprintf( __( '(X) %s', 'wpcom-elasticsearch' ), esc_html( $filter['name'] ) ) . '</a></li>';
+				echo '<li><a href="' . esc_url( $filter['url'] ) . '">' . sprintf( __( '(X) %1$s: %2$s', 'wpcom-elasticsearch' ), esc_html( $filter['type'] ), esc_html( $filter['name'] ) ) . '</a></li>';
 			}
 
 			if ( count( $current_filters ) > 1 )

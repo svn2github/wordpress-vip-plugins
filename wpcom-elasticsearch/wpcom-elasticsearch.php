@@ -427,78 +427,104 @@ class WPCOM_elasticsearch {
 		foreach ( $this->facets as $label => $facet ) {
 			switch ( $facet['type'] ) {
 				case 'taxonomy':
-					$query_var = $this->get_taxonomy_query_var( $this->facets[ $label ]['taxonomy'] );
+					$query_var = $this->get_taxonomy_query_var( $facet['taxonomy'] );
 
-					if ( ! $query_var )
+					if ( ! $query_var || empty( $_GET[ $query_var ] ) )
 						continue 2;  // switch() is considered a looping structure
 
-					if ( ! empty( $_GET[ $query_var ] ) ) {
-						$slugs = explode( ',', $_GET[ $query_var ] );
+					$slugs = explode( ',', $_GET[ $query_var ] );
 
-						$slug_count = count( $slugs );
+					$slug_count = count( $slugs );
 
-						foreach ( $slugs as $slug ) {
-							// Todo: caching here
-							$term = get_term_by( 'slug', $slug, $this->facets[ $label ]['taxonomy'] );
+					foreach ( $slugs as $slug ) {
+						// Todo: caching here
+						$term = get_term_by( 'slug', $slug, $facet['taxonomy'] );
 
-							if ( ! $term || is_wp_error( $term ) )
-								continue;
+						if ( ! $term || is_wp_error( $term ) )
+							continue;
 
-							$url = ( $slug_count > 1 ) ? add_query_arg( $query_var, implode( ',', array_diff( $slugs, array( $slug ) ) ) ) : remove_query_arg( $query_var );
+						$url = ( $slug_count > 1 ) ? add_query_arg( $query_var, implode( ',', array_diff( $slugs, array( $slug ) ) ) ) : remove_query_arg( $query_var );
 
-							$filters[] = array(
-								'url'  => $url,
-								'name' => $term->name,
-							);
-						}
+						$filters[] = array(
+							'url'  => $url,
+							'name' => $term->name,
+							'type' => ( ! empty( $facet['singular_title'] ) ) ? $facet['singular_title'] : get_taxonomy( $facet['taxonomy'] )->labels->singular_name,
+						);
 					}
 
 					break;
-			}
-		}
 
-		// Post type
-		if ( ! empty( $_GET[ 'post_type' ] ) ) {
-			$post_types = explode( ',', $_GET[ 'post_type' ] );
+				case 'post_type':
+					if ( empty( $_GET['post_type'] ) )
+						continue 2;
 
-			$post_type_count = count( $post_types );
+					$post_types = explode( ',', $_GET[ 'post_type' ] );
 
-			foreach ( $post_types as $post_type ) {
-				$post_type_object = get_post_type_object( $post_type );
+					$post_type_count = count( $post_types );
 
-				if ( ! $post_type_object )
-					continue;
+					foreach ( $post_types as $post_type ) {
+						$post_type_object = get_post_type_object( $post_type );
 
-				$url = ( $post_type_count > 1 ) ? add_query_arg( 'post_type', implode( ',', array_diff( $post_types, array( $post_type ) ) ) ) : remove_query_arg( 'post_type' );
+						if ( ! $post_type_object )
+							continue;
 
-				$filters[] = array(
-					'url'  => $url,
-					'name' => $post_type_object->labels->singular_name,
-				);
-			}
-		}
+						$url = ( $post_type_count > 1 ) ? add_query_arg( 'post_type', implode( ',', array_diff( $post_types, array( $post_type ) ) ) ) : remove_query_arg( 'post_type' );
 
-		// Date
-		if ( ! empty( $_GET['year'] ) ) {
+						$filters[] = array(
+							'url'  => $url,
+							'name' => $post_type_object->labels->singular_name,
+							'type' => ( ! empty( $facet['singular_title'] ) ) ? $facet['singular_title'] : $label,
+						);
+					}
 
-			$filters[] = array(
-				'url'  => remove_query_arg( array( 'year', 'monthnum', 'day' ) ),
-				'name' => absint( $_GET['year'] ),
-			);
+					break;
 
-			if ( ! empty( $_GET['monthnum'] ) ) {
-				$filters[] = array(
-					'url'  => remove_query_arg( array( 'monthnum', 'day' ) ),
-					'name' => date( 'F Y', mktime( 0, 0, 0, absint( $_GET['monthnum'] ), 14, absint( $_GET['year'] ) ) ),
-				);
+				case 'date_histogram':
+					switch ( $facet['interval'] ) {
+						case 'year':
+							if ( empty( $_GET['year'] ) )
+								continue 3;
 
-				if ( ! empty( $_GET['day'] ) ) {
-					$filters[] = array(
-						'url'  => remove_query_arg( 'day' ),
-						'name' => date( 'F jS, Y', mktime( 0, 0, 0, absint( $_GET['monthnum'] ), absint( $_GET['day'] ), absint( $_GET['year'] ) ) ),
-					);
-				}
-			}
+							$filters[] = array(
+								'url'  => remove_query_arg( array( 'year', 'monthnum', 'day' ) ),
+								'name' => absint( $_GET['year'] ),
+								'type' => __( 'Year', 'wpcom-elasticsearch' ),
+							);
+
+							break;
+
+						case 'month':
+							if ( empty( $_GET['year'] ) || empty( $_GET['monthnum'] ) )
+								continue;
+
+							$filters[] = array(
+								'url'  => remove_query_arg( array( 'monthnum', 'day' ) ),
+								'name' => date( 'F Y', mktime( 0, 0, 0, absint( $_GET['monthnum'] ), 14, absint( $_GET['year'] ) ) ),
+								'type' => __( 'Month', 'wpcom-elasticsearch' ),
+							);
+
+							break;
+
+						case 'day':
+
+							if ( empty( $_GET['year'] ) || empty( $_GET['monthnum'] ) || empty( $_GET['day'] ) )
+								continue;
+
+							$filters[] = array(
+								'url'  => remove_query_arg( 'day' ),
+								'name' => date( 'F jS, Y', mktime( 0, 0, 0, absint( $_GET['monthnum'] ), absint( $_GET['day'] ), absint( $_GET['year'] ) ) ),
+								'type' => __( 'Day', 'wpcom-elasticsearch' ),
+							);
+
+							break;
+
+						default:
+							continue 3;
+					}
+
+					break;
+
+			} // end switch()
 		}
 
 		return $filters;
