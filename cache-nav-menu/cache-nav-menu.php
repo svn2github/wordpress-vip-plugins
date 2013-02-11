@@ -40,9 +40,7 @@ function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 	$skip_cache = false;
 	$use_cache = ( true === $prime_cache ) ? false : true;
 	
-	if ( is_singular() ) {
-		$skip_cache = true;
-	} else if ( !in_array( $queried_object_id, wpcom_vip_get_nav_menu_cache_objects( $use_cache ) ) ) {
+	if ( !in_array( $queried_object_id, wpcom_vip_get_nav_menu_cache_objects( $use_cache ) ) ) {
 		$skip_cache = true;
 	}
 	
