@@ -40,11 +40,7 @@ function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 	$skip_cache = false;
 	$use_cache = ( true === $prime_cache ) ? false : true;
 	
-	if ( !in_array( $queried_object_id, wpcom_vip_get_nav_menu_cache_objects( $use_cache ) ) ) {
-		$skip_cache = true;
-	}
-	
-	if ( true === $skip_cache || true === $prime_cache || false === ( $nav_menu = get_transient( $nav_menu_key ) ) ) {
+	if ( true === $skip_cache || true === $prime_cache || false === ( $nav_menu = wp_cache_get( $nav_menu_key, 'cache-nav-menu' ) ) ) {
 		if ( false === $echo ) {
 			$nav_menu = wp_nav_menu( $args );
 		} else {
@@ -53,7 +49,7 @@ function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 			$nav_menu = ob_get_clean();
 		}
 		if ( false === $skip_cache )
-			set_transient( $nav_menu_key, $nav_menu );
+			wp_cache_set( $nav_menu_key, $nav_menu, 'cache-nav-menu' );
 	} 
 	if ( true === $echo )
 		echo $nav_menu;
@@ -69,7 +65,7 @@ function wpcom_vip_update_nav_menu_objects( $menu_id = null, $menu_data = null )
 
 function wpcom_vip_get_nav_menu_cache_objects( $use_cache = true ) {
 	$cache_key = 'wpcom_vip_nav_menu_cache_object_ids';
-	$object_ids = get_transient( $cache_key );
+	$object_ids = wp_cache_get( $cache_key, 'cache-nav-menu' );
 	if ( true === $use_cache && !empty( $object_ids ) ) {
 		return $object_ids;
 	}
@@ -99,6 +95,6 @@ function wpcom_vip_get_nav_menu_cache_objects( $use_cache = true ) {
 	
 	$object_ids[] = 0; // that's for the homepage
 	
-	set_transient( $cache_key, $object_ids );
+	wp_cache_set( $cache_key, $object_ids, 'cache-nav-menu' );
 	return $object_ids;
 }
