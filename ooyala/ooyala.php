@@ -136,14 +136,15 @@ class Ooyala_Video {
 		*/
 
 		$options = get_option( 'ooyala' );
-		extract(shortcode_atts(array(
+		extract(shortcode_atts( apply_filters( 'ooyala_default_query_args', array(
 			'width' => '',
 			'code' => '',
 			'autoplay' => '',
 			'callback' => 'recieveOoyalaEvent',
 			'wmode' => 'opaque',
 			'player_id' => $options['player_id'],
-			), $atts
+			'platform' => 'html5-priority'
+			) ), $atts
 		));
 
 		if ( empty($width) )
@@ -158,8 +159,10 @@ class Ooyala_Video {
 		$autoplay = (bool) $autoplay ? '1' : '0';
 		$sanitized_embed = sanitize_key( $code );
 		$wmode = in_array( $wmode, array( 'window', 'transparent', 'opaque', 'gpu', 'direct' ) ) ? $wmode : 'opaque';
+		// V2 Callback
 		$callback = preg_match( '/[^\w]/', $callback ) ? '' : sanitize_text_field( $callback ); // // sanitize a bit because we don't want nasty things
-
+		// Check if platform is one of the accepted. If not, set to html5-priority
+		$platform = in_array( $platform, array( 'flash', 'flash-only', 'html5-fallback', 'html5-priority' ) ) ? $platform : 'html5-priority';
 		if ( empty( $code ) )
 			if ( isset( $atts[0] ) )
 				$code = $atts[0];
@@ -180,18 +183,20 @@ class Ooyala_Video {
 				'callback' => $callback,
 				'wmode' => $wmode,
 				'version' => 2,
-			), 'http://player.ooyala.com/player.js' );
+			) , 'http://player.ooyala.com/player.js' );
 
 			if ( !empty( $options['player_id'] ) ) {
-				$output .= '<script src="http://player.ooyala.com/v3/' . esc_attr( $player_id ) .'"></script>
+				$output .= '<script src="http://player.ooyala.com/v3/' . esc_attr( $player_id ) . '?platform=' .$platform . '"></script>
 <div id="playerContainer-' . esc_attr( $sanitized_embed ) . '"></div>
 <script>
 var myPlayer = OO.Player.create("playerContainer-' . esc_attr( $sanitized_embed ) . '", "' . esc_attr( $code ) .'", {
 	width:' . absint( $width ) . ',
 	height:' . absint( $height ) . ',
 	autoplay: "' . esc_attr( $autoplay ) . '",
-	callback: "' . esc_attr( $callback ) . '",
-	wmode: "' . esc_attr( $wmode ) . '",
+	onCreate: function(player) {
+         window.messageBus = player.mb;  // save reference to message bus
+         window.ooyalaPlayer = player;  // save reference to player itself
+       }
 });
 </script>';
 			} else {
