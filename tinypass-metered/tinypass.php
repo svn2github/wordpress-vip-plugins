@@ -5,7 +5,7 @@
   Plugin URI: http://www.tinypass.com
   Description: TinyPass:Metered allows for metered access to your WordPress site
   Author: Tinypass
-  Version: 1.0.8
+  Version: 1.0.9
   Author URI: http://www.tinypass.com
  */
 
@@ -47,6 +47,7 @@ if (is_admin()) {
 add_action('init', 'tinypass_init');
 add_action('wp_enqueue_scripts', 'tinypass_enqueue_scripts');
 add_action('wp_footer', 'tinypass_footer');
+add_shortcode('tinypass_offer', 'tinypass_offer_shortcode');
 
 function tinypass_init() {
 	global $more;
@@ -77,14 +78,34 @@ function tinypass_init() {
 		exit;
 	}
 
-	add_filter('the_content', 'tinypass_intercept_content', 5);
+	//Only execute tinypass if enabled
+	tinypass_include();
+
+	$ss = tinypass_load_settings();
+
+	if ($ss->isEnabled()) {
+		wp_enqueue_script('tpm.js', 'http://code.tinypass.com/tpl/d1/tpm.js');
+		add_filter('the_content', 'tinypass_intercept_content', 5);
+	}
 }
 
 /**
  * Add the js-readon script
  */
 function tinypass_enqueue_scripts() {
-	wp_enqueue_script('tp-readon', TINYPASSS_PLUGIN_PATH . '/js/tp-readon.js', array('jquery'), true, true);
+	wp_enqueue_script('tp-readon', TINYPASSS_PLUGIN_PATH . '/js/tp-readon.js', array('jquery'), true, false);
+	wp_enqueue_script('tp', TINYPASSS_PLUGIN_PATH . '/js/tp.js', array('jquery'), true, false);
+}
+
+/**
+ * Shortcode function for converting [tinypass_subscribe text="Text Link"] into a short code
+ */
+function tinypass_offer_shortcode($attr) {
+	$text = 'Subscribe';
+	if(isset($attr['text']))
+		$text = $attr['text'];
+
+	return '<a href="#" onclick="tpShowOfferCustom();return false;">' . $text . '</a>';
 }
 
 /**
@@ -107,10 +128,6 @@ function tinypass_intercept_content($content) {
 	tinypass_include();
 
 	$ss = tinypass_load_settings();
-
-	//break out if Tinypass is disabled
-	if ($ss->isEnabled() == false)
-		return $content;
 
 	$storage = new TPStorage();
 
@@ -272,15 +289,6 @@ function tinypass_footer() {
     window._tpm['onShowOffer'] = '" . ($tpmeter->on_show_offer ? esc_js($tpmeter->on_show_offer) : '') . "'; 
 		if(window._tpm['sandbox']) window._tpm['host'] = 'sandbox.tinypass.com';
 	
-		 (function () {
-        var _tp = document.createElement('script');
-        _tp.type = 'text/javascript';
-        var _host = window._tpm['host'] ? window._tpm['host'] : 'code.tinypass.com';
-        _tp.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + _host + '/tpl/d1/tpm.js';
-        var s = document.getElementsByTagName('script')[0];
-        s.parentNode.insertBefore(_tp, s);
-    })();
-
 </script>\n\n";
 	}
 }

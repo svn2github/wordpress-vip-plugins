@@ -54,6 +54,34 @@ function tinypass_site_settings() {
 					</div>
 				</div>
 
+				<div class="tp-section">
+					<div class="info">
+						<div class="heading">Other</div>
+						<div class="desc"></div>
+					</div>
+					<div class="body">
+						<div class="postbox">
+							<h3><?php _e('Shortcode') ?> </h3>
+							<div class="inside">
+								<p>
+									A Wordpress <a target="_blank" href="http://codex.wordpress.org/Shortcode">shortcode</a> can be used within posts to generate a link that will open the Tinypass offer popup.
+								</p>
+								<p>
+									The format for this shortcode is:
+								</p>
+									<pre>
+          [tinypass_offer text="Here is my link text"]
+									</pre>
+								<p>
+										where the 'text' attribute is the link text.  The above shortcode example will output the following link
+								</p>
+										<br> <a href="">Here is my link text</a>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
 
 				<div class="clear"></div>
 
