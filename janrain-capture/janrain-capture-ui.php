@@ -272,15 +272,13 @@ BACKPLANE;
 	 * Outputs the Sign in screen
 	 */
 	function sign_in_screen() {
-		if ( ! locate_template( 'janrain-capture-screens/signin.php', true ) )
-			require_once( 'janrain-capture-screens/signin.php' );
+		locate_template( 'janrain-capture-screens/signin.php', true);
 	}
 	
 	/**
 	 * Outputs the Edit Profile in screen
 	 */
 	function edit_screen() {
-		if ( ! locate_template( 'janrain-capture-screens/edit-profile.php', true ) )
-			require_once( 'janrain-capture-screens/edit-profile.php' );
+		locate_template( 'janrain-capture-screens/edit-profile.php', true);
 	}
 }

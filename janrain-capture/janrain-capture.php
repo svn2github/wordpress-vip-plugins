@@ -47,10 +47,8 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 		 * Method used for the janrain_capture_redirect_uri action on admin-ajax.php.
 		 */
 		function redirect_uri() {
-			$r = isset($_SERVER['HTTP_REFERER']) ? esc_url_raw( $_SERVER['HTTP_REFERER'] ) : home_url();
-			if ( ! wp_validate_redirect( $r ) )
-				exit;
-
+			$r = isset($_SERVER['HTTP_REFERER']) ? esc_url_raw($_SERVER['HTTP_REFERER']) : home_url();
+			$r = wp_validate_redirect( $r, home_url() );
 			echo <<<REDIRECT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -109,9 +107,7 @@ REDIRECT;
 			$s = isset($_SERVER['HTTPS']) ? '; secure' : '';
 			$n = self::$name;
 			$r = isset( $_GET['source'] ) ? esc_url_raw( $_GET['source'] ) : home_url();
-			if ( ! wp_validate_redirect( $r ) )
-				exit;
-
+			$r = wp_validate_redirect( $r, home_url() );
 			echo <<<LOGOUT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -122,7 +118,7 @@ REDIRECT;
 	<body>
 	<script type="text/javascript">
 		document.cookie = 'backplane-channel=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/$s';
-		window.location.href = '{$r}';
+		window.location.href = '$r';
 	</script>
 	</body>
 </html>
@@ -155,7 +151,7 @@ LOGOUT;
 						 if(localStorage && localStorage.getItem("janrainCaptureToken")) {
 						 var authLink = document.getElementById("janrain_auth");
 						 authLink.innerHTML = "Log out";
-						 authLink.setAttribute("href", "'. esc_js( admin_url( 'admin-ajax.php?action=janrain_capture_logout&source='.JanrainCaptureUi::current_page_url() ) ).'");
+						 authLink.setAttribute("href", "'.admin_url().'admin-ajax.php?action=janrain_capture_logout&source='.esc_js( JanrainCaptureUi::current_page_url() ).'");
 						 authLink.setAttribute("onclick", "janrain.capture.ui.endCaptureSession()");
 						 }
 					 </script>';
@@ -275,7 +271,8 @@ LOGOUT;
 			if ( is_array( $social_providers ) ) {
 				$rpx_social_icons = '';
 				foreach ( $social_providers as $val ) {
-					$rpx_social_icons .= '<span class="janrain-provider-icon-16 janrain-provider-icon-'. esc_attr( $val ).'" rel="'. esc_attr( $val ).'" onclick="'. esc_attr( $onclick ).'"></span>';
+					$val = esc_js( $val );
+					$rpx_social_icons .= '<span class="janrain-provider-icon-16 janrain-provider-icon-'.$val.'" rel="'.$val.'" onclick="'.$onclick.'"></span>';
 				}
 				$buttons = '<span class="rpx_social_icons">' . $rpx_social_icons . '</span>';
 				return $buttons;
