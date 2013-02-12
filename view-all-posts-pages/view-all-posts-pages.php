@@ -165,7 +165,7 @@ class view_all_posts_pages {
 	 */
 	public function action_the_post( $post ) {
 		if ( $this->is_view_all() ) {
-			global $pages, $more;
+			global $pages, $more, $multipage;
 
 			$post->post_content = str_replace( "\n<!--nextpage-->\n", "\n\n", $post->post_content );
 			$post->post_content = str_replace( "\n<!--nextpage-->", "\n", $post->post_content );
@@ -175,6 +175,7 @@ class view_all_posts_pages {
 			$pages = array( $post->post_content );
 
 			$more = 1;
+			$multipage = 0;
 		}
 	}
 
