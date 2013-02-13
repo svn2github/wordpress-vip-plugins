@@ -117,18 +117,22 @@ class Bitly {
 		
 		// reg our section
 		add_settings_section( 'api', 'API Credentials', '__return_false', 'bitly-options' );
-		
+
+		// Get login/key
+		$login = isset( $this->options['api_login'] ) ? $this->options['api_login'] : '';
+		$key   = isset( $this->options['api_key']   ) ? $this->options['api_key']   : '';
+
 		// create an api login and key field
 		add_settings_field( 'bitly_api_login', 'API Login', array( $this, 'textfield' ), 'bitly-options', 'api', array(
-			'name' => 'bitly_settings[api_login]',
-			'value' => $this->options['api_login'],
+			'name'  => 'bitly_settings[api_login]',
+			'value' => $login,
 		));
-		
+
 		add_settings_field( 'show_lede_dates', 'API Key', array( $this, 'textfield' ), 'bitly-options', 'api', array(
-			'name' => 'bitly_settings[api_key]',
-			'value' => $this->options['api_key'],
+			'name'  => 'bitly_settings[api_key]',
+			'value' => $key,
 		));
-		
+
 		// set our validation callback
 		register_setting( 'bitly_settings', 'bitly_settings', array( $this, 'validate_settings' ) );
 		
