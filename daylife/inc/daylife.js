@@ -18,7 +18,10 @@ jQuery( function($) {
 		var data = {
 			action: 'daylife-image-search',
 			nonce: $('#daylife-search-nonce-field').val(),
-			keyword: $('#daylife-search').val()
+			keyword: $('#daylife-search').val(),
+			sort: $('#daylife-search-by').val(),
+			start_date: $('#daylife-start-date').val(),
+			end_date: $('#daylife-end-date').val()
 		};
 		$.post(ajaxurl, data, function(response) {
 			daylifeUpdateImages(response);

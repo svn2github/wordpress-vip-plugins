@@ -36,11 +36,37 @@ class Daylife_Meta_Box {
 
 	public function render_meta_box() {
 		$daylife = get_option( 'daylife' );
+
+		$start_dates = apply_filters( 'daylife-set-start-dates', array( __( 'last month', 'daylife' ), __( '3 months ago', 'daylife' ), __( '6 months ago', 'daylife' ), __( '1 year ago', 'daylife' ), __( '3 years ago', 'daylife' ) ) );
+		$end_dates = apply_filters( 'daylife-set-end-dates', array( __( 'now', 'daylife' ), __( 'last month', 'daylife' ), __( '3 months ago', 'daylife' ), __( '6 months ago', 'daylife' ), __( '1 year ago', 'daylife' ), __( '3 years ago', 'daylife' ) ) );
+
 		if ( !$daylife['access_key'] || !$daylife['shared_secret'] || !$daylife['api_endpoint'] ) {
 			echo sprintf( __( 'Please enter the API credentials for Daylife on the <a href="%s">settings screen</a>.', 'daylife' ), menu_page_url( 'daylife-options', false ) );
 			return;
 		}
-		?><input type="text" id="daylife-search" name="daylife-search" size="16" value="" class="widefat"><?php
+		?>
+		<label><?php _e( 'Sort by:', 'daylife' ); ?></label>
+		<select name="daylife-search-by" id="daylife-search-by">
+			<option value="relevance"><?php _e( 'Relevance', 'daylife' ); ?></option>
+			<option value="date"><?php _e( 'Date', 'daylife' ); ?></option>
+		</select>
+		<label><?php _e( 'Start Date:', 'daylife' ); ?></label>
+		<select name="daylife-start-date" id="daylife-start-date" class="daylife-date-filter">
+			<?php 
+			foreach ( $start_dates as $start_date ) {
+				echo '<option value="' . esc_attr( strtotime( $start_date ) ) . '">' . esc_html( $start_date ) . '</option>';
+			}
+			?>
+		</select>
+		<label><?php _e( 'End Date:', 'daylife' ); ?></label>
+		<select name="daylife-end-date" id="daylife-end-date" class="daylife-date-filter">
+			<?php 
+			foreach ( $end_dates as $end_date ) {
+				echo '<option value="' . esc_attr( strtotime( $end_date ) ) . '">' . esc_html( $end_date ) . '</option>';
+			}
+			?>
+		</select>
+		<input type="text" id="daylife-search" name="daylife-search" size="16" value="" class="widefat"><?php
 		wp_nonce_field( 'daylife-search-nonce', 'daylife-search-nonce-field' );
 		wp_nonce_field( 'daylife-add-nonce', 'daylife-add-nonce-field' );
 		submit_button( __( 'Search Images', 'daylife' ), 'secondary', 'daylife-search-button', false );
@@ -73,8 +99,17 @@ class Daylife_Meta_Box {
 		require_once( dirname( __FILE__ ) . '/class-wp-daylife-api.php' );
 		$daylife = new WP_Daylife_API( get_option( 'daylife' ) );
 		$page = isset( $_POST['daylife_page'] ) ? absint( $_POST['daylife_page'] ) : 0;
-
+		
 		$args = array( 'offset' => 8 * $page );
+		if ( isset( $_POST['end_date'] ) ) {
+			$args['end_time'] = absint( $_POST['end_date'] );
+		}
+		if ( isset( $_POST['start_date'] ) ) {
+			$args['start_time'] = absint( $_POST['start_date'] );
+		}
+		if ( isset( $_POST['sort'] ) && in_array( $_POST['sort'], array( 'relevance', 'date' ) ) ) {
+			$args['sort'] = sanitize_text_field( $_POST['sort'] );
+		}
 		if ( isset( $_POST['keyword'] ) ) {
 			$args['query'] = sanitize_text_field( $_POST['keyword'] );
 			$images = $daylife->search_getRelatedImages( $args );
@@ -257,10 +292,13 @@ class Daylife_Meta_Box {
 		}
 		$_POST = stripslashes_deep( $_POST );
 
-		$width = absint( $_POST['width'] * 3 );
-		$height = absint( $_POST['height'] * 3 );
+		// Rather than making this an option we'll add a filter as it's harder to override
+		$image_multiplier = apply_filters( 'daylife-height-width-multiplier', 3 );
+
+		$width = absint( $_POST['width'] * $image_multiplier );
+		$height = absint( $_POST['height'] * $image_multiplier );
 		if ( ! $width || ! $height )
-			$width = $height = 600;
+			$width = $height = apply_filters( 'daylife-max-height-width', 600 ) ;
 		$url = str_replace( '/45x45.jpg', "/{$width}x{$height}.jpg", esc_url_raw( $_POST['thumb_url'] ) );
 		$attachment_id = $this->media_sideload_image_get_id( $url, absint( $_POST['post_id'] ), sanitize_text_field( $_POST['image_title'] ) );
 
