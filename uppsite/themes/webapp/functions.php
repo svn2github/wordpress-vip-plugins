@@ -309,6 +309,8 @@ function uppsite_get_webapp_page($template) {
         call_user_func('uppsite_func_' . UPPSITE_AJAX);
         return null;
     }
+    // Responses are json, tell the browser that.
+    header("Content-Type: application/json");
     $page = TEMPLATEPATH . "/" . UPPSITE_AJAX . "-ajax.php";
     if (!file_exists($page)) {
         $page = TEMPLATEPATH . "/index-ajax.php";
@@ -408,6 +410,33 @@ function uppsite_func_create_quick_post() {
         ));
     }
     exit;
+}
+
+/**
+ * Retrives the supported list types for the webapps.
+ * Currently supported:
+ *  - ffull_rtitle (First full, rest title)
+ *  - excerpt (Excerpt)
+ *  - title ("Titles")
+ *
+ * @return string   The posts list view type that webapp is expecting (Default - excerpt)
+ */
+function uppsite_webapp_posts_list_view() {
+    $postsList = mysiteapp_get_prefs_value('posts_list_view', 'excerpt');
+    $listType = null;
+    switch ($postsList) {
+        case "ffull_rtitle":
+            $listType = "ffullrtitlelist";
+            break;
+        case "title":
+            $listType = "titlelist";
+            break;
+        case "excerpt":
+        default:
+            $listType = "excerptlist";
+            break;
+    }
+    return $listType;
 }
 
 /**

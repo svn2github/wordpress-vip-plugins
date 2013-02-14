@@ -8,6 +8,7 @@ $has_homepage &= MySiteAppPlugin::detect_specific_os() != "android"; // Homepage
 $navbar_img = mysiteapp_get_prefs_value('navbar_background_url', '');
 $direction = mysiteapp_get_prefs_value('direction', 'ltr');
 $hideMenus = mysiteapp_get_prefs_value('hide_menus', '[]');
+
 $add_to_contacts = mysiteapp_get_options_value(MYSITEAPP_OPTIONS_BUSINESS, 'add_to_contacts', 'true') == 'true' ? 'true' : 'false';
 
 $cacheBuster = mysiteapp_get_prefs_value('last_update', 0);
@@ -51,6 +52,7 @@ $cacheBuster = mysiteapp_get_prefs_value('last_update', 0);
         var UPPSITE_HOMEPAGE_CAROUSEL_TIMER = <?php echo mysiteapp_homepage_carousel_rotate_interval() ?>;
         var UPPSITE_IS_BUSINESS = <?php echo uppsite_webapp_bool_to_str($isBusiness) ?>;
         var UPPSITE_HIDE_MENUS  = <?php echo $hideMenus; ?>;
+        var UPPSITE_POSTS_LIST_VIEW = "<?php echo uppsite_webapp_posts_list_view(); ?>";
         var UPPSITE_CUR_URL = "<?php echo esc_js( home_url( '/' ) ) ?>";
         var UPPSITE_ADD_TO_CONTACTS = <?php echo $add_to_contacts ?>;
         var UPPSITE_COOKIE_PATH = "<?php echo COOKIEPATH ?>";

@@ -47,7 +47,7 @@ class UppSiteBusinessDataMiner {
     public function build_site_info($force = false) {
         $this->_search_contact_info();
 
-        $bizInfo = get_option(MYSITEAPP_OPTIONS_BUSINESS);
+        $bizInfo = get_option(MYSITEAPP_OPTIONS_BUSINESS, array());
         $bizInfo['title'] = get_bloginfo('name');
         $bizInfo['description'] = get_bloginfo('description');
         $bizInfo['contact_phone'] = empty($this->current_info['phone']) && !empty($this->current_info['phone_weak']) ?
@@ -92,23 +92,16 @@ class UppSiteBusinessDataMiner {
      * @return string|null  the front page html, or null if couldn't fetch it.
      */
     private function get_front_page() {
-	if ( ! is_null( $this->front_page ) ) {
+        if (!is_null($this->front_page)) {
             return $this->front_page;
         }
 
-	$front_page = get_transient( 'uppsite_business_front_page' );
-	if ( false === $front_page ) {
-		$response = wp_remote_get( home_url() );
-		if ( is_wp_error( $response ) ) {
-			$this->front_page = '';
-		} else {
-			$front_page = $response['body'];
-		}
-		set_transient( 'uppsite_business_front_page', $front_page );
-	}
-	$this->front_page = $front_page;
-
-	return $this->front_page;
+        $response = wp_remote_get( add_query_arg( 'uppsite_is_miner', '1', home_url() ) );
+        if ( is_wp_error( $response ) ) {
+            return null;
+        }
+        $this->front_page = $response['body'];
+        return $this->front_page;
     }
 
     /**
@@ -300,7 +293,9 @@ function uppsite_miner_run($arg = null) {
     $bizOptions = get_option(MYSITEAPP_OPTIONS_BUSINESS);
     $shouldRun = empty($bizOptions) || count($bizOptions) == 0; // Run if no business data
 
-    if ($force || $shouldRun) {
+    $shouldntRun = isset($_REQUEST['uppsite_is_miner']);
+
+    if (!$shouldntRun && ($force || $shouldRun)) {
         $uppsiteMiner = new UppSiteBusinessDataMiner();
         $uppsiteMiner->build_site_info($force);
     }

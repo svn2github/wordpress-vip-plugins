@@ -4,14 +4,14 @@
  Plugin URI: http://www.uppsite.com/features/
  Description: UppSite is the best way to make your site mobile. Here is how you get started: 1) Activate your plugin by clicking the "Activate" link to the left of this description, and 2) Configure your mobile apps by visiting the Mobile tab under Settings (tab will show only after plugin is activated). Go Mobile&#0153; <strong>**** DISABLING THIS PLUGIN MAY PREVENT YOUR USERS FROM ACCESSING YOUR MOBILE APPS! ****</strong>
  Author: UppSite
- Version: 5.1
+ Version: 5.1.1
  Author URI: https://www.uppsite.com
  */
 
 if (!defined('MYSITEAPP_AGENT')):
 
 /** Plugin version **/
-define('MYSITEAPP_PLUGIN_VERSION', '5.1');
+define('MYSITEAPP_PLUGIN_VERSION', '5.1.1');
 
 /** Theme name in cookie **/
 define('MYSITEAPP_WEBAPP_PREF_THEME', 'uppsite_theme_select');
@@ -969,8 +969,8 @@ function uppsite_api_values_set() {
  * @return bool Whether push control is available for this site or not.
  */
 function uppsite_push_control_enabled() {
-	$options = get_option(MYSITEAPP_OPTIONS_OPTS, array());
-	return isset($options['push_control']) && $options['push_control'] == '1';
+    $options = get_option(MYSITEAPP_OPTIONS_OPTS, array());
+    return isset($options['push_control']) && $options['push_control'] == '1';
 }
 
 /**
