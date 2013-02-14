@@ -3,7 +3,7 @@ Contributors: danielbachhuber, nofearinc, automattic
 Tags: feedback, documentation
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag: 1.1
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,10 @@ Here's the low-down on how you can get up and running:
 There aren't any frequently asked questions yet. Why not [ask one in the forums](http://wordpress.org/support/plugin/document-feedback)?
 
 == Changelog ==
+
+= 1.2 (Jan. 29, 2013) =
+* New Bulgarian localization. Thanks [mpeshev](https://github.com/mpeshev)
+* New Italian localization. Thanks [milesimarco](https://github.com/milesimarco)
 
 = 1.1 (Jan. 8, 2013) =
 * New Turkish localization. Thanks [mustafauysal](https://github.com/mustafauysal).
