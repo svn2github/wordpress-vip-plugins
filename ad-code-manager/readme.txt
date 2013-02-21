@@ -2,7 +2,7 @@
 Contributors: rinatkhaziev, jeremyfelt, zztimur, danielbachhuber, automattic, doejo
 Tags: advertising, ad codes, ads, adsense, dfp, doubleclick for publishers
 Requires at least: 3.1
-Tested up to: 3.4.2
+Tested up to: 3.5.1
 Stable tag: 0.3
 
 Manage your ad codes through the WordPress admin in a safe and easy way.
@@ -312,7 +312,8 @@ Flush the cache when adding or deleting ad codes, and set priority of 10 when a 
 
 == Changelog ==
 
-= 0.3.1 (???? ??, 2012) =
+= 0.4 (???? ??, 2013) =
+* Streamlined configuration for Doubleclick for Publishers Async
 * New filter 'acm_output_html_after_tokens_processed' for rare cases where you might want to filter html after the tokens are processed
 
 = 0.3 (October 25, 2012) =
