@@ -217,6 +217,10 @@ if (!class_exists('AdvancedExcerpt')):
 
           $text = $text . $ellipsis;
         }
+
+	  // Maybe add links to excerpts that aren't auto-generated
+      } elseif ( ( 1 == $add_link ) && apply_filters( 'ae_force_read_more_link', false ) ) {
+		$text = $text . sprintf( ' <a href="%s" class="read_more">%s</a>', get_permalink(), $read_more );
       }
 
       return $text;
@@ -259,10 +263,10 @@ if (!class_exists('AdvancedExcerpt')):
     function update_options()
     {
       $length       = (int) $_POST[$this->name . '_length'];
-      $use_words    = ('on' == $_POST[$this->name . '_use_words']) ? 1 : 0;
-      $no_custom    = ('on' == $_POST[$this->name . '_no_custom']) ? 1 : 0;
-      $no_shortcode = ('on' == $_POST[$this->name . '_no_shortcode']) ? 1 : 0;
-      $add_link     = ('on' == $_POST[$this->name . '_add_link']) ? 1 : 0;
+      $use_words    = ( isset( $_POST[$this->name . '_use_words']    ) && 'on' == $_POST[$this->name . '_use_words']    ) ? 1 : 0;
+      $no_custom    = ( isset( $_POST[$this->name . '_no_custom']    ) && 'on' == $_POST[$this->name . '_no_custom']    ) ? 1 : 0;
+      $no_shortcode = ( isset( $_POST[$this->name . '_no_shortcode'] ) && 'on' == $_POST[$this->name . '_no_shortcode'] ) ? 1 : 0;
+      $add_link     = ( isset( $_POST[$this->name . '_add_link']     ) && 'on' == $_POST[$this->name . '_add_link']     ) ? 1 : 0;
 
       $ellipsis  = (get_magic_quotes_gpc() == 1) ? stripslashes($_POST[$this->name . '_ellipsis']) : $_POST[$this->name . '_ellipsis'];
       $read_more = (get_magic_quotes_gpc() == 1) ? stripslashes($_POST[$this->name . '_read_more']) : $_POST[$this->name . '_read_more'];
@@ -353,7 +357,7 @@ if (!class_exists('AdvancedExcerpt')):
                     <input name="<?php echo $this->name; ?>_add_link" type="checkbox"
                            id="<?php echo $this->name; ?>_add_link" value="on" <?php
                            echo (1 == $add_link) ? 'checked="checked" ' : ''; ?>/>
-                           <?php _e("Add link to excerpt", $this->text_domain); ?>
+                           <?php _e("Add link to all excerpts", $this->text_domain); ?>
                 </td>
             </tr>
             <tr valign="top">
