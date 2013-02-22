@@ -4,7 +4,7 @@ Plugin Name: Edit Flow
 Plugin URI: http://editflow.org/
 Description: Remixing the WordPress admin for better editorial workflow options.
 Author: Daniel Bachhuber, Scott Bressler, Mohammad Jangda, Automattic, and others
-Version: 0.7.6
+Version: 0.8-alpha
 Author URI: http://editflow.org/
 
 Copyright 2009-2012 Mohammad Jangda, Daniel Bachhuber, et al.
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define contants
-define( 'EDIT_FLOW_VERSION' , '0.7.6' );
+define( 'EDIT_FLOW_VERSION' , '0.8-alpha' );
 define( 'EDIT_FLOW_ROOT' , dirname(__FILE__) );
 define( 'EDIT_FLOW_FILE_PATH' , EDIT_FLOW_ROOT . '/' . basename(__FILE__) );
 define( 'EDIT_FLOW_URL' , plugins_url( '/', __FILE__ ) );
@@ -339,6 +339,24 @@ class edit_flow {
 		global $wp_scripts;
 		if ( !isset( $wp_scripts->registered['jquery-ui-datepicker'] ) )
 			wp_register_script( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/js/jquery.ui.datepicker.min.js', array( 'jquery', 'jquery-ui-core'), '1.8.16', true );		
+	}
+
+	/**
+	 * Gets the name of the default custom status. If custom statuses are disabled,
+	 * returns 'draft'.
+	 * 
+	 * @return str Name of the status
+	 */
+	function get_default_post_status(){
+
+		// Check if custom status module is enabled
+		$custom_status_module = $this->custom_status->module->options;
+		
+		if( $custom_status_module->enabled == 'on' )
+			return $custom_status_module->default_status;
+		else
+			return 'draft';
+
 	}
 
 }
