@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // the config values below should be set in paged-comments-config.php.
 // the values below will only be used if paged-comments-config.php does not exist.
+$paged_comments = new stdClass;
 $paged_comments->all_posts = true;
 $paged_comments->all_pages = true;
 $paged_comments->per_page = 10;
