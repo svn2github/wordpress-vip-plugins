@@ -93,16 +93,19 @@ class WPCOM_Geo_Uniques {
 		if ( isset( $user_location ) )
 			return $user_location;
 
+		if ( ! self::user_has_location() )
+			return static::$default_location;
+
 		$checks = array();
 		foreach ( static::$supported_locations as $location ) {
 			$checks[] = sprintf(
-				'( "%1$s" == $_COOKIE["%2$s"] ) return "%1$s";',
+				'( "%1$s" == $_COOKIE[ "%2$s" ] ) return "%1$s";',
 				$location,
 				static::COOKIE_NAME
 			);
 		}
 
-		$test = sprintf( 'if %s', implode( 'elseif', $checks ) );
+		$test = sprintf( 'if %s', implode( ' elseif ', $checks ) );
 		$test .= sprintf( ' else return "%s";', static::$default_location );
 
 		$user_location = static::run_vary_cache_on_function( $test );
@@ -110,7 +113,7 @@ class WPCOM_Geo_Uniques {
 	}
 
 	static function user_has_location() {
-		return static::run_vary_cache_on_function( 'return isset( $_COOKIE["' . self::COOKIE_NAME . '"] );' );
+		return static::run_vary_cache_on_function( 'return isset( $_COOKIE[ "' . self::COOKIE_NAME . '" ] );' );
 	}
 
 	private static function ip2location( $location_type = 'country_short' ) {
