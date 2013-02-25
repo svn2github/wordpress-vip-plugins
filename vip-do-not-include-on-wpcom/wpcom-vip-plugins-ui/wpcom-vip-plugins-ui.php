@@ -152,6 +152,7 @@ class WPcom_VIP_Plugins_UI {
 			'five-min-video-suggest',
 
 			// deprecated
+			'breadcrumb-navxt', // use the newer version instead
 			'livefyre', // use livefyre3 instead
 			'feedwordpress', // breaks all the time
 			'wordtwit-1.3-mod', // use publicize
