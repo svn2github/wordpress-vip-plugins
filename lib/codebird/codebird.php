@@ -734,7 +734,6 @@ class Codebird
 
     protected function _callApi($httpmethod, $method, $method_template, $params = array(), $multipart = false)
     {
-var_dump(' Running Codebird::_callApi ');
         if (! function_exists('curl_init')) {
             throw new Exception('To make API requests, the PHP curl extension must be available.');
         }
@@ -785,7 +784,6 @@ var_dump(' Running Codebird::_callApi ');
      */
     protected function _parseApiReply($method, $reply)
     {
-var_dump(' Running Codebird::_parseApiReply ');
         // split headers and body
         $headers = array();
         $reply = explode("\r\n\r\n", $reply, 2);
