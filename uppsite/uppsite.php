@@ -1262,7 +1262,7 @@ add_action('publish_future_post', 'mysiteapp_future_post_push', 10, 1);
 /** Append smart banners to the header */
 add_action('wp_head', 'mysiteapp_append_native_link');
 /** Leverage pre_get_posts to save the main query be called for nothing. */
-add_action('pre_get_posts', 'uppsite_pre_get_posts');
+add_action('pre_get_posts', 'uppsite_pre_get_posts', 99999); // Run at the latest priority, so no one will overide 'posts_per_page'
 /** Filter 'get_option(show_on_front)' */
 add_filter('option_show_on_front', 'uppsite_filter_show_on_front');
 /** Nonce verification related */
