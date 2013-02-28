@@ -81,6 +81,7 @@ function flush_jl_cat_posts_widget( $post_id ) {
 }
 	
 add_action('save_post', 'flush_jl_cat_posts_widget');
+add_action( 'update_option_widget_cat_posts', 'flush_jl_cat_posts_widget' );
 add_action('deleted_post', 'flush_jl_cat_posts_widget');
 
 // Displays form for a particular instance of the widget.  Also updates the data after a POST submit
