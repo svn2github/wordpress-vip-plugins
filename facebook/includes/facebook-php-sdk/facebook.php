@@ -47,9 +47,13 @@ class WP_Facebook extends WP_BaseFacebook
    * @see WP_BaseFacebook::__construct in facebook.php
    */
   public function __construct($config) {
+/*
+// VIP: removed; sessions aren't reliable on multi-server environments
+// see https://github.com/facebook/wordpress/issues/138
     if (!session_id()) {
       session_start();
     }
+*/
     parent::__construct($config);
     if (!empty($config['sharedSession'])) {
       $this->initSharedSession();
