@@ -7,6 +7,9 @@ jQuery(function () {
 				url: url,
 				success: function(data) {
 					jQuery('#slot-' + id).html(data).slideToggle("slow");
+					if(jQuery.isFunction(window.onReadOnLoadSuccess)){
+						window.onReadOnLoadSuccess(readOnLink);				
+					}
 				}	
 			});
 		}else {

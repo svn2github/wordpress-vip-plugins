@@ -9,6 +9,7 @@ require_once dirname(__FILE__) . '/tinypass-site-settings.php';
 require_once dirname(__FILE__) . '/tinypass-form.php';
 include_once dirname(__FILE__) . '/tinymce/plugin.php';
 require_once dirname(__FILE__) . '/tinypass-install.php';
+require_once dirname(__FILE__) . '/tinypass-page-options.php';
 
 add_action("admin_menu", 'tinypass_add_admin_pages');
 

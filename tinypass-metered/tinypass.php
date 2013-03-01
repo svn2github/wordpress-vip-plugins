@@ -102,7 +102,7 @@ function tinypass_enqueue_scripts() {
  */
 function tinypass_offer_shortcode($attr) {
 	$text = 'Subscribe';
-	if(isset($attr['text']))
+	if (isset($attr['text']))
 		$text = $attr['text'];
 
 	return '<a href="#" onclick="tpShowOfferCustom();return false;">' . $text . '</a>';
@@ -131,6 +131,12 @@ function tinypass_intercept_content($content) {
 
 	$storage = new TPStorage();
 
+	//Load the page
+	$ps = null;
+	if ($post->post_type == 'page') {
+		$ps = $storage->getPostSettings($post->ID);
+	}
+
 	//or non-subscribers metered should be ignored
 	$tpmeter->embed_meter = true;
 
@@ -146,6 +152,8 @@ function tinypass_intercept_content($content) {
 
 	if (is_home()) {
 		$tpmeter->track_page_view = $pwOptions->isTrackHomePage();
+	} else if ($ps != null && $ps->isEnabled()) {
+		$tpmeter->track_page_view = true;
 	} else {
 		//check if current post is tagged for restriction
 		$post_terms = get_the_tags($post->ID);
@@ -162,7 +170,7 @@ function tinypass_intercept_content($content) {
 	$tpmeter->paywall_id = $pwOptions->getPaywallID($ss->isProd());
 	$tpmeter->sandbox = $ss->isSand();
 
-	if (is_home() && ($pwOptions->isReadOnEnabled())) {
+	if ((is_category() || is_home()) && $pwOptions->isReadOnEnabled()) {
 		$c = tinypass_split_excerpt_and_body($post->post_content, false);
 
 		$content = $c['excerpt'];
