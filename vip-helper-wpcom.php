@@ -425,8 +425,8 @@ function wpcom_vip_enable_opengraph() {
 	add_action( 'template_redirect', '_wpcom_vip_disable_fb_plugin_opengraph' ); 
 }
 function _wpcom_vip_disable_fb_plugin_opengraph() {
-	if ( function_exists( 'fb_add_og_protocol' ) )
-		remove_action( 'wp_head', 'fb_add_og_protocol' );
+	if( method_exists( 'Facebook_Open_Graph_Protocol', 'add_og_protocol' ) )
+		remove_action( 'wp_head', array( 'Facebook_Open_Graph_Protocol', 'add_og_protocol' ) );
 }
 
 /**
