@@ -248,8 +248,8 @@ class WPCOM_Related_Posts {
 					'name'                => parse_url( site_url(), PHP_URL_HOST ),
 					'size'                => (int)$args['posts_per_page'] + 1,
 				);
+			$filters = array();
 			if ( ! empty( $args['has_terms'] ) ) {
-				$filters = array();
 				foreach( (array)$args['has_terms'] as $term ) {
 					switch ( $term->taxonomy ) {
 						case 'post_tag':
@@ -264,13 +264,22 @@ class WPCOM_Related_Posts {
 					}
 					$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
 				}
-				$es_args['filters'] = array( 'and' => $filters );
 			}
+			$valid_post_types = get_post_types();
 			if ( is_array( $args['post_type'] ) ) {
-				// @todo support for a set of post types
-			} else if ( in_array( $args['post_type'], get_post_types() ) && 'all' != $args['post_type'] ) {
-				$es_args['filters']['type']['value'] = $args['post_type'];
+				$sanitized_post_types = array();
+				foreach ( $args['post_type'] as $pt ) {
+					if ( in_array( $pt, $valid_post_types ) )
+						$sanitized_post_types[] = $pt;
+				}
+				if ( ! empty( $sanitized_post_types ) )
+					$filters = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
+			} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
+				$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
 			}
+			if ( ! empty( $filters ) )
+				$es_args['filters'] = array( 'and' => $filters );
+
 			$es_args = apply_filters( 'wrp_es_api_search_index_args', $es_args, $current_post );
 			$related_es_query = es_api_search_index( $es_args, 'related-posts' );
 			$related_posts = array();
