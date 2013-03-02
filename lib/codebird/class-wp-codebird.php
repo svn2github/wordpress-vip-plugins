@@ -4,7 +4,7 @@
  * An extension of the Codebird class to use Wordpress' HTTP API instead of
  * cURL.
  *
- * @version 1.0.0
+ * @version 1.0.1
  */
 class WP_Codebird extends Codebird {
 	/**
@@ -41,7 +41,7 @@ class WP_Codebird extends Codebird {
 	 */
 	protected function _callApi($httpmethod, $method, $method_template, $params = array(), $multipart = false) {
 		$url = $this->_getEndpoint( $method, $method_template );
-		$params = array(
+		$remote_params = array(
 			'method' => 'GET',
 			'timeout' => 5,
 			'redirection' => 5,
@@ -55,7 +55,7 @@ class WP_Codebird extends Codebird {
 
 		if ($httpmethod == 'GET') {
 			$signed = $this->_sign( $httpmethod, $url, $params );
-			$reply = wp_remote_get( $signed, $params );
+			$reply = wp_remote_get( $signed, $remote_params );
 		} else {
 			if ( $multipart ) {
 				$authorization = $this->_sign( 'POST', $url, array(), true );
@@ -69,7 +69,7 @@ class WP_Codebird extends Codebird {
 				$headers = array( $authorization, 'Expect:' );
 			}
 
-			$params = array(
+			$remote_params = array(
 				'method' => 'POST',
 				'timeout' => 5,
 				'redirection' => 5,
@@ -81,7 +81,7 @@ class WP_Codebird extends Codebird {
 				'sslverify' => false
 			);
 
-			$reply = wp_remote_post( $url, $params );
+			$reply = wp_remote_post( $url, $remote_params );
 		}
 
 		if ( isset( $reply ) ) {
