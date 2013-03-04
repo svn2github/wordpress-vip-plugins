@@ -303,7 +303,7 @@ class Daylife_Meta_Box {
 		$attachment_id = $this->media_sideload_image_get_id( $url, absint( $_POST['post_id'] ), sanitize_text_field( $_POST['image_title'] ) );
 
 		// Set caption to caption + credit
-		$excerpt = wp_kses_post( $_POST['caption'] ) . "<br /><br />Credit: " . wp_kses_post( $_POST['credit'] );
+		$excerpt = apply_filters( 'daylife-caption-credit', wp_kses_post( $_POST['caption'] ) . " " . wp_kses_post( $_POST['credit'] ) );
 
 		/**
 		 * If HTML captions aren't supported, strip the HTML
@@ -316,9 +316,7 @@ class Daylife_Meta_Box {
 		$attachment = get_post( $attachment_id, ARRAY_A );
 		$attachment['image-size'] = 'full';
 		$attachment['url'] = '';//$_POST['daylife_url'];
-		add_filter( 'image_add_caption_shortcode', array( $this, 'image_add_caption_shortcode' ), null, 2 );
 		$to_editor = image_media_send_to_editor( wp_get_attachment_url( $attachment_id ), $attachment_id, $attachment );
-		remove_filter( 'image_add_caption_shortcode', array( $this, 'image_add_caption_shortcode' ), null, 2 );
 		echo $to_editor;
 		die;
 	}
