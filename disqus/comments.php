@@ -33,6 +33,7 @@ function dsq_render_single_comment( $comment, $args, $depth ) {
 			) );
 			?>
 		</ul>
+		<?php paginate_comments_links(); ?>
 	</div>
 </div>
 		
