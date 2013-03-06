@@ -4,10 +4,10 @@ This plugins is still in beta. Want to try it? Contact us. :)
 
 **************************************************************************
 
-P lugin Name: WordPress.com VIP Search
-D escription: Replaces WordPress's core front-end search functionality with one powered by <a href="http://www.elasticsearch.org/">elasticsearch</a>.
-A uthor:      Automattic
-A uthor URI:  http://automattic.com/
+Plugin Name: WordPress.com VIP Search Add-On
+Description: Super-charged search with faceting, powered by ElasticSearch technology.
+Author:      Automattic
+Author URI:  http://automattic.com/
 
 **************************************************************************
 
@@ -68,6 +68,11 @@ class WPCOM_elasticsearch {
 		if ( ! function_exists( 'es_api_search_index' ) )
 			return;
 
+		if ( is_admin() && ! es_api_get_index( parse_url( site_url(), PHP_URL_HOST ), get_current_blog_id() ) ) {
+			add_action( 'admin_notices', array( $this, 'admin_notice_no_index' ) );
+			return;
+		}
+
 		add_action( 'widgets_init', array( $this, 'action__widgets_init' ) );
 
 		if ( ! is_admin() ) {
@@ -86,6 +91,10 @@ class WPCOM_elasticsearch {
 			// Since the FOUND_ROWS() query was nuked, we need to supply the total number of found posts
 			add_filter( 'found_posts', array( $this, 'filter__found_posts' ), 5, 2 );
 		}
+	}
+
+	public function admin_notice_no_index() {
+		echo '<div class="error"><p>' . __( 'WordPress.com VIP Search Add-On needs a little extra configuration behind the scenes. Please contact support to make it happen.' ) . '</p></div>';
 	}
 
 	public function action__widgets_init() {
@@ -547,7 +556,6 @@ class WPCOM_elasticsearch {
 function WPCOM_elasticsearch() {
 	return WPCOM_elasticsearch::instance();
 }
-
-add_action( 'after_setup_theme', 'WPCOM_elasticsearch' );
+WPCOM_elasticsearch();
 
 ?>
