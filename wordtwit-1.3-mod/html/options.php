@@ -52,7 +52,7 @@ function showshortenersettings() {
          </div>
          
          <div class="editable-area">         
-            <form method="post" action="<?php echo $_SERVER['REQUEST_URI']; ?>">
+            <form method="post" action="<?php echo esc_attr( $_SERVER['REQUEST_URI'] ); ?>">
                <table class="form-table" cols="2">
                	<tr>
                		<th>Authorization</th>
