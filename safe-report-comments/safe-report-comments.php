@@ -5,7 +5,7 @@ Plugin Script: safe-report-comments.php
 Plugin URI: http://wordpress.org/extend/plugins/safe-report-comments/
 Description: This script gives visitors the possibility to flag/report a comment as inapproriate. 
 After reaching a threshold the comment is moved to moderation. If a comment is approved once by a moderator future reports will be ignored.
-Version: 0.3.1
+Version: 0.3.2
 Author: Thorsten Ott, Daniel Bachhuber, Automattic
 Author URI: http://automattic.com
 */
@@ -248,6 +248,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 * Check if this comment was flagged by the user before
 		 */
 		public function already_flagged( $comment_id ) {		
+
 			// check if cookies are enabled and use cookie store
 			if( isset( $_COOKIE[ TEST_COOKIE ] ) ) {
 				if ( isset( $_COOKIE[ $this->_storagecookie ] ) ) {
@@ -281,12 +282,16 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			if( isset( $_COOKIE[ TEST_COOKIE ] ) ) {
 				if ( isset( $_COOKIE[ $this->_storagecookie ] ) ) {
 					$data = $this->unserialize_cookie( $_COOKIE[ $this->_storagecookie ] );
+					if ( ! isset( $data[ $comment_id ] ) )
+						$data[ $comment_id ] = 0;
 					$data[ $comment_id ]++;
 					$cookie = $this->serialize_cookie( $data );
 					@setcookie( $this->_storagecookie, $cookie, time()+$this->cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
 					if ( SITECOOKIEPATH != COOKIEPATH )
 						@setcookie( $this->_storagecookie, $cookie, time()+$this->cookie_lifetime, SITECOOKIEPATH, COOKIE_DOMAIN);
 				} else {
+					if ( ! isset( $data[ $comment_id ] ) )
+						$data[ $comment_id ] = 0;
 					$data[ $comment_id ]++;
 					$cookie = $this->serialize_cookie( $data );
 					@setcookie( $this->_storagecookie, $cookie, time()+$this->cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
@@ -314,7 +319,9 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 			$already_reported = get_comment_meta( $comment_id, $this->_plugin_prefix . '_reported', true );
 			$already_moderated = get_comment_meta( $comment_id, $this->_plugin_prefix . '_moderated', true );
 			if ( true == $already_reported && true == $already_moderated ) {
-				return;
+				// But maybe the boss wants to allow comments to be reflagged
+				if ( ! apply_filters( 'safe_report_comments_allow_moderated_to_be_reflagged', false ) ) 
+					return;
 			}
 
 			if ( $current_reports >= $threshold ) {
@@ -327,7 +334,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 * Die() with or without screen based on JS availability
 		 */
 		private function cond_die( $message ) {
-			if ( true == (boolean) $_REQUEST['no_js'] )
+			if ( isset( $_REQUEST['no_js'] ) && true == (boolean) $_REQUEST['no_js'] )
 				wp_die( __( $message ), "Safe Report Comments Notice", array('response' => 200 ) );
 			else
 				die( __( $message ) );
