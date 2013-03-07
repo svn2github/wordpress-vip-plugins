@@ -3,7 +3,7 @@
 Plugin Name: Zone Manager (Zoninator)
 Description: Curation made easy! Create "zones" then add and order your content!
 Author: Mohammad Jangda, Automattic
-Version: 0.4
+Version: 0.5
 Author URI: http://vip.wordpress.com
 
 Copyright 2010-2012 Mohammad Jangda, Automattic
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 if( ! class_exists( 'Zoninator' ) ) :
 
-define( 'ZONINATOR_VERSION', '0.4' );
+define( 'ZONINATOR_VERSION', '0.5' );
 define( 'ZONINATOR_PATH', dirname( __FILE__ ) );
 define( 'ZONINATOR_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
 
@@ -115,6 +115,8 @@ class Zoninator
 		add_action( 'wp_ajax_zoninator_remove_post', array( $this, 'ajax_remove_post' ) );
 		add_action( 'wp_ajax_zoninator_search_posts', array( $this, 'ajax_search_posts' ) );
 		add_action( 'wp_ajax_zoninator_update_lock', array( $this, 'ajax_update_lock' ) );
+		add_action( 'wp_ajax_zoninator_update_recent', array( $this, 'ajax_recent_posts' ) );
+
 	}
 	
 	function admin_init() {
@@ -418,7 +420,9 @@ class Zoninator
 					<div class="zone-posts-wrapper <?php echo ! $this->_current_user_can_manage_zones( $zone_id ) || $zone_locked ? 'readonly' : ''; ?>">
 						<?php if( $zone_id ) : ?>
 							<h3><?php _e( 'Zone Content', 'zoninator' ); ?></h3>
-						
+
+							<?php $this->zone_advanced_search_filters(); ?>					
+	
 							<?php $this->zone_admin_recent_posts_dropdown( $zone_id ); ?>
 							
 							<?php $this->zone_admin_search_form(); ?>
@@ -488,6 +492,108 @@ class Zoninator
 		<?php
 	}
 
+	function zone_advanced_search_filters() {
+
+		$current_cat = $this->_get_post_var( 'zone_advanced_filter_taxonomy', '', 'absint' );
+		$current_date = $this->_get_post_var( 'zone_advanced_filter_date', '', 'striptags' );
+
+		?>
+		<div class="zone-advanced-search-filters-heading">
+			<span class="zone-toggle-advanced-search" data-alt-label="<?php esc_attr_e( 'Hide', 'zoninator' ); ?>"><?php _e( 'Show Filters', 'zoninator' ); ?></span>
+		</div>
+		<div class="zone-advanced-search-filters-wrapper">
+			<label for="zone_advanced_filter_taxonomy"><?php _e( 'Filter:', 'zoninator' ); ?></label>
+
+			<?php
+			wp_dropdown_categories( apply_filters( 'zoninator_advanced_filter_category', array(
+				'show_option_all' =>  __( 'Show all Categories', 'zoninator' ),
+				'selected' => $current_cat,
+				'name' => 'zone_advanced_filter_taxonomy',
+				'id' => 'zone_advanced_filter_taxonomy',
+				'hide_if_empty' => true,
+			) ) );
+
+			$date_filters = apply_filters( 'zoninator_advanced_filter_date', array( 'all', 'today', 'yesterday') );
+			?>
+			<select name="zone_advanced_filter_date" id="zone_advanced_filter_date">
+				<?php
+				// Convert string dates into actual dates
+				foreach( $date_filters as $date ) :
+					$timestamp = strtotime( $date );
+					$output = ( $timestamp ) ? date( 'Y-m-d', $timestamp ) : 0;
+					echo sprintf( '<option value="%s" %s>%s</option>', esc_attr( $output ), selected( $output, $current_date, false ), esc_html( $date ) );
+				endforeach;
+				?>
+			</select>
+		</div>
+		<?php
+	}
+
+	function ajax_recent_posts() {
+
+		$cat = $this->_get_post_var( 'cat', '', 'absint' );
+		$date = $this->_get_post_var( 'date', '', 'striptags' );
+		$zone_id = $this->_get_post_var( 'zone_id', 0, 'absint' );	
+
+		$limit = $this->posts_per_page;
+		$post_types = $this->get_supported_post_types();
+		$zone_posts = $this->get_zone_posts( $zone_id );
+		$zone_post_ids = wp_list_pluck( $zone_posts, 'ID' );
+	
+		
+		// Verify nonce
+		$this->verify_nonce( $this->zone_ajax_nonce_action );
+		$this->verify_access( '', $zone_id );
+
+		if( is_wp_error( $result ) ) {
+			$status = 0;
+			$content = $result->get_error_message();
+		} else {
+			$args = array(
+				'posts_per_page' => $limit,
+				'order' => 'DESC',
+				'orderby' => 'post_date',
+				'post_type' => $post_types,
+				'ignore_sticky_posts' => true,
+				'post_status' => array( 'publish', 'future' ),
+				'post__not_in' => $zone_post_ids,
+			
+			);
+
+			if ( $this->_validate_category_filter( $cat ) ) {
+				$args['cat'] = $cat;
+			}
+
+			if ( $this->_validate_date_filter( $date ) ) {
+				$filter_date_parts = explode( '-', $date );
+				$args['year'] = $filter_date_parts[0];
+				$args['monthnum'] = $filter_date_parts[1];
+				$args['day'] = $filter_date_parts[2];
+			}
+
+			$content = '';
+			$recent_posts = get_posts( $args );
+			foreach ( $recent_posts as $post ) :
+				$content .= sprintf( '<option value="%d">%s</option>', $post->ID, get_the_title( $post->ID ) );
+			endforeach;
+			wp_reset_postdata();
+			$status = 1;
+		}
+
+		$empty_label = '';
+		if ( ! $content ) {
+			$empty_label =  __( 'No results found', 'zoninator' );
+		} elseif ( $cat ) {
+			$empty_label = sprintf( __( 'Choose post from %s', 'zoninator' ), get_the_category_by_ID( $cat ) );
+		} else {
+			$empty_label = __( 'Choose a post', 'zoninator' );
+		}
+
+		$content = '<option value="">' . esc_html( $empty_label ) . '</option>' . $content;
+
+		$this->ajax_return( $status, $content );
+	}
+
 	function zone_admin_recent_posts_dropdown( $zone_id ) {
 
 		$limit = $this->posts_per_page;
@@ -505,15 +611,17 @@ class Zoninator
 			'post__not_in' => $zone_post_ids,
 		) );
 
+		
+
 		$recent_posts = get_posts( $args );
 		?>
 		<div class="zone-search-wrapper">
 			<label for="zone-post-search-latest"><?php _e( 'Add Recent Content', 'zoninator' );?></label><br />
 			<select name="search-posts" id="zone-post-latest">
-				<option value="">Choose latest post</option>
+				<option value=""><?php _e( 'Choose a post', 'zoninator' ); ?></option>
 				<?php			
 				foreach ( $recent_posts as $post ) :
-					echo sprintf( '<option value="%d">%s</option>', $post->ID, get_the_title( $post->ID ) );
+					echo sprintf( '<option value="%d">%s</option>', $post->ID, esc_html( get_the_title( $post->ID ) ) );
 				endforeach;
 				wp_reset_postdata();
 				?>
@@ -660,13 +768,16 @@ class Zoninator
 		$q = $this->_get_request_var( 'term', '', 'stripslashes' );
 		
 		if( ! empty( $q ) ) {
-			
+
+			$filter_cat = $this->_get_request_var( 'cat', '', 'absint' );
+			$filter_date = $this->_get_request_var( 'date', '', 'striptags' );	
+
 			$post_types = $this->get_supported_post_types();
 			$limit = $this->_get_request_var( 'limit', $this->posts_per_page );
 			if( $limit <= 0 )
 				$limit = $this->posts_per_page; 
 			$exclude = (array) $this->_get_request_var( 'exclude', array(), 'absint' );
-			
+
 			$args = apply_filters( 'zoninator_search_args', array(
 				's' => $q,
 				'post__not_in' => $exclude,
@@ -677,13 +788,24 @@ class Zoninator
 				'orderby' => 'post_date',
 				'suppress_filters' => true,
 			) );
-			
+
+			if ( $this->_validate_category_filter( $filter_cat ) ) {
+				$args['cat'] = $filter_cat;
+			}
+
+			if ( $this->_validate_date_filter( $filter_date ) ) {
+				$filter_date_parts = explode( '-', $filter_date );
+				$args['year'] = $filter_date_parts[0];
+				$args['monthnum'] = $filter_date_parts[1];
+				$args['day'] = $filter_date_parts[2];
+			}
+
 			$query = new WP_Query( $args );
 			$stripped_posts = array();
-			
+
 			if ( ! $query->have_posts() )
 				exit;
-			
+
 			foreach( $query->posts as $post ) {
 				$stripped_posts[] = array(
 					'title' => ! empty( $post->post_title ) ? $post->post_title : __( '(no title)', 'zoninator' ),
@@ -1259,7 +1381,15 @@ class Zoninator
 		
 		return $url;
 	}
-	
+
+	function _validate_date_filter( $date ) {
+		return preg_match( '/([0-9]{4})-([0-9]{2})-([0-9]{2})/', $date );
+	}
+
+	function _validate_category_filter( $cat ) {
+		return $cat && get_term_by( 'id', $cat, 'category' );
+	}
+
 	function _get_value_or_default( $var, $object, $default = '', $sanitize_callback = '' ) {
 		if( is_object( $object ) )
 			$value = ! empty( $object->$var ) ? $object->$var : $default;

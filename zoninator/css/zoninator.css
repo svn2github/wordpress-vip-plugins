@@ -216,6 +216,8 @@
 		}
 		.zone-post.loading .zone-post-position {
 			background-image: url(images/wpspin_light.gif);
+			background-repeat: no-repeat;
+			background-position: center center;
 			text-indent: -9999px;
 		}
 	.zone-search-wrapper {
@@ -275,4 +277,16 @@
 		margin-left: 1%;
 		float: right;
 		text-align: right;
+	}
+
+.zone-advanced-search-filters-wrapper {
+	display: none;
+}	
+
+.zone-advanced-search-filters-heading {
+	float: right;
+	font-weight: bold;
+}
+	.zone-toggle-advanced-search {
+		cursor: pointer;
 	}
