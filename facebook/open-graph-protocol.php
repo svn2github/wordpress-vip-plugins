@@ -208,10 +208,7 @@ class Facebook_Open_Graph_Protocol {
 		if ( is_home() || is_front_page() ) {
 			$meta_tags[ self::OGP_NS . 'title' ] = get_bloginfo( 'name' );
 			$meta_tags[ self::OGP_NS . 'description' ] = get_bloginfo( 'description' );
-			if ( is_front_page() )
-				$meta_tags[ self::OGP_NS . 'url' ] = site_url();
-			else
-				$meta_tags[ self::OGP_NS . 'url' ] = home_url();
+			$meta_tags[ self::OGP_NS . 'url' ] = home_url();
 		} else if ( is_single() && empty( $post->post_password ) ) {
 			setup_postdata( $post );
 			$post_type = get_post_type();
@@ -332,6 +329,14 @@ class Facebook_Open_Graph_Protocol {
 			$description = self::clean_description( get_the_author_meta( 'description', $author_id ) );
 			if ( $description )
 				$meta_tags[ self::OGP_NS . 'description'] = $description;
+
+			if ( ! class_exists( 'Facebook_User' ) )
+				require_once( dirname(__FILE__) . '/facebook-user.php' );
+
+			$facebook_user_data = Facebook_User::get_user_meta( $author_id, 'fb_data', true );
+			if ( is_array( $facebook_user_data ) && isset( $facebook_user_data['third_party_id'] ) )
+					$meta_tags[ self::FB_NS . 'profile_id' ] = $facebook_user_data['third_party_id'];
+			unset( $facebook_user_data );
 
 			// no need to show username if there is only one
 			if ( is_multi_author() )

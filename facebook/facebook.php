@@ -1,15 +1,15 @@
 <?php
 /**
  * @package Facebook
- * @version 1.1.11
+ * @version 1.3
  */
 /*
 Plugin Name: Facebook
 Plugin URI: http://wordpress.org/extend/plugins/facebook/
-Description: Facebook for WordPress. Make your site deeply social in just a couple of clicks.
+Description: Add Facebook social plugins and the ability to publish new posts to a Facebook Timeline or Facebook Page. Official Facebook plugin.
 Author: Facebook
 Author URI: https://developers.facebook.com/wordpress/
-Version: 1.1.11
+Version: 1.3
 License: GPL2
 License URI: license.txt
 Domain Path: /languages/
@@ -28,7 +28,7 @@ class Facebook_Loader {
 	 * @since 1.1
 	 * @var string
 	 */
-	const VERSION = '1.1.11';
+	const VERSION = '1.3';
 
 	/**
 	 * Default Facebook locale
@@ -136,10 +136,12 @@ class Facebook_Loader {
 
 		$args = array(
 			'channelUrl' => plugins_url( 'channel.php', __FILE__ ),
-			'status' => true,
-			'cookie' => true,
 			'xfbml' => true
 		);
+		if ( is_admin() ) {
+			$args['status'] = true;
+			$args['cookie'] = true;
+		}
 
 		// appId optional
 		if ( ! empty( $this->credentials['app_id'] ) )
@@ -160,7 +162,7 @@ class Facebook_Loader {
 	 * @link http://dev.chromium.org/developers/design-documents/dns-prefetching Chromium prefetch behavior
 	 * @link https://developer.mozilla.org/en-US/docs/Controlling_DNS_prefetching Firefox prefetch behavior
 	 */
-	public static function dns_prefetch_js_sdk(){
+	public static function dns_prefetch_js_sdk() {
 		echo '<link rel="dns-prefetch" href="//connect.facebook.net" />' . "\n";
 	}
 
@@ -212,6 +214,18 @@ class Facebook_Loader {
 	}
 
 	/**
+	 * Has the current site stored an application identifier, application secret, had the pair verified by Facebook, and stored the resulting application access token?
+	 * Access token only saved if WP_HTTP supports HTTPS
+	 *
+	 * @return bool true if application access token set, else false
+	 */
+	public function app_access_token_exists() {
+		if ( ! empty( $this->credentials['access_token'] ) )
+			return true;
+		return false;
+	}
+
+	/**
 	 * Initialize a global $facebook variable if one does not already exist and credentials stored for this site
 	 *
 	 * @since 1.1
@@ -223,19 +237,32 @@ class Facebook_Loader {
 		if ( isset( $facebook ) )
 			return true;
 
-		if ( ! empty( $this->credentials['app_id'] ) && ! empty( $this->credentials['app_secret'] ) ) {
-			if ( ! class_exists( 'Facebook_WP_Extend' ) )
-				require_once( $this->plugin_directory . 'includes/facebook-php-sdk/class-facebook-wp.php' );
-
-			$facebook = new Facebook_WP_Extend( array(
-				'appId' => $this->credentials['app_id'],
-				'secret' => $this->credentials['app_secret']
-			) );
-			if ( $facebook )
-				return true;
+		$facebook_php_sdk = $this->get_php_sdk();
+		if ( $facebook_php_sdk ) {
+			$facebook = $facebook_php_sdk;
+			return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * Initialize the Facebook PHP SDK using an application identifier and secret
+	 *
+	 * @since 1.2
+	 * @return Facebook_WP_Extend Facebook PHP SDK class or null if minimum requirements not met
+	 */
+	public function get_php_sdk() {
+		if ( empty( $this->credentials['app_id'] ) || empty( $this->credentials['app_secret'] ) )
+			return;
+
+		if ( ! class_exists( 'Facebook_WP_Extend' ) )
+			require_once( $this->plugin_directory . 'includes/facebook-php-sdk/class-facebook-wp.php' );
+
+		return new Facebook_WP_Extend( array(
+			'appId' => $this->credentials['app_id'],
+			'secret' => $this->credentials['app_secret']
+		) );
 	}
 
 	/**
@@ -262,11 +289,8 @@ class Facebook_Loader {
 			if ( ! class_exists( 'Facebook_Comments' ) )
 				require_once( $this->plugin_directory . 'social-plugins/class-facebook-comments.php' );
 
-			add_filter( 'comments_array', array( 'Facebook_Comments', 'comments_array_filter' ), 10, 2 );
 			add_filter( 'comments_open', array( 'Facebook_Comments', 'comments_open_filter' ), 10, 2 );
 
-			// override comment count to a garbage number
-			add_filter( 'get_comments_number', array( 'Facebook_Comments', 'get_comments_number_filter' ), 10, 2 );
 			// display comments number if used in template
 			add_filter( 'comments_number', array( 'Facebook_Comments', 'comments_number_filter' ), 10, 2 );
 		}
@@ -299,11 +323,6 @@ class Facebook_Loader {
 			add_filter( 'the_content', 'facebook_the_content_send_button', $priority );
 		if ( isset( $enabled_features['follow'] ) )
 			add_filter( 'the_content', 'facebook_the_content_follow_button', $priority );
-		if ( isset( $enabled_features['mentions'] ) ) {
-			if ( ! function_exists( 'facebook_social_publisher_mentioning_output' ) )
-				require_once( dirname(__FILE__) . '/social-publisher/mentions.php' );
-			add_filter( 'the_content', 'facebook_social_publisher_mentioning_output', $priority );
-		}
 
 		// individual posts, pages, and custom post types features
 		if ( isset( $post_type ) ) {
@@ -315,8 +334,7 @@ class Facebook_Loader {
 				if ( ! class_exists( 'Facebook_Comments' ) )
 					require_once( $this->plugin_directory . 'social-plugins/class-facebook-comments.php' );
 
-				add_filter( 'the_content', array( 'Facebook_Comments', 'the_content_comments_box' ), $priority );
-				add_action( 'wp_enqueue_scripts', array( 'Facebook_Comments', 'css_hide_comments' ), 0 );
+				add_filter( 'comments_template', array( 'Facebook_Comments', 'comments_template' ) );
 			}
 		}
 
@@ -331,25 +349,19 @@ class Facebook_Loader {
 	public function admin_init() {
 		$admin_dir = $this->plugin_directory . 'admin/';
 
-		$sdk = $this->load_php_sdk();
-
-		if ( $sdk ) {
-			if ( ! class_exists( 'Facebook_User' ) )
-				require_once( dirname(__FILE__) . '/facebook-user.php' );
-			Facebook_User::extend_access_token();
-		}
-
 		if ( ! class_exists( 'Facebook_Settings' ) )
 			require_once( $admin_dir . 'settings.php' );
 		Facebook_Settings::init();
 
-		if ( ! class_exists( 'Facebook_Social_Publisher' ) )
-			require_once( $admin_dir . 'social-publisher/social-publisher.php' );
-		new Facebook_Social_Publisher();
+		if ( $this->app_access_token_exists() ) {
+			if ( ! class_exists( 'Facebook_Social_Publisher' ) )
+				require_once( $admin_dir . 'social-publisher/social-publisher.php' );
+			add_action( 'admin_init', array( 'Facebook_Social_Publisher', 'init' ) );
 
-		if ( ! class_exists( 'Facebook_Mentions_Search' ) )
-			require_once( $admin_dir . 'social-publisher/mentions/mentions-search.php' );
-		Facebook_Mentions_Search::wp_ajax_handlers();
+			if ( ! class_exists( 'Facebook_Mentions_Search' ) )
+				require_once( $admin_dir . 'social-publisher/mentions/mentions-search.php' );
+			Facebook_Mentions_Search::wp_ajax_handlers();
+		}
 	}
 
 	/**
@@ -483,6 +495,16 @@ class Facebook_Loader {
 				require_once( dirname(__FILE__) . '/extras/google-analytics.php' );
 			add_filter( 'yoast-ga-push-after-pageview', array( 'Facebook_Google_Analytics', 'gaq_filter' ) );
 		}
+	}
+
+	/**
+	 * Useful for blanking a string filter
+	 *
+	 * @since 1.3
+	 * @return string empty string
+	 */
+	public static function __return_empty_string() {
+		return '';
 	}
 }
 
