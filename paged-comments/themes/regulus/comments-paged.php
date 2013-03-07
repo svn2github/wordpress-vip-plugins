@@ -98,7 +98,7 @@
 <form action="<?php echo get_settings('siteurl'); ?>/wp-comments-post.php" method="post" id="postComment">
 
 <input type="hidden" name="comment_post_ID" value="<?php echo $post->ID; ?>" />
-<input type="hidden" name="redirect_to" value="<?php echo wp_specialchars($_SERVER['REQUEST_URI']); ?>" />
+<input type="hidden" name="redirect_to" value="<?php echo esc_attr($_SERVER['REQUEST_URI']); ?>" />
 
 <label for="comment">message</label><br /><textarea name="comment" id="comment" tabindex="1"></textarea>
 
