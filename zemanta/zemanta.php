@@ -398,6 +398,8 @@ class Zemanta {
 	*/
 	public function save_post( $post_id, $post )
 	{
+		global $wpdb;
+
 		// do not process revisions, autosaves and auto-drafts
 		if(wp_is_post_revision($post_id) || wp_is_post_autosave($post_id) || $post->post_status == 'auto-draft' || isset($_POST['autosave']))
 			return;
@@ -484,13 +486,10 @@ class Zemanta {
 		
 		// put modified content back to _POST so other plugins can reuse it
 		$_POST['post_content'] = addslashes($content);
-		
-		// update post in database
-		wp_update_post(array(
-			'ID' => $post_id, 
-			'post_content' => $content)
-		);
-		
+
+		$wpdb->update( $wpdb->posts, array( 'post_content' => $post_content ), array( 'ID' => $post_id ) );
+		clean_post_cache( $post_id );
+
 		// re-hook this function
 		add_action('save_post', array($this, 'save_post'), 20, 2 );
 	}
