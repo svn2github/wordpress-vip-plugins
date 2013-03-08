@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.3.1
+Version: 0.4-working
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.3.1' );
+define( 'BLIMPLY_VERSION', '0.4-working' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
@@ -195,6 +195,7 @@ class Blimply {
 		$payload = array(
 			'aps'     => array( 'alert' => $alert, 'badge' => '+1' ),
 			'android' => array( 'alert' => $alert ),
+			'blackberry' => array( 'content-type' => 'text/plain', 'body' => $alert ),
 		);
 
 		// Add a URL if any, to be handled by apps
@@ -230,6 +231,8 @@ class Blimply {
 
 	/**
 	 * Render HTML
+	 *
+	 * @todo make HTML prettier with instead of peppering everythin with line breaks
 	 */
 	function post_meta_box( $post ) {
 		$is_push_sent = get_post_meta( $post->ID, 'blimply_push_sent', true );
@@ -238,7 +241,8 @@ class Blimply {
 			wp_nonce_field( BLIMPLY_FILE_PATH, 'blimply_nonce' );
 			echo '<label for="blimply_push_alert">';
 			_e( 'Push message', 'blimply' );
-			echo '</label><br/> ';
+			$nice_warning = __( 'Keep in mind that all HTML will be stripped out, and refrain from putting any links in the message.', 'blimply' );
+			echo "</label><br/><small>{$nice_warning}</small><br/>";
 			echo '<textarea id="blimply_push_alert" name="blimply_push_alert" class="bl_textarea">' . $post->post_title . '</textarea><br/>';
 			echo '<strong>' . __( 'Send Push to following Urban Airship tags', 'blimply' ) . '</strong>';
 			foreach ( (array) $this->tags as $tag ) {
@@ -301,6 +305,7 @@ class Blimply {
 ?>
 		<form name="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" id="blimply-dashboard-widget">
 			<h4 id="content-label"><label for="content"><?php _e( 'Send Push Notification' ) ?></label></h4>
+			<small><?php _e( 'Keep in mind that all HTML will be stripped out, and refrain from putting any links in the message.', 'blimply' ); ?></small>
 			<div class="textarea-wrap">
 				<textarea name="blimply_push_alert" id="content" rows="3" cols="15" tabindex="2" placeholder="Your push message"></textarea>
 			</div>

@@ -1,226 +1,277 @@
+# Copyright (C) 2013 Blimply
+# This file is distributed under the same license as the Blimply package.
 msgid ""
 msgstr ""
-"Project-Id-Version: blimply\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-09-10 16:05-0600\n"
-"PO-Revision-Date: 2012-09-10 16:05-0600\n"
-"Last-Translator: \n"
-"Language-Team: doejo\n"
-"Language: en_EN\n"
+"Project-Id-Version: Blimply 0.4-working\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/blimply\n"
+"POT-Creation-Date: 2013-03-08 01:58:53+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-KeywordsList: __;_e;_x\n"
-"X-Poedit-Basepath: .\n"
-"X-Poedit-SearchPath-0: ../..\n"
+"PO-Revision-Date: 2013-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: ../../blimply.php:69
+#: blimply.php:60
 msgid "Send a Push Notification"
 msgstr ""
 
-#: ../../blimply.php:94 ../../blimply.php:95 ../../lib/blimply-settings.php:25
+#: blimply.php:71 blimply.php:72 lib/blimply-settings.php:28
 msgid "Urban Airship Tags"
 msgstr ""
 
-#: ../../blimply.php:115
+#: blimply.php:117
 msgid "Push notification successfully sent"
 msgstr ""
 
-#: ../../blimply.php:116
+#: blimply.php:118
 msgid ""
 "Sorry, there was some error while we were trying to send your push "
 "notification. Try again later!"
 msgstr ""
 
-#: ../../blimply.php:204
+#: blimply.php:228
 msgid "Push Notification"
 msgstr ""
 
-#: ../../blimply.php:216
+#: blimply.php:242
 msgid "Push message"
 msgstr ""
 
-#: ../../blimply.php:219
+#: blimply.php:243 blimply.php:307
+msgid ""
+"Keep in mind that all HTML will be stripped out, and refrain from putting "
+"any links in the message."
+msgstr ""
+
+#: blimply.php:246
 msgid "Send Push to following Urban Airship tags"
 msgstr ""
 
-#: ../../blimply.php:228 ../../blimply.php:290
+#: blimply.php:257 blimply.php:323
 msgid "Broadcast (send to all tags)"
 msgstr ""
 
-#: ../../blimply.php:235
+#: blimply.php:264
 msgid "Check to confirm sending"
 msgstr ""
 
-#: ../../blimply.php:240
+#: blimply.php:269
 msgid "Push notification is already sent"
 msgstr ""
 
-#: ../../blimply.php:276
+#: blimply.php:306
 msgid "Send Push Notification"
 msgstr ""
 
-#: ../../blimply.php:280
+#: blimply.php:311
 msgid "Choose a tag"
 msgstr ""
 
-#: ../../lib/blimply-settings.php:24
+#: blimply.php:330
+msgid "Reset"
+msgstr ""
+
+#: blimply.php:335
+msgid "Send push notification"
+msgstr ""
+
+#: lib/blimply-settings.php:27
 msgid "Blimply Settings"
 msgstr ""
 
-#: ../../lib/blimply-settings.php:32
+#: lib/blimply-settings.php:35
 msgid "Urban Airship Settings"
 msgstr ""
 
-#: ../../lib/blimply-settings.php:49 ../../lib/blimply-settings.php:56
+#: lib/blimply-settings.php:39
+msgid "Push Sounds"
+msgstr ""
+
+#: lib/blimply-settings.php:55
 msgid "Urban Airship Application Slug!"
 msgstr ""
 
-#: ../../lib/blimply-settings.php:50
-#: ../../lib/settings-api-class/procedural-example.php:36
-#: ../../lib/settings-api-class/procedural-example.php:90
-#: ../../lib/settings-api-class/procedural-example.php:145
-#: ../../lib/settings-api-class/settings-api.php:72
-#: ../../lib/settings-api-class/settings-api.php:126
-#: ../../lib/settings-api-class/settings-api.php:181
+#: lib/blimply-settings.php:56
+#: lib/settings-api-class/procedural-example.php:37
+#: lib/settings-api-class/procedural-example.php:91
+#: lib/settings-api-class/procedural-example.php:146
+#: lib/settings-api-class/settings-api.php:73
+#: lib/settings-api-class/settings-api.php:127
+#: lib/settings-api-class/settings-api.php:182
 msgid "Text input description"
 msgstr ""
 
-#: ../../lib/blimply-settings.php:57
-msgid "Something like my-test-app."
-msgstr ""
-
-#: ../../lib/blimply-settings.php:59 ../../lib/blimply-settings.php:67
-#: ../../lib/blimply-settings.php:75
-msgid "my-blimply"
-msgstr ""
-
-#: ../../lib/blimply-settings.php:64
+#: lib/blimply-settings.php:62
 msgid "Application API Key"
 msgstr ""
 
-#: ../../lib/blimply-settings.php:65
+#: lib/blimply-settings.php:63
 msgid "22 character long app key( like SYk74m98TOiUhHHHHb5l_Q."
 msgstr ""
 
-#: ../../lib/blimply-settings.php:72
+#: lib/blimply-settings.php:65 lib/blimply-settings.php:73
+#: lib/blimply-settings.php:81
+msgid "my-blimply"
+msgstr ""
+
+#: lib/blimply-settings.php:70
 msgid "Application Master Secret"
 msgstr ""
 
-#: ../../lib/blimply-settings.php:73
-msgid "22 character long app master secret( like SYk74m98TOiUhHHHHb5l_Q."
+#: lib/blimply-settings.php:71
+msgid "22 character long app master secret( like SYk74m98TOiUhHHHHb5l_Q. )"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:19
-#: ../../lib/settings-api-class/settings-api.php:47
+#: lib/blimply-settings.php:78
+msgid "Allow Broadcast Notifications"
+msgstr ""
+
+#: lib/blimply-settings.php:79
+msgid ""
+"You may enable broadcast pushes that all your users will get, no matter "
+"their settings in-app"
+msgstr ""
+
+#: lib/blimply-settings.php:92
+msgid ""
+"You may specify a sound that will accompany your push. Must match filename "
+"of a sound bundled in your app. Leave blank for default. Ex: my_sound.caf"
+msgstr ""
+
+#: lib/settings-api-class/procedural-example.php:20
+#: lib/settings-api-class/settings-api.php:48
 msgid "Basic Settings"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:23
-#: ../../lib/settings-api-class/settings-api.php:51
+#: lib/settings-api-class/procedural-example.php:24
+#: lib/settings-api-class/settings-api.php:52
 msgid "Advanced Settings"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:27
-#: ../../lib/settings-api-class/settings-api.php:55
+#: lib/settings-api-class/procedural-example.php:28
+#: lib/settings-api-class/settings-api.php:56
 msgid "Other Settings"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:35
-#: ../../lib/settings-api-class/procedural-example.php:89
-#: ../../lib/settings-api-class/procedural-example.php:144
-#: ../../lib/settings-api-class/settings-api.php:71
-#: ../../lib/settings-api-class/settings-api.php:125
-#: ../../lib/settings-api-class/settings-api.php:180
+#: lib/settings-api-class/procedural-example.php:36
+#: lib/settings-api-class/procedural-example.php:90
+#: lib/settings-api-class/procedural-example.php:145
+#: lib/settings-api-class/settings-api.php:72
+#: lib/settings-api-class/settings-api.php:126
+#: lib/settings-api-class/settings-api.php:181
 msgid "Text Input"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:42
-#: ../../lib/settings-api-class/procedural-example.php:96
-#: ../../lib/settings-api-class/procedural-example.php:151
-#: ../../lib/settings-api-class/settings-api.php:78
-#: ../../lib/settings-api-class/settings-api.php:132
-#: ../../lib/settings-api-class/settings-api.php:187
+#: lib/settings-api-class/procedural-example.php:43
+#: lib/settings-api-class/procedural-example.php:97
+#: lib/settings-api-class/procedural-example.php:152
+#: lib/settings-api-class/settings-api.php:79
+#: lib/settings-api-class/settings-api.php:133
+#: lib/settings-api-class/settings-api.php:188
 msgid "Textarea Input"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:43
-#: ../../lib/settings-api-class/procedural-example.php:97
-#: ../../lib/settings-api-class/procedural-example.php:152
-#: ../../lib/settings-api-class/settings-api.php:79
-#: ../../lib/settings-api-class/settings-api.php:133
-#: ../../lib/settings-api-class/settings-api.php:188
+#: lib/settings-api-class/procedural-example.php:44
+#: lib/settings-api-class/procedural-example.php:98
+#: lib/settings-api-class/procedural-example.php:153
+#: lib/settings-api-class/settings-api.php:80
+#: lib/settings-api-class/settings-api.php:134
+#: lib/settings-api-class/settings-api.php:189
 msgid "Textarea description"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:48
-#: ../../lib/settings-api-class/procedural-example.php:102
-#: ../../lib/settings-api-class/procedural-example.php:157
-#: ../../lib/settings-api-class/settings-api.php:84
-#: ../../lib/settings-api-class/settings-api.php:138
-#: ../../lib/settings-api-class/settings-api.php:193
+#: lib/settings-api-class/procedural-example.php:49
+#: lib/settings-api-class/procedural-example.php:103
+#: lib/settings-api-class/procedural-example.php:158
+#: lib/settings-api-class/settings-api.php:85
+#: lib/settings-api-class/settings-api.php:139
+#: lib/settings-api-class/settings-api.php:194
 msgid "Checkbox"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:49
-#: ../../lib/settings-api-class/procedural-example.php:103
-#: ../../lib/settings-api-class/procedural-example.php:158
-#: ../../lib/settings-api-class/settings-api.php:85
-#: ../../lib/settings-api-class/settings-api.php:139
-#: ../../lib/settings-api-class/settings-api.php:194
+#: lib/settings-api-class/procedural-example.php:50
+#: lib/settings-api-class/procedural-example.php:104
+#: lib/settings-api-class/procedural-example.php:159
+#: lib/settings-api-class/settings-api.php:86
+#: lib/settings-api-class/settings-api.php:140
+#: lib/settings-api-class/settings-api.php:195
 msgid "Checkbox Label"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:54
-#: ../../lib/settings-api-class/procedural-example.php:108
-#: ../../lib/settings-api-class/procedural-example.php:163
-#: ../../lib/settings-api-class/settings-api.php:90
-#: ../../lib/settings-api-class/settings-api.php:144
-#: ../../lib/settings-api-class/settings-api.php:199
+#: lib/settings-api-class/procedural-example.php:55
+#: lib/settings-api-class/procedural-example.php:109
+#: lib/settings-api-class/procedural-example.php:164
+#: lib/settings-api-class/settings-api.php:91
+#: lib/settings-api-class/settings-api.php:145
+#: lib/settings-api-class/settings-api.php:200
 msgid "Radio Button"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:55
-#: ../../lib/settings-api-class/procedural-example.php:109
-#: ../../lib/settings-api-class/procedural-example.php:164
-#: ../../lib/settings-api-class/settings-api.php:91
-#: ../../lib/settings-api-class/settings-api.php:145
-#: ../../lib/settings-api-class/settings-api.php:200
+#: lib/settings-api-class/procedural-example.php:56
+#: lib/settings-api-class/procedural-example.php:110
+#: lib/settings-api-class/procedural-example.php:165
+#: lib/settings-api-class/settings-api.php:92
+#: lib/settings-api-class/settings-api.php:146
+#: lib/settings-api-class/settings-api.php:201
 msgid "A radio button"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:64
-#: ../../lib/settings-api-class/procedural-example.php:119
-#: ../../lib/settings-api-class/procedural-example.php:173
-#: ../../lib/settings-api-class/settings-api.php:100
-#: ../../lib/settings-api-class/settings-api.php:155
-#: ../../lib/settings-api-class/settings-api.php:209
+#: lib/settings-api-class/procedural-example.php:65
+#: lib/settings-api-class/procedural-example.php:120
+#: lib/settings-api-class/procedural-example.php:174
+#: lib/settings-api-class/settings-api.php:101
+#: lib/settings-api-class/settings-api.php:156
+#: lib/settings-api-class/settings-api.php:210
 msgid "Multile checkbox"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:65
-#: ../../lib/settings-api-class/procedural-example.php:120
-#: ../../lib/settings-api-class/procedural-example.php:174
-#: ../../lib/settings-api-class/settings-api.php:101
-#: ../../lib/settings-api-class/settings-api.php:156
-#: ../../lib/settings-api-class/settings-api.php:210
+#: lib/settings-api-class/procedural-example.php:66
+#: lib/settings-api-class/procedural-example.php:121
+#: lib/settings-api-class/procedural-example.php:175
+#: lib/settings-api-class/settings-api.php:102
+#: lib/settings-api-class/settings-api.php:157
+#: lib/settings-api-class/settings-api.php:211
 msgid "Multi checkbox description"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:76
-#: ../../lib/settings-api-class/procedural-example.php:132
-#: ../../lib/settings-api-class/procedural-example.php:185
-#: ../../lib/settings-api-class/settings-api.php:112
-#: ../../lib/settings-api-class/settings-api.php:168
-#: ../../lib/settings-api-class/settings-api.php:221
+#: lib/settings-api-class/procedural-example.php:77
+#: lib/settings-api-class/procedural-example.php:133
+#: lib/settings-api-class/procedural-example.php:186
+#: lib/settings-api-class/settings-api.php:113
+#: lib/settings-api-class/settings-api.php:169
+#: lib/settings-api-class/settings-api.php:222
 msgid "A Dropdown"
 msgstr ""
 
-#: ../../lib/settings-api-class/procedural-example.php:77
-#: ../../lib/settings-api-class/procedural-example.php:133
-#: ../../lib/settings-api-class/procedural-example.php:186
-#: ../../lib/settings-api-class/settings-api.php:113
-#: ../../lib/settings-api-class/settings-api.php:169
-#: ../../lib/settings-api-class/settings-api.php:222
+#: lib/settings-api-class/procedural-example.php:78
+#: lib/settings-api-class/procedural-example.php:134
+#: lib/settings-api-class/procedural-example.php:187
+#: lib/settings-api-class/settings-api.php:114
+#: lib/settings-api-class/settings-api.php:170
+#: lib/settings-api-class/settings-api.php:223
 msgid "Dropdown description"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Blimply"
+msgstr ""
+
+#. #-#-#-#-#  plugin.pot (Blimply 0.4-working)  #-#-#-#-#
+#. Plugin URI of the plugin/theme
+#. #-#-#-#-#  plugin.pot (Blimply 0.4-working)  #-#-#-#-#
+#. Author URI of the plugin/theme
+msgid "http://doejo.com"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Blimply allows you to send push notifications to your mobile users utilizing "
+"Urban Airship API. It sports a post meta box and a dashboard widgets. You "
+"have the ability to broadcast pushes, and to push to specific Urban Airship "
+"tags as well."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Rinat Khaziev, doejo"
 msgstr ""
