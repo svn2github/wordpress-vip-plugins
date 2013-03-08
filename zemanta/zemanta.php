@@ -542,8 +542,6 @@ class Zemanta {
 	{
 		global $post_ID;
 
-		require_once(ABSPATH . 'wp-admin/includes/image.php');
-
 		if(!isset($this->supported_features['featured_image'])) {
 			$this->ajax_error(new WP_Error(4, __('Featured image feature is not supported on current platform.', 'zemanta')));
 		}
