@@ -15,8 +15,6 @@ Contributers: Kevin Miller (http://www.p51labs.com), Andrej Mihajlov (http://cod
 define('ZEMANTA_PLUGIN_VERSION_OPTION', 'zemanta_plugin_version');
 define('ZEMANTA_PLUGIN_FLASH_META', 'zemanta_plugin_flash');
 
-require_once(ABSPATH . 'wp-admin/includes/image.php');
-
 $zemanta = new Zemanta();
 
 /**
@@ -347,6 +345,8 @@ class Zemanta {
 	*/
 	public function sideload_image($file, $post_id, $desc = null) {
 
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
+
 		$continue = true;
 		$tmp = download_url( esc_url_raw( $file ) );
 
@@ -541,6 +541,8 @@ class Zemanta {
 	public function ajax_zemanta_set_featured_image()
 	{
 		global $post_ID;
+
+		require_once(ABSPATH . 'wp-admin/includes/image.php');
 
 		if(!isset($this->supported_features['featured_image'])) {
 			$this->ajax_error(new WP_Error(4, __('Featured image feature is not supported on current platform.', 'zemanta')));
