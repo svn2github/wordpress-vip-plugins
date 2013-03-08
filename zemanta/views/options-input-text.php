@@ -3,7 +3,7 @@
 <?php if (isset($description)): ?>
 
   <span class="description">
-    <?php echo $description; ?>
+    <?php echo wp_post_kses( $description ); ?>
   </span>
 
 <?php endif; ?>

@@ -3,7 +3,7 @@
 <?php if (isset($title)): ?>
 
   <label for="zemanta_options_<?php echo esc_attr( $field ); ?>">
-    <?php echo $title; ?>
+    <?php echo esc_html( $title ); ?>
   </label>
 
 <?php endif; ?>
@@ -11,7 +11,7 @@
 <?php if (isset($description)): ?>
 
   <p>
-    <?php echo $description; ?>
+    <?php echo wp_post_kses( $description ); ?>
   </p>
 
 <?php endif; ?>

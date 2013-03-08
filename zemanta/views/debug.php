@@ -4,7 +4,7 @@
   <h2><?php _e('Zemanta Plugin Status', 'zemanta'); ?></h2>
 
   <p>
-    <?php _e('API key (if you have one, your WordPress can talk to Zemanta)', 'zemanta'); ?>: <strong><?php echo $api_key; ?></strong>
+    <?php _e('API key (if you have one, your WordPress can talk to Zemanta)', 'zemanta'); ?>: <strong><?php echo esc_html( $api_key ); ?></strong>
   </p>
 
   <p>
