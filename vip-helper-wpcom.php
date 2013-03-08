@@ -493,19 +493,10 @@ function wpcom_vip_enable_sharing() {
 * for example when working with custom post types
 */
 function wpcom_vip_disable_likes() {
-	$disable_function = function() {
-		remove_filter( 'comments_template', 'wpl_filter_pre_comments' ); // legacy filter
-		remove_filter( 'post_flair', 'wpl_filter_pre_comments', 30 );
-	};
-
-	// Post flair is initialized at priority 999, so we need to do this way after that if init hasn't been fired yet
-	if ( did_action( 'init' ) )
-		call_user_func( $disable_function );
-	else
-		add_action( 'template_redirect', $disable_function ); 
+	add_filter( 'wpl_is_likes_visible', '__return_false', 999 );
 }
 function wpcom_vip_enable_likes() {
-	add_filter( 'post_flair', 'wpl_filter_pre_comments', 30 );
+	add_filter( 'wpl_is_likes_visible', '__return_true', 999 );
 }
 
 /**
