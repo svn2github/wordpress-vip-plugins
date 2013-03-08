@@ -51,7 +51,7 @@ class Zemanta {
 		$this->update_notes['1.0.7'] = __('Please double-check your upload paths in Zemanta Settings, we changed some things that might affect your images.', 'zemanta');
 		$this->update_notes['1.0.8'] = __('Please double-check your upload paths in Zemanta Settings, we changed some things that might affect your images.', 'zemanta');
 		
-		add_action('admin_init', array($this, 'init'));
+		add_action('admin_init', array($this, 'admin_init'));
 		add_action('admin_init', array($this, 'register_options'));
 		add_action('admin_menu', array($this, 'add_options'));
 		add_action('admin_menu', array($this, 'add_meta_box'));
@@ -70,7 +70,7 @@ class Zemanta {
 	* Initialize plugin
 	*
 	*/
-	public function init() 
+	public function admin_init() 
 	{
 		add_action('wp_ajax_zemanta_set_featured_image', array($this, 'ajax_zemanta_set_featured_image'));
 		add_action('edit_form_advanced', array($this, 'assets'), 1);
@@ -303,15 +303,16 @@ class Zemanta {
 	 */
 	public function validate_options($input) {
 
+		$output = array();
 		if ( isset( $input['image_uploader'] ) && '1' !== $input['image_uploader'] )
-			$input['image_uploader'] = '1';
+			$output['image_uploader'] = '1';
 
 		if ( isset( $input['api_key'] ) )
-			$input['api_key'] = sanitize_text_field( $input['api_key'] );
+			$output['api_key'] = sanitize_text_field( $input['api_key'] );
 		else
-			$input['api_key'] = '';
+			$output['api_key'] = '';
 
-		return $input;
+		return $output;
 	}
 
 	/**
