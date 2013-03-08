@@ -1,0 +1,16 @@
+.shoplocketProductDiv {
+    color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block; 
+    font-size: 0 !important;
+    background: #fe9f85 url("../img/icon-shoplocket.png") 10px 10px no-repeat;
+}
+
+.shoplocketProductDiv span {
+    color: transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    display: block; 
+    font-size: 0 !important;
+}
