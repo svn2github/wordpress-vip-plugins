@@ -251,18 +251,20 @@ class WPCOM_Related_Posts {
 			$filters = array();
 			if ( ! empty( $args['has_terms'] ) ) {
 				foreach( (array)$args['has_terms'] as $term ) {
-					switch ( $term->taxonomy ) {
-						case 'post_tag':
-							$tax_fld = 'tag.slug';
-							break;
-						case 'category':
-							$tax_fld = 'category.slug';
-							break;
-						default:
-							$tax_fld = 'taxonomy_raw.' . $term->taxonomy . '.slug';
-							break;
+					if ( mb_strlen( $term->taxonomy ) ) {
+						switch ( $term->taxonomy ) {
+							case 'post_tag':
+								$tax_fld = 'tag.slug';
+								break;
+							case 'category':
+								$tax_fld = 'category.slug';
+								break;
+							default:
+								$tax_fld = 'taxonomy_raw.' . $term->taxonomy . '.slug';
+								break;
+						}
+						$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
 					}
-					$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
 				}
 			}
 			$valid_post_types = get_post_types();
