@@ -86,7 +86,7 @@ class WP_Codebird extends Codebird {
 
 		if ( isset( $reply ) ) {
 			if ( is_wp_error( $reply ) ) {
-				throw new Exception( $reply->get_error_message() );
+				return new WP_Erorr( 'codebird-response-error', $reply->get_error_message() );
 			} else {
 				$httpstatus = $reply[ 'response' ][ 'code' ];
 				$reply = $this->_parseApiReply( $method_template, $reply );
@@ -98,7 +98,7 @@ class WP_Codebird extends Codebird {
 				}
 			}
 		} else {
-			throw new Exception( 'A reply was never generated. Some has gone horribly awry.' );
+			new WP_Error( 'codebird-no-reply', 'A reply was never generated. Something has gone horribly awry.' );
 		}
 
 		return $reply;
