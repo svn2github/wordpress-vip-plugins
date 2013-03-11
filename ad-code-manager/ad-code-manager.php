@@ -63,7 +63,6 @@ class Ad_Code_Manager {
 		// Incorporate the link to our admin menu
 		add_action( 'admin_menu' , array( $this, 'action_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_scripts_and_styles' ) );
-		add_action( 'admin_print_scripts', array( $this, 'post_admin_header' ) );
 		add_action( 'wp_ajax_acm_admin_action', array( $this, 'handle_admin_action' ) );
 
 		add_action( 'current_screen', array( $this, 'contextual_help' ) );
@@ -124,7 +123,8 @@ class Ad_Code_Manager {
 		 * By default we use doubleclick-for-publishers provider
 		 * To switch to a different ad provider use this filter
 		 */
-		$this->current_provider_slug = apply_filters( 'acm_provider_slug', 'doubleclick_for_publishers' );
+
+		$this->current_provider_slug = apply_filters( 'acm_provider_slug', $this->get_option( 'provider' ) );
 
 		// Instantiate one that we need
 		if ( isset( $this->providers->{$this->current_provider_slug} ) )
@@ -214,6 +214,56 @@ class Ad_Code_Manager {
 	}
 
 	/**
+	 * Get all ACM options
+	 *
+	 * @since 0.4
+	 */
+	function get_options() {
+
+		$default_provider = 'doubleclick_for_publishers';
+		// Make sure our default provider exists. Otherwise, the sky will fall on our head
+		if ( ! isset( $this->providers->$default_provider ) ) {
+			foreach( $this->providers as $slug => $provider ) {
+				$default_provider = $slug;
+				break;
+			}
+		}
+
+		$defaults = array(
+				'provider'          => $default_provider,
+			);
+		$options = get_option( 'acm_options', array() );
+		return array_merge( $defaults, $options );
+	}
+
+	/**
+	 * Get an ACM option
+	 *
+	 * @since 0.4
+	 */
+	function get_option( $key ) {
+
+		$options = $this->get_options();
+
+		if ( isset( $options[$key] ) )
+			return $options[$key];
+		else
+			return false;
+	}
+
+	/**
+	 * Update an ACM option
+	 *
+	 * @since 0.4
+	 */
+	function update_options( $new_options ) {
+
+		$options = $this->get_options();
+		$options = array_merge( $options, $new_options );
+		update_option( 'acm_options', $options );
+	}
+
+	/**
 	 * Handle any Add, Edit, or Delete actions from the admin interface
 	 * Hooks into admin ajax because it's the proper context for these sort of actions
 	 *
@@ -283,6 +333,15 @@ class Ad_Code_Manager {
 			$this->flush_cache();
 			$message = 'ad-code-deleted';
 			break;
+		case 'update_options':
+			$options = $this->get_options();
+			foreach( $options as $key => $value ) {
+				if ( isset( $_REQUEST[$key] ) )
+					$options[$key] = sanitize_text_field( $_REQUEST[$key] );
+			}
+			$this->update_options( $options );
+			$message = 'options-saved';
+			break;
 		}
 
 		if ( isset( $_REQUEST['doing_ajax'] ) && $_REQUEST['doing_ajax'] ) {
@@ -308,8 +367,6 @@ class Ad_Code_Manager {
 	 *
 	 */
 	function get_ad_codes( $query_args = array() ) {
-
-		$ad_codes_formatted = array();
 		$allowed_query_params = apply_filters( 'acm_allowed_get_posts_args', array( 'offset' ) );
 
 
@@ -534,27 +591,6 @@ class Ad_Code_Manager {
 	}
 
 	/**
-	 * Print our vars as JS
-	 */
-	function post_admin_header() {
-
-		if ( !isset( $_GET['page'] ) || $_GET['page'] != $this->plugin_slug )
-			return;
-
-		$conditionals_parsed = array();
-		foreach ( $this->whitelisted_conditionals as $conditional )
-			$conditionals_parsed[] = $conditional . ':' . ucfirst( str_replace( '_', ' ', $conditional ) );
-?>
-		<script type="text/javascript">
-			var acm_url = '<?php echo esc_js( admin_url( 'admin.php?page=' . $this->plugin_slug ) )  ?>';
-			var acm_conditionals = '<?php echo esc_js( implode( ';', $conditionals_parsed ) )?>';
-			var acm_ajax_nonce = '<?php echo esc_js( wp_create_nonce( 'acm_nonce' ) ) ?>';
-			var acm_conditionals_index = 0;
-		</script>
-		<?php
-	}
-
-	/**
 	 * Hook in our submenu page to the navigation
 	 */
 	function action_admin_menu() {
@@ -694,7 +730,7 @@ class Ad_Code_Manager {
 			return;
 
 		wp_enqueue_style( 'acm-style', AD_CODE_MANAGER_URL . '/common/css/acm.css' );
-		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery', 'jquery-ui-core' ) );
+		wp_enqueue_script( 'acm', AD_CODE_MANAGER_URL . '/common/js/acm.js', array( 'jquery' ), false, true );
 	}
 
 	/**
