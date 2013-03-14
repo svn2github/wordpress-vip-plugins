@@ -81,6 +81,9 @@ class FORMATEGORY {
 	static function format( $content ) {
 		global $post, $wpdb;
 
+		if ( ! in_the_loop() )
+			return $content;
+
 		static $templates;
 		if ( is_null( $templates ) ) {
 			$templates_query = new WP_Query( array( 'posts_per_page' => 50, 'post_type' => 'formategory_template', 'suppress_filters' => true, 'update_meta_cache' => false, 'no_found_rows' => true ) );
