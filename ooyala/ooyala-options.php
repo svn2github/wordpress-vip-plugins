@@ -56,9 +56,21 @@ class Ooyala_Options {
 
 	public function player_id() {
 		$options = get_option( 'ooyala', array() );
-		if ( ! isset( $options['player_id'] ) )
-			$options['player_id'] = '';
-		?><input type="text" id="ooyala-player-id" name="ooyala[player_id]" value="<?php echo esc_attr( $options['player_id'] ); ?>" class="regular-text" /><?php
+
+		if ( isset( $options['players'] ) ) :
+			if ( empty( $options['player_id'] ) ) {
+				$options['player_id'] = $options['players'][0];
+				update_option( 'ooyala', $options );
+			}
+
+			foreach ( $options['players'] as $player ) : ?>
+				<select id="ooyala-player-id" name="ooyala[player_id]">
+					<option value="<?php echo esc_attr( $player ); ?>"><?php echo esc_html( $player ); ?></option>
+				</select>
+			<?php endforeach;
+		else : ?>
+			<input type="text" id="ooyala-player-id" name="ooyala[player_id]" value="<?php echo esc_attr( $options['player_id'] ); ?>" class="regular-text" />
+		<?php endif; 
 	}
 
 	public function show_in_feed() {
@@ -115,6 +127,20 @@ class Ooyala_Options {
 	}
 
 	public function render_options_page() {
+		$options = get_option( 'ooyala' );
+
+		if ( isset( $ooyala['api_key'], $ooyala['api_secret'] ) ) {
+			$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
+			$players = $api->get( "players" );
+
+			$options['players'] = array();
+			foreach ( $players->items as $player ) {
+				$options['players'][] = $player->id;
+			}
+			$options['default_player'] = $options['players'][0];
+			update_option( 'ooyala', $options );
+		}
+
 		?>
 		<style type="text/css" media="screen">
 			#icon-ooyala {

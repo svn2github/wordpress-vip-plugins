@@ -35,9 +35,9 @@ OV.Popup = function()  {
 	}
 
 	
-	function insertShortcode( vid ) {
+	function insertShortcode( vid, player ) {
 
-		var shortcode = '[ooyala code="' + vid + '"]';
+		var shortcode = '[ooyala code="' + vid + '" player_id="' + player + '"]';
 		
 		var win = window.dialogArguments || opener || parent || top;
 		var isVisual = (typeof win.tinyMCE != "undefined") && win.tinyMCE.activeEditor && !win.tinyMCE.activeEditor.isHidden();	
@@ -153,7 +153,7 @@ OV.Popup = function()  {
 			jQuery('#ooyala-insert').click( function() {
 				var vid = jQuery('#ooyala_vid').val();
 				if ( vid != '')
-					insertShortcode( vid );
+					insertShortcode( vid, jQuery('#ooyala_player_id').val() );
 				return false;
 			});
 			

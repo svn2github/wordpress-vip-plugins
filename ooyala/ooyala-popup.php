@@ -71,13 +71,23 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 		        <table border="0" cellpadding="4" cellspacing="0">
 
 		           <tr>
-		            <td nowrap="nowrap" style="text-align:right;"><?php echo _e('Insert video ID:','ooyalavideo'); ?></td>
+		            <td nowrap="nowrap" style="text-align:right;"><?php echo _e('Insert Video ID:','ooyalavideo'); ?></td>
 		            <td>
 		              <table border="0" cellspacing="0" cellpadding="0">
 		                <tr>
 		                  <td><input name="vid" type="text" id="ooyala_vid" value="" style="width: 200px" /></td>
 		                </tr>
 		              </table></td>
+		          </tr>
+		           <tr>
+		            <td nowrap="nowrap" style="text-align:right;">Player ID:</td>
+		            <td>
+		            <?php foreach ( $ooyala['players'] as $player ) : ?>
+						<select id="ooyala_player_id" name="ooyala_player_id">
+							<option value="<?php echo esc_attr( $player ); ?>"><?php echo esc_html( $player ); ?></option>
+						</select>
+					<?php endforeach; ?>
+					</td>
 		          </tr>
 		          <tr>
 		            <td>
