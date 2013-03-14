@@ -65,11 +65,11 @@ body[class*='version-3-'][class*='uppsite'] #uppsite-wrapper {
     display: block;
     width: auto;
     margin: 0 20px;
-    overflow: hidden;
+    overflow: auto;
 }
 body[class*='version-3-'][class*='uppsite'] .uppsite-wrap { margin: 0; }
 
-body[class*='version-3-'][class*='uppsite'] #uppsiteFrame { margin-top: -10px !important; }
+body[class*='version-3-'][class*='uppsite'] #uppsiteFrame { clear: both; }
 
 @media only screen and (max-width: 900px) {
     body[class*='version-3-'][class*='uppsite'] #wpcontent { margin-left: 33px; }    

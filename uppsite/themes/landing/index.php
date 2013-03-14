@@ -1,6 +1,6 @@
 <?php
 $native_url = uppsite_get_native_app('url');
-$base_dir = get_template_directory_uri();
+$base_dir = uppsite_get_template_directory_uri();
 $app_name = mysiteapp_get_prefs_value('app_name', get_bloginfo('name'));
 $navbar_img = mysiteapp_get_prefs_value('navbar_background_url', null);
 $landing_bg = mysiteapp_get_prefs_value('landing_background_url', MYSITEAPP_LANDING_DEFAULT_BG);

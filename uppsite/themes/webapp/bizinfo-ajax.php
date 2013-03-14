@@ -41,7 +41,7 @@ if (is_array($businessData)) {
             case "twitter":
                 $order = 50;
                 $label = $key;
-                $val = (strlen($val) > 0 ? "@" : "" ). $val;
+                $val = (strlen($val) > 0 && substr($val, 0, 1) != "@" ? "@" : "" ). $val;
                 break;
             case "navbar_display":
                 $order = -100;

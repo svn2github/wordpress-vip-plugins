@@ -4,14 +4,14 @@
  Plugin URI: http://www.uppsite.com/features/
  Description: UppSite is the best way to make your site mobile. Here is how you get started: 1) Activate your plugin by clicking the "Activate" link to the left of this description, and 2) Configure your mobile apps by visiting the Mobile tab under Settings (tab will show only after plugin is activated). Go Mobile&#0153; <strong>**** DISABLING THIS PLUGIN MAY PREVENT YOUR USERS FROM ACCESSING YOUR MOBILE APPS! ****</strong>
  Author: UppSite
- Version: 5.1.1
+ Version: 5.1.3
  Author URI: https://www.uppsite.com
  */
 
 if (!defined('MYSITEAPP_AGENT')):
 
 /** Plugin version **/
-define('MYSITEAPP_PLUGIN_VERSION', '5.1.1');
+define('MYSITEAPP_PLUGIN_VERSION', '5.1.3');
 
 /** Theme name in cookie **/
 define('MYSITEAPP_WEBAPP_PREF_THEME', 'uppsite_theme_select');
@@ -36,11 +36,11 @@ require_once( dirname(__FILE__) . '/env_helper.php' );
 /** Template root */
 define('MYSITEAPP_TEMPLATE_ROOT', mysiteapp_get_template_root() );
 /** Template for mobile requests **/
-define('MYSITEAPP_TEMPLATE_APP', MYSITEAPP_TEMPLATE_ROOT.'/mysiteapp');
+define('MYSITEAPP_TEMPLATE_APP', MYSITEAPP_TEMPLATE_ROOT . DIRECTORY_SEPARATOR . 'mysiteapp');
 /** Template for web app **/
-define('MYSITEAPP_TEMPLATE_WEBAPP', MYSITEAPP_TEMPLATE_ROOT.'/webapp');
+define('MYSITEAPP_TEMPLATE_WEBAPP', MYSITEAPP_TEMPLATE_ROOT . DIRECTORY_SEPARATOR . 'webapp');
 /** Template for the mobile landing page **/
-define('MYSITEAPP_TEMPLATE_LANDING', MYSITEAPP_TEMPLATE_ROOT.'/landing');
+define('MYSITEAPP_TEMPLATE_LANDING', MYSITEAPP_TEMPLATE_ROOT . DIRECTORY_SEPARATOR . 'landing');
 /** API url **/
 define('MYSITEAPP_WEBSERVICES_URL', 'http://api.uppsite.com');
 /** HomeSite url **/
@@ -55,8 +55,6 @@ define('MYSITEAPP_AUTOKEY_URL', MYSITEAPP_WEBSERVICES_URL.'/autokeys.php');
 define('MYSITEAPP_PREFERENCES_URL', MYSITEAPP_WEBSERVICES_URL . '/preferences.php?ver=' . MYSITEAPP_PLUGIN_VERSION);
 /** URL for resrouces */
 define('MYSITEAPP_WEBAPP_RESOURCES', 'http://static.uppsite.com/v3/webapp');
-/** Facebook comments url **/
-define('MYSITEAPP_FACEBOOK_COMMENTS_URL','http://graph.facebook.com/comments/?ids=');
 /** One day in seconds */
 define('MYSITEAPP_ONE_DAY', 86400); // 60*60*24
 /** Number of posts that will contain content if the display mode is "first full, rest ..." */
@@ -150,7 +148,7 @@ function uppsite_get_native_app($type = "url", $os = null) {
         return null;
     }
     $options = get_option(MYSITEAPP_OPTIONS_DATA, array());
-    if (!isset($options['native_apps'])) {
+    if (!isset($options['native_apps']) || !is_array($options['native_apps'])) {
         return null;
     }
     $apps = $options['native_apps'];
@@ -404,8 +402,8 @@ foreach (MySiteAppPlugin::$_mobile_ua_os as $osName => $osUA) {
 
 /** Include the business part here, as it requires the MySiteAppPlugin class. */
 require_once( dirname(__FILE__) . '/includes/business.php' );
-/** Facebook comments */
-require_once( dirname(__FILE__) . '/includes/fbcomments_page.inc.php' );
+/** Comments helper */
+require_once( dirname(__FILE__) . '/includes/comments_helper.php' );
 
 // Create a global instance of MySiteAppPlugin
 global $msap;

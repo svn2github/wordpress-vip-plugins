@@ -130,6 +130,15 @@ We proud ourselves in our professional customer support. If you have any questio
 
 == Changelog ==
 
+= 5.1.3 =
+* Integration with Disqus now depends on the activation of the plugin in the system
+
+= 5.1.2 =
+* Fixed issues related with Windows-based servers.
+
+= 5.1.1 =
+* Fixed bugs reported by users
+
 = 5.1 =
 * Resolved cache problems with server-side cache mechanisms (e.g. Varnish)
 * Direct link to categories/tags/posts/etc on webapp are now showing the right results

@@ -100,7 +100,7 @@ function uppsite_admin_navbar() {
         }
         echo '</li>';
     }
-    echo '</ul></div><br class="clear"/>';
+    echo '</ul></div>';
 }
 
 /**

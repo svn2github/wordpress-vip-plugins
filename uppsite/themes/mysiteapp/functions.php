@@ -7,6 +7,7 @@
 remove_all_filters('get_sidebar');
 remove_all_filters('get_header');
 remove_all_filters('get_footer');
+remove_all_filters('comments_template'); // Comment plugins
 // Actions
 remove_all_actions('loop_start');
 remove_all_actions('loop_end');
@@ -112,15 +113,6 @@ function mysiteapp_should_show_sidebar() {
 
 
 /**
- * Returns a picture of facebook user
- * @param string $fb_id Facebook user id
- * @return string    URL to the image
- */
-function mysiteapp_get_pic_from_fb_id($fb_id){
-    return 'http://graph.facebook.com/'.$fb_id.'/picture?type=small';
-}
-
-/**
  * Tries to fetch picture from facebook profile
  * @param string $fb_profile    Profile link
  * @return string    URL to the image
@@ -131,101 +123,29 @@ function mysiteapp_get_pic_from_fb_profile($fb_profile){
     }
     $user_id = basename($fb_profile);
 
-    return mysiteapp_get_pic_from_fb_id($user_id);
+    return sprintf('http://graph.facebook.com/%s/picture?type=small', $user_id);
 }
 
 
 /**
  * Prints a member object for a comment
  */
-function mysiteapp_get_member_for_comment(){
-    $need_g_avatar = true;
-    $user = array();
+function mysiteapp_get_member_for_comment() {
+    $user = array(
+        'author' => get_comment_author(),
+        'link' => get_comment_author_url()
+    );
 
-    $user['author'] = get_comment_author();
-    $user['link'] = get_comment_author_url();
-
-    $options = get_option('uppsite_options');
-
-    // add facebook pic to user / disqus avatar
-    if (isset($options['disqus'])){
+    if (uppsite_comments_get_system() == UppSiteCommentSystem::FACEBOOK) {
+        // Facebook profile pic
         $user['avatar'] = mysiteapp_get_pic_from_fb_profile($user['link']);
-        if ($user['avatar']) {
-            $need_g_avatar = false;
+    }
+    if (empty($user['avatar']) && function_exists('get_avatar')) {
+        if (function_exists('htmlspecialchars_decode')){
+            $user['avatar']  = htmlspecialchars_decode( uppsite_extract_src_url( get_avatar( get_comment_author_email() ) ) );
         }
     }
-    if ($need_g_avatar){
-        if(function_exists('get_avatar') && function_exists('htmlspecialchars_decode')){
-            $user['avatar']  = htmlspecialchars_decode(uppsite_extract_src_url(get_avatar(get_comment_author_email())));
-        }
-    }?>
-<member>
-    <name><![CDATA[<?php echo esc_html($user['author']) ?>]]></name>
-    <member_link><![CDATA[<?php echo esc_html($user['link']) ?>]]></member_link>
-    <avatar><![CDATA[<?php echo esc_html($user['avatar']) ?>]]></avatar>
-</member><?php
-}
-
-/**
- * Returns a single comment from Facebook
- * @param array $fb_comment    Comment parameters
- */
-function mysiteapp_print_single_facebook_comment($fb_comment){
-    $avatar_url = mysiteapp_get_pic_from_fb_id($fb_comment['from']['id']);
-    ?><comment ID="<?php echo esc_attr($fb_comment['id']) ?>" post_id="<?php echo esc_attr(get_the_ID()) ?>" isApproved="true">
-    <permalink><![CDATA[<?php echo esc_html(get_permalink()) ?>]]></permalink>
-    <time><![CDATA[<?php echo esc_html($fb_comment['created_time']) ?>]]></time>
-    <unix_time><![CDATA[<?php echo esc_html(strtotime($fb_comment['created_time'])) ?>]]></unix_time>
-    <member>
-        <name><![CDATA[<?php echo esc_html($fb_comment['from']['name']) ?>]]></name>
-        <avatar><![CDATA[<?php echo esc_html($avatar_url) ?>]]></avatar>
-    </member>
-    <text><![CDATA[<?php echo esc_html($fb_comment['message']) ?>]]> </text>
-</comment><?php
-}
-
-/**
- * Comment using facebook
- * @see https://developers.facebook.com/blog/post/490/
- * @param int $comment_counter How many comments
- */
-function mysiteapp_print_facebook_comments(&$comment_counter){
-    $transientName = "uppsite_fb_" . get_the_ID();
-    $permalink = get_permalink();
-    if ( false === ( $comments_arr = get_transient( $transientName ) ) ) {
-        $comments_url = MYSITEAPP_FACEBOOK_COMMENTS_URL.$permalink;
-        // Fetch comments from facebook.com
-        $comment_json = wp_remote_get($comments_url);
-        if (!is_wp_error($comment_json)) {
-            // Check if comments exist
-            $comments_arr = json_decode($comment_json['body'],true);
-        }
-        set_transient( $transientName, $comments_arr, 10 * MINUTE_IN_SECONDS );
-    }
-
-    if (!is_array($comments_arr) ||
-        !array_key_exists($permalink, $comments_arr) ||
-        !array_key_exists('data', $comments_arr[$permalink])) {
-        return;
-    }
-
-    $avatar_url = htmlspecialchars_decode(uppsite_extract_src_url(get_avatar(0)));
-    $res = '';
-    $comment_counter = 0;
-
-    $comments_list = $comments_arr[$permalink]['data'];
-    foreach($comments_list as $comment){
-        $res .= mysiteapp_print_single_facebook_comment($comment, $avatar_url);
-        //inner comment
-        if (array_key_exists('comments', $comment)){
-            foreach($comment['comments']['data'] as $inner_comment){
-                $res .= mysiteapp_print_single_facebook_comment($inner_comment);
-                $comment_counter++;
-            }
-        }
-        $comment_counter++;
-    }
-    return $res;
+    return $user;
 }
 
 /**
@@ -419,32 +339,6 @@ function mysiteapp_navigation($thelist){
 }
 
 /**
- * Comment using disqus
- * * Currently not working! *
- *
- * @param string $location
- * @param string $comment
- */
-function mysiteapp_comment_to_disq($location, $comment=NULL){
-    $shortname  = strtolower(get_option('disqus_forum_url'));
-    $disq_thread_url = '.disqus.com/thread/';
-    $options = get_option('uppsite_options');
-    if ($comment==NULL)
-        $comment = $location;
-
-    if(isset($options['disqus']) && strlen($shortname)>1){
-        $post_details = get_post($comment->comment_post_ID, ARRAY_A);
-        $fixed_title = str_replace(' ', '_', $post_details['post_title']);
-        $fixed_title = strtolower($fixed_title);
-        $str = 'author_name='.$comment->comment_author.'&author_email='.$comment->comment_author_email.'&subscribe=0&message='.$comment->comment_content;
-        $post_data = array('body' =>$str);
-        $url = 'http://'.$shortname.$disq_thread_url.$fixed_title.'/post_create/';
-        $result = wp_remote_post($url,$post_data);
-    }
-    return $location;
-}
-
-/**
  * Gracefully shows an XML error
  * Performs as an error handler
  * @param string $message    The message
@@ -617,6 +511,13 @@ function mysiteapp_homepage_is_only_show_posts() {
     return isset($_REQUEST['onlyposts']);
 }
 
+function mysiteapp_comment_post_redirect($_location, $_comment) {
+    mysiteapp_print_xml(array(
+        'success' => true
+    ));
+    exit;
+}
+
 /** List of categories **/
 add_filter('the_category','mysiteapp_list_cat');
 add_filter('wp_list_categories','mysiteapp_list_cat');
@@ -632,8 +533,6 @@ add_filter('wp_list_bookmarks','mysiteapp_list_links');
 add_filter('wp_tag_cloud','mysiteapp_list_tags');
 /** Next links **/
 add_filter('next_posts_link','mysiteapp_navigation');
-/** Disqus **/
-//add_filter('comment_post_redirect','mysiteapp_comment_to_disq',10,2);
 /** Comment using facebook (set the template)  **/
 add_action('template_redirect','mysiteapp_comment_to_facebook', 10);
 /** Fatal error handler */
@@ -650,6 +549,8 @@ add_action('comment_author', 'mysiteapp_comment_author');
 add_filter('authenticate', 'mysiteapp_login', 2, 3);
 /** Fixing the "more..." for mobile **/
 add_filter('the_content_more_link','mysiteapp_fix_content_more', 10, 1);
+/** Comment redirect */
+add_filter('comment_post_redirect', 'mysiteapp_comment_post_redirect', 10, 2);
 
 
 /**

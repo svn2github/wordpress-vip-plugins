@@ -27,8 +27,8 @@ function uppsite_remote_get_platform() {
  * @return string   The relative path between both
  */
 function mysiteapp_get_relative_path($from, $to) {
-    $from     = explode('/', $from);
-    $to       = explode('/', $to);
+    $from     = explode(DIRECTORY_SEPARATOR, $from);
+    $to       = explode(DIRECTORY_SEPARATOR, $to);
     $relPath  = $to;
 
     foreach($from as $depth => $dir) {
@@ -45,11 +45,11 @@ function mysiteapp_get_relative_path($from, $to) {
                 $relPath = array_pad($relPath, $padLength, '..');
                 break;
             } else {
-                $relPath[0] = './' . $relPath[0];
+                $relPath[0] = '.' . DIRECTORY_SEPARATOR . $relPath[0];
             }
         }
     }
-    return implode('/', $relPath);
+    return implode(DIRECTORY_SEPARATOR, $relPath);
 }
 
 /**
@@ -58,7 +58,16 @@ function mysiteapp_get_relative_path($from, $to) {
  * @return string Absolute path to the template dir
  */
 function mysiteapp_get_template_root() {
-    return mysiteapp_get_relative_path(get_theme_root() . "/", dirname(__FILE__) . "/themes");
+    // WordPress doesn't care about DIRECTORY_SEPARATOR, we do relative search, so we care :\
+    $fixedThemeDir = str_replace("/", DIRECTORY_SEPARATOR, get_theme_root()) . DIRECTORY_SEPARATOR;
+    return mysiteapp_get_relative_path($fixedThemeDir, dirname(__FILE__) . DIRECTORY_SEPARATOR . "themes");
+}
+
+/**
+ * @return string URL for the current theme directory
+ */
+function uppsite_get_template_directory_uri() {
+    return str_replace(DIRECTORY_SEPARATOR, "/", get_template_directory_uri());
 }
 
 /**

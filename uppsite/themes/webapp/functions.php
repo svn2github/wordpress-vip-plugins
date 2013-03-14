@@ -27,7 +27,7 @@ function uppsite_get_webapp_dir_uri() {
     if ( function_exists( 'wpcom_vip_noncdn_uri' ) ) {
         return trailingslashit( wpcom_vip_noncdn_uri( dirname( __FILE__ ) ) );
     } else {
-        return get_template_directory_uri();
+        return uppsite_get_template_directory_uri();
     }
 }
 
@@ -243,7 +243,8 @@ function uppsite_process_post($with_content = false) {
         $post_content = ob_get_contents();
         ob_get_clean();
     }
-    $ret['thumb_url'] = mysiteapp_extract_thumbnail($post_content);
+    // Only extract thumbnail if not showing a business page.
+    $ret['thumb_url'] = isset($_GET['business']) ? null : mysiteapp_extract_thumbnail($post_content);
 
     if ($with_content) {
         uppsite_process_body_filters($post_content);
@@ -697,6 +698,8 @@ add_filter('login_redirect', 'uppsite_redirect_login', 10, 3);
 
 /** Hook comment redirect **/
 add_filter('comment_post_redirect', 'uppsite_redirect_comment', 10, 3);
+/** Remove comment plugins */
+remove_all_filters('comments_template');
 
 /** Fix youtube iframe to flash object on iOS (to be rendered in YouTube app) */
 function uppsite_fix_youtube($content) {
@@ -721,7 +724,7 @@ function uppsite_fix_youtube($content) {
                 $vals[$key] = str_replace("/embed/", "/watch?v=", $vals[$key]);
             }
         }
-        $replacement = '<p><img class="uppsite-youtube-video" vid="' . $vals['src'] . '" src="http://i.ytimg.com/vi/' . $vals['videoId'] . '/0.jpg"/><img src="" height="10" width="10"/></p>';
+        $replacement = '<p><a target="_blank" href="' . $vals['src'] . '"><img border="0" class="uppsite-youtube-video" src="http://i.ytimg.com/vi/' . $vals['videoId'] . '/0.jpg"/><img src="" height="10" width="10"/><br/>(Click to play)</a></p>';
         $content = str_replace($iframe, $replacement, $content);
     }
     return $content;
