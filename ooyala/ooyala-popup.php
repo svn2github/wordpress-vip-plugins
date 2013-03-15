@@ -102,9 +102,9 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 		<div id="ov-content-upload" class="ov-content"  style="display:none;margin:1em">
 			<h3 class="media-title"><?php _e('Upload to Ooyala', 'ooyalavideo' ); ?></h3>
       <label for="assetName">Name: </label>
-      <input type="text" id="ooyala-file-name" value="HTML5 Test"/>
+      <input type="text" id="ooyala-file-name"/>
       <label for="assetDescription">Description: </label>
-      <input type="text" id="ooyala-file-description" value="Blah"/>
+      <textarea id="ooyala-file-description" rows="5" style="width: 100%"></textarea><br/>
       <input type="file" id="ooyala-file" />
     <div>
 		<button id="uploadButton" disabled onclick="return startUpload();">Upload!</button>
