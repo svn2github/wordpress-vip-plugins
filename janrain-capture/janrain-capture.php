@@ -17,6 +17,7 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 		public $path;
 		public $basename;
 		public $url;
+		public static $ui;
 		public static $name = 'janrain_capture';
 	
 		/**
@@ -40,14 +41,23 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 				add_shortcode( 'janrain_share', array( &$this, 'shortcode_share' ) );
 			}
 			require_once $this->path . 'janrain-capture-ui.php';
-			$ui = new JanrainCaptureUi();
+			$this->ui = new JanrainCaptureUi();
 		}
 	
 		/**
 		 * Method used for the janrain_capture_redirect_uri action on admin-ajax.php.
 		 */
 		function redirect_uri() {
-			$r = isset($_SERVER['HTTP_REFERER']) ? esc_url_raw($_SERVER['HTTP_REFERER']) : home_url();
+			$url_type = isset( $_REQUEST['url_type'] ) ? $_REQUEST['url_type'] : false;
+		    if ( isset( $_REQUEST['verification_code'] ) ) {
+		    	$url_type = 'verify';
+		    }
+			if ( $url_type ) {
+				$this->widget_show_screen( $url_type );
+				die();
+			}
+		    
+			$r = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( $_SERVER['HTTP_REFERER'] ) : home_url();
 			$r = wp_validate_redirect( $r, home_url() );
 			echo <<<REDIRECT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -66,11 +76,35 @@ REDIRECT;
 			die();
 		}
 		
+	    /**
+	     * Method used to write the output of the screen
+	     * displays the forgot password and email verification screens
+	     */
+	    function widget_show_screen( $url_type ){
+	        $widget_js = $this->ui->widget_js();
+	        echo <<<SCREEN
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/1999/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+    <head>
+        <title>Janrain Capture</title>
+        <script type="text/javascript">
+SCREEN;
+	        locate_template( 'janrain-capture-screens/' . $url_type . '.js' , true );
+	        echo <<<SCREEN2
+        </script>
+    </head>
+    <body>
+SCREEN2;
+	        locate_template( 'janrain-capture-screens/' . $url_type . '.html' , true );
+	    }
+    
 		/**
 		 * Method used for the janrain_capture_profile action on admin-ajax.php.
 		 * This method prints javascript to retreive the access_token from a cookie and
 		 * render the profile screen if a valid access_token is found.
 		 */
+		
 		function profile() {
 			$ui = isset($ui) ? $ui : new JanrainCaptureUi;
 			$display = $ui->edit_screen();
@@ -136,23 +170,25 @@ LOGOUT;
 		 *	 Text or HTML to render in place of the shortcode
 		 */
 		function shortcode( $args ) {
-			extract(
-				shortcode_atts(
-					array( 'text' => 'Sign in / Register', 'action' => 'signin' ), $args
-				)
+			$atts = array(
+					'text' => 'Sign in / Register',
+					'action' => 'signin',
 			);
+				
+			$atts = shortcode_atts( $atts, $args );
 			 
-			 if ( strpos( $action, 'edit_profile' ) === 0 ) {
-				return $this->profile();
+			 if ( strpos( $atts['action'], 'edit_profile' ) === 0 ) {
+			 	return $this->profile();
 			 }
 	
-			$link = '<a id="janrain_auth" href="javascript:janrain.capture.ui.modal.open();" >' . sanitize_text_field( $text ) . '</a>
+			$link = '<a id="janrain_auth" href="#" class="capture_modal_open" >' . sanitize_text_field( $atts['text'] ) . '</a>
 					 <script>
 						 if(localStorage && localStorage.getItem("janrainCaptureToken")) {
 						 var authLink = document.getElementById("janrain_auth");
 						 authLink.innerHTML = "Log out";
 						 authLink.setAttribute("href", "'.admin_url().'admin-ajax.php?action=janrain_capture_logout&source='.esc_js( JanrainCaptureUi::current_page_url() ).'");
 						 authLink.setAttribute("onclick", "janrain.capture.ui.endCaptureSession()");
+						 authLink.setAttribute("class","");
 						 }
 					 </script>';
 			
@@ -219,7 +255,7 @@ LOGOUT;
 		 * @return string
 		 *	 The saved option or default value
 		 */
-		static function get_option( $key, $default = '') {
+		static function get_option( $key, $default = '' ) {
 			$value = get_option( $key, $default );
 			return $value;
 		}

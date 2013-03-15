@@ -18,21 +18,6 @@ class JanrainCaptureAdmin {
 	 *	 The plugin name to use as a namespace
 	 */
 	function __construct() {
-	
-		$path	 = dirname( __FILE__ ) . '/janrain-capture-screens/';
-		$signin = JanrainCapture::get_option( JanrainCapture::$name . '_auth_screen' );
-		
-		if ( ! empty( $signin ) ) {
-			$signin = $signin ? $signin : 'signin.php';
-			$signin = $path . $signin;
-			$signin = file_get_contents( $signin );
-		}
-		$editp = JanrainCapture::get_option( JanrainCapture::$name . '_edit_screen' );
-		if ( ! empty( $editp ) ) {
-			$editp = $editp ? $editp : 'edit-profile.php';
-			$editp = $path.$editp;
-			$editp = file_get_contents( $editp );
-		}
 		
 		$site_url = site_url();
 		$this->postMessage = array( 'class' => '', 'message' => '' );
@@ -190,10 +175,19 @@ class JanrainCaptureAdmin {
 				'screen' => 'ui',
 			),
 			array(
+		        'name' => JanrainCapture::$name . '_widget_edit_page',
+		        'title' => 'Edit Profile Page',
+		        'description' => 'Create a page with the shortcode: [janrain_capture action="edit_profile"] and remove it from the menu.<br/>(example: '.site_url().'/edit-profile)',
+		        'required' => true,
+		        'default' => site_url() . '/edit-profile/',
+		        'type' => 'long-text',
+		        'screen' => 'ui',
+			),
+			array(
 				'name' => JanrainCapture::$name . '_ui_share_enabled',
 				'title' => 'Enable Social Sharing',
 				'description' => 'Load the JS and CSS required for the Engage Share Widget',
-				'default' => '1',
+				'default' => '0',
 				'type' => 'checkbox',
 				'screen' => 'ui',
 			),
@@ -208,7 +202,7 @@ class JanrainCaptureAdmin {
 			),
 			array(
 				'name' => JanrainCapture::$name . '_screens',
-				'title' => locate_template('janrain-capture-screens/signin.php') ? 'Screens located! <br />' . get_template_directory_uri() . '/<i>janrain-capture-screens</i>/' : '<b>Screens NOT found. <br/> Please copy: '. plugin_dir_url( __FILE__ ) .'<i>janrain-capture-screens</i><br/> folder to: ' . get_template_directory_uri(),
+				'title' => locate_template( 'janrain-capture-screens/signin.html' ) ? 'Screens located! <br />' . get_template_directory_uri() . '/<i>janrain-capture-screens</i>/' : '<b>Screens NOT found. <br/> Please copy: '. plugin_dir_url( __FILE__ ) .'<i>janrain-capture-screens</i><br/> folder to: ' . get_template_directory_uri(),
 				'type' => 'title',
 				'screen' => 'ui',
 			),
@@ -419,25 +413,34 @@ TITLE;
 	 * Method to receive and store submitted options when posted.
 	 */
 	public function on_post() {
-	if ( isset( $_POST[JanrainCapture::$name . '_action'] ) &&
-			current_user_can( 'manage_options' ) &&
-			check_admin_referer( JanrainCapture::$name . '_action' )
-	    ) {
-		foreach ( $this->fields as $field ) {
-			if ( isset( $_POST[$field['name']] ) ) {
-				$value = $_POST[ $field['name'] ];
-				if ( is_string( $value ) ) {
-					$value = sanitize_text_field( $value );
-				} elseif ( is_array( $value ) ) {
-					foreach ( $value as $k => $v ) {
-						if ( is_string( $v ) ) {
-							$value[$k] = sanitize_text_field( $v );
+		if ( isset( $_POST[JanrainCapture::$name . '_action'] ) &&
+				current_user_can( 'manage_options' ) &&
+				check_admin_referer( JanrainCapture::$name . '_action' )
+		    ) {
+			foreach ( $this->fields as $field ) {
+				if ( isset( $_POST[$field['name']] ) ) {
+					$value = $_POST[ $field['name'] ];
+					if ( is_string( $value ) ) {
+						$value = sanitize_text_field( $value );
+					} elseif ( is_array( $value ) ) {
+						foreach ( $value as $k => $v ) {
+							if ( is_string( $v ) ) {
+								$value[$k] = sanitize_text_field( $v );
+							}
 						}
 					}
+					JanrainCapture::update_option( $field['name'], $value );
+				} else {
+					if ( $field['type'] == 'checkbox' && $field['screen'] == $_POST[JanrainCapture::$name . '_action'] ) {
+			            $value = '0';
+			            JanrainCapture::update_option( $field['name'], $value );
+			          } else {
+			            if (JanrainCapture::get_option( $field['name'] ) === false
+			              && isset($field['default']))
+			              JanrainCapture::update_option( $field['name'], $field['default'] );
+			          }
 				}
-				JanrainCapture::update_option( $field['name'], $value );
 			}
 		}
-	}
 	}
 }

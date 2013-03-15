@@ -28,8 +28,17 @@ class JanrainCaptureUi {
 	 * Method bound to the wp_head action.
 	 */
 	function head() {
-		add_action( 'wp_footer', array( &$this, 'sign_in_screen' ) );
+		
 		$this->widget_js();
+		
+		// are we on the edit page?
+		if ( strstr( $this->current_page_url(), JanrainCapture::get_option( JanrainCapture::$name . '_widget_edit_page' ) ) === false ) {
+			add_action( 'wp_footer', array( &$this, 'sign_in_screen' ) );
+			$this->sign_in_screen_js();
+        } else {
+        	$this->edit_screen_js();
+        }
+        // do we feel like sharing?
 		if ( JanrainCapture::share_enabled() ) {
 			wp_enqueue_style( 'janrain_share', plugin_dir_url( __FILE__ ) . 'stylesheet.css' );
 			if ( has_action( 'wp_footer', array( &$this, 'share_js' ) == false ) )
@@ -79,7 +88,6 @@ class JanrainCaptureUi {
 	janrain.settings.share.message = "";
 	janrain.settings.share.providers = ['$providers'];
 
-	}
 })();
 function setShare(url, title, desc, img, provider) {
 	if(img=='') img = null;
@@ -123,6 +131,7 @@ SHARE;
 		$settings['capture.backplaneBusName']   = JanrainCapture::get_option( JanrainCapture::$name . '_bp_bus_name' );
 		$settings['capture.backplaneVersion']   = JanrainCapture::get_option( JanrainCapture::$name . '_bp_version' );
 		$settings['capture.stylesheets']        = $folder . 'stylesheets/styles.css';
+		$settings['capture.mobileStylesheets']  = $folder . 'stylesheets/mobile-styles.css';
 		
 		// escape JS before printing
 		foreach ( $settings as $key => $setting ) {
@@ -159,6 +168,7 @@ function janrainSignOut(){
 	
 	// styles
 	janrain.settings.capture.stylesheets = ['{$settings["capture.stylesheets"]}'];
+	janrain.settings.capture.mobileStylesheets = ['{$settings["capture.mobileStylesheets"]}'];
 WIDGETCAPTURE;
 	
 		if ( $settings['capture.recaptchaPublicKey'] != '' ) {
@@ -194,7 +204,6 @@ WIDGETCAPTURE;
 		janrain.settings.capture.federateLogoutUri = '<?php echo $settings['capture.federateLogoutUri'] ?>';
 		<?php }
 	
-	    locate_template( 'janrain-capture-screens/settings.php', true);
 		echo <<<WIDGETFINISH
 	
 	function isReady() { janrain.ready = true; };
@@ -221,11 +230,11 @@ WIDGETFINISH;
 	 * Outputs backplane.js include file
 	 */
 	function backplane_head(){
-		if ( JanrainCapture::get_option( JanrainCapture::$name . '_bp_version', 1.2 ) != 2 )
-		wp_register_script( 'backplane', 'http://d134l0cdryxgwa.cloudfront.net/backplane.js' );
-		else
-		wp_register_script( 'backplane', 'http://d134l0cdryxgwa.cloudfront.net/backplane2.js' );
-		
+		if ( JanrainCapture::get_option( JanrainCapture::$name . '_bp_version', 1.2 ) != 2 ) {
+			wp_register_script( 'backplane', 'http://d134l0cdryxgwa.cloudfront.net/backplane.js' );
+		} else {
+			wp_register_script( 'backplane', 'http://d134l0cdryxgwa.cloudfront.net/backplane2.js' );
+		}
 		wp_enqueue_script( 'backplane' );
 	}
 
@@ -272,13 +281,31 @@ BACKPLANE;
 	 * Outputs the Sign in screen
 	 */
 	function sign_in_screen() {
-		locate_template( 'janrain-capture-screens/signin.php', true);
+		locate_template( 'janrain-capture-screens/signin.html', true );
 	}
 	
 	/**
-	 * Outputs the Edit Profile in screen
+	 * Outputs the Sign in screen js
+	 */
+	function sign_in_screen_js() {
+		echo '<script type="text/javascript">';
+		locate_template( 'janrain-capture-screens/signin.js', true );
+		echo '</script>';
+	}
+	
+	/**
+	 * Outputs the Edit Profile screen
 	 */
 	function edit_screen() {
-		locate_template( 'janrain-capture-screens/edit-profile.php', true);
+		locate_template( 'janrain-capture-screens/edit-profile.html', true );
+	}
+	
+	/**
+	 * Outputs the Edit Profile screen js
+	 */
+	function edit_screen_js() {
+		echo '<script type="text/javascript">';
+		locate_template( 'janrain-capture-screens/edit-profile.js', true );
+		echo '</script>';
 	}
 }
