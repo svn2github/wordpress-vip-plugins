@@ -2,6 +2,8 @@
 require 'OoyalaApi.php';
 
 $ooyala = get_option( 'ooyala' );
+if ( empty( $options['api_key'] ) || empty( $options['api_secret'] ) )
+	die();
 
 /**
  * Parse out the path of the object being accessed. Ensures that we are posting

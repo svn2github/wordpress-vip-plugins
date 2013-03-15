@@ -68,14 +68,21 @@ class Ooyala_Video {
 				$this->partner_code = $options['partner_code'];
 				$this->secret_code  = $options['secret_code'];
 
-				$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
-				$players = $api->get( "players" );
+				if ( !empty( $options['api_key'] ) && !empty( $options['api_secret'] ) ) {
+					$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
+					$players = $api->get( "players" );
 
-				$options['players'] = array();
-				foreach ( $players->items as $player ) {
-					$options['players'][] = $player->id;
+					if ( ! empty( $players->items ) ) {
+						$options['players'] = array();
+						foreach ( $players->items as $player )
+							$options['players'][] = $player->id;
+
+						if ( empty( $options['player_id'] ) )
+							$options['player_id'] = $options['players'][0];
+
+						update_option( 'ooyala', $options );
+					}
 				}
-				update_option( 'ooyala', $options );
 			}
 		}
 
