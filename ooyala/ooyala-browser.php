@@ -25,6 +25,7 @@
 				array( 
 					'name' => sanitize_text_field( $_POST['ooyala']['title'] ),
 					'embed_code' => sanitize_text_field( $_POST['ooyala']['embed'] ),
+					'hosted_at'  => sanitize_url( $_POST['ooyala']['hosted_at'] ),
 					'description' => sanitize_text_field( $_POST['ooyala']['description'] )
 				)
 			),		
@@ -88,12 +89,16 @@
 				<table class="form-table">
 				<tbody>
 					<tr valign="top">
-						<th scope="row"><?php esc_html_e( 'Title', 'ooyalavide' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Title', 'ooyalavideo' ); ?></th>
 						<td><input type="text" id="ooyala-title" name="ooyala[title]" value="<?php echo esc_attr( $video->name ); ?>" class="regular-text"></td>
 					</tr>
 					<tr valign="top">
-						<th scope="row"><?php esc_html_e( 'Description', 'ooyalavide' ); ?></th>
+						<th scope="row"><?php esc_html_e( 'Description', 'ooyalavideo' ); ?></th>
 						<td><textarea rows="4" cols="40" id="ooyala-description" tabindex="6" name="ooyala[description]"><?php echo esc_textarea( $video->description ); ?></textarea></td>
+					</tr>
+					<tr valign="top">
+						<th scope="row"><?php esc_html_e( 'Hosted at', 'ooyalavideo' ); ?></th>
+						<td><input type="text" id="ooyala-hosted" name="ooyala[hosted_at]" value="<?php echo esc_attr( $video->hosted_at ); ?>" class="regular-text"></td>
 					</tr>
 				</tbody>
 				</table>

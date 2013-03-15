@@ -3,7 +3,7 @@
 Plugin Name: Ooyala Video
 Plugin URI: http://www.ooyala.com/wordpressplugin/
 Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in the <a href="options-general.php?page=ooyala-options"> plugin settings</a>.
-Version: 1.6.1
+Version: 1.7
 License: GPL
 Author: Ooyala
 
@@ -63,9 +63,19 @@ class Ooyala_Video {
 				delete_option( 'ooyalavideo_showinfeed' );
 				delete_option( 'ooyalavideo_width' );
 			} else {
+				require_once( dirname( __FILE__ ) . '/OoyalaApi.php' );
 				$options = get_option( 'ooyala', array( 'partner_code' => '', 'secret_code' => '' ) );
 				$this->partner_code = $options['partner_code'];
 				$this->secret_code  = $options['secret_code'];
+
+				$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
+				$players = $api->get( "players" );
+
+				$options['players'] = array();
+				foreach ( $players->items as $player ) {
+					$options['players'][] = $player->id;
+				}
+				update_option( 'ooyala', $options );
 			}
 		}
 
