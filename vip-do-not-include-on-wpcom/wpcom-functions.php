@@ -334,16 +334,16 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 				// todo: add support for sorting by title, num likes, num comments, num views, etc
 				switch ( $orderby ) {
 					case 'relevance' :
-						$es_query_args['sort'][] = array( '_score' => array( 'sort' => $args['order'] ) );
+						$es_query_args['sort'][] = array( '_score' => array( 'order' => $args['order'] ) );
 						break;
 					case 'date' :
-						$es_query_args['sort'][] = array( 'date' => array( 'sort' => $args['order'] ) );
+						$es_query_args['sort'][] = array( 'date' => array( 'order' => $args['order'] ) );
 						break;
 					case 'ID' :
-						$es_query_args['sort'][] = array( 'id' => array( 'sort' => $args['order'] ) );
+						$es_query_args['sort'][] = array( 'id' => array( 'order' => $args['order'] ) );
 						break;
 					case 'author' :
-						$es_query_args['sort'][] = array( 'author.raw' => array( 'sort' => $args['order'] ) );
+						$es_query_args['sort'][] = array( 'author.raw' => array( 'order' => $args['order'] ) );
 						break;
 				}
 			}
