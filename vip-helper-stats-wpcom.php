@@ -161,6 +161,33 @@ function wpcom_vip_get_post_pageviews( $post_id = null, $num_days = 1, $end_date
 	return $views;
 }
 
+/**
+ * Get the most shared posts of the current blog, ordered DESC by share count
+ *
+ * @author jjj
+ * @access public
+ *
+ * @global WPDB $wpdb WordPress's Database class
+ * @param int $limit Number of posts to retrieve
+ * @param int $cache_duration Length of time to cache the query
+ * @return array Array of most shared post ID's
+ */
+function wpcom_vip_get_most_shared_posts( $limit = 5, $cache_duration = 3600 ) {
+	global $wpdb;
+
+	// Look for cached results
+	$cache_key = 'most_shared_posts_' . $wpdb->blogid . '_' . $limit . '_' . $cache_duration;
+	$shares    = wp_cache_get( $cache_key, 'vip_stats' );
+
+	// No cache, so query the DB and set the cache
+	if ( false === $shares ) {
+		$shares = $wpdb->get_results( $wpdb->prepare( "SELECT post_id as ID, SUM( count ) as total_shares FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC LIMIT %d", $wpdb->blogid, $limit ) );
+		wp_cache_set( $cache_key, $shares, 'vip_stats', $cache_duration );
+	}
+
+	return $shares;
+}
+
 /*
  * ONLY INTERNAL FUNCTIONS FROM HERE ON, USE ONLY wpcom_vip_get_stats_csv() and wpcom_vip_get_stats_xml()
  */
