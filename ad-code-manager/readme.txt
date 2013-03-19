@@ -11,13 +11,11 @@ Manage your ad codes through the WordPress admin in a safe and easy way.
 
 Ad Code Manager gives non-developers an interface in the WordPress admin for configuring your complex set of ad codes.
 
-Some code-level configuration is necessary to setup Ad Code Manager. Ad tags must be added (via `do_action`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and our shortcode.
+Some code-level configuration may be necessary to setup Ad Code Manager. Ad tags must be added (via `do_action()`) to your theme's template files where you'd like ads to appear. Alternatively, you can incorporate ad tags into your website with our widget and our shortcode.
 
-Also, a common set of parameters must be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL.
+A common set of parameters must also be defined for your ad provider. This includes the tag IDs used by your template, the default URL for your ad provider, and the default HTML surrounding that URL. Ad Code Manager comes with support for Google Doubleclick For Publishers (and Async), OpenX, and Google AdSense. All of the logic is abstracted, however, so configuring a different provider is relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
 
 Once this configuration is in place, the Ad Code Manager admin interface will allow you to add new ad codes, modify the parameters for your script URL, and define conditionals to determine when the ad code appears. Conditionals are core WordPress functions like is_page(), is_category(), or your own custom functions that evaluate certain expression and then return true or false.
-
-Ad Code Manager currently works with Doubleclick for Publishers by default. However, all logic is abstracted which means that you can configure ACM for any ad provider relatively easy. Check `providers/doubleclick-for-publishers.php` for an idea of how to extend ACM to suit your needs.
 
 [Fork the plugin on Github](https://github.com/Automattic/Ad-Code-Manager) and [follow our development blog](http://adcodemanager.wordpress.com/).
 
@@ -30,6 +28,84 @@ Since the plugin is in its early stages, there are a couple additional configura
 1. Incorporate ad tags in your theme template with  `do_action( 'acm_tag', 'slot' )`. Also you can use [acm-tag id="slot"] shortcode or ACM Widget
 1. Implement filters to make the plugin work with your provider
 1. Configure your ad codes in the WordPress admin ( Tools -> Ad Code Manager )
+
+== Screenshots ==
+
+1. The ACM admin interface before adding ad codes.
+1. Adding an ad code with a site name, zone, and multiple conditionals.
+1. Access the Help menu in the upper right for configuration assistance.
+1. Edit existing ad codes inline through the admin interface.
+1. Example of ad tag in use in a theme header template.
+
+== Upgrade Notice ==
+
+= 0.4 =
+Easier, streamlined configuration for Doubleclick for Publishers Async and Google AdSense.
+
+= 0.3 =
+Conditional operator logic can be set on an ad code by ad code basis. Couple of bug fixes.
+
+= 0.2.3 =
+The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
+
+= 0.2.2 =
+Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
+
+= 0.2.1 =
+Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
+
+== Changelog ==
+
+= 0.4 (???? ??, 2013) =
+* Streamlined configuration for Doubleclick for Publishers Async and Google AdSense
+* Faster, cleaner JavaScript thanks to [Jeremy Felt](https://github.com/jeremyfelt) and [Carl Danley](https://github.com/carldanley)
+* New filter 'acm_output_html_after_tokens_processed' for rare cases where you might want to filter html after the tokens are processed
+
+= 0.3 (October 25, 2012) =
+* Conditional operator logic can be set on an ad code by ad code basis. Thanks [jtsternberg](https://github.com/jtsternberg) for the pull request!
+* Bug fix: If an ad tag doesn't need a URL, ignore the whitelist check
+* Bug fix: Make sure that all providers list tables call parent::get_columns to avoid conflicts with filters.
+* Coding standards cleanup
+
+= 0.2.3 (June 25,2012) =
+
+* Allow columns to be optional when creating and editing ad codes, introduced new filter acm_ad_code_args
+* Remove acm_provider_columns filter
+
+= 0.2.2 (June 5, 2012) =
+* New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
+* Bulk delete action added for the WP List Table of ad codes. Delete more ad codes in one go
+* New 'acm_register_provider_slug' for registering a provider that's included outside the plugin (e.g. a theme)
+* Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
+
+= 0.2.1 (May 14, 2012) =
+* Flush the cache whenever an ad code is created or deleted so you don't have to wait for a timeout with persistent cache
+* Bug fix: Default to priority 10 when querying for ad codes if there is no priority set
+
+= 0.2 (May 7, 2012) =
+* UI reworked from the ground up to look and work much more like the WordPress admin (using WP List Table)
+* Abstracted ad network logic, so users can integrate other ad networks. Pull requests to add support to the plugin are always welcome
+* Added in-plugin contextual help
+* Implemented priority for ad code (allows to workaround ad code conflicts if any)
+* Implemented the [acm-tag] shortcode
+* Implemented ACM Widget. Thanks to [Justin Sternburg](https://github.com/jtsternberg) at WebDevStudios for the contribution
+* Initial loading of the ad codes is now cached using object cache
+* Bug fix: Enable using ad codes with empty filters using a filter
+* Bug fix: Setting the logical operator from OR to AND did not seem to result in the expected behaviour for displaying ads
+* Bug fix: Remove logical operator check when a conditional for an ad code is empty
+
+= 0.1.3 (February 13, 2012) =
+* UI cleanup for the admin, including styling and information on applying conditionals
+
+= 0.1.2 (February 9, 2012) =
+* Readme with full description and examples
+* Bug fix: Save the proper value when editing actions
+
+= 0.1.1 =
+* Bug fix release
+
+= 0.1 =
+* Initial release
 
 == Configuration Filters ==
 
@@ -287,78 +363,3 @@ Example usage:
 		);
 		return $args;
 	}`
-
-== Screenshots ==
-
-1. The ACM admin interface before adding ad codes.
-1. Adding an ad code with a site name, zone, and multiple conditionals.
-1. Access the Help menu in the upper right for configuration assistance.
-1. Edit existing ad codes inline through the admin interface.
-1. Example of ad tag in use in a theme header template.
-
-== Upgrade Notice ==
-
-= 0.3 =
-Conditional operator logic can be set on an ad code by ad code basis. Couple of bug fixes.
-
-= 0.2.3 =
-The filter acm_provider_columns is removed in favor of acm_ad_code_args (see acm_ad_code_args )
-
-= 0.2.2 =
-Incorporated a new provider for Google AdSense and added bulk delete action for the WP List Table.
-
-= 0.2.1 =
-Flush the cache when adding or deleting ad codes, and set priority of 10 when a priority doesn't exist for an ad code.
-
-== Changelog ==
-
-= 0.4 (???? ??, 2013) =
-* Streamlined configuration for Doubleclick for Publishers Async and Google AdSense
-* Faster, cleaner JavaScript thanks to [Jeremy Felt](https://github.com/jeremyfelt) and [Carl Danley](https://github.com/carldanley)
-* New filter 'acm_output_html_after_tokens_processed' for rare cases where you might want to filter html after the tokens are processed
-
-= 0.3 (October 25, 2012) =
-* Conditional operator logic can be set on an ad code by ad code basis. Thanks [jtsternberg](https://github.com/jtsternberg) for the pull request!
-* Bug fix: If an ad tag doesn't need a URL, ignore the whitelist check
-* Bug fix: Make sure that all providers list tables call parent::get_columns to avoid conflicts with filters.
-* Coding standards cleanup
-
-= 0.2.3 (June 25,2012) =
-
-* Allow columns to be optional when creating and editing ad codes, introduced new filter acm_ad_code_args
-* Remove acm_provider_columns filter
-
-= 0.2.2 (June 5, 2012) =
-* New Google Ad Sense provider courtesy of [Erick Hitter](http://www.ethitter.com/)
-* Bulk delete action added for the WP List Table of ad codes. Delete more ad codes in one go
-* New 'acm_register_provider_slug' for registering a provider that's included outside the plugin (e.g. a theme)
-* Bug fix: Instantiate the WP List Table on the view, instead of on admin_init, to reduce conflicts with other list tables
-
-= 0.2.1 (May 14, 2012) =
-* Flush the cache whenever an ad code is created or deleted so you don't have to wait for a timeout with persistent cache
-* Bug fix: Default to priority 10 when querying for ad codes if there is no priority set
-
-= 0.2 (May 7, 2012) =
-* UI reworked from the ground up to look and work much more like the WordPress admin (using WP List Table)
-* Abstracted ad network logic, so users can integrate other ad networks. Pull requests to add support to the plugin are always welcome
-* Added in-plugin contextual help
-* Implemented priority for ad code (allows to workaround ad code conflicts if any)
-* Implemented the [acm-tag] shortcode
-* Implemented ACM Widget. Thanks to [Justin Sternburg](https://github.com/jtsternberg) at WebDevStudios for the contribution
-* Initial loading of the ad codes is now cached using object cache
-* Bug fix: Enable using ad codes with empty filters using a filter
-* Bug fix: Setting the logical operator from OR to AND did not seem to result in the expected behaviour for displaying ads
-* Bug fix: Remove logical operator check when a conditional for an ad code is empty
-
-= 0.1.3 (February 13, 2012) =
-* UI cleanup for the admin, including styling and information on applying conditionals
-
-= 0.1.2 (February 9, 2012) =
-* Readme with full description and examples
-* Bug fix: Save the proper value when editing actions
-
-= 0.1.1 =
-* Bug fix release
-
-= 0.1 =
-* Initial release
