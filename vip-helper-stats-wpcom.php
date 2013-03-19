@@ -175,6 +175,10 @@ function wpcom_vip_get_post_pageviews( $post_id = null, $num_days = 1, $end_date
 function wpcom_vip_get_most_shared_posts( $limit = 5, $cache_duration = 3600 ) {
 	global $wpdb;
 
+	// Bail if not in the WordPress.com VIP environment
+	if ( ! defined( 'WPCOM_IS_VIP_ENV' ) || ! WPCOM_IS_VIP_ENV )
+		return false;
+
 	// Look for cached results
 	$cache_key = 'most_shared_posts_' . $wpdb->blogid . '_' . $limit . '_' . $cache_duration;
 	$shares    = wp_cache_get( $cache_key, 'vip_stats' );
