@@ -3,7 +3,7 @@ Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.4
-Tested up to: 3.5.1
+Tested up to: 3.5.2
 Stable tag: 0.7.6
 
 Redefining your editorial workflow.
@@ -93,10 +93,16 @@ New features, including story budget and editorial metadata, a completely rewrit
 == Changelog ==
 
 = 0.8 (???? ??, 2013) =
-* Double-click to create a new post on the calendar. Thanks [bbrooks](https://github.com/bbrooks)
+* New feature: Dashboard Notepad. Editors and admins can use a notepad widget on the dashboard to leave instructions, important announcements, etc. for every WordPress user.
+* New feature: Double-click to create a new post on the calendar, or edit the details associated with an existing post. Thanks [bbrooks](https://github.com/bbrooks) and [cojennin](https://github.com/cojennin)
 * Post subscriptions are now saved via AJAX, which means you can add or remove subscribers without hitting "Save Post". This is especially useful for editorial comments. Thanks [cojennin](https://github.com/cojennin)
+* Subscribe to a post's updates using a quick "Follow" link on Manage Posts, the Calendar, or Story Budget.
+* Assign a date and time to editorial metadata's date field. Thanks [cojennin](https://github.com/cojennin)
 * Modify which filters are used on the calendar and story budget, or add your own. Thanks [cojennin](https://github.com/cojennin)
+* Scheduled publication time is now included in relevant email notifications. Props [mattoperry](https://github.com/mattoperry)
+* Calendar and story budget module descriptions link to their respective pages in the admin for usability. Props [rgalindo05](https://github.com/rgalindo05)
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
+* Bug fix: User group selection no longer appears in network admin.
 
 = 0.7.6 (Jan. 30, 2013) =
 * Bug fix for 3.4.2 compatibility.

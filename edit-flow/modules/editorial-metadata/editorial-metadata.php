@@ -386,12 +386,12 @@ class EF_Editorial_Metadata extends EF_Module {
 						// TODO: Move this to a function
 						if ( !empty( $current_metadata ) ) {
 							// Turn timestamp into a human-readable date
-							$current_metadata = date( 'M d Y' , intval( $current_metadata ) );	
+							$current_metadata = $this->show_date_or_datetime( intval( $current_metadata ) );	
 						}
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
 						if ( $description_span )
 							echo "<label for='$postmeta_key'>$description_span</label>";
-						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-pick' value='$current_metadata' />";
+						echo "<input id='$postmeta_key' name='$postmeta_key' type='text' class='date-time-pick' value='$current_metadata' />";
 						break;
 					case "location":
 						echo "<label for='$postmeta_key'>{$term->name}</label>";
@@ -437,6 +437,20 @@ class EF_Editorial_Metadata extends EF_Module {
 		echo "</div>";
 	}
 	
+	/**
+	 * Show date or datetime
+	 * @param  int $current_date
+	 * @return string
+	 * @since 0.8
+	 */
+	private function show_date_or_datetime( $current_date ) {
+
+		if( date( 'Hi', $current_date ) == '0000')
+			return date( 'M d Y', $current_date );
+		else
+			return date( 'M d Y H:i', $current_date );
+	}
+
 	/**
 	 * Save any values in the editorial metadata post meta box
 	 * 
@@ -698,34 +712,8 @@ class EF_Editorial_Metadata extends EF_Module {
 			if ( $column_name != $key )
 				continue;
 
-			$postmeta_key = $this->get_postmeta_key( $term );
 			$current_metadata = $this->get_postmeta_value( $term, $post_id );
-			$type = $term->type;
-			switch( $type ) {
-				case "date":
-					if ( !empty( $current_metadata ) )
-						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-				case "location":
-				case "text":
-				case "number":
-				case "paragraph":
-					echo esc_html( $current_metadata );
-					break;
-				case "checkbox":
-					if ( $current_metadata )
-						echo __( 'Yes', 'edit-flow' );
-					else
-						echo __( 'No', 'edit-flow' );
-					break;
-				case "user": 
-					$userdata = get_userdata( $current_metadata );
-					if ( is_object( $userdata ) )
-						echo esc_html( $userdata->display_name );
-					break;
-				default:
-					break;
-			}
-
+			echo $this->generate_editorial_metadata_term_output( $term, $current_metadata );
 		}
 		
 	}
@@ -753,41 +741,13 @@ class EF_Editorial_Metadata extends EF_Module {
 			$key = $this->module->slug . '-' . $term->slug;
 
 			// Default values
+			$current_metadata = $this->get_postmeta_value( $term, $post_id );
 			$term_data = array(
 				'label' => $term->name,
-				'value' => '',
+				'value' => $this->generate_editorial_metadata_term_output( $term, $current_metadata ),
 			);
-			$postmeta_key = $this->get_postmeta_key( $term );
-			$current_metadata = $this->get_postmeta_value( $term, $post_id );
-			$type = $term->type;
-			switch( $type ) {
-				case "date":
-					if ( !empty( $current_metadata ) )
-						$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-					$term_data['value'] = esc_html( $current_metadata );
-					break;
-				case "location":
-				case "text":
-				case "number":
-				case "paragraph":
-					if ( $current_metadata )
-						$term_data['value'] = esc_html( $current_metadata );
-					break;
-				case "checkbox":
-					if ( $current_metadata )
-						$term_data['value'] = __( 'Yes', 'edit-flow' );
-					else
-						$term_data['value'] = __( 'No', 'edit-flow' );
-					break;
-				case "user": 
-					$userdata = get_userdata( $current_metadata );
-					if ( is_object( $userdata ) )
-						$term_data['value'] = esc_html( $userdata->display_name );
-					break;
-				default:
-					break;
-			}
-			
+			$term_data['editable'] = true;
+			$term_data['type'] = $term->type;
 			$calendar_fields[$key] = $term_data;
 		}
 		return $calendar_fields;
@@ -840,31 +800,55 @@ class EF_Editorial_Metadata extends EF_Module {
 		// Don't allow non-viewable term data to be displayed
 		if ( !$term->viewable )
 			return $column_name;
-			
-		$output = '';
-		$postmeta_key = $this->get_postmeta_key( $term );
+
 		$current_metadata = $this->get_postmeta_value( $term, $post->ID );
+		$output = $this->generate_editorial_metadata_term_output( $term, $current_metadata );
+
+		return $output;
+	}
+
+	/**
+	 * Generate the presentational output for an editorial metadata term
+	 *
+	 * @since 0.8
+	 *
+	 * @param object      $term    The editorial metadata term
+	 * @return string     $html    How the term should be rendered
+	 */
+	private function generate_editorial_metadata_term_output( $term, $pm_value ) {
+
+		$output = '';
 		switch( $term->type ) {
 			case "date":
-				if ( !empty( $current_metadata ) )
-					$current_metadata = date( get_option( 'date_format' ), intval( $current_metadata ) );
-				$output = esc_html( $current_metadata );
+				if ( empty( $pm_value ) )
+					break;
+
+				// All day vs. day and time
+				$date = date( get_option( 'date_format' ), $pm_value );
+				$time = date( get_option( 'time_format' ), $pm_value );
+				if( date( 'Hi', $pm_value ) == '0000' )
+					$pm_value = $date;
+				else
+					$pm_value = sprintf( __( '%1$s at %2$s', 'edit-flow' ), $date, $time );
+				$output = esc_html( $pm_value );
 				break;
 			case "location":
 			case "text":
 			case "number":
 			case "paragraph":
-				if ( $current_metadata )
-					$output = esc_html( $current_metadata );
+				if ( $pm_value )
+					$output = esc_html( $pm_value );
 				break;
 			case "checkbox":
-				if ( $current_metadata )
+				if ( $pm_value )
 					$output = __( 'Yes', 'edit-flow' );
 				else
 					$output = __( 'No', 'edit-flow' );
 				break;
-			case "user": 
-				$userdata = get_userdata( $current_metadata );
+			case "user":
+				if ( empty( $pm_value ) )
+					break;
+				$userdata = get_user_by( 'id', $pm_value );
 				if ( is_object( $userdata ) )
 					$output = esc_html( $userdata->display_name );
 				break;
@@ -872,7 +856,6 @@ class EF_Editorial_Metadata extends EF_Module {
 				break;
 		}
 		return $output;
-		
 	}
 	
 	/**
@@ -1010,9 +993,9 @@ class EF_Editorial_Metadata extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );			
 		
 		// Sanitize all of the user-entered values
-		$term_name = strip_tags( trim( $_POST['metadata_name'] ) );
+		$term_name = sanitize_text_field( trim( $_POST['metadata_name'] ) );
 		$term_slug = ( !empty( $_POST['metadata_slug'] ) ) ? sanitize_title( $_POST['metadata_slug'] ) : sanitize_title( $term_name );
-		$term_description = strip_tags( trim( $_POST['metadata_description'] ) );
+		$term_description = stripslashes( wp_filter_post_kses( trim( $_POST['metadata_description'] ) ) );
 		$term_type = sanitize_key( $_POST['metadata_type'] );
 		
 		$_REQUEST['form-errors'] = array();
@@ -1091,8 +1074,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', (int)$_GET['term-id'] ) )
 			wp_die( $this->module->messsage['term-error'] );			
 		
-		$new_name = strip_tags( trim( $_POST['name'] ) );
-		$new_description = strip_tags( trim( $_POST['description'] ) );
+		$new_name = sanitize_text_field( trim( $_POST['name'] ) );
+		$new_description = stripslashes( wp_filter_post_kses( strip_tags( trim( $_POST['description'] ) ) ) );
 			
 		/**
 		 * Form validation for editing editorial metadata term
@@ -1139,7 +1122,7 @@ class EF_Editorial_Metadata extends EF_Module {
 		
 		// Try to add the metadata term
 		$args = array(
-			'name' => $new_name,			
+			'name' => $new_name,
 			'description' => $new_description,
 			'viewable' => $new_viewable,
 		);
@@ -1206,8 +1189,8 @@ class EF_Editorial_Metadata extends EF_Module {
 		if ( !$existing_term = $this->get_editorial_metadata_term_by( 'id', $term_id ) )
 			die( $this->module->messsage['term-error'] );
 		
-		$metadata_name = strip_tags( trim( $_POST['name'] ) );
-		$metadata_description = strip_tags( trim( $_POST['description'] ) );
+		$metadata_name = sanitize_text_field( trim( $_POST['name'] ) );
+		$metadata_description = stripslashes( wp_filter_post_kses( trim( $_POST['description'] ) ) );
 		
 		/**
 		 * Form validation for editing editorial metadata term

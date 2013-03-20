@@ -19,7 +19,7 @@ class EF_Calendar extends EF_Module {
 	var $total_weeks = 6; // default number of weeks to show per screen
 	var $hidden = 0; // counter of hidden posts per date square
 	var $max_visible_posts_per_date = 4; // total number of posts to be shown per square before 'more' link
-	
+
 	/**
 	 * Construct the EF_Calendar class
 	 */
@@ -27,10 +27,10 @@ class EF_Calendar extends EF_Module {
 		global $edit_flow;
 	
 		$this->module_url = $this->get_module_url( __FILE__ );
-		// Register the module with Edit Flow	
+		// Register the module with Edit Flow
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
-			'short_description' => __( 'View upcoming content in a customizable calendar.', 'edit-flow' ),
+			'short_description' => sprintf( __( 'View upcoming content in a <a href="%s">customizable calendar</a>.', 'edit-flow' ), admin_url( 'index.php?page=calendar' ) ),
 			'extended_description' => __( 'Edit Flow’s calendar lets you see your posts over a customizable date range. Filter by status or click on the post title to see its details. Drag and drop posts between days to change their publication date date.', 'edit-flow' ),
 			'module_url' => $this->module_url,
 			'img_url' => $this->module_url . 'lib/calendar_s128.png',
@@ -42,11 +42,15 @@ class EF_Calendar extends EF_Module {
 					'post' => 'on',
 					'page' => 'off',
 				),
+				'quick_create_post_type' => 'post',
+				'ics_subscription' => 'off',
+				'ics_secret_key' => '',
 			),
 			'messages' => array(
 				'post-date-updated' => __( "Post date updated.", 'edit-flow' ),
 				'update-error' => __( 'There was an error updating the post. Please try again.', 'edit-flow' ),
 				'published-post-ajax' => __( "Updating the post date dynamically doesn't work for published content. Please <a href='%s'>edit the post</a>.", 'edit-flow' ),
+				'key-regenerated' => __( 'iCal secret key regenerated. Please inform all users they will need to resubscribe.', 'edit-flow' ),
 			),
 			'configure_page_cb' => 'print_configure_view',
 			'configure_link_text' => __( 'Calendar Options', 'edit-flow' ),
@@ -68,6 +72,10 @@ class EF_Calendar extends EF_Module {
 	 */
 	function init() {
 		
+		// .ics calendar subscriptions
+		add_action( 'wp_ajax_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
+		add_action( 'wp_ajax_nopriv_ef_calendar_ics_subscription', array( $this, 'handle_ics_subscription' ) );
+
 		// Check whether the user should have the ability to view the calendar
 		$view_calendar_cap = 'ef_view_calendar';
 		$view_calendar_cap = apply_filters( 'ef_view_calendar_cap', $view_calendar_cap );
@@ -89,8 +97,13 @@ class EF_Calendar extends EF_Module {
 		add_action( 'wp_ajax_ef_calendar_drag_and_drop', array( $this, 'handle_ajax_drag_and_drop' ) );
 		
 		// Ajax insert post placeholder for a specific date
-		add_action( 'wp_ajax_ef_insert_post', array( $this, 'ajax_insert_post_placeholder') );
+		add_action( 'wp_ajax_ef_insert_post', array( $this, 'handle_ajax_insert_post' ) );
 
+		//Update metadata
+		add_action( 'wp_ajax_ef_calendar_update_metadata', array( $this, 'handle_ajax_update_metadata' ) );
+
+		// Action to regenerate the calendar feed sekret
+		add_action( 'admin_init', array( $this, 'handle_regenerate_calendar_feed_secret' ) );
 	}
 	
 	/**
@@ -166,6 +179,8 @@ class EF_Calendar extends EF_Module {
 	 * @uses wp_enqueue_script()
 	 */
 	function enqueue_admin_scripts() {
+
+		$this->enqueue_datepicker_resources();
 		
 		if ( $this->is_whitelisted_functional_view() ) {
 			$js_libraries = array(
@@ -204,6 +219,18 @@ class EF_Calendar extends EF_Module {
 		$output .= '</select>';
 		
 		$output .= '&nbsp;&nbsp;&nbsp;<input id="screen-options-apply" name="screen-options-apply" type="submit" value="' . __( 'Apply' ) . '" class="button-secondary" />';
+
+		if ( 'on' == $this->module->options->ics_subscription && $this->module->options->ics_secret_key ) {
+			$args = array(
+					'action'       => 'ef_calendar_ics_subscription',
+					'user'         => wp_get_current_user()->user_login,
+					'user_key'     => md5( wp_get_current_user()->user_login . $this->module->options->ics_secret_key ),
+				);
+			$subscription_link = add_query_arg( $args, admin_url( 'admin-ajax.php' ) );
+			$output .= '<br />';
+			$output .= __( 'Subscribe in iCal or Google Calendar', 'edit-flow' );
+			$output .= ':<br /><input type="text" size="100" value="' . esc_attr( $subscription_link ) . '" />';
+		}
 		
 		return $output;	
 	}
@@ -267,12 +294,7 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 			
 		// Check that it's not yet published
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
-		if ( in_array( $post->post_status, $published_statuses ) )
+		if ( in_array( $post->post_status, $this->published_statuses ) )
 			$this->print_ajax_response( 'error', sprintf( $this->module->messages['published-post-ajax'], get_edit_post_link( $post_id ) ) );
 		
 		// Check that the new date passed is a valid one
@@ -304,6 +326,159 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'error', $this->module->messages['update-error'] );
 		
 		$this->print_ajax_response( 'success', $this->module->messages['post-date-updated'] );
+		exit;
+	}
+
+	/**
+	 * After checking that the request is valid, do an .ics file
+	 *
+	 * @since 0.8
+	 */
+	function handle_ics_subscription() {
+
+		// Only do .ics subscriptions when the option is active
+		if ( 'on' != $this->module->options->ics_subscription )
+			die(); // @todo return accepted response value.
+
+		// Confirm all of the arguments are present
+		if ( ! isset( $_GET['user'], $_GET['user_key'] ) )
+			die(); // @todo return an error response
+
+		// Confirm this is a valid request
+		$user = sanitize_user( $_GET['user'] );
+		$user_key = sanitize_user( $_GET['user_key'] );
+		$ics_secret_key = $this->module->options->ics_secret_key;
+		if ( ! $ics_secret_key || md5( $user . $ics_secret_key ) !== $user_key )
+			die( $this->module->messages['nonce-failed'] );
+
+		// Set up the post data to be printed
+		$post_query_args = array();
+		$calendar_filters = $this->calendar_filters();
+		foreach( $calendar_filters as $filter ) {
+			if ( isset( $_GET[$filter] ) && $value = $this->sanitize_filter( $filter, $_GET[$filter] ) )
+				$post_query_args[$filter] = $value;
+		}
+
+		// Set the start date for the posts_where filter
+		$this->start_date = apply_filters( 'ef_calendar_ics_subscription_start_date', $this->get_beginning_of_week( date( 'Y-m-d', current_time( 'timestamp' ) ) ) );
+
+		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $this->total_weeks, 'ics_subscription' );
+
+		$formatted_posts = array();
+		for( $current_week = 1; $current_week <= $this->total_weeks; $current_week++ ) {
+			// We need to set the object variable for our posts_where filter
+			$this->current_week = $current_week;
+			$week_posts = $this->get_calendar_posts_for_week( $post_query_args, 'ics_subscription' );
+			foreach( $week_posts as $date => $day_posts ) {
+				foreach( $day_posts as $num => $post ) {
+
+					$start_date = date( 'Ymd', strtotime( $post->post_date ) ) . 'T' . date( 'His', strtotime( $post->post_date ) ) . 'Z';
+					$end_date = date( 'Ymd', strtotime( $post->post_date ) + (5 * 60) ) . 'T' . date( 'His', strtotime( $post->post_date ) + (5 * 60) ) . 'Z';
+					$last_modified = date( 'Ymd', strtotime( $post->post_modified_gmt ) ) . 'T' . date( 'His', strtotime( $post->post_modified_gmt ) ) . 'Z';
+
+					$formatted_post = array(
+						'BEGIN'           => 'VEVENT',
+						'UID'             => $post->guid,
+						'SUMMARY'         => apply_filters( 'the_title', $post->post_title ),
+						'DTSTART'         => $start_date,
+						'DTEND'           => $end_date,
+						'LAST-MODIFIED'   => $last_modified,
+						'URL'             => get_post_permalink( $post->ID ),
+					);
+
+					// Description should include everything visible in the calendar popup
+					$information_fields = $this->get_post_information_fields( $post );
+					$formatted_post['DESCRIPTION'] = '';
+					if ( ! empty( $information_fields ) ) {
+						foreach( $information_fields as $key => $values ) {
+							$formatted_post['DESCRIPTION'] .= $values['label'] . ': ' . $values['value'] . '\n';
+						}
+						$formatted_post['DESCRIPTION'] = rtrim( $formatted_post['DESCRIPTION'] );
+					}
+
+					$formatted_post['END'] = 'VEVENT';
+
+					// @todo auto format any field longer than 75 bytes
+
+					$formatted_posts[] = $formatted_post;
+				}
+			}
+		}
+
+		// Other template data
+		$header = array(
+				'BEGIN'             => 'VCALENDAR',
+				'VERSION'           => '2.0',
+				'PRODID'            => '-//Edit Flow//Edit Flow ' . EDIT_FLOW_VERSION . '//EN',
+			);
+
+		$footer = array(
+				'END'               => 'VCALENDAR',
+			);
+
+		// Render the .ics template and set the content type
+		header( 'Content-type: text/calendar' );
+		foreach( array( $header, $formatted_posts, $footer ) as $section ) {
+			foreach( $section as $key => $value ) {
+				if ( is_string( $value ) )
+					echo $this->do_ics_line_folding( $key . ':' . $value );
+				else
+					foreach( $value as $k => $v ) {
+						echo $this->do_ics_line_folding( $k . ':' . $v );
+					}
+			}
+		}
+		die();
+
+	}
+
+	/**
+	 * Perform line folding according to RFC 5545.
+	 *
+	 * @param string $line The line without trailing CRLF
+	 * @return string The line after line-folding with all necessary CRLF.
+	 */
+	function do_ics_line_folding( $line ) {
+		$len = mb_strlen( $line );
+		if ( $len <= 75) {
+			return $line . "\r\n";
+		}
+
+		$chunks = array();
+		$start = 0;
+		while( true ) {
+			$chunk = mb_substr( $line, $start, 75 );
+			$chunkLen = mb_strlen( $chunk );
+			$start += $chunkLen;
+			if ( $start < $len ) {
+				$chunks[] = $chunk . "\r\n ";
+			}
+			else {
+				$chunks[] = $chunk ."\r\n";
+				return implode( "", $chunks );
+			}
+		}
+	}
+
+	/**
+	 * Handle a request to regenerate the calendar feed secret
+	 *
+	 * @since 0.8
+	 */
+	public function handle_regenerate_calendar_feed_secret() {
+
+		if ( ! isset( $_GET['action'] ) || 'ef_calendar_regenerate_calendar_feed_secret' != $_GET['action'] )
+			return;
+
+		if ( ! current_user_can( 'manage_options' ) )
+			wp_die( $this->module->messages['invalid-permissions'] );
+
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( $_GET['_wpnonce'], 'ef-regenerate-ics-key' ) )
+			wp_die( $this->module->messages['nonce-failed'] );
+
+		EditFlow()->update_module_option( $this->module->name, 'ics_secret_key', wp_generate_password() );
+
+		wp_safe_redirect( add_query_arg( 'message', 'key-regenerated', menu_page_url( $this->module->settings_slug, false ) ) );
 		exit;
 	}
 	
@@ -348,39 +523,13 @@ class EF_Calendar extends EF_Module {
 			);
 		$old_filters = array_merge( $default_filters, (array)$old_filters );
 		
-		// Post status
-		if ( isset( $_GET['post_status'] ) ) {
-			$filters['post_status'] = $_GET['post_status'];
-			// Whitelist-based validation for this parameter
-			$all_valid_statuses = array(
-				'future',
-				'unpublish',
-				'publish'
-			);
-			foreach ( $this->get_post_statuses() as $post_status ) {
-				$all_valid_statuses[] = $post_status->slug;
-			}
-			if ( !in_array( $filters['post_status'], $all_valid_statuses ) ) {
-				$filters['post_status'] = '';
-			}
-		} else {
-			$filters['post_status'] = $old_filters['post_status'];
+		// Sanitize and validate any newly added filters
+		foreach( $old_filters as $key => $old_value ) {
+			if ( isset( $_GET[$key] ) && $new_value = $this->sanitize_filter( $key, $_GET[$key] ) )
+				$filters[$key] = $new_value;
+			else
+				$filters[$key] = $old_value;
 		}
-		
-		// Post type
-		$filters['cpt'] = sanitize_key( ( isset( $_GET['cpt'] ) ) ? $_GET['cpt'] : $old_filters['cpt'] );
-		
-		// Category
-		 $filters['cat'] = (int)( isset( $_GET['cat'] ) ) ? $_GET['cat'] : $old_filters['cat'];
-		
-		// Author
-		 $filters['author'] = (int)( isset( $_GET['author'] ) ) ? $_GET['author'] : $old_filters['author'];
-		
-		// Start date
-		if ( isset( $_GET['start_date'] ) && !empty( $_GET['start_date'] ) )
-			$filters['start_date'] = date( 'Y-m-d', strtotime( $_GET['start_date'] ) );
-		else
-			$filters['start_date'] = $old_filters['start_date'];
 
 		// Set the start date as the beginning of the week, according to blog settings
 		$filters['start_date'] = $this->get_beginning_of_week( $filters['start_date'] );
@@ -396,6 +545,8 @@ class EF_Calendar extends EF_Module {
 	 * Build all of the HTML for the calendar view
 	 */
 	function view_calendar() {
+
+		$this->dropdown_taxonomies = array();
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
 		
@@ -403,7 +554,7 @@ class EF_Calendar extends EF_Module {
 		$screen_options = $this->get_screen_options();
 		// Total number of weeks to display on the calendar. Run it through a filter in case we want to override the
 		// user's standard
-		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $screen_options['num_weeks'] );
+		$this->total_weeks = apply_filters( 'ef_calendar_total_weeks', $screen_options['num_weeks'], 'dashboard' );
 		
 		$dotw = array(
 			'Sat',
@@ -592,12 +743,12 @@ class EF_Calendar extends EF_Module {
 					?>
 
 						<form method="POST" class="post-insert-dialog">
-							<h1><?php echo sprintf( __( 'Create post for %s', 'edit-flow' ), $date_formatted ); ?></h1>	
-							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( __( 'Post Title', 'edit-flow' ) ); ?>">
+							<h1><?php echo sprintf( __( 'Schedule a %s for %s', 'edit-flow' ), $this->get_quick_create_post_type_name(), $date_formatted ); ?></h1>	
+							<input type="text" class="post-insert-dialog-post-title" name="post-insert-dialog-post-title" placeholder="<?php echo esc_attr( sprintf( __( '%s Title', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>">
 							<input type="hidden" class="post-insert-dialog-post-date" name="post-insert-dialog-post-title" value="<?php echo esc_attr( $week_single_date ); ?>">
 							<div class="post-insert-dialog-controls">		
-								<input type="submit" class="button left" value="<?php echo esc_attr( __( 'Create Post', 'edit-flow' ) ); ?>">
-								<a class="post-insert-dialog-edit-post-link" href="#"><?php _e( 'Edit Post', 'edit-flow'); ?>&nbsp;&raquo;</a>
+								<input type="submit" class="button left" value="<?php echo esc_html( sprintf( __( 'Create %s', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>">
+								<a class="post-insert-dialog-edit-post-link" href="#"><?php echo esc_html( sprintf( __( 'Edit %s', 'edit-flow' ), $this->get_quick_create_post_type_name() ) ); ?>&nbsp;&raquo;</a>
 							</div>	
 							<div class="spinner">&nbsp;</div>
 						</form>
@@ -616,6 +767,24 @@ class EF_Calendar extends EF_Module {
 					wp_nonce_field( 'ef-calendar-modify', 'ef-calendar-modify' ); ?>
 					
 					<div class="clear"></div>
+					<div id="tax_user_dropdown_lists" class="ef_calendar_hidden_list">
+						<?php 
+							//Tuck the dropdowns in here
+							//This gets used for anything concerning users
+							wp_dropdown_users( array('names' => 'author', 'class' => 'ef_calendar_user_dropdown ef_user_tax_dropdown' ) );
+
+							//Used for anything concerning taxonomy
+							//$this->dropdown_taxonomies collected all the taxonomies on the calendar
+							foreach( $this->dropdown_taxonomies as $taxonomy_label => $taxonomy_name ) {
+								$terms = get_terms( $taxonomy_name, array('hide_empty' => false ) );
+								echo '<select class="tax_dropdown-'.$taxonomy_name.' ef_user_tax_dropdown" multiple>';
+									foreach($terms as $term)
+										echo '<option value="'.$term->term_id.'">'.$term->name.'</option>';
+								echo '</select>';
+							}
+								//wp_dropdown_categories( array( 'taxonomy' => $taxonomy_name, 'class' => 'ef_calendar_hidden_list', 'id' => 'tax_dropdown-'.$taxonomy_label ) );
+						?>
+					</div>
 				</div><!-- /Calendar Wrapper -->
 
 			  </div>
@@ -644,15 +813,10 @@ class EF_Calendar extends EF_Module {
 		// Only allow the user to drag the post if they have permissions to
 		// or if it's in an approved post status
 		// This is checked on the ajax request too.
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
-		if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $published_statuses ) )
+		if ( $this->current_user_can_modify_post( $post ) && !in_array( $post->post_status, $this->published_statuses ) )
 			$post_classes[] = 'sortable';
 		
-		if ( in_array( $post->post_status, $published_statuses ) )
+		if ( in_array( $post->post_status, $this->published_statuses ) )
 			$post_classes[] = 'is-published';
 		
 		// Hide posts over a certain number to prevent clutter, unless user is only viewing 1 or 2 weeks
@@ -664,87 +828,48 @@ class EF_Calendar extends EF_Module {
 		}
 		$post_classes = apply_filters( 'ef_calendar_table_td_li_classes', $post_classes, $post_date, $post->ID );
 		
-		ob_start();
-
 		?>
 		<li class="<?php echo esc_attr( implode( ' ', $post_classes ) ); ?>" id="post-<?php echo esc_attr( $post->ID ); ?>">
 			<div class="item-default-visible">
-			<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
-			<div class="inner">
-				<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
-			</div>
-			<?php
-				// All of the item information we're going to display
-				$ef_calendar_item_information_fields = array();
-				// Post author
-				$ef_calendar_item_information_fields['author'] = array(
-					'label' => __( 'Author', 'edit-flow' ),
-					'value' => get_the_author_meta( 'display_name', $post->post_author ),
-				);
-				// If the calendar supports more than one post type, show the post type label
-				if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
-					$ef_calendar_item_information_fields['post_type'] = array(
-						'label' => __( 'Post Type', 'edit-flow' ),
-						'value' => get_post_type_object( $post->post_type )->labels->singular_name,
-					);
-				}
-				// Publication time for published statuses
-				if ( in_array( $post->post_status, $published_statuses ) ) {
-					if ( $post->post_status == 'future' ) {
-						$ef_calendar_item_information_fields['post_date'] = array(
-							'label' => __( 'Scheduled', 'edit-flow' ),
-							'value' => get_the_time( null, $post->ID ),
-						);
-					} else {
-						$ef_calendar_item_information_fields['post_date'] = array(
-							'label' => __( 'Published', 'edit-flow' ),
-							'value' => get_the_time( null, $post->ID ),
-						);
-					}
-				}
-				// Taxonomies and their values
-				$args = array(
-					'post_type' => $post->post_type,
-				);
-				$taxonomies = get_object_taxonomies( $args, 'object' );
-				foreach( (array)$taxonomies as $taxonomy ) {
-					// Sometimes taxonomies skip by, so let's make sure it has a label too
-					if ( !$taxonomy->public || !$taxonomy->label )
-						continue;
-					$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
-					$key = 'tax_' . $taxonomy->name;
-					if ( count( $terms ) ) {
-						$value = '';
-						foreach( (array)$terms as $term ) {
-							$value .= $term->name . ', ';
-						}
-						$value = rtrim( $value, ', ' );
-					} else {
-						$value = '';
-					}
-					$ef_calendar_item_information_fields[$key] = array(
-						'label' => $taxonomy->label,
-						'value' => $value,
-					);
-				}
-				
-				$ef_calendar_item_information_fields = apply_filters( 'ef_calendar_item_information_fields', $ef_calendar_item_information_fields, $post->ID );
-			?>
+				<div class="item-status"><span class="status-text"><?php echo esc_html( $this->get_post_status_friendly_name( get_post_status( $post_id ) ) ); ?></span></div>
+				<div class="inner">
+					<span class="item-headline post-title"><strong><?php echo esc_html( $post->post_title ); ?></strong></span>
+				</div>
 			</div>
 			<div style="clear:right;"></div>
 			<div class="item-inner">
+				<?php $this->get_inner_information( $this->get_post_information_fields( $post ), $post ); ?>
+			</div>
+		</li>
+		<?php
+
+	} // generate_post_li_html()
+
+	/**
+	 * get_inner_information description
+	 * Functionality for generating the inner html elements on the calendar
+	 * has been separated out so various ajax functions can reload certain
+	 * parts of an inner html element.
+	 * @param  array $ef_calendar_item_information_fields
+	 * @param  WP_Post $post                               
+	 * @param  array $published_statuses                 
+	 * 
+	 * @since 0.8
+	 */
+	function get_inner_information( $ef_calendar_item_information_fields, $post ) {
+		?>
 			<table class="item-information">
-				<?php foreach( $ef_calendar_item_information_fields as $field => $values ): ?>
-					<?php
-						// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
-						if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
-								|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
-							continue;
-					?>
+				<?php foreach( $this->get_post_information_fields( $post ) as $field => $values ): ?>
 					<tr class="item-field item-information-<?php echo esc_attr( $field ); ?>">
 						<th class="label"><?php echo esc_html( $values['label'] ); ?>:</th>
-						<?php if ( $values['value'] ): ?>
-						<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
+						<?php if ( $values['value'] && isset($values['type']) ): ?>
+							<?php if( isset( $values['editable'] ) && $this->current_user_can_modify_post( $post ) ) : ?>
+								<td class="editable-value value <?php echo $values['type']; ?>"><?php echo esc_html( $values['value'] ); ?></td>
+							<?php else: ?>
+								<td class="value <?php echo $values['type']; ?>"><?php echo esc_html( $values['value'] ); ?></td>
+							<?php endif; ?>
+						<?php elseif( $values['value'] ): ?>
+							<td class="value"><?php echo esc_html( $values['value'] ); ?></td>
 						<?php else: ?>
 						<td class="value"><em class="none"><?php echo _e( 'None', 'edit-flow' ); ?></em></td>
 						<?php endif; ?>
@@ -761,11 +886,13 @@ class EF_Calendar extends EF_Module {
 					// Trash this post
 					$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 					// Preview/view this post
-					if ( !in_array( $post->post_status, $published_statuses ) ) {
+					if ( !in_array( $post->post_status, $this->published_statuses ) ) {
 						$item_actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
 					} elseif ( 'trash' != $post->post_status ) {
 						$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
 					}
+					//Save metadata
+					$item_actions['save-metadata-hide'] = '<a href="#savemetadata" id="save-editorial-metadata" class="post-'. $post->ID .'" title="'. esc_attr( sprintf( __( 'Save &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" >' . __( 'Save', 'edit-flow') . '</a>';
 				}
 				// Allow other plugins to add actions
 				$item_actions = apply_filters( 'ef_calendar_item_actions', $item_actions, $post->ID );
@@ -773,20 +900,104 @@ class EF_Calendar extends EF_Module {
 					echo '<div class="item-actions">';
 					$html = '';
 					foreach ( $item_actions as $class => $item_action ) {
-						$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . '</span> | ';
+						$html .= '<span class="' . esc_attr( $class ) . '">' . $item_action . ' | </span> ';
 					}
 					echo rtrim( $html, '| ' );
 					echo '</div>';
 				}
 			?>
 			<div style="clear:right;"></div>
-			</div>
-		</li>
 		<?php
 
-		return ob_get_clean();
-
 	} // generate_post_li_html()
+
+	/**
+	 * Get the information fields to be presented with each post popup
+	 *
+	 * @since 0.8
+	 *
+	 * @param obj $post Post to gather information fields for
+	 * @return array $information_fields All of the information fields to be presented
+	 */
+	function get_post_information_fields( $post ) {
+
+		$information_fields = array();
+		// Post author
+		$information_fields['author'] = array(
+			'label'        => __( 'Author', 'edit-flow' ),
+			'value'        => get_the_author_meta( 'display_name', $post->post_author ),
+			'type'         => 'author',
+			'editable'     => true,
+		);
+		// If the calendar supports more than one post type, show the post type label
+		if ( count( $this->get_post_types_for_module( $this->module ) ) > 1 ) {
+			$information_fields['post_type'] = array(
+				'label' => __( 'Post Type', 'edit-flow' ),
+				'value' => get_post_type_object( $post->post_type )->labels->singular_name,
+			);
+		}
+		// Publication time for published statuses
+		$published_statuses = array(
+			'publish',
+			'future',
+			'private',
+		);
+		if ( in_array( $post->post_status, $published_statuses ) ) {
+			if ( $post->post_status == 'future' ) {
+				$information_fields['post_date'] = array(
+					'label' => __( 'Scheduled', 'edit-flow' ),
+					'value' => get_the_time( null, $post->ID ),
+				);
+			} else {
+				$information_fields['post_date'] = array(
+					'label' => __( 'Published', 'edit-flow' ),
+					'value' => get_the_time( null, $post->ID ),
+				);
+			}
+		}
+		// Taxonomies and their values
+		$args = array(
+			'post_type' => $post->post_type,
+		);
+		$taxonomies = get_object_taxonomies( $args, 'object' );
+		foreach( (array)$taxonomies as $taxonomy ) {
+			// Sometimes taxonomies skip by, so let's make sure it has a label too
+			if ( !$taxonomy->public || !$taxonomy->label )
+				continue;
+			$terms = wp_get_object_terms( $post->ID, $taxonomy->name );
+			$key = 'tax_' . $taxonomy->name;
+			if ( count( $terms ) ) {
+				$value = '';
+				foreach( (array)$terms as $term ) {
+					$value .= $term->name . ', ';
+				}
+				$value = rtrim( $value, ', ' );
+			} else {
+				$value = '';
+			}
+			 //Used when editing editorial metadata and post meta
+			if ( is_taxonomy_hierarchical( $taxonomy->name ) )
+				$type = 'taxonomy hierarchical';
+			else
+				$type = 'taxonomy';
+
+			$information_fields[$key] = array(
+				'label' => $taxonomy->label,
+				'value' => $value,
+				'type' => $type,
+				'editable' => true,
+			);
+		}
+		
+		$information_fields = apply_filters( 'ef_calendar_item_information_fields', $information_fields, $post->ID );
+		foreach( $information_fields as $field => $values ) {
+			// Allow filters to hide empty fields or to hide any given individual field. Hide empty fields by default.
+			if ( ( apply_filters( 'ef_calendar_hide_empty_item_information_fields', true, $post->ID ) && empty( $values['value'] ) )
+					|| apply_filters( "ef_calendar_hide_{$field}_item_information_field", false, $post->ID ) )
+				unset( $information_fields[$field] );
+		}
+		return $information_fields;
+	}
 	
 	/**
 	 * Generates the filtering and navigation options for the top of the calendar
@@ -869,9 +1080,10 @@ class EF_Calendar extends EF_Module {
 	 * Query to get all of the calendar posts for a given day
 	 *
 	 * @param array $args Any filter arguments we want to pass
+	 * @param string $request_context Where the query is coming from, to distinguish dashboard and subscriptions
 	 * @return array $posts All of the posts as an array sorted by date
 	 */
-	function get_calendar_posts_for_week( $args = array() ) {
+	function get_calendar_posts_for_week( $args = array(), $context = 'dashboard' ) {
 		global $wpdb;
 		
 		$supported_post_types = $this->get_post_types_for_module( $this->module );
@@ -907,7 +1119,7 @@ class EF_Calendar extends EF_Module {
 			$args['post_type'] = $supported_post_types;
 		
 		// Filter for an end user to implement any of their own query args
-		$args = apply_filters( 'ef_calendar_posts_query_args', $args );
+		$args = apply_filters( 'ef_calendar_posts_query_args', $args, $context );
 		add_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
 		$post_results = new WP_Query( $args );
 		remove_filter( 'posts_where', array( $this, 'posts_where_week_range' ) );
@@ -1054,17 +1266,12 @@ class EF_Calendar extends EF_Module {
 			return false;
 			
 		$post_type_object = get_post_type_object( $post->post_type );
-			
-		$published_statuses = array(
-			'publish',
-			'future',
-			'private',
-		);
+
 		// Editors and admins are fine
 		if ( current_user_can( $post_type_object->cap->edit_others_posts, $post->ID ) )
 			return true;
 		// Authors and contributors can move their own stuff if it's not published
-		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $published_statuses ) )
+		if ( current_user_can( $post_type_object->cap->edit_post, $post->ID ) && wp_get_current_user()->ID == $post->post_author && !in_array( $post->post_status, $this->published_statuses ) )
 			return true;
 		// Those who can publish posts can move any of their own stuff
 		if ( current_user_can( $post_type_object->cap->publish_posts, $post->ID ) && wp_get_current_user()->ID == $post->post_author )
@@ -1083,8 +1290,10 @@ class EF_Calendar extends EF_Module {
 	function register_settings() {
 		
 			add_settings_section( $this->module->options_group_name . '_general', false, '__return_false', $this->module->options_group_name );
-			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 			add_settings_field( 'number_of_weeks', __( 'Number of weeks to show', 'edit-flow' ), array( $this, 'settings_number_weeks_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'post_types', __( 'Post types to show', 'edit-flow' ), array( $this, 'settings_post_types_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'quick_create_post_type', __( 'Post type to create directly from calendar', 'edit-flow' ), array( $this, 'settings_quick_create_post_type_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
+			add_settings_field( 'ics_subscription', __( 'Subscription in iCal or Google Calendar', 'edit-flow' ), array( $this, 'settings_ics_subscription_option' ), $this->module->options_group_name, $this->module->options_group_name . '_general' );
 
 	}
 	
@@ -1099,6 +1308,22 @@ class EF_Calendar extends EF_Module {
 	}
 
 	/**
+	 * Choose the post type that should be created on the calendar
+	 *
+	 * @since 0.8
+	 */
+	function settings_quick_create_post_type_option() {
+		
+		$allowed_post_types = $this->get_all_post_types();
+
+		echo "<select name='" . $this->module->options_group_name . "[quick_create_post_type]'>";
+		foreach( $allowed_post_types as $post_type => $title ) 
+			echo "<option value='" . esc_attr( $post_type ) . "' " . selected( $post_type, $this->module->options->quick_create_post_type, false ) . ">".esc_html( $title )."</option>";
+		echo "</select>";
+
+	}
+
+	/**
 	 * Give a bit of helper text to indicate the user can change
 	 * number of weeks in the screen options
 	 *
@@ -1107,20 +1332,53 @@ class EF_Calendar extends EF_Module {
 	function settings_number_weeks_option() {
 		echo '<span class="description">' . __( 'The number of weeks shown on the calendar can be changed on a user-by-user basis using the calendar\'s screen options.', 'edit-flow' ) . '</span>';
 	}
-	
+
+	/**
+	 * Enable calendar subscriptions via .ics in iCal or Google Calendar
+	 *
+	 * @since 0.8
+	 */
+	function settings_ics_subscription_option() {
+		$options = array(
+			'off'       => __( 'Disabled', 'edit-flow' ),
+			'on'        => __( 'Enabled', 'edit-flow' ),
+		);
+		echo '<select id="ics_subscription" name="' . $this->module->options_group_name . '[ics_subscription]">';
+		foreach ( $options as $value => $label ) {
+			echo '<option value="' . esc_attr( $value ) . '"';
+			echo selected( $this->module->options->ics_subscription, $value );
+			echo '>' . esc_html( $label ) . '</option>';
+		}
+		echo '</select>';
+
+
+		$regenerate_url = add_query_arg( 'action', 'ef_calendar_regenerate_calendar_feed_secret', admin_url( 'index.php' ) );
+		$regenerate_url = wp_nonce_url( $regenerate_url, 'ef-regenerate-ics-key' );
+		echo '&nbsp;&nbsp;&nbsp;<a href="' . esc_url( $regenerate_url ) . '">' . __( 'Regenerate calendar feed secret', 'edit-flow' ) . '</a>';
+
+		// If our secret key doesn't exist, create a new one
+		if ( empty( $this->module->options->ics_secret_key ) )
+			EditFlow()->update_module_option( $this->module->name, 'ics_secret_key', wp_generate_password() );
+	}
+
 	/**
 	 * Validate the data submitted by the user in calendar settings
 	 *
 	 * @since 0.7
 	 */
 	function settings_validate( $new_options ) {
-		
-		// Whitelist validation for the post type options
-		if ( !isset( $new_options['post_types'] ) )
-			$new_options['post_types'] = array();
-		$new_options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
-		
-		return $new_options;
+
+		$options = (array)$this->module->options;
+
+		$options['post_types'] = $this->clean_post_type_options( $new_options['post_types'], $this->module->post_type_support );
+
+		if ( in_array( $new_options['quick_create_post_type'], array_keys( $this->get_all_post_types() ) ) )
+			$options['quick_create_post_type'] = $new_options['quick_create_post_type'];
+
+		if ( 'on' != $new_options['ics_subscription'] )
+			$new_options['ics_subscription'] = 'off';
+
+		return $options;
 	}
 	
 	/**
@@ -1142,8 +1400,10 @@ class EF_Calendar extends EF_Module {
 
 	/**
 	 * Ajax callback to insert a post placeholder for a particular date
+	 *
+	 * @since 0.8
 	 */
-	function ajax_insert_post_placeholder() {
+	function handle_ajax_insert_post() {
 
 		// Nonce check!
 		if ( !wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
@@ -1154,23 +1414,28 @@ class EF_Calendar extends EF_Module {
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
 		if ( empty( $_POST['ef_insert_date'] ) )
-			$this->print_ajax_response( 'error', 'No date supplied' );
+			$this->print_ajax_response( 'error', __( 'No date supplied.', 'edit-flow' ) );
+
+		// Post type has to be visible on the calendar to create a placeholder
+		if ( ! in_array( $this->module->options->quick_create_post_type, $this->get_post_types_for_module( $this->module ) ) )
+			$this->print_ajax_response( 'error', __( 'Please change Quick Create to use a post type viewable on the calendar.', 'edit-flow' ) );
 
 		// Sanitize post values
 		$post_title = sanitize_text_field( $_POST['ef_insert_title'] );
 
 		if( ! $post_title )
-			$post_title = 'Untitled';
+			$post_title = __( 'Untitled', 'edit-flow' );
 
 		$post_date = sanitize_text_field( $_POST['ef_insert_date'] );
 
-		$post_status = EditFlow()->get_default_post_status();
+		$post_status = $this->get_default_post_status();
 		
 		// Set new post parameters
 		$post_placeholder = array(
 			'post_title' => $post_title,
 			'post_status' => $post_status,
-			'post_date' => date( 'Y-m-d H:i:s', strtotime( $post_date ) )
+			'post_date' => date( 'Y-m-d H:i:s', strtotime( $post_date ) ),
+			'post_type' => $this->module->options->quick_create_post_type,
 		);
 
 		// By default, adding a post to the calendar won't set the timestamp.
@@ -1187,19 +1452,120 @@ class EF_Calendar extends EF_Module {
 			$post = get_post( $post_id );
 
 			// Generate the HTML for the post item so it can be injected
-			$post_li_html = $this->generate_post_li_html( $post, $post_date );
+			ob_start();
+				$this->generate_post_li_html( $post, $post_date );
+				$post_li_html = ob_get_contents();
+			ob_end_clean();
 
 			// announce success and send back the html to inject
 			$this->print_ajax_response( 'success', $post_li_html );
+
+		} else {
+			$this->print_ajax_response( 'error', __( 'Post could not be created', 'edit-flow' ) );
+		}
+	}
+
+	/**
+	 * Returns the singular label for the posts that are
+	 * quick-created on the calendar
+	 * 
+	 * @return str Singular label for a post-type
+	 */
+	function get_quick_create_post_type_name(){
+
+		$post_type_slug = $this->module->options->quick_create_post_type;
+		$post_type_obj = get_post_type_object( $post_type_slug );
+
+		return $post_type_obj->labels->singular_name ?: $post_type_slug;
+	}
+
+	/**
+	 * ajax_ef_calendar_update_metadata
+	 * Update the metadata from the calendar.
+	 * @return string representing the overlay
+	 *
+	 * @since 0.8
+	 */
+	function handle_ajax_update_metadata() {
+		global $wpdb;
+
+		if ( ! wp_verify_nonce( $_POST['nonce'], 'ef-calendar-modify' ) )
+			$this->print_ajax_response( 'error', $this->module->messages['nonce-failed'] );
+		
+		// Check that we got a proper post
+		$post_id = ( int )$_POST['post_id'];
+		$post = get_post( $post_id );
+		if ( ! $post )
+			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
 			
+		// Check that the user can modify the post
+		if ( ! $this->current_user_can_modify_post( $post ) )
+			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
+
+		$default_types = array(
+				'author',
+				'taxonomy',
+			);
+		$metadata_types = array();
+		if ( $this->module_enabled( 'editorial_metadata' ) )
+			$metadata_types = array_keys( EditFlow()->editorial_metadata->get_supported_metadata_types() );
+
+		$valid_types = array_merge( $default_types, $metadata_types );
+
+		if ( empty( $_POST['attr_type'] ) || ! in_array( $_POST['attr_type'], $valid_types ) )
+			$this->print_ajax_response( 'error', __( 'Invalid post metadata type', 'edit-flow' ) );
+
+		// Update an editorial metadata field
+		if ( in_array( $_POST['attr_type'], $metadata_types ) ) {
+			$post_meta_key = sanitize_text_field( '_ef_editorial_meta_' . $_POST['attr_type'] . '_' . $_POST['metadata_term'] );
+			//Javascript date parsing is terrible, so use strtotime in php
+			if ( $_POST['attr_type'] == 'date' )
+				$metadata_value = strtotime( $_POST['metadata_value'] );
+			else
+				$metadata_value = sanitize_text_field( $_POST['metadata_value'] );
+			update_post_meta( $post->ID, $post_meta_key, $metadata_value );
+			$response = 'success';
 		} else {
 
-			// announce error
-			$this->print_ajax_response( 'error', 'Post could not be created' );
+			switch( $_POST['attr_type'] ) {
+				case 'author':
+					$ret = $wpdb->update( $wpdb->posts, array( 'post_author' => (int)$_POST['metadata_value'] ), array( 'ID' => $post->ID ) );
+					if ( $ret ) {
+						$response = 'success';
+						clean_post_cache( $post->ID );
+					} else {
+						$response = new WP_Error( 'invalid-type', __( 'Error updating post author.', 'edit-flow' ) );;
+					}
+					break;
+				case 'taxonomy':
+					//This makes it nice and easy, becuase $_POST['metadata_value']
+					//will either be a comma separated string or a list of ids, one is needed
+					//for updating hierarchical structure, the other is used when not hierarchical
+					$taxonomy = sanitize_text_field( $_POST['metadata_term'] );
+					if ( ! is_array( $_POST['metadata_value'] ) )
+						$array_of_terms = explode( ',', $_POST['metadata_value'] );
+					else
+						$array_of_terms = $_POST['metadata_value'];
+					$array_of_terms = array_map( 'intval', $array_of_terms );
 
+					$response = wp_set_post_terms( $post->ID, $array_of_terms, $taxonomy );
+					break;
+				default:
+					$response = new WP_Error( 'invalid-type', __( 'Invalid metadata type', 'edit-flow' ) );
+					break;
+			}
 		}
 
-	}   // ajax_insert_post_placeholder
+		ob_start();
+			$this->get_inner_information( $this->get_post_information_fields( $post ), $post );
+			$inner_info = ob_get_contents();
+		ob_end_clean();
+
+		if ( ! is_wp_error( $response ) )
+			$this->print_ajax_response( 'success', $inner_info );
+		else
+			$this->print_ajax_response( 'error', __( 'Metadata could not be updated.', 'edit-flow' ) );
+	}
 
 	function calendar_filters() {		
 		$select_filter_names = array();
@@ -1210,6 +1576,50 @@ class EF_Calendar extends EF_Module {
 		$select_filter_names['type'] = 'cpt';
 
 		return apply_filters( 'ef_calendar_filter_names', $select_filter_names );
+	}
+
+	/**
+	 * Sanitize a $_GET or similar filter being used on the calendar
+	 *
+	 * @since 0.8
+	 *
+	 * @param string $key Filter being sanitized
+	 * @param string $dirty_value Value to be sanitized
+	 * @return string $sanitized_value Safe to use value 
+	 */
+	function sanitize_filter( $key, $dirty_value ) {
+
+		switch( $key ) {
+			case 'post_status':
+				// Whitelist-based validation for this parameter
+				$valid_statuses = wp_list_pluck( $this->get_post_statuses(), 'slug' );
+				$valid_statuses[] = 'future';
+				$valid_statuses[] = 'unpublish';
+				$valid_statuses[] = 'publish';
+				if ( in_array( $dirty_value, $valid_statuses ) )
+					return $dirty_value;
+				else
+					return '';
+				break;
+			case 'cpt':
+				$cpt = sanitize_key( $dirty_value );
+				$supported_post_types = $this->get_post_types_for_module( $this->module );
+				if ( $cpt && in_array( $cpt, $supported_post_types ) )
+					return $cpt;
+				else
+					return '';
+				break;
+			case 'start_date':
+				return date( 'Y-m-d', strtotime( $dirty_value ) );
+				break;
+			case 'cat':
+			case 'author':
+				return intval( $dirty_value );
+				break;
+			default:
+				return '';
+				break;
+		}
 	}
 
 	function calendar_filter_options( $select_id, $select_name, $filters ) {

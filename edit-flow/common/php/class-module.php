@@ -8,9 +8,14 @@
 if ( !class_exists( 'EF_Module' ) ) {
 	
 class EF_Module {
+
+	var $published_statuses = array(
+								'publish',
+								'future',
+								'private',
+							);
 	
-	function __construct() {
-	}
+	function __construct() {}
 
 	/**
 	 * Returns whether the module with the given name is enabled.
@@ -27,6 +32,25 @@ class EF_Module {
 	}
 
 	/**
+	 * Gets an array of allowed post types for a module
+	 * 
+	 * @return array post-type-slug => post-type-label
+	 */
+	function get_all_post_types() {
+
+		$allowed_post_types = array(
+			'post' => __( 'Post' ),
+			'page' => __( 'Page' ),
+		);
+		$custom_post_types = $this->get_supported_post_types_for_module();
+		
+		foreach( $custom_post_types as $custom_post_type => $args ) {
+			$allowed_post_types[$custom_post_type] = $args->label;
+		}
+		return $allowed_post_types;
+	}
+
+	/**
 	 * Cleans up the 'on' and 'off' for post types on a given module (so we don't get warnings all over)
 	 * For every post type that doesn't explicitly have the 'on' value, turn it 'off'
 	 * If add_post_type_support() has been used anywhere (legacy support), inherit the state
@@ -39,9 +63,7 @@ class EF_Module {
 	 */
 	function clean_post_type_options( $module_post_types = array(), $post_type_support = null ) {
 		$normalized_post_type_options = array();
-		$all_post_types = wp_list_pluck( $this->get_supported_post_types_for_module(), 'name' );
-		array_push( $all_post_types, 'post', 'page' );
-		$all_post_types = array_merge( $all_post_types, array_keys( $module_post_types ) );
+		$all_post_types = array_keys( $this->get_all_post_types() );
 		foreach( $all_post_types as $post_type ) {
 			if ( ( isset( $module_post_types[$post_type] ) && $module_post_types[$post_type] == 'on' ) || post_type_supports( $post_type, $post_type_support ) )
 				$normalized_post_type_options[$post_type] = 'on';
@@ -119,6 +141,24 @@ class EF_Module {
 	}
 
 	/**
+	 * Gets the name of the default custom status. If custom statuses are disabled,
+	 * returns 'draft'.
+	 * 
+	 * @return str Name of the status
+	 */
+	function get_default_post_status(){
+
+		// Check if custom status module is enabled
+		$custom_status_module = EditFlow()->custom_status->module->options;
+		
+		if( $custom_status_module->enabled == 'on' )
+			return $custom_status_module->default_status;
+		else
+			return 'draft';
+
+	}
+
+	/**
 	 * Filter to all posts with a given post status (can be a custom status or a built-in status) and optional custom post type.
 	 *
 	 * @since 0.7
@@ -182,6 +222,9 @@ class EF_Module {
 		// Datepicker is available WordPress 3.3. We have to register it ourselves for previous versions of WordPress
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'common/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );
+
+		//Timepicker needs to come after jquery-ui-datepicker and jquery
+		wp_enqueue_script( 'edit_flow-timepicker', EDIT_FLOW_URL . 'common/js/jquery-ui-timepicker-addon.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );		
 
 		// Now styles
 		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/css/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
