@@ -70,9 +70,14 @@ class Ooyala_Video {
 
 				if ( !empty( $options['api_key'] ) && !empty( $options['api_secret'] ) && empty( $options['player_id'] ) ) {
 					$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
-					$players = $api->get( "players" );
 
-					if ( ! empty( $players->items ) ) {
+					try {
+						$players = $api->get( "players" );
+					} catch ( Exception $e ) {
+						$players = false;
+					}
+
+					if ( $players && ! empty( $players->items ) ) {
 						$options['players'] = array();
 						foreach ( $players->items as $player )
 							$options['players'][] = $player->id;
