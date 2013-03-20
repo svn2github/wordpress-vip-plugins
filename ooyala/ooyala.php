@@ -68,7 +68,7 @@ class Ooyala_Video {
 				$this->partner_code = $options['partner_code'];
 				$this->secret_code  = $options['secret_code'];
 
-				if ( !empty( $options['api_key'] ) && !empty( $options['api_secret'] ) ) {
+				if ( !empty( $options['api_key'] ) && !empty( $options['api_secret'] ) && empty( $options['player_id'] ) ) {
 					$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
 					$players = $api->get( "players" );
 
