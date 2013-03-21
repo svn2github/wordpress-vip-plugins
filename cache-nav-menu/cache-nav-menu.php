@@ -20,26 +20,26 @@ add_action( 'parse_query', 'cache_nav_menu_parse_query' );
 /**
  * Wrapper function around wp_nav_menu() that will cache the wp_nav_menu for all tag/category
  * pages used in the nav menus
- */ 
+ */
 function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 	global $wp_query;
-	
+
 	$queried_object_id = empty( $wp_query->queried_object_id ) ? 0 : (int) $wp_query->queried_object_id;
-	
+
 	$nav_menu_key = md5( serialize( $args ) . '-' . $queried_object_id );
 	$my_args = wp_parse_args( $args );
 	$my_args = apply_filters( 'wp_nav_menu_args', $my_args );
 	$my_args = (object) $my_args;
-	
+
 	if ( ( isset( $my_args->echo ) && true === $my_args->echo ) || !isset( $my_args->echo ) ) {
 		$echo = true;
 	} else {
 		$echo = false;
 	}
-	
+
 	$skip_cache = false;
 	$use_cache = ( true === $prime_cache ) ? false : true;
-	
+
 	if ( true === $skip_cache || true === $prime_cache || false === ( $nav_menu = wp_cache_get( $nav_menu_key, 'cache-nav-menu' ) ) ) {
 		if ( false === $echo ) {
 			$nav_menu = wp_nav_menu( $args );
@@ -50,7 +50,7 @@ function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 		}
 		if ( false === $skip_cache )
 			wp_cache_set( $nav_menu_key, $nav_menu, 'cache-nav-menu' );
-	} 
+	}
 	if ( true === $echo )
 		echo $nav_menu;
 	else
@@ -71,7 +71,7 @@ function wpcom_vip_get_nav_menu_cache_objects( $use_cache = true ) {
 	}
 
 	$object_ids = $objects = array();
-	
+
 	$menus = wp_get_nav_menus();
 	foreach ( $menus as $menu_maybe ) {
 		if ( $menu_items = wp_get_nav_menu_items( $menu_maybe->term_id ) ) {
@@ -92,9 +92,9 @@ function wpcom_vip_get_nav_menu_cache_objects( $use_cache = true ) {
 			}
 		}
 	}
-	
+
 	$object_ids[] = 0; // that's for the homepage
-	
+
 	wp_cache_set( $cache_key, $object_ids, 'cache-nav-menu' );
 	return $object_ids;
 }
