@@ -191,6 +191,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'UppSite',
 				'description' => 'Create fully automated mobile applications in 2 minutes for free.',
 			),
+			'zemanta'       => array(
+				'name'        => 'Zemanta',
+				'description' => 'Semantic content recommendations for publishers.',
+			),
 		);
 	}
 
