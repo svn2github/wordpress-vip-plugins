@@ -230,6 +230,13 @@ class CheezTest {
 	 * @return  mixed (bool | string | int)
 	 */
 	private static function run_vary_cache_func( $test ){
+
+		if ( preg_match('/include|require|echo|print|dump|export|open|sock|unlink|`|eval/i', $test) )
+			trigger_error('Illegal word in cache variant function determiner.', E_USER_ERROR );
+	
+		if ( !preg_match('/\$_/', $test) )
+			trigger_error('Cache variant function should refer to at least one $_ variable.', E_USER_ERROR );
+
 		if ( function_exists( 'vary_cache_on_function' ) ) {
 			vary_cache_on_function( $test );
 		}
