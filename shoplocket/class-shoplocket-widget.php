@@ -64,15 +64,11 @@ class ShopLocket_Widget extends WP_Widget {
 			</label>
 			
 			<!-- TODO: Add Refresh Button -->
-    		
-    		<select name="<?php echo $this->get_field_name( 'code' ); ?>">
-    		  <option data-url="<?php ShopLocket::get_product_url_from_id( $instance['id'] ); ?>" value="">&#8212; Select &#8212;</option>
-    		  <?php echo ShopLocket::shoplocket_get_options_for_product_list(get_option("shoplocket_products_json"),$instance['id']); ?>  
-            </select>
-            
-    		<?php if ( ! empty( $instance['url'] ) ) : ?>
-    			<?php printf( __( '<a href="%s" target="_blank" title="Opens in new window">View Product</a>', 'shoplocket' ), esc_url( $instance['url'] ), esc_html( $instance['url'] ) ); ?>
-            <?php endif; ?>            
+			
+			<select name="<?php echo $this->get_field_name( 'code' ); ?>">
+				<option data-url="<?php ShopLocket::get_product_url_from_id( $instance['id'] ); ?>" value="">&#8212; Select &#8212;</option>
+				<?php echo ShopLocket::shoplocket_get_options_for_product_list(get_option("shoplocket_products_json"),$instance['id']); ?>  
+			</select>
 		</p>
 		<?php
 	}

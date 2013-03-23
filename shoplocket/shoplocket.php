@@ -53,13 +53,15 @@ class ShopLocket {
 			(SHOPLOCKET_CURRENT_PAGE == 'options-general.php' && isset($_GET["page"]) && $_GET["page"]==="shoplocket_settings")
 		   )
 		{
-			wp_enqueue_style( "shoplocket", plugins_url( '/css/shoplocket-admin.css', __FILE__ ));		
+			wp_enqueue_style( "shoplocket", plugins_url( '/css/shoplocket-admin.css?2', __FILE__ ));        
 		}
-		add_filter( 'mce_css', array( 'ShopLocket', 'shoplocket_mce_css' ) );		
-		add_action( 'admin_menu', array( 'ShopLocket', 'settings_add_shoplocket_page') );			   
-		add_action( 'wp_ajax_shoplocket_get_products', array('ShopLocket','shoplocket_get_products'));		
+		add_filter( 'mce_css', array( 'ShopLocket', 'shoplocket_mce_css' ) );       
+		add_action( 'admin_menu', array( 'ShopLocket', 'settings_add_shoplocket_page') );              
+		add_action( 'wp_ajax_shoplocket_get_products', array('ShopLocket','shoplocket_get_products'));      
 		add_action( 'wp_ajax_shoplocket_dismiss_config_message', array('ShopLocket','shoplocket_dismiss_config_message'));
 		add_action( 'admin_footer', array( 'ShopLocket', 'display_config_message' ) );
+		add_action( 'admin_post_shoplocket_admin_css_products', array('ShopLocket', 'shoplocket_admin_css_products'));
+
 	}
 
 	static function install() {
@@ -85,20 +87,49 @@ class ShopLocket {
 			);
 	}
 
+	public static function shoplocket_admin_css_products() {
+
+		header("Content-type: text/css; charset: UTF-8");
+		$json = get_option("shoplocket_products_json");
+		if ($json) {
+			$products = json_decode(get_option("shoplocket_products_json"));
+			if ($products) {
+				foreach($products->products as $product) {
+					echo '#shoplocket' . $product->token . '
+						{background: 50% 20px no-repeat url("' . $product->images[0]->sizes->thumb . '"),
+									 url("' . plugins_url('/img/bluegrid.png', __FILE__ ) . '") 50% -1px;}
+					' . "\n";   
+				}
+			}
+		}
+
+	}
+
 	public static function shoplocket_mce_css( $mce_css ) {
 		if ( ! empty( $mce_css ) )
 			$mce_css .= ',';
 
-		$mce_css .= plugins_url( '/css/editor.css', __FILE__ );
+		// static css for editor
+		$mce_css .= plugins_url( '/css/editor.css?7', __FILE__ );
+		
+		// separator
+		$mce_css .= ',';
+
+		// dynamic css for individual products
+		$version = get_transient("use_shoplocket_products_json"); // use the time the data was pulled for cache-busting
+		if (!$version) {
+			$version = time();
+		}
+		$mce_css .= admin_url('admin-post.php?action=shoplocket_admin_css_products&version=' . $version);
 
 		return $mce_css;
 	}
 
-	public static function shoplocket_dismiss_config_message() {	
+	public static function shoplocket_dismiss_config_message() {    
 		
 		$nonce = "";
 		if (isset($_POST["nonce"])) {
-			$nonce = $_POST["nonce"];			
+			$nonce = $_POST["nonce"];           
 		}
 		if (! wp_verify_nonce($nonce, 'shoplocket_settings') ) wp_die('You do not have permission to save this page.');
 		if (! current_user_can("manage_options") ) wp_die('You do not have permission to save this page.');
@@ -123,12 +154,12 @@ class ShopLocket {
 	function shoplocket_tinymce_add_plugin($plugin_array) {
 	   $plugin_array['shoplocketproduct'] = plugins_url('/js/editor_plugin.js', __FILE__);
 	   return $plugin_array;
-	}			
+	}           
 
 	/**
 	 * Allow using a URL on its own line:
-	 *	  https://www.shoplocket.com/products/02b0c58fd5f/embed
-	 *	  https://www.shoplocket.com/products/02b0c58fd5f
+	 *    https://www.shoplocket.com/products/02b0c58fd5f/embed
+	 *    https://www.shoplocket.com/products/02b0c58fd5f
 	 */
 	function embed_handler( $matches, $attr, $url, $rawattr ) {
 		return self::render_shortcode( array( 'url' => $url ) );
@@ -148,9 +179,9 @@ class ShopLocket {
 	 * Borrowed from Jetpack's Vimeo Shortcode
 	 *
 	 * Adding this to post content
-	 *	  <iframe class='shoplocket-embed' src='https://www.shoplocket.com/products/02b0c58fd5f/embed' width='510' height='400' frameborder='0' style='max-width:100%;'scrolling='no'></iframe>
+	 *    <iframe class='shoplocket-embed' src='https://www.shoplocket.com/products/02b0c58fd5f/embed' width='510' height='400' frameborder='0' style='max-width:100%;'scrolling='no'></iframe>
 	 * Turns into
-	 *	  [shoplocket id="02b0c58fd5f" width="510" height="400"]
+	 *    [shoplocket id="02b0c58fd5f" width="510" height="400"]
 	 */
 	function embed_to_shortcode( $content, $regexp ) {
 		if ( false === stripos( $content, self::BASE_URL ) ) 
@@ -251,6 +282,7 @@ class ShopLocket {
 		<script>
 		
 			function launchShopLocketProduct() {
+				getShopLocketProducts();
 				tb_show("<?php echo __("Add ShopLocket Product", 'shoplocket'); ?>", "#TB_inline?width=640&inlineId=select_shoplocket_product");
 				jQuery("#TB_ajaxContent").height(jQuery("#TB_window").height()-48)
 			}
@@ -267,15 +299,22 @@ class ShopLocket {
 					alert("<?php echo __("Please select a product.", "shoplocket"); ?>");
 					return;
 				}
+				var width = validatePreviewSize(document.getElementById('shoplocket_width').value);
+				var height = validatePreviewSize(document.getElementById('shoplocket_height').value);
+
+				shoplocket_shortcode = shoplocket_shortcode.replace("{W}",width);
+				shoplocket_shortcode = shoplocket_shortcode.replace("{H}",height);
+				shoplocket_shortcode = shoplocket_shortcode.replace("{W}",width);
+				shoplocket_shortcode = shoplocket_shortcode.replace("{H}",height);              
 				
-				unclickShopLocketProduct();				
+				unclickShopLocketProduct();             
 				window.send_to_editor(shoplocket_shortcode);
 			}
 			
 			function clickShopLocketProduct(clickedListItem) {
 			
 				// add selected class
-				unclickShopLocketProduct(clickedListItem.parentNode);				
+				unclickShopLocketProduct(clickedListItem.parentNode);               
 				clickedListItem.className = "selected";
 				
 				// put the shortcode in the hidden field
@@ -283,11 +322,30 @@ class ShopLocket {
 				inputs = clickedListItem.getElementsByTagName('input');
 				document.getElementById("shoplocket_shortcode").value = inputs[0].value;
 				document.getElementById("shoplocket_shortcode_visual").value = inputs[1].value;
+				document.getElementById("shoplocket_width").value = clickedListItem.getAttribute("data-width");
+				document.getElementById("shoplocket_height").value = clickedListItem.getAttribute("data-height");
+				if (clickedListItem.getAttribute("data-responsive")==1) {
+					document.getElementById("shoplocket_dimensions").className = "";                    
+				} else {
+					document.getElementById("shoplocket_dimensions").className = "invisible";
+				}
 
 				// put the preview iframe in the proper div
-				jQuery("#shoplocket_preview").empty().append(inputs[2].value);
-				jQuery("#shoplocket_preview").addClass('has_iframe');
+				jQuery("#shoplocket_preview").empty().append(inputs[2].value).addClass('has_iframe');
+				updateShopLocketPreviewSize();
 
+			}
+
+			function updateShopLocketPreviewSize() {
+				width = validatePreviewSize(document.getElementById("shoplocket_width").value);
+				height = validatePreviewSize(document.getElementById("shoplocket_height").value);
+				setTimeout(function() {
+					jQuery("#shoplocket_preview iframe").attr('height',height).attr('width',width);
+				}, 300);
+			}
+
+			function validatePreviewSize(dim) {
+				return dim.replace(/[^0-9]/g, '');
 			}   
 			
 			function unclickShopLocketProduct(unorderedList) {
@@ -296,19 +354,19 @@ class ShopLocket {
 					unorderedList = document.getElementById("shoplocket_product_list");
 				}
 
-				// remove "selected" class from all li			
+				// remove "selected" class from all li          
 				listItems = unorderedList.getElementsByTagName("li");
 				for (i=0;i<listItems.length;i++)
 				{
 					listItems[i].className = "";
-				}	 
+				}    
 				
 				// clear selected item
 				inputHidden = document.getElementById("shoplocket_shortcode");
 				inputHidden.value = "";
-				jQuery("#shoplocket_preview").empty().removeClass('has_iframe');										   
+				jQuery("#shoplocket_preview").empty().removeClass('has_iframe');                                           
 
-			}		
+			}       
 			
 			function closeShopLocketProduct() {
 				unclickShopLocketProduct();
@@ -339,7 +397,7 @@ class ShopLocket {
 						ajax_refresh.className = "hidden";
 						ajax_error.className = "";
 					}
-				}, "json");				
+				}, "json");             
 			}
 			<?php
 			// we have a copy of products in wp_options, shoplocket_products_json
@@ -358,7 +416,7 @@ class ShopLocket {
 		</script>
 
 		<div id="select_shoplocket_product" style="display:none;">
-			<div class="wrapper">				
+			<div class="wrapper">               
 				<p class="howto">
 					<?php echo __('Select a product', 'shoplocket'); ?>
 					<a style="float: right;" href="#" onclick="getShopLocketProducts(); return false;">
@@ -377,12 +435,16 @@ class ShopLocket {
 				</p>
 				
 				<div class="submitbox">
-					<div style="float: left;">
+					<span style="float: left;">
 						<a href="#" onclick="javascript:closeShopLocketProduct(); return false;"><?php echo __("Cancel", "shoplocket"); ?></a>
-					</div>
-					<div  style="float: right;">
+					</span>
+					<span class="invisible" id="shoplocket_dimensions">
+						<label>Width: <input id="shoplocket_width" type="text" size="5" onkeyup="javascript:updateShopLocketPreviewSize();"></label>
+						<label>Height: <input id="shoplocket_height" type="text" size="5" onkeyup="javascript:updateShopLocketPreviewSize();"></label>
+					</span>
+					<span  style="float: right;">
 						<input type="submit" class="button-primary" value="Insert Product" onclick="addShopLocketProduct();"/>
-					</div>
+					</span>
 				</div>
 				<div id="shoplocket_preview">
 				</div>
@@ -401,11 +463,11 @@ class ShopLocket {
 			if ($products) {
 				foreach($products->products as $product) {
 					$img = "";
-					$html .= '<li onclick="javascript:clickShopLocketProduct(this)";>';
-					$shortcode = '[shoplocket id=' .  $product->token . ' w=' .  $product->default_widget_style->width . ' h=' . $product->default_widget_style->height . ']';
+					$html .= '<li data-responsive="' . $product->default_widget_style->responsive . '" data-height="'.  $product->default_widget_style->height . '" data-width="'.  $product->default_widget_style->width . '" onclick="javascript:clickShopLocketProduct(this)";>';
+					$shortcode = '[shoplocket id=' .  $product->token . ' w={W} h={H}]';
 					//$shortcode = '<div class="shoplocketProductDiv" title="' . $product->name . '"><span style="width: ' . $product->default_widget_style->width . 'px; height: ' . $product->default_widget_style->height . 'px;" class="shoplocketProduct mceItem" title="' . str_replace(array("[","]"),"",$shortcode) . '">&nbsp;</span></div>';
 					//$shortcode = '<img src="' . '/wp-content/plugins/slproductitem/img/t.gif" class="slProductItem mceItem" title="' . str_replace(array("[","]"),"",$shortcode) . '" />';
-					$shortcode_visual = '<img style="width: ' . $product->default_widget_style->width . 'px; height: ' . $product->default_widget_style->height . 'px;" src="'.plugins_url('/img/spacer.gif', __FILE__).'" class="shoplocketProductDiv mceItem" title="' . str_replace(array("[","]"),"",$shortcode) . '" />';
+					$shortcode_visual = '<img id="shoplocket' . $product->token . '" style="width: {W}px; height: {H}px;" src="'.plugins_url('/img/spacer.gif', __FILE__).'" class="shoplocketProductDiv mceItem" title="' . str_replace(array("[","]"),"",$shortcode) . '" />';
 					$html .= '<input type="hidden" class="item-shortcode" value="' . esc_attr($shortcode) . '">';
 					$html .= '<input type="hidden" class="item-shortcode-visual" value="' . esc_attr($shortcode_visual) . '">';
 					$html .= '<input type="hidden" class="item-preview" value="' . esc_attr(do_shortcode('[shoplocket id=' .  $product->token . ' w=' .  $product->default_widget_style->width . ' h=' . $product->default_widget_style->height . ']') ) . '">';
@@ -416,17 +478,17 @@ class ShopLocket {
 					}
 					$html .= '</span>';
 					$html .= '<span class="item-title"><h2>' . esc_html($product->name) . '</h2>';
-					$html .= 'Published ' . $product->published_at;
+					$html .= 'Published: ' . date('F d, Y',strtotime($product->published_at));
 					$html .= '</span>';
 					$html .= '</li>';
 				}
 			}
 		}
 		if ($html == "") {
-			$html = '<li>No products found.</li>';									
+			$html = '<li>No products found.</li>';                                  
 		}
 		
-//		$html = "<pre>" . print_r($products->products[1]->images[0]->sizes->thumb,true) . "</pre>";
+//      $html = "<pre>" . print_r($products->products[1]->images[0]->sizes->thumb,true) . "</pre>";
 		
 		return $html;
 				
@@ -448,19 +510,19 @@ class ShopLocket {
 		}
 		return $html;
 				
-	}	
+	}   
 
-	public static function shoplocket_get_products() {	
+	public static function shoplocket_get_products() {  
 
 		$nonce = "";
 		if (isset($_POST["nonce"])) {
-			$nonce = $_POST["nonce"];			
+			$nonce = $_POST["nonce"];           
 		}
 		if (! wp_verify_nonce($nonce, 'shoplocket_settings') ) wp_die('You do not have permission to retrieve this information.');
 		if (! current_user_can("edit_posts") && ! current_user_can("edit_pages") ) wp_die('You do not have permission to retrieve this information.');
 
 		$shoplocket = get_option('shoplocket_settings');
-		if (! isset($shoplocket["access_token"])) {$shoplocket["access_token"] = "";}		
+		if (! isset($shoplocket["access_token"])) {$shoplocket["access_token"] = "";}       
 
 		$from_shoplocket = wp_remote_request("https://www.shoplocket.com/api/v1/products.json?state=published&access_token=" . $shoplocket["access_token"]);
 		if (isset($from_shoplocket["response"]["code"])) {
@@ -468,7 +530,7 @@ class ShopLocket {
 			if ($from_shoplocket["response"]["code"] == 200) {
 				// $to_wordpress["body"] = $from_shoplocket["body"];
 				$products = $from_shoplocket["body"];
-				set_transient("use_shoplocket_products_json","true", 60*60*24);
+				set_transient("use_shoplocket_products_json",time(), 60*60*24); // transient contains the time the data was pulled for reference
 				update_option("shoplocket_products_json",$products);
 				$to_wordpress["html"] = self::shoplocket_get_html_for_product_list($products);
 			}
@@ -477,11 +539,11 @@ class ShopLocket {
 		}
 		echo json_encode($to_wordpress);
 		die(); // this is required to return a proper result
-	}	
+	}   
 	
 	public static function settings_init() {
 		register_setting( 'shoplocket_settings', 'shoplocket_settings', array("ShopLocket",'settings_validate_submission'));
-	}			   
+	}              
 	
 	public static function settings_add_shoplocket_page() {
 		add_options_page( 'Configure ShopLocket Integration', 'ShopLocket', 'manage_options', 'shoplocket_settings', array( 'ShopLocket', 'settings_render_shoplocket_page') );
@@ -510,8 +572,8 @@ class ShopLocket {
 					break;
 				case 2:
 					echo '<div id="setting-error-settings_updated" class="error settings-error"><p><strong>There was a problem connecting to ShopLocket. Please try again.</strong></p></div>';
-					break;					
-			}	   
+					break;                  
+			}      
 		}
 
 		// 1. if we're missing either an app id or an app secret,
@@ -535,7 +597,7 @@ class ShopLocket {
 			if ($shoplocket['app_id'] == "" || $shoplocket['app_secret'] == "") {
 				// create app
 				$create_app_class = 'button-primary';
-				$create_app_label = __('Connect to ShopLocket','shoplocket');				
+				$create_app_label = __('Connect to ShopLocket','shoplocket');               
 				$state = urlencode('shoplocket/connect/' . wp_create_nonce('shoplocket_settings'));
 				echo '<a href="' . self::BASE_URL . self::OAUTH_NEW_INSTALL . '?state=' . $state . '&redirect_uri=' . $redirect_uri . '&site_name=' . $site_name . '" class="' . $create_app_class . '" >' . $create_app_label . '</a> ';
 			} else {
@@ -571,7 +633,7 @@ class ShopLocket {
 		if ($shoplocket['app_id'] != "" && $shoplocket['app_secret'] != "") {
 			echo '<div class="shoplocket-start-over">';
 			$create_app_class = 'button';
-			$create_app_label = __('Start Over','shoplocket');				
+			$create_app_label = __('Start Over','shoplocket');              
 			$state = urlencode('shoplocket/connect/' . wp_create_nonce('shoplocket_settings'));
 			echo '<div class="shoplocket-start-over-button">';
 			echo '<a href="' . self::BASE_URL . self::OAUTH_NEW_INSTALL . '?state=' . $state . '&redirect_uri=' . $redirect_uri . '&site_name=' . $site_name . '" class="' . $create_app_class . '" >' . $create_app_label . '</a> ';
@@ -579,7 +641,7 @@ class ShopLocket {
 			echo '<div class="shoplocket-start-over-table">';
 			echo '<table class="form-table">';
 			echo '<tr valign="top"><th scope="row">App ID </th><td>' . esc_html($shoplocket['app_id']) . '</td></tr>';
-			echo '<tr valign="top"><th scope="row">App Secret</th><td>' . esc_html($shoplocket['app_secret']) . '</td></tr>';	 
+			echo '<tr valign="top"><th scope="row">App Secret</th><td>' . esc_html($shoplocket['app_secret']) . '</td></tr>';    
 			echo '<tr valign="top"><th scope="row">Token</th><td>' . esc_html($shoplocket['access_token']) . '</td></tr>';
 			echo '</table>';
 			echo '</div>';
@@ -591,7 +653,8 @@ class ShopLocket {
 		?>
 			<script>
 				var data = {
-					action: 'shoplocket_get_products'
+					action: 'shoplocket_get_products',
+					nonce: '<?php echo wp_create_nonce('shoplocket_settings') ?>'
 				};
 				jQuery.post(ajaxurl, data, function(response) {
 					// no action required
@@ -610,7 +673,7 @@ class ShopLocket {
 		
 		if ($action == "connect") {
 			$newinput['app_id'] = sanitize_text_field($input['app_id']);
-			$newinput['app_secret'] = sanitize_text_field($input['app_secret']);		
+			$newinput['app_secret'] = sanitize_text_field($input['app_secret']);        
 		} else {
 			$newinput['token'] = sanitize_text_field($input['token']);
 		}
@@ -634,7 +697,7 @@ class ShopLocket {
 			$shoplocket = get_option('shoplocket_settings');
 			if (!isset($shoplocket["token"])) {$shoplocket["token"] = "";}
 			if (!isset($shoplocket["app_id"])) {$shoplocket["app_id"] = "";}
-			if (!isset($shoplocket["app_secret"])) {$shoplocket["app_secret"] = "";}			
+			if (!isset($shoplocket["app_secret"])) {$shoplocket["app_secret"] = "";}            
 		
 			// if these POST variables are set, then we're at Step 1: Connect 
 			if ($state[1] == "connect" && isset($_POST["app_id"]) && isset($_POST["app_secret"]) && !empty($_POST["app_id"]) && !empty($_POST["app_secret"])) {
@@ -660,7 +723,7 @@ class ShopLocket {
 				} else {
 					echo '<p>ShopLocket and WordPress are now connected. <a href="' . $wp_redirect . '">Continue to ShopLocket Authorization &rarr;</a></p>';
 					exit;
-				}			
+				}           
 			}
 							
 			// if these GET variables are set, then we're at Step 2: Authorize 
@@ -706,7 +769,7 @@ class ShopLocket {
 		return preg_match( ShopLocket::URL_REGEX_PATTERN, $url );
 	}
 
-	static function get_product_url_from_id( $id ) {		
+	static function get_product_url_from_id( $id ) {        
 		return sprintf( self::PRODUCT_URL_SPRINTF_PATTERN, $id );
 	}
 

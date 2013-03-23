@@ -71,15 +71,15 @@
             return co.replace(/\[shoplocket([^\]]*)\]/g, function(a,b){
                 var w = 200;
                 var h = 200;
-                var t = "ShopLocket";
+                var t = "shoplocketID";
                 attrs = b.split(' ');
                 for(var i=0;i<attrs.length;i++) {
                     attr = attrs[i].split("=");
                     if (attr[0]=="w") w = attr[1];
                     if (attr[0]=="h") h = attr[1];
-                    if (attr[0]=="title") t = attr[1];
+                    if (attr[0]=="id") t = "shoplocket" + attr[1];
                 }
-                return '<img style="width: ' + w + 'px; height: ' + h + 'px;" src="'+url+'/../img/spacer.gif" class="shoplocketProductDiv mceItem" title="shoplocket'+tinymce.DOM.encode(b)+'" />';
+                return '<img id="' + t + '" style="width: ' + w + 'px; height: ' + h + 'px;" src="'+url+'/../img/spacer.gif" class="shoplocketProductDiv mceItem" title="shoplocket'+tinymce.DOM.encode(b)+'" />';
             });
         },
 

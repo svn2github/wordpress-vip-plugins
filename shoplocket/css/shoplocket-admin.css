@@ -54,6 +54,11 @@ ul#shoplocket_product_list li.selected h2 {
     background-size: 16px 16px;
 }
 .submitbox:after {content:"";height:0;display:block;visibility:hidden;clear:both;}
+.submitbox {text-align: right;}
+.submitbox input[type='text'] {margin-right: 2em;}
+.submitbox input[disabled][type='text'] {
+    background: #EEE;
+}
 #shoplocket_preview {
     clear: both;
     margin-top: 3em;
@@ -185,4 +190,7 @@ ul#shoplocket_product_list li.selected h2 {
     right: 0;
     width: 200px;
     text-align: center;
+}
+#shoplocket_dimensions.invisible {
+	visibility: hidden;
 }
