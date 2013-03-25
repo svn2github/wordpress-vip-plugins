@@ -186,6 +186,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'SocialFlow',
 				'description' => 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
 			),
+			'storify'    => array(
+				'name'        => 'Storify',
+				'description' => 'Easily add social media to every blog post with Storify.',
+			),
 			'uppsite'       => array(
 				'name'        => 'UppSite',
 				'description' => 'Create fully automated mobile applications in 2 minutes for free.',
