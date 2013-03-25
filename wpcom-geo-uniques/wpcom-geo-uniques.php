@@ -44,10 +44,8 @@ class WPCOM_Geo_Uniques {
 		// Add default to list of supported countries
 		static::add_location( static::$default_location );
 		
-		// Determine which piece of geolocation data to salt the cache key with
-		$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
-
 		// Handle location detection on parse_request so we know the context of the request
+		// Do it as soon as possible!
 		add_action( 'parse_request', array( 'WPCOM_Geo_Uniques', 'action_parse_request' ) );
 	}
 
@@ -56,11 +54,14 @@ class WPCOM_Geo_Uniques {
 		// Don't do this on feed requests
 		if ( empty( $request->query_vars['feed'] ) ) {
 			if ( ! self::user_has_location() ) {
-				if ( isset( $_GET[ self::ACTION_PARAM ] ) )
+				if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
+					// Determine which piece of geolocation data to salt the cache key with
+					$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
+
 					self::geolocate_user( $location_type );
-				else
-					WPCOM_Geo_Uniques::geolocate_js(); // Do it nowww (aka as soon as possible)!
-					//add_action( 'init', array( __CLASS__, 'geolocate_js' ), 0 ); // geo-locate as early as possible, I think init is as high as we can get...
+				} else {
+					WPCOM_Geo_Uniques::geolocate_js();
+				}
 			}
 		}
 
