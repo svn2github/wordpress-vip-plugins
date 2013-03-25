@@ -147,7 +147,6 @@ class WPcom_VIP_Plugins_UI {
 			'inform',
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
-			'storify',
 			'daylife',
 			'five-min-video-suggest',
 
