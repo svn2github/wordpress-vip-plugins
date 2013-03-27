@@ -50,9 +50,8 @@ class WPCOM_Geo_Uniques {
 	}
 
 	static function action_parse_request( $request ) {
-		
-		// Don't do this on feed requests
-		if ( empty( $request->query_vars['feed'] ) ) {
+		// Don't do this on feed requests or robot.txt
+		if ( empty( $request->query_vars['feed'] ) && empty( $request->query_vars['robots'] ) ) {
 			if ( ! self::user_has_location() ) {
 				if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
 					// Determine which piece of geolocation data to salt the cache key with
