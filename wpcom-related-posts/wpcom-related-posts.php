@@ -202,7 +202,7 @@ class WPCOM_Related_Posts {
 				$related_posts_html[] = '<li>';
 
 				if ( has_post_thumbnail( $related_post->ID ) ) {
-					$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . get_the_post_thumbnail( $related_post->ID ) . '</a>';
+					$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . get_the_post_thumbnail( $related_post->ID, apply_filters( 'wrp_thumbnail_size', 'post-thumbnail' ) ) . '</a>';
 				}
 
 				$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . apply_filters( 'the_title', $related_post->post_title ) . '</a>';
