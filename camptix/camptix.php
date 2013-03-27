@@ -3,7 +3,7 @@
  * Plugin Name: CampTix Event Ticketing
  * Plugin URI: http://wordcamp.org
  * Description: Simple and flexible event ticketing for WordPress.
- * Version: 1.3
+ * Version: 1.3.1
  * Author: Automattic
  * Author URI: http://wordcamp.org
  * License: GPLv2
@@ -194,7 +194,7 @@ class CampTix_Plugin {
 	 * Runs during the tix_email_schedule scheduled event, processes e-mail jobs.
 	 */
 	function send_emails_batch() {
-		global $wpdb;
+		global $wpdb, $shortcode_tags;
 
 		// Sometimes Cron can run before $this->init()
 		if ( ! did_action( 'camptix_init' ) )
@@ -227,6 +227,10 @@ class CampTix_Plugin {
 		unset( $recipients_data, $recipient );
 
 		if ( $recipients && is_array( $recipients ) && count( $recipients ) > 0 ) {
+
+			// Remove all shortcodes before sending the e-mails, but bring them back later.
+			$this->removed_shortcodes = $shortcode_tags;
+			remove_all_shortcodes();
 
 			do_action( 'camptix_init_notify_shortcodes' );
 
@@ -287,6 +291,10 @@ class CampTix_Plugin {
 				$this->filter_post_meta = false;
 				$this->tmp( 'attendee_id', false );
 			}
+
+			// Bring back the original shortcodes.
+			$shortcode_tags = $this->removed_shortcodes;
+			$this->removed_shortcodes = array();
 		}
 
 		//update_post_meta( $email->ID, 'tix_email_recipients', $recipients );
@@ -306,8 +314,6 @@ class CampTix_Plugin {
 	}
 
 	function init_email_templates_shortcodes() {
-		remove_all_shortcodes();
-
 		// Use the same ones as the notify shortcode
 		add_shortcode( 'first_name', array( $this, 'notify_shortcode_first_name' ) );
 		add_shortcode( 'last_name', array( $this, 'notify_shortcode_last_name' ) );
@@ -336,12 +342,10 @@ class CampTix_Plugin {
 	}
 
 	/**
-	 * Removes all shortcodes and creates some shortcodes
+	 * Creates some shortcodes
 	 * to be used with CampTix Notify.
 	 */
 	function init_notify_shortcodes() {
-		remove_all_shortcodes();
-
 		add_shortcode( 'first_name', array( $this, 'notify_shortcode_first_name' ) );
 		add_shortcode( 'last_name', array( $this, 'notify_shortcode_last_name' ) );
 		add_shortcode( 'email', array( $this, 'notify_shortcode_email' ) );
@@ -2644,6 +2648,12 @@ class CampTix_Plugin {
 					$form_data['tickets'] = array_map( 'absint', (array) $_POST['tix_notify_tickets'] );
 			}
 		}
+
+		// Remove all standard shortcodes.
+		$this->removed_shortcodes = $shortcode_tags;
+		remove_all_shortcodes();
+
+		do_action( 'camptix_init_notify_shortcodes' );
 		?>
 		<?php settings_errors( 'camptix' ); ?>
 		<form method="post" action="<?php echo esc_url( add_query_arg( 'tix_notify_attendees', 1 ) ); ?>">
@@ -2674,7 +2684,6 @@ class CampTix_Plugin {
 						<th scope="row"><?php _e( 'Message', 'camptix' ); ?></th>
 						<td>
 							<textarea rows="10" name="tix_notify_body" id="tix-notify-body" class="large-text"><?php echo esc_textarea( $form_data['body'] ); ?></textarea><br />
-							<?php do_action( 'camptix_init_notify_shortcodes' ); ?>
 							<?php if ( ! empty( $shortcode_tags ) ) : ?>
 							<p class=""><?php _e( 'You can use the following shortcodes:', 'camptix' ); ?>
 								<?php foreach ( $shortcode_tags as $key => $tag ) : ?>
@@ -2728,6 +2737,11 @@ class CampTix_Plugin {
 		</form>
 
 		<?php
+
+		// Bring back the original shortcodes.
+		$shortcode_tags = $this->removed_shortcodes;
+		$this->removed_shortcodes = array();
+
 		$history_query = new WP_Query( array(
 			'post_type' => 'tix_email',
 			'post_status' => 'any',
@@ -4442,7 +4456,7 @@ class CampTix_Plugin {
 			$this->error( __( 'The chosen receipt e-mail address is either empty or invalid.', 'camptix' ) );
 
 		if ( isset( $this->error_flags['payment_failed'] ) )
-			$this->error( __( 'An payment error has occurred, looks like chosen payment method is not responding. Please try again later.', 'camptix' ) );
+			$this->error( __( 'A payment error has occurred, looks like chosen payment method is not responding. Please try again later.', 'camptix' ) );
 
 		if ( isset( $this->error_flags['invalid_payment_method'] ) )
 			$this->error( __( 'You have selected an invalid payment method. Please try again.', 'camptix' ) );
@@ -5693,11 +5707,13 @@ class CampTix_Plugin {
 				return;
 			}
 
-			$payment_method_obj->payment_checkout( $payment_token );
-
-			// Check whether there were any immediate payment errors.
-			if ( $this->error_flags )
+			/**
+			 * @todo: Better error messaging for misconfigured payment methods
+			 */
+			$result = $payment_method_obj->payment_checkout( $payment_token );
+			if ( self::PAYMENT_STATUS_FAILED == $result ) {
 				return $this->form_attendee_info();
+			}
 
 		} else { // free beer for everyone!
 			$this->payment_result( $payment_token, self::PAYMENT_STATUS_COMPLETED );
@@ -5986,6 +6002,7 @@ class CampTix_Plugin {
 
 		// Send out the tickets and receipt if necessary.
 		$this->email_tickets( $payment_token, $from_status, $to_status );
+		do_action( 'camptix_payment_result', $payment_token, $result, $data );
 
 		// Let's make a clean exit out of all of this.
 		switch ( $result ) :
@@ -6014,7 +6031,7 @@ class CampTix_Plugin {
 				if ( 'checkout' == get_query_var( 'tix_action' ) ) {
 					$this->error_flag( 'payment_failed' );
 					// $this->error_data['boogie'] = 'woogie'; // @todo Add error data and parse it
-					return;
+					return $result;
 
 				} else {
 					$this->error_flag( 'payment_failed' );
@@ -6044,6 +6061,8 @@ class CampTix_Plugin {
 	}
 
 	function email_tickets( $payment_token = false, $from_status = 'draft', $to_status = 'publish' ) {
+		global $shortcode_tags;
+
 		if ( ! $payment_token )
 			return;
 
@@ -6063,6 +6082,10 @@ class CampTix_Plugin {
 
 		if ( ! $attendees )
 			return;
+
+		// Remove all shortcodes before sending the e-mails, but bring them back later.
+		$this->removed_shortcodes = $shortcode_tags;
+		remove_all_shortcodes();
 
 		do_action( 'camptix_init_email_templates_shortcodes' );
 
@@ -6179,6 +6202,10 @@ class CampTix_Plugin {
 		$this->tmp( 'attendee_id', false );
 		$this->tmp( 'ticket_url', false );
 		$this->tmp( 'receipt', false );
+
+		// Bring the original shortcodes back.
+		$shortcode_tags = $this->removed_shortcodes;
+		$this->removed_shortcodes = array();
 	}
 
 	function redirect_with_error_flags( $query_args = array() ) {
