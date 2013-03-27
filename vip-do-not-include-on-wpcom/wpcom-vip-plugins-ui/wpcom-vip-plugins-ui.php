@@ -186,6 +186,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'PostRelease',
 				'description' => 'Sponsored posts made easy to deploy and manage.',
 			),
+			'shoplocket'    => array(
+				'name'        => 'Shoplocket',
+				'description' => 'Everything you need to start selling professionally from WordPress, in minutes.',
+			),
 			'socialflow'    => array(
 				'name'        => 'SocialFlow',
 				'description' => 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
