@@ -1220,7 +1220,15 @@ class WP_Push_Syndication_Server {
 			if( empty( $posts ) )
 				continue;
 
+			$post_types_processed = array();
+
 			foreach( $posts as $post ) {
+
+				if ( ! in_array( $post->post_type, $post_types_processed ) ) {
+					remove_post_type_support( $post->post_type, 'revisions' );
+					$post_types_processed[] = $post->post_type;
+				}
+
 				if( in_array( $post['post_guid'], $inserted_posts ) ) {
 					$pull_edit_shortcircuit = apply_filters( 'syn_pre_pull_edit_post_shortcircuit', false, $post, $site, $transport_type, $client );
 					if ( true === $pull_edit_shortcircuit )
@@ -1249,6 +1257,10 @@ class WP_Push_Syndication_Server {
 
 				}
 
+			}
+
+			foreach ( $post_types_processed as $post_type ) {
+				add_post_type_support( $post_type, 'revisions' );
 			}
 
 			update_post_meta( $site->ID, 'syn_inserted_posts', $inserted_posts );
