@@ -3,8 +3,10 @@ if ( !function_exists( 'wpcom_vip_load_permastruct' ) ):
 /**
  * Enables a custom permastruct, if the site wants to use one that's not the WP.com default (/yyyy/mm/dd/post-name/)
  *
- * Usage:
- *     wpcom_vip_load_permastruct( '/%category%/%postname%/' );
+ * Usage: wpcom_vip_load_permastruct( '/%category%/%postname%/' );
+ *
+ * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @param string $new_permastruct
  */
 function wpcom_vip_load_permastruct( $new_permastruct ) {
 	define( 'WPCOM_VIP_CUSTOM_PERMALINKS', true );
@@ -17,6 +19,10 @@ endif;
 if ( !function_exists( '_wpcom_vip_filter_permalink_structure' ) ):
 /**
  * Applies the new permalink structure to the option value
+ *
+ * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @param string $permastruct The new permastruct
+ * @return string The new permastruct
  */
 function _wpcom_vip_filter_permalink_structure( $permastruct ) {
 	global $wpcom_vip_permalink_structure;
@@ -31,6 +37,9 @@ if ( !function_exists( 'wpcom_vip_load_category_base' ) ):
  * Usage:
  *     wpcom_vip_load_category_base( '' );
  *     wpcom_vip_load_category_base( 'section' );
+ *
+ * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @param string $new_category_base New category base prefix
  */
 function wpcom_vip_load_category_base( $new_category_base ) {
 	define( 'WPCOM_VIP_CUSTOM_CATEGORY_BASE', true );
@@ -43,6 +52,10 @@ endif;
 if ( !function_exists( '_wpcom_vip_filter_category_base' ) ):
 /**
  * Applies the new category base to the option value
+ *
+ * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @param string $category_base New category base prefix
+ * @return string The category base prefix
  */
 function _wpcom_vip_filter_category_base( $category_base ) {
 	global $wpcom_vip_category_base;
@@ -57,6 +70,9 @@ if ( !function_exists( 'wpcom_vip_load_tag_base' ) ):
  * Usage:
  *     wpcom_vip_load_tag_base( '' );
  *     wpcom_vip_load_tag_base( 'section' );
+ *
+ * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @param string $new_tag_base New tag base prefix
  */
 function wpcom_vip_load_tag_base( $new_tag_base ) {
 	define( 'WPCOM_VIP_CUSTOM_TAG_BASE', true );
@@ -69,6 +85,10 @@ endif;
 if ( !function_exists( '_wpcom_vip_filter_tag_base' ) ):
 /**
  * Applies the new tag base to the option value
+ *
+ * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @param string $tag_base New tag base prefix
+ * @return string The tag base prefix
  */
 function _wpcom_vip_filter_tag_base( $tag_base ) {
 	global $wpcom_vip_tag_base;
@@ -82,9 +102,9 @@ if ( ! function_exists( 'wpcom_vip_set_cdn_url' ) ):
  * 
  * Please get in touch before using this as it can break your site.
  *
- * @param string Hostname of the CDN for media library assets.
- * @param string Hostname of the CDN for static assets.
- * @param bool Whether the custom CDN host should be used in the admin context as well.
+ * @param string $cdn_host_media Hostname of the CDN for media library assets.
+ * @param string $cdn_host_static Optional. Hostname of the CDN for static assets.
+ * @param bool $include_admin Optional. Whether the custom CDN host should be used in the admin context as well.
  */
 function wpcom_vip_load_custom_cdn( $cdn_host_media, $cdn_host_static = '', $include_admin = false ) {
 	if ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED )
@@ -121,6 +141,15 @@ function wpcom_vip_load_custom_cdn( $cdn_host_media, $cdn_host_static = '', $inc
 		}, 999 );
 	}
 }
+
+/**
+ * Replace the hostname in a URL
+ * 
+ * @param string $url Original URL
+ * @param string $cdn_host Replacement hostname
+ * @return string Updated URL
+ * @see wpcom_vip_load_custom_cdn()
+ */
 function _wpcom_vip_custom_cdn_replace( $url, $cdn_host ) {
 	return preg_replace( '|://[^/]+?/|', "://$cdn_host/", $url );
 }

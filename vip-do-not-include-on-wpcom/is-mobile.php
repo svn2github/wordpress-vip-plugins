@@ -9,6 +9,14 @@ if ( ! function_exists( 'jetpack_is_mobile' ) && ( ! isset( $_GET['action'] ) ||
  * @hide-in-jetpack
  */
 
+/**
+ * Is the visitor on a mobile device?
+ *
+ * @param string $kind Optional. Category of mobile device to check for. Either: any*, dumb, smart.
+ * @param bool $return_matched_agent. Optional. If true, return the user agent.
+ * @return bool|string If bool, returns if the $kind matched. If string, return the user agent.
+ * @link http://vip.wordpress.com/documentation/mobile-theme/ Developing for Mobile Phones and Tablets
+ */
 function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $kinds = array( 'smart' => false, 'dumb' => false, 'any' => false );
 	static $first_run = true;
@@ -67,15 +75,20 @@ function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	return $kinds[$kind];
 }
 
+/**
+ * Contains a bunch of helper methods used to detect what the visitor's user agent is.
+ *
+ * @link http://vip.wordpress.com/documentation/mobile-theme/ Developing for Mobile Phones and Tablets
+ */
 class Jetpack_User_Agent_Info {
 
 	var $useragent;
 	var $matched_agent;
-    var $isTierIphone; //Stores whether is the iPhone tier of devices.
-    var $isTierRichCss; //Stores whether the device can probably support Rich CSS, but JavaScript (jQuery) support is not assumed.
-    var $isTierGenericMobile; //Stores whether it is another mobile device, which cannot be assumed to support CSS or JS (eg, older BlackBerry, RAZR)
+	var $isTierIphone; //Stores whether is the iPhone tier of devices.
+	var $isTierRichCss; //Stores whether the device can probably support Rich CSS, but JavaScript (jQuery) support is not assumed.
+	var $isTierGenericMobile; //Stores whether it is another mobile device, which cannot be assumed to support CSS or JS (eg, older BlackBerry, RAZR)
 
-    private $_platform = null; //Stores the device platform name
+	private $_platform = null; //Stores the device platform name
 	const PLATFORM_WINDOWS 			= 'windows';
 	const PLATFORM_IPHONE 			= 'iphone';
 	const PLATFORM_IPOD 			= 'ipod';
@@ -103,7 +116,9 @@ class Jetpack_User_Agent_Info {
 		'up.link', 'vodafone/', 'wap1.', 'wap2.', 'mobile', 'googlebot-mobile',
 	);
 
-   //The constructor. Initializes default variables.
+   /**
+    * The constructor. Initializes default variables.
+    */
    function Jetpack_User_Agent_Info()
    {
    		if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -111,9 +126,9 @@ class Jetpack_User_Agent_Info {
    }
 
    /**
-    * This method detects the mobile User Agent name.
+    * Get the mobile user agent name.
     *
-    * @return string The matched User Agent name, false otherwise.
+    * @return string|bool The name of the matched User Agent; returns false if no match.
     */
    function get_mobile_user_agent_name() {
    		if( $this->is_chrome_for_iOS( ) ) //keep this check before the safari rule
@@ -184,11 +199,12 @@ class Jetpack_User_Agent_Info {
    }
 
    /**
-    * This method detects the mobile device's platform. All return strings are from the class constants.
-    * Note that this function returns the platform name, not the UA name/type. You should use a different function
-    * if you need to test the UA capabilites.
+    * Get the the mobile device's platform (NOT the user agent).
     *
-    * @return string Name of the platform, false otherwise.
+    * All the return strings are from the class constants. Note that this function returns the platform name,
+    * not the UA name/type. You should use something else if you need to test the UA capabilites.
+    *
+    * @return string|bool The name of the platform; returns false if no match.
     */
    public function get_platform() {
    	if ( isset( $this->_platform ) ) {
@@ -243,10 +259,12 @@ class Jetpack_User_Agent_Info {
    		return $this->_platform;
    }
 
-	/*
-	 * This method detects for UA which can display iPhone-optimized web content.
+	/**
+	 * Detects if the user agent can display iPhone-optimized web content.
+	 *
 	 * Includes iPhone, iPod Touch, Android, WebOS, Fennec (Firefox mobile), etc.
 	 *
+	 * @return bool
 	 */
 	function isTierIphone() {
 		if ( isset( $this->isTierIphone ) ) {
@@ -342,11 +360,12 @@ class Jetpack_User_Agent_Info {
 		return $this->isTierIphone;
 	}
 
-	/*
-	 * This method detects for UA which are likely to be capable
-	 * but may not necessarily support JavaScript.
-	 * Excludes all iPhone Tier UA.
+	/**
+	 * Detects if the device can probably support Rich CSS (but JavaScript support is not assumed).
 	 *
+	 * Excludes all iPhone Tier user agents.
+	 *
+	 * @return bool
 	 */
 	function isTierRichCss(){
 		if ( isset( $this->isTierRichCss ) ) {
@@ -384,8 +403,14 @@ class Jetpack_User_Agent_Info {
 		return $this->isTierRichCss;
 	}
 
-	// Detects if the user is using a tablet.
-	// props Corey Gilmore, BGR.com
+	/**
+	 * Detects if the user is using a tablet device.
+	 * 
+	 * Props Corey Gilmore, BGR.com
+	 *
+	 * @return bool
+	 * @link http://vip.wordpress.com/documentation/mobile-theme/ Developing for Mobile Phones and Tablets
+	 */
 	function is_tablet() {
 		return ( 0 // never true, but makes it easier to manage our list of tablet conditions
 				||  self::is_ipad()
@@ -397,11 +422,12 @@ class Jetpack_User_Agent_Info {
 		);
 	}
 
-	/*
-	 *  Detects if the current UA is the default iPhone or iPod Touch Browser.
+	/**
+	 * Detects if the current UA is the default iPhone or iPod Touch Browser.
 	 *
-	 *  DEPRECATED: use is_iphone_or_ipod
-	 *
+	 * @deprecated
+	 * @return bool
+	 * @see Jetpack_User_Agent_Info::is_iphone_or_ipod()
 	 */
 	function is_iphoneOrIpod(){
 
@@ -420,15 +446,17 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	 *  Detects if the current UA is iPhone Mobile Safari or another iPhone or iPod Touch Browser.
+	/**
+	 * Detects if the current user agent is iPhone Mobile Safari or another iPhone or iPod Touch Browser.
 	 *
-	 *  They type can check for any iPhone, an iPhone using Safari, or an iPhone using something other than Safari.
+	 * $type can check for any iPhone, an iPhone using Safari, or an iPhone using something other than Safari.
 	 *
-	 *  Note: If you want to check for Opera mini, Opera mobile or Firefox mobile (or any 3rd party iPhone browser),
-	 *  you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'.
-	 *  Otherwise those browsers will be 'catched' by the iphone string.
+	 * Note: If you want to check for Opera mini, Opera mobile or Firefox mobile (or any 3rd party iPhone browser),
+	 * you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'.
+	 * Otherwise those browsers will be 'catched' by the iphone string.
 	 *
+	 * @param string $type Optional. Type of check. Valid values are: iphone-any*, iphone-safari, iphone-not-safari
+	 * @return bool
 	 */
 	function is_iphone_or_ipod( $type = 'iphone-any' ) {
 
@@ -448,13 +476,15 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	*  Detects if the current UA is Chrome for iOS
-	*
-	*  The User-Agent string in Chrome for iOS is the same as the Mobile Safari User-Agent, with CriOS/<ChromeRevision> instead of Version/<VersionNum>.
-	*  - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3
-	*/
+	/**
+	 * Detects if the current user agent is Chrome for iOS.
+	 * 
+	 * The User-Agent string in Chrome for iOS is the same as the Mobile Safari User-Agent, with CriOS/<ChromeRevision> instead of Version/<VersionNum>.
+	 *
+	 * @return bool
+	 */
 	function is_chrome_for_iOS( ) {
+		// Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -469,14 +499,14 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	 *  Detects if the current UA is Twitter for iPhone
+	/**
+	 * Detects if the current user agent is Twitter for iPhone.
 	 *
-	 * Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_5 like Mac OS X; nb-no) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPhone
-	 * Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
-	 *
+	 * @return bool
 	 */
 	function is_twitter_for_iphone( ) {
+		// Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_5 like Mac OS X; nb-no) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPhone
+		// Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -491,14 +521,14 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-	/*
-	 * Detects if the current UA is Twitter for iPad
+	/**
+	 * Detects if the current user agent is Twitter for iPad.
 	 *
-	 * Old version 4.X - Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPad
-	 * Ver 5.0 or Higher - Mozilla/5.0 (iPad; CPU OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
-	 *
+	 * @return bool
 	 */
 	function is_twitter_for_ipad( ) {
+		// * Old version 4.X - Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPad
+		// * Ver 5.0 or Higher - Mozilla/5.0 (iPad; CPU OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -513,13 +543,15 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	 * Detects if the current UA is Facebook for iPhone
-	 * - Facebook 4020.0 (iPhone; iPhone OS 5.0.1; fr_FR)
-	 * - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.0;FBSS/2; FBCR/O2;FBID/phone;FBLC/en_US;FBSF/2.0]
-	 * - Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.1.1;FBSS/2; FBCR/3ITA;FBID/phone;FBLC/en_US]
+	/**
+	 * Detects if the current user agent is Facebook for iPhone.
+	 *
+	 * @return bool
 	 */
 	function is_facebook_for_iphone( ) {
+		// Facebook 4020.0 (iPhone; iPhone OS 5.0.1; fr_FR)
+		// Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.0;FBSS/2; FBCR/O2;FBID/phone;FBLC/en_US;FBSF/2.0]
+		// Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.1.1;FBSS/2; FBCR/3ITA;FBID/phone;FBLC/en_US]
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -538,13 +570,15 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-	/*
-	 * Detects if the current UA is Facebook for iPad
-	 * - Facebook 4020.0 (iPad; iPhone OS 5.0.1; en_US)
-	 * - Mozilla/5.0 (iPad; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/5.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US;FBSF/1.0]
-	 * - Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10A403 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/6.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US]
+	/**
+	 * Detects if the current user agent is Facebook for iPad.
+	 *
+	 * @return bool
 	 */
 	function is_facebook_for_ipad( ) {
+		// Facebook 4020.0 (iPad; iPhone OS 5.0.1; en_US)
+		// Mozilla/5.0 (iPad; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/5.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US;FBSF/1.0]
+		// Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10A403 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/6.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US]
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -559,8 +593,10 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-	/*
-	 *  Detects if the current UA is WordPress for iOS
+	/**
+	 * Detects if the current user agent is WordPress for iOS.
+	 *
+	 * @return bool
 	 */
 	function is_wordpress_for_ios( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -573,15 +609,19 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-	/*
+	/**
 	 * Detects if the current device is an iPad.
-	 * They type can check for any iPad, an iPad using Safari, or an iPad using something other than Safari.
+	 *
+	 * $type can check for any iPad, an iPad using Safari, or an iPad using something other than Safari.
 	 *
 	 * Note: If you want to check for Opera mini, Opera mobile or Firefox mobile (or any 3rd party iPad browser),
 	 * you should put the check condition before the check for 'iphone-any' or 'iphone-not-safari'.
 	 * Otherwise those browsers will be 'catched' by the ipad string.
 	 *
-	*/
+	 * @param string $type Optional. Type of check. Valid values are: ipad-any*, ipad-safari, ipad-not-safari
+	 * @return bool
+	 * @link http://vip.wordpress.com/documentation/mobile-theme/ Developing for Mobile Phones and Tablets
+	 */
 	function is_ipad( $type = 'ipad-any' ) {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -600,15 +640,15 @@ class Jetpack_User_Agent_Info {
 			return $is_ipad;
 	}
 
-	/*
-	 * Detects if the current browser is Firefox Mobile (Fennec)
+	/**
+	 * Detects if the current browser is Firefox Mobile (Fennec).
 	 *
-	 * http://www.useragentstring.com/pages/Fennec/
-	 * Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.1.1) Gecko/20110415 Firefox/4.0.2pre Fennec/4.0.1
-	 * Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1b2pre) Gecko/20081015 Fennec/1.0a1
+	 * @return bool
 	 */
 	function is_firefox_mobile( ) {
-
+		// http://www.useragentstring.com/pages/Fennec/
+		// Mozilla/5.0 (Windows NT 6.1; WOW64; rv:2.1.1) Gecko/20110415 Firefox/4.0.2pre Fennec/4.0.1
+		// Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.1b2pre) Gecko/20081015 Fennec/1.0a1
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -621,19 +661,20 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	 * Detects if the current browser is Opera Mobile
+	/**
+	 * Detects if the current browser is Opera Mobile.
 	 *
 	 * What is the difference between Opera Mobile and Opera Mini?
 	 * - Opera Mobile is a full Internet browser for mobile devices.
 	 * - Opera Mini always uses a transcoder to convert the page for a small display.
-	 * (it uses Opera advanced server compression technology to compress web content before it gets to a device.
-	 *  The rendering engine is on Opera's server.)
 	 *
-	 * Opera/9.80 (Windows NT 6.1; Opera Mobi/14316; U; en) Presto/2.7.81 Version/11.00"
+	 * Opera Mini uses advanced server compression technology to compress web content before it gets to a device.
+	 * The rendering engine is on Opera's server.
+	 *
+	 * @return bool
 	 */
 	function is_opera_mobile( ) {
-
+		// Opera/9.80 (Windows NT 6.1; Opera Mobi/14316; U; en) Presto/2.7.81 Version/11.00"
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -646,20 +687,26 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	 * Detects if the current browser is Opera Mini
+	/**
+	 * Detects if the current browser is Opera Mini.
 	 *
-	 * Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
-	 * Opera/9.80 (Android;Opera Mini/6.0.24212/24.746 U;en) Presto/2.5.25 Version/10.5454
-	 * Opera/9.80 (iPhone; Opera Mini/5.0.019802/18.738; U; en) Presto/2.4.15
-	 * Opera/9.80 (J2ME/iPhone;Opera Mini/5.0.019802/886; U; ja) Presto/2.4.15
-	 * Opera/9.80 (J2ME/iPhone;Opera Mini/5.0.019802/886; U; ja) Presto/2.4.15
-	 * Opera/9.80 (Series 60; Opera Mini/5.1.22783/23.334; U; en) Presto/2.5.25 Version/10.54
-	 * Opera/9.80 (BlackBerry; Opera Mini/5.1.22303/22.387; U; en) Presto/2.5.25 Version/10.54
+	 * What is the difference between Opera Mobile and Opera Mini?
+	 * - Opera Mobile is a full Internet browser for mobile devices.
+	 * - Opera Mini always uses a transcoder to convert the page for a small display.
 	 *
+	 * Opera Mini uses advanced server compression technology to compress web content before it gets to a device.
+	 * The rendering engine is on Opera's server.
+	 *
+	 * @return bool
 	 */
 	function is_opera_mini( ) {
-
+		// Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
+		// Opera/9.80 (Android;Opera Mini/6.0.24212/24.746 U;en) Presto/2.5.25 Version/10.5454
+		// Opera/9.80 (iPhone; Opera Mini/5.0.019802/18.738; U; en) Presto/2.4.15
+		// Opera/9.80 (J2ME/iPhone;Opera Mini/5.0.019802/886; U; ja) Presto/2.4.15
+		// Opera/9.80 (J2ME/iPhone;Opera Mini/5.0.019802/886; U; ja) Presto/2.4.15
+		// Opera/9.80 (Series 60; Opera Mini/5.1.22783/23.334; U; en) Presto/2.5.25 Version/10.54
+		// Opera/9.80 (BlackBerry; Opera Mini/5.1.22303/22.387; U; en) Presto/2.5.25 Version/10.54
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -671,9 +718,10 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-	/*
-	 * Detects if the current browser is Opera Mini, but not on a smart device OS(Android, iOS, etc)
-	 * Used to send users on dumb devices to m.wor
+	/**
+	 * Detects if the current browser is Opera Mini, but not on a smart device OS (Android, iOS, etc).
+	 *
+	 * @return bool
 	 */
 	function is_opera_mini_dumb( ) {
 
@@ -692,14 +740,17 @@ class Jetpack_User_Agent_Info {
 		}
 	}
 
-	/*
+	/**
 	 * Detects if the current browser is Opera Mobile or Mini.
-	 * DEPRECATED: use is_opera_mobile or is_opera_mini
 	 *
-	 * Opera Mini 5 Beta: Opera/9.80 (J2ME/MIDP; Opera Mini/5.0.15650/756; U; en) Presto/2.2.0
-	 * Opera Mini 8: Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
+	 * @deprecated
+	 * @return bool
+	 * @see Jetpack_User_Agent_Info::is_opera_mini()
+	 * @see Jetpack_User_Agent_Info::is_opera_mobile()
 	 */
 	function is_OperaMobile() {
+		// Opera Mini 5 Beta: Opera/9.80 (J2ME/MIDP; Opera Mini/5.0.15650/756; U; en) Presto/2.2.0
+		// Opera Mini 8: Opera/8.01 (J2ME/MIDP; Opera Mini/3.0.6306/1528; en; U; ssr)
 		_deprecated_function( __FUNCTION__, 'always', 'is_opera_mini() or is_opera_mobile()' );
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -717,11 +768,13 @@ class Jetpack_User_Agent_Info {
 		}
 	}
 
-	/*
+	/**
 	 * Detects if the current browser is a Windows Phone 7 device.
-	 * ex: Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0; LG; GW910)
+	 *
+	 * @return bool
 	 */
 	function is_WindowsPhone7() {
+		// Mozilla/4.0 (compatible; MSIE 7.0; Windows Phone OS 7.0; Trident/3.1; IEMobile/7.0; LG; GW910)
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -737,11 +790,13 @@ class Jetpack_User_Agent_Info {
 		}
 	}
 
-	/*
+	/**
 	 * Detects if the current browser is a Windows Phone 8 device.
-	 * ex: Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; ARM; Touch; IEMobile/10.0; <Manufacturer>; <Device> [;<Operator>])
+	 *
+	 * @return bool
 	 */
 	function is_windows_phone_8() {
+		// Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; ARM; Touch; IEMobile/10.0; <Manufacturer>; <Device> [;<Operator>])
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -753,15 +808,14 @@ class Jetpack_User_Agent_Info {
 		}
 	}
 
-
-	/*
+	/**
 	 * Detects if the current browser is on a Palm device running the new WebOS. This EXCLUDES TouchPad.
 	 *
-	 * ex1: Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pre/1.1
-	 * ex2: Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pixi/1.1
-	 *
+	 * @return bool
 	 */
 	function is_PalmWebOS() {
+		// Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pre/1.1
+		// Mozilla/5.0 (webOS/1.4.0; U; en-US) AppleWebKit/532.2 (KHTML, like Gecko) Version/1.0 Safari/532.2 Pixi/1.1
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -777,16 +831,16 @@ class Jetpack_User_Agent_Info {
 		}
 	}
 
-	/*
+	/**
 	 * Detects if the current browser is the HP TouchPad default browser. This excludes phones wt WebOS.
 	 *
-	 * TouchPad Emulator: Mozilla/5.0 (hp-desktop; Linux; hpwOS/2.0; U; it-IT) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 Desktop/1.0
-	 * TouchPad: Mozilla/5.0 (hp-tablet; Linux; hpwOS/3.0.0; U; en-US) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 TouchPad/1.0
-	 *
+	 * @return bool
 	 */
 	function is_TouchPad() {
+		// TouchPad Emulator: Mozilla/5.0 (hp-desktop; Linux; hpwOS/2.0; U; it-IT) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 Desktop/1.0
+		// TouchPad: Mozilla/5.0 (hp-tablet; Linux; hpwOS/3.0.0; U; en-US) AppleWebKit/534.6 (KHTML, like Gecko) wOSBrowser/233.70 Safari/534.6 TouchPad/1.0
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
+			return false;
 
 		$http_user_agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( false !== strpos( $http_user_agent, 'hp-tablet' )  || false !== strpos( $http_user_agent, 'hpwos' ) || false !== strpos( $http_user_agent, 'touchpad' ) ) {
@@ -800,20 +854,17 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
+	/**
 	 * Detects if the current browser is the Series 60 Open Source Browser.
 	 *
-	 * OSS Browser 3.2 on E75: Mozilla/5.0 (SymbianOS/9.3; U; Series60/3.2 NokiaE75-1/110.48.125 Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413
-	 *
-	 * 7.0 Browser (Nokia 5800 XpressMusic (v21.0.025)) : Mozilla/5.0 (SymbianOS/9.4; U; Series60/5.0 Nokia5800d-1/21.0.025; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413
-	 *
-	 * Browser 7.1 (Nokia N97 (v12.0.024)) : Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/12.0.024; Profile/MIDP-2.1 Configuration/CLDC-1.1; en-us) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.12344
-	 *
+	 * @return bool
 	 */
 	function is_S60_OSSBrowser() {
-
+		// OSS Browser 3.2 on E75: Mozilla/5.0 (SymbianOS/9.3; U; Series60/3.2 NokiaE75-1/110.48.125 Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413
+		// 7.0 Browser (Nokia 5800 XpressMusic (v21.0.025)) : Mozilla/5.0 (SymbianOS/9.4; U; Series60/5.0 Nokia5800d-1/21.0.025; Profile/MIDP-2.1 Configuration/CLDC-1.1 ) AppleWebKit/413 (KHTML, like Gecko) Safari/413
+		// Browser 7.1 (Nokia N97 (v12.0.024)) : Mozilla/5.0 (SymbianOS/9.4; Series60/5.0 NokiaN97-1/12.0.024; Profile/MIDP-2.1 Configuration/CLDC-1.1; en-us) AppleWebKit/525 (KHTML, like Gecko) BrowserNG/7.1.12344
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
+			return false;
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -835,15 +886,15 @@ class Jetpack_User_Agent_Info {
 	    return false;
 	}
 
-	/*
-	 *
+	/**
 	 * Detects if the device platform is the Symbian Series 60.
 	 *
+	 * @return bool
 	 */
 	function is_symbian_platform() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
+			return false;
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
@@ -866,17 +917,18 @@ class Jetpack_User_Agent_Info {
 	    return false;
 	}
 
-	/*
-	 *
+	/**
 	 * Detects if the device platform is the Symbian Series 40.
+	 *
 	 * Nokia Browser for Series 40 is a proxy based browser, previously known as Ovi Browser.
 	 * This browser will report 'NokiaBrowser' in the header, however some older version will also report 'OviBrowser'.
 	 *
+	 * @return bool
 	 */
 	function is_symbian_s40_platform() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
+			return false;
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
@@ -888,6 +940,11 @@ class Jetpack_User_Agent_Info {
 	    return false;
 	}
 
+	/**
+	 * Detects if the device platform is J2ME-based.
+	 *
+	 * @return bool
+	 */
 	function is_J2ME_platform() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -905,13 +962,15 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
+	/**
 	 * Detects if the current UA is on one of the Maemo-based Nokia Internet Tablets.
+	 *
+	 * @return bool
 	 */
 	function is_MaemoTablet() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
+			return false;
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
@@ -928,8 +987,10 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-	/*
-	 * Detects if the current UA is a MeeGo device (Nokia Smartphone).
+	/**
+	 * Detects if the current user agent is a MeeGo device (Nokia Smartphone).
+	 *
+	 * @return bool
 	 */
 	function is_MeeGo() {
 
@@ -949,13 +1010,15 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	 is_webkit() can be used to check the User Agent for an webkit generic browser
+	/**
+	 * Detects if the user agent is a generic webkit browser.
+	 *
+	 * @return bool
 	 */
 	function is_webkit() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
+			return false;
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
@@ -967,10 +1030,11 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-    /**
-     * Detects if the current browser is the Native Android browser.
-     * @return boolean true if the browser is Android otherwise false
-     */
+	/**
+	 * Detects if the current browser is the native Android browser.
+	 *
+	 * @return bool
+	 */
 	function is_android() {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
@@ -989,14 +1053,11 @@ class Jetpack_User_Agent_Info {
 
 
 	/**
-	 * Detects if the current browser is the Native Android Tablet browser.
-	 * 	Assumes 'Android' should be in the user agent, but not 'mobile'
+	 * Detects if the current browser is the native Android Tablet browser.
 	 *
-	 * @return boolean true if the browser is Android and not 'mobile' otherwise false
-	 */
-	/*
-	 * See http://mobileprojects.wordpress.com/2011/06/15/we-received-a-request-from-cnn-to-serve/
-	 * @hide-in-jetpack
+	 * Assumes 'Android' should be in the user agent, but not 'mobile'.
+	 *
+	 * @return bool
 	 */
 	function is_android_tablet( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -1018,14 +1079,13 @@ class Jetpack_User_Agent_Info {
 	}
 
 	/**
-	 * Detects if the current browser is the Kindle Fire Native browser.
+	 * Detects if the current browser is the Kindle Fire native browser.
 	 *
-	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true
-	 * Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=false
-	 *
-	 * @return boolean true if the browser is Kindle Fire Native browser otherwise false
+	 * @return bool
 	 */
 	function is_kindle_fire( ) {
+		// Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=true
+		// Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_3; en-us; Silk/1.1.0-84) AppleWebKit/533.16 (KHTML, like Gecko) Version/5.0 Safari/533.16 Silk-Accelerated=false
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -1039,14 +1099,13 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-/**
- 	* Detects if the current browser is the Kindle Touch Native browser
- 	*
- 	* Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+
- 	*
- 	* @return boolean true if the browser is Kindle monochrome Native browser otherwise false
- 	*/
+	/**
+	 * Detects if the current browser is the Kindle Touch native browser.
+	 *
+	 * @return bool
+	 */
  	function is_kindle_touch( ) {
+ 		// Mozilla/5.0 (X11; U; Linux armv7l like Android; en-us) AppleWebKit/531.2+ (KHTML, like Gecko) Version/5.0 Safari/533.2+ Kindle/3.0+
  		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
  			return false;
  		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
@@ -1058,7 +1117,11 @@ class Jetpack_User_Agent_Info {
  		}
 
 
-	// Detect if user agent is the WordPress.com Windows 8 app (used ONLY on the custom oauth stylesheet)
+	/**
+	 * Detect if the user agent is the WordPress.com Windows 8 app (used ONLY on the custom oauth stylesheet).
+	 *
+	 * @return bool
+	 */
 	function is_windows8_auth( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
@@ -1071,7 +1134,11 @@ class Jetpack_User_Agent_Info {
 			return false;
 	}
 
-	// Detect if user agent is the WordPress.com Windows 8 app.
+	/**
+	 * Detect if the user agent is the WordPress.com Windows 8 app.
+	 *
+	 * @return bool
+	 */
 	function is_wordpress_for_win8( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
@@ -1085,14 +1152,14 @@ class Jetpack_User_Agent_Info {
 	}
 
 
-	/*
-	 * is_blackberry_tablet() can be used to check the User Agent for a RIM blackberry tablet
-	 * The user agent of the BlackBerry® Tablet OS follows a format similar to the following:
-	 * Mozilla/5.0 (PlayBook; U; RIM Tablet OS 1.0.0; en-US) AppleWebKit/534.8+ (KHTML, like Gecko) Version/0.0.1 Safari/534.8+
+	/**
+	 * Detect if the user agent is for a RIM blackberry tablet.
 	 *
+	 * @return bool
 	 */
 	function is_blackberry_tablet() {
-
+		// The user agent of the BlackBerry® Tablet OS follows a format similar to the following:
+		// Mozilla/5.0 (PlayBook; U; RIM Tablet OS 1.0.0; en-US) AppleWebKit/534.8+ (KHTML, like Gecko) Version/0.0.1 Safari/534.8+
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
 
@@ -1108,9 +1175,12 @@ class Jetpack_User_Agent_Info {
 		}
 	}
 
-	/*
-	 is_blackbeberry() can be used to check the User Agent for a blackberry device
-	 Note that opera mini on BB matches this rule.
+	/**
+	 * Detect if the user agent is for a blackberry device.
+	 *
+	 * Note that opera mini on BB matches this rule.
+	 *
+	 * @return bool
 	 */
 	function is_blackbeberry() {
 
@@ -1130,9 +1200,11 @@ class Jetpack_User_Agent_Info {
 		}
 	}
 
-	/*
-	 is_blackberry_10() can be used to check the User Agent for a BlackBerry 10 device.
-	*/
+	/**
+	 * Detect if the user agent is for a BlackBerry 10 device.
+	 *
+	 * @return bool
+	 */
 	function is_blackberry_10() {
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		return ( strpos( $agent, 'bb10' ) !== false ) && ( strpos( $agent, 'mobile' ) !== false );
@@ -1145,14 +1217,13 @@ class Jetpack_User_Agent_Info {
 	 * - blackberry-10
 	 * - blackberry-7
 	 * - blackberry-6
-	 * - blackberry-torch //only the first edition. The 2nd edition has the OS7 onboard and doesn't need any special rule.
+	 * - blackberry-torch (only the first edition. The 2nd edition has the OS7 onboard and doesn't need any special rule.)
 	 * - blackberry-5
 	 * - blackberry-4.7
 	 * - blackberry-4.6
 	 * - blackberry-4.5
 	 *
-	 * @return string Version of the BB OS.
-	 * If version is not found, get_blackbeberry_OS_version will return boolean false.
+	 * @return string|bool Version of the BB OS. If version not found, returns false.
 	 */
 	function get_blackbeberry_OS_version() {
 
@@ -1226,15 +1297,14 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * Retrieve the blackberry browser version.
 	 *
-	 * Return string are from the following list:
+	 * Return strings are from the following list:
 	 * - blackberry-10
 	 * - blackberry-webkit
 	 * - blackberry-5
 	 * - blackberry-4.7
 	 * - blackberry-4.6
 	 *
-	 * @return string Type of the BB browser.
-	 * If browser's version is not found, detect_blackbeberry_browser_version will return boolean false.
+	 * @return string|bool Type of the BB browser. If version not found, returns false.
 	 */
 	function detect_blackberry_browser_version() {
 
@@ -1282,7 +1352,11 @@ class Jetpack_User_Agent_Info {
 		return false;
 	}
 
-	//Checks if a visitor is coming from one of the WordPress mobile apps
+	/**
+	 * Detect if the user agent is from one of the WordPress mobile apps.
+	 *
+	 * @return bool
+	 */
 	function is_mobile_app() {
 
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -1307,6 +1381,11 @@ class Jetpack_User_Agent_Info {
 		return false;
 	}
 
+	/**
+	 * Detect if the user agent is from a bot or webcrawler.
+	 *
+	 * @return bool
+	 */
 	static function is_bot() {
 		static $is_bot = false;
 		static $first_run = true;

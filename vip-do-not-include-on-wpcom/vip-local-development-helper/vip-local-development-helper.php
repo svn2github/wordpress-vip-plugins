@@ -13,16 +13,14 @@ This plugin is enabled automatically on WordPress.com for VIPs.
 */
 
 
-/*
+/**
  * Loads a plugin out of our shared plugins directory.
  *
- * See the following URL for details:
- * @link http://lobby.vip.wordpress.com/plugins/
- *
- * @param string $plugin Plugin folder name (and filename) of the plugin
- * @param string $folder Optional. Folder to include from. Useful for when you have multiple themes and your own shared plugins folder.
- * @return boolean True if the include was successful, false if it failed.
-*/
+ * @link http://lobby.vip.wordpress.com/plugins/ VIP Shared Plugins
+ * @param string $plugin Optional. Plugin folder name (and filename) of the plugin
+ * @param string $folder Optional. Folder to include from; defaults to "plugins". Useful for when you have multiple themes and your own shared plugins folder.
+ * @return bool True if the include was successful
+ */
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
 	// Make sure there's a plugin to load
@@ -104,9 +102,14 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 		}
 	}
 }
-/*
- * Helper function for wpcom_vip_load_plugin()
+
+/**
+ * Helper function for wpcom_vip_load_plugin(); sanitizes plugin folder name.
+ *
  * You shouldn't use this function.
+ *
+ * @param string $folder Folder name
+ * @return string Sanitized folder name
  */
 function _wpcom_vip_load_plugin_sanitizer( $folder ) {
 	$folder = preg_replace( '#([^a-zA-Z0-9-_.]+)#', '', $folder );
@@ -116,7 +119,9 @@ function _wpcom_vip_load_plugin_sanitizer( $folder ) {
 }
 
 /**
- * Require a library in the VIP shared code library
+ * Require a library in the VIP shared code library.
+ *
+ * @param string $slug 
  */
 function wpcom_vip_require_lib( $slug ) {
 	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
@@ -139,10 +144,11 @@ function wpcom_vip_require_lib( $slug ) {
 	trigger_error( "Cannot find a library with slug $slug.", E_USER_ERROR );
 }
 
-/*
+/**
  * Loads the shared VIP helper file which defines some helpful functions.
  *
-*/
+ * @link http://vip.wordpress.com/documentation/development-environment/ Setting up your Development Environment
+ */
 function wpcom_vip_load_helper() {
 	$includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper.php';
 
@@ -154,19 +160,19 @@ function wpcom_vip_load_helper() {
 }
 
 
-/*
+/**
  * Loads the WordPress.com-only VIP helper file which defines some helpful functions.
  *
-*/
+ * @link http://vip.wordpress.com/documentation/development-environment/ Setting up your Development Environment
+ */
 function wpcom_vip_load_helper_wpcom() {
 	$includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-wpcom.php';
 	require_once( $includepath );
 }
 
-/*
+/**
  * Loads the WordPress.com-only VIP helper file for stats which defines some helpful stats-related functions.
- *
-*/
+ */
 function wpcom_vip_load_helper_stats() {
 	$includepath = WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-stats-wpcom.php';
 
@@ -177,6 +183,12 @@ function wpcom_vip_load_helper_stats() {
 	}
 }
 
+/**
+ * Store the name of a VIP plugin that will be loaded
+ *
+ * @param string $plugin Plugin name and folder
+ * @see wpcom_vip_load_plugin()
+ */
 function wpcom_vip_add_loaded_plugin( $plugin ) {
 	global $vip_loaded_plugins;
 
@@ -186,6 +198,11 @@ function wpcom_vip_add_loaded_plugin( $plugin ) {
 	array_push( $vip_loaded_plugins, $plugin );
 }
 
+/**
+ * Get the names of VIP plugins that have been loaded
+ *
+ * @return array
+ */
 function wpcom_vip_get_loaded_plugins() {
 	global $vip_loaded_plugins;
 
@@ -193,18 +210,21 @@ function wpcom_vip_get_loaded_plugins() {
 		$vip_loaded_plugins = array();
 
 	return $vip_loaded_plugins;
-
 }
 
 /**
- * Returns the raw path to the VIP themes dir
+ * Returns the raw path to the VIP themes dir.
+ *
+ * @return string
  */
 function wpcom_vip_themes_root() {
 	return WP_CONTENT_DIR . '/themes/vip';
 }
 
 /**
- * Returns the non-CDN uri to the VIP themes dir
+ * Returns the non-CDN uri to the VIP themes dir.
+ *
+ * @return string
  */
 function wpcom_vip_themes_root_uri() {
 	if ( ! is_admin() ) {
@@ -215,7 +235,10 @@ function wpcom_vip_themes_root_uri() {
 }
 
 /**
- * Returns the non-CDN URI to the specified path. Must be the full path, e.g. dirname( __FILE__ )
+ * Returns the non-CDN'd URI to the specified path.
+ *
+ * @param string $path Must be a full path, e.g. dirname( __FILE__ )
+ * @return string
  */
 function wpcom_vip_noncdn_uri( $path ) {
 	// Be gentle on Windows, borrowed from core, see plugin_basename
@@ -227,7 +250,13 @@ function wpcom_vip_noncdn_uri( $path ) {
 
 /**
  * Filter plugins_url() so that it works for plugins inside the shared VIP plugins directory or a theme directory.
+ *
  * Props to the GigaOm dev team for coming up with this method.
+ *
+ * @param string $url Optional. Absolute URL to the plugins directory.
+ * @param string $path Optional. Path relative to the plugins URL.
+ * @param string $plugin Optional. The plugin file that you want the URL to be relative to.
+ * @return string
  */
 function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
 
@@ -248,16 +277,14 @@ function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
 
 	return $url;
 }
-
 add_filter( 'plugins_url', 'wpcom_vip_plugins_url', 10, 3 );
 
 /**
  * Return a URL for given VIP theme and path. Does not work with VIP shared plugins.
  *
- * @param $path string Path to suffix to the theme URL
- * @param $theme string Name of the theme folder
- *
- * @return string URL for the specified theme and path
+ * @param string $path Optional. Path to suffix to the theme URL.
+ * @param string $theme Optional. Name of the theme folder.
+ * @return string|bool URL for the specified theme and path. If path doesn't exist, returns false.
  */
 function wpcom_vip_theme_url( $path = '', $theme = '' ) {
 	if ( empty( $theme ) )
@@ -286,9 +313,9 @@ function wpcom_vip_theme_url( $path = '', $theme = '' ) {
 /**
  * Return the directory path for a given VIP theme
  *
- * @param $theme string Name of the theme folder
- *
- * @return string path for the specified theme
+ * @link http://vip.wordpress.com/documentation/mobile-theme/ Developing for Mobile Phones and Tablets
+ * @param string $theme Optional. Name of the theme folder
+ * @return string Path for the specified theme
  */
 function wpcom_vip_theme_dir( $theme = '' ) {
 	if ( empty( $theme ) )

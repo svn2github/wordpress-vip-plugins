@@ -1,13 +1,21 @@
 <?php
-
+/**
+ * VIP plugins list table class for the VIP admin screen
+ */
 class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 
+	/**
+	 * Constructor. Sets up the list table.
+	 */
 	function __construct() {
 		parent::__construct( array(
 			'plural' => 'plugins',
 		) );
 	}
 
+	/**
+	 * Fetch the list of VIP plugins to display in the list table.
+	 */
 	public function prepare_items() {
 		$active = $inactive = array();
 
@@ -35,19 +43,36 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 		$this->items = array_merge( $active, $inactive );
 	}
 
+	/**
+	 * Output an error message if no VIP plugins were found to show in the list table.
+	 */
 	public function no_items() {
 		echo 'There was an error listing out plugins. Please try again in a bit.';
 	}
 
+	/**
+	 * Return an array of CSS classes to apply to the list table.
+	 *
+	 * @return array
+	 */
 	public function get_table_classes() {
 		return array( 'widefat', $this->_args['plural'] );
 	}
 
+	/**
+	 * Handles outputting the markup for each row of the list table.
+	 */
 	public function display_rows() {
 		foreach ( $this->items as $plugin_file => $plugin_data )
 			$this->single_row( $plugin_file, $plugin_data );
 	}
 
+	/**
+	 * Handles outputting the markup for a single row of the list table.
+	 *
+	 * @param string $plugin_file The filename of the plugin being handled
+	 * @param array $plugin_data Data from {@link https://core.trac.wordpress.org/browser/trunk/wp-admin/includes/plugin.php#L108}) for the plugin
+	 */
 	public function single_row( $plugin_file, $plugin_data ) {
 		$plugin = basename( dirname( $plugin_file ) );
 
@@ -105,21 +130,31 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 	}
 }
 
+/**
+ * VIP featured plugins list table class for the VIP admin screen
+ */
 class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 
-	/* We are using the backdoor _column_headers, because the columns filter is screen-specific
+	/**
+	 * We are using the backdoor _column_headers, because the columns filter is screen-specific
 	 * but this is the second table on that screen and we can't differentiate between both.
 	 *
 	 * Setting this variable won't run the filter at all
 	 */
 	public $_column_headers = array( array( 'left' => '', 'right' => '' ), array(), array() );
 
+	/**
+	 * Constructor. Sets up the list table.
+	 */
 	function __construct() {
 		parent::__construct( array(
 			'plural' => 'Featured Plugins',
 		) );
 	}
 
+	/**
+	 * Fetch the list of VIP featured plugins to display in the list table.
+	 */
 	public function prepare_items() {
 		$counter = 0;
 		$per_row = 2;
@@ -143,6 +178,13 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 			$this->items[] = $row;
 	}
 
+	/**
+	 * Returns the content for a row in the list table.
+	 *
+	 * @param array $item Plugin slug
+	 * @param string $column_name Name of the table column
+	 * @return string
+	 */
 	public function column_default( $item, $column_name ) {
 		if ( 'left' == $column_name && isset( $item[0] ) )
 			$slug = $item[0];
@@ -174,6 +216,11 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 		return ob_get_clean();
 	}
 
+	/**
+	 * Output the column headings for the list table
+	 *
+	 * @param bool $with_id Optional; if true, print the "Featured Partners" heading.
+	 */
 	public function print_column_headers( $with_id = true ) {
 		if ( $with_id ) {
 			echo '<th colspan="2">Featured Partners</th>';

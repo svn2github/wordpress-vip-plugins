@@ -61,7 +61,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	 *
 	 * @param int $user_id User ID.
 	 * @param string $meta_key Metadata key.
-	 * @param mixed $meta_value Metadata value.
+	 * @param mixed $meta_value Optional. Metadata value.
 	 * @return bool True deletion completed and false if user_id is not a number.
 	 */
 	function delete_user_attribute( $user_id, $meta_key, $meta_value = '' ) {
@@ -72,9 +72,18 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		return $result;
 	}
 
-	// These functions are defined on WordPress.com and can be a common source of frustration for VIP devs
-	// Now they can be frustrated in their local environments as well :)
+
 	if ( ! function_exists( 'widont' ) ) :
+		/**
+		 * Eliminates widows in strings by replace the breaking space that appears before the last word with a non-breaking space.
+		 *
+		 * This function is defined on WordPress.com and can be a common source of frustration for VIP devs.
+		 * Now they can be frustrated in their local environments as well :)
+		 *
+		 * @param string $str Optional. String to operate on.
+		 * @return string
+		 * @link http://www.shauninman.com/post/heap/2006/08/22/widont_wordpress_plugin Typesetting widows
+		 */
 		function widont( $str = '' ) {
 			return preg_replace( '|([^\s])\s+([^\s]+)\s*$|', '$1&nbsp;$2', $str );
 		}
@@ -82,66 +91,78 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	endif;
 
 	if ( ! function_exists( 'widont' ) ) :
+		/**
+		 * Replace any non-breaking spaces in a string with a regular space.
+		 *
+		 * This functions is defined on WordPress.com and can be a common source of frustration for VIP devs.
+		 * Now they can be frustrated in their local environments as well :)
+		 *
+		 * @param string $str Optional. String to operate on.
+		 * @return string
+		 * @link http://www.shauninman.com/post/heap/2006/08/22/widont_wordpress_plugin Typesetting widows
+		 */
 		function wido( $str = '' ) {
 			return str_replace( '&#160;', ' ', $str );
 		}
 		add_filter( 'the_title_rss', 'wido' );
 	endif;
 
-	/**
-	 * Initiate a job to flush rewrite rules
-	 * There's a lot of magic behind the scenes on WordPress.com
-	 * In the local environment, we can just flush rewrite rules
-	 */
 	if ( ! function_exists( 'wpcom_initiate_flush_rewrite_rules' ) ) :
+		/**
+		 * Initiate a job to flush rewrite rules
+		 *
+		 * There's a lot of magic behind the scenes on WordPress.com. In the local environment, we can just flush rewrite rules.
+		 */
 		function wpcom_initiate_flush_rewrite_rules() {
 			flush_rewrite_rules( false );
 		}
 	endif;
 
-	/**
-	 * Executes an elasticsearch query via our REST API.
-	 * Requires setup on our end and a paid addon to your hosting account.
-	 * You probably shouldn't be using this function.
-	 *
-	 * Valid arguments:
-	 *
-	 * * size: Number of query results to return.
-	 *
-	 * * from: Offset, the starting result to return.
-	 *
-	 * * multi_match: Will do a match search against the default fields (this is almost certainly what you want).
-	 *                e.g. array( 'query' => 'this is a test', 'fields' => array( 'content' ) )
-	 *                See: http://www.elasticsearch.org/guide/reference/query-dsl/multi-match-query.html
-	 *
-	 * * query_string: Will do a query_string search, interprets the string as Lucene query syntax.
-	 *                 e.g. array( 'default_field' => 'content', 'query' => 'tag:(world OR nation) howdy' )
-	 *                 This can fail if the user doesn't close parenthesis, or specifies a field that is not valid.
-	 *                 See: http://www.elasticsearch.org/guide/reference/query-dsl/query-string-query.html
-	 *
-	 * * more_like_this: Will do a more_like_this search, which is best for related content.
-	 *                   e.g. array( 'fields' => array( 'title', 'content' ), 'like_text' => 'this is a test', 'min_term_freq' => 1, 'max_query_terms' => 12 )
-	 *                   See: http://www.elasticsearch.org/guide/reference/query-dsl/mlt-query.html
-	 *
-	 * * facets: Structured set of facets. DO NOT do a terms facet on the content of posts/comments. It will load ALL terms into memory,
-	 *           probably taking minutes to complete and slowing down the entire cluster. With great power... etc.
-	 *           See: http://www.elasticsearch.org/guide/reference/api/search/facets/index.html
-	 *
-	 * * filters: Structured set of filters (often FASTER, since cached from one query to the next).
-	 *            See: http://www.elasticsearch.org/guide/reference/query-dsl/filtered-query.html
-	 *
-	 * * highlight: Structure defining how to highlight the results.
-	 *              See: http://www.elasticsearch.org/guide/reference/api/search/highlighting.html
-	 *
-	 * * fields: Structure defining what fields to return with the results.
-	 *           See: http://www.elasticsearch.org/guide/reference/api/search/fields.html
-	 *
-	 * * sort: Structure defining how to sort the results.
-	 *         See: http://www.elasticsearch.org/guide/reference/api/search/sort.html
-	 *
-	 * Questions? Ask us.
-	 */
 	if ( ! function_exists( 'es_api_search_index' ) ) :
+		/**
+		 * Executes an elasticsearch query via our REST API.
+		 *
+		 * Requires setup on our end and a paid addon to your hosting account.
+		 * You probably shouldn't be using this function. Questions? Ask us.
+		 *
+		 * Valid arguments:
+		 *
+		 * * size: Number of query results to return.
+		 *
+		 * * from: Offset, the starting result to return.
+		 *
+		 * * multi_match: Will do a match search against the default fields (this is almost certainly what you want).
+		 *                e.g. array( 'query' => 'this is a test', 'fields' => array( 'content' ) )
+		 *                See: http://www.elasticsearch.org/guide/reference/query-dsl/multi-match-query.html
+		 *
+		 * * query_string: Will do a query_string search, interprets the string as Lucene query syntax.
+		 *                 e.g. array( 'default_field' => 'content', 'query' => 'tag:(world OR nation) howdy' )
+		 *                 This can fail if the user doesn't close parenthesis, or specifies a field that is not valid.
+		 *                 See: http://www.elasticsearch.org/guide/reference/query-dsl/query-string-query.html
+		 *
+		 * * more_like_this: Will do a more_like_this search, which is best for related content.
+		 *                   e.g. array( 'fields' => array( 'title', 'content' ), 'like_text' => 'this is a test', 'min_term_freq' => 1, 'max_query_terms' => 12 )
+		 *                   See: http://www.elasticsearch.org/guide/reference/query-dsl/mlt-query.html
+		 *
+		 * * facets: Structured set of facets. DO NOT do a terms facet on the content of posts/comments. It will load ALL terms into memory,
+		 *           probably taking minutes to complete and slowing down the entire cluster. With great power... etc.
+		 *           See: http://www.elasticsearch.org/guide/reference/api/search/facets/index.html
+		 *
+		 * * filters: Structured set of filters (often FASTER, since cached from one query to the next).
+		 *            See: http://www.elasticsearch.org/guide/reference/query-dsl/filtered-query.html
+		 *
+		 * * highlight: Structure defining how to highlight the results.
+		 *              See: http://www.elasticsearch.org/guide/reference/api/search/highlighting.html
+		 *
+		 * * fields: Structure defining what fields to return with the results.
+		 *           See: http://www.elasticsearch.org/guide/reference/api/search/fields.html
+		 *
+		 * * sort: Structure defining how to sort the results.
+		 *         See: http://www.elasticsearch.org/guide/reference/api/search/sort.html
+		 *
+		 * @param array $args
+		 * @return bool|string False if WP_Error, otherwise JSON string
+		 */
 		function es_api_search_index( $args ) {
 			$defaults = array(
 				'blog_id' => get_current_blog_id(),
@@ -170,9 +191,16 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	endif; // function_exists( 'es_api_search_index' )
 
 	if ( ! function_exists( 'wpcom_search_api_query' ) ) :
-		// A wrapper for es_api_search_index() that accepts WP-style args
-		// See wpcom_search_api_wp_to_es_args() for details
-		// This is a copy/paste, up to date as of WP.com r65003 (Jan 7th, 2013)
+		/**
+		 * A wrapper for es_api_search_index() that accepts WP-style args
+		 *
+		 * This is a copy/paste, up to date as of WP.com r65003 (Jan 7th, 2013)
+		 * 
+		 * @param array $args
+		 * @param string $stat_app_name Optional.
+		 * @return bool|string False if WP_Error, otherwise JSON string
+		 * @see wpcom_search_api_wp_to_es_args() for details
+		 */
 		function wpcom_search_api_query( $args, $stat_app_name = 'blog-search' ) {
 			$es_query_args = wpcom_search_api_wp_to_es_args( $args );
 
@@ -181,7 +209,12 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 	endif; // function_exists( 'es_api_search_index' )
 
 	if ( ! function_exists( 'wpcom_search_api_wp_to_es_args' ) ) :
-		// Converts WP-style args to ES args
+		/**
+		 * Converts WP-style args to ES args
+		 *
+		 * @param array $args
+		 * @return array
+		 */
 		function wpcom_search_api_wp_to_es_args( $args ) {
 			$defaults = array(
 				'blog_id'        => get_current_blog_id(),

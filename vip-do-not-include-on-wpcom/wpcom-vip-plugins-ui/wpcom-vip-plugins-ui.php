@@ -13,6 +13,9 @@
 if ( ! function_exists( 'wpcom_vip_load_plugin' ) )
 	require_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-init.php' );
 
+/**
+ * Sets up and creates the VIP Plugins admin screens
+ */
 class WPcom_VIP_Plugins_UI {
 
 	/**
@@ -80,14 +83,14 @@ class WPcom_VIP_Plugins_UI {
 	/**
 	 * Main WPcom_VIP_Plugins_UI Instance
 	 *
-	 * Insures that only one instance of WPcom_VIP_Plugins_UI exists in memory at any one
-	 * time. Also prevents needing to define globals all over the place.
+	 * Insures that only one instance of WPcom_VIP_Plugins_UI exists in memory at any one time.
+	 * Also prevents needing to define globals all over the place.
 	 *
 	 * @staticvar array $instance
 	 * @uses WPcom_VIP_Plugins_UI::setup_globals() Setup the globals needed
 	 * @uses WPcom_VIP_Plugins_UI::setup_actions() Setup the hooks and actions
 	 * @see WPcom_VIP_Plugins_UI()
-	 * @return The one true WPcom_VIP_Plugins_UI
+	 * @return WPcom_VIP_Plugins_UI The one true WPcom_VIP_Plugins_UI
 	 */
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
@@ -210,7 +213,7 @@ class WPcom_VIP_Plugins_UI {
 	}
 
 	/**
-	 * Set up the plugin's various early hooks.
+	 * Set up early action hooks for this plugin
 	 *
 	 * @access private
 	 * @uses add_option() To register an option
@@ -417,7 +420,7 @@ class WPcom_VIP_Plugins_UI {
 	 * Not everyone is using the new loader yet (vip-init.php) so this checks
 	 * both the new method (constant) and the legacy method (function).
 	 *
-	 * @return boolean True if on WP.com VIP, false if not.
+	 * @return bool True if on WP.com VIP, false if not.
 	 */
 	public function is_wpcom_vip() {
 		return ( ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV ) || ( function_exists( 'wpcom_is_vip' ) && wpcom_is_vip() ) );
@@ -469,7 +472,7 @@ class WPcom_VIP_Plugins_UI {
 	 * Determines if a given plugin slug is already activated or not.
 	 *
 	 * @param string $plugin The slug of the VIP plugin to check.
-	 * @return string|false "option" if the activated via UI, "manual" if activated via code, and false if not activated.
+	 * @return string|bool "option" if the plugin was activated via UI, "manual" if activated via code, and false if not activated.
 	 */
 	public function is_plugin_active( $plugin ) {
 		if ( in_array( $plugin, $this->get_active_plugins_option() ) )
@@ -510,7 +513,7 @@ class WPcom_VIP_Plugins_UI {
 	 * Validates a plugin slug.
 	 *
 	 * @param string $plugin The slug of the VIP plugin to validate.
-	 * @return boolean True if valid, false if not.
+	 * @return bool True if valid, false if not.
 	 */
 	public function validate_plugin( $plugin ) {
 		return ( 0 === validate_file( $plugin ) && file_exists( $this->plugin_folder . '/' . $plugin . '/' . $plugin . '.php' ) );
@@ -520,7 +523,7 @@ class WPcom_VIP_Plugins_UI {
 	 * Activates a plugin.
 	 *
 	 * @param string $plugin The slug of the VIP plugin to activate.
-	 * @return boolean True if the plugin was activated, false if an error was encountered.
+	 * @return bool True if the plugin was activated, false if an error was encountered.
 	 */
 	public function activate_plugin( $plugin ) {
 
@@ -546,8 +549,8 @@ class WPcom_VIP_Plugins_UI {
 	 * Deactivates a plugin.
 	 *
 	 * @param string $plugin The slug of the VIP plugin to deactivate.
-	 * @param string $force Whether to bypass the validation check or not. Allows disabling invalid plugins.
-	 * @return boolean True if the plugin was deactivated, false if an error was encountered.
+	 * @param string $force Optional. Whether to bypass the validation check or not. Allows disabling invalid plugins.
+	 * @return bool True if the plugin was deactivated, false if an error was encountered.
 	 */
 	public function deactivate_plugin( $plugin, $force = false ) {
 
@@ -593,15 +596,12 @@ class WPcom_VIP_Plugins_UI {
 }
 
 /**
- * The main function responsible for returning the one true WPcom_VIP_Plugins_UI instance
- * to functions everywhere.
+ * The main function responsible for returning the one true WPcom_VIP_Plugins_UI instance to functions everywhere.
  *
- * Use this function like you would a global variable, except without needing
- * to declare the global.
- *
+ * Use this function like you would a global variable, except without needing to declare the global.
  * Example: <?php $WPcom_VIP_Plugins_UI = WPcom_VIP_Plugins_UI(); ?>
  *
- * @return The one true WPcom_VIP_Plugins_UI Instance
+ * @return WPcom_VIP_Plugins_UI The one true WPcom_VIP_Plugins_UI Instance
  */
 function WPcom_VIP_Plugins_UI() {
 	return WPcom_VIP_Plugins_UI::instance();

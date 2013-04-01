@@ -9,7 +9,16 @@ This plugin is automatically enabled on all WordPress.com VIP blogs and is provi
 Use the widget in your sidebar or the functions in your theme.
 */
 
+/**
+ * The "Powered by WordPress.com VIP widget".
+ *
+ * @link http://vip.wordpress.com/documentation/powered-by-wordpress-com-vip/ Powered By WordPress.com VIP
+ */
 class WPCOM_Widget_VIP_Powered extends WP_Widget {
+
+	/**
+	 * Constructor. Sets up widget options.
+	 */
 	function WPCOM_Widget_VIP_Powered() {
 		$widget_ops = array('classname' => 'widget_vip_powered_wpcom', 'description' => __( "Powered by WordPress.com VIP") );
                 $control_ops = array( 'width' => 295 );
@@ -17,6 +26,12 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 		$this->WP_Widget('vip-powered', __('VIP Powered'), $widget_ops, $control_ops );
 	}
 
+	/**
+	 * Outputs the widget content
+	 *
+	 * @param array $args Override widget options
+	 * @param array $instance This widget's settings
+	 */
 	function widget( $args, $instance ) {
 		extract( $args );
 		
@@ -27,6 +42,13 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 		echo $after_widget;
 	}
 
+	/**
+	 * Option update callback when the widget's settings are updated
+	 *
+	 * @param array $new_instance The new settings
+	 * @param array $old_instance The widget's old settings (pre-save)
+	 * @return array The new settings
+	 */
 	function update( $new_instance, $old_instance ) {
 		$instance = $old_instance;
 
@@ -36,6 +58,11 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 		return $instance;
 	}
 
+	/**
+	 * The widget settings form for the wp-admin Widgets screen
+	 *
+	 * @param array $instance The widget's settings
+	 */
 	function form( $instance ) {
 		//Defaults
 		$instance         = wp_parse_args( (array) $instance, array( 'display' => 'text' ) );
@@ -71,11 +98,20 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 	}
 }
 
-add_action( 'widgets_init', 'vip_powered_wpcom_widget_init' );
+/**
+ * Registers the "Powered by WordPress.com VIP" widget
+ */
 function vip_powered_wpcom_widget_init() {
 	register_widget('WPCOM_Widget_VIP_Powered');
 }
+add_action( 'widgets_init', 'vip_powered_wpcom_widget_init' );
 
+/**
+ * Returns a link the WordPress.com VIP site wrapped around an image (the VIP logo).
+ *
+ * @param int $image Which variant of the VIP logo to use; between 1-6.
+ * @return string HTML
+ */
 function vip_powered_wpcom_img_html( $image ) {
 	$vip_powered_wpcom_images = array(
 		//image file, width, height
@@ -93,6 +129,15 @@ function vip_powered_wpcom_img_html( $image ) {
 			return '';
 }
 
+/**
+ * Returns the "Powered by WordPress.com VIP" widget's content.
+ *
+ * @link http://vip.wordpress.com/documentation/code-and-theme-review-process/ Code Review
+ * @link http://vip.wordpress.com/documentation/powered-by-wordpress-com-vip/ Powered By WordPress.com VIP
+ * @param string $display Optional. Either: 1-6 or "text"*. If an integer, wrap an image in the VIP link. Otherwise, just return the link.  
+ * @param string $before_text Optional. Text to go in front of the VIP link. Defaults to 'Powered by '.
+ * @return string HTML
+ */
 function vip_powered_wpcom( $display = 'text', $before_text = 'Powered by ' ) {
 	switch ($display) {
 		case 'text':
@@ -113,6 +158,11 @@ function vip_powered_wpcom( $display = 'text', $before_text = 'Powered by ' ) {
 	return $output;
 }
 
+/**
+ * Returns the URL to the WordPress.com VIP site
+ *
+ * @return string
+ */
 function vip_powered_wpcom_url() {
 	return 'http://vip.wordpress.com/';
 }
