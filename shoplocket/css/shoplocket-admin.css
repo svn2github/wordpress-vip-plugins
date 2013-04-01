@@ -53,6 +53,10 @@ ul#shoplocket_product_list li.selected h2 {
     background: url("../img/icon-shoplocket.png");
     background-size: 16px 16px;
 }
+.howto .howto-support {
+    float: right;
+    margin-right: 2em;
+}
 .submitbox:after {content:"";height:0;display:block;visibility:hidden;clear:both;}
 .submitbox {text-align: right;}
 .submitbox input[type='text'] {margin-right: 2em;}
@@ -176,6 +180,14 @@ ul#shoplocket_product_list li.selected h2 {
 .instructions-widget p {
     text-align: right;
     padding: 62px 400px 62px 81px;
+}
+.instructions-support {
+    text-align: center;
+    background: top center no-repeat url(../img/shoplocket-help.png);
+    padding-top: 60px;
+}
+.instructions-support .support-methods {
+    font-size: 0.8em;
 }
 .shoplocket-start-over {
     position: relative;
