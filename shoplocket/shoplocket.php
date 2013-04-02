@@ -586,7 +586,7 @@ class ShopLocket {
 		// success message with a Start Over button
 
 		$site_name = urlencode(get_bloginfo('name'));
-		$redirect_uri = urlencode(site_url() . '/');
+		$redirect_uri = urlencode(home_url() . '/');
 
 		if ($shoplocket['app_id'] == "" || $shoplocket['app_secret'] == "" || $shoplocket['access_token'] == "") {
 		
@@ -604,7 +604,7 @@ class ShopLocket {
 			} else {
 				// get token
 				$get_token_label = __('Connect to ShopLocket','shoplocket');
-				$redirect_uri = urlencode(site_url() . '/');
+				$redirect_uri = urlencode(home_url() . '/');
 				$state = urlencode('shoplocket/authorize/' . wp_create_nonce('shoplocket_settings'));
 				echo '<a href="' . self::BASE_URL . self::OAUTH_AUTHORIZE . '?state=' . $state . '&client_id=' . $shoplocket["app_id"] . '&response_type=code&redirect_uri=' . $redirect_uri . '&site_name=' . $site_name . '" class="button-primary" >' . $get_token_label . '</a> ';
 			}
@@ -716,7 +716,7 @@ class ShopLocket {
 				update_option('shoplocket_settings',$shoplocket);
 				
 				// redirect to get code
-				$redirect_uri = urlencode(site_url() . '/');
+				$redirect_uri = urlencode(home_url() . '/');
 				$state = urlencode('shoplocket/authorize/' . wp_create_nonce('shoplocket_settings'));
 				
 				$wp_redirect = self::BASE_URL . '/oauth/authorize?state=' . $state . '&client_id=' . $shoplocket["app_id"] . '&response_type=code&redirect_uri=' . $redirect_uri;
@@ -735,7 +735,7 @@ class ShopLocket {
 				$args["body"]["client_id"] = $shoplocket["app_id"];
 				$args["body"]["client_secret"] = $shoplocket["app_secret"];
 				$args["body"]["grant_type"] = "authorization_code";
-				$args["body"]["redirect_uri"] = site_url() . '/';
+				$args["body"]["redirect_uri"] = home_url() . '/';
 				$response = wp_remote_post('https://www.shoplocket.com/oauth/token',$args);
 				if (isset($response["response"]["code"]) && $response["response"]["code"] == 200) { 
 					$json = json_decode($response["body"]);
