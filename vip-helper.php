@@ -12,9 +12,9 @@ require_once( dirname( __FILE__ ) . '/vip-do-not-include-on-wpcom/wpcom-caching.
 
 /**
  * Simple 301 redirects
- * array elements should be in the form of:
- * '/old' => 'http://wordpress.com/new/'
- *
+ * 
+ * @param array $vip_redirects_array Optional. Elements should be in the form of '/old' => 'http://wordpress.com/new/'
+ * @param bool $case_insensitive Optional. Should the redirects be case sensitive? Defaults to false.
  */
 function vip_redirects( $vip_redirects_array = array(), $case_insensitive = false ) {
 	if ( empty( $vip_redirects_array ) )
@@ -51,14 +51,11 @@ function vip_redirects( $vip_redirects_array = array(), $case_insensitive = fals
 /**
  * Wildcard redirects based on the beginning of the request path.
  *
- * This is basically an alternative to vip_regex_redirects() for when you
- * only need to redirect /foo/bar/* to somewhere else. Using regex
- * to do this simple check would add lots of overhead.
+ * This is basically an alternative to vip_regex_redirects() for when you only need to redirect /foo/bar/* to somewhere else.
+ * Using regex to do this simple check would add lots of overhead.
  *
- * array elements should be in the form of:
- * '/some-path/' => 'http://wordpress.com/new/'
- *
- * With $append_old_uri set to 'true', the full path past the match will be added to the new URL
+ * @param array $vip_redirects_array Optional. Elements should be in the form of '/some-path/' => 'http://wordpress.com/new/'
+ * @param bool $append_old_uri Optional. If true, the full path past the match will be added to the new URL. Defaults to false.
  */
 function vip_substr_redirects( $vip_redirects_array = array(), $append_old_uri = false ) {
 	if ( empty( $vip_redirects_array ) )
@@ -94,8 +91,8 @@ function vip_substr_redirects( $vip_redirects_array = array(), $append_old_uri =
  * Redirecting from /tax-tips/how-to-get-a-tax-break-for-summer-child-care/04152011-6163 (/%category%/%postname%/%month%%day%%year%-%post_id%)
  * '|/([^/]+)\/([^/]+)/([0-9]{1,2})([0-9]{1,2})([0-9]{4})-([0-9]{1,})/?|' => '|/$5/$3/$4/$2/|'
  *
- * @param array Elements should be in the form of: '/old/permalink/regex' => '/new/permalink/regex'
- * @param bool Whether the querystring should be included in the check
+ * @param array $vip_redirects_array Optional. Array of key/value pairs to redirect from/to.
+ * @param bool $with_querystring Optional. Set this to true if your redirect string is in the format of an absolute URL. Defaults to false (just the path).
  *
  */
 function vip_regex_redirects( $vip_redirects_array = array(), $with_querystring = false ) {
@@ -120,15 +117,25 @@ function vip_regex_redirects( $vip_redirects_array = array(), $with_querystring 
 	}
 }
 
-/*
- * Fetch a remote URL and cache the result for a certain period of time
- * See http://lobby.vip.wordpress.com/best-practices/fetching-remote-data/ for more details
+/**
+ * Fetch a remote URL and cache the result for a certain period of time.
  *
  * This function originally used file_get_contents(), hence the function name.
  * While it no longer does, it still operates the same as the basic PHP function.
  *
  * We strongly recommend not using a $timeout value of more than 3 seconds as this
  * function makes blocking requests (stops page generation and waits for the response).
+ * 
+ * The $extra_args are:
+ *  * obey_cache_control_header: uses the "cache-control" "max-age" value if greater than $cache_time.
+ *  * http_api_args: see http://codex.wordpress.org/Function_API/wp_remote_get
+ *
+ * @link http://lobby.vip.wordpress.com/best-practices/fetching-remote-data/ Fetching Remote Data
+ * @param string $url URL to fetch
+ * @param int $timeout Optional. The timeout limit in seconds; valid values are 1-10. Defaults to 3.
+ * @param int $cache_time Optional. The minimum cache time in seconds. Valid values are >= 60. Defaults to 900.
+ * @param array $extra_args Optional. Advanced arguments: "obey_cache_control_header" and "http_api_args".
+ * @return string The remote file's contents (cached)
  */
 function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $extra_args = array() ) {
 	global $blog_id;
@@ -257,9 +264,16 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	return $content;
 }
 
-/*
- * This is the old deprecated version of wpcom_vip_file_get_contents()
- * Please don't use this function in any new code
+/**
+ * This is the old deprecated version of wpcom_vip_file_get_contents(). Please don't use this function in any new code.
+ *
+ * @deprecated
+ * @link http://lobby.vip.wordpress.com/best-practices/fetching-remote-data/ Fetching Remote Data
+ * @param string $url URL to fetch
+ * @param bool $echo_content Optional. If true (the default), echo the remote file's contents. If false, return it.
+ * @param int $timeout Optional. The timeout limit in seconds; valid values are 1-10. Defaults to 3.
+ * @return string|null If $echo_content is true, there will be no return value.
+ * @see wpcom_vip_file_get_contents
  */
 function vip_wp_file_get_content( $url, $echo_content = true, $timeout = 3 ) {
 	$output = wpcom_vip_file_get_contents( $url, $timeout );
@@ -270,37 +284,54 @@ function vip_wp_file_get_content( $url, $echo_content = true, $timeout = 3 ) {
 		return $output;
 }
 
-/*
- * Disable tag suggest on post screen
+/**
+ * Disables the tag suggest on the post screen.
+ *
  * @author mdawaffe
  */
 function vip_disable_tag_suggest() {
 	add_action( 'admin_init', '_vip_disable_tag_suggest' );
 }
+
+/**
+ * Helper function for vip_disable_tag_suggest(); disables the tag suggest on the post screen.
+ *
+ * @see vip_disable_tag_suggest()
+ */
 function _vip_disable_tag_suggest() {
 	if ( !@constant( 'DOING_AJAX' ) || empty( $_GET['action'] ) || 'ajax-tag-search' != $_GET['action'] )
 		return;
 	exit();
 }
 
-/*
- * Disable autosave
+/**
+ * Disable post autosave
+ *
  * @author mdawaffe
  */
 function disable_autosave() {
 	add_action( 'init', '_disable_autosave' );
 }
+
+/**
+ * Helper function for disable_autosave(); disables autosave on the post screen.
+ *
+ * @see disable_autosave()
+ */
 function _disable_autosave() {
 	wp_deregister_script( 'autosave' );
 }
 
-/*
+/**
  * Redirect http://blog.wordpress.com/feed/ to $target URL
- * Don't redirect if a feed service user agent, because that could result
- * in a loop.
- * Can be executed before wp init b/c checks the URI directly to see if main feed
- * ex. vip_main_feed_redirect( 'http://feeds.feedburner.com/ourfeeds/thefeed' );
+ *
+ * Don't redirect if a feed service user agent, because that could result in a loop.
+ *
+ * This can be executed before WP init because it checks the URI directly to see if the main feed is being requested.
+ *
  * @author lloydbudd
+ * @link http://vip.wordpress.com/documentation/redirect-the-feed-to-feedburner/ Redirect the Feed To Feedburner
+ * @param string $target URL to direct feed services to
  */
 function vip_main_feed_redirect( $target ) {
 	if ( wpcom_vip_is_main_feed_requested() && !wpcom_vip_is_feedservice_ua() ) {
@@ -309,9 +340,11 @@ function vip_main_feed_redirect( $target ) {
 	}
 }
 
-/*
- * True if any of the formats of the main feed are requested
+/**
+ * Returns if any of the formats of the main feed are requested
+ *
  * @author lloydbudd
+ * @return bool Returns true if main feed is requested
  */
 function wpcom_vip_is_main_feed_requested() {
 	$toMatch = '#^/(wp-(rdf|rss|rss2|atom|rssfeed).php|index.xml|feed|rss)/?$#i';
@@ -319,10 +352,13 @@ function wpcom_vip_is_main_feed_requested() {
 	return (bool) preg_match( $toMatch, $request );
 }
 
-/*
- * True if feed service user agent
- * batcache aware so that does not serve matched user agents from cache
+/**
+ * Returns if the current visitor has a feed service user agent
+ *
+ * The function is batcache aware so that it does not serve matched user agents from cache.
+ *
  * @author lloydbudd
+ * @return bool Returns true if the current visitor has a feed service user agent.
  */
 function wpcom_vip_is_feedservice_ua() {
 	if ( function_exists( 'wpcom_feed_cache_headers' ) ) {
@@ -341,15 +377,20 @@ function wpcom_vip_is_feedservice_ua() {
 	return (bool) preg_match("/feedburner|feedvalidator|MediafedMetrics/i", $_SERVER["HTTP_USER_AGENT"]);
 }
 
-/*
- * For flash hosted elsewhere to work it looks for crossdomain.xml in
- * the host's * web root. If requested, this function echos
- * the crossdomain.xml file in the theme's root directory
+/**
+ * Responds to a blog.wordpress.com/crossdomain.xml request with the contents of a crossdomain.xml file located in the root of your theme.
+ *
  * @author lloydbudd
  */
 function vip_crossdomain_redirect() {
 	add_action( 'init', '_vip_crossdomain_redirect');
 }
+
+/**
+ * Helper function for vip_crossdomain_redirect(); serves up /vip/your_theme/crossdomain.xml
+ *
+ * @see vip_crossdomain_redirect()
+ */
 function _vip_crossdomain_redirect() {
 	$request = $_SERVER['REQUEST_URI'];
 	if ( '/crossdomain.xml' == $request ) {
@@ -359,9 +400,16 @@ function _vip_crossdomain_redirect() {
 	}
 }
 
+/**
+ * Responds to a blog.wordpress.com/DARTIframe.html request with the contents of a DARTIframe.html file located in the root of your theme.
+ */
 function vip_doubleclick_dartiframe_redirect() {
 	add_action( 'init', '_vip_doubleclick_dartiframe_redirect');
 }
+
+/**
+ * Helper function for vip_doubleclick_dartiframe_redirect(); serves up /vip/your_theme/DARTIframe.html
+ */
 function _vip_doubleclick_dartiframe_redirect() {
 	$dart_file = get_stylesheet_directory() . '/DARTIframe.html';
 	if ( stripos( $_SERVER[ 'REQUEST_URI' ], 'DARTIframe.html' ) !== false && file_exists( $dart_file ) ) {
@@ -371,9 +419,11 @@ function _vip_doubleclick_dartiframe_redirect() {
 	}
 }
 
-/*
- * Send moderation emails to multiple addresses
+/**
+ * Send comment moderation emails to multiple addresses
+ *
  * @author nickmomrik
+ * @param array $emails Array of email addresses
  */
 function vip_multiple_moderators($emails) {
 	$emails = (array) $emails;
@@ -386,20 +436,8 @@ function vip_multiple_moderators($emails) {
 
 /**
  * Automatically insert meta description tag into posts/pages.
- * - can be configured to use either first X chars/words of the post content or post excerpt if available
- * - can use category description for category archive pages if available
- * - can use tag description for tag archive pages if available
- * - can use blog description for everything else
- * - can use a default description if no suitable value is found
- * - can use the value of a custom field as description
  *
- * @usage
- * // add a custom configuration via filter
- * function set_wpcom_vip_meta_desc_settings( $settings ) {
- * 		return array( 'length' => 10, 'length_unit' => 'char|word', 'use_excerpt' => true, 'add_category_desc' => true, 'add_tag_desc' => true, 'add_other_desc' => true, 'default_description' => '', 'custom_field_key' => '' );
- * }
- * add_filter( 'wpcom_vip_meta_desc_settings', 'set_wpcom_vip_meta_desc_settings' );
- * add_action( 'wp_head', 'wpcom_vip_meta_desc' );
+ * You shouldn't need to use this function nowadays because WordPress.com and Jetpack takes care of this for you.
  *
  * @author Thorsten Ott
  */
@@ -410,6 +448,27 @@ function wpcom_vip_meta_desc() {
 	}
 }
 
+/**
+ * Filter this function to change the meta description value set by wpcom_vip_meta_desc().
+ * 
+ * Can be configured to use either first X chars/words of the post content or post excerpt if available
+ * Can use category description for category archive pages if available
+ * Can use tag description for tag archive pages if available
+ * Can use blog description for everything else
+ * Can use a default description if no suitable value is found
+ * Can use the value of a custom field as description
+ *
+ * Usage:
+ * // add a custom configuration via filter
+ * function set_wpcom_vip_meta_desc_settings( $settings ) {
+ * 		return array( 'length' => 10, 'length_unit' => 'char|word', 'use_excerpt' => true, 'add_category_desc' => true, 'add_tag_desc' => true, 'add_other_desc' => true, 'default_description' => '', 'custom_field_key' => '' );
+ * }
+ * add_filter( 'wpcom_vip_meta_desc_settings', 'set_wpcom_vip_meta_desc_settings' );
+ * add_action( 'wp_head', 'wpcom_vip_meta_desc' );
+ *
+ * @return string The meta description
+ * @see wpcom_vip_meta_desc()
+ */
 function wpcom_vip_get_meta_desc() {
 	$default_settings = array(
 		'length' => 25,              // amount of length units to use for the meta description
@@ -492,21 +551,22 @@ function wpcom_vip_get_meta_desc() {
 
 
 /**
- * Get random posts optimized for speed on large tables.
- * as MySQL queries that use ORDER BY RAND() can be pretty challenging and slow on large dataset
- * this function gives and alternative method for getting random posts.
- * @usage
- * $random_posts = vip_get_random_posts( $amount=50 ); // gives 50 random published posts
- * // sometimes you can also add your own where condition
- * global $vip_get_random_post_ids_where_add;
+ * Get random posts; an alternate approach for dealing with large tables.
+ *
+ * MySQL queries that use ORDER BY RAND() can be pretty challenging and slow on large datasets.
+ * This function is an alternative method for getting random posts, though it's still very very inefficent.
+ * You probably don't want to use this function.
+ *
+ * Override the $vip_get_random_post_ids_where_add global to add your own WHERE condition:
  * $vip_get_random_post_ids_where_add = "AND post_status='publish' AND post_type='post' AND post_date_gmt > '2009-01-01 00:00:00';
- * $random_posts = vip_get_random_posts( $amount=50 ); // would only consider posts after Jan 1st 2009
- * // by default you can also get a list of post_ids instead of their objects
- * $random_posts = vip_get_random_posts( $amount=50, true ); // will return 50 random post ids for published posts.
- * // To enable caching and avoid querying all posts add the following action
- * global $vip_get_random_post_ids_where_add; // make sure we use the same where condition
+ * 
+ * You'll want to enable caching and avoid querying all posts by adding the following action:
  * add_action( 'save_post', 'vip_refresh_random_posts_all_ids', 1 ); // add this to functions.php
+ *
  * @author tottdev
+ * @param int $amount Optional. Amount of random posts to get. Default 1.
+ * @param bool $return_ids Optional. To just get the IDs, set this to true, otherwise post objects are returned (the default).
+ * @return array
  */
 function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 	global $wpdb, $vip_get_random_posts_rnd_ids, $vip_get_random_posts_current_rnd_ids, $vip_get_random_post_ids_where_add;
@@ -552,6 +612,10 @@ function vip_get_random_posts( $amount = 1, $return_ids = false ) {
 
 /**
  * Helper function for vip_get_random_posts()
+ *
+ * You probably don't want to use this function.
+ *
+ * @see vip_get_random_posts()
  */
 function vip_refresh_random_posts_all_ids() {
 	global $wpdb, $vip_get_random_post_ids_where_add;
@@ -573,28 +637,20 @@ function vip_refresh_random_posts_all_ids() {
 }
 
 /**
- * An extended version of wp_remote_get()
- * This function prevents interruption of service due to slow 3rd party providers.
- * Once the timeout is hit an error counter is increased up to a threshold value. Once this value
- * is reached a fallback value or error object is returned until a retry time is reached.
- * Then the remote call is executed again and based on the result the counter is decreased or the latest timeout value
- * is increased which causes an other retry to happen after an other retry time period passed.
- * If the call is successful the error counter is decreased and the result returned. If the error counter hits 0 the option is removed
- * @usage
- * // get a url with 1 second timeout, cancel remote calls for 20 seconds after 3 failed attempts in 20 seconds occured
- * $response = vip_safe_wp_remote_get( $url );
- * if ( is_wp_error( $response ) )
- * 		echo 'no value available';
- * else
- * 		echo wp_remote_retrieve_body( $response );
+ * This is a sophisticated extended version of wp_remote_get(). It is designed to more gracefully handle failure than wpcom_vip_file_get_contents() does.
+ * 
+ * Note that like wp_remote_get(), this function does not cache.
  *
- * // get a url with 1 second timeout, cancel remote calls for 60 seconds after 1 failed attempts in 60 seconds occured
- * // display 'n/a' on failure
- * $response = vip_safe_wp_remote_get( $url, 'n/a', 1, 1, 60 );
- * echo $response;
- *
- * @see http://codex.wordpress.org/HTTP_API
  * @author tottdev
+ * @link http://vip.wordpress.com/documentation/fetching-remote-data/ Fetching Remote Data
+ * @param string $url URL to fetch
+ * @param string $fallback_value Optional. Set a fallback value to be returned if the external request fails.
+ * @param int $threshold Optional. The number of fails required before subsequent requests automatically return the fallback value. Defaults to 3, with a maximum of 10.
+ * @param int $timeout Optional. Number of seconds before the request times out. Valid values 1-3; defaults to 1.
+ * @param int $retry Optional. Number of seconds before resetting the fail counter and the number of seconds to delay making new requests after the fail threshold is reached. Defaults to 20, with a minimum of 10.
+ * @param array Optional. Set other arguments to be passed to wp_remote_get().
+ * @return string|WP_Error|array Array of results. If fail counter is met, returns the $fallback_value, otherwise return WP_Error.
+ * @see wp_remote_get()
  */
 function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeout=1, $retry=20, $args = array() ) {
 	global $blog_id;
@@ -658,7 +714,7 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 }
 
 /**
- * Disable comment counts in "Right Now" Dashboard widget as it can take a while to query this.
+ * Disable comment counts in "Right Now" Dashboard widget as it can take a while to query the data.
  */
 function disable_right_now_comment_count() {
 	if ( !is_admin() )
@@ -669,7 +725,9 @@ function disable_right_now_comment_count() {
 }
 
 /**
- * this function is internally called by wp_count_comments
+ * Helper function for disable_right_now_comment_count()
+ *
+ * @see disable_right_now_comment_count()
  */
 function _disable_right_now_comment_count_css() {
 	?>
@@ -679,6 +737,13 @@ function _disable_right_now_comment_count_css() {
 </style>
 	<?php
 }
+
+/**
+ * Helper function for disable_right_now_comment_count()
+ *
+ * @return string|bool Returns "n/a" or false if called from outside the "Right Now" Dashboard widget.
+ * @see disable_right_now_comment_count()
+ */
 function _disable_right_now_comment_count_filter( $data ) {
 	$backtrace = debug_backtrace();
 	foreach( $backtrace as $args ) {
@@ -692,8 +757,8 @@ function _disable_right_now_comment_count_filter( $data ) {
 /**
  * Returns profile information for a WordPress.com/Gravatar user
  *
- * @param string|int Email, ID, or username for user to lookup
- * @return array Profile info formatted as noted here: http://en.gravatar.com/site/implement/profiles/php/
+ * @param string|int $email_or_id Email, ID, or username for user to lookup
+ * @return false|array Profile info formatted as noted here: http://en.gravatar.com/site/implement/profiles/php/. If user not found, returns false.
  */
 function wpcom_vip_get_user_profile( $email_or_id ) {
 
@@ -730,13 +795,13 @@ function wpcom_vip_get_user_profile( $email_or_id ) {
 	return $profile;
 }
 
-
 /**
  * Checks to see if a given e-mail address has a Gravatar or not.
  *
- * You can use this function to only call get_avatar() when the user
- * has a Gravatar and display nothing (rather than a placeholder image)
- * when they don't.
+ * You can use this function to only call get_avatar() when the user has a Gravatar and display nothing (rather than a placeholder image) when they don't.
+ *
+ * @param string $email Email to check for a gravatar
+ * @return bool Returns true if $email has a gravatar
  */
 function wpcom_vip_email_has_gravatar( $email ) {
 
@@ -756,9 +821,13 @@ function wpcom_vip_email_has_gravatar( $email ) {
 }
 
 /**
- * Check that a URL matches a given whitelist
+ * Check if a URL is in a specified whitelist
  *
  * Example whitelist: array( 'mydomain.com', 'mydomain.net' )
+ *
+ * @param string $url URL to check for
+ * @param array $whitelisted_domains Array of whitelisted domains
+ * @return bool Returns true if $url is in the $whitelisted_domains
  */
 function wpcom_vip_is_valid_domain( $url, $whitelisted_domains ) {
 	$domain = parse_url( $url, PHP_URL_HOST );
@@ -785,19 +854,22 @@ function wpcom_vip_is_valid_domain( $url, $whitelisted_domains ) {
 /**
  * Helper function to enable bulk user management on a per-user basis
  *
- * Example: wpcom_vip_bulk_user_management_whitelist( array( 'userlogin1', 'userlogin2' ) );
+ * @param array $users Array of user logins
  */
 function wpcom_vip_bulk_user_management_whitelist( $users ) {
 	add_filter( 'bulk_user_management_admin_users', function() use ( $users ) { return $users; } );
 }
 
 /**
- * Helper function that provides caching for the normally uncached wp_oembed_get() function.
+ * A version of wp_oembed_get() that provides caching.
  *
- * Note that if you're using this within the contents of a post, it's probably better to use
- * the existing WordPress functionality: http://codex.wordpress.org/Embeds
+ * Note that if you're using this within the contents of a post, it's probably better to use the existing
+ * WordPress functionality: http://codex.wordpress.org/Embeds. This helper function is more meant for other
+ * places, such as sidebars.
  *
- * This helper function is more meant for other places, such as sidebars.
+ * @param string $url The URL that should be embedded
+ * @param array $args Addtional arguments and parameters the embed
+ * @return string
  */
 function wpcom_vip_wp_oembed_get( $url, $args = array() ) {
 	$cache_key = md5( $url . '|' . serialize( $args ) );
