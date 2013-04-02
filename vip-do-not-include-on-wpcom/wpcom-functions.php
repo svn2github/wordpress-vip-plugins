@@ -314,7 +314,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 								$tax_fld = 'category.slug';
 								break;
 							default:
-								$tax_fld = 'taxonomy_raw.' . $tax . '.slug';
+								$tax_fld = 'taxonomy.' . $tax . '.slug';
 								break;
 						}
 						foreach ( $terms as $term ) {
