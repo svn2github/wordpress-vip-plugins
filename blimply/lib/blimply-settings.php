@@ -21,9 +21,9 @@ class Blimply_Settings {
     }
 
     function admin_menu() {
-			
-			  $manage_cap = apply_filters('blimpbly_manage_cap', 'manage_options');
-			
+
+        $manage_cap = apply_filters( 'blimpbly_manage_cap', 'manage_options' );
+
         add_options_page( __( 'Blimply Settings', 'blimply' ), __( 'Blimply Settings', 'blimply' ), $manage_cap, 'blimply_settings', array( $this, 'plugin_page' ) );
         add_options_page( __( 'Urban Airship Tags', 'blimply' ), __( 'Urban Airship Tags', 'blimply' ), $manage_cap, 'edit-tags.php?taxonomy=blimply_tags' );
     }
@@ -37,7 +37,7 @@ class Blimply_Settings {
             array(
                 'id' => 'blimply_sounds',
                 'title' => __( 'Push Sounds', 'blimply' )
-            ),            
+            ),
         );
         return $sections;
     }
@@ -53,7 +53,7 @@ class Blimply_Settings {
                 array(
                     'name' => BLIMPLY_PREFIX . '_name',
                     'label' => __( 'Urban Airship Application Slug!', 'blimply' ),
-                    'desc' => __( 'Text input description', 'wedevs' ),
+                    'desc' => __( 'Text input description', 'blimply' ),
                     'type' => 'text',
                     'default' => 'Title'
                 ),
@@ -80,7 +80,16 @@ class Blimply_Settings {
                     'type'=> 'checkbox',
                     'std' => __( 'my-blimply', 'blimply' ),
                     'class'=> 'nohtml'
-                ),                
+                ),
+                array(
+                    'name' => BLIMPLY_PREFIX . '_character_limit',
+                    'label'=> __( 'Limit dashboard pushes to this number of characters', 'blimply' ),
+                    'desc'=> __( '', 'blimply' ),
+                    'type'=> 'text',
+                    'std' => 140,
+                    'class'=> 'nohtml',
+                    'sanitize_callback' => 'intval'
+                ),
             )
         );
 
@@ -93,7 +102,7 @@ class Blimply_Settings {
                 'type'=> 'text',
                 'std' => __( '', 'blimply' ),
                 'class'=> 'nohtml'
-                );
+            );
         }
 
         return $settings_fields;
