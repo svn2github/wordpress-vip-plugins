@@ -103,22 +103,28 @@ class Syndication_WP_XML_Client implements Syndication_Client {
 		$abs_meta_data = array();
 		$abs_tax_data = array();
 		$posts = array();
+
 		$nodes = $this->nodes_to_post[0];
 		$post_root = $nodes['post_root'];
 		unset($nodes['post_root']);
+
 		$namespace = isset($nodes['namespace']) ? $nodes['namespace'] : null;
 		unset($nodes['namespace']);
+
 		$enc_parent = $nodes['enc_parent'];
 		unset($nodes['enc_parent']);
+
 		$enc_field = isset( $this->enc_field ) ? $this->enc_field : null;
+
 		$categories = (array) $nodes['categories'];
 		unset($nodes['categories']);
+
 		$enclosures_as_strings = isset($nodes['enclosures_as_strings']) ? true : false;
 		unset($nodes['enclosures_as_strings']);
 
 		//TODO: add checkbox on feed config to allow enclosures to be saved as strings as SI does
 		//TODO: add tags here and in feed set up UI
-		foreach( $nodes as $key => $storage_locations) {
+		foreach( $nodes['nodes'] as $key => $storage_locations) {
 			foreach ($storage_locations as $storage_location) {
 				$storage_location['xpath'] = $key;
 				if ($storage_location['is_item']) {
@@ -139,14 +145,14 @@ class Syndication_WP_XML_Client implements Syndication_Client {
 		// TODO: kill feed client if too many failures
 		if ( is_wp_error( $feed ) ) {
 			self::log_post( 'n/a', null, get_post($this->site_ID), sprintf( __( 'Could not reach feed at: %s | Error: %s', 'push-syndication' ), $this->feed_url, $feed->get_error_message() ) );
-			return;
+			return array();
 		}
 
 		$xml = simplexml_load_string( $feed, null, 0, $namespace, false );
 		
-		if ( ! $xml ) {
+		if ( false === $xml ) {
 			self::log_post( 'n/a', null, get_post( $this->site_ID ), sprintf( __( 'Failed to parse feed at: %s', 'push-syndication' ), $this->feed_url ) );
-			return;
+			return array();
 		}
 
 		$abs_post_fields['enclosures_as_strings'] = $enclosures_as_strings;
@@ -170,7 +176,7 @@ class Syndication_WP_XML_Client implements Syndication_Client {
 			} catch (Exception $e) {
 				//TODO: catch value not found here and alert for error
 				//TODO: catch multiple values returned here and alert for error
-				return true;
+				return array();
 			}
 		}
 
@@ -208,7 +214,7 @@ class Syndication_WP_XML_Client implements Syndication_Client {
 				} catch (Exception $e) {
 					// TODO: catch value not found here and alert for error
 					// TODO: catch multiple values returned here and alert for error
-					return true;
+					return array();
 				}
 			}
 			$meta_data = array_merge($meta_data, $abs_meta_data);
@@ -226,7 +232,7 @@ class Syndication_WP_XML_Client implements Syndication_Client {
 			$item_fields['post_category'] = $categories;
 
 			if ( ! empty( $meta_data[$this->id_field] ) ) {
-				$post_guid = $meta_data[$this->id_field];
+				$item_fields['post_guid'] = $meta_data[$this->id_field];
 			}
 
 			$posts[] = $item_fields;
