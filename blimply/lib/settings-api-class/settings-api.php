@@ -68,11 +68,12 @@ class WeDevs_Settings_API_Test {
         $settings_fields = array(
             'wedevs_basics' => array(
                 array(
-                    'name' => 'text',
-                    'label' => __( 'Text Input', 'wedevs' ),
+                    'name' => 'text_val',
+                    'label' => __( 'Text Input (integer validation)', 'wedevs' ),
                     'desc' => __( 'Text input description', 'wedevs' ),
                     'type' => 'text',
-                    'default' => 'Title'
+                    'default' => 'Title',
+                    'sanitize_callback' => 'intval'
                 ),
                 array(
                     'name' => 'textarea',
@@ -118,6 +119,20 @@ class WeDevs_Settings_API_Test {
                         'yes' => 'Yes',
                         'no' => 'No'
                     )
+                ),
+                array(
+                    'name' => 'password',
+                    'label' => __( 'Password', 'wedevs' ),
+                    'desc' => __( 'Password description', 'wedevs' ),
+                    'type' => 'password',
+                    'default' => ''
+                ),
+                array(
+                    'name' => 'file',
+                    'label' => __( 'File', 'wedevs' ),
+                    'desc' => __( 'File description', 'wedevs' ),
+                    'type' => 'file',
+                    'default' => ''
                 )
             ),
             'wedevs_advanced' => array(
@@ -173,6 +188,20 @@ class WeDevs_Settings_API_Test {
                         'yes' => 'Yes',
                         'no' => 'No'
                     )
+                ),
+                array(
+                    'name' => 'password',
+                    'label' => __( 'Password', 'wedevs' ),
+                    'desc' => __( 'Password description', 'wedevs' ),
+                    'type' => 'password',
+                    'default' => ''
+                ),
+                array(
+                    'name' => 'file',
+                    'label' => __( 'File', 'wedevs' ),
+                    'desc' => __( 'File description', 'wedevs' ),
+                    'type' => 'file',
+                    'default' => ''
                 )
             ),
             'wedevs_others' => array(
@@ -226,6 +255,20 @@ class WeDevs_Settings_API_Test {
                         'yes' => 'Yes',
                         'no' => 'No'
                     )
+                ),
+                array(
+                    'name' => 'password',
+                    'label' => __( 'Password', 'wedevs' ),
+                    'desc' => __( 'Password description', 'wedevs' ),
+                    'type' => 'password',
+                    'default' => ''
+                ),
+                array(
+                    'name' => 'file',
+                    'label' => __( 'File', 'wedevs' ),
+                    'desc' => __( 'File description', 'wedevs' ),
+                    'type' => 'file',
+                    'default' => ''
                 )
             )
         );
@@ -235,7 +278,6 @@ class WeDevs_Settings_API_Test {
 
     function plugin_page() {
         echo '<div class="wrap">';
-        settings_errors();
 
         $this->settings_api->show_navigation();
         $this->settings_api->show_forms();
