@@ -1,9 +1,9 @@
 <?php
 
 include_once( ABSPATH . 'wp-includes/class-simplepie.php' );
-include_once( dirname(__FILE__) . '/interface-wp-client.php' );
+include_once( dirname(__FILE__) . '/interface-syndication-client.php' );
 
-class WP_RSS_Client extends SimplePie implements WP_Client {
+class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client {
 
     private $default_post_type;
     private $default_post_status;
@@ -40,7 +40,7 @@ class WP_RSS_Client extends SimplePie implements WP_Client {
     }
 
 	public static function get_client_data() {
-		return array( 'id' => 'WP_RSS', 'modes' => array( 'pull' ), 'name' => 'WordPress RSS' );
+		return array( 'id' => 'WP_RSS', 'modes' => array( 'pull' ), 'name' => 'RSS' );
 	}
 		
     public function new_post($post_ID) {

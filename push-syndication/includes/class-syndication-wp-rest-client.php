@@ -1,9 +1,9 @@
 <?php
 
-include_once(dirname(__FILE__) . '/interface-wp-client.php');
+include_once(dirname(__FILE__) . '/interface-syndication-client.php');
 include_once( dirname( __FILE__ ) . '/push-syndicate-encryption.php' );
 
-class WP_REST_Client implements WP_Client{
+class Syndication_WP_REST_Client implements Syndication_Client {
 
 	private $access_token;
 	private $blog_ID;

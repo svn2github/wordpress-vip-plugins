@@ -2,10 +2,10 @@
 
 include_once( ABSPATH . 'wp-includes/class-IXR.php' );
 include_once( ABSPATH . 'wp-includes/class-wp-http-ixr-client.php' );
-include_once( dirname(__FILE__) . '/interface-wp-client.php' );
+include_once( dirname(__FILE__) . '/interface-syndication-client.php' );
 include_once( dirname( __FILE__ ) . '/push-syndicate-encryption.php' );
 
-class WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements WP_Client {
+class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndication_Client {
 
     private $username;
     private $password;
