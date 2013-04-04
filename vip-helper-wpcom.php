@@ -502,7 +502,15 @@ function wpcom_vip_disable_post_flair() {
  * @link http://en.support.wordpress.com/sharing/ Sharing
  */
 function wpcom_vip_disable_sharing() {
-	remove_filter( 'post_flair', 'sharing_display', 20 );
+	$function = function() {
+		remove_filter( 'post_flair', 'sharing_display', 20 );
+	};
+
+	// Post Flair sets things up on init so we need to call on that if init hasn't fired yet.
+	if ( did_action( 'init' ) )
+		call_user_func( $function );
+	else
+		add_action( 'init', $function, 99 );
 }
 
 /**
