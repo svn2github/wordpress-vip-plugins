@@ -71,7 +71,7 @@ function json_feed_post_item() {
 		'type'               => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
 		'permalink'          => get_permalink(),
 		'title'              => get_the_title(),
-		'content'            => get_the_content(),
+		'content'            => apply_filters( 'the_content', get_the_content() ), // WPCOM: apply all registered filters
 		'excerpt'            => get_the_excerpt(),
 		'featured_image_url' => ( $featured_image_url ) ? $featured_image_url : '',
 		'date'               => get_the_time(json_feed_date_format()),
