@@ -35,6 +35,13 @@ class WPCOM_Related_Posts {
 	public $options = array();
 	public $stopwords = array();
 
+	/**
+	 * Store the $args for a get_related_posts() query so they are
+	 * accessible in the 'posts_where' filter for non-ElasticSearch
+	 * queries. Is unset at the end of get_related_posts()
+	 */
+	protected $args = array();
+
 	const key = 'wpcom-related-posts';
 
 	protected static $instance;
@@ -228,8 +235,20 @@ class WPCOM_Related_Posts {
 				'posts_per_page'          => $this->options['post-count'],
 				'post_type'               => get_post_type( $post_id ),
 				'has_terms'               => array(),
+				'date_range'			  => array(
+					'from'	=> strtotime( '-1 year' ),
+					'to' 	=> time()
+				)
 			);
 		$args = wp_parse_args( $args, $defaults );
+
+		$args['date_range'] = apply_filters( 'wrp_date_range', $args['date_range'], $post_id );
+
+		if ( is_array( $args['date_range'] ) )
+			$args['date_range'] = array_map( 'intval', $args['date_range'] );
+
+		// Store the args so any 'posts_where' filters can access them
+		$this->args = $args;
 
 		$related_posts = array();
 
@@ -279,6 +298,20 @@ class WPCOM_Related_Posts {
 			} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
 				$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
 			}
+
+			if ( is_array( $args['date_range'] ) &&
+				! empty( $args['date_range']['from'] ) && 
+				! empty( $args['date_range']['to'] ) ) {
+					$filters[] = array(
+						'range'	=> array(
+							'date' => array(
+								'from' 	=> date( 'Y-m-d', $args['date_range']['from'] ),
+								'to' 	=> date( 'Y-m-d', $args['date_range']['to'] )
+							)
+						)
+					);
+			}
+
 			if ( ! empty( $filters ) )
 				$es_args['filters'] = array( 'and' => $filters );
 
@@ -320,9 +353,18 @@ class WPCOM_Related_Posts {
 				$related_query_args['tax_query'] = $tax_query;
 			}
 
+			add_filter( 'posts_where', array( $this, 'filter_related_posts_where' ) );
+
 			$related_query = new WP_Query( $related_query_args );
+
+			remove_filter( 'posts_where', array( $this, 'filter_related_posts_where' ) );
+
 			$related_posts = $related_query->get_posts();
 		}
+
+		// Clear out the $args, as they are only meaningful inside get_related_posts()
+		$this->args = array();
+
 		return $related_posts;
 	}
 
@@ -351,6 +393,25 @@ class WPCOM_Related_Posts {
 		return $keywords;
 	}
 
+	/**
+	 * Rewrite the WHERE clause for non-ElasticSearch queries
+	 *
+	 * @param string $where The WHERE clause to filter
+	 * @return string The WHERE clause, filtered with the date range
+	 */
+	public function filter_related_posts_where( $where = '' ) {
+		global $wpdb;
+
+		if ( ! is_array( $this->args['date_range'] ) ||
+			empty( $this->args['date_range']['from'] ) ||
+			empty( $this->args['date_range']['to'] ) )
+				return $where;
+
+		$where .= $wpdb->prepare( ' AND post_date >= %s', date( 'Y-m-d', $this->args['date_range']['from'] ) );
+		$where .= $wpdb->prepare( ' AND post_date < %s', date( 'Y-m-d', $this->args['date_range']['to'] ) );
+
+		return $where;
+	}
 }
 
 function WPCOM_Related_Posts() {
