@@ -4,7 +4,7 @@ Plugin Name: Safe Redirect Manager
 Plugin URI: http://www.10up.com
 Description: Easily and safely manage HTTP redirects.
 Author: Taylor Lovett (10up LLC), VentureBeat
-Version: 1.6
+Version: 1.7
 Author URI: http://www.10up.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -55,6 +55,7 @@ class SRM_Safe_Redirect_Manager {
 	 * @return object
 	 */
 	public function __construct() {
+		add_action( 'init', array( $this, 'action_init_load_textdomain' ), 9 );
 		add_action( 'init', array( $this, 'action_init' ) );
 		add_action( 'init', array( $this, 'action_register_post_types' ) );
 		add_action( 'parse_request', array( $this, 'action_parse_request' ), 0 );
@@ -69,11 +70,23 @@ class SRM_Safe_Redirect_Manager {
 		add_action( 'admin_print_styles-edit.php', array( $this, 'action_print_logo_css' ), 10, 1 );
 		add_action( 'admin_print_styles-post.php', array( $this, 'action_print_logo_css' ), 10, 1 );
 		add_action( 'admin_print_styles-post-new.php', array( $this, 'action_print_logo_css' ), 10, 1 );
+		add_filter( 'post_type_link', array( $this, 'filter_post_type_link' ), 10, 2  );
 
 		// Search filters
 		add_filter( 'posts_join', array( $this, 'filter_search_join' ) );
 		add_filter( 'posts_where', array( $this, 'filter_search_where' ) );
 		add_filter( 'posts_distinct', array( $this, 'filter_search_distinct' ) );
+	}
+
+	/**
+	* Localize plugin
+	*
+	* @since 1.7
+	* @uses load_plugin_textdomain
+	* @return void
+	*/
+	public function action_init_load_textdomain() {
+		load_plugin_textdomain( 'safe-redirect-manager', false, basename( dirname( __FILE__ ) ) . '/languages' );
 	}
 
 	/**
@@ -373,9 +386,16 @@ class SRM_Safe_Redirect_Manager {
 	 * @return string
 	 */
 	public function filter_admin_title( $title, $post_id = 0 ) {
-		if ( ! is_admin() || false === ( $redirect = get_post( $post_id ) ) || $redirect->post_type != $this->redirect_post_type )
+		if ( ! is_admin() )
 			return $title;
 
+		$redirect = get_post( $post_id );
+		if ( empty( $redirect ) )
+			return $title;
+		
+		if ( $redirect->post_type != $this->redirect_post_type )
+			return $title;
+		
 		$redirect_from = get_post_meta( $post_id, $this->meta_key_redirect_from, true );
 		if ( ! empty( $redirect_from ) )
 			return $redirect_from;
@@ -816,6 +836,11 @@ class SRM_Safe_Redirect_Manager {
 
 				header("X-Safe-Redirect-Manager: true");
 
+				// Allow for regex replacement in $redirect_to
+				if ( $enable_regex ) {
+					$redirect_to = preg_replace( '@' . $redirect_from . '@', $redirect_to, $requested_path );
+				}
+
 				// if we have a valid status code, then redirect with it
 				if ( in_array( $status_code, $this->valid_status_codes ) )
 					wp_safe_redirect( esc_url_raw( $redirect_to ), $status_code );
@@ -880,6 +905,33 @@ class SRM_Safe_Redirect_Manager {
 		$path = str_replace( '@', '', $path );
 
 		return $path;
+	}
+	
+	/**
+	 * Return a permalink for a redirect post, which is the "redirect from"
+	 * URL for that redirect.
+	 * 
+	 * @since 1.7
+	 * @param string $permalink The permalink
+	 * @param object $post A Post object
+	 * @uses home_url, get_post_meta
+	 * @return string The permalink
+	 */
+	public function filter_post_type_link( $permalink, $post ) {
+		if ( $this->redirect_post_type != $post->post_type )
+			return $permalink;
+
+		// We can't do anything to provide a permalink 
+		// for regex enabled redirects.
+		if ( get_post_meta( $post->ID, $this->meta_key_enable_redirect_from_regex, true ) )
+			return $permalink;
+
+		// We can't do anything if there is a wildcard in the redirect from
+		$redirect_from = get_post_meta( $post->ID, $this->meta_key_redirect_from, true );
+		if ( false !== strpos( $redirect_from, '*' ) )
+			return $permalink;
+
+		return home_url( $redirect_from );
 	}
 }
 
