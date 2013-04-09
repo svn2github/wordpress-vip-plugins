@@ -1,11 +1,12 @@
 <?php
 
 /**
- * A simple wrapper for the Twitter API
+ * A Twitter library in PHP.
  *
  * @package codebird
+ * @version 2.3.2
  * @author J.M. <me@mynetx.net>
- * @copyright 2010-2012 J.M. <me@mynetx.net>
+ * @copyright 2010-2013 J.M. <me@mynetx.net>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,7 +34,7 @@ unset($constants);
 unset($id);
 
 /**
- * A simple wrapper for the Twitter API
+ * A Twitter library in PHP.
  *
  * @package codebird
  * @subpackage codebird-php
@@ -43,7 +44,7 @@ class Codebird
     /**
      * The current singleton instance
      */
-    protected static $_instance = null;
+    private static $_instance = null;
 
     /**
      * The OAuth consumer key of your registered app
@@ -56,19 +57,19 @@ class Codebird
     protected static $_oauth_consumer_secret = null;
 
     /**
+     * The app-only bearer token. Used to authorize app-only requests
+     */
+    protected static $_oauth_bearer_token = null;
+
+    /**
      * The API endpoint to use
      */
-    protected $_endpoint = 'https://api.twitter.com/1.1/';
+    protected static $_endpoint = 'https://api.twitter.com/1.1/';
 
     /**
      * The API endpoint to use for OAuth requests
      */
-    protected $_endpoint_oauth = 'https://api.twitter.com/';
-
-    /**
-     * The API endpoint to use for untransitioned methods
-     */
-    protected $_endpoint_old = 'https://api.twitter.com/1/';
+    protected static $_endpoint_oauth = 'https://api.twitter.com/';
 
     /**
      * The Request or access token. Used to sign requests
@@ -86,11 +87,6 @@ class Codebird
     protected $_return_format = CODEBIRD_RETURNFORMAT_OBJECT;
 
     /**
-     * The cache to use for the public timeline
-     */
-    protected $_statuses_public_timeline_cache = array('timestamp' => false, 'data' => false);
-
-    /**
      * The file formats that Twitter accepts as image uploads
      */
     protected $_supported_media_files = array(IMAGETYPE_GIF, IMAGETYPE_JPEG, IMAGETYPE_PNG);
@@ -98,7 +94,7 @@ class Codebird
     /**
      * The current Codebird version
      */
-    protected $_version = '2.2.3';
+    protected $_version = '2.3.2';
 
     /**
      * Returns singleton class instance
@@ -126,6 +122,18 @@ class Codebird
     {
         self::$_oauth_consumer_key    = $key;
         self::$_oauth_consumer_secret = $secret;
+    }
+
+    /**
+     * Sets the OAuth2 app-only auth bearer token
+     *
+     * @param string $token OAuth2 bearer token
+     *
+     * @return void
+     */
+    public static function setBearerToken($token)
+    {
+        self::$_oauth_bearer_token = $token;
     }
 
     /**
@@ -184,7 +192,21 @@ class Codebird
                 $apiparams = $params[0];
             } else {
                 parse_str($params[0], $apiparams);
+                // remove auto-added slashes if on magic quotes steroids
+                if (get_magic_quotes_gpc()) {
+                    foreach($apiparams as $key => $value) {
+                        if (is_array($value)) {
+                            $apiparams[$key] = array_map('stripslashes', $value);
+                        } else {
+                            $apiparams[$key] = stripslashes($value);
+                        }
+                    }
+                }
             }
+        }
+        $app_only_auth = false;
+        if (count($params) > 1) {
+            $app_only_auth = !! $params[1];
         }
 
         // map function name to API method
@@ -239,35 +261,19 @@ class Codebird
         // geek-geek: Now allowing to specify filenames as params
         $this->_detectFilenames($method_template, $apiparams);
 
-        return $this->_callApi($httpmethod, $method, $method_template, $apiparams, $multipart);
+        return $this->_callApi(
+            $httpmethod,
+            $method,
+            $method_template,
+            $apiparams,
+            $multipart,
+            $app_only_auth
+        );
     }
 
     /**
      * Uncommon API methods
      */
-
-    /**
-     * The public timeline is cached for 1 minute
-     * API method wrapper
-     *
-     * @param mixed Any parameters are sent to __call, untouched
-     *
-     * @return mixed The API reply
-     */
-    public function statuses_publicTimeline($mixed = null)
-    {
-        if ($this->_statuses_public_timeline_cache['timestamp'] && $this->_statuses_public_timeline_cache['timestamp'] + 60 > time()) {
-            return $this->_statuses_public_timeline_cache['data'];
-        }
-        $reply = $this->__call(__FUNCTION__, func_get_args());
-        if ($reply->httpstatus == 200) {
-            $this->_statuses_public_timeline_cache = array(
-                'timestamp' => time(),
-                'data' => $reply
-            );
-        }
-        return $reply;
-    }
 
     /**
      * Gets the OAuth authenticate URL for the current request token
@@ -279,7 +285,7 @@ class Codebird
         if ($this->_oauth_token == null) {
             throw new Exception('To get the authenticate URL, the OAuth token must be set.');
         }
-        return $this->_endpoint_oauth . 'oauth/authenticate?oauth_token=' . $this->_url($this->_oauth_token);
+        return self::$_endpoint_oauth . 'oauth/authenticate?oauth_token=' . $this->_url($this->_oauth_token);
     }
 
     /**
@@ -292,7 +298,55 @@ class Codebird
         if ($this->_oauth_token == null) {
             throw new Exception('To get the authorize URL, the OAuth token must be set.');
         }
-        return $this->_endpoint_oauth . 'oauth/authorize?oauth_token=' . $this->_url($this->_oauth_token);
+        return self::$_endpoint_oauth . 'oauth/authorize?oauth_token=' . $this->_url($this->_oauth_token);
+    }
+
+    /**
+     * Gets the OAuth bearer token
+     *
+     * @return string The OAuth bearer token
+     */
+
+    public function oauth2_token()
+    {
+        if (! function_exists('curl_init')) {
+            throw new Exception('To make API requests, the PHP curl extension must be available.');
+        }
+        if (self::$_oauth_consumer_key == null) {
+            throw new Exception('To obtain a bearer token, the consumer key must be set.');
+        }
+        $ch  = false;
+        $post_fields = array(
+            'grant_type' => 'client_credentials'
+        );
+        $url = self::$_endpoint_oauth . 'oauth2/token';
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);
+        curl_setopt($ch, CURLOPT_HEADER, 1);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($ch, CURLOPT_USERPWD, self::$_oauth_consumer_key . ':' . self::$_oauth_consumer_secret);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+            'Expect:'
+        ));
+        $reply      = curl_exec($ch);
+        $httpstatus = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $reply = $this->_parseApiReply('oauth2/token', $reply);
+        if ($this->_return_format == CODEBIRD_RETURNFORMAT_OBJECT) {
+            $reply->httpstatus = $httpstatus;
+            if ($httpstatus == 200) {
+                self::setBearerToken($reply->access_token);
+            }
+        } else {
+            $reply['httpstatus'] = $httpstatus;
+            if ($httpstatus == 200) {
+                self::setBearerToken($reply['access_token']);
+            }
+        }
+        return $reply;
     }
 
     /**
@@ -306,7 +360,7 @@ class Codebird
      *
      * @return mixed The encoded data
      */
-    protected function _url($data)
+    private function _url($data)
     {
         if (is_array($data)) {
             return array_map(array(
@@ -341,7 +395,7 @@ class Codebird
      *
      * @return string The hash
      */
-    protected function _sha1($data)
+    private function _sha1($data)
     {
         if (self::$_oauth_consumer_secret == null) {
             throw new Exception('To generate a hash, the consumer secret must be set.');
@@ -374,12 +428,10 @@ class Codebird
      * @param string          $httpmethod Usually either 'GET' or 'POST' or 'DELETE'
      * @param string          $method     The API method to call
      * @param array  optional $params     The API call parameters, associative
-     * @param bool   optional $multipart  Whether the request is going to be multipart/form-data
      *
-     * @return string The API call parameters including the signature
-     *                If multipart, the Authorization HTTP header is returned
+     * @return string Authorization HTTP header
      */
-    protected function _sign($httpmethod, $method, $params = array(), $multipart = false)
+    protected function _sign($httpmethod, $method, $params = array())
     {
         if (self::$_oauth_consumer_key == null) {
             throw new Exception('To generate a signature, the consumer key must be set.');
@@ -398,6 +450,7 @@ class Codebird
         if ($this->_oauth_token != null) {
             $sign_base_params['oauth_token'] = $this->_url($this->_oauth_token);
         }
+        $oauth_params = $sign_base_params;
         foreach ($params as $key => $value) {
             $sign_base_params[$key] = $this->_url($value);
         }
@@ -408,18 +461,16 @@ class Codebird
         }
         $sign_base_string = substr($sign_base_string, 0, -1);
         $signature        = $this->_sha1($httpmethod . '&' . $this->_url($method) . '&' . $this->_url($sign_base_string));
-        if ($multipart) {
-            $params = array_merge($sign_base_params, array(
-                'oauth_signature' => $signature
-            ));
-            ksort($params);
-            $authorization = 'Authorization: OAuth ';
-            foreach ($params as $key => $value) {
-                $authorization .= $key . '="' . $this->_url($value) . '", ';
-            }
-            return substr($authorization, 0, -2);
+
+        $params = array_merge($oauth_params, array(
+            'oauth_signature' => $signature
+        ));
+        ksort($params);
+        $authorization = 'Authorization: OAuth ';
+        foreach ($params as $key => $value) {
+            $authorization .= $key . '="' . $this->_url($value) . '", ';
         }
-        return ($httpmethod == 'GET' ? $method . '?' : '') . $sign_base_string . '&oauth_signature=' . $this->_url($signature);
+        return substr($authorization, 0, -2);
     }
 
     /**
@@ -461,6 +512,7 @@ class Codebird
             'direct_messages/show',
 
             // Friends & Followers
+            'friendships/no_retweets/ids',
             'friends/ids',
             'followers/ids',
             'friendships/lookup',
@@ -525,10 +577,7 @@ class Codebird
             'help/languages',
             'help/privacy',
             'help/tos',
-            'application/rate_limit_status',
-
-            // Old
-            'users/recommendations'
+            'application/rate_limit_status'
         );
         $httpmethods['POST'] = array(
             // Tweets
@@ -585,7 +634,9 @@ class Codebird
 
             // OAuth
             'oauth/access_token',
-            'oauth/request_token'
+            'oauth/request_token',
+            'oauth2/token',
+            'oauth2/invalidate_token'
         );
         foreach ($httpmethods as $httpmethod => $methods) {
             if (in_array($method, $methods)) {
@@ -614,22 +665,6 @@ class Codebird
             'account/update_profile_banner'
         );
         return in_array($method, $multiparts);
-    }
-
-    /**
-     * Detects if API call should use the old endpoint
-     *
-     * @param string $method The API method to call
-     *
-     * @return bool Whether the method is defined in old API
-     */
-    protected function _detectOld($method)
-    {
-        $olds = array(
-            // Users
-            'users/recommendations'
-        );
-        return in_array($method, $olds);
     }
 
     /**
@@ -710,12 +745,10 @@ class Codebird
      */
     protected function _getEndpoint($method, $method_template)
     {
-        if (substr($method, 0, 6) == 'oauth/') {
-            $url = $this->_endpoint_oauth . $method;
-        } elseif ($this->_detectOld($method_template)) {
-            $url = $this->_endpoint_old . $method . '.json';
+        if (substr($method, 0, 5) == 'oauth') {
+            $url = self::$_endpoint_oauth . $method;
         } else {
-            $url = $this->_endpoint . $method . '.json';
+            $url = self::$_endpoint . $method . '.json';
         }
         return $url;
     }
@@ -728,11 +761,12 @@ class Codebird
      * @param string          $method_template The templated API method to call
      * @param array  optional $params          The parameters to send along
      * @param bool   optional $multipart       Whether to use multipart/form-data
+     * @param bool   optional $app_only_auth   Whether to use app-only bearer authentication
      *
      * @return mixed The API reply, encoded in the set return_format
      */
 
-    protected function _callApi($httpmethod, $method, $method_template, $params = array(), $multipart = false)
+    protected function _callApi($httpmethod, $method, $method_template, $params = array(), $multipart = false, $app_only_auth = false)
     {
         if (! function_exists('curl_init')) {
             throw new Exception('To make API requests, the PHP curl extension must be available.');
@@ -740,17 +774,32 @@ class Codebird
         $url = $this->_getEndpoint($method, $method_template);
         $ch  = false;
         if ($httpmethod == 'GET') {
-            $ch = curl_init($this->_sign($httpmethod, $url, $params));
-        } else {
-            if ($multipart) {
-                $authorization = $this->_sign('POST', $url, array(), true);
-                $post_fields   = $params;
-            } else {
-                $post_fields = $this->_sign('POST', $url, $params);
+            $url_with_params = $url;
+            if (count($params) > 0) {
+                $url_with_params .= '?' . http_build_query($params);
             }
-            $ch = curl_init($url);
+            $authorization = $this->_sign($httpmethod, $url, $params);
+            $ch = curl_init($url_with_params);
+        } else {
+            $authorization = $this->_sign($httpmethod, $url, array());
+            if (! $multipart) {
+                $authorization = $this->_sign($httpmethod, $url, $params);
+                $params        = http_build_query($params);
+            }
+            $post_fields = $params;
+            $ch          = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
+        }
+        if ($app_only_auth) {
+            if (self::$_oauth_consumer_key == null) {
+                throw new Exception('To make an app-only auth API request, the consumer key must be set.');
+            }
+            // automatically fetch bearer token, if necessary
+            if (self::$_oauth_bearer_token == null) {
+                $this->oauth2_token();
+            }
+            $authorization = 'Authorization: Bearer ' . self::$_oauth_bearer_token;
         }
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 0);

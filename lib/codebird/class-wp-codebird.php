@@ -4,9 +4,14 @@
  * An extension of the Codebird class to use Wordpress' HTTP API instead of
  * cURL.
  *
- * @version 1.0.1
+ * @version 1.1.0
  */
 class WP_Codebird extends Codebird {
+    /**
+     * The current singleton instance
+     */
+    private static $_instance = null;
+
 	/**
 	 * Returns singleton class instance
 	 * Always use this method unless you're working with multiple authenticated
@@ -39,8 +44,10 @@ class WP_Codebird extends Codebird {
 	 *
 	 * @return mixed The API reply, encoded in the set return_format.
 	 */
-	protected function _callApi($httpmethod, $method, $method_template, $params = array(), $multipart = false) {
-		$url = $this->_getEndpoint( $method, $method_template );
+	protected function _callApi( $httpmethod, $method, $method_template, $params = array(), $multipart = false, $app_only_auth = false ) {
+		$url 				= $this->_getEndpoint( $method, $method_template );
+		$url_with_params 	= null;
+
 		$remote_params = array(
 			'method' => 'GET',
 			'timeout' => 5,
@@ -53,15 +60,19 @@ class WP_Codebird extends Codebird {
 			'sslverify' => false
 		);
 
-		if ($httpmethod == 'GET') {
-			$signed = $this->_sign( $httpmethod, $url, $params );
-			$reply = wp_remote_get( $signed, $remote_params );
+		if ( 'GET' == $httpmethod ) {
+			$authorization = $this->_sign( $httpmethod, $url, $params );
+
+			if ( count( $params ) > 0 ) {
+                $url_with_params = $url .= '?' . http_build_query( $params );
+            }
 		} else {
 			if ( $multipart ) {
 				$authorization = $this->_sign( 'POST', $url, array(), true );
 				$post_fields   = $params;
 			} else {
-				$post_fields = $this->_sign( 'POST', $url, $params );
+				$authorization 	= $this->_sign( 'POST', $url, $params );
+				$post_fields 	= $this->_sign( 'POST', $url, $params );
 			}
 
 			$headers = array();
@@ -80,7 +91,29 @@ class WP_Codebird extends Codebird {
 				'cookies' => array(),
 				'sslverify' => false
 			);
+		}
 
+		if ( $app_only_auth ){
+			if ( null == self::$_oauth_consumer_key )
+				throw new Exception( 'To make an app-only auth API request, the consumer key must be set' );
+		
+			// automatically fetch bearer token, if necessary
+			if ( null == self::$_oauth_bearer_token )
+				$this->oauth2_token();
+
+			$bearer = 'Bearer ' . self::$_oauth_bearer_token;
+
+			$remote_params['headers']['authorization'] = $bearer;
+		} else {
+			// If this is a standard OAuth GET request, add on the authorization header
+			// Must be added here because $app_only_auth affects what the header will be
+			if ( 'GET' == $httpmethod )
+				$remote_params['headers'][] = $authorization;
+		}
+
+		if ( 'GET' == $httpmethod ) {
+			$reply = wp_remote_get( $url, $remote_params );
+		} else {
 			$reply = wp_remote_post( $url, $remote_params );
 		}
 
@@ -103,6 +136,63 @@ class WP_Codebird extends Codebird {
 
 		return $reply;
 	}
+
+    /**
+     * Gets the OAuth bearer token
+     *
+     * Overridden to use the WordPress HTTP API
+     *
+     * @return string The OAuth bearer token
+     */
+
+    public function oauth2_token() {
+    	if ( null == self::$_oauth_consumer_key ) {
+            throw new Exception('To obtain a bearer token, the consumer key must be set.');
+        }
+
+        $post_fields = array(
+            'grant_type' => 'client_credentials'
+        );
+
+        $url = self::$_endpoint_oauth . 'oauth2/token';
+
+        $headers = array(
+        	'Authorization' => 'Basic ' . base64_encode( self::$_oauth_consumer_key . ':' . self::$_oauth_consumer_secret ),
+        	'Expect:'
+        );
+
+        $remote_params = array(
+			'method' 		=> 'POST',
+			'timeout' 		=> 5,
+			'redirection' 	=> 5,
+			'httpversion' 	=> '1.0',
+			'blocking' 		=> true,
+			'headers' 		=> $headers,
+			'body' 			=> $post_fields,
+			'cookies' 		=> array(),
+			'sslverify' 	=> false
+		);
+
+        $reply 		= wp_remote_post( $url, $remote_params );
+
+        $httpstatus = wp_remote_retrieve_response_code( $reply );
+
+        $reply 		= $this->_parseApiReply( 'oauth2/token', $reply );
+
+        if ( CODEBIRD_RETURNFORMAT_OBJECT == $this->_return_format ) {
+            $reply->httpstatus = $httpstatus;
+
+            if ( 200 == $httpstatus )
+                self::setBearerToken( $reply->access_token );
+        } else {
+            $reply['httpstatus'] = $httpstatus;
+
+            if ( 200 == $httpstatus )
+                self::setBearerToken( $reply['access_token'] );
+        }
+
+        return $reply;
+    }
 
 	/**
 	 * Parses the API reply to encode it in the set return_format.
