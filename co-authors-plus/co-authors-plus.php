@@ -462,6 +462,10 @@ class coauthors_plus {
 	function _update_users_posts_count( $tt_ids, $taxonomy ) {
 		global $wpdb;
 
+		global $tc_coap_time;
+		$tc_blog_id = 24588526;
+		if ( $wpdb->blogid == $tc_blog_id ) $tc_coap_before = microtime(true);
+
 		$tt_ids = implode( ', ', array_map( 'intval', $tt_ids ) );
 		$term_ids = $wpdb->get_results( "SELECT term_id FROM $wpdb->term_taxonomy WHERE term_taxonomy_id IN ($tt_ids)" );
 
@@ -471,7 +475,8 @@ class coauthors_plus {
 		}
 		$tt_ids = explode( ', ', $tt_ids );
 		clean_term_cache( $tt_ids, '', false );
-
+		if ( $wpdb->blogid == $tc_blog_id ) $tc_coap_after = microtime(true);
+		if ( $wpdb->blogid == $tc_blog_id ) $tc_coap_time = ($tc_coap_after - $tc_coap_before);
 	}
 
 	/**
