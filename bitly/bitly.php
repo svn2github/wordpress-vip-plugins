@@ -208,8 +208,8 @@ function bitly_get_url( $post_id = null ) {
  */
 function bitly_generate_short_url( $post_id ) {
 	global $bitly;
-	if ( is_object( $bitly ) && is_callable( $bitly, 'generate_bitly_url' ) )
-		return call_user_func( $bitly, 'generate_bitly_url', $post_id );
+	if ( is_object( $bitly ) && is_callable( array( $bitly, 'generate_bitly_url' ) ) )
+		return call_user_func( array( $bitly, 'generate_bitly_url' ), $post_id );
 	return false;
 }
 
