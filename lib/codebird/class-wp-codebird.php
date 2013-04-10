@@ -77,7 +77,10 @@ class WP_Codebird extends Codebird {
 
 			$headers = array();
 			if ( isset( $authorization ) ) {
-				$headers = array( $authorization, 'Expect:' );
+				$headers = array( 
+					'Authorization' => str_replace( 'Authorization:', '', $authorization ), 
+					'Expect:' => null
+					);
 			}
 
 			$remote_params = array(
@@ -106,9 +109,8 @@ class WP_Codebird extends Codebird {
 			$remote_params['headers']['authorization'] = $bearer;
 		} else {
 			// If this is a standard OAuth GET request, add on the authorization header
-			// Must be added here because $app_only_auth affects what the header will be
 			if ( 'GET' == $httpmethod )
-				$remote_params['headers'][] = $authorization;
+				$remote_params['headers']['Authorization'] = str_replace( 'Authorization:', '', $authorization );
 		}
 
 		if ( 'GET' == $httpmethod ) {
