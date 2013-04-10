@@ -177,6 +177,10 @@ class Airship {
         }
         $body = json_encode( $payload );
         $response = $this->_request( PUSH_URL, 'POST', $body, 'application/json' );
+
+        // Grab the values from assoc array of response
+        $response = array_values( $response );
+
         $response_code = $response[0];
         if ( $response_code != 200 ) {
             throw new AirshipFailure( $response[1], $response_code );
@@ -190,6 +194,8 @@ class Airship {
         }
         $body = json_encode( $payload );
         $response = $this->_request( BROADCAST_URL, 'POST', $body, 'application/json' );
+        // Grab the values from assoc array of response
+        $response = array_values( $response );
         $response_code = $response[0];
         if ( $response_code != 200 ) {
             throw new AirshipFailure( $response[1], $response_code );

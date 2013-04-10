@@ -34,4 +34,6 @@ jQuery(function($) {
 			$limit.text( Blimply.character_limit - $this.val().length);
 		}
 	} );
+
+	$('#urban_airship\\[blimply_quiet_time_from\\], #urban_airship\\[blimply_quiet_time_to\\]').timePicker();
 });

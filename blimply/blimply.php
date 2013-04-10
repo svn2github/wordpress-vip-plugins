@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.4
+Version: 0.5-working
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.4' );
+define( 'BLIMPLY_VERSION', '0.5-working' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
@@ -108,16 +108,31 @@ class Blimply {
 	}
 
 	/**
+	 * Helper function to determine if current time should be quiet time (no push sounds)
+	 * @return boolean [description]
+	 */
+	function _is_quiet_time() {
+		$current_time = date( "G:i", current_time( 'timestamp' ) );
+		$quiet_from = $this->options[BLIMPLY_PREFIX . '_quiet_time_from'];
+		$quiet_to = $this->options[BLIMPLY_PREFIX . '_quiet_time_to'];
+		$quiet_to_array = explode( ":", $quiet_to );
+		$is_quiet_from = $quiet_from < $current_time;
+		$is_quiet_to = ( $quiet_to >  $current_time && $quiet_to_array[0] > 12 ) || ( $quiet_to < $current_time && $quiet_to_array[0] < 12 );
+		return $is_quiet_from && $is_quiet_to && 'on' === $this->options[BLIMPLY_PREFIX . '_enable_quiet_time'];
+	}
+
+	/**
 	 * Register scripts and styles
 	 *
 	 */
 	function register_scripts_and_styles() {
 		global $pagenow;
 		// Only load this on the proper page
-		if ( ! in_array( $pagenow, array( 'post-new.php', 'post.php', 'index.php' ) ) )
+		if ( ! in_array( $pagenow, array( 'post-new.php', 'post.php', 'index.php', 'options-general.php' ) ) )
 			return;
 		wp_enqueue_style( 'blimply-style', BLIMPLY_URL . '/lib/css/blimply.css' );
-		wp_enqueue_script( 'blimply-js', BLIMPLY_URL . '/lib/js/blimply.js', array( 'jquery' )  );
+		wp_enqueue_script( 'timepicker', BLIMPLY_URL . '/lib/js/jquery.timePicker.min.js', array( 'jquery' ) );
+		wp_enqueue_script( 'blimply-js', BLIMPLY_URL . '/lib/js/blimply.js', array( 'jquery', 'timepicker' ) );
 		wp_localize_script( 'blimply-js', 'Blimply', array(
 				'push_sent' => __( 'Push notification successfully sent', 'blimply' ),
 				'push_error' => __( 'Sorry, there was some error while we were trying to send your push notification. Try again later!', 'blimply' ),
@@ -186,7 +201,9 @@ class Blimply {
 		$limit = (int) $this->options[ BLIMPLY_PREFIX . '_character_limit' ];
 		if ( $limit )
 			$alert = substr( $alert, 0, $limit );
-		$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'] );
+		// Determine if sounds are disabled for the push
+		$no_sound = isset( $_POST['blimply_no_sound'] ) && $_POST['blimply_no_sound'];
+		$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], false, $no_sound );
 		echo 'ok';
 		exit;
 	}
@@ -198,7 +215,7 @@ class Blimply {
 	 * @param string  $tag
 	 *
 	 */
-	function _send_broadcast_or_push( $alert, $tag, $url = false ) {
+	function _send_broadcast_or_push( $alert, $tag, $url = false, $disable_sound = false ) {
 		// Strip escape slashes, otherwise double escaping would happen
 		$alert = html_entity_decode( stripcslashes( strip_tags( $alert ) ) );
 		// Include Android and iOS payloads
@@ -217,13 +234,15 @@ class Blimply {
 		if ( $tag === 'broadcast' ) {
 			$response =  $this->request( $this->airship, 'broadcast', $payload );
 		} else {
-			// Adding tags field to payload, no problem.
-			if ( isset( $this->sounds["blimply_sound_{$tag}"] ) && !empty( $this->sounds["blimply_sound_{$tag}"] ) )
+			// Set a sound for the specific tag
+			if ( !$disable_sound && isset( $this->sounds["blimply_sound_{$tag}"] ) && !empty( $this->sounds["blimply_sound_{$tag}"] ) )
 				$payload['aps']['sound'] = $this->sounds["blimply_sound_{$tag}"];
-			else
+			// Or use the default sound
+			elseif ( !$disable_sound )
 				$payload['aps']['sound'] = 'default';
 
 			$payload['tags'] = array( $tag );
+
 			$response = $this->request( $this->airship, 'push', $payload );
 		}
 	}
@@ -268,6 +287,11 @@ class Blimply {
 				_e( 'Broadcast (send to all tags)', 'blimply' );
 				echo '</label><br/>';
 			}
+
+			echo '<br/><label class="selectit" for="blimply_no_sound" style="margin-left: 4px">';
+			echo '<input type="checkbox" style="float:left" name="blimply_no_sound" id="blimply_no_sound" value="1" '. checked( $this->_is_quiet_time(), true, false ) . ' />';
+			_e( 'Turn the sound off', 'blimply' );
+			echo '</label><br/>';
 
 			echo '<br/><input type="hidden" id="" name="blimply_push" value="0" />';
 			echo '<input type="checkbox" id="blimply_push" name="blimply_push" value="1" disabled="disabled" />';
@@ -342,6 +366,13 @@ class Blimply {
 			_e( 'Broadcast (send to all tags)', 'blimply' );
 			echo '</label><br/>';
 		}
+		?>
+		<br/>
+		<h4><label for="blimply_no_sound"><?php _e( 'Turn the sound off' ) ?></label></h4> <?php
+		echo '<label class="selectit" for="blimply_no_sound" style="margin-left: 4px">';
+		echo '<input type="checkbox" style="float:left" name="blimply_no_sound" id="blimply_no_sound" value="1" '. checked( $this->_is_quiet_time(), true, false ) . ' />';
+		_e( 'Turn the sound off', 'blimply' );
+		echo '</label><br/>';
 ?>
 			<p class="submit">
 				<input type="hidden" name="action" id="blimply-push-action" value="blimply-send-push" />

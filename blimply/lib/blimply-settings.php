@@ -90,6 +90,30 @@ class Blimply_Settings {
                     'class'=> 'nohtml',
                     'sanitize_callback' => 'intval'
                 ),
+                array(
+                    'name' => BLIMPLY_PREFIX . '_enable_quiet_time',
+                    'label'=> __( 'Enable quiet time', 'blimply' ),
+                    'desc'=> __( '', 'blimply' ),
+                    'type'=> 'checkbox',
+                    'std' => 140,
+                    'class'=> 'nohtml',
+                ),
+                array(
+                    'name' => BLIMPLY_PREFIX . '_quiet_time_from',
+                    'label'=> __( 'Quiet time from (24h format)', 'blimply' ),
+                    'desc'=> __( '', 'blimply' ),
+                    'type'=> 'text',
+                    'std' => "23:00",
+                    'class'=> 'nohtml blimply-timepicker',
+                ),
+                array(
+                    'name' => BLIMPLY_PREFIX . '_quiet_time_to',
+                    'label'=> __( 'Quiet time to (24h format)', 'blimply' ),
+                    'desc'=> __( '', 'blimply' ),
+                    'type'=> 'text',
+                    'std' => "7:00",
+                    'class'=> 'nohtml blimply-timepicker',
+                ),
             )
         );
 
@@ -110,8 +134,6 @@ class Blimply_Settings {
 
     function plugin_page() {
         echo '<div class="wrap">';
-        settings_errors();
-
         $this->settings_api->show_navigation();
         $this->settings_api->show_forms();
 
