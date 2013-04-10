@@ -44,7 +44,7 @@ class Ooyala_Video {
 
 		if ( is_admin() ) {
 			require_once( dirname( __FILE__ ) . '/ooyala-options.php' );
-
+/*
 			$partner_code = get_option( 'ooyalavideo_partnercode' );
 			if ( $partner_code ) {
 				$secret_code  = get_option( 'ooyalavideo_secretcode' );
@@ -63,7 +63,6 @@ class Ooyala_Video {
 				delete_option( 'ooyalavideo_showinfeed' );
 				delete_option( 'ooyalavideo_width' );
 			} else {
-/*
 				require_once( dirname( __FILE__ ) . '/OoyalaApi.php' );
 				$options = get_option( 'ooyala', array( 'partner_code' => '', 'secret_code' => '' ) );
 				$this->partner_code = $options['partner_code'];
@@ -91,9 +90,10 @@ class Ooyala_Video {
 
 					update_option( 'ooyala', $options );
 				}
-*/
 
 			}
+*/
+
 		}
 
 		add_action( 'admin_menu',              array( &$this, 'add_media_page'  ) );
