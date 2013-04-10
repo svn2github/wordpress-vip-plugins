@@ -63,13 +63,15 @@ class Ooyala_Video {
 				delete_option( 'ooyalavideo_showinfeed' );
 				delete_option( 'ooyalavideo_width' );
 			} else {
+/*
 				require_once( dirname( __FILE__ ) . '/OoyalaApi.php' );
 				$options = get_option( 'ooyala', array( 'partner_code' => '', 'secret_code' => '' ) );
 				$this->partner_code = $options['partner_code'];
 				$this->secret_code  = $options['secret_code'];
 
-				if ( !empty( $options['api_key'] ) && !empty( $options['api_secret'] ) && empty( $options['player_id'] ) ) {
+				if ( !empty( $options['api_key'] ) && !empty( $options['api_secret'] ) && ! isset( $options['player_id'] ) ) {
 					$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
+					$options['player_id'] = '';
 
 					try {
 						$players = $api->get( "players" );
@@ -85,9 +87,12 @@ class Ooyala_Video {
 						if ( empty( $options['player_id'] ) )
 							$options['player_id'] = $options['players'][0];
 
-						update_option( 'ooyala', $options );
 					}
+
+					update_option( 'ooyala', $options );
 				}
+*/
+
 			}
 		}
 
