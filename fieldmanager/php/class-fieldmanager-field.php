@@ -69,6 +69,18 @@ abstract class Fieldmanager_Field {
 	public $label = '';
 
 	/**
+	 * @var boolean
+	 * If true, the label and the element will display on the same line. Some elements may not support this.
+	 */
+	public $inline_label = False;
+
+	/**
+	 * @var boolean
+	 * If true, the label will be displayed after the element.
+	 */
+	public $label_after_element = False;
+
+	/**
 	 * @var string
 	 * Description for the form element
 	 */
@@ -126,13 +138,31 @@ abstract class Fieldmanager_Field {
 	 * @var int|null
 	 * ID for $this->data_type, eg $post->ID, generally set internally
 	 */
-	public $data_id = NULL;
+	public $data_id = Null;
 
 	/**
 	 * @var boolean
 	 * If true, save empty elements to DB (if $this->limit != 1; single elements are always saved)
 	 */
-	public $save_empty = FALSE;
+	public $save_empty = False;
+
+	/**
+	 * @var string|Null
+	 * Only used for options pages
+	 */
+	public $submit_button_label = Null;
+
+	/**
+	 * @var boolean
+	 * Do not save this field (useful for fields which handle saving their own data)
+	 */
+	public $skip_save = False;
+
+	/**
+	 * @var string
+	 * Save this field additionally to an index
+	 */
+	public $index = False;
 
 	/**
 	 * @var array[]
@@ -146,6 +176,22 @@ abstract class Fieldmanager_Field {
 	 * );
 	 */
 	public $content_types = array();
+
+	/**
+	 * @var array[]
+	 * Field name and value on which to display element. Sample:
+	 * $element->display_if = array(
+	 *	'src' => 'display-if-src-element',
+	 *	'value' => 'display-if-src-value'
+	 * );
+	 */
+	public $display_if = array();
+
+	/**
+	 * @var string
+	 * For submenu pages, set autoload to true or false
+	 */
+	public $wp_option_autoload = False;
 
 	/**
 	 * @var int
@@ -173,6 +219,16 @@ abstract class Fieldmanager_Field {
 	protected $is_tab = False;
 
 	/**
+	 * Have we added this field as a meta box yet?
+	 */
+	private $meta_box_actions_added = False;
+
+	/**
+	 * Internal arguments buffer for add_submenu_page()
+	 */
+	private $submenu_page_args = array();
+
+	/**
 	 * @var int Global Sequence
 	 * The global sequence of elements
 	 */
@@ -188,11 +244,25 @@ abstract class Fieldmanager_Field {
 	/**
 	 * Superclass constructor, just populates options and sanity-checks common elements.
 	 * It might also die, but only helpfully, to catch errors in development.
+	 * @param string $label title of form field
+	 * @param array $options with keys matching vars of the field in use.
+	 */
+	public function __construct( $label = '', $options = array() ) {
+		$this->parse_options( $label, $options );
+		$this->register_meta_box_actions();
+	}
+
+	/**
+	 * Build options into properties and throw errors if developers add an unsupported opt.
+	 * @param string $label title of form field
 	 * @param array $options with keys matching vars of the field in use.
 	 * @throws FM_Developer_Exception if an option is set but not defined in this class or the child class.
 	 * @throws FM_Developer_Exception if an option is set but not public.
 	 */
-	public function __construct( $options = array() ) {
+	protected function parse_options( $label, $options ) {
+		if ( is_array( $label ) ) $options = $label;
+		else $options['label'] = $label;
+
 		foreach ( $options as $k => $v ) {
 			try {
 				$reflection = new ReflectionProperty( $this, $k ); // Would throw a ReflectionException if item doesn't exist (developer error)
@@ -211,10 +281,6 @@ abstract class Fieldmanager_Field {
 				}
 			}
 		}
-		if ( !empty( $this->content_types ) ) {
-			add_action( 'admin_init', array( $this, 'add_meta_boxes' ) );
-			add_action( 'save_post', array( $this, 'save_fields_for_post' ) );
-		}
 	}
 
 	/**
@@ -224,6 +290,7 @@ abstract class Fieldmanager_Field {
 	 * @return string HTML for all form elements.
 	 */
 	public function element_markup( $values = array() ) {
+		$values = $this->preload_alter_values( $values );
 		if ( $this->limit == 0 ) {
 			if ( count( $values ) + $this->extra_elements <= $this->starting_count ) {
 				$max = $this->starting_count;
@@ -237,13 +304,14 @@ abstract class Fieldmanager_Field {
 		}
 
 		$classes = array( 'fm-wrapper', 'fm-' . $this->name . '-wrapper' );
+		$fm_wrapper_attrs = array();
 		if ( $this->sortable ) {
 			$classes[] = 'fmjs-sortable';
 		}
 		$classes = array_merge( $classes, $this->get_extra_element_classes() );
 
 		$out = '';
-		
+
 		// If this element is part of tabbed output, there needs to be a wrapper to contain the tab content
 		if ( $this->is_tab ) { 
 			$tab_display_style = ( $this->parent->child_count > 0 ) ? ' style="display: none"' : '';
@@ -270,7 +338,22 @@ abstract class Fieldmanager_Field {
 				}
 			}
 		}
-		$out .= sprintf( '<div class="%s" data-fm-array-position="%d">', implode( ' ', $classes ), $html_array_position );
+
+		// Checks to see if element has display_if data values, and inserts the data attributes if it does
+		if ( isset( $this->display_if ) && !empty( $this->display_if ) ) {
+			$classes[] = 'display-if';
+			$fm_wrapper_attrs['data-display-src'] = $this->display_if['src'];
+			$fm_wrapper_attrs['data-display-value'] = $this->display_if['value'];
+		}
+		$fm_wrapper_attr_string = '';
+		foreach ( $fm_wrapper_attrs as $attr => $val ) {
+			$fm_wrapper_attr_string .= sprintf( '%s="%s" ', $attr, htmlentities( $val ) );
+		}
+		$out .= sprintf( '<div class="%s" data-fm-array-position="%d" %s>',
+			implode( ' ', $classes ),
+			$html_array_position,
+			$fm_wrapper_attr_string
+		);
 		
 		// After starting the field, apply a filter to allow other plugins to append functionality
 		$out = apply_filters( 'fm_element_markup_start', $out, $this );
@@ -332,13 +415,16 @@ abstract class Fieldmanager_Field {
 
 		$out .= sprintf( '<div class="%s">', implode( ' ', $classes ) );
 
+		$label = $this->get_element_label( );
+		$render_label_after = False;
 		// Hide the label if it is empty or if this is a tab since it would duplicate the title from the tab label
 		if ( !empty( $this->label ) && !$this->is_tab && $this->one_label_per_item ) {
-			$label = $this->get_element_label( );
 			if ( $this->limit == 0 && $this->one_label_per_item ) {
 				$out .= $this->wrap_with_multi_tools( $label, array( 'fmjs-removable-label' ) );
-			} else {
+			} elseif ( !$this->label_after_element ) {
 				$out .= $label;
+			} else {
+				$render_label_after = True;
 			}
 		}
 
@@ -349,6 +435,8 @@ abstract class Fieldmanager_Field {
 		} else {
 			$out .= $form_element;
 		}
+
+		if ( $render_label_after ) $out .= $label;
 		
 		if ( isset( $this->description ) && !empty( $this->description ) ) {
 			$out .= sprintf( '<div class="fm-item-description">%s</div>', $this->description );
@@ -356,6 +444,14 @@ abstract class Fieldmanager_Field {
 
 		$out .= '</div>';
 		return $out;
+	}
+
+	/**
+	 * Alter values before rendering
+	 * @param array $values
+	 */
+	public function preload_alter_values( $values ) {
+		return $values;
 	}
 
 	/**
@@ -402,6 +498,18 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
+	 * Get full path (e.g. parent_group_element)
+	 * @return string full path
+	 */
+	public function get_full_path() {
+		$names = array();
+		foreach ( $this->get_form_tree() as $level ) {
+			$names[] = $level->name;
+		}
+		return implode( '_', $names );
+	}
+
+	/**
 	 * Recursively build path to this element (e.g. array(grandparent, parent, this) )
 	 * @return array of parents
 	 */
@@ -430,17 +538,107 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
+	 * Add this field as a metabox to a content type
+	 * @param string $title
+	 * @param string|string[] $post_type
+	 * @param string $context
+	 * @param string $priority
+	 */
+	public function add_meta_box( $title, $post_types, $context = 'normal', $priority = 'default' ) {
+		if ( !is_array( $post_types ) ) $post_types = array( $post_types );
+		foreach ( $post_types as $type ) {
+			$this->content_types[] = array(
+				'meta_box_name' => 'fm-metabox-' . $this->name,
+				'meta_box_title' => $title,
+				'content_type' => $type,
+				'context' => $context,
+				'priority' => $priority,
+			);
+		}
+		$this->register_meta_box_actions();
+	}
+
+	/**
+	 * Add this field to an options page
+	 * @param string $title
+	 */
+	public function add_submenu_page( $parent_slug, $page_title, $menu_title = Null, $capability = 'manage_options', $menu_slug = Null ) {
+		$menu_slug = $menu_slug ?: $this->name;
+		$menu_title = $menu_title ?: $page_title;
+		$this->submenu_page_args = array(
+			'parent_slug' => $parent_slug,
+			'page_title' => $page_title,
+			'menu_title' => $menu_title,
+			'capability' => $capability,
+			'menu_slug' => $menu_slug,
+			'callback' => array( $this, 'render_submenu_page' ),
+		);
+		add_action( 'admin_menu', array( $this, 'register_submenu_page' ) );
+		add_action( 'admin_init', array( $this, 'handle_submenu_save' ) );
+	}
+
+	/**
+	 * Register a submenu page with WordPress
+	 */
+	public function register_submenu_page() {
+		call_user_func_array( 'add_submenu_page', array_values( $this->submenu_page_args ) );
+	}
+
+	/**
+	 * Save a submenu page
+	 */
+	public function handle_submenu_save() {
+		if ( !empty( $_POST ) && $_GET['page'] == $this->name && current_user_can( $this->submenu_page_args['capability'] ) ) {
+			// Make sure that our nonce field arrived intact
+			if( !wp_verify_nonce( $_POST['fieldmanager-' . $this->name . '-nonce'], 'fieldmanager-save-' . $this->name ) ) {
+				$this->_unauthorized_access( 'Nonce validation failed' );
+			}
+			$this->data_id = $this->name;
+			$this->data_type = 'options';
+			$current = get_option( $this->name );
+			$data = $this->presave_all( $_POST[ $this->name ], $current );
+			if ( get_option( $this->name ) ) {
+				update_option( $this->name, $data );
+			} else {
+				add_option( $this->name, $data, ' ', $this->wp_option_autoload ? 'yes' : 'no' );
+			}
+		}
+	}
+
+	/**
+	 * Helper to attach element_markup() to add_meta_box(). Prints markup for options page.
+	 * @return void.
+	 */
+	public function render_submenu_page() {
+		$values = get_option( $this->name );
+		echo '<div class="wrap">';
+		screen_icon();
+		printf( '<h2>%s</h2>', $this->submenu_page_args['page_title'] );
+		echo '<form method="POST">';
+		echo '<div class="fm-submenu-form-wrapper">';
+		printf( '<input type="hidden" name="fm-options-action" value="%s" />', sanitize_title( $this->name ) );
+		wp_nonce_field( 'fieldmanager-save-' . $this->name, 'fieldmanager-' . $this->name . '-nonce' );
+		echo $this->element_markup( $values );
+		echo '</div>';
+		printf( '<input type="submit" name="fm-submit" class="button-primary" value="%s" />', $this->submit_button_label ?: __( 'Save Options' ) );
+		echo '</form>';
+		echo '</div>';
+	}
+
+	/**
 	 * admin_init callback to add meta boxes to content types
 	 * Registers render_meta_box()
 	 * @return void
 	 */
-	public function add_meta_boxes() {
+	public function meta_box_render_callback() {
 		foreach ( $this->content_types as $type ) {
 			add_meta_box(
 				$type['meta_box_name'],
 				$type['meta_box_title'],
 				array( $this, 'render_meta_box' ),
-				$type['content_type']
+				$type['content_type'],
+				isset( $type['context'] ) ? $type['context'] : 'normal',
+				isset( $type['priority'] ) ? $type['priority'] : 'default'
 			);
 		}
 	}
@@ -455,7 +653,8 @@ abstract class Fieldmanager_Field {
 	public function render_meta_box( $post, $form_struct ) {
 		$key = $form_struct['callback'][0]->name;
 		$values = get_post_meta( $post->ID, $key, TRUE );
-		// if ( $this->name == 'tabs' ) { print_r($values); exit; }
+		$this->data_type = 'post';
+		$this->data_id = $post->ID;
 		wp_nonce_field( 'fieldmanager-save-' . $this->name, 'fieldmanager-' . $this->name . '-nonce' );
 		echo $this->element_markup( $values );
 	}
@@ -476,6 +675,7 @@ abstract class Fieldmanager_Field {
 			}
 		}
 		if ( !$use_this_post_type ) return;
+		if ( $_POST['action'] == 'inline-save' ) return; // no fieldmanager on quick edit yet
 
 		// Make sure the current user can save this post
 		if( $_POST['post_type'] == 'post' ) {
@@ -503,8 +703,13 @@ abstract class Fieldmanager_Field {
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) return;
 		$this->data_id = $post_id;
 		$this->data_type = 'post';
-		$data = $this->presave_all( $data );
-		update_post_meta( $post_id, $this->name, $data );
+		$post = get_post( $post_id );
+		if ( $post->post_type = 'revision' && $post->post_parent != 0 ) {
+			$this->data_id = $post->post_parent;
+		}
+		$current = get_post_meta( $this->data_id, $this->name, True );
+		$data = $this->presave_all( $data, $current );
+		if ( !$this->skip_save ) update_post_meta( $post_id, $this->name, $data );
 	}
 
 	/**
@@ -512,9 +717,15 @@ abstract class Fieldmanager_Field {
 	 * @input mixed[] $values
 	 * @return mixed[] sanitized values
 	 */
-	public function presave_all( $values ) {
+	public function presave_all( $values, $current_values ) {
+
 		if ( $this->limit == 1 ) {
-			return $this->presave( $values );
+			$values = $this->presave_alter_values( array( $values ), array( $current_values ) );
+			$value = $this->presave( $values[0], $current_values );
+			if ( $this->save_empty || !empty( $value ) ) {
+				if ( !empty( $this->index ) ) $this->save_index( array( $value ), array( $current_values ) );
+			}
+			return $value;
 		}
 		
 		// If $this->limit != 1, and $values is not an array, that'd just be wrong, and possibly an attack, so...
@@ -532,14 +743,46 @@ abstract class Fieldmanager_Field {
 		if ( isset( $values['proto'] ) ) {
 			unset( $values['proto'] );
 		}
+
+		$values = $this->presave_alter_values( $values, $current_values );
+
 		foreach ( $values as $i => $value ) {
 			if ( !is_numeric( $i ) ) {
 				// If $this->limit != 1 and $values contains something other than a numeric key...
 				$this->_unauthorized_access( '$values should be a number-indexed array, but found key ' . $i );
 			}
-			$values[$i] = $this->presave( $value );
+			$values[$i] = $this->presave( $value, empty( $current_values[$i] ) ? array() : $current_values[$i] );
 			if ( !$this->save_empty && empty( $values[$i] ) ) unset( $values[$i] );
 		}
+		if ( !empty( $this->index ) ) $this->save_index( $values, $current_values );
+		return $values;
+	}
+
+	/**
+	 * Optionally save fields to a separate postmeta index for easy lookup with WP_Query
+	 * @param array $values
+	 * @return void
+	 */
+	protected function save_index( $values, $current_values ) {
+		if ( $this->data_type != 'post' || empty( $this->data_id ) ) return;
+		// Must delete current values specifically, then add new ones, to support a scenario where the 
+		// same field in repeating groups with limit = 1 is going to create more than one entry here, and
+		// if we called update_post_meta() we would overwrite the index with each new group.
+		foreach ( $current_values as $v ) {
+			delete_post_meta( $this->data_id, $this->index, $v );
+		}
+		// add new values
+		foreach ( $values as $v ) {
+			add_post_meta( $this->data_id, $this->index, $v );
+		}
+	}
+
+	/**
+	 * Hook to alter or respond to all the values of a particular element
+	 * @param array $values
+	 * @return array
+	 */
+	protected function presave_alter_values( $values, $current_values = array() ) {
 		return $values;
 	}
 
@@ -548,7 +791,7 @@ abstract class Fieldmanager_Field {
 	 * @param mixed $value If a single field expects to manage an array, it must override presave()
 	 * @return sanitized values. 
 	 */
-	public function presave( $value ) {
+	public function presave( $value, $current_value = array() ) {
 		// It's possible that some elements (Grid is one) would be arrays at
 		// this point, but those elements must override this function. Let's
 		// make sure we're dealing with one value here.
@@ -587,7 +830,14 @@ abstract class Fieldmanager_Field {
 	 */
 	public function get_element_label( $classes = array() ) {
 		$classes[] = 'fm-label';
-		$classes[] = 'fm-labeladd-' . $this->name;
+		$classes[] = 'fm-label-' . $this->name;
+		if ( $this->inline_label ) {
+			$this->label_element = 'span';
+			$classes[] = 'fm-label-inline';
+		}
+		if ( $this->label_after_element ) {
+			$classes[] = 'fm-label-after';
+		}
 		return sprintf(
 			'<%s class="%s"><label for="%s">%s</label></%s>',
 			$this->label_element,
@@ -704,5 +954,16 @@ abstract class Fieldmanager_Field {
 		if ( $this->is_proto ) return True;
 		if ( $this->parent ) return $this->parent->has_proto();
 		return False;
+	}
+
+	/**
+	 * Register meta box actions
+	 */
+	private function register_meta_box_actions() {
+		if ( !empty( $this->content_types ) && !$this->meta_box_actions_added ) {
+			add_action( 'admin_init', array( $this, 'meta_box_render_callback' ) );
+			add_action( 'save_post', array( $this, 'save_fields_for_post' ) );
+			$this->meta_box_actions_added = True;
+		}
 	}
 }

@@ -24,8 +24,20 @@
 	background-image: linear-gradient(bottom,#DDD,#EEE);
 }
 
+.fm-hidden {
+	display: none;
+}
+
 div.fm-group-label-wrapper {
 	overflow: auto;
+}
+
+.fm-label-inline {
+	margin: 0 5px 0 0;
+}
+
+.fm-label-inline.fm-label-after {
+	margin: 0 0 0 5px;
 }
 
 .fm-group div.fm-group-label-wrapper h4 {
@@ -108,7 +120,6 @@ div.fm-group-label-wrapper .fmjs-remove {
 .fm-item-description {
 	font-style: italic;
 }
-<<<<<<< HEAD
 
 .fm-wrapper div.fm-submenu {
 	background-color: transparent;
@@ -225,4 +236,23 @@ div.fm-group-label-wrapper .fmjs-remove {
 	border: solid 1px #444;
 	padding: 5px;
 	margin: 10px 0;
+}
+
+a.fm-delete {
+	color: #bc0b0b;
+	text-decoration: none;
+}
+
+a.fm-delete:hover {
+	color: #f00;
+}
+
+.media-wrapper {
+	margin: 5px 0 15px 15px;
+	padding-left: 10px;
+	border-left: solid 1px #ccc;
+}
+
+.fm-submenu-form-wrapper {
+	padding: 20px 0;
 }

@@ -24,6 +24,13 @@ require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-hidden.php' );
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-options.php' );
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-post.php' );
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-media.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-draggablepost.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-autocomplete.php' );
+require_once( dirname( __FILE__ ) . '/php/datasource/class-fieldmanager-datasource.php' );
+require_once( dirname( __FILE__ ) . '/php/datasource/class-fieldmanager-datasource-post.php' );
+require_once( dirname( __FILE__ ) . '/php/datasource/class-fieldmanager-datasource-term.php' );
+
+define( 'FM_GLOBAL_ASSET_VERSION', 1 );
 
 /**
  * Add CSS and JS to admin area, hooked into admin_enqueue_scripts.
@@ -68,16 +75,14 @@ function fieldmanager_get_baseurl() {
  * @return void
  */
 function fm_add_script( $handle, $path, $deps = array(), $ver = false, $in_footer = false, $data_object = "", $data = array(), $plugin_dir = "" ) {
-	if( $plugin_dir == "" ) $plugin_dir = fieldmanager_get_baseurl(); // allow overrides for child plugins
+	if ( !is_admin() ) return;
+	if ( !$ver ) $ver = FM_GLOBAL_ASSET_VERSION;
+	if ( $plugin_dir == "" ) $plugin_dir = fieldmanager_get_baseurl(); // allow overrides for child plugins
 	$add_script = function() use ( $handle, $path, $deps, $ver, $in_footer, $data_object, $data, $plugin_dir ) {
 		wp_enqueue_script( $handle, $plugin_dir . $path, $deps, $ver );
 		if ( !empty( $data_object ) && !empty( $data ) ) wp_localize_script( $handle, $data_object, $data );
 	};
-	if ( is_admin() ) {
-		add_action( 'admin_enqueue_scripts', $add_script );
-	} else {
-		add_action( 'wp_enqueue_scripts', $add_script );
-	}
+	add_action( 'admin_enqueue_scripts', $add_script );
 }
 
 /**
@@ -90,15 +95,13 @@ function fm_add_script( $handle, $path, $deps = array(), $ver = false, $in_foote
  * @return void
  */
 function fm_add_style( $handle, $path, $deps = array(), $ver = false, $media = 'all' ) {
+	if( !is_admin() ) return;
+	if ( !$ver ) $ver = FM_GLOBAL_ASSET_VERSION;
 	$add_script = function() use ( $handle, $path, $deps, $ver, $media ) {
 		wp_register_style( $handle, fieldmanager_get_baseurl() . $path, $deps, $ver, $media );
         wp_enqueue_style( $handle );
 	};
-	if ( is_admin() ) {
-		add_action( 'admin_enqueue_scripts', $add_script );
-	} else {
-		add_action( 'wp_enqueue_scripts', $add_script );
-	}
+	add_action( 'admin_enqueue_scripts', $add_script );
 }
 
 /**
@@ -125,6 +128,16 @@ function _fieldmanager_registry( $var, $val = NULL ) {
 function fm_get_post_meta( $post_id, $var, $single = True ) {
 	$data = get_post_meta( $post_id, $var, $single );
 	return json_decode( $data, TRUE );
+}
+
+/**
+ * Cheap way to tell if we're looking at a post edit page.
+ * It's a good idea to use this at the beginning of implementations which use metaboxes
+ * to avoid initializing your Fieldmanager chain on every page load.
+ * @return boolean are we editing or creating a post?
+ */
+function fm_is_post_edit_screen() {
+	return stripos( $_SERVER['PHP_SELF'], '/post.php' ) !== FALSE || stripos( $_SERVER['PHP_SELF'], '/post-new.php' ) !== FALSE;
 }
 
 /**

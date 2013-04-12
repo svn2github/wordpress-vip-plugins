@@ -18,22 +18,33 @@ class Fieldmanager_Grid extends Fieldmanager_Field {
 	public $field_class = 'grid';
 
 	/**
+	 * @var callable
+	 * Sort a grid before rendering (takes entire grid as a parameter)
+	 */
+	public $grid_sort = Null;
+
+	/**
+	 * @var string[]
+	 * Options to pass to grid manager
+	 */
+	public $js_options = array();
+
+	/**
 	 * Constructor which adds several scrips and CSS
+	 * @param string $label
 	 * @param array $options
 	 */
-	public function __construct( $options = array() ) {
-		$this->js_options = array();
+	public function __construct( $label = '', $options = array() ) {
+		$this->attributes = array(
+			'size' => '50',
+		);
+		parent::__construct( $label, $options );
 		$this->sanitize = function( $row, $col, $values ) {
 			foreach ( $values as $k => $val ) {
 				$values[$k] = sanitize_text_field( $val );
 			}
 			return $values;
 		};
-		$this->attributes = array(
-			'size' => '50',
-		);
-
-		parent::__construct( $options );
 
 		fm_add_script( 'handsontable', 'js/grid/jquery.handsontable.js' );
 		fm_add_script( 'contextmenu', 'js/grid/lib/jQuery-contextMenu/jquery.contextMenu.js' );
@@ -50,10 +61,13 @@ class Fieldmanager_Grid extends Fieldmanager_Field {
 	 */
 	public function form_element( $value = '' ) {
 		$grid_activate_id = 'grid-activate-' . uniqid();
+		if ( !empty( $value ) && is_callable( $this->grid_sort ) ) {
+			$value = call_user_func( $this->grid_sort, $value );
+		}
 		$out = sprintf(
 			'<div class="grid-toggle-wrapper">
 				<div class="fm-grid" id="%2$s" data-fm-grid-name="%1$s"></div>
-				<input name="%1$s" type="hidden" value="%3$s" />
+				<input name="%1$s" class="fm-element" type="hidden" value="%3$s" />
 				<p><a href="#" class="grid-activate" id="%6$s" data-with-grid-title="%5$s">%4$s</a></p>
 			</div>',
 			$this->get_form_name(),
@@ -66,7 +80,6 @@ class Fieldmanager_Grid extends Fieldmanager_Field {
 		$out .= sprintf("
 			<script type=\"text/javascript\">
 				jQuery( document ).ready( function() {
-					console.log('here i am');
 					jQuery( '#%s' ).one( 'click', function( e ) {
 						e.preventDefault();
 						var grid = jQuery( this ).parents( '.grid-toggle-wrapper' ).find( '.fm-grid' )[0];
@@ -85,7 +98,7 @@ class Fieldmanager_Grid extends Fieldmanager_Field {
 	 * @param string $value
 	 * @return array sanitized row/col matrix
 	 */
-	public function presave( $value ) {
+	public function presave( $value, $current_value = array() ) {
 		$rows = json_decode( stripslashes( $value ), TRUE );
 		foreach ( $rows as $i => $cells ) {
 			foreach ( $cells as $k => $cell ) {

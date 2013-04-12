@@ -53,6 +53,16 @@ class Fieldmanager_Group extends Fieldmanager_Field {
 	public $tab_limit = 0;
 
 	/**
+	 * @var array
+	 * Label macro is a more convenient shortcut to label_format and label_token. The first element
+	 * of the two-element array is the title with a placeholder (%s), and the second element is
+	 * simply the name of the child element to pull from, e.g.:
+	 *
+	 * array( 'Section: %s', 'section_title' )
+	 */
+	public $label_macro = Null;
+
+	/**
 	 * @var string
 	 * If specified, $label_format combined with $label_token will override $label, but only if
 	 * $(label).find(label_token).val() is not null.
@@ -80,14 +90,15 @@ class Fieldmanager_Group extends Fieldmanager_Field {
 	/**
 	 * Constructor; add CSS if we're looking at a tabbed view
 	 */
-	public function __construct( $options = array() ) {
+	public function __construct( $label = '', $options = array() ) {
 
-		parent::__construct($options);
+		parent::__construct( $label, $options );
 
 		if ( $this->collapsed ) $this->collapsible = True;
 		
 		foreach ( $this->children as $name => $element ) {
 			if ( !$element->name ) $element->name = $name;
+			// Propagate data type and ID info down the chain
 		}
 
 		// Add the tab JS and CSS if it is needed
@@ -171,6 +182,11 @@ class Fieldmanager_Group extends Fieldmanager_Field {
 		
 			// Get markup for the child element
 			$child_value = empty( $value[ $element->name ] ) ? Null : $value[ $element->name ];
+
+			// propagate editor state down the chain
+			if ( $this->data_type ) $element->data_type = $this->data_type;
+			if ( $this->data_id ) $element->data_id = $this->data_id;
+			
 			$out .= $element->element_markup( $child_value );
 			
 			$this->child_count++;
@@ -194,7 +210,7 @@ class Fieldmanager_Group extends Fieldmanager_Field {
 	 * @input mixed[] values
 	 * @return mixed[] values
 	 */
-	public function presave( $values ) {
+	public function presave( $values, $current_values = array() ) {
 		// @SECURITY@ First, make sure all the values we're given are legal.
 		if( isset( $values ) && !empty( $values ) ) {
 			foreach ( array_keys( $values ) as $key ) {
@@ -214,10 +230,11 @@ class Fieldmanager_Group extends Fieldmanager_Field {
 				$values[ $element->name ] = NULL;
 			}
 			$child_value = empty( $values[ $element->name ] ) ? Null : $values[ $element->name ];
-			$values[ $element->name ] = $element->presave_all( $values[ $element->name ] );
+			$current_child_value = empty( $current_values[$element->name ]) ? array() : $current_values[$element->name];
+			$values[ $element->name ] = $element->presave_all( $values[ $element->name ], $current_child_value );
 			if ( !$this->save_empty && $this->limit != 1 ) {
 				if ( is_array( $values[$element->name] ) && empty( $values[$element->name] ) ) unset( $values[$element->name] );
-				if ( is_string( $values[$element->name] ) && strlen( $values[$element->name] ) == 0 ) unset( $values[$element->name] );
+				elseif ( empty( $values[$element->name] ) ) unset( $values[$element->name] );
 			}
 		}
 
@@ -247,6 +264,11 @@ class Fieldmanager_Group extends Fieldmanager_Field {
 		}
 
 		$extra_attrs = '';
+		if ( $this->label_macro ) {
+			$this->label_format = $this->label_macro[0];
+			$this->label_token = sprintf( '.fm-%s input.fm-element', $this->label_macro[1] );
+		}
+
 		if ( $this->label_format && $this->label_token ) {
 			$extra_attrs = sprintf(
 				'data-label-format="%1$s" data-label-token="%2$s"',

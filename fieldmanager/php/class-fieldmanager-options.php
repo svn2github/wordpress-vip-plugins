@@ -36,39 +36,82 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 
 	/**
 	 * @var string
+	 * @deprecated use Fieldmanager_Datsource_Term
 	 * Helper for taxonomy-based option sets; taxonomy name
 	 */
 	public $taxonomy = null;
 
 	/**
 	 * @var array
+	 * @deprecated use Fieldmanager_Datsource_Term
 	 * Helper for taxonomy-based option sets; arguments to find terms
 	 */
 	public $taxonomy_args = array();
 
 	/**
 	 * @var boolean
+	 * @deprecated use Fieldmanager_Datsource_Term
+	 * Sort taxonomy hierarchically and indent child categories with dashes?
+	 */
+	public $taxonomy_hierarchical = false;
+
+	/**
+	 * @var int
+	 * @deprecated use Fieldmanager_Datsource_Term
+	 * How far to descend into taxonomy hierarchy (0 for no limit)
+	 */
+	public $taxonomy_hierarchical_depth = 0;
+
+	/**
+	 * @var boolean
+	 * @deprecated use Fieldmanager_Datsource_Term
+	 * Pass $append = true to wp_set_object_terms?
+	 */
+	public $append_taxonomy = False;
+	
+	/**
+	 * @var string
+	 * @deprecated use Fieldmanager_Datsource_Term
+	 * Helper for taxonomy-based option sets; whether or not to preload all terms
+	 */
+	public $taxonomy_preload = True;
+
+	/**
+	 * @var string
+	 * @deprecated use Fieldmanager_Datsource_Term
+	 * If true, additionally save taxonomy terms to WP's terms tables.
+	 */
+	public $taxonomy_save_to_terms = True;
+
+	/**
+	 * @var Fieldmanager_Datasource
+	 * Optionally generate field from datasource
+	 */
+	public $datasource = Null;
+
+	/**
+	 * @var boolean
 	 * Allow multiple selections?
 	 */
-	public $multiple = false;
+	public $multiple = False;
+
+	/**
+	 * @var boolean
+	 * Ensure that get_taxonomy_data() only runs once.
+	 */
+	private $has_built_data = False;
 	
 	/**
 	 * Add CSS, configure taxonomy, construct parent
+	 * @param string $label
 	 * @param mixed $options
 	 */
-	public function __construct( $options = array() ) {
-		if ( !empty( $options['options'] ) ) {
-			$keys = array_keys( $options['options'] );
-			$use_name_as_value = ( array_keys( $keys ) === $keys );
-			foreach ( $options['options'] as $k => $v ) {
-				$this->data[] = array(
-					'name' => $v,
-					'value' => $use_name_as_value ? $v : $k,
-				);
-			}
-		}
+	public function __construct( $label= '', $options = array() ) {
+		parent::__construct( $label, $options );
 
-		parent::__construct($options);
+		if ( !empty( $this->options ) ) {
+			$this->add_options( $this->options );
+		}
 		
 		// Add the options CSS
 		fm_add_style( 'fm_options_css', 'css/fieldmanager-options.css' );
@@ -82,10 +125,28 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 				return sanitize_text_field( $value );
 			}
 		};
-		
-		// If the taxonomy parameter is set, populate the data from the given taxonomy if valid
-		if ( $this->taxonomy != null ) $this->get_taxonomy_data();
-	
+	}
+
+	/**
+	 * Add options
+	 * @param array $options
+	 * @return void
+	 */
+	public function add_options( $options ) {
+		$values = array_values( $options );
+		if ( is_array( $values[0] ) ) {
+			foreach ( $options as $group => $data ) {
+				foreach ( $data as $value => $label ) {
+					$this->add_option_data( $value, $label, $group, $group );
+				}
+			}
+		} else {
+			$keys = array_keys( $options );
+			$use_name_as_value = ( array_keys( $keys ) === $keys );
+			foreach ( $options as $k => $v ) {
+				$this->add_option_data( $v, ( $use_name_as_value ? $v : $k ) );
+			}
+		}
 	}
 	
 	/**
@@ -95,8 +156,18 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 	 */
 	public function form_data_elements( $value ) {
 	
-		// Add the first element to the data array. This is useful for database-based data sets that require a first element.
-		if ( !empty( $this->first_element ) ) array_unshift( $this->data, $this->first_element );
+		// If the taxonomy parameter is set, populate the data from the given taxonomy if valid
+		// Also, if the taxonomy data is not preloaded, this must be run each time to load selected terms
+		if ( !$this->has_built_data || !$this->taxonomy_preload ) {
+			if ( $this->datasource ) {
+				$this->add_options( $this->datasource->get_items() );
+			}
+			if ( $this->taxonomy != null ) $this->get_taxonomy_data( $value );
+		
+			// Add the first element to the data array. This is useful for database-based data sets that require a first element.
+			if ( !empty( $this->first_element ) ) array_unshift( $this->data, $this->first_element );
+			$this->has_built_data = True;
+		}
 		
 		// If the value is not in an array, put it in one since sometimes there will be multiple selects
 		if ( !is_array( $value ) && isset( $value ) ) {
@@ -131,9 +202,9 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 			}
 			
 			// If this was grouped display, close the final group
-			if( $this->grouped ) $form_data_elements_html .= $this->form_data_end_group();
+			if( $this->grouped || $this->datasource->grouped ) $form_data_elements_html .= $this->form_data_end_group();
 		}
-		
+
 		return $form_data_elements_html;
 	
 	}
@@ -157,55 +228,131 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 	}
 	
 	/**
-	 * Override presave to handle taxonomy
-	 * @param mixed $value
+	 * Presave function, which handles sanitization and validation
+	 * @param mixed $value If a single field expects to manage an array, it must override presave()
+	 * @return sanitized values. 
+	 */
+	public function presave( $value, $current_value = array() ) {
+		if ( !empty( $this->datasource ) ) {
+			return $this->datasource->presave( $this, $value, $current_value );
+		}
+		foreach ( $this->validate as $func ) {
+			if ( !call_user_func( $func, $value ) ) {
+				$this->_failed_validation( sprintf(
+					__( 'Input "%1$s" is not valid for field "%2$s" ' ),
+					(string) $value,
+					$this->label
+				) );
+			}
+		}
+		return call_user_func( $this->sanitize, $value );
+	}
+
+	/**
+	 * Alter values before rendering
+	 * @param array $values
+	 */
+	public function preload_alter_values( $values ) {
+		if ( $this->datasource ) return $this->datasource->preload_alter_values( $this, $values );
+		return $values;
+	}
+
+	/**
+	 * Presave hook to set taxonomy data, maybe
+	 * @param int[] $values
+	 * @param int[] $current_values
+	 * @return int[] $values
+	 */
+	public function presave_alter_values( $values, $current_values ) {
+		if ( !empty( $this->datasource ) ) {
+			return $this->datasource->presave_alter_values( $this, $values, $current_values );
+		}
+		// If this is a taxonomy-based field, must also save the value(s) as an object term
+		if ( $this->taxonomy_save_to_terms && isset( $this->taxonomy ) && !empty( $values ) ) {
+			// Sanitize the value(s)
+			if ( !is_array( $values ) ) {
+				$values = array( $values );
+			}
+			$tax_values = array();
+			foreach ( $values as &$value ) {
+				$value = call_user_func( $this->sanitize, $value );
+				if ( !empty( $value ) ) {
+					if( is_numeric( $value ) )
+						$tax_values[] = $value;
+					else if( is_array( $value ) )
+						$tax_values = $value;
+				}
+			}
+			$this->save_taxonomy( $tax_values );
+		}
+		return $values;
+	}
+
+	/**
+	 * Save taxonomy data
+	 * @param mixed[] $tax_values
 	 * @return void
 	 */
-	public function presave( $value ) {
+	public function save_taxonomy( $tax_values ) {
 	
-		// Sanitize the value(s)
-		$value = call_user_func( $this->sanitize, $value );
+		$tax_values = array_map( 'intval', $tax_values );
+		$tax_values = array_unique( $tax_values );
 		
-		// If this is a taxonomy-based field, must also save the value(s) as an object term
-		if ( isset( $this->taxonomy ) && isset( $value ) ) {
-			
-			// If the value is not an array, make it one, cast the values to integers and ensure uniqueness		
-			if ( !is_array( $value ) ) $tax_values = array( $value ); 
-			else $tax_values = $value;
-						
-			$tax_values = array_map('intval', $tax_values);
-    		$tax_values = array_unique( $tax_values );
-    		
-    		// Also assign the taxonomy to an array if it is not one since there may be grouped fields
-    		$taxonomies = $this->taxonomy;
-    		if ( !is_array( $this->taxonomy ) ) $taxonomies = array( $this->taxonomy );
-		
-			// Store the each term for this post. Handle grouped fields differently since multiple taxonomies are present.
-			if ( is_array( $this->taxonomy ) ) {
-				// Build the taxonomy insert data
-				$taxonomy_insert_data = $this->get_taxonomy_insert_data( $tax_values );
-				foreach ( $taxonomy_insert_data as $taxonomy => $terms ) {
-					wp_set_object_terms( $this->data_id, $terms, $taxonomy, false );
-				}
-			} else {
-				wp_set_object_terms( $this->data_id, $tax_values, $this->taxonomy, false );
+		// Also assign the taxonomy to an array if it is not one since there may be grouped fields
+		$taxonomies = $this->taxonomy;
+		if ( !is_array( $this->taxonomy ) ) $taxonomies = array( $this->taxonomy );
+	
+		// Store the each term for this post. Handle grouped fields differently since multiple taxonomies are present.
+		if ( is_array( $this->taxonomy ) ) {
+			// Build the taxonomy insert data
+			$taxonomy_insert_data = $this->get_taxonomy_insert_data( $tax_values );
+			foreach ( $taxonomy_insert_data as $taxonomy => $terms ) {
+				wp_set_object_terms( $this->data_id, $terms, $taxonomy, $this->append_taxonomy );
 			}
-					
+		} else {
+			wp_set_object_terms( $this->data_id, $tax_values, $this->taxonomy, $this->append_taxonomy );
 		}
-		
-		// Return the sanitized value
-		return $value;
-		
 	}
 	
 	/**
 	 * Get taxonomy data per $this->taxonomy_args
+	 * @param $value The value(s) currently set for this field
 	 * @return array[] data entries for options
 	 */
-	public function get_taxonomy_data() {
+	public function get_taxonomy_data( $value ) {
+
+		// If taxonomy_hierarchical is set, assemble recursive term list, then bail out.
+		if ( $this->taxonomy_hierarchical ) {
+			$tax_args = $this->taxonomy_args;
+			$tax_args['parent'] = 0;
+			$parent_terms = get_terms( $this->taxonomy, $tax_args );
+			$this->build_hierarchical_term_data( $parent_terms, $this->taxonomy_args, 0 );
+			return;
+		}
 	
 		// Query for all terms for the defined taxonomies
-		$terms = get_terms ( $this->taxonomy, $this->taxonomy_args );
+		// If preload is set to false ONLY load the terms selected previously
+		if( $this->taxonomy_preload == false ) {
+			// In case this is used with a repeating field, clear any previously loaded taxonomy data
+			$this->data = array();
+		
+			if( empty( $value ) && !is_array( $this->taxonomy ) )
+				// Nothing has been selected and we don't have to pre-populate optgroups, so just return
+				return;
+			
+			if( !empty( $value ) ) {
+				if( !is_array( $value ) ) 
+					// Make sure we have an array
+					$value = array( $value );
+				
+				// Make sure all the values are integers
+				$value = array_map( 'intval', $value );
+			
+				// Finally, make sure we are only including these terms
+				$this->taxonomy_args['include'] = $value;
+			}
+		}
+		$terms = get_terms( $this->taxonomy, $this->taxonomy_args );
 		
 		// If the taxonomy list was an array and group display is set, ensure all terms are grouped by taxonomy
 		// Use the order of the taxonomy array list for sorting the groups to make this controllable for developers
@@ -215,15 +362,22 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 			
 			// Group the data
 			$term_groups = array();
+			foreach ( $this->taxonomy as $tax ) {
+				$term_groups[$tax] = array();
+			}
 			foreach ( $terms as $term ) {
 				$term_groups[$term->taxonomy][] = $term;
 			}
-						
+									
 			// Sort the groups by the provided taxonomy order and replace the original $terms data
 			$terms = array();
 			foreach ( $this->taxonomy as $tax ) {
-				if ( array_key_exists( $tax, $term_groups ) && is_array( $term_groups[$tax] ) ) {
+				if ( !empty( $term_groups[$tax] ) ) {
 					$terms = array_merge( $terms, $term_groups[$tax] );
+				} else if ( empty( $term_groups[$tax] ) && $this->taxonomy_preload == false ) {
+					// Add a default blank group so that the blank optgroup is still present for inserting terms from typeahead search
+					$taxonomy_data = get_taxonomy( $tax );
+					$this->add_option_data( "", "", $taxonomy_data->label, $taxonomy_data->name );
 				}
 			}
 			
@@ -233,15 +387,40 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 		foreach ( $terms as $term ) {
 			// Store the label for the taxonomy as the group since it will be used for display
 			$taxonomy_data = get_taxonomy( $term->taxonomy );
-		
-			$this->data[] = array( 
-				'name' => $term->name,
-				'value' => $term->term_id,
-				'group' => $taxonomy_data->label,
-				'group_id' => $taxonomy_data->name
-			);
+			$this->add_option_data( $term->name, $term->term_id, $taxonomy_data->label, $taxonomy_data->name );
 		}
-	 
+	}
+
+	/**
+	 * Helper to support recursive building of a hierarchical taxonomy list.
+	 * @param array $parent_terms
+	 * @param array $tax_args as used in top-level get_terms() call.
+	 * @param int $depth current recursive depth level.
+	 * @return array of terms or false if no children found.
+	 */
+	protected function build_hierarchical_term_data( $parent_terms, $tax_args, $depth ) {
+		
+		// Walk through each term passed, add it (at current depth) to the data stack.
+		foreach ( $parent_terms as $term ) {
+			$taxonomy_data = get_taxonomy( $term->taxonomy );
+			$prefix = '';
+			
+			// Prefix term based on depth. For $depth = 0, prefix will remain empty.
+			for ( $i = 0; $i < $depth; $i++ ) {
+				$prefix .= '--';
+			}
+			
+			$this->add_option_data( $prefix . ' ' . $term->name, $term->term_id, $taxonomy_data->label, $taxonomy_data->name );
+			
+			// Find child terms of this. If any, recurse on this function.
+			$tax_args['parent'] = $term->term_id;
+			$child_terms = get_terms( $this->taxonomy, $tax_args );
+			if ( $this->taxonomy_hierarchical_depth == 0 || $depth + 1 < $this->taxonomy_hierarchical_depth ) {
+				if ( !empty( $child_terms ) ) {
+					$this->build_hierarchical_term_data( $child_terms, $this->taxonomy_args, $depth + 1 );
+				}
+			}
+		}
 	}
 	
 	/**
@@ -250,14 +429,38 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 	 * @return array $values with taxonomy IDs for saving.
 	 */
 	protected function get_taxonomy_insert_data( $values ) {
-	
+		global $wpdb;
+		
 		// If the option field data was grouped and is taxonomy-based, we need to find the taxonomy for each value in order to store it
 		$taxonomy_insert_data = array();
-		foreach ( $this->data as $element ) {
-			if ( in_array( $element['value'], $values ) ) $taxonomy_insert_data[$element['group_id']][] = intval( $element['value'] );
+		foreach ( $values as $value ) {
+			$taxonomy = $wpdb->get_var( $wpdb->prepare( 
+				"select taxonomy from wp_term_taxonomy where term_id=%d;", 
+				$value
+			) );
+			if ( isset( $taxonomy ) ) $taxonomy_insert_data[$taxonomy][] = intval( $value );
 		}
 		
 		return $taxonomy_insert_data;
+	}
+	
+	/**
+	 * Add option data to the data attribute of this object
+	 * @param string $name
+	 * @param mixed $value
+	 * @param string $group
+	 * @param string|int $group_id
+	 * @return void
+	 */
+	protected function add_option_data( $name, $value, $group=null, $group_id=null ) {
+		$data = array( 
+			'name' => $name,
+			'value' => $value
+		);
+		if( isset( $group ) ) $data['group'] = $group;
+		if( isset( $group_id ) ) $data['group_id'] = $group_id;
+		
+		$this->data[] = $data;
 	}
 
 }

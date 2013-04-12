@@ -27,21 +27,26 @@ class Fieldmanager_Post extends Fieldmanager_Field {
 
 	/**
 	 * @var boolean
-	 * Allow editing of the target post?
 	 */
-	public $editable = false;
+	public $show_edit_link = False;
 
 	/**
 	 * @var boolean
 	 * Show post type in typeahead results?
 	 */
-	public $show_post_type = false;
+	public $show_post_type = False;
 
 	/**
 	 * @var boolean
 	 * Show post date in typeahead results?
 	 */
-	public $show_post_date = false;
+	public $show_post_date = False;
+
+	/**
+	 * @var string
+	 * Key for reciprocal relationship; if defined will add an entry to postmeta on the mirrored post.
+	 */
+	public $reciprocal = Null;
 
 	/**
 	 * @var boolean
@@ -51,9 +56,10 @@ class Fieldmanager_Post extends Fieldmanager_Field {
 
 	/**
 	 * Add libraries for autocomplete
+	 * @param string $label
 	 * @param array $options
 	 */
-	public function __construct( $options = array() ) {
+	public function __construct( $label = '', $options = array() ) {
 		$this->attributes = array(
 			'size' => '50',
 		);
@@ -65,15 +71,15 @@ class Fieldmanager_Post extends Fieldmanager_Field {
 		// Add the post javascript and CSS
 		fm_add_script( 'fm_post_js', 'js/fieldmanager-post.js', array(), false, false, 'fm_post', array( 'nonce' => wp_create_nonce( 'fm_post_search_nonce' ) ) );
 		fm_add_style( 'fm_post_css', 'css/fieldmanager-post.css' );
-		
-		// Add the action hook for typeahead handling via AJAX
-		add_action('wp_ajax_fm_search_posts', array( $this, 'search_posts' ) );
 
 		if ( empty( $this->query_callback ) ) {
 			$this->query_callback = array( $this, 'search_posts_using_get_posts' );
 		}
 
-		parent::__construct($options);
+		parent::__construct( $label, $options );
+
+		// Add the action hook for typeahead handling via AJAX
+		add_action( 'wp_ajax_fm_search_posts_' . sanitize_title( $this->label ) , array( $this, 'search_posts' ) );
 	}
 	
 	/**
@@ -98,23 +104,38 @@ class Fieldmanager_Post extends Fieldmanager_Field {
 				'post_date' => ''
 			);
 		}
-			
-		return sprintf(
-			'%s<input class="fm-post-element fm-element" type="text" name="%s" id="%s" value="%s" autocomplete="off" data-provide="typeahead" data-editable="%s" data-id="%s" data-post-type="%s" data-post-date="%s" data-show-post-type="%s" data-show-post-date="%s" %s />%s%s',
-			( $this->limit == 1 ) ? '<div class="fmjs-clearable-element">' : '',
-			$this->get_form_name(),
+
+		$element = sprintf(
+			'<input class="fm-post-element fm-element" type="text" id="%s" value="%s" autocomplete="off" data-provide="typeahead" data-id="%s" data-post-type="%s" data-post-date="%s" data-show-post-type="%s" data-show-post-date="%s" data-action="%s" %s />',
 			$this->get_element_id(),
 			htmlspecialchars( $value['title'] ),
-			$this->editable,
 			htmlspecialchars( $value['id'] ),
 			htmlspecialchars( $value['post_type'] ),
 			htmlspecialchars( $value['post_date'] ),
 			$this->show_post_type,
 			$this->show_post_date,
-			$this->get_element_attributes(),
-			( $this->limit == 1 ) ? '</div>' : '',
-			( $this->limit == 1 ) ? $this->get_clear_handle() : ''
+			'fm_search_posts_' . sanitize_title( $this->label ),
+			$this->get_element_attributes()
 		);
+		$element .= sprintf(
+			'<input class="fm-post-hidden fm-element" type="hidden" name="%s" value="" />',
+			$this->get_form_name()
+		);
+		if ( $this->show_view_link ) {
+			$element .= sprintf(
+				' <a target="_new" class="fm-post-view-link %s" href="%s">View</a>',
+				empty( $value['id'] ) ? 'fm-hidden' : '',
+				empty( $value['id'] ) ? '#' : get_permalink( $value['id'] )
+			);
+		}
+		if ( $this->show_edit_link ) {
+			$element .= sprintf(
+				' <a target="_new" class="fm-post-edit-link %s" href="%s">Edit</a>',
+				empty( $value['id'] ) ? 'fm-hidden' : '',
+				empty( $value['id'] ) ? '#' : get_edit_post_link( $value['id'] )
+			);
+		}
+		return $element;
 	}
 
 	/**
@@ -176,13 +197,27 @@ class Fieldmanager_Post extends Fieldmanager_Field {
 		
 		die();
 	}
+
+	/**
+	 * For post relationships, delete reciprocal post metadata prior to saving (presave will re-add)
+	 * @param array $values new post values
+	 * @param array $current_values existing post values
+	 */
+	public function presave_alter_values( $values, $current_values = array() ) {
+		// return if there are no saved values, if this isn't a post, or if the reciprocal relationship isn't set.
+		if ( empty( $current_values) || empty( $this->data_id ) || $this->data_type !== 'post' || !$this->reciprocal ) return $values;
+		foreach ( $current_values as $reciprocal_post ) {
+			delete_post_meta( $reciprocal_post['id'], $this->reciprocal, $this->data_id );
+		}
+		return $values;
+	}
 	
 	/**
 	 * Make sure JSON is an associative array, and make sure posts are all clean.
 	 * @param array $value
 	 * @return array $value
 	 */
-	public function presave( $value ) {
+	public function presave( $value, $current_value = array() ) {
 		// If the value is not empty, convert the JSON data into an associative array so it is handled properly on save
 		$value = json_decode( stripslashes( $value ), true );
 		$legal_keys = array( 'id', 'title', 'post_type', 'post_date' );
@@ -199,6 +234,9 @@ class Fieldmanager_Post extends Fieldmanager_Field {
 			// One more validation: For now, you must be able to edit a post in order to reference it.
 			if( !current_user_can( 'edit_post', $value['id'] ) ) {
 				$this->_unauthorized_access( 'Tried to refer to post ' . $value['id'] . ' which user cannot edit.' );	
+			}
+			if ( $this->reciprocal ) {
+				update_post_meta( $value['id'], $this->reciprocal, $this->data_id );
 			}
 		}
 		return $value;
