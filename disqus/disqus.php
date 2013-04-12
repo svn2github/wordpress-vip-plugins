@@ -111,39 +111,48 @@ function dsq_is_installed() {
 
 function dsq_can_replace() {
 	global $id, $post;
+
 	$replace = get_option('disqus_replace');
+	$retval  = true;
 
-	if ( 'draft' == $post->post_status )   { return false; }
-	if ( !get_option('disqus_forum_url') ) { return false; }
-	else if ( 'all' == $replace )          { return true; }
+	if ( 'draft' == $post->post_status || ! get_option('disqus_forum_url') ) {
+		$retval = false;
 
-	if ( !isset($post->comment_count) ) {
-		$num_comments = 0;
+	} elseif ( 'all' == $replace ) {
+		$retval = true;
+
 	} else {
-		if ( 'empty' == $replace ) {
-			// Only get count of comments, not including pings.
+		if ( !isset($post->comment_count) ) {
+			$num_comments = 0;
 
-			// If there are comments, make sure there are comments (that are not track/pingbacks)
-			if ( $post->comment_count > 0 ) {
-				// Yuck, this causes a DB query for each post.  This can be
-				// replaced with a lighter query, but this is still not optimal.
-				$comments = get_approved_comments($post->ID);
-				foreach ( $comments as $comment ) {
-					if ( $comment->comment_type != 'trackback' && $comment->comment_type != 'pingback' ) {
-						$num_comments++;
+		} else {
+			if ( 'empty' == $replace ) {
+				// Only get count of comments, not including pings.
+
+				// If there are comments, make sure there are comments (that are not track/pingbacks)
+				if ( $post->comment_count > 0 ) {
+					// Yuck, this causes a DB query for each post.  This can be
+					// replaced with a lighter query, but this is still not optimal.
+					$comments = get_approved_comments($post->ID);
+					foreach ( $comments as $comment ) {
+						if ( $comment->comment_type != 'trackback' && $comment->comment_type != 'pingback' ) {
+							$num_comments++;
+						}
 					}
+				} else {
+					$num_comments = 0;
 				}
+
 			} else {
-				$num_comments = 0;
+				$num_comments = $post->comment_count;
 			}
 		}
-		else {
-			$num_comments = $post->comment_count;
-		}
+
+		$retval = ('empty' == $replace && 0 == $num_comments) || ('closed' == $replace && 'closed' == $post->comment_status);
 	}
 
-	return ( ('empty' == $replace && 0 == $num_comments)
-		|| ('closed' == $replace && 'closed' == $post->comment_status) );
+	// Filter added by VIP
+	return apply_filters( 'dsq_can_replace', $retval ); 
 }
 
 function dsq_manage_dialog($message, $error = false) {
