@@ -81,6 +81,27 @@ class Bitly {
 		return false;
 		
 	}
+	
+	/**
+	 * Create a bitly url if one doesnt already exist for the current blog
+	 *
+	 * @return mixed 
+	 */
+	function generate_bitly_blog_url() {
+		extract( $this->options );
+		
+		$bitly_blog_url = bitly_get_blog_url();
+		
+		if( empty( $bitly_blog_url ) ) {
+			$shortlink = $this->shortlink_for_url( home_url() );
+
+			if ( $shortlink )
+				update_option( 'bitly_siteurl', $shortlink );
+		}
+		
+		return false;
+		
+	}
 
 	function shortlink_for_url( $url ) {
 		extract( $this->options );
@@ -214,12 +235,33 @@ function bitly_get_url( $post_id = null ) {
 }
 
 /**
+ * Helper function to get the short url for a blog
+ * 
+ * @return string $url
+ */
+function bitly_get_blog_url() {
+	return get_option( 'bitly_siteurl' );
+}
+
+/**
  * Generate short_url for use in bitly_process_posts()
  */
 function bitly_generate_short_url( $post_id ) {
 	global $bitly;
 	if ( is_object( $bitly ) && is_callable( array( $bitly, 'generate_bitly_url' ) ) )
 		return call_user_func( array( $bitly, 'generate_bitly_url' ), $post_id );
+	return false;
+}
+
+/**
+ * Generate a short url for the current blog's homepage
+ */
+function bitly_generate_blog_short_url() {
+	global $bitly;
+
+	if ( is_object( $bitly ) && is_callable( array( $bitly, 'generate_bitly_blog_url' ) ) )
+		return call_user_func( array( $bitly, 'generate_bitly_blog_url' ) );
+
 	return false;
 }
 
@@ -233,6 +275,10 @@ function bitly_shortlink( $shortlink, $id, $context ) {
 			$id = get_queried_object_id();
 		$bitly = bitly_get_url( $id );
 		if( $bitly ) $shortlink = esc_url( $bitly );
+	} elseif ( 'query' == $context && is_home() ) {
+		$bitly = bitly_get_blog_url();
+
+		if ( $bitly ) $shortlink = esc_url( $bitly );
 	}
 
 	return $shortlink;
@@ -245,7 +291,13 @@ add_filter( 'pre_get_shortlink', 'bitly_shortlink', 10, 3 );
 function bitly_process_posts() {
 	
 	global $wpdb;
-	
+
+	// Generate a shortlink for the homepage, if it doesn't exist
+	$blog_shortlink = bitly_get_blog_url();
+
+	if ( ! $blog_shortlink )
+		bitly_generate_blog_short_url();
+
 	// get 100 published posts that don't have a bitly url
 	$query = "
 		SELECT $wpdb->posts.ID
@@ -285,8 +337,9 @@ add_action( 'init', 'bitly_init_post_backfill' );
 function bitly_init_post_backfill() {
 	add_action( 'bitly_hourly_hook', 'bitly_process_posts' );
 
-	$bitly_processed = get_option( 'bitly_processed' );
+	$bitly_processed 	= get_option( 'bitly_processed' );
+	$blog_shortlink		= get_option( 'bitly_siteurl' );
 
-	if ( ! $bitly_processed && ! wp_next_scheduled( 'bitly_hourly_hook' ) )
+	if ( ( ! $bitly_processed || ! $blog_shortlink ) && ! wp_next_scheduled( 'bitly_hourly_hook' ) )
 		wp_schedule_event( time() + 30, 'hourly', 'bitly_hourly_hook' );
 }
