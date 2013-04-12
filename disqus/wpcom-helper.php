@@ -12,7 +12,6 @@ wpcom_vip_load_plugin( 'disable-comments-query' );
 function wpcom_vip_dsq_can_replace( $retval ) {
 	global $post;
 
-im('that we do');
 	if ( ! in_array( $post->post_status, array( 'publish', 'private' ) ) )
 		return false;
 
