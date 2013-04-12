@@ -180,9 +180,9 @@ class Blimply {
 		if ( 1 == get_post_meta( $post_id, 'blimply_push_sent', true ) )
 			return;
 
-		if ( 1 == $_POST['blimply_push'] ) {
+		if ( isset( $_POST['blimply_push'] ) && 1 == $_POST['blimply_push'] ) {
 			$alert = !empty( $_POST['blimply_push_alert'] ) ? sanitize_text_field( $_POST['blimply_push_alert'] ) : sanitize_text_field( $_POST['post_title'] );
-			$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], get_permalink( $post_id ) );
+			$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], get_permalink( $post_id ), (bool) isset( $_POST['blimply_no_sound'] ) && $_POST['blimply_no_sound'] );
 			update_post_meta( $post_id, 'blimply_push_sent', true );
 		}
 	}
@@ -203,7 +203,8 @@ class Blimply {
 			$alert = substr( $alert, 0, $limit );
 		// Determine if sounds are disabled for the push
 		$no_sound = isset( $_POST['blimply_no_sound'] ) && $_POST['blimply_no_sound'];
-		$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], false, $no_sound );
+
+		$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], false, (bool) $no_sound );
 		echo 'ok';
 		exit;
 	}
