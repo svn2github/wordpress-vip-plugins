@@ -70,34 +70,44 @@ class Bitly {
 		
 		if( empty( $bitly_url ) ) {
 	
-			// need to test this if the post is a time_slide	
-			$params = http_build_query(
-				array(
-					'login' => $api_login,
-					'apiKey' => $api_key,
-					'longUrl' => get_permalink( $post_id ),
-					'format' => 'json',
-				)
-			);
+			$permalink = get_permalink( $post_id );
 			
-			$rest_url = 'https://api-ssl.bitly.com/v3/shorten?' . $params;
-			
-			$response = wp_remote_get( $rest_url );
-			
-			// if we get a valid response, save the url as meta data for this post
-			if( !is_wp_error( $response ) ) {
-	
-				$json = json_decode( wp_remote_retrieve_body( $response ) );
-	
-				if( isset( $json->data->url ) ) {
-					update_post_meta( $post_id, 'bitly_url', $json->data->url );
-					return $json->data->url;
-				}
-			}
+			$shortlink = $this->shortlink_for_url( $permalink );
+
+			if ( $shortlink )
+				update_post_meta( $post_id, 'bitly_url', $shortlink );
 		}
 		
 		return false;
 		
+	}
+
+	function shortlink_for_url( $url ) {
+		extract( $this->options );
+
+		// need to test this if the post is a time_slide	
+		$params = http_build_query(
+			array(
+				'login' 	=> $api_login,
+				'apiKey' 	=> $api_key,
+				'longUrl' 	=> $url,
+				'format' 	=> 'json',
+			)
+		);
+		
+		$rest_url = 'https://api-ssl.bitly.com/v3/shorten?' . $params;
+		
+		$response = wp_remote_get( $rest_url );
+		
+		// if we get a valid response, save the url as meta data for this post
+		if( ! is_wp_error( $response ) ) {
+			$json = json_decode( wp_remote_retrieve_body( $response ) );
+
+			if( isset( $json->data->url ) )
+				return $json->data->url;
+		}
+
+		return false;
 	}
 	
 	/**
