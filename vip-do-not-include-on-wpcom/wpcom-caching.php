@@ -33,7 +33,7 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 	if ( 'id' == $field )
 		return get_term_by( $field, $value, $taxonomy, $output, $filter );
 
-	$cache_key = $field . '_' . md5( $value );
+	$cache_key = $field . '|' . $taxonomy . '|' . md5( $value );
 	$term_id = wp_cache_get( $cache_key, 'get_term_by' );
 
 	if ( false === $term_id ) {
