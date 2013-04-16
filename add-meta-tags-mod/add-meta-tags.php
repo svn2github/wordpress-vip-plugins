@@ -732,7 +732,7 @@ class Add_Meta_Tags {
 		echo '</div>';
 		
 		foreach( (array) $this->mt_seo_fields as $field_name => $field_data ) {
-			if ( true != $cmpvalues[$field_name] )
+			if ( empty( $cmpvalues[$field_name] ) )
 				continue;
 
 			if( 'textarea' == $field_data[1] ) {
