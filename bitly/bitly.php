@@ -302,14 +302,11 @@ function bitly_process_posts() {
 	$query = "
 		SELECT $wpdb->posts.ID
 		FROM $wpdb->posts
-		WHERE NOT EXISTS (
-			SELECT ID
-			FROM $wpdb->postmeta
-			WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
-			AND $wpdb->postmeta.meta_key = 'bitly_url'
-		)
+		LEFT JOIN $wpdb->postmeta ON ( $wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key =  'bitly_url' ) 
+		WHERE 1=1
 		AND ( $wpdb->posts.post_type = 'post' OR $wpdb->posts.post_type = 'page' )
 		AND ( $wpdb->posts.post_status = 'publish' )
+		AND ( $wpdb->postmeta.post_id IS NULL )
 		GROUP BY $wpdb->posts.ID
 		ORDER BY $wpdb->posts.post_date DESC
 		LIMIT 0, 100
