@@ -95,7 +95,7 @@ class Blimply {
 		$this->options = get_option( 'urban_airship', $defaults );
 		// Make sure that default options are set properly even if suboption key doesn't exist
 		// e.g. new option was added in a new verion;
-		$this->options = array_merge( $defaults, $this->options );
+		$this->options = array_merge( $defaults, (array) $this->options );
 
 		$this->sounds = get_option( 'blimply_sounds' );
 		$this->airships[ $this->options['blimply_name'] ] = new Airship( $this->options['blimply_app_key'], $this->options['blimply_app_secret'] );
@@ -244,6 +244,8 @@ class Blimply {
 
 			$payload['tags'] = array( $tag );
 
+			// Payload filter (allows to workaround quirks of UA API if any)
+			$payload = apply_filters( 'blimply_payload_override', $payload );
 			$response = $this->request( $this->airship, 'push', $payload );
 		}
 	}
