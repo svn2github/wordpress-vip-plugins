@@ -289,7 +289,7 @@ add_filter( 'pre_get_shortlink', 'bitly_shortlink', 10, 3 );
  * Cron to process all of the posts that don't have bitly urls
  */
 function bitly_process_posts() {
-	
+	return; // VIP: disabled for now	
 	global $wpdb;
 
 	// Generate a shortlink for the homepage, if it doesn't exist
