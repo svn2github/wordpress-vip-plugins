@@ -12,7 +12,7 @@ wpcom_vip_load_plugin( 'disable-comments-query' );
 function wpcom_vip_dsq_can_replace( $retval ) {
 	global $post;
 
-	if ( ! in_array( $post->post_status, array( 'publish', 'private' ) ) )
+	if ( ! in_array( $post->post_status, array( 'publish', 'private', 'inherit' ) ) )
 		return false;
 
 	return $retval;
