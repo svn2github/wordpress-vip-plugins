@@ -58,7 +58,7 @@ class Table_Of_Contents {
 		return $content;
 	}
 
-	private function add_ids_and_jumpto_links( $tag, $content ) {
+	function add_ids_and_jumpto_links( $tag, $content ) {
 		$items = self::get_tags( $tag, $content );
 		$first = true;
 
@@ -82,7 +82,7 @@ class Table_Of_Contents {
 		return $content;
 	}
 
-	private function get_tags( $tag, $content = '' ) {
+	function get_tags( $tag, $content = '' ) {
 		if ( empty( $content ) )
 			$content = get_the_content();
 		preg_match_all( "/(<{$tag}>)(.*)(<\/{$tag}>)/", $content, $matches, PREG_SET_ORDER );
