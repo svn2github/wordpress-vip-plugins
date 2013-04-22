@@ -56,16 +56,20 @@ class WPCOM_Geo_Uniques {
 
 	static function action_parse_request( $request ) {
 		// Don't do this on feed requests or robot.txt
-		if ( empty( $request->query_vars['feed'] ) && empty( $request->query_vars['robots'] ) ) {
-			if ( ! self::user_has_location() ) {
-				if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
-					// Determine which piece of geolocation data to salt the cache key with
-					$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
+		if ( ! empty( $request->query_vars['feed'] ) || ! empty( $request->query_vars['robots'] ) )
+			return;
 
-					self::geolocate_user( $location_type );
-				} else {
-					WPCOM_Geo_Uniques::geolocate_js();
-				}
+		if ( false === apply_filters( 'wpcom_geo_process_request', true, $request ) )
+			return;
+
+		if ( ! self::user_has_location() ) {
+			if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
+				// Determine which piece of geolocation data to salt the cache key with
+				$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
+
+				self::geolocate_user( $location_type );
+			} else {
+				WPCOM_Geo_Uniques::geolocate_js();
 			}
 		}
 
