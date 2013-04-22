@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Bit.ly
- * Version: 1.0
+ * Version: 1.1
  * Author: Micah Ernst
  * Description: Uses bit.ly API to get shortened url for a post on publish and saves url as meta data. Based on TIME.com's Bit.ly plugin.
  */
@@ -24,21 +24,26 @@ class Bitly {
 		add_post_type_support( 'post', 'bitly' );
 		add_post_type_support( 'page', 'bitly' );
 		
-		// only hook into the publish_post hook if api credentials have been specified
+		// only hook into the save_post hook if api credentials have been specified
 		if( isset( $this->options['api_login'] ) && isset( $this->options['api_key'] ) ) {
-		
-			add_action( 'publish_post', array( $this, 'publish_post' ), 50, 2 );
-			add_action( 'publish_future_post', array( $this, 'publish_post' ), 50, 2 );
+			add_action( 'save_post', array( $this, 'save_post' ), 50, 2 );
 		}
 	}
 	
 	/**
-	 * Checks the post's status and creates a bitly url if it's publishing for the first time
+	 * Respond to save_post hook and generate a Bitly url
+	 *
+	 * This happens on save_post rather than publish_post because other plugins
+	 * may have dependencies on the Bitly url before the post is published - for example,
+	 * Publicize generates the Publicize message on save (regardless of status) and 
+	 * relies on Bitly being generated to correctly create the message body
+	 *
+	 * Bitly link is only generated if it doesn't already exist
 	 *
 	 * @param int $post_id
 	 * @param object $post
 	 */
-	function publish_post( $post_id, $post ) {
+	function save_post( $post_id, $post ) {
 		
 		if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
@@ -47,12 +52,20 @@ class Bitly {
 		if( !post_type_supports( $post->post_type, 'bitly' ) )	
 			return;
 		
-		// only get short url when post is published	
-		if( $post->post_status != 'publish' )
-			return;
-		
 		// all good, lets make a url
 		$this->generate_bitly_url( $post_id );
+	}
+
+	/**
+	 * Checks the post's status and creates a bitly url if it's publishing for the first time
+	 *
+	 * @deprecated Deprecated since 1.1, in favor of save_post()
+	 * 
+	 * @param int $post_id
+	 * @param object $post
+	 */
+	function publish_post( $post_id, $post ) {
+		return $this->save_post( $post_id, $post );
 	}
 	
 	/**
