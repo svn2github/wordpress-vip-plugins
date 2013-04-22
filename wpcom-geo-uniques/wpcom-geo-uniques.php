@@ -43,7 +43,12 @@ class WPCOM_Geo_Uniques {
 
 		// Add default to list of supported countries
 		static::add_location( static::$default_location );
-		
+
+		// If the theme hasn't registered any locations, bail. 
+		$locations = self::get_registered_locations();
+		if ( count( $locations ) <= 1 )
+			return;
+
 		// Handle location detection on parse_request so we know the context of the request
 		// Do it as soon as possible!
 		add_action( 'parse_request', array( 'WPCOM_Geo_Uniques', 'action_parse_request' ) );
@@ -95,6 +100,10 @@ class WPCOM_Geo_Uniques {
 
 	static function add_location( $location ) {
 		static::$supported_locations = array_merge( static::$supported_locations, (array) $location );
+	}
+
+	static function get_registered_locations() {
+		return static::$supported_locations;
 	}
 
 	static function get_user_location() {
