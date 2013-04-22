@@ -150,6 +150,11 @@ class WPCOM_Geo_Uniques {
 	}
 
 	private static function get_geolocation_data() {
+
+		$location_full = apply_filters( 'wpcom_geo_pre_get_geolocation_data', false, $_SERVER['REMOTE_ADDR'] );
+		if ( false !== $location_full )
+			return $location_full;
+
 		$location_full = null;
 
 		if ( function_exists( 'ip2location' ) ) {
