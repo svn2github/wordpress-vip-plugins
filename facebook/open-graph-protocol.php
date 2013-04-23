@@ -315,10 +315,8 @@ class Facebook_Open_Graph_Protocol {
 			unset( $gallery_images );
 		} else if ( is_author() ) {
 			$author = get_queried_object();
-			if ( ! ( $author && isset( $author->ID ) ) )
-				break;
-
-			$author_id = $author->ID;
+			if ( $author && isset( $author->ID ) )
+				$author_id = $author->ID;
 
 			$meta_tags[ self::OGP_NS . 'type' ] = 'profile';
 			$meta_tags[ self::OGP_NS . 'title' ] = get_the_author_meta( 'display_name', $author_id );
