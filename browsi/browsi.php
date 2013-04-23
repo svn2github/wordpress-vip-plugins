@@ -1,6 +1,6 @@
 <?php
 /*
- Plugin Name: Browsi
+ Plugin Name: Brow.si
  Plugin URI: http://getbrowsi.com
  Description: Improving your mobile browsing experience!
  Author: MySiteApp Ltd.
