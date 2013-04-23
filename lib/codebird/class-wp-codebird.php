@@ -32,6 +32,20 @@ class WP_Codebird extends Codebird {
 	}
 
 	/**
+	 * Overload magic __call() to transparently intercept Exceptions
+	 *
+	 * Most exceptions encountered in production are API timeouts - this will 
+	 * transparently handle these Exceptions to prevent fatal errors
+	 */
+	public function __call( $function, $arguments ) {
+		try {
+			return parent::__call( $function, $arguments );
+		} catch ( Exception $e ) {
+			return array();
+		}
+	}
+
+	/**
 	 * Calls the API using Wordpress' HTTP API.
 	 *
 	 * @since 0.1.0
