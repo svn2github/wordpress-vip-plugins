@@ -185,7 +185,7 @@ class AngelList_Company {
 				continue;
 			if ( $person->role === 'founder' )
 				$founders[] = $person;
-			else if ( $person->role !== 'referrer' )
+			else if ( ! in_array( $person->role, array( 'referrer', 'attorney' ), true ) )
 				$everyone_else[] = $person;
 		}
 		unset( $people );
@@ -243,7 +243,7 @@ class AngelList_Company {
 		foreach ( $jobs as $job_data ) {
 			$job = new AngelList_Job( $job_data );
 			if ( isset( $job->title ) )
-				$jobs_html .= $job->render();
+				$jobs_html .= $job->render($this->schema_org, $this->anchor_extra);
 		}
 		if ( $jobs_html )
 			return '<div class="angellist-jobs"><span>' . esc_html( sprintf( __( '%s is hiring:', 'angellist' ), $this->name ) ) . '</span><ol>' . $jobs_html . '</ol>';

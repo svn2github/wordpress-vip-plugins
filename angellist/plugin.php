@@ -5,7 +5,7 @@ Plugin URI: https://github.com/niallkennedy/angellist
 Description: Associate a post with an AngelList startup.
 Author: Niall Kennedy
 Author URI: http://www.niallkennedy.com/
-Version: 1.2.1
+Version: 1.3.1
 */
 
 if ( ! class_exists( 'AngelList' ) ):
@@ -22,7 +22,7 @@ class AngelList {
 			// allows a user to associate a post with one or more AngelList companies
 			if ( ! class_exists( 'AngelList_Post_Meta_Box' ) )
 				require_once( $plugin_directory . '/edit.php' );
-			new AngelList_Post_Meta_Box();
+			AngelList_Post_Meta_Box::init();
 		} else {
 			// display AngelList content after a post in single post view
 			if ( ! class_exists( 'AngelList_Content' ) )

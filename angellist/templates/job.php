@@ -44,7 +44,7 @@ class AngelList_Job {
 		else
 			$html .= '>';
 		if ( isset( $this->url ) )
-			$html .= '<a href="' . $this->url . '"' .  $anchor_extra . '>' . esc_html( $this->title ) . '</a>';
+			$html .= '<a rel="nofollow" href="' . $this->url . '"' .  $anchor_extra . '>' . esc_html( $this->title ) . '</a>';
 		else
 			$html .= esc_html( $this->title );
 		$html .= '</li>';

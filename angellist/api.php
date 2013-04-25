@@ -108,7 +108,7 @@ class AngelList_API {
 		if ( ! AngelList_API::is_valid_company_id( $company_id ) )
 			return;
 
-		$json = AngelList_API::get_json_url( 'startup_roles?startup_id=' . $company_id );
+		$json = AngelList_API::get_json_url( 'startup_roles?v=1&startup_id=' . $company_id );
 		if ( ! empty( $json ) && isset( $json->startup_roles ) && ! empty( $json->startup_roles ) )
 			return $json->startup_roles;
 	}

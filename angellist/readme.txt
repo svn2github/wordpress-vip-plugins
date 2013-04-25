@@ -1,9 +1,9 @@
 === Plugin Name ===
 Contributors: niallkennedy
 Tags: angellist, startups
-Requires at least: 3.3
-Tested up to: 3.4
-Stable tag: 1.2.1
+Requires at least: 3.5
+Tested up to: 3.5.1
+Stable tag: 1.3.1
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -24,6 +24,16 @@ Includes [Schema.org markup](http://schema.org/) for rich company metadata and s
 1. Start a search from a new post or edit post page
 
 == Changelog ==
+
+= 1.3.1 =
+
+* only add AngelList content to content in the loop
+* minor style change for people display
+
+= 1.3 =
+* Use wp-ajax for company selector
+* New startup roles endpoint
+* Require WordPress 3.5
 
 = 1.2.1 =
 * Fix issue with photos.angel.co hostname not resolving since AWS East outage
@@ -46,6 +56,12 @@ Includes [Schema.org markup](http://schema.org/) for rich company metadata and s
 * Tag posts. Display company profiles.
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+Only add AngelList content to content in the loop. Improve line spacing for key people display.
+
+= 1.3 =
+WP Ajax autocomplete. New startup roles endpoint. WP 3.5 minimum.
 
 = 1.2.1 =
 
@@ -72,13 +88,9 @@ Initial release.
 
 Links to AngelList pages open in a new window by default through a `_blank` [browsing context](http://www.whatwg.org/specs/web-apps/current-work/multipage/browsers.html#valid-browsing-context-name-or-keyword). XHTML themes may dislike the `target` attributes on anchor elements. Tap into the `angellist_browsing_context` [filter](http://codex.wordpress.org/Function_Reference/add_filter "WordPress add_filter function") from your theme's `functions.php` file or one of your site's custom plugins to override this default context with another valid context name. Return an empty string (`''`) to remove the attribute.
 
-= Where are job listings for my favorite companies? =
-
-Job listings may be added in a future release.
-
 = I run a high-traffic site. I think I have been rate limited =
 
-The [AngelList API](http://angel.co/api) allows up to 1000 requests per hour bucketed by IP. A single company may consume two API requests (company data + people data) while generating the necessary markup, effectively limiting sites to 500 generated company profiles per hour.
+The [AngelList API](http://angel.co/api) allows up to 1000 requests per hour bucketed by IP. A single company may consume three API requests (company data + people data + jobs data) while generating the necessary markup, effectively limiting sites to 333 generated company profiles per hour.
 
 If you run into rate limiting issues you may consider bumping your transient cache times for each company. You may also [contact the AngelList API team](mailto:api@angel.co) to raise the limits for your server IP addresses.
 

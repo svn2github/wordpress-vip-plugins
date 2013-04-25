@@ -49,8 +49,8 @@ class AngelList_Content {
 		if ( empty( $this->company_ids ) )
 			return;
 
-		add_action( 'wp_head', array( &$this, 'enqueue_styles' ), 1 );
-		add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts' ) );
+		add_action( 'wp_head', array( 'AngelList_Content', 'enqueue_styles' ), 1 );
+		add_action( 'wp_enqueue_scripts', array( 'AngelList_Content', 'enqueue_scripts' ) );
 		add_filter( 'the_content', array( &$this, 'content' ), 12 );
 	}
 
@@ -60,8 +60,8 @@ class AngelList_Content {
 	 * @since 1.0
 	 * @uses wp_enqueue_style()
 	 */
-	public function enqueue_styles() {
-		wp_enqueue_style( 'angellist-companies', plugins_url( 'static/css/angellist-companies.css', __FILE__ ), array(), '1.2' );
+	public static function enqueue_styles() {
+		wp_enqueue_style( 'angellist-companies', plugins_url( 'static/css/angellist-companies.css', __FILE__ ), array(), '1.3.1' );
 	}
 
 	/**
@@ -70,9 +70,9 @@ class AngelList_Content {
 	 * @since 1.1
 	 * @uses wp_enqueue_script()
 	 */
-	public function enqueue_scripts() {
+	public static function enqueue_scripts() {
 		wp_enqueue_script( 'jquery' );
-		wp_enqueue_script( 'angellist', plugins_url( 'static/js/angellist' . ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG === true ? '.dev' : '' ) . '.js', __FILE__ ), array( 'jquery' ), '1.2', true );
+		wp_enqueue_script( 'angellist', plugins_url( 'static/js/angellist' . ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min' ) . '.js', __FILE__ ), array( 'jquery' ), '1.2', true );
 	}
 
 	/**
@@ -140,7 +140,7 @@ class AngelList_Content {
 	public function content( $content ) {
 		global $post;
 
-		if ( ! ( isset( $post ) && $content && isset( $this->company_ids ) && is_array( $this->company_ids ) ) )
+		if ( ! ( in_the_loop() && isset( $post ) && $content && isset( $this->company_ids ) && is_array( $this->company_ids ) ) )
 			return $content;
 
 		$post_id = absint( $post->ID );

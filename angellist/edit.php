@@ -26,11 +26,11 @@ class AngelList_Post_Meta_Box {
 	 *
 	 * @since 1.0
 	 */
-	public function __construct() {
-		add_action( 'wp_ajax_angellist-search', array( &$this, 'search' ) );
+	public static function init() {
+		add_action( 'wp_ajax_angellist-search', array( 'AngelList_Post_Meta_Box', 'search' ) );
 
 		foreach ( array( 'post.php', 'post-new.php' ) as $action ) {
-			add_action( 'load-' . $action, array( &$this, 'load' ) );
+			add_action( 'load-' . $action, array( 'AngelList_Post_Meta_Box', 'load' ) );
 		}
 	}
 
@@ -39,14 +39,14 @@ class AngelList_Post_Meta_Box {
 	 *
 	 * @since 1.0
 	 */
-	public function load() {
-		add_action( 'add_meta_boxes', array( &$this, 'add_meta_boxes' ) );
-		add_action( 'save_post', array( &$this, 'process_saved_data' ) );
-		add_action( 'updated_postmeta', array( &$this, 'clear_cache' ), 10, 4 );
+	public static function load() {
+		add_action( 'add_meta_boxes', array( 'AngelList_Post_Meta_Box', 'add_meta_boxes' ) );
+		add_action( 'save_post', array( 'AngelList_Post_Meta_Box', 'process_saved_data' ) );
+		add_action( 'updated_postmeta', array( 'AngelList_Post_Meta_Box', 'clear_cache' ), 10, 4 );
 		foreach ( array( 'post-new.php', 'post.php' ) as $page ) {
-			add_action( 'admin_print_scripts-' . $page, array( &$this, 'enqueue_scripts' ) );
-			add_action( 'admin_print_styles-' . $page, array( &$this, 'enqueue_styles') );
-			add_action( 'admin_head-' . $page, array( &$this, 'add_help_tab' ) );
+			add_action( 'admin_print_scripts-' . $page, array( 'AngelList_Post_Meta_Box', 'enqueue_scripts' ) );
+			add_action( 'admin_print_styles-' . $page, array( 'AngelList_Post_Meta_Box', 'enqueue_styles') );
+			add_action( 'admin_head-' . $page, array( 'AngelList_Post_Meta_Box', 'add_help_tab' ) );
 		}
 	}
 
@@ -56,8 +56,8 @@ class AngelList_Post_Meta_Box {
 	 * @since 1.0
 	 * @uses add_meta_box()
 	 */
-	public function add_meta_boxes() {
-		add_meta_box( AngelList_Post_Meta_Box::BASE_ID, __( 'AngelList companies', 'angellist' ), array( &$this, 'company_selector' ), 'post', 'side' );
+	public static function add_meta_boxes() {
+		add_meta_box( AngelList_Post_Meta_Box::BASE_ID, __( 'AngelList companies', 'angellist' ), array( 'AngelList_Post_Meta_Box', 'company_selector' ), 'post', 'side' );
 	}
 
 	/**
@@ -67,15 +67,10 @@ class AngelList_Post_Meta_Box {
 	 * @uses wp_enqueue_script()
 	 * @param string hook name. scope the enqueue to just the admin pages we care about
 	 */
-	public function enqueue_scripts() {
-		// if jQuery not present load from Google CDN
+	public static function enqueue_scripts() {
 		wp_enqueue_script( 'jquery' );
 
-		// vary minified or not minified based on SCRIPT_DEBUG
-		$js_filename = 'angellist-company-selector.js';
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG === true )
-			$js_filename = 'angellist-company-selector.dev.js';
-		wp_enqueue_script( AngelList_Post_Meta_Box::BASE_ID . '-js', plugins_url( 'static/js/' . $js_filename, __FILE__ ), array( 'jquery-ui-widget', 'jquery-ui-autocomplete', 'jquery-ui-sortable' ), '1.2', true );
+		wp_enqueue_script( AngelList_Post_Meta_Box::BASE_ID . '-js', plugins_url( 'static/js/angellist-company-selector' . ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min' ) . '.js', __FILE__ ), array( 'jquery-ui-widget', 'jquery-ui-autocomplete', 'jquery-ui-sortable' ), '1.3', true );
 	}
 
 	/**
@@ -84,8 +79,8 @@ class AngelList_Post_Meta_Box {
 	 * @since 1.0
 	 * @uses wp_enqueue_style()
 	 */
-	public function enqueue_styles() {
-		wp_enqueue_style( AngelList_Post_Meta_Box::BASE_ID . '-css', plugins_url( 'static/css/angellist-company-selector.css', __FILE__ ), array(), '1.2' );
+	public static function enqueue_styles() {
+		wp_enqueue_style( AngelList_Post_Meta_Box::BASE_ID . '-css', plugins_url( 'static/css/angellist-company-selector.css', __FILE__ ), array(), '1.3' );
 	}
 
 	/**
@@ -94,7 +89,7 @@ class AngelList_Post_Meta_Box {
 	 * @since 1.0
 	 * @uses wp_nonce_field()
 	 */
-	public function company_selector() {
+	public static function company_selector() {
 		global $post;
 
 		// verify request
@@ -165,7 +160,7 @@ class AngelList_Post_Meta_Box {
 	 * @since 1.0
 	 * @param int post_id post identifier
 	 */
-	public function process_saved_data( $post_id ) {
+	public static function process_saved_data( $post_id ) {
 		// do not process on autosave
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
@@ -209,7 +204,7 @@ class AngelList_Post_Meta_Box {
 		update_post_meta( $post_id, 'angellist-companies', $companies );
 
 		if ( ! empty( $companies ) )
-			$this->ping( $post_id, $companies );
+			self::ping( $post_id, $companies );
 	}
 
 	/**
@@ -221,19 +216,31 @@ class AngelList_Post_Meta_Box {
 	 * @param int $post_id post identifier
 	 * @param array $companies AngelList companies stored with the post
 	 */
-	private function ping( $post_id, array $companies ) {
+	public static function ping( $post_id, array $companies ) {
 		if ( ! is_int( $post_id ) || $post_id < 1 || empty( $companies ) )
 			return;
 
 		$post = get_post( $post_id );
-		if ( empty( $post->post_status ) )
+
+		// only notify for public post types
+		$post_type = get_post_type( $post );
+		if ( ! $post_type )
 			return;
+		$post_type_object = get_post_type_object( $post_type );
+		if ( ! ( $post_type_object && isset( $post_type_object->public ) && $post_type_object->public ) )
+			return;
+		unset( $post_type );
+		unset( $post_type_object );
 
 		// only notify for public posts
-		$post_status = get_post_status_object( $post->post_status );
-		if ( empty( $post_status ) || ! isset( $post_status->public ) || $post_status->public !== true )
+		$post_status = get_post_status( $post_id );
+		if ( ! $post_status )
+			return;
+		$post_status_object = get_post_status_object( $post_status );
+		if ( ! ( $post_status_object && isset( $post_status_object->public ) && $post_status_object->public !== true ) )
 			return;
 		unset( $post_status );
+		unset( $post_status_object );
 
 		// only notify AngelList once per post, even if list of companies has changed
 		$notify_once_meta_key = 'angellist-notified';
@@ -247,7 +254,7 @@ class AngelList_Post_Meta_Box {
 
 		// allow a publisher to short-circuit pings
 		// also ties into the blog_public, cutting off the ping request if robots blocked
-		$ping_url = 'http://angel.co/embed/post_published/';
+		$ping_url = 'https://angel.co/embed/post_published/';
 		if ( ! apply_filters( 'option_ping_sites', array( $ping_url ), $post_id ) )
 			return;
 
@@ -281,7 +288,7 @@ class AngelList_Post_Meta_Box {
 	 * @param string $meta_key the key of the updated field
 	 * @param string $meta_value the new value
 	 */
-	public function clear_cache( $meta_id, $post_id, $meta_key, $meta_value ) {
+	public static function clear_cache( $meta_id, $post_id, $meta_key, $meta_value ) {
 		if ( $meta_key !== 'angellist-companies' )
 			return;
 		$post_id = absint( $post_id );
@@ -303,7 +310,7 @@ class AngelList_Post_Meta_Box {
 	 *
 	 * @since 1.0
 	 */
-	public function add_help_tab() {
+	public static function add_help_tab() {
 		$screen = get_current_screen();
 
 		$hidden_post_boxes = maybe_unserialize( get_user_option( 'metaboxhidden_post' ) );
@@ -324,35 +331,36 @@ class AngelList_Post_Meta_Box {
 	 *
 	 * @since 1.0
 	 */
-	public function search() {
+	public static function search() {
 		// GET only
 		if ( array_key_exists( 'REQUEST_METHOD', $_SERVER ) && $_SERVER['REQUEST_METHOD'] !== 'GET' ) {
 			header( 'HTTP/1.1 405 Method Not Allowed', true, 405 );
 			header( 'Allow: GET', true );
-			exit();
+			if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
+				wp_die();
+			else
+				die;
 		}
 
 		// allow only logged-on users with the capability to see an edit post screen to access our API proxy
 		if ( ! current_user_can( 'edit_posts' ) )
-			$this->reject_message( new WP_Error( 403, __( 'Cheatin\' uh?' ) ) );
+			self::reject_message( new WP_Error( 403, __( 'Cheatin\' uh?' ) ) );
 
 		if ( ! array_key_exists( 'q', $_GET ) )
-			$this->reject_message( new WP_Error( 400, 'Search string needed. Use q query parameter.' ) );
+			self::reject_message( new WP_Error( 400, 'Search string needed. Use q query parameter.' ) );
 
-		$__search_term = trim( sanitize_text_field( $_GET['q'] ) );
-		if ( empty( $__search_term ) )
-			$this->reject_message( new WP_Error( 400, 'No search string provided.' ) );
+		$search_term = trim( sanitize_text_field( $_GET['q'] ) );
+		if ( empty( $search_term ) )
+			self::reject_message( new WP_Error( 400, 'No search string provided.' ) );
 
 		if ( ! class_exists( 'AngelList_Search' ) )
 			require_once( dirname(__FILE__) . '/search/class-angellist-search.php' );
 
-		$__companies = AngelList_Search::startups( $__search_term );
-		if ( is_wp_error( $__companies ) )
-			$this->reject_message( $__companies );
+		$companies = AngelList_Search::startups( $search_term );
+		if ( is_wp_error( $companies ) )
+			self::reject_message( $companies );
 		else
-			echo json_encode( $__companies );
-
-		die();
+			wp_send_json( $companies );
 	}
 
 	/**
@@ -361,9 +369,8 @@ class AngelList_Post_Meta_Box {
 	 * @since 1.0
 	 * @param WP_Error $error error code of HTTP status int. error message echoed in JSON
 	 */
-	public function reject_message( WP_Error $error ) {
+	public static function reject_message( WP_Error $error ) {
 		status_header( $error->get_error_code() );
-		echo json_encode( array( 'error' => $error->get_error_message() ) );
-		exit();
+		wp_send_json( array( 'error' => $error->get_error_message() ) );
 	}
 }

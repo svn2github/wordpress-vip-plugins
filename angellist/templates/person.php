@@ -16,19 +16,19 @@ class AngelList_Person {
 		if ( isset( $person_data->role ) )
 			$this->role = strtolower( trim( str_replace( '_', ' ', $person_data->role ) ) );
 
-		if ( isset( $person_data->user ) ) {
-			if ( isset( $person_data->user->name ) )
-				$this->name = trim( $person_data->user->name );
-			if ( isset( $person_data->user->angellist_url ) ) {
-				$url = esc_url( $person_data->user->angellist_url, array( 'http', 'https' ) );
+		if ( isset( $person_data->tagged ) ) {
+			if ( isset( $person_data->tagged->name ) )
+				$this->name = trim( $person_data->tagged->name );
+			if ( isset( $person_data->tagged->angellist_url ) ) {
+				$url = esc_url( $person_data->tagged->angellist_url, array( 'http', 'https' ) );
 				if ( $url )
 					$this->url = $url;
 				unset( $url );
 			}
-			if ( isset( $person_data->user->image ) ) {
+			if ( isset( $person_data->tagged->image ) ) {
 				if ( ! class_exists( 'AngelList_API' ) )
 					require_once( dirname( dirname( __FILE__ ) ) . '/api.php' );
-				$url = AngelList_API::filter_static_asset_url( $person_data->user->image );
+				$url = AngelList_API::filter_static_asset_url( $person_data->tagged->image );
 				if ( $url && $url !== AngelList_API::DEFAULT_IMAGE ) {
 					$image = new stdClass();
 					$image->url = $url;
@@ -57,10 +57,10 @@ class AngelList_Person {
 		$people_count = 0;
 		$people_by_followers = array();
 		foreach ( $people as $person ) {
-			if ( ! isset( $person->user ) )
+			if ( ! isset( $person->tagged ) )
 				continue;
-			else if ( isset( $person->user->follower_count ) && $person->user->follower_count > 0 )
-				$people_by_followers[ (string) $person->user->follower_count ][] = $person;
+			else if ( isset( $person->tagged->follower_count ) && $person->tagged->follower_count > 0 )
+				$people_by_followers[ (string) $person->tagged->follower_count ][] = $person;
 			else
 				$people_by_followers['0'][] = $person;
 		}
