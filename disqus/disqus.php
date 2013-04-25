@@ -501,7 +501,7 @@ jQuery(function($) {
 function dsq_wp_dashboard_setup() {
 	add_action('admin_head', 'dsq_dash_comment_counts');
 }
-add_action('wp_dashboard_setup', 'dsq_wp_dashboard_setup');
+//add_action('wp_dashboard_setup', 'dsq_wp_dashboard_setup'); // VIP: killed because the counts don't work since sync is disabled.
 
 function dsq_manage() {
 	include_once(dirname(__FILE__) . '/manage.php');
