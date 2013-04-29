@@ -236,7 +236,7 @@ class Publishthis_Admin {
 		$parent_slug = "edit.php?post_type={$publishthis->post_type}";
 
 		//Add top level menu page
-		add_menu_page( __ ( 'PublishThis', 'publishthis' ), __ ( 'PublishThis', 'publishthis' ), 'manage_options', $parent_slug, null, $publishthis->plugin_url () . '/assets/img/ico-16x16.png', 101 );
+		add_menu_page( __ ( 'PublishThis', 'publishthis' ), __ ( 'PublishThis', 'publishthis' ), 'manage_options', $parent_slug, null, $publishthis->plugin_url () . '/assets/img/ico-16x16.png' );
 
 		//Specify submenus
 		$this->_screens[] = add_submenu_page( $parent_slug, __ ( 'Settings', 'publishthis' ), __ ( 'Settings', 'publishthis' ), 'manage_options', $this->_settings_menu_slug, array ( $this, 'options_page' ) );
