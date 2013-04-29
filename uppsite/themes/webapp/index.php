@@ -72,5 +72,6 @@ H=k.removeEventListener,l=k.localStorage,c=k.applicationCache,B=JSON.parse,A=h.c
 </head>
 <body class="direction-<?php echo $direction; ?>">
 <div id="appLoadingIndicator"></div>
+<?php if (function_exists('browsi_footer')) { browsi_footer(); } ?>
 </body>
 </html>
