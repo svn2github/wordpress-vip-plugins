@@ -173,9 +173,14 @@ function wpcom_vip_get_post_pageviews( $post_id = null, $num_days = 1, $end_date
 function wpcom_vip_get_most_shared_posts( $limit = 5, $cache_duration = 3600 ) {
 	global $wpdb;
 
-	// Bail if not in the WordPress.com VIP environment
-	if ( ! defined( 'WPCOM_IS_VIP_ENV' ) || ! WPCOM_IS_VIP_ENV )
-		return false;
+	// If not in the WordPress.com VIP environment, return some randomized dummy data.
+	if ( false === WPCOM_IS_VIP_ENV ) {
+		$shares = array();
+		for( $i = $limit; $i > 0; $i-- ) {
+			$shares[] = (object) array( 'ID' => $i, 'total_shares' => ( $i * 1000 + rand( 0, 999 ) ) );
+		}
+		return $shares;
+	}
 
 	// Look for cached results
 	$cache_key = 'most_shared_posts_' . $wpdb->blogid . '_' . $limit . '_' . $cache_duration;
