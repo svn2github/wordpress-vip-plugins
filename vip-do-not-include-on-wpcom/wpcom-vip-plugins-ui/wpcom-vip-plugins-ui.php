@@ -181,13 +181,13 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'MediaPass Subscriptions',
 				'description' => 'Monetize your content with recurring subscriptions made easy.',
 			),
+			'postrelease-vip'        => array(
+				'name'        => 'Nativo',
+				'description' => 'Native Ads Made Easy.',
+			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
 				'description' => 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
-			),
-			'postrelease-vip'        => array(
-				'name'        => 'PostRelease',
-				'description' => 'Sponsored posts made easy to deploy and manage.',
 			),
 			'shoplocket'    => array(
 				'name'        => 'Shoplocket',
