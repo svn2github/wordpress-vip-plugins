@@ -183,7 +183,7 @@ class WPcom_VIP_Plugins_UI {
 			),
 			'postrelease-vip'        => array(
 				'name'        => 'Nativo',
-				'description' => 'Native Ads Made Easy.',
+				'description' => 'Unlock a premium revenue stream with native ads.',
 			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
