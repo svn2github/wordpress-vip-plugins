@@ -42,7 +42,7 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
 		return $arr;
 	} else {
 		$posts = array();
-		$words = array( 'dessert', 'wypas', 'soufflé', 'cotton', 'candy', 'caramels', 'tiramisu', 'muffin',  'wafer', 'toffee', 'gummi', 'lemon', 'drops', 'brownie', 'lollipop', 'bears', 'danish', 'chocolate', 'bar', 'topping', 'apple', 'pie', 'pastry', 'powder', 'pudding' );
+		$words = array( 'dessert', 'cotton', 'candy', 'caramels', 'tiramisu', 'muffin',  'wafer', 'toffee', 'gummi', 'lemon', 'drops', 'brownie', 'lollipop', 'bears', 'danish', 'chocolate', 'bar', 'topping', 'apple', 'pie', 'pastry', 'powder', 'pudding' );
 
 		for ( $i = 0; $i < $limit; $i++ ) {
 			shuffle( $words );
