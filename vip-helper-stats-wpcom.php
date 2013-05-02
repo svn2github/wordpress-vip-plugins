@@ -70,15 +70,19 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
  * @return array Result as array.
  */
 function wpcom_vip_get_stats_array( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 5, $summarize = NULL ) {
-	global $wpdb;
-	$cache_id = md5( 'array|' . $wpdb->blogid . '|' . $table . '|' . $end_date . '|' . $num_days . '|' . $and . '|' . $limit . '|' . $summarize );
-	$arr = wp_cache_get( $cache_id, 'vip_stats' );
-	if ( !$arr ) {
-		$stat_result = _wpcom_vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
-		$arr = wpcom_vip_stats_csv_print( $stat_result, $table, $limit, $summarize, true );
-		wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
+	if ( true === WPCOM_IS_VIP_ENV ) {
+		global $wpdb;
+		$cache_id = md5( 'array|' . $wpdb->blogid . '|' . $table . '|' . $end_date . '|' . $num_days . '|' . $and . '|' . $limit . '|' . $summarize );
+		$arr = wp_cache_get( $cache_id, 'vip_stats' );
+		if ( !$arr ) {
+			$stat_result = _wpcom_vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
+			$arr = wpcom_vip_stats_csv_print( $stat_result, $table, $limit, $summarize, true );
+			wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
+		}
+		return $arr;
+	} else {
+		return array(); // TODO: local fallback
 	}
-	return $arr;
 }
 
 /**
@@ -98,15 +102,19 @@ function wpcom_vip_get_stats_array( $table = 'views', $end_date = false, $num_da
  * @return string Result format is CSV with one row per line and column names in first row.
  */
 function wpcom_vip_get_stats_csv( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 5, $summarize = NULL ) {
-	global $wpdb;
-	$cache_id = md5( 'csv|' . $wpdb->blogid . '|' . $table . '|' . $end_date . '|' . $num_days . '|' . $and . '|' . $limit . '|' . $summarize );
-	$csv = wp_cache_get( $cache_id, 'vip_stats' );
-	if ( !$csv ) {
-		$stat_result = _wpcom_vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
-		$csv = wpcom_vip_stats_csv_print( $stat_result, $table, $limit, $summarize );
-		wp_cache_set( $cache_id, $csv, 'vip_stats', 600 );
+	if ( true === WPCOM_IS_VIP_ENV ) {
+		global $wpdb;
+		$cache_id = md5( 'csv|' . $wpdb->blogid . '|' . $table . '|' . $end_date . '|' . $num_days . '|' . $and . '|' . $limit . '|' . $summarize );
+		$csv = wp_cache_get( $cache_id, 'vip_stats' );
+		if ( !$csv ) {
+			$stat_result = _wpcom_vip_get_stats_result( $table, $end_date, $num_days, $and, $limit );
+			$csv = wpcom_vip_stats_csv_print( $stat_result, $table, $limit, $summarize );
+			wp_cache_set( $cache_id, $csv, 'vip_stats', 600 );
+		}
+		return $csv;
+	} else {
+		return array(); // TODO: local fallback
 	}
-	return $csv;
 }
 
 /**
