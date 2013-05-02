@@ -30,15 +30,31 @@
  * @return array Result as array.
  */
 function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = false ) {
-	global $wpdb;
-	$cache_id = md5( '2013-01-01-top|' . $wpdb->blogid . '|' . 'postviews' . '|' . $end_date . '|' . $num_days . '|' . $limit );
-	$arr = wp_cache_get( $cache_id, 'vip_stats' );
-	if ( !$arr ) {
-		$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', 200 );
-		$arr = wpcom_vip_stats_csv_print( $stat_result, 'postviews', $limit, true, true );
-		wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
+	if ( true === WPCOM_IS_VIP_ENV ) {
+		global $wpdb;
+		$cache_id = md5( '2013-01-01-top|' . $wpdb->blogid . '|' . 'postviews' . '|' . $end_date . '|' . $num_days . '|' . $limit );
+		$arr = wp_cache_get( $cache_id, 'vip_stats' );
+		if ( !$arr ) {
+			$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', 200 );
+			$arr = wpcom_vip_stats_csv_print( $stat_result, 'postviews', $limit, true, true );
+			wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
+		}
+		return $arr;
+	} else {
+		$posts = array();
+		$words = array( 'dessert', 'wypas', 'soufflé', 'cotton', 'candy', 'caramels', 'tiramisu', 'muffin',  'wafer', 'toffee', 'gummi', 'lemon', 'drops', 'brownie', 'lollipop', 'bears', 'danish', 'chocolate', 'bar', 'topping', 'apple', 'pie', 'pastry', 'powder', 'pudding' );
+
+		for ( $i = 0; $i < $limit; $i++ ) {
+			shuffle( $words );
+			$posts[] = array(
+				'post_id' => $i,
+				'post_title' => ucfirst( implode( ' ', array_slice( $words, 2, mt_rand( 2, 5 ) ) ) ),
+				'post_permalink' => add_query_arg( 'p', $i, home_url() ),
+				'views' => mt_rand( 0, 20000 ),
+			);
+		}
+		return $posts;
 	}
-	return $arr;
 }
 
 /**
