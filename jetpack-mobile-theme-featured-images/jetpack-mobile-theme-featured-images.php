@@ -33,7 +33,7 @@ function wpcom_tweakjp_maybe_add_filter() {
 
 	add_filter( 'the_title', 'wpcom_tweakjp_minileven_featuredimage' );
 }
-add_action( 'wp_head', 'tweakjp_maybe_add_filter' );
+add_action( 'wp_head', 'wpcom_tweakjp_maybe_add_filter' );
 
 /**
  * Maybe conditionally add the featured image to the title area of minileven
