@@ -652,7 +652,6 @@ class Frontend_Uploader {
 			case 'post_media':
 			break;
 			default:
-				$form_layout = "image";
 		}
 
 		ob_start();
@@ -782,7 +781,13 @@ class Frontend_Uploader {
 			),
 			'fu-invalid-post' => array(
 				'text' =>__( 'The content you are trying to post is invalid.', 'frontend-uploader' ),
-			)
+			),
+			'fu-error-media' => array(
+				'text' =>__( "Couldn't upload the file", 'frontend-uploader' ),
+			),
+			'fu-error-post' => array(
+				'text' =>__( "Couldn't create the post", 'frontend-uploader' ),
+			),
 		);
 
 		foreach ( $errors_arr as $error ) {
