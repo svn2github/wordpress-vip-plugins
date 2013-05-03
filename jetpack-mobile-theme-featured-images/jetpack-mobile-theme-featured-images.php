@@ -28,7 +28,7 @@ function wpcom_tweakjp_maybe_add_filter() {
 		return;
 
 	// Do we want to display the Featured images only on the home page?
-	if ( ! is_home() && get_option( 'jp_mini_featured_evwhere' ) )
+	if ( ! is_home() && ! get_option( 'jp_mini_featured_evwhere' ) )
 		return;
 
 	add_filter( 'the_title', 'wpcom_tweakjp_minileven_featuredimage' );
