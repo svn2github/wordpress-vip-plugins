@@ -23,9 +23,11 @@ add_action( 'admin_init', 'wpcom_jp_mini_featured_init' );
  */
 function wpcom_tweakjp_maybe_add_filter() {
 
-	// Do we want to display the Featured images only on the home page?
-	if ( jetpack_is_mobile() && ( is_home() || get_option( 'jp_mini_featured_evwhere' ) ) ) {
-		add_filter( 'the_title', 'wpcom_tweakjp_minileven_featuredimage' );
+	// Do we want to display the Featured images right now?
+	if ( function_exists( 'minileven_setup' ) && jetpack_is_mobile() ) {
+		if ( is_home() || get_option( 'jp_mini_featured_evwhere' ) ) {
+			add_filter( 'the_title', 'wpcom_tweakjp_minileven_featuredimage' );
+		}
 	}
 }
 add_action( 'template_redirect', 'wpcom_tweakjp_maybe_add_filter' );
