@@ -760,7 +760,7 @@ class Add_Meta_Tags {
 
 	function mt_seo_save_meta_field( $post_id, $field_name ) {
 		// Checks to see if we're POSTing
-		if ( 'post' !== strtolower( $_SERVER['REQUEST_METHOD'] ) || !isset($_POST[$field_name]) )
+		if ( !isset( $_SERVER['REQUEST_METHOD'] ) || 'post' !== strtolower( $_SERVER['REQUEST_METHOD'] ) || !isset($_POST[$field_name]) )
 			return;
 
 		// Bail if not a valid post type

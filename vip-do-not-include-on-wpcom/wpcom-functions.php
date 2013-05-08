@@ -90,7 +90,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		add_filter( 'the_title', 'widont' );
 	endif;
 
-	if ( ! function_exists( 'widont' ) ) :
+	if ( ! function_exists( 'wido' ) ) :
 		/**
 		 * Replace any non-breaking spaces in a string with a regular space.
 		 *
