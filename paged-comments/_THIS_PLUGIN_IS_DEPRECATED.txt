@@ -1,6 +1,0 @@
-
-This plugin is deprecated as the feature now exists natively in WordPress. Please do not use it.
-
-For details on how to implement paged commenting, see this article:
-
-http://codex.wordpress.org/Template_Tags/wp_list_comments
