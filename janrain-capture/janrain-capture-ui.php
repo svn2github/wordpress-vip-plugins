@@ -169,39 +169,34 @@ function janrainSignOut(){
 	// styles
 	janrain.settings.capture.stylesheets = ['{$settings["capture.stylesheets"]}'];
 	janrain.settings.capture.mobileStylesheets = ['{$settings["capture.mobileStylesheets"]}'];
+	janrain.settings.capture.recaptchaPublicKey = '6LeVKb4SAAAAAGv-hg5i6gtiOV4XrLuCDsJOnYoP';
+	
 WIDGETCAPTURE;
-	
-		if ( $settings['capture.recaptchaPublicKey'] != '' ) {
-		echo "
 		
-		// captcha
-		janrain.settings.capture.recaptchaPublicKey = '{$settings["capture.recaptchaPublicKey"]}'";
-		}
-	
 		if ( in_array( 'login', $settings['capture.packages'] ) ) { ?>
 	 
 	
-		// engage settings
-		janrain.settings.appUrl = '<?php echo $settings['appUrl'] ?>';
-		janrain.settings.tokenAction = 'event';
+// engage settings
+janrain.settings.appUrl = '<?php echo $settings['appUrl'] ?>';
+janrain.settings.tokenAction = 'event';
 		<?php }
 		
 		if ( $settings['capture.backplane'] ) { ?>
 		
-		 //backplane settings
-		 janrain.settings.capture.backplane = <?php echo $settings['capture.backplane'] ?>;
-		 janrain.settings.capture.backplaneBusName = '<?php echo $settings['capture.backplaneBusName'] ?>';
-		 janrain.settings.capture.backplaneVersion = <?php echo $settings['capture.backplaneVersion'] ?>;
+//backplane settings
+janrain.settings.capture.backplane = <?php echo $settings['capture.backplane'] ?>;
+janrain.settings.capture.backplaneBusName = '<?php echo $settings['capture.backplaneBusName'] ?>';
+janrain.settings.capture.backplaneVersion = <?php echo $settings['capture.backplaneVersion'] ?>;
 		<?php }
 		
 		if ( $settings['capture.federate'] ) { ?>
 		
 		
-		// federate settings
-		janrain.settings.capture.federate = <?php echo $settings['capture.federate'] ?>;
-		janrain.settings.capture.federateServer = '<?php echo $settings['capture.federateServer'] ?>';
-		janrain.settings.capture.federateXdReceiver = '<?php echo $settings['capture.federateXdReceiver'] ?>';
-		janrain.settings.capture.federateLogoutUri = '<?php echo $settings['capture.federateLogoutUri'] ?>';
+// federate settings
+janrain.settings.capture.federate = <?php echo $settings['capture.federate'] ?>;
+janrain.settings.capture.federateServer = '<?php echo $settings['capture.federateServer'] ?>';
+janrain.settings.capture.federateXdReceiver = '<?php echo plugin_dir_url( __FILE__ ) ?>/';
+janrain.settings.capture.federateLogoutUri = '<?php echo site_url(); ?>/wp-login.php?loggedout=true';
 		<?php }
 	
 		echo <<<WIDGETFINISH

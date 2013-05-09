@@ -6,7 +6,7 @@
 Plugin Name: Social User Registration and Profile Storage with Janrain Capture for Wordpress VIP
 Plugin URI: http://www.janrain.com/capture/
 Description: Collect, store and leverage user profile data from social networks in a flexible, lightweight hosted database.
-Version: 0.1.0
+Version: 0.5.0
 Author: Janrain
 Author URI: http://developers.janrain.com/extensions/wordpress-for-capture/
 License: Apache License, Version 2.0
@@ -40,6 +40,7 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 				add_shortcode( self::$name, array( &$this, 'shortcode' ) );
 				add_shortcode( 'janrain_share', array( &$this, 'shortcode_share' ) );
 			}
+			
 			require_once $this->path . 'janrain-capture-ui.php';
 			$this->ui = new JanrainCaptureUi();
 		}
@@ -49,14 +50,26 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 		 */
 		function redirect_uri() {
 			$url_type = isset( $_REQUEST['url_type'] ) ? $_REQUEST['url_type'] : false;
+		    
+			// allow only alpha-numeric (and dashes) to prevent hyjacking
+		    if ( ! ctype_alnum( str_replace( '-', '', $url_type ) ) ) {
+		    	header( 'HTTP/1.1 400 Bad Request' );
+		    	exit();
+		    }
+		    
+		    // just in case the url_type isn't specified in the
+		    	// capture setting: verify_email_url
 		    if ( isset( $_REQUEST['verification_code'] ) ) {
 		    	$url_type = 'verify';
 		    }
+		    
+		    // did we even specify a url_type?
 			if ( $url_type ) {
 				$this->widget_show_screen( $url_type );
-				die();
+				exit();
 			}
 		    
+			// check our redirect
 			$r = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( $_SERVER['HTTP_REFERER'] ) : home_url();
 			$r = wp_validate_redirect( $r, home_url() );
 			echo <<<REDIRECT
@@ -73,7 +86,7 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 	</body>
 </html>
 REDIRECT;
-			die();
+			exit();
 		}
 		
 	    /**
@@ -157,7 +170,7 @@ SCREEN2;
 	</body>
 </html>
 LOGOUT;
-			die();
+			exit();
 		}
 	
 		/**
