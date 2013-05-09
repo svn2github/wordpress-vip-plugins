@@ -278,10 +278,10 @@ class WPcom_VIP_Plugins_UI {
 		}
 		$this->hook_suffix = add_submenu_page( $this->parent_menu_slug, $page_title, $menu_label, $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 
-		add_action( 'admin_print_styles-' . $this->hook_suffix, array( $this, 'menu_page_css' ) );
+		add_action( 'admin_print_styles-' . $this->hook_suffix, array( 'WPcom_VIP_Plugins_UI', 'menu_page_css' ) );
 
 		// This is required because WPcom_VIP_Plugins_UI_List_Table() is defined inside of a function
-		add_filter( 'manage_' . $this->hook_suffix . '_columns', array( $this, 'community_plugins_menu_columns' ) );
+		add_filter( 'manage_' . $this->hook_suffix . '_columns', array( 'WPcom_VIP_Plugins_UI', 'community_plugins_menu_columns' ) );
 	}
 
 	/**
@@ -364,7 +364,7 @@ class WPcom_VIP_Plugins_UI {
 	 * @param array $columns An array of existing columns.
 	 * @return array Modified list of columns.
 	 */
-	public function community_plugins_menu_columns( $columns ) {
+	public static function community_plugins_menu_columns( $columns ) {
 		$columns['name']        = 'Community Plugins';
 		$columns['description'] = '';
 
@@ -374,7 +374,7 @@ class WPcom_VIP_Plugins_UI {
 	/**
 	 * Outputs some CSS used on the menu page.
 	 */
-	public function menu_page_css() {
+	public static function menu_page_css() {
 ?>
 <style type="text/css">
 	table.featuredplugins td {
