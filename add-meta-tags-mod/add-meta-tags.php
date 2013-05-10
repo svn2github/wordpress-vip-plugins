@@ -906,4 +906,4 @@ class Add_Meta_Tags {
 
 }
 
-new Add_Meta_Tags();
+$mt_add_meta_tags = new Add_Meta_Tags();
