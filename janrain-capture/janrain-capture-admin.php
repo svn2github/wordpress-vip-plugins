@@ -100,22 +100,6 @@ class JanrainCaptureAdmin {
 				'screen' => 'main',
 			),
 			array(
-				'name' => JanrainCapture::$name . '_so_xd',
-				'title' => 'Cross-Domain Reciever Page',
-				'description' => "Your Janrain Federate XD Reciever url <br/>(example: $site_url/xdcomm.html)",
-				'default' => '',
-				'type' => 'text',
-				'screen' => 'main',
-			),
-			array(
-				'name' => JanrainCapture::$name . '_sso_logout',
-				'title' => 'Federate Logout Page',
-				'description' => "Your Janrain Federate Logout url <br/>(example: $site_url/wp-login.php?loggedout=true)",
-				'default' => "$site_url/wp-login.php?loggedout=true",
-				'type' => 'text',
-				'screen' => 'main',
-			),
-			array(
 				'name' => JanrainCapture::$name . '_backplane_settings',
 				'title' => 'Backplane Settings',
 				'type' => 'title',
