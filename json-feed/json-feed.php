@@ -71,6 +71,7 @@ function json_feed_post_item() {
 		'type'               => get_post_type(), // WPCOM: post_type seems like a useful thing to have here
 		'permalink'          => get_permalink(),
 		'title'              => get_the_title(),
+		'author'			 => get_the_author(),
 		'content'            => do_shortcode( get_the_content() ), // WPCOM: process shortcodes (don't run the_content as it calls wpautop)
 		'excerpt'            => get_the_excerpt(),
 		'featured_image_url' => ( $featured_image_url ) ? $featured_image_url : '',
