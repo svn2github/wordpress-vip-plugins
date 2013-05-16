@@ -61,9 +61,10 @@ class WP_Codebird extends Codebird {
 	protected function _callApi( $httpmethod, $method, $method_template, $params = array(), $multipart = false, $app_only_auth = false ) {
 		$url 				= $this->_getEndpoint( $method, $method_template );
 		$url_with_params 	= null;
+		$authorization 		= null;
 
 		$remote_params = array(
-			'method' => 'GET',
+			'method' => $httpmethod,
 			'timeout' => 5,
 			'redirection' => 5,
 			'httpversion' => '1.0',
@@ -75,39 +76,22 @@ class WP_Codebird extends Codebird {
 		);
 
 		if ( 'GET' == $httpmethod ) {
+			$url_with_params = $url;
+			if ( count( $params ) > 0 ) {
+                $url_with_params .= '?' . http_build_query( $params );
+            }
+            
 			$authorization = $this->_sign( $httpmethod, $url, $params );
 
-			if ( count( $params ) > 0 ) {
-                $url_with_params = $url .= '?' . http_build_query( $params );
-            }
+			$url = $url_with_params;
 		} else {
-			if ( $multipart ) {
-				$authorization = $this->_sign( 'POST', $url, array(), true );
-				$post_fields   = $params;
-			} else {
-				$authorization 	= $this->_sign( 'POST', $url, $params );
-				$post_fields 	= $this->_sign( 'POST', $url, $params );
+			$authorization 	= $this->_sign( $httpmethod, $url, array() );
+
+			if ( ! $multipart ) {
+				$authorization 	= $this->_sign( $httpmethod, $url, $params );
 			}
 
-			$headers = array();
-			if ( isset( $authorization ) ) {
-				$headers = array( 
-					'Authorization' => str_replace( 'Authorization:', '', $authorization ), 
-					'Expect:' => null
-					);
-			}
-
-			$remote_params = array(
-				'method' => 'POST',
-				'timeout' => 5,
-				'redirection' => 5,
-				'httpversion' => '1.0',
-				'blocking' => true,
-				'headers' => $headers,
-				'body' => $post_fields,
-				'cookies' => array(),
-				'sslverify' => false
-			);
+			$remote_params['body'] = $params;
 		}
 
 		if ( $app_only_auth ){
@@ -118,13 +102,15 @@ class WP_Codebird extends Codebird {
 			if ( null == self::$_oauth_bearer_token )
 				$this->oauth2_token();
 
-			$bearer = 'Bearer ' . self::$_oauth_bearer_token;
+			$authorization = 'Authorization: Bearer ' . self::$_oauth_bearer_token;
+		}
 
-			$remote_params['headers']['authorization'] = $bearer;
-		} else {
-			// If this is a standard OAuth GET request, add on the authorization header
-			if ( 'GET' == $httpmethod )
-				$remote_params['headers']['Authorization'] = str_replace( 'Authorization:', '', $authorization );
+		// Codebird::_sign() adds Authorization: to $authorization, but the WP HTTP API needs it separate
+		$authorization = trim( str_replace( 'Authorization:', '', $authorization ) );
+
+		if ( $authorization ) {
+			$remote_params['headers']['Authorization'] 	= $authorization;
+			$remote_params['headers']['Expect'] 		= '';
 		}
 
 		if ( 'GET' == $httpmethod ) {
@@ -174,7 +160,7 @@ class WP_Codebird extends Codebird {
 
         $headers = array(
         	'Authorization' => 'Basic ' . base64_encode( self::$_oauth_consumer_key . ':' . self::$_oauth_consumer_secret ),
-        	'Expect:'
+        	'Expect'		=> ''
         );
 
         $remote_params = array(
