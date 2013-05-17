@@ -882,3 +882,10 @@ function wpcom_vip_wp_oembed_get( $url, $args = array() ) {
 
 	return $html;
 }
+
+/**
+ * Helper function to disable the WordPress.com wide Zemanta Tools for all users.
+ */
+function wpcom_vip_disable_zemanta_for_all_users() {
+	add_filter( 'zemanta_force_disable', '__return_true' );
+}
