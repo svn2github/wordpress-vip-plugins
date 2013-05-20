@@ -826,7 +826,7 @@ class Frontend_Uploader {
 		if ( $wplang ) {
 			$lang = explode( '_', $wplang );
 			$url = FU_URL . "lib/js/validate/localization/messages_{$lang[0]}.js";
-			wp_enqueue_script( 'jquery-validate-messages', $url, array( 'jquery' ) );
+			//wp_enqueue_script( 'jquery-validate-messages', $url, array( 'jquery' ) );
 		}
 
 	}
