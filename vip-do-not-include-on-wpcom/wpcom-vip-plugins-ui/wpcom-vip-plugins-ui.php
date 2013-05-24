@@ -152,6 +152,8 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-wpcom',
 			'daylife',
 			'five-min-video-suggest',
+			'stipple',
+			'brightcove',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
