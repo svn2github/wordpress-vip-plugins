@@ -160,9 +160,14 @@ class WPcom_VIP_Plugins_UI {
 			'livefyre', // use livefyre3 instead
 			'feedwordpress', // breaks all the time
 			'wordtwit-1.3-mod', // use publicize
+			'uppsite', // Retired from FPP but a couple VIPs still using it
 		);
 
 		$this->fpp_plugins = array(
+			'browsi'       => array(
+				'name'        => 'Brow.si',
+				'description' => 'Drive more engagement and better monetization on mobile web with Brow.si on your site.',
+			),
 			'chartbeat'     => array(
 				'name'        => 'Chartbeat',
 				'description' => 'Get a free trial to see your site\'s real-time data.',
@@ -202,10 +207,6 @@ class WPcom_VIP_Plugins_UI {
 			'storify'    => array(
 				'name'        => 'Storify',
 				'description' => 'Easily add social media to every blog post with Storify.',
-			),
-			'uppsite'       => array(
-				'name'        => 'UppSite',
-				'description' => 'Create fully automated mobile applications in 2 minutes for free.',
 			),
 			'zemanta'       => array(
 				'name'        => 'Zemanta',
