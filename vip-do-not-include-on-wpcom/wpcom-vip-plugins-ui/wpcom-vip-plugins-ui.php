@@ -192,6 +192,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Nativo',
 				'description' => 'Unlock a premium revenue stream with native ads.',
 			),
+			'publishthis'        => array(
+				'name'        => 'PublishThis',
+				'description' => 'The leading content marketing management platform for enterprise businesses.',
+			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
 				'description' => 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
