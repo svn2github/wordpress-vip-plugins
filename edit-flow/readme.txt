@@ -103,6 +103,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Calendar and story budget module descriptions link to their respective pages in the admin for usability. Props [rgalindo05](https://github.com/rgalindo05)
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
 * Bug fix: User group selection no longer appears in network admin.
+* Bug fix: Permalink slugs are now editable after initial save
 
 = 0.7.6 (Jan. 30, 2013) =
 * Bug fix for 3.4.2 compatibility.
