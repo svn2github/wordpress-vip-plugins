@@ -78,6 +78,31 @@ function wpcom_vip_get_page_by_title( $title, $output = OBJECT, $post_type = 'pa
 }
 
 /**
+ * Cached version of get_page_by_path so that we're not making unnecessary SQL all the time
+ *
+ * @param string $page_path Page path
+ * @param string $output Optional. Output type; OBJECT*, ARRAY_N, or ARRAY_A.
+ * @param string $post_type Optional. Post type; default is 'page'.
+ * @return WP_Post|null WP_Post on success or null on failure
+ * @link http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
+ */
+function wpcom_vip_get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
+	$cache_key = $post_type . '_' . sanitize_key( $page_path );
+	$page_id = wp_cache_get( $cache_key, 'get_page_by_path' );
+
+	if ( $page_id === false ) {
+		$page = get_page_by_path( $page_path, $output, $post_type );
+		$page_id = $page ? $page->ID : 0;
+		wp_cache_set( $cache_key, $page_id, 'get_page_by_path' ); // We only store the ID to keep our footprint small
+	}
+
+	if ( $page_id )
+		return get_page( $page_id, $output );
+
+	return null;
+}
+
+/**
  * Flush the cache for published pages so we don't end up with stale data
  *
  * @param string $new_status The post's new status
