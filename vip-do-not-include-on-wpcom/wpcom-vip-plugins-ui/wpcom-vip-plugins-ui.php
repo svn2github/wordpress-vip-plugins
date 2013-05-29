@@ -194,7 +194,7 @@ class WPcom_VIP_Plugins_UI {
 			),
 			'publishthis'        => array(
 				'name'        => 'PublishThis',
-				'description' => 'The leading content marketing management platform for enterprise businesses.',
+				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
 			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
