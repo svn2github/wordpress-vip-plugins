@@ -327,7 +327,7 @@ class SocialFlow_Plugin {
 		        return;
 		}
 
-		update_post_meta( $post_id, 'sf_text', $this->sanitize_message( $_POST['socialflow']['text'] ) );
+		$this->save_message( $post_id, $this->sanitize_message( $_POST['socialflow']['text'] ) );
 	}
 
 	function transition_post_status( $new_status, $old_status, $post ) {
@@ -384,6 +384,10 @@ class SocialFlow_Plugin {
 
 	public function sanitize_message( $message = '' ) {
 		return sanitize_text_field( $message );
+	}
+
+	public function save_message( $post_id, $message = '' ) {
+		return update_post_meta( $post_id, 'sf_text', $message );
 	}
 
 	public function send_message( $message = '', $message_option = 'publish now', $account_id, $shorten_links = 0 ) {
