@@ -334,6 +334,10 @@ class SocialFlow_Plugin {
 		if ( 'publish' != $new_status || 'publish' == $old_status || ! post_type_supports( $post->post_type, 'socialflow' ) )
 		 	return;
 
+		// If post is immediately published, save_post() will not have run yet, so we need to update the message here
+		if ( isset( $_POST['socialflow'] ) && isset( $_POST['socialflow']['text'] ) )
+			$this->save_message( $post->ID, $this->sanitize_message( $_POST['socialflow']['text'] ) );
+
 		$message = isset( $_GET['sf_text'] ) ? sanitize_text_field( $_GET['sf_text'] ) : get_post_meta( $post->ID, 'sf_text', true );
 		$message .= ' ' . get_permalink( $post->ID );
 
