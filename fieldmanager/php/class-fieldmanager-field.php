@@ -178,12 +178,6 @@ abstract class Fieldmanager_Field {
 	public $content_types = array();
 
 	/**
-	 * @var Fieldmanager_Datasource
-	 * Optionally generate field from datasource. Used by Fieldmanager_Autocomplete and Fieldmanager_Options.
-	 */
-	public $datasource = Null;
-
-	/**
 	 * @var array[]
 	 * Field name and value on which to display element. Sample:
 	 * $element->display_if = array(
@@ -198,24 +192,6 @@ abstract class Fieldmanager_Field {
 	 * For submenu pages, set autoload to true or false
 	 */
 	public $wp_option_autoload = False;
-
-	/**
-	 * @var boolean
-	 * If true, remove any default meta boxes that are overridden by Fieldmanager fields
-	 */
-	public $remove_default_meta_boxes = False;
-
-	/**
-	 * @var string Template
-	 * The path to the field template
-	 */
-	public $template = Null;
-
-	/**
-	 * @var array
-	 * If $remove_default_meta_boxes is true, this array will be populated with the list of default meta boxes to remove
-	 */
-	protected $meta_boxes_to_remove = array();
 
 	/**
 	 * @var int
@@ -251,12 +227,6 @@ abstract class Fieldmanager_Field {
 	 * Internal arguments buffer for add_submenu_page()
 	 */
 	private $submenu_page_args = array();
-
-	/**
-	 * @var boolean
-	 * Whether or not this field is present on the attachment edit screen
-	 */
-	private $is_attachment = false;
 
 	/**
 	 * @var int Global Sequence
@@ -560,10 +530,9 @@ abstract class Fieldmanager_Field {
 
 	/**
 	 * Get the ID for the form element itself, uses $this->seq (e.g. which position is this element in).
-	 * Relying on the element's ID for anything isn't a great idea since it can be rewritten in JS.
 	 * @return string ID for use in a form element.
 	 */
-	public function get_element_id() {
+	public function get_element_id( ) {
 		$el = $this;
 		$id_slugs = array();
 		while ( $el ) {
@@ -575,22 +544,6 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
-	 * Add a form on user pages
-	 * @param string $title
-	 */
-	public function add_user_form( $title = '' ) {
-		return new Fieldmanager_Context_User( $title, $this );
-	}
-
-	/**
-	 * Add a form on a frontend page
-	 * @param string $uniqid a unique identifier for this form
-	 */
-	public function add_page_form( $uniqid ) {
-		return new Fieldmanager_Context_Page( $uniqid, $this );
-	}
-
-	/**
 	 * Add this field as a metabox to a content type
 	 * @param string $title
 	 * @param string|string[] $post_type
@@ -598,7 +551,6 @@ abstract class Fieldmanager_Field {
 	 * @param string $priority
 	 */
 	public function add_meta_box( $title, $post_types, $context = 'normal', $priority = 'default' ) {
-		// Populate the list of post types for which to add this meta box with the given settings
 		if ( !is_array( $post_types ) ) $post_types = array( $post_types );
 		foreach ( $post_types as $type ) {
 			$this->content_types[] = array(
@@ -608,16 +560,7 @@ abstract class Fieldmanager_Field {
 				'context' => $context,
 				'priority' => $priority,
 			);
-
-			// If the content type is 'attachment', set the is_attachment flag to enable the proper save action
-			if ( $type == 'attachment' )
-				$this->is_attachment = true;
 		}
-
-		// Check if any default meta boxes need to be removed for this field
-		$this->add_meta_boxes_to_remove( $this->meta_boxes_to_remove );
-
-		// Register the actions required to handle adding/removing meta boxes
 		$this->register_meta_box_actions();
 	}
 
@@ -724,20 +667,6 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
-	 * Helper to remove all built-in meta boxes for all specified taxonomies on a post type
-	 * @param $post_type the post type
-	 * @param $taxonomies the taxonomies for which to remove default meta boxes
-	 * @return void.
-	 */
-	public function remove_meta_boxes() {
-		foreach( $this->content_types as $type ) {
-			foreach( $this->meta_boxes_to_remove as $meta_box ) {
-				remove_meta_box( $meta_box['id'], $type['content_type'], $meta_box['context'] );
-			}
-		}
-	}
-
-	/**
 	 * Takes $_POST data and saves it to, calling save_to_post_meta() once validation is passed
 	 * When using Fieldmanager as an API, do not call this function directly, call save_to_post_meta()
 	 * @param int $post_id
@@ -774,21 +703,6 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
-	 * Handles saving Fieldmanager data when the custom meta boxes are used on an attachment.
-	 * Calls save_fields_for_post with the post ID.
-	 * @param array $post The post fields
-	 * @param array $attachment The attachment fields
-	 * @return void
-	 */
-	public function save_fields_for_attachment( $post, $attachment ) {
-		// Use save_fields_for_post to handle saving any Fieldmanager meta data
-		$this->save_fields_for_post( $post['ID'] );
-
-		// Return the post data for the attachment unmodified
-		return $post;
-	}
-
-	/**
 	 * Helper to save an array of data to post meta
 	 * @param int $post_id
 	 * @param array $data
@@ -816,7 +730,9 @@ abstract class Fieldmanager_Field {
 		if ( $this->limit == 1 ) {
 			$values = $this->presave_alter_values( array( $values ), array( $current_values ) );
 			$value = $this->presave( $values[0], $current_values );
-			if ( !empty( $this->index ) ) $this->save_index( array( $value ), array( $current_values ) );
+			if ( $this->save_empty || !empty( $value ) ) {
+				if ( !empty( $this->index ) ) $this->save_index( array( $value ), array( $current_values ) );
+			}
 			return $value;
 		}
 
@@ -852,8 +768,6 @@ abstract class Fieldmanager_Field {
 
 	/**
 	 * Optionally save fields to a separate postmeta index for easy lookup with WP_Query
-	 * Handles internal arrays (e.g. for fieldmanager-options).
-	 * Is called multiple times for multi-fields (e.g. limit => 0)
 	 * @param array $values
 	 * @return void
 	 */
@@ -862,20 +776,14 @@ abstract class Fieldmanager_Field {
 		// Must delete current values specifically, then add new ones, to support a scenario where the
 		// same field in repeating groups with limit = 1 is going to create more than one entry here, and
 		// if we called update_post_meta() we would overwrite the index with each new group.
-		foreach ( $current_values as $old_value ) {
-			if ( !is_array( $old_value ) ) $old_value = array( $old_value );
-			foreach ( $old_value as $value ) {
-				if ( empty( $value ) ) $value = 0; // false or null should be saved as 0 to prevent duplicates
-				delete_post_meta( $this->data_id, $this->index, $value );
-			}
+		foreach ( $current_values as $v ) {
+			if ( empty( $v ) ) $v = 0; // false or null should be saved as 0 to prevent duplicates
+			delete_post_meta( $this->data_id, $this->index, $v );
 		}
 		// add new values
-		foreach ( $values as $new_value ) {
-			if ( !is_array( $new_value ) ) $new_value = array( $new_value );
-			foreach ( $new_value as $value ) {
-				if ( empty( $value ) ) $value = 0; // false or null should be saved as 0 to prevent duplicates
-				add_post_meta( $this->data_id, $this->index, $value );
-			}
+		foreach ( $values as $v ) {
+			if ( empty( $v ) ) $v = 0; // false or null should be saved as 0 to prevent duplicates
+			add_post_meta( $this->data_id, $this->index, $v );
 		}
 	}
 
@@ -1018,7 +926,7 @@ abstract class Fieldmanager_Field {
 	 * @param string $debug_message
 	 * @return void e.g. return _you_ into a void.
 	 */
-	public function _unauthorized_access( $debug_message = '' ) {
+	protected function _unauthorized_access( $debug_message = '' ) {
 		if ( self::$debug ) {
 			throw new FM_Exception( $debug_message );
 		}
@@ -1062,26 +970,10 @@ abstract class Fieldmanager_Field {
 	 * Register meta box actions
 	 */
 	private function register_meta_box_actions() {
-		if ( ! empty( $this->content_types ) && ! $this->meta_box_actions_added ) {
+		if ( !empty( $this->content_types ) && !$this->meta_box_actions_added ) {
 			add_action( 'admin_init', array( $this, 'meta_box_render_callback' ) );
 			add_action( 'save_post', array( $this, 'save_fields_for_post' ) );
-
-			// If this meta box is on an attachment page, add the appropriate filter hook to save the data
-			if ( $this->is_attachment ) {
-				add_filter( 'attachment_fields_to_save', array( $this, 'save_fields_for_attachment' ), 10, 2 );
-			}
-
-			// Check if any meta boxes need to be removed
-			if ( ! empty( $this->meta_boxes_to_remove ) ) {
-				add_action( 'admin_init', array( $this, 'remove_meta_boxes' ) );
-			}
+			$this->meta_box_actions_added = True;
 		}
 	}
-
-	/**
-	 * Helper function to add to the list of meta boxes to remove. This will be defined in child classes that require this functionality.
-	 * @param array current list of meta boxes to remove
-	 * @return void
-	 */
-	protected function add_meta_boxes_to_remove( &$meta_boxes_to_remove ) {}
 }

@@ -15,28 +15,21 @@ Author URI: http://www.alleyinteractive.com/
 
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-field.php' );
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-group.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-textfield.php' );
-
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-autocomplete.php' );
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-checkbox.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-datepicker.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-draggablepost.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-hidden.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-grid.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-textfield.php' );
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-link.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-media.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-options.php' );
-require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-richtextarea.php' );
 require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-textarea.php' );
-
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-richtextarea.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-grid.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-hidden.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-options.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-media.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-draggablepost.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-autocomplete.php' );
+require_once( dirname( __FILE__ ) . '/php/class-fieldmanager-datepicker.php' );
 require_once( dirname( __FILE__ ) . '/php/datasource/class-fieldmanager-datasource.php' );
 require_once( dirname( __FILE__ ) . '/php/datasource/class-fieldmanager-datasource-post.php' );
 require_once( dirname( __FILE__ ) . '/php/datasource/class-fieldmanager-datasource-term.php' );
-require_once( dirname( __FILE__ ) . '/php/datasource/class-fieldmanager-datasource-user.php' );
-
-require_once( dirname( __FILE__ ) . '/php/context/class-fieldmanager-context.php' );
-require_once( dirname( __FILE__ ) . '/php/context/class-fieldmanager-context-user.php' );
-require_once( dirname( __FILE__ ) . '/php/context/class-fieldmanager-context-page.php' );
 
 define( 'FM_GLOBAL_ASSET_VERSION', 1 );
 
@@ -150,15 +143,6 @@ function fm_get_post_meta( $post_id, $var, $single = True ) {
  */
 function fm_is_post_edit_screen() {
 	return stripos( $_SERVER['PHP_SELF'], '/post.php' ) !== FALSE || stripos( $_SERVER['PHP_SELF'], '/post-new.php' ) !== FALSE;
-}
-
-/**
- * Sanitize multi-line text
- * @param string $value unsanitized text
- * @return string text with each line individually passed through sanitize_text_field.
- */
-function fm_sanitize_textarea( $value ) {
-	return implode( "\n", array_map( 'sanitize_text_field', explode( "\n", $value ) ) );
 }
 
 /**
