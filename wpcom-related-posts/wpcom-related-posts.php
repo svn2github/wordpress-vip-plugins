@@ -260,6 +260,7 @@ class WPCOM_Related_Posts {
 			$query = implode( ' ', array_unique( $keywords ) );
 			$es_args = array(
 					'more_like_this'          => array(
+							'fields'          => array( 'title', 'content' ),
 							'like_text'       => $query,
 							'min_term_freq'   => 1,
 							'max_query_terms' => 12,
