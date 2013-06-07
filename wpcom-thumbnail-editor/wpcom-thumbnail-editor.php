@@ -3,7 +3,7 @@
 **************************************************************************
 
 Plugin Name:  WordPress.com Thumbnail Editor
-Description:  Since thumbnails are generated on-demand on WondPress.com, thumbnail cropping location must be set via the URL. This plugin assists in doing this. Based on concepts by Imran Nathani of <a href="http://metronews.ca/">Metro News Canada</a>.
+Description:  Since thumbnails are generated on-demand on WordPress.com, thumbnail cropping location must be set via the URL. This plugin assists in doing this. Based on concepts by Imran Nathani of <a href="http://metronews.ca/">Metro News Canada</a>.
 Author:       Automattic
 Author URI:   http://vip.wordpress.com/
 
@@ -56,6 +56,8 @@ class WPcom_Thumbnail_Editor {
 			// Display status messages
 			if ( ! empty( $_GET['wtereset'] ) || ! empty( $_GET['wteupdated'] ) )
 				add_action( 'admin_notices', array( &$this, 'output_thumbnail_message' ) );
+
+			add_action( 'admin_notices', array( &$this, 'jetpack_photon_url_message' ) );
 		}
 
 		// using a global for now, maybe these values could be set in constructor in future?
@@ -91,6 +93,18 @@ class WPcom_Thumbnail_Editor {
 			add_settings_error( 'wpcom_thumbnail_edit', 'updated', __( 'Thumbnail position updated.', 'wpcom-thumbnail-editor' ), 'updated' );
 		else
 			return;
+
+		settings_errors( 'wpcom_thumbnail_edit' );
+	}
+
+	/**
+	 * Display a message if JetPack isn't enabled (specifically, jetpack_photon_url is not defined.)
+	 */
+	function jetpack_photon_url_message() {
+		if( function_exists( 'jetpack_photon_url' ) )
+			return;
+
+		echo '<div class="error"><p>' . __( 'Jetpack is not enabled, which will disable some features of the WordPress.com Thumbnail Editor module. Please enable JetPack to make this module fully functional.', 'wpcom-thumbnail-editor' ) . '</p></div>';
 
 		settings_errors( 'wpcom_thumbnail_edit' );
 	}
@@ -161,7 +175,10 @@ class WPcom_Thumbnail_Editor {
 				$thumbnail = image_downsize( $attachment->ID, $size );
 
 				// Resize the thumbnail to fit into a small box so it's displayed at a reasonable size
-				$thumbnail_url = jetpack_photon_url( $thumbnail[0], array( 'fit' => array( 250, 250 ) ) );
+				if( function_exists( 'jetpack_photon_url' ) )
+					$thumbnail_url = jetpack_photon_url( $thumbnail[0], array( 'fit' => array( 250, 250 ) ) );
+				else
+					$thumbnail_url = $thumbnail[0];
 
 				$html .= '<div style="float:left;margin:0 20px 20px 0;min-width:250px;">';
 					$html .= '<a href="' . esc_url( $edit_url ) . '"';
@@ -671,21 +688,24 @@ class WPcom_Thumbnail_Editor {
 
 		list( $selection_x1, $selection_y1, $selection_x2, $selection_y2 ) = $coordinates;
 
-		$url = jetpack_photon_url(
-			wp_get_attachment_url( $attachment_id ),
-			array(
-				'crop' => array( 
-					$selection_x1 . 'px',
-					$selection_y1 . 'px',
-					( $selection_x2 - $selection_x1 ) . 'px',
-					( $selection_y2 - $selection_y1 ) . 'px',
-				),
-				'resize' => array(
-					$thumbnail_size['width'],
-					$thumbnail_size['height'],
-				),
-			)
-		);
+		if( function_exists( 'jetpack_photon_url' ) )
+			$url = jetpack_photon_url(
+				wp_get_attachment_url( $attachment_id ),
+				array(
+					'crop' => array( 
+						$selection_x1 . 'px',
+						$selection_y1 . 'px',
+						( $selection_x2 - $selection_x1 ) . 'px',
+						( $selection_y2 - $selection_y1 ) . 'px',
+					),
+					'resize' => array(
+						$thumbnail_size['width'],
+						$thumbnail_size['height'],
+					),
+				)
+			);
+		else
+			$url = wp_get_attachment_url( $attachment_id );
 
 		return array( $url, $thumbnail_size['width'], $thumbnail_size['height'], true );
 	}
