@@ -3,7 +3,7 @@
 Plugin Name: Scroll Kit
 Plugin URI: http://scrollkit.com
 Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
-Version: 0.1
+Version: 0.102
 Author: Scroll Kit
 Author URI: http://scrollkit.com
 License: GPL2
@@ -31,6 +31,7 @@ class ScrollKit {
 		add_filter( 'template_redirect'    , array( $this, 'filter_template_redirect' ) );
 		add_filter( 'admin_footer'         , array( $this, 'filter_admin_footer') );
 		add_filter( 'plugin_action_links'  , array( $this, 'filter_plugin_action_links' ), 10, 2 );
+		add_filter( 'admin_notices'        , array( $this, 'warning' ) );
 
 		register_uninstall_hook( __FILE__  , array( 'Scroll', 'hook_delete_plugin_options' ) );
 	}
@@ -130,12 +131,22 @@ class ScrollKit {
 		if ( $file == plugin_basename( __FILE__ ) ) {
 			$settings_link = '<a href="' . menu_page_url( 'scroll-kit', false ) . '">' . __('Settings') . '</a>';
 
+
 			// make the 'Settings' link appear first
 			array_unshift( $links, $settings_link );
 		}
 
 		return $links;
 	}
+
+	function warning() {
+		$options = get_option( 'scroll_wp_options', self::option_defaults() );
+
+		if ( empty( $options['scrollkit_api_key'] ) ) {
+			echo '<div class="error"><p><strong>Scroll Kit is not active.</strong> You must <a href="' . menu_page_url( 'scroll-kit', false ) . '">add an API key</a> before it can work.</p></div>';
+		}
+	} // end warning()
+
 
 	/**
 	 * Delete options table entries when plugin deactivated AND deleted
@@ -210,6 +221,11 @@ class ScrollKit {
 			case 'delete':
 				$this->delete_post( $post_id );
 				break;
+
+			// manual update in case use is on a non-public facing server
+			case 'manualupdate':
+				$this->update_scroll_post( $post_id );
+				break;
 		}
 
 		wp_safe_redirect( get_edit_post_link( $post_id, '' ) );
@@ -232,6 +248,8 @@ class ScrollKit {
 		} else {
 			$this->log_error_and_die('Invalid api key', 401);
 		}
+
+		exit;
 	}
 
 	/**
@@ -443,7 +461,7 @@ class ScrollKit {
 			case 422:
 				// api key is incorrect, redirect the user to this plugin's setting page
 				// where there's a message indicating an api key issue
-				$destination = add_query_arg('api-key-error', 'true', menu_page_url( 'scroll-kit', false ) );
+				$destination = add_query_arg('api-key-error', 'true', esc_url( admin_url( 'admin.php?page=scroll-kit' . $menu_slug ) ) );
 
 				wp_safe_redirect( $destination );
 				exit;

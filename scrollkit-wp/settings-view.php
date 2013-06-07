@@ -13,7 +13,7 @@
 	<?php if ( $api_key_error && !$settings_updated): ?>
 		<div class="error">
 			<p>
-				There was an error with your API key. <a href="<?php echo SCROLL_WP_SK_URL ?>/api/wp" target="_blank">Get yours here</a>
+				There was an error with your API key. <a href="<?php echo esc_url( SCROLL_WP_SK_URL ); ?>/api/wp" target="_blank">Get yours here</a>
 			</p>
 		</div>
 	<?php endif ?>
@@ -30,28 +30,39 @@
 				<td>
 					<input type="text" size="57" name="scroll_wp_options[scrollkit_api_key]" value="<?php echo esc_attr($options['scrollkit_api_key']); ?>" autocomplete="off" />
 					<br>
-				  <a href="https://www.scrollkit.com/api/wp" target="_blank">Get an api key</a>
+					<a href="<?php echo esc_url( SCROLL_WP_SK_URL ); ?>/api/wp" target="_blank">Get an api key</a>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					HTML Header
-					<br>
-					<button id="scroll-header-default" type="button">Set to Default</button>
+					<p>
+						HTML Header
+					</p>
+					<em>
+						Add your own HTML tags to this section and they will be printed
+						above the Scroll Kit content on each page. Note that these must
+						be tags <a href="http://en.support.wordpress.com/code/#html-tags" target="_blank">allowed by wordpress</a>.
+					</em>
 				</td>
 				<td>
 					<textarea rows="10" cols="100"
 						id="header-input"
-						name="scroll_wp_options[template_header]"><?php
+						name="scroll_wp_options[template_header]"
+						placeholder='<div class="header"><img src="http://example.com/logo.png" /></div>'><?php
 						echo esc_textarea( stripslashes( $options['template_header'] ) );
 					?></textarea>
 				</td>
 			</tr>
 			<tr>
 				<td>
-					HTML Footer
-					<br>
-					<button id="scroll-footer-default" type="button">Set to Default</button>
+					<p>
+						HTML Footer
+					</p>
+					<em>
+						Add your own HTML tags to this section and they will be printed
+						below the Scroll Kit content on each page. Note that these must
+						be tags <a href="http://en.support.wordpress.com/code/#html-tags" target="_blank">allowed by wordpress</a>.
+					</em>
 				</td>
 				<td>
 					<textarea rows="10" cols="100"
@@ -63,14 +74,19 @@
 			</tr>
 			<tr>
 				<td>
-					Template Style
-					<br>
-					<button id="scroll-style-default" type="button">Set to Default</button>
+					<p>
+						CSS Rules
+					</p>
+					<em>
+						Add CSS to style the header and footer content on
+						Scroll Kit pages.
+					</em>
 				</td>
 				<td>
 					<textarea rows="10" cols="100"
 						id="style-input"
-						name="scroll_wp_options[template_style]"><?php
+						name="scroll_wp_options[template_style]"
+						placeholder=".header { position: fixed; top: 0; }"><?php
 						echo esc_textarea( stripslashes($options['template_style'] ) )
 					?></textarea>
 				</td>
@@ -81,27 +97,3 @@
 		</p>
 	</form>
 </div>
-
-<script>
-	<?php $defaults = ScrollKit::option_defaults() ?>
-	(function(){
-		jQuery('#scroll-header-default').on('click', function(){
-			jQuery("#header-input").val(
-				<?php echo json_encode( $defaults['template_header'] ) ?>
-			);
-		});
-
-		jQuery('#scroll-footer-default').on('click', function(){
-			jQuery("#footer-input").val(
-				<?php echo json_encode( $defaults['template_footer'] ) ?>
-			);
-		});
-
-		jQuery('#scroll-style-default').on('click', function(){
-			jQuery("#style-input").val(
-				<?php echo json_encode( $defaults['template_style'] ) ?>
-			);
-		});
-
-	})();
-</script>
