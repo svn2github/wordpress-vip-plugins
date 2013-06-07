@@ -128,7 +128,7 @@ function ptwsh_setup_content_filters() {
 	}
 	add_filter( 'the_content', 'ptwsh_insert_exclusions', $rawhtml_priority );
 }
-add_action( 'plugins_loaded', 'ptwsh_setup_content_filters' );
+add_action( 'after_setup_theme', 'ptwsh_setup_content_filters' );
 
 /*
  * WordPress can also mangle code when initializing the post/page editor. To
