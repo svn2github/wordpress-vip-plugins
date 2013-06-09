@@ -322,3 +322,75 @@ function wpcom_vip_theme_dir( $theme = '' ) {
 
 	return sprintf( '%s/themes/vip/%s', WP_CONTENT_DIR, $theme );
 }
+
+
+/**
+ * VIPs and other themes can declare the permastruct, tag and category bases in their themes.
+ * This is done by filtering the option.
+ *
+ * To ensure we're using the freshest values, and that the option value is available earlier
+ * than when the theme is loaded, we need to get each option, save it again, and then
+ * reinitialize wp_rewrite.
+ *
+ * On WordPress.com this happens auto-magically when theme updates are deployed
+ */
+function wpcom_vip_local_development_refresh_wp_rewrite() {
+	// No-op on WordPress.com
+	if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV )
+		return;
+
+	global $wp_rewrite;
+
+	// Permastructs available in the options table and their core defaults
+	$permastructs = array(
+			'permalink_structure',
+			'category_base',
+			'tag_base',
+		);
+
+	$needs_flushing = false;
+
+	foreach( $permastructs as $option_key ) {
+		$filter = 'pre_option_' . $option_key;
+		$callback = '_wpcom_vip_filter_' . $option_key;
+
+		$option_value = get_option( $option_key );
+		$filtered = has_filter( $filter, $callback );
+		if ( $filtered ) {
+			remove_filter( $filter, $callback, 99 );
+			$raw_option_value = get_option( $option_key );
+			add_filter( $filter, $callback, 99 );
+
+			// Are we overriding this value in the theme?
+			if ( $option_value != $raw_option_value ) {
+				$needs_flushing = true;
+				update_option( $option_key, $option_value );
+			}
+		}
+
+	}
+
+	// If the options are different from the theme let's fix it.
+	if ( $needs_flushing ) {
+		// Reconstruct WP_Rewrite and make sure we persist any custom endpoints, etc.
+		$old_values = array();
+		$custom_rules = array(
+				'extra_rules',
+				'non_wp_rules',
+				'endpoints',
+			);
+		foreach( $custom_rules as $key ) {
+			$old_values[$key] = $wp_rewrite->$key;
+		}
+		$wp_rewrite->init();
+		foreach( $custom_rules as $key ) {
+			$wp_rewrite->$key = array_merge( $old_values[$key], $wp_rewrite->$key );
+		}
+	
+		flush_rewrite_rules( false );
+	}
+}
+if ( defined( 'WPCOM_IS_VIP_ENV' ) && ! WPCOM_IS_VIP_ENV ) {
+	add_action('after_setup_theme', 'wpcom_vip_local_development_refresh_wp_rewrite' );
+}
+
