@@ -1,8 +1,5 @@
 <?php
 
-// Stub to prevent breakages in case others are extending this class
-class WP_RSS_Client extends Syndication_WP_RSS_Client {}
-
 // XML Client only for a select few for now
 add_filter( 'syn_transports', function( $transports ) {
 	if ( false === WPCOM_IS_VIP_ENV )
