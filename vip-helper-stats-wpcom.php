@@ -165,19 +165,23 @@ function wpcom_vip_get_post_pageviews( $post_id = null, $num_days = 1, $end_date
 	// At least 1 but no more than 90
 	$num_days = max( 1, min( 90, intval( $num_days ) ) );
 
-	$cache_key = 'views_' . $wpdb->blogid . '_' . $post_id . '_' . $num_days . '_' . $end_date;
+	if ( true === WPCOM_IS_VIP_ENV ) {
+		$cache_key = 'views_' . $wpdb->blogid . '_' . $post_id . '_' . $num_days . '_' . $end_date;
 
-	$views = wp_cache_get( $cache_key, 'vip_stats' );
+		$views = wp_cache_get( $cache_key, 'vip_stats' );
 
-	if ( false === $views ) {
-		$views = 0;
+		if ( false === $views ) {
+			$views = 0;
 
-		$data = stats_get_daily_history( false, $wpdb->blogid, 'postviews', 'post_id', $end_date, $num_days, $wpdb->prepare( "AND post_id = %d", $post_id ), 1, true );
+			$data = stats_get_daily_history( false, $wpdb->blogid, 'postviews', 'post_id', $end_date, $num_days, $wpdb->prepare( "AND post_id = %d", $post_id ), 1, true );
 
-		if ( is_array( $data ) )
-			$views = (int) array_pop( array_pop( $data ) );
+			if ( is_array( $data ) )
+				$views = (int) array_pop( array_pop( $data ) );
 
-		wp_cache_set( $cache_key, $views, 'vip_stats', 3600 );
+			wp_cache_set( $cache_key, $views, 'vip_stats', 3600 );
+		}
+	} else {
+		$views = mt_rand( 0, 20000 ); 
 	}
 
 	return $views;
