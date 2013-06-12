@@ -829,3 +829,14 @@ function wpcom_vip_disable_zemanta_for_all_users() {
 	add_filter( 'zemanta_force_disable', '__return_true' );
 }
 
+/**
+ *  * Checks if the current site_url() matches from a specified list.
+ *   *
+ *    * @param array|string $site_urls List of site URL hosts to check against
+ *     */
+function wpcom_vip_check_site_url( $site_urls ) {
+	if ( ! is_array( $site_urls ) )
+	    	$site_urls = array( $site_urls );
+		 
+	return in_array( parse_url( site_url(), PHP_URL_HOST ), $site_urls );
+}
