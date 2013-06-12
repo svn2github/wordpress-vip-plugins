@@ -551,89 +551,28 @@ function wpcom_vip_get_meta_desc() {
 
 
 /**
- * Get random posts; an alternate approach for dealing with large tables.
+ * Get random posts; a simple, more efficient approach..
  *
  * MySQL queries that use ORDER BY RAND() can be pretty challenging and slow on large datasets.
- * This function is an alternative method for getting random posts, though it's still very very inefficent.
- * You probably don't want to use this function.
+ * This function is an alternative method for getting random posts, though it's not as good but at least it won't destroy your site :).
  *
- * Override the $vip_get_random_post_ids_where_add global to add your own WHERE condition:
- * $vip_get_random_post_ids_where_add = "AND post_status='publish' AND post_type='post' AND post_date_gmt > '2009-01-01 00:00:00';
- * 
- * You'll want to enable caching and avoid querying all posts by adding the following action:
- * add_action( 'save_post', 'vip_refresh_random_posts_all_ids', 1 ); // add this to functions.php
- *
- * @author tottdev
- * @param int $amount Optional. Amount of random posts to get. Default 1.
+ * @param int $number Optional. Amount of random posts to get. Default 1.
  * @param bool $return_ids Optional. To just get the IDs, set this to true, otherwise post objects are returned (the default).
  * @return array
  */
-function vip_get_random_posts( $amount = 1, $return_ids = false ) {
-	global $wpdb, $vip_get_random_posts_rnd_ids, $vip_get_random_posts_current_rnd_ids, $vip_get_random_post_ids_where_add;
+function vip_get_random_posts( $number = 1, $return_ids = false ) {
+	$query = new WP_Query( array( 'posts_per_page' => 100, 'fields' => 'ids' ) );
 
-	if ( empty( $vip_get_random_post_ids_where_add ) )
-		$where_add = "AND post_status='publish' AND post_type='post'";
-	else
-		$where_add = $vip_get_random_post_ids_where_add;
-
-	$random_posts = array();
-
-	if ( !has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) || !$all_ids = wp_cache_get( 'vip_random_posts_ids_' . md5( $where_add ), 'vip_get_random_posts_all_ids' ) ) {
-		$all_ids = vip_refresh_random_posts_all_ids();
-	}
-
-	if ( empty( $all_ids ) || is_wp_error( $all_ids ) )
-		return false;
-
-	$seed = hexdec( substr( md5( microtime() ), -8 ) ) & 0x7fffffff;
-	mt_srand( $seed );
-
-	$min_id = 0;
-	$max_id = count( $all_ids );
-	$vip_get_random_posts_rnd_ids = array();
-	$cycles = 0;
-	$max_cycles = 5 * count( $all_ids );
-	do {
-		$cycles++;
-		$random_id = mt_rand( $min_id, $max_id );
-		if ( isset( $vip_get_random_posts_rnd_ids[$random_id] ) )
-			continue;
-
-		$vip_get_random_posts_rnd_ids[$random_id] = $all_ids[$random_id]->ID;
-	} while( count( $vip_get_random_posts_rnd_ids ) < $amount && $cycles <= $max_cycles );
+	$post_ids = $query->posts;
+	shuffle( $post_ids );
+	$post_ids = array_splice( $post_ids, 0, $number );
 
 	if ( $return_ids )
-		return (array) $vip_get_random_posts_rnd_ids;
+		return $post_ids;
 
-	$random_posts = get_posts( array( 'post__in' => $vip_get_random_posts_rnd_ids, 'numberposts' => count( $vip_get_random_posts_rnd_ids ) ) );
-	$random_posts = apply_filters( 'vip_get_random_posts_random_posts', $random_posts );
+	$random_posts = get_posts( array( 'post__in' => $post_ids, 'numberposts' => count( $post_ids ) ) );
+
 	return $random_posts;
-}
-
-/**
- * Helper function for vip_get_random_posts()
- *
- * You probably don't want to use this function.
- *
- * @see vip_get_random_posts()
- */
-function vip_refresh_random_posts_all_ids() {
-	global $wpdb, $vip_get_random_post_ids_where_add;
-	if ( empty( $vip_get_random_post_ids_where_add ) )
-		$where_add = "AND post_status='publish' AND post_type='post'";
-	else
-		$where_add = $vip_get_random_post_ids_where_add;
-
-	$all_ids_query = "SELECT ID FROM $wpdb->posts WHERE 1 $where_add";
-	$all_ids_query = apply_filters( 'vip_get_random_posts_all_ids_query', $all_ids_query );
-	$all_ids = $wpdb->get_results( $all_ids_query );
-	if ( empty( $all_ids ) || is_wp_error( $all_ids ) )
-		return false;
-
-	if ( has_action( 'save_post', 'vip_refresh_random_posts_all_ids' ) )
-		wp_cache_set( 'vip_random_posts_ids_' . md5( $where_add ), $all_ids, 'vip_get_random_posts_all_ids' );
-
-	return $all_ids;
 }
 
 /**
@@ -889,3 +828,4 @@ function wpcom_vip_wp_oembed_get( $url, $args = array() ) {
 function wpcom_vip_disable_zemanta_for_all_users() {
 	add_filter( 'zemanta_force_disable', '__return_true' );
 }
+
