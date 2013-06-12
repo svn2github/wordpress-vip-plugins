@@ -830,10 +830,11 @@ function wpcom_vip_disable_zemanta_for_all_users() {
 }
 
 /**
- *  * Checks if the current site_url() matches from a specified list.
- *   *
- *    * @param array|string $site_urls List of site URL hosts to check against
- *     */
+ * Checks if the current site_url() matches from a specified list.
+ * 
+ * @param array|string $site_urls List of site URL hosts to check against
+ * @return bool If current site_url() matches one in the list
+ */
 function wpcom_vip_check_site_url( $site_urls ) {
 	if ( ! is_array( $site_urls ) )
 	    	$site_urls = array( $site_urls );
