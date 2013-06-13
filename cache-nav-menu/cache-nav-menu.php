@@ -37,10 +37,7 @@ function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 		$echo = false;
 	}
 
-	$skip_cache = false;
-	$use_cache = ( true === $prime_cache ) ? false : true;
-
-	if ( true === $skip_cache || true === $prime_cache || false === ( $nav_menu = wp_cache_get( $nav_menu_key, 'cache-nav-menu' ) ) ) {
+	if ( true === $prime_cache || false === ( $nav_menu = wp_cache_get( $nav_menu_key, 'cache-nav-menu' ) ) ) {
 		if ( false === $echo ) {
 			$nav_menu = wp_nav_menu( $args );
 		} else {
