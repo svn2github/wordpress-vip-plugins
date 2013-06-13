@@ -58,12 +58,6 @@ function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 		return $nav_menu;
 }
 
-
-add_action( 'wp_update_nav_menu', 'wpcom_vip_update_nav_menu_objects' );
-function wpcom_vip_update_nav_menu_objects( $menu_id = null, $menu_data = null ) {
-	wpcom_vip_cached_nav_menu( array( 'echo' => false ), $prime_cache = true );
-}
-
 function wpcom_vip_get_nav_menu_cache_objects( $use_cache = true ) {
 	$cache_key = 'wpcom_vip_nav_menu_cache_object_ids';
 	$object_ids = wp_cache_get( $cache_key, 'cache-nav-menu' );
