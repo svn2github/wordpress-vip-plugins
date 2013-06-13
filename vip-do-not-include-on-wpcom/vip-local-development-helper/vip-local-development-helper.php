@@ -391,6 +391,6 @@ function wpcom_vip_local_development_refresh_wp_rewrite() {
 	}
 }
 if ( defined( 'WPCOM_IS_VIP_ENV' ) && ! WPCOM_IS_VIP_ENV ) {
-	add_action('after_setup_theme', 'wpcom_vip_local_development_refresh_wp_rewrite' );
+	add_action( 'init', 'wpcom_vip_local_development_refresh_wp_rewrite', 9999 );
 }
 
