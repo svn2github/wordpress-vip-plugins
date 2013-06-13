@@ -96,7 +96,7 @@ function _wpcom_vip_filter_tag_base( $tag_base ) {
 }
 endif;
 
-if ( ! function_exists( 'wpcom_vip_set_cdn_url' ) ):
+if ( ! function_exists( 'wpcom_vip_load_custom_cdn' ) ):
 /**
  * Use a custom CDN host for displaying theme images and media library content.
  * 
