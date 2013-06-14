@@ -162,6 +162,10 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 		$row = array(); // Temporary row-building container
 
 		foreach ( WPcom_VIP_Plugins_UI()->fpp_plugins as $slug => $plugin ) {
+
+			if ( ! WPcom_VIP_Plugins_UI()->is_plugin_active( $slug ) && in_array( $slug, WPcom_VIP_Plugins_UI()->hidden_plugins ) )
+				continue;
+
 			$counter++;
 
 			$row[] = $slug;
