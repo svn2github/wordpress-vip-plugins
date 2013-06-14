@@ -176,7 +176,7 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Facebook',
 				'description' => 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
 			),
-			'janrain'       => array(
+			'janrain-capture' => array(
 				'name'        => 'Janrain',
 				'description' => 'User Registration and Social Integration for WordPress.com VIP.',
 			),
