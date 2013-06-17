@@ -214,7 +214,7 @@ class WPcom_VIP_Plugins_UI {
 			),
 			'zemanta'       => array(
 				'name'        => 'Zemanta',
-				'description' => 'Semantic content recommendations for publishers.',
+				'description' => 'Make more traffic. Zemanta is SEO & Related Content done the right way.',
 			),
 		);
 	}
