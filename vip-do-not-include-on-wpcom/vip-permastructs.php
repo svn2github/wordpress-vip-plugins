@@ -102,44 +102,125 @@ if ( ! function_exists( 'wpcom_vip_load_custom_cdn' ) ):
  * 
  * Please get in touch before using this as it can break your site.
  *
- * @param string $cdn_host_media Hostname of the CDN for media library assets.
- * @param string $cdn_host_static Optional. Hostname of the CDN for static assets.
- * @param bool $include_admin Optional. Whether the custom CDN host should be used in the admin context as well.
+ * @param array $args Array of args
+ * 		string|array cdn_host_media => Hostname of the CDN for media library assets.
+ * 		string|array cdn_host_static => Optional. Hostname of the CDN for static assets.
+ * 		bool include_admin => Optional. Whether the custom CDN host should be used in the admin context as well.
  */
-function wpcom_vip_load_custom_cdn( $cdn_host_media, $cdn_host_static = '', $include_admin = false ) {
+function wpcom_vip_load_custom_cdn( $args ) {
 	if ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED )
 		return;
 
-	if ( ! WPCOM_IS_VIP_ENV )
+	if ( false === WPCOM_IS_VIP_ENV )
 		return;
 
-	if ( ! $include_admin && is_admin() )
+	$args = wp_parse_args( $args, array(
+		'cdn_host_media' => '',
+		'cdn_host_static' => '',
+		'include_admin' => false,
+	) );
+
+	if ( ! $args['include_admin'] && is_admin() )
 		return;
+
+	$cdn_host_static = _wpcom_vip_cdn_clean_hosts( $args['cdn_host_static'] );
+	$cdn_host_media = _wpcom_vip_cdn_clean_hosts( $args['cdn_host_media'] );
 
 	if ( ! empty( $cdn_host_static ) ) {
-		$cdn_host_static = parse_url( esc_url_raw( $cdn_host_static ), PHP_URL_HOST );
-
-		add_filter( 'wpcom_staticize_subdomain_host', function( $host ) use ( $cdn_host_static ) {
-			return $cdn_host_static;
-		}, 999 );
+		_wpcom_vip_cdn_load_static( $args['cdn_host_static'] );
 	}
 
 	if ( ! empty( $cdn_host_media ) ) {
-		$cdn_host_media = parse_url( esc_url_raw( $cdn_host_media ), PHP_URL_HOST );
-
-		add_filter( 'wp_get_attachment_url', function( $url, $attachment_id ) use ( $cdn_host_media ) {
-			return _wpcom_vip_custom_cdn_replace( $url, $cdn_host_media );
-		}, 999, 2 );
-
-		add_filter( 'the_content', function( $content ) use ( $cdn_host_media ) {
-			if ( false !== strpos( $content, 'files.wordpress.com' ) ) {
-				$content = preg_replace_callback( '#(https?://[\w]+.files.wordpress.com[^\'">]+)#', function( $matches ) use ( $cdn_host_media ) {
-					return _wpcom_vip_custom_cdn_replace( $matches[1], $cdn_host_media );
-				}, $content );
-			}
-			return $content;
-		}, 999 );
+		_wpcom_vip_cdn_load_media( $args['cdn_host_media'] );
 	}
+
+}
+
+/**
+ * Sanitizes a set of hosts
+ *
+ * Private function; do not call directly.
+ *
+ * @internal
+ */
+function _wpcom_vip_cdn_clean_hosts( $hosts ) {
+	if ( ! is_array( $hosts ) )
+		$hosts = array( $hosts );
+
+	$hosts = array_map( function( $host ) {
+		return parse_url( esc_url_raw( $host ), PHP_URL_HOST );
+	}, $hosts );
+
+	$hosts = array_filter( $hosts );
+
+	return $hosts;
+}
+
+/**
+ * Pick a random host from a group
+ *
+ * Private function; do not call directly.
+ *
+ * @internal
+ *
+ * @param array $hosts
+ * @param string $url
+ */
+function _wpcom_vip_cdn_pick_random_host( $hosts, $url ) {
+	$array_length = count( $hosts );
+
+	if ( 1 === $array_length )
+		return array_pop( $hosts );
+
+	// Borrowed from WP.com
+	// Makes the random number more closely tied to the current URL.
+	// This gives us a more consistent pick between pagelods.
+	// It's slightly less efficient at the PHP-level, but we get a higher CDN hit rate.
+	srand( crc32( basename( $url ) ) );
+	$index = rand( 0, ( $array_length - 1 ) );
+	srand();
+
+	return $hosts[ $index ];
+}
+
+/**
+ * Static CDN
+ *
+ * Private function; do not call directly.
+ * 
+ * @internal
+ */
+function _wpcom_vip_cdn_load_static( $cdn_host_static ) {
+	$cdn_host_static = _wpcom_vip_cdn_clean_hosts( $cdn_host_static );
+
+	add_filter( 'wpcom_staticize_subdomain_host', function( $host, $url ) use ( $cdn_host_static ) {
+		return _wpcom_vip_cdn_pick_random_host( $cdn_host_static, $url );
+	}, 999, 2 );
+}
+
+/**
+ * Media CDN
+ *
+ * Private function; do not call directly.
+ * 
+ * @internal
+ */
+function _wpcom_vip_cdn_load_media( $cdn_host_media ) {
+
+	add_filter( 'wp_get_attachment_url', function( $url, $attachment_id ) use ( $cdn_host_media ) {
+		$host = _wpcom_vip_cdn_pick_random_host( $cdn_host_media, $url );
+		return _wpcom_vip_custom_cdn_replace( $url, $host );
+	}, 999, 2 );
+
+	add_filter( 'the_content', function( $content ) use ( $cdn_host_media ) {
+		if ( false !== strpos( $content, 'files.wordpress.com' ) ) {
+			$content = preg_replace_callback( '#(https?://[\w]+.files.wordpress.com[^\'">]+)#', function( $matches ) use ( $cdn_host_media ) {
+				$host = _wpcom_vip_cdn_pick_random_host( $cdn_host_media, $url );
+				return _wpcom_vip_custom_cdn_replace( $matches[1], $host );
+			}, $content );
+		}
+		return $content;
+	}, 999 );
 }
 
 /**
