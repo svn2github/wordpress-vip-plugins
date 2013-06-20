@@ -127,11 +127,11 @@ function wpcom_vip_load_custom_cdn( $args ) {
 	$cdn_host_media = _wpcom_vip_cdn_clean_hosts( $args['cdn_host_media'] );
 
 	if ( ! empty( $cdn_host_static ) ) {
-		_wpcom_vip_cdn_load_static( $args['cdn_host_static'] );
+		_wpcom_vip_cdn_load_static( $cdn_host_static );
 	}
 
 	if ( ! empty( $cdn_host_media ) ) {
-		_wpcom_vip_cdn_load_media( $args['cdn_host_media'] );
+		_wpcom_vip_cdn_load_media( $cdn_host_media );
 	}
 
 }
