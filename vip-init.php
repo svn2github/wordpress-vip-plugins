@@ -22,3 +22,5 @@ if ( false === WPCOM_IS_VIP_ENV ) {
 
 // Load the "works everywhere" helper file
 wpcom_vip_load_helper(); // vip-helper.php
+
+do_action( 'vip_loaded' );
