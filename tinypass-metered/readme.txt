@@ -1,6 +1,6 @@
 === Tinypass:Metered ===
 Contributors: wordpress@tinypass.com
-Tags: tinypass, premium content, paywall, paid content, content monetization, monetization, micropayments, access control, sell content, sell access, subscriptions, earn money, make money, paypal, visa, payment options, master card, sell digital goods, pay-per-item, monetize, sell, billing, subscription, paid content, transaction, pay, pay-per-view, premium, money, payment, subscribe
+Tags: tinypass, premium content, paywall, paid content, content monetization, monetization, micropayments, access control, sell content, sell access, subscriptions, earn money, make money, paypal, visa, payment options, master card, sell digital goods, pay-per-item, monetize, sell, billing, subscription, paid content, transaction, pay, pay-per-view, premium, money, payment, subscribe, payments
 Requires at least: 3.1.0
 Tested up to: 3.4.2
 Stable tag: 1.0.9
@@ -24,7 +24,7 @@ For more on Tinypass, visit [tinypass.com](http://www.tinypass.com "Tinypass - A
 
 **For a complete set of instructions for working with the Tinypass plugin for WordPress, please visit [our developer site](http://developer.tinypass.com/main/wordpress "Tinypass developer site")**
 
-Features: Access Control, Paywall, Pay Per Article, Pay Per Category, Metered Access, Micropayments, Pay what you want (custom pricing), Price Windowing, Upsell, Multiple Payment Options, Currencies, Languages (English / Spanish)
+Features: Access Control, Paywall, Pay Per Article, Pay Per Category, Metered Access, Micropayments, Pay what you want (custom pricing), Price Windowing, Multiple Payment Options, Currencies 
 
 == Installation ==
 

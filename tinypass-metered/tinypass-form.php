@@ -59,9 +59,9 @@ function __tinypass_mlite_display(TPPaySettings $ps) {
 
 		<div class="info">
 			<div class="heading">Enter your Paywall ID</div>
-			<div class="desc">Create a paywall on the <a href="http://dashboard.tinypass.com">Tinypass Dashboard</a> and paste the ID number here.</div>
+			<div class="desc">Create a paywall on the <a href="http://dashboard.tinypass.com" target="_blank">Tinypass Dashboard</a> and paste the ID number here.</div>
 			<br>
-			<div class="desc">If you're just testing, create a paywall on the <a href="http://sandbox.tinypass.com">Tinypass Dashboard</a> and paste the ID number here.</div>
+			<div class="desc">If you're just testing, create a paywall on the <a href="http://sandbox.tinypass.com" target="_blank">Tinypass Dashboard</a> and paste the ID number here.</div>
 		</div>
 		<div class="body">
 
@@ -150,9 +150,9 @@ function __tinypass_misc_display(TPPaySettings $ps) {
 					<input type="checkbox" name="tinypass[mlite_track_homepage]" value="1" <?php echo checked($ps->isTrackHomePage()) ?>>
 					<?php echo _e("Track on home page visit - visiting your homepage will count as a view") ?>
 					<br> <br>
-					<input type="checkbox" name="tinypass[mlite_readon_enabled]" value="1" <?php echo checked($ps->isReadOnEnabled()) ?>>
-					<?php echo _e("Enable ReadOn - Allows home page posts to be fetch via ajax") ?>
-					<br> <br>
+						<input type="checkbox" name="tinypass[mlite_readon_enabled]" value="1" <?php echo checked($ps->isReadOnEnabled()) ?>>
+						<?php echo _e("Enable ReadOn - Allows home page posts to be fetch via ajax") ?>
+						<br> <br>
 					<input type="checkbox" name="tinypass[mlite_disabled_for_admins]" value="1" <?php echo checked($ps->isDisabledForPriviledgesUsers()) ?>>
 					<?php echo _e("Disable Tinypass for privileges users - TinyPass will be skipped for all non Subscriber users" ) ?>
 				</div>

@@ -93,9 +93,9 @@ function tinypass_init() {
  * Add the js-readon script
  */
 function tinypass_enqueue_scripts() {
-	wp_enqueue_script('tp-readon', TINYPASSS_PLUGIN_PATH . '/js/tp-readon.js', array('jquery'), true, false);
-	wp_enqueue_script('tp', TINYPASSS_PLUGIN_PATH . '/js/tp.js', array('jquery'), true, false);
-}
+		wp_enqueue_script('tp-readon', TINYPASSS_PLUGIN_PATH . '/js/tp-readon.js', array('jquery'), true, false);
+		wp_enqueue_script('tp', TINYPASSS_PLUGIN_PATH . '/js/tp.js', array('jquery'), true, false);
+	}
 
 /**
  * Shortcode function for converting [tinypass_subscribe text="Text Link"] into a short code
@@ -170,7 +170,7 @@ function tinypass_intercept_content($content) {
 	$tpmeter->paywall_id = $pwOptions->getPaywallID($ss->isProd());
 	$tpmeter->sandbox = $ss->isSand();
 
-	if ((is_category() || is_home()) && $pwOptions->isReadOnEnabled()) {
+	if ((is_category() || is_home() || is_archive() || is_search() || is_tag() || is_tax()) && $pwOptions->isReadOnEnabled()) {
 		$c = tinypass_split_excerpt_and_body($post->post_content, false);
 
 		$content = $c['excerpt'];
@@ -191,25 +191,6 @@ function tinypass_intercept_content($content) {
 	}
 
 	return $content;
-}
-
-/**
- * Trims a string based on WP settings
- */
-function tinypass_trim_excerpt($text) {
-
-	$excerpt_length = apply_filters('excerpt_length', 100);
-
-	//$text = wp_strip_all_tags($text);
-
-	$words = preg_split("/[\n\r\t ]+/", $text, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY);
-	if (count($words) > $excerpt_length) {
-		array_pop($words);
-		$text = implode(' ', $words);
-	} else {
-		$text = implode(' ', $words);
-	}
-	return $text;
 }
 
 /**

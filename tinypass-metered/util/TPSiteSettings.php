@@ -233,7 +233,7 @@ class TPSiteSettings {
 			$form['tags'] = $tags;
 
 			if (count($form['tags']) == 0)
-				$errors['tags'] = "Tinypass should be configured for at least 1 tag.  None specified below!";
+				$errors['tags'] = "Tinypass should be configured for at least 1 tag.  No tags have been specified!";
 
 			for ($i = 1; $i <= 3; $i++) {
 
