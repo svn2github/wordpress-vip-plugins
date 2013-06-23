@@ -253,9 +253,8 @@ class WPCOM_Related_Posts {
 		$related_posts = array();
 
 		// Use Elastic Search for the results if it's available
-		if ( $this->is_elastic_search ) {
+		if ( $this->is_elastic_search && ( $current_post = get_post( $post_id ) ) ) {
 
-			$current_post = get_post( $post_id );
 			$keywords = $this->get_keywords( $current_post->post_title ) + $this->get_keywords( $current_post->post_content ) ;
 			$query = implode( ' ', array_unique( $keywords ) );
 			$es_args = array(
