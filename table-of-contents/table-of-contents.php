@@ -61,6 +61,7 @@ class Table_Of_Contents {
 	function add_ids_and_jumpto_links( $tag, $content ) {
 		$items = self::get_tags( $tag, $content );
 		$first = true;
+		$matches = $replacements = array();
 
 		foreach ($items as $item) {
 			$replacement = '';
