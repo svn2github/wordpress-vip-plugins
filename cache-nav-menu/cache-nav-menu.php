@@ -45,9 +45,8 @@ function wpcom_vip_cached_nav_menu( $args = array(), $prime_cache = false ) {
 			wp_nav_menu( $args );
 			$nav_menu = ob_get_clean();
 		}
-		if ( false === $skip_cache ) {
-			wp_cache_set( $nav_menu_key, $nav_menu, 'cache-nav-menu', MINUTE_IN_SECONDS * 15 );
-		}
+		
+		wp_cache_set( $nav_menu_key, $nav_menu, 'cache-nav-menu', MINUTE_IN_SECONDS * 15 );
 	}
 	if ( true === $echo )
 		echo $nav_menu;
