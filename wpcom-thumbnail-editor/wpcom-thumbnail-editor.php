@@ -9,6 +9,7 @@ Author URI:   http://vip.wordpress.com/
 
 **************************************************************************/
 
+
 class WPcom_Thumbnail_Editor {
 
 	/**
@@ -580,10 +581,34 @@ class WPcom_Thumbnail_Editor {
 	public function get_coordinates( $attachment_id, $size ) {
 		$sizes = (array) get_post_meta( $attachment_id, $this->post_meta, true );
 
-		if ( empty( $sizes[$size] ) )
-			return false;
+		$coordinates = false;
 
-		return $sizes[$size];
+		if ( empty( $sizes[ $size ] ) ) {
+			// Coordinates not explictly set for this size, but is it in a size group? If so, we can use the coordinates
+			// from other sizes in the same group, as they are always the same. Happens if a size is added to a group later and hasn't
+			// been backfilled in all post meta. Not sure why coords are saved for every size, rather than group, but hey.
+			if ( $this->use_ratio_map ) {
+				foreach( $this->image_ratio_map as $ratio => $ratio_sizes ) {
+					foreach( $ratio_sizes as $ratio_size ) {
+						if ( $size === $ratio_size ) {
+							// Determine if there are any saved coordinates that match the desired $size in the matched ratio group
+							$intersect = array_intersect_key( $ratio_sizes, $sizes );
+
+							if ( is_array( $intersect ) && ! empty( $intersect ) ) {
+								// Can grab the first, all coordinates will be at most 1px apart
+								$matching_size 	= array_shift( $intersect );
+
+								$coordinates 	= $sizes[ $matching_size ];
+							}
+						}
+					}
+				}
+			}
+		} else {
+			$coordinates = $sizes[ $size ];
+		}
+
+		return $coordinates;
 	}
 
 	/**
