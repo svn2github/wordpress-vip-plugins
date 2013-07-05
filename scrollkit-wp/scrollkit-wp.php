@@ -3,7 +3,7 @@
 Plugin Name: Scroll Kit
 Plugin URI: http://scrollkit.com
 Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
-Version: 0.103
+Version: 0.105
 Author: Scroll Kit
 Author URI: http://scrollkit.com
 License: GPL2
@@ -22,9 +22,11 @@ if ( defined('SK_DEBUG_URL') ) {
 define( 'SCROLL_WP_API', SCROLL_WP_SK_URL . '/api' );
 define( 'SCROLL_WP_BASENAME', plugin_basename( __FILE__ ) );
 
+require_once('mobile-detect.php');
 
 class ScrollKit {
 	function __construct() {
+		add_filter( 'init'								 , array( $this, 'allow_data_tags' ) );
 		add_filter( 'admin_init'           , array( $this, 'filter_admin_init' ) );
 		add_filter( 'admin_menu'           , array( $this, 'filter_admin_menu') );
 		add_filter( 'add_meta_boxes'       , array( $this, 'filter_add_metaboxes' ) );
@@ -42,6 +44,18 @@ class ScrollKit {
 	public function filter_admin_init() {
 		register_setting( 'scroll_wp_plugin_options', 'scroll_wp_options',
 				array( $this, 'validate_options' ) );
+	}
+
+	public function allow_data_tags() {
+		global $allowedposttags;
+	 
+		$tags = array( 'div', 'img', 'a');
+		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array() );
+	 
+		foreach ( $tags as $tag ) {
+			if ( isset( $allowedposttags[ $tag ] ) && is_array( $allowedposttags[ $tag ] ) )
+				$allowedposttags[ $tag ] = array_merge( $allowedposttags[ $tag ], $new_attributes );
+		}
 	}
 
 	/**
@@ -85,6 +99,12 @@ class ScrollKit {
 
 		// if it's not a single post, don't render it as a scroll
 		if ( !is_singular() ) {
+			return;
+		}
+
+		// if reader is on mobile and mobile-redirect option is on, don't render it as a scroll
+		$detect = new Mobile_Detect();
+		if ( $detect->isMobile() && ( get_post_meta( get_the_ID(), '_scroll_mobile_redirect', true ) === 'on' )) {
 			return;
 		}
 
@@ -225,6 +245,14 @@ class ScrollKit {
 			// manual update in case use is on a non-public facing server
 			case 'manualupdate':
 				$this->update_scroll_post( $post_id );
+				break;
+
+			case 'mobileredirecton':
+				$this->update_mobile_option( $post_id, 'on' );
+				break;
+
+			case 'mobileredirectoff':
+				$this->update_mobile_option( $post_id, 'off' );
 				break;
 		}
 
@@ -425,6 +453,10 @@ class ScrollKit {
 		$this->request_new_scroll( $data, $post_id );
 	}
 
+	private function update_mobile_option( $post_id, $status ) {
+		update_post_meta( $post_id, '_scroll_mobile_redirect', $status );
+	}
+
 	/**
 	 * Asks scrollkit for a scroll
 	 *
@@ -504,6 +536,7 @@ class ScrollKit {
 		delete_post_meta( $post_id, '_scroll_js' );
 		delete_post_meta( $post_id, '_scroll_fonts' );
 		delete_post_meta( $post_id, '_scroll_css' );
+		delete_post_meta( $post_id, '_scroll_mobile_redirect' );
 	}
 
 	/**

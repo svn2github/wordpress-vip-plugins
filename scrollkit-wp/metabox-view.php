@@ -8,6 +8,8 @@ $nonce = wp_create_nonce( 'scrollkit-action' );
 
 $state = get_post_meta( get_the_ID(), '_scroll_state', true );
 
+$mobile_redirect = get_post_meta( get_the_ID(), '_scroll_mobile_redirect', true);
+
 $deactivate_link = add_query_arg(
 		array(
 			'nonce' => $nonce,
@@ -36,6 +38,20 @@ $manually_update_link = add_query_arg(
 			'scrollkit_cms_id' => get_the_ID(),
 		), get_bloginfo('url') );
 
+$mobile_redirect_on_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'mobileredirecton',
+			'scrollkit_cms_id' => get_the_ID(),
+		), get_bloginfo('url') );
+
+$mobile_redirect_off_link = add_query_arg(
+		array(
+			'nonce' => $nonce,
+			'scrollkit' => 'mobileredirectoff',
+			'scrollkit_cms_id' => get_the_ID(),
+		), get_bloginfo('url') );
+
 $copy = array();
 
 switch($state){
@@ -53,10 +69,10 @@ switch($state){
 
 ?>
 
-<h4><?php echo $copy['heading'] ?></h4>
+<h4><?php echo esc_html( $copy['heading'] ) ?></h4>
 
 <?php if (!empty($scrollkit_id)): ?>
-<a href="<?php echo ScrollKit::build_edit_url( $scrollkit_id ) ?>"
+<a href="<?php echo esc_url( ScrollKit::build_edit_url( $scrollkit_id ) ); ?>"
 		target="_blank"
 		class="button">
 	Edit
@@ -64,9 +80,9 @@ switch($state){
 <?php endif; ?>
 
 <?php if( $state !== 'active' ): ?>
-<a href="<?php echo $activate_link  ?>"
+<a href="<?php echo esc_url( $activate_link ) ?>"
 		class="button js-sk-disable-on-dirty">
-	<?php echo $copy['activate'] ?>
+	<?php echo esc_html( $copy['activate'] ) ?>
 </a>
 
 <a href="#TB_inline?height=155&width=300&inlineId=sk-load-scroll"
@@ -88,15 +104,15 @@ switch($state){
 
 
 <?php if ( $state === 'active' ): ?>
-<a href="<?php echo $deactivate_link  ?>"
+<a href="<?php echo esc_url( $deactivate_link )  ?>"
 		title="Turn this back into a normal wordpress post"
 		class="button js-sk-disable-on-dirty">
-	Dectivate
+	Deactivate
 </a>
 <?php endif ?>
 
 <?php if ( !empty( $state ) ): ?>
-<a href="<?php echo $delete_link ?>"
+<a href="<?php echo esc_url( $delete_link ) ?>"
 		onclick="return confirm('This will permanently delete the scroll associated with this post, are you sure you want to delete it?');"
 		title="Permanently deletes the scroll associated with this post"
 		class="button js-sk-disable-on-dirty">
@@ -107,13 +123,28 @@ switch($state){
 <?php if ( $state === 'active' ): ?>
 <p>
 	<small>
-		<a href="<?php echo $manually_update_link ?>"
+		<a href="<?php echo esc_url( $manually_update_link ) ?>"
 				title="Manually update if your server is not publically accessibly (e.g. testing)"
 				class="js-sk-disable-on-dirty">
 			manually update scroll
 		</a>
 	</small>
 </p>
+
+<?php if ( $mobile_redirect === 'on' ): ?>
+<a href="<?php echo esc_url( $mobile_redirect_off_link ) ?>"
+		title="On mobile browsers, render a scroll"
+		class="button js-sk-disable-on-dirty">
+	Don't Redirect on Mobile
+</a>
+<?php endif ?>
+<?php if ( $mobile_redirect !== 'on' ): ?>
+<a href="<?php echo esc_url( $mobile_redirect_on_link ) ?>"
+		title="On mobile browsers, don't render a scroll"
+		class="button js-sk-disable-on-dirty">
+	Redirect on Mobile
+</a>
+<?php endif ?>
 <?php endif ?>
 
 <div class="js-sk-enable-on-dirty" style="visibility: hidden; color: #a00">
@@ -123,9 +154,9 @@ switch($state){
 <?php if (WP_DEBUG === true): ?>
 <pre>
 DEBUG
-_scroll_id: <?php echo get_post_meta( get_the_ID(), '_scroll_id', true ); ?>
+_scroll_id: <?php echo esc_attr( get_post_meta( get_the_ID(), '_scroll_id', true ) ); ?>
 
-_scroll_state: <?php echo get_post_meta( get_the_ID(), '_scroll_state', true ); ?>
+_scroll_state: <?php echo esc_attr( get_post_meta( get_the_ID(), '_scroll_state', true ) ); ?>
 </pre>
 <?php endif ?>
 
