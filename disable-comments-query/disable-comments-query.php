@@ -42,7 +42,6 @@ class Disable_Comments_Query_Plugin {
 		
 		global $wpdb;
 
-
 		$pattern = '#^\s*SELECT\s*\*\s*FROM\s*' . preg_quote( $wpdb->comments, '#' ) .'\s*WHERE(?:.*)comment_post_ID\s*=\s*([0-9]+)\s*#i';
 		if ( preg_match( $pattern, $query ) ) {
 			// Neuter the query, while leaving a clue as to what happened
