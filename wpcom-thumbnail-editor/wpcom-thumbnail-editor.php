@@ -601,10 +601,13 @@ class WPcom_Thumbnail_Editor {
 							$intersect = array_intersect_key( $ratio_sizes, $sizes );
 
 							if ( is_array( $intersect ) && ! empty( $intersect ) ) {
-								// Can grab the first, all coordinates will be at most 1px apart
-								$matching_size 	= array_shift( $intersect );
+								foreach( $intersect as $matching_size ) {
+									if ( isset( $sizes[ $matching_size ] ) ) {
+										$coordinates 	= $sizes[ $matching_size ];
 
-								$coordinates 	= $sizes[ $matching_size ];
+										break;
+									}
+								}
 							}
 						}
 					}
