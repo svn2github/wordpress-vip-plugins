@@ -148,7 +148,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		 *           probably taking minutes to complete and slowing down the entire cluster. With great power... etc.
 		 *           See: http://www.elasticsearch.org/guide/reference/api/search/facets/index.html
 		 *
-		 * * filters: Structured set of filters (often FASTER, since cached from one query to the next).
+		 * * filter: Structured set of filters (often FASTER, since cached from one query to the next).
 		 *            See: http://www.elasticsearch.org/guide/reference/query-dsl/filtered-query.html
 		 *
 		 * * highlight: Structure defining how to highlight the results.
@@ -334,9 +334,9 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			}
 
 			if ( ! empty( $filters ) ) {
-				$es_query_args['filters'] = array( 'and' => $filters );
+				$es_query_args['filter'] = array( 'and' => $filters );
 			} else {
-				$es_query_args['filters'] = array( 'match_all' => new stdClass() );
+				$es_query_args['filter'] = array( 'match_all' => new stdClass() );
 			}
 
 			// Fill in the query
@@ -344,11 +344,11 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			//  todo: add fuzzy searching to correct for spelling mistakes
 			//  todo: boost title, tag, and category matches
 			if ( $args['query'] ) {
-				$es_query_args['multi_match'] = array(
+				$es_query_args['query'] = array( 'multi_match' => array(
 					'query'  => $args['query'],
 					'fields' => $args['query_fields'],
 					'operator'  => 'and',
-				);
+				) );
 
 				if ( ! $args['orderby'] ) {
 					$args['orderby'] = array( 'relevance' );
