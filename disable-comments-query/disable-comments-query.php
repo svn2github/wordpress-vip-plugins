@@ -41,12 +41,15 @@ class Disable_Comments_Query_Plugin {
 			return $query;
 		
 		global $wpdb;
-		$pattern = '#^\s*SELECT\s*\*\s*FROM\s*' . preg_quote( $wpdb->comments, '#' ) .'\s*WHERE\s*comment_post_ID\s*=\s*([0-9]+)\s*#i';
+
+
+		$pattern = '#^\s*SELECT\s*\*\s*FROM\s*' . preg_quote( $wpdb->comments, '#' ) .'\s*WHERE(?:.*)comment_post_ID\s*=\s*([0-9]+)\s*#i';
 		if ( preg_match( $pattern, $query ) ) {
 			// Neuter the query, while leaving a clue as to what happened
 			$query = preg_replace( $pattern, 'SELECT * FROM ' . $wpdb->comments . ' WHERE 1=0 /* Query killed by disable-comments-query */ AND comment_post_ID = $1 ', $query );
 			$this->already_ran = true;
 		}
+
 		return $query;
 	}
 
