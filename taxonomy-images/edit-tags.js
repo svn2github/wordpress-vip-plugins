@@ -1,12 +1,12 @@
 jQuery( document ).ready( function( $ ) {
 
-	$( '.tags' ).on( 'click', '.taxonomy-image-control a', function () {
+	$( '.taxonomy-image-control' ).on( 'click', 'a', function () {
 		taxonomyImagesPlugin.tt_id = parseInt( $( this ).parent().find( 'input.tt_id' ).val() );
 		taxonomyImagesPlugin.term_name = $( this ).parent().find( 'input.term_name' ).val();
 		taxonomyImagesPlugin.image_id = parseInt( $( this ).parent().find( 'input.image_id' ).val() );
 	} );
 
-	$( '.tags' ).on( 'click', '.taxonomy-image-control .remove', function () {
+	$( '.taxonomy-image-control' ).on( 'click', '.remove', function () {
 		$.ajax( {
 			url: ajaxurl,
 			type: "POST",
