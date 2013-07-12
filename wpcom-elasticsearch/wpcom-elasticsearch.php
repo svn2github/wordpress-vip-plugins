@@ -127,6 +127,9 @@ class WPCOM_elasticsearch {
 		if ( ! $query->is_main_query() || ! $query->is_search() )
 			return $posts;
 
+		if ( ! is_array( $this->search_result ) )
+			return $posts;
+
 		// This class handles the heavy lifting of transparently switching blogs and inflating posts
 		$this->posts_iterator = new ES_WPCOM_SearchResult_Posts_Iterator();
 		$this->posts_iterator->set_search_result( $this->search_result );
