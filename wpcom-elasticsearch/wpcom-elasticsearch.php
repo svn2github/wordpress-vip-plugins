@@ -36,6 +36,7 @@ TODO:
 **************************************************************************/
 
 require_once( __DIR__ . '/widget-facets.php' );
+require_once( __DIR__ . '/class.es-wpcom-searchresult-posts-iterator.php' );
 
 class WPCOM_elasticsearch {
 
@@ -45,6 +46,8 @@ class WPCOM_elasticsearch {
 	private $found_posts = 0;
 
 	private $search_result;
+
+	private $original_blog_id;
 
 	private static $instance;
 
@@ -86,7 +89,7 @@ class WPCOM_elasticsearch {
 
 		# Note: Advanced Post Cache hooks in at 10 so it's important to hook in before that
 
-		// Replaces the standard search query with one that fetches the posts based on post IDs supplied by ES
+		// Run the ES query and kill the standard search query - allow the 'the_posts' filter to handle inflation
 		add_filter( 'posts_request', array( $this, 'filter__posts_request' ), 5, 2 );
 
 		// Nukes the FOUND_ROWS() database query
@@ -94,6 +97,9 @@ class WPCOM_elasticsearch {
 
 		// Since the FOUND_ROWS() query was nuked, we need to supply the total number of found posts
 		add_filter( 'found_posts', array( $this, 'filter__found_posts' ), 5, 2 );
+
+		// Hook into the_posts to return posts from the ES results
+		add_filter( 'the_posts', array( $this, 'filter__the_posts' ), 5, 2 );
 	}
 
 	public function admin_notice_no_index() {
@@ -115,6 +121,39 @@ class WPCOM_elasticsearch {
 		}
 
 		return $limits;
+	}
+
+	public function filter__the_posts( $posts, $query ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() )
+			return $posts;
+
+		// This class handles the heavy lifting of transparently switching blogs and inflating posts
+		$this->posts_iterator = new ES_WPCOM_SearchResult_Posts_Iterator();
+		$this->posts_iterator->set_search_result( $this->search_result );
+
+		$posts = array();
+
+		// We have to return something in $posts for regular search templates to work, so build up an array
+		// of simple, un-inflated WP_Post objects that will be inflated by ES_WPCOM_SearchResult_Posts_Iterator in The Loop
+		foreach ( $this->search_result['results']['hits'] as $result ) {
+			// Create an empty WP_Post object that will be inflated later
+			$post = new stdClass();
+
+			$post->ID 		= $result['fields']['post_id'];
+			$post->blog_id 	= $result['fields']['blog_id'];
+
+			// Run through get_post() to add all expected properties (even if they're empty)
+			$post = get_post( $post );
+
+			if ( $post )
+				$posts[] = $post;
+		}
+
+		// Listen for the start/end of The Loop, to add some action handlers for transparently loading the post
+		add_action( 'loop_start', 	array( $this, 'action__loop_start' ) );
+		add_action( 'loop_end', 	array( $this, 'action__loop_end' ) );
+
+		return $posts;
 	}
 
 	public function filter__posts_request( $sql, $query ) {
@@ -228,7 +267,10 @@ class WPCOM_elasticsearch {
 		// Convert the WP-style args into ES args
 		$es_query_args = wpcom_search_api_wp_to_es_args( $es_wp_query_args );
 
-		$es_query_args['fields'] = array( 'post_id' );
+		$es_query_args['fields'] = array( 
+			'post_id',
+			'blog_id'
+		);
 
 		// This filter is harder to use if you're unfamiliar with ES but it allows complete control over the query
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
@@ -238,32 +280,15 @@ class WPCOM_elasticsearch {
 
 		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || empty( $this->search_result['results']['hits'] ) ) {
 			$this->found_posts = 0;
-			return "SELECT * FROM $wpdb->posts WHERE 1=0 /* ES search results */";
-		}
-
-		// Get the post IDs of the results
-		$post_ids = array();
-		foreach ( (array) $this->search_result['results']['hits'] as $result ) {
-			// Fields arg
-			if ( ! empty( $result['fields'] ) && ! empty( $result['fields']['post_id'] ) ) {
-				$post_ids[] = $result['fields']['post_id'];
-			}
-			// Full source objects
-			elseif ( ! empty( $result['_source'] ) && ! empty( $result['_source']['id'] ) ) {
-				$post_ids[] = $result['_source']['id'];
-			}
-			// Unknown results format
-			else {
-				return '';//$sql;
-			}
+			return '';
 		}
 
 		// Total number of results for paging purposes
 		$this->found_posts = $this->search_result['results']['total'];
 
-		// Replace the search SQL with one that fetches the exact posts we want in the order we want
-		$post_ids_string = implode( ',', array_map( 'absint', $post_ids ) );
-		return "SELECT * FROM {$wpdb->posts} WHERE {$wpdb->posts}.ID IN( {$post_ids_string} ) ORDER BY FIELD( {$wpdb->posts}.ID, {$post_ids_string} ) /* ES search results */";
+		// Don't select anything, posts are inflated by ES_WPCOM_SearchResult_Posts_Iterator in The Loop,
+		// to account for multi site search
+		return '';
 	}
 
 	public function filter__found_posts_query( $sql, $query ) {
@@ -278,6 +303,68 @@ class WPCOM_elasticsearch {
 			return $found_posts;
 
 		return $this->found_posts;
+	}
+
+	public function action__loop_start() {
+		add_action( 'the_post', array( $this, 'action__the_post' ) );
+
+		$this->original_blog_id = get_current_blog_id();
+	}
+
+	public function action__loop_end() {
+		remove_action( 'the_post', array( $this, 'action__the_post' ) );
+
+		// Restore the original blog, if we're not on it
+		if ( get_current_blog_id() !== $this->original_blog_id )
+			switch_to_blog( $this->original_blog_id );
+	}
+
+	public function action__the_post( &$post ) {
+		global $id, $post, $wp_query, $authordata, $currentday, $currentmonth, $page, $pages, $multipage, $more, $numpages;
+
+		$post = $this->get_post_by_index( $wp_query->current_post );
+
+		if ( ! $post )
+			return;
+
+		// Do some additional setup that normally happens in setup_postdata(), but gets skipped
+		// in this plugin because the posts hadn't yet been inflated.
+		$authordata 	= get_userdata( $post->post_author );
+
+		$currentday 	= mysql2date('d.m.y', $post->post_date, false);
+		$currentmonth 	= mysql2date('m', $post->post_date, false);
+
+		$numpages = 1;
+		$multipage = 0;
+		$page = get_query_var('page');
+		if ( ! $page )
+			$page = 1;
+		if ( is_single() || is_page() || is_feed() )
+			$more = 1;
+		$content = $post->post_content;
+		if ( false !== strpos( $content, '<!--nextpage-->' ) ) {
+			if ( $page > 1 )
+				$more = 1;
+			$content = str_replace( "\n<!--nextpage-->\n", '<!--nextpage-->', $content );
+			$content = str_replace( "\n<!--nextpage-->", '<!--nextpage-->', $content );
+			$content = str_replace( "<!--nextpage-->\n", '<!--nextpage-->', $content );
+			// Ignore nextpage at the beginning of the content.
+			if ( 0 === strpos( $content, '<!--nextpage-->' ) )
+				$content = substr( $content, 15 );
+			$pages = explode('<!--nextpage-->', $content);
+			$numpages = count($pages);
+			if ( $numpages > 1 )
+				$multipage = 1;
+		} else {
+			$pages = array( $post->post_content );
+		}
+	}
+
+	/**
+	 * Retrieve a full post by it's index in search results
+	 */
+	public function get_post_by_index( $index ) {
+		return $this->posts_iterator[ $index ];
 	}
 
 	public function set_facets( $facets ) {
