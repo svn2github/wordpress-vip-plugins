@@ -682,5 +682,3 @@ function WPCOM_elasticsearch() {
 	return WPCOM_elasticsearch::instance();
 }
 WPCOM_elasticsearch();
-
-?>
