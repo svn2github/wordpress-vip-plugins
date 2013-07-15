@@ -42,6 +42,8 @@ class WPCOM_elasticsearch {
 
 	public $facets = array();
 
+	private $additional_indices;
+
 	private $do_found_posts;
 	private $found_posts = 0;
 
@@ -100,6 +102,9 @@ class WPCOM_elasticsearch {
 
 		// Hook into the_posts to return posts from the ES results
 		add_filter( 'the_posts', array( $this, 'filter__the_posts' ), 5, 2 );
+
+		// Adjust es query args, if necessary
+		add_filter( 'wpcom_elasticsearch_query_args', array( $this, 'filter__wpcom_elasticsearch_query_args' ), 5, 2 );
 	}
 
 	public function admin_notice_no_index() {
@@ -266,6 +271,7 @@ class WPCOM_elasticsearch {
 		// You can use this filter to modify the search query parameters, such as controlling the post_type.
 		// These arguments are in the format for wpcom_search_api_wp_to_es_args(), i.e. WP-style.
 		$es_wp_query_args = apply_filters( 'wpcom_elasticsearch_wp_query_args', $es_wp_query_args, $query );
+		
 
 		// Convert the WP-style args into ES args
 		$es_query_args = wpcom_search_api_wp_to_es_args( $es_wp_query_args );
@@ -306,6 +312,13 @@ class WPCOM_elasticsearch {
 			return $found_posts;
 
 		return $this->found_posts;
+	}
+
+	public function filter__wpcom_elasticsearch_query_args( $es_query_args, $query ) {
+		if ( is_array( $this->additional_indices ) && ! empty( $this->additional_indices ) )
+			$es_query_args['additional_indices'] = $this->additional_indices;
+
+		return $es_query_args;
 	}
 
 	public function action__loop_start() {
@@ -372,6 +385,25 @@ class WPCOM_elasticsearch {
 
 	public function set_facets( $facets ) {
 		$this->facets = $facets;
+	}
+
+	/**
+	 * Set any additional blogs to query along with the current blog
+	 *
+	 * This method accepts an array of additional blog names, in the format of vip.wordpress.com,
+	 * that should be queried.
+	 * 
+	 * @param array $domains The additional blogs to query
+	 */
+	public function set_additional_blogs( $domains = array() ) {
+		$this->additional_indices = array();
+
+		foreach( $domains as $domain ) {
+			$blog = get_blog_details( array( 'domain' => $domain ) );
+
+			if ( $blog )
+				$this->additional_indices[] = array( 'blog_id' => (int) $blog->blog_id );
+		}
 	}
 
 	public function get_search_result( $raw = false ) {
