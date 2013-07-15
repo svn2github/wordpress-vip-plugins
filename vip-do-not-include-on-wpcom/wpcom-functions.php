@@ -450,4 +450,23 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		}
 	endif; // function_exists( 'wpcom_search_api_wp_to_es_args' )
 
+	if ( ! function_exists( 'wp_startswith' ) ) :
+		function wp_startswith( $haystack, $needle ) {
+			return 0 === strpos( $haystack, $needle );
+		}
+	endif;
+
+	if ( ! function_exists( 'wp_endswith' ) ) :
+		function wp_endswith( $haystack, $needle ) {
+			return $needle === substr( $haystack, -strlen( $needle ));
+		}
+	endif;
+
+	if ( ! function_exists( 'wp_in' ) ) :
+		function wp_in( $needle, $haystack ) {
+			return false !== strpos( $haystack, $needle );
+		}
+	endif;
+
+
 endif; // function_exists( 'wpcom_is_vip' )
