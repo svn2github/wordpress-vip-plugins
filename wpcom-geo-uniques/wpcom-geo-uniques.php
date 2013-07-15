@@ -38,7 +38,12 @@ class WPCOM_Geo_Uniques {
 	private static $supported_locations = array();
 
 	static function after_setup_theme() {
-		if ( is_admin() || ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) )
+		if ( is_admin() )
+
+		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+			return;
+
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return;
 
 		// Add default to list of supported countries
