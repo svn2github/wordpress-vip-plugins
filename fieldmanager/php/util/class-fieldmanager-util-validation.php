@@ -257,7 +257,7 @@ class Fieldmanager_Util_Validation {
 			$values[] = sprintf(
 				"\t\t\t\t\t\t%s: %s",
 				esc_js( $k ),
-				esc_js( $this->format_value( $v ) )
+				$this->format_value( $v )
 			);
 		}
 		
@@ -270,7 +270,7 @@ class Fieldmanager_Util_Validation {
 		// Combine the name and value and return it
 		return sprintf(
 			"\t\t\t\t\t%s: %s",
-			esc_js( $name ),
+			$name,
 			$value
 		);
 	}
@@ -284,8 +284,6 @@ class Fieldmanager_Util_Validation {
 	 * @return string The Javascript output or an empty string if no data was provided
 	 */
 	private function array_to_js( $data, $label ) {
-		$data = array_map( 'esc_js', $data );
-		
 		return sprintf(
 			"\t\t\t\t%s: {\n%s\n\t\t\t\t}",
 			esc_js( $label ),
@@ -309,8 +307,8 @@ class Fieldmanager_Util_Validation {
 			// Return as-is
 			return $value;
 		} else {
-			// For any other type (should only be a string) sanitize to a string and quote it
-			return '"' . strval( $value ) . '"';
+			// For any other type (should only be a string) escape for JS output
+			return '"' . esc_js( $value ) . '"';
 		}
 	}
 		
@@ -326,7 +324,7 @@ class Fieldmanager_Util_Validation {
 		if ( ctype_alnum( str_replace( array( '_', '-'), '', $field ) ) )
 			return $field;
 		else
-			return '"' . $field . '"';
+			return '"' . esc_js( $field ) . '"';
 	}
 }
 
