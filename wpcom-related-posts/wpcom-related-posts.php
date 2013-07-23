@@ -279,13 +279,14 @@ class WPCOM_Related_Posts {
 								$tax_fld = 'category.slug';
 								break;
 							default:
-								$tax_fld = 'taxonomy_raw.' . $term->taxonomy . '.slug';
+								$tax_fld = 'taxonomy.' . $term->taxonomy . '.slug';
 								break;
 						}
 						$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
 					}
 				}
 			}
+
 			$valid_post_types = get_post_types();
 			if ( is_array( $args['post_type'] ) ) {
 				$sanitized_post_types = array();
