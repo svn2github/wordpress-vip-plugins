@@ -194,7 +194,7 @@ class WPCOM_Related_Posts {
 	public function filter_the_content( $the_content ) {
 
 		// Related posts should only be appended on the main loop for is_singular() of acceptable post types
-		if ( ! is_main_query() || ! in_the_loop() || ! in_array( get_post_type(), $this->options['post-types'] ) || ! is_singular( get_post_type() ) )
+		if ( true === apply_filters( 'wpcom_related_posts_suppress_the_content', false ) || ! is_main_query() || ! in_the_loop() || ! in_array( get_post_type(), $this->options['post-types'] ) || ! is_singular( get_post_type() ) )
 			return $the_content;
 
 		$related_posts = $this->get_related_posts();
