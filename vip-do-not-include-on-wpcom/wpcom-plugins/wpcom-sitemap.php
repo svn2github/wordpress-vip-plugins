@@ -149,8 +149,7 @@ function wpcom_print_sitemap() {
 		$post_types_in = join( ",", $post_types_in );
 
 		// use direct query instead because get_posts was acting too heavy for our needs
-		//$posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
-		$posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" ) );
+		$posts = $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" );
 		if ( empty($posts) )
 			header('HTTP/1.0 404 Not Found', True, 404);
 		header('Content-Type: ' . sitemap_content_type());
