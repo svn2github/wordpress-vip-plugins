@@ -7,6 +7,7 @@ require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-local-development-help
 require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-powered-wpcom/vip-powered-wpcom.php' );
 require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-roles.php' );
 require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-permastructs.php' );
+require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-mods.php' );
 
 // These are helper functions specific to WP.com-related functionality
 wpcom_vip_load_helper_wpcom(); // vip-helper-wpcom.php
