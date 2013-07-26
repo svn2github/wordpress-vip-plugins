@@ -7,7 +7,7 @@
  */
 
 class WPCOM_Legacy_Redirector {
-	const POST_TYPE = 'wpcom-legacy-redirect';
+	const POST_TYPE = 'vip-legacy-redirect';
 
 	static function start() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
@@ -41,16 +41,26 @@ class WPCOM_Legacy_Redirector {
 		wp_insert_post( array(
 			'post_parent' => $post_id,
 			'post_name' => $url_hash,
+			'post_title' => $url,
 			'post_type' => self::POST_TYPE,
 		) );
 	}
 
 	static function get_redirect_uri( $url ) {
-		$slug = self::get_url_hash( $request_path );
-		$redirect_post = wpcom_vip_get_page_by_path( $slug, OBJECT, self::POST_TYPE );
-		if ( $redirect_post && $redirect_post->post_parent ) {
-			return get_permalink( $redirect_post->post_parent );
+		global $wpdb;
+		$url_hash = self::get_url_hash( $url );
+
+		$redirect_post_id = wp_cache_get( $url_hash, self::POST_TYPE );
+		if ( false === $redirect_post_id ) {
+			$redirect_post_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_parent FROM $wpdb->posts WHERE post_type = %s AND post_name = %s", self::POST_TYPE, $url_hash ) );
+			if ( ! $redirect_post_id )
+				$redirect_post_id = 0;
+
+			wp_cache_add( $url_hash, $redirect_post_id, self::POST_TYPE );
 		}
+
+		if ( $redirect_post_id )
+			return get_permalink( $redirect_post_id );
 		return false;
 	}
 
