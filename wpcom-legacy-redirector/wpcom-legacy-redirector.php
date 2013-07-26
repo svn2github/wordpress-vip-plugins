@@ -29,7 +29,9 @@ class WPCOM_Legacy_Redirector {
 		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
 		if ( $request_path ) {
 			$redirect_uri = self::get_redirect_uri( $request_path );
+
 			if ( $redirect_uri ) {
+				header( 'X-legacy-redirect: HIT' );
 				wp_safe_redirect( $redirect_uri );
 				exit;
 			}
@@ -37,6 +39,10 @@ class WPCOM_Legacy_Redirector {
 	}
 
 	static function insert_legacy_redirect( $url, $post_id ) {
+		// We need pre-slashed URLs
+		if ( 0 !== strpos( $url, '/' ) )
+			$url = '/' . $url;
+
 		$url_hash = self::get_url_hash( $url );
 		wp_insert_post( array(
 			'post_parent' => $post_id,
