@@ -19,7 +19,7 @@ class Publishthis_Cron {
 	 * @return array $schedules
 	 */
 	function cron_schedules( $schedules ) {
-		$schedules = array(
+		$schedules = array_merge( $schedules, array(
 			'every_60' => array(
 				'interval' => 60,
 				'display' => __ ( 'Every 1 minute', 'publishthis' ) ),
@@ -53,7 +53,7 @@ class Publishthis_Cron {
 			'every_86400' => array(
 				'interval' => 86400,
 				'display' => __ ( 'Every 24 hours', 'publishthis' ) )
-		);
+		) );
 
 		return $schedules;
 	}
