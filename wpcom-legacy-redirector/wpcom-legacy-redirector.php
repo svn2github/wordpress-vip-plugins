@@ -32,7 +32,7 @@ class WPCOM_Legacy_Redirector {
 
 			if ( $redirect_uri ) {
 				header( 'X-legacy-redirect: HIT' );
-				wp_safe_redirect( $redirect_uri );
+				wp_safe_redirect( $redirect_uri, 301 );
 				exit;
 			}
 		}
