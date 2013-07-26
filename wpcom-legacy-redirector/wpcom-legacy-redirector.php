@@ -11,7 +11,7 @@ class WPCOM_Legacy_Redirector {
 
 	static function start() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
-		add_filter( 'template_redirect', array( __CLASS__, 'maybe_do_redirect' ) );
+		add_filter( 'template_redirect', array( __CLASS__, 'maybe_do_redirect' ), 0 ); // hook in early, before the canonical redirect
 	}
 	
 	static function init() {
