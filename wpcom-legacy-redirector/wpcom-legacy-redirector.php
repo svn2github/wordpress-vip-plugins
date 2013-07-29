@@ -27,6 +27,7 @@ class WPCOM_Legacy_Redirector {
 			return;
 
 		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+var_dump( 'parsing URL', $request_path );
 		if ( $request_path ) {
 			$redirect_uri = self::get_redirect_uri( $request_path );
 
@@ -54,9 +55,12 @@ class WPCOM_Legacy_Redirector {
 
 	static function get_redirect_uri( $url ) {
 		global $wpdb;
+		
+		$url = urldecode( $url );
 		$url_hash = self::get_url_hash( $url );
 
 		$redirect_post_id = wp_cache_get( $url_hash, self::POST_TYPE );
+
 		if ( false === $redirect_post_id ) {
 			$redirect_post_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_parent FROM $wpdb->posts WHERE post_type = %s AND post_name = %s", self::POST_TYPE, $url_hash ) );
 			if ( ! $redirect_post_id )
