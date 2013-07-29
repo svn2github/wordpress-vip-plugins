@@ -27,7 +27,6 @@ class WPCOM_Legacy_Redirector {
 			return;
 
 		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
-var_dump( 'parsing URL', $request_path );
 		if ( $request_path ) {
 			$redirect_uri = self::get_redirect_uri( $request_path );
 
