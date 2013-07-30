@@ -169,7 +169,7 @@ function wpcom_print_sitemap() {
 
 			// Get the attachment IDs for all posts. We need to see how many
 			// attachments each post parent has and limit it to 5.
-			$query                = $wpdb->prepare( "SELECT ID, post_parent FROM {$wpdb->posts} WHERE post_parent IN ({$post_parents}) AND post_type='attachment' AND post_mime_type='image/jpeg' LIMIT 0,1000;" );
+			$query                = "SELECT ID, post_parent FROM {$wpdb->posts} WHERE post_parent IN ({$post_parents}) AND post_type='attachment' AND post_mime_type='image/jpeg' LIMIT 0,1000;";
 			$all_attachments      = $wpdb->get_results( $query );
 			$selected_attachments = array();
 			$attachment_count     = array();
@@ -190,7 +190,7 @@ function wpcom_print_sitemap() {
 
 			// Get more of the attachment object for the attachments we actually care about
 			$attachment_ids   = implode( ',', array_map( 'intval', $selected_attachments ) );
-			$query            = $wpdb->prepare( "SELECT p.ID, p.post_parent, p.post_title, p.post_excerpt, p.guid FROM {$wpdb->posts} as p WHERE p.ID IN ({$attachment_ids}) AND p.post_type='attachment' AND p.post_mime_type='image/jpeg' LIMIT 500;" );
+			$query            = "SELECT p.ID, p.post_parent, p.post_title, p.post_excerpt, p.guid FROM {$wpdb->posts} as p WHERE p.ID IN ({$attachment_ids}) AND p.post_type='attachment' AND p.post_mime_type='image/jpeg' LIMIT 500;";
 			$attachments      = $wpdb->get_results( $query );
 			$post_attachments = array_merge( $post_attachments, $attachments );
 		}
