@@ -115,3 +115,27 @@ function wpcom_vip_flush_get_page_by_title_cache( $new_status, $old_status, $pos
 		wp_cache_delete( $post->post_type . '_' . sanitize_key( $post->post_title ), 'get_page_by_title' );
 }
 add_action( 'transition_post_status', 'wpcom_vip_flush_get_page_by_title_cache', 10, 3 );
+
+/**
+ * Cached version of url_to_postid, which can be expensive.
+ *
+ * Examine a url and try to determine the post ID it represents.
+ * 
+ * @param string $url Permalink to check.
+ * @return int Post ID, or 0 on failure.
+ */
+function wpcom_vip_url_to_postid( $url ) {
+	// Sanity check; no URLs not from this site
+	if ( parse_url( $url, PHP_URL_HOST ) != wpcom_vip_get_home_host() )
+		return false;
+
+	$cache_key = md5( $url );
+	$post_id = wp_cache_get( $cache_key, 'url_to_postid' );
+
+	if ( false === $post_id ) {
+		$post_id = url_to_postid( $url ); // returns 0 on failure, so need to catch the false condition
+		wp_cache_add( $cache_key, $post_id, 'url_to_postid' );
+	}
+
+	return $post_id;
+}

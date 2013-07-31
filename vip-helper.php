@@ -841,3 +841,15 @@ function wpcom_vip_check_site_url( $site_urls ) {
 		 
 	return in_array( parse_url( site_url(), PHP_URL_HOST ), $site_urls );
 }
+
+/**
+ * Returns the HTTP_HOST for the current site's home_url()
+ *
+ * @return string
+ */
+function wpcom_vip_get_home_host() {
+	static $host;
+	if ( ! isset( $host ) )
+		$host = parse_url( home_url(), PHP_URL_HOST );
+	return $host;
+}
