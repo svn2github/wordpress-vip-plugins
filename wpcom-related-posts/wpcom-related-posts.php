@@ -295,7 +295,7 @@ class WPCOM_Related_Posts {
 						$sanitized_post_types[] = $pt;
 				}
 				if ( ! empty( $sanitized_post_types ) )
-					$filters = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
+					$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
 			} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
 				$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
 			}
