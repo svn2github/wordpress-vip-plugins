@@ -3,8 +3,8 @@ Contributors: ethitter, thinkoomph
 Donate link: http://www.thinkoomph.com/plugins-modules/external-permalinks-redux/
 Tags: link, redirect, external link, permalink
 Requires at least: 3.0
-Tested up to: 3.5
-Stable tag: 1.0.4
+Tested up to: 3.6
+Stable tag: 1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,6 +36,11 @@ Using the `epr_post_types` filter, one can modify the default array of object ty
 * `epr_status_codes` - modify array of available status codes used when redirect is issued
 
 == Changelog ==
+
+= 1.1 =
+* Introduce a filter to change the metabox title for clarity. Does break translation for that string if used.
+* Add additional HTML classes in the metabox to aid customization.
+* Coding standards and PHPDoc cleanup.
 
 = 1.0.4 =
 * Implement singleton pattern for instantiation. Thanks batmoo.
