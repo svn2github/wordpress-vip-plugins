@@ -39,6 +39,7 @@ class WPCOM_Geo_Uniques {
 
 	static function after_setup_theme() {
 		if ( is_admin() )
+			return;
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
 			return;
