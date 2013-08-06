@@ -33,7 +33,7 @@ class WPCOM_Geo_Uniques {
 	const COOKIE_NAME = '_wpcom_geo'; // must be prefixed with "_" since batcache ignores cookies starting with "wp"
 	const ACTION_PARAM = 'wpcom-geolocate';
 
-	private static $expiry_time = 3600;
+	private static $expiry_time = 604800; // 1 week
 	private static $default_location = 'default';
 	private static $supported_locations = array();
 
