@@ -286,7 +286,6 @@ class WPCOM_Related_Posts {
 					}
 				}
 			}
-
 			$valid_post_types = get_post_types();
 			if ( is_array( $args['post_type'] ) ) {
 				$sanitized_post_types = array();
@@ -301,7 +300,7 @@ class WPCOM_Related_Posts {
 			}
 
 			if ( is_array( $args['date_range'] ) &&
-				! empty( $args['date_range']['from'] ) && 
+				! empty( $args['date_range']['from'] ) &&
 				! empty( $args['date_range']['to'] ) ) {
 					$filters[] = array(
 						'range'	=> array(
@@ -314,14 +313,17 @@ class WPCOM_Related_Posts {
 			}
 
 			if ( ! empty( $filters ) )
-				$es_args['filters'] = array( 'and' => $filters );
+				$es_args['filter'] = array( 'and' => $filters );
 
 			$es_args = apply_filters( 'wrp_es_api_search_index_args', $es_args, $current_post );
 			$related_es_query = es_api_search_index( $es_args, 'related-posts' );
 			$related_posts = array();
 			if ( is_array( $related_es_query ) && ! empty( $related_es_query['results']['hits'] ) ) {
 				foreach( $related_es_query['results']['hits'] as $hit ) {
-					$related_posts[] = get_post( $hit['_source']['id'] );
+					if ( isset( $hit['fields']['post_id'] ) )
+						$related_posts[] = get_post( $hit['fields']['post_id'] );
+					elseif ( isset( $hit['_source']['id'] ) )
+						$related_posts[] = get_post( $hit['_source']['id'] );
 				}
 			}
 			foreach( $related_posts as $key => $related_post ) {
