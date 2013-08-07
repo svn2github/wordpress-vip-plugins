@@ -9,9 +9,9 @@ add_filter( 'custom_metadata_manager_get_sanitize_callback', function( $callback
 
 function _wpcom_vip_custom_metadata_force_sanitize( $field_slug, $field, $object_type, $object_id, $value ) {
 	if ( is_array( $value ) )
-		$value = array_map( 'sanitize_text_field', $value );
+		$value = array_map( 'wp_kses_post', $value );
 	else
-		$value = sanitize_text_field( $value );
+		$value = wp_kses_post( $value );
 
 	return $value;
 }
