@@ -10,7 +10,7 @@ $verify_setup = sailthru_verify_setup();
   </div>
    <?php elseif ($verify_setup['errormessage'] == 'select a template'): ?>
    <div class="error settings-error">
-    <p><a href="?page=settings_configuration_page#sailthru_setup_email_template">Select a Sailthru template</a> to use for all Wordpress emails.</p>
+    <p><a href="?page=settings_configuration_page#sailthru_setup_email_template">Select a Sailthru template</a> to use for all WordPress emails.</p>
   </div>
   <?php else: ?>
   <div class="error settings-error">
@@ -37,7 +37,7 @@ $verify_setup = sailthru_verify_setup();
               <h3>Sailthru Documentation</h3>
                 <ul>
                     <li><a href="http://docs.sailthru.com/">Documentation</a></li>
-                    <li><a href="http://docs.sailthru.com/developers/client-libraries/wordpress-plugin">Wordpress Documentation</a></li>
+                    <li><a href="http://docs.sailthru.com/developers/client-libraries/wordpress-plugin">WordPress Documentation</a></li>
                     <li><a href="http://docs.sailthru.com/documentation/products/scout">Scout Documentation</a></li>
                     <li><a href="http://docs.sailthru.com/documentation/products/concierge">Concierge Documentation</a></li>
           </div>

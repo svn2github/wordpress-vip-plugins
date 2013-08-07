@@ -10,7 +10,7 @@
 					  </div>
 					   <?php elseif ($verify_setup['errormessage'] == 'select a template'): ?>
 					   <div class="error settings-error">
-					    <p><a href="?page=settings_configuration_page#sailthru_setup_email_template">Select a Sailthru template</a> to use for all Wordpress emails.</p>
+					    <p><a href="?page=settings_configuration_page#sailthru_setup_email_template">Select a Sailthru template</a> to use for all WordPress emails.</p>
 					  </div>
 					  <?php else: ?>
 					  <div class="error settings-error">

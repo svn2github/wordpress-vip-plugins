@@ -2,7 +2,7 @@
 		<div class="wrap" id="sailthru-admin">
 
 			<div id="icon-sailthru" class="icon32"></div>
-			<h2><?php _e( 'Sailthru for Wordpress', 'sailthru-for-wordpress' ); ?></h2>
+			<h2><?php _e( 'Sailthru for WordPress', 'sailthru-for-wordpress' ); ?></h2>
 			<?php
 
 
@@ -159,7 +159,7 @@
 									<h4>Next Steps</h4>
 									<ul>
 										<li>Once you've added your key, you'll need to select a default email template to use.</li>
-										<li>For more information, read our <a href="http://getstarted.sailthru.com/developers/client-libraries/wordpress-plugin">Wordpress plugin documentation.</a></li>
+										<li>For more information, read our <a href="http://getstarted.sailthru.com/developers/client-libraries/wordpress-plugin">WordPress plugin documentation.</a></li>
 									</ul>
 								</div>
 							</div>

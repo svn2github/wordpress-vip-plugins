@@ -27,7 +27,7 @@ function sailthru_initialize_setup_options() {
 
 			add_settings_field(
 				'sailthru_setup_email_template',
-				__( 'Wordpress template', 'sailthru-for-wordpress' ),
+				__( 'WordPress template', 'sailthru-for-wordpress' ),
 				'sailthru_setup_email_template_callback',
 				'sailthru_setup_options',
 				'sailthru_setup_section',
