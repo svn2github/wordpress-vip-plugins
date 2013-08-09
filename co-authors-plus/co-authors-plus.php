@@ -1127,9 +1127,11 @@ class coauthors_plus {
 			return $allcaps;
 
 		$current_user = wp_get_current_user();
-		if ( 'publish' == get_post_status( $post_id ) && ! empty( $current_user->allcaps[$obj->cap->edit_published_posts] ) )
+		if ( 'publish' == get_post_status( $post_id ) && 
+			( isset( $obj->cap->edit_published_posts ) && ! empty( $current_user->allcaps[$obj->cap->edit_published_posts] ) ) )
 			$allcaps[$obj->cap->edit_published_posts] = true;
-		elseif ( 'private' == get_post_status( $post_id ) && ! empty( $current_user->allcaps[$obj->cap->edit_private_posts] ) )
+		elseif ( 'private' == get_post_status( $post_id ) && 
+			( isset( $obj->cap->edit_private_posts ) && ! empty( $current_user->allcaps[$obj->cap->edit_private_posts] ) ) )
 			$allcaps[$obj->cap->edit_private_posts] = true;
 
 		$allcaps[$obj->cap->edit_others_posts] = true;
@@ -1184,7 +1186,9 @@ class coauthors_plus {
 		$term_description = implode( ' ', $search_values );
 
 		if ( $term = $this->get_author_term( $coauthor ) ) {
-			wp_update_term( $term->term_id, $this->coauthor_taxonomy, array( 'description' => $term_description ) );
+			if ( $term->description != $term_description ) {
+				wp_update_term( $term->term_id, $this->coauthor_taxonomy, array( 'description' => $term_description ) );
+			}
 		} else {
 			$coauthor_slug = 'cap-' . $coauthor->user_nicename;
 			$args = array(
