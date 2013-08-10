@@ -117,12 +117,12 @@ class New_Device_Notification {
 		$send_email  = ( time() - $installed_time < (int) apply_filters( 'ndn_grace_period', $this->grace_period ) ) ? false : true;
 
 		$send_email = apply_filters( 'ndn_send_email', $send_email, array( 'user' => $current_user, 'location' => $location, 'ip' => $_SERVER['REMOTE_ADDR'], 'hostname' => $hostname ) );
-
-		// Notify VIP of this
-		$debug_message  = '[NDN] [EMAIL ';
-		$debug_message .=  ( $send_email ) ? '' : 'NOT ';
-		$debug_message .= "SENT] New device detected for {$current_user->user_login} on " . parse_url( home_url(), PHP_URL_HOST ) . ': ' . $_SERVER['REMOTE_ADDR'] . " ({$location->human}) using " . $_SERVER['HTTP_USER_AGENT'];
-		send_vip_team_debug_message( $debug_message, 'ndn' );
+		
+		do_action( 'ndn_notify_of_new_device', $current_user, array(
+			'location' => $location,
+			'send_email' => $send_email,
+			'hostname' => $hostname,
+		) );
 
 		if ( ! $send_email )
 			return false;
