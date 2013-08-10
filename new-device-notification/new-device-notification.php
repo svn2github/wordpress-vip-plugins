@@ -24,10 +24,14 @@ class New_Device_Notification {
 		add_option( 'newdevicenotification_installedtime', time() );
 
 		// Wait until "admin_init" to do anything else
-		add_action( 'admin_init', array( &$this, 'admin_init' ), 99 );
+		if ( apply_filters( 'ndn_run_only_in_admin', true ) ) {
+			add_action( 'admin_init', array( $this, 'start' ), 99 );
+		} else {
+			add_action( 'init', array( $this, 'start' ), 99 );
+		}
 	}
 
-	public function admin_init() {
+	public function start() {
 		global $current_user;
 
 		// Internal IP whitelist
@@ -43,10 +47,11 @@ class New_Device_Notification {
 
 		get_currentuserinfo();
 
-		// Users to skip:
+		// By default, users to skip:
 		// * Super admins (Automattic employees visiting your site)
 		// * Users who don't have /wp-admin/ access
-		if ( is_super_admin() || ! current_user_can( 'edit_posts' ) )
+		$is_privileged_user = ! is_super_admin() && current_user_can( 'edit_posts' );
+		if ( false === apply_filters( 'ndn_run_for_current_user', $is_privileged_user ) )
 			return;
 
 		// Set up the per-blog salt
