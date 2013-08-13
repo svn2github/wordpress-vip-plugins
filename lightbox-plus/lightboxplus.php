@@ -10,7 +10,7 @@ Version: 1.5.3.1-mod
 /*---- 3/27/2009 12:48:47 PM ----*/
 global $post, $content;  // WordPress Globals
 global $g_lightbox_plus_url;
-$g_lightbox_plus_url = home_url('/wp-content/themes/vip/plugins/lightbox-plus');
+$g_lightbox_plus_url = plugins_url( '', __FILE__ );
 load_plugin_textdomain( 'lightboxplus', false, false, dirname( __FILE__ ) . '/languages/' );
 
 if (!function_exists("lightboxPlusReload")) {
