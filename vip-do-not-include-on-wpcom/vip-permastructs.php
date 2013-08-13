@@ -206,15 +206,16 @@ function _wpcom_vip_cdn_load_static( $cdn_host_static ) {
  * @internal
  */
 function _wpcom_vip_cdn_load_media( $cdn_host_media ) {
+	$wpcom_host_media = function_exists( 'wpcom_get_blog_files_url' ) ? parse_url( wpcom_get_blog_files_url(), PHP_URL_HOST ) : '[\w]+.files.wordpress.com';
 
 	add_filter( 'wp_get_attachment_url', function( $url, $attachment_id ) use ( $cdn_host_media ) {
 		$host = _wpcom_vip_cdn_pick_random_host( $cdn_host_media, $url );
 		return _wpcom_vip_custom_cdn_replace( $url, $host );
 	}, 999, 2 );
 
-	add_filter( 'the_content', function( $content ) use ( $cdn_host_media ) {
+	add_filter( 'the_content', function( $content ) use ( $wpcom_host_media, $cdn_host_media ) {
 		if ( false !== strpos( $content, 'files.wordpress.com' ) ) {
-			$content = preg_replace_callback( '#(https?://[\w]+.files.wordpress.com[^\'">]+)#', function( $matches ) use ( $cdn_host_media ) {
+			$content = preg_replace_callback( '#(https?://' . preg_quote( $wpcom_host_media ) . '[^\s\'">]+)#', function( $matches ) use ( $cdn_host_media ) {
 				$host = _wpcom_vip_cdn_pick_random_host( $cdn_host_media, $url );
 				return _wpcom_vip_custom_cdn_replace( $matches[1], $host );
 			}, $content );
