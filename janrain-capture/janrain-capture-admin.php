@@ -184,11 +184,19 @@ class JanrainCaptureAdmin {
 			),
 
 		);
-		if( $_SERVER['REQUEST_METHOD'] == 'POST' )
-			$this->on_post();
+		
+		add_action( 'init', array( &$this, 'init' ) );
 		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
 	}
 	
+	/**
+	 * Method bound to the init action.
+	 */
+	function init() {
+		if( $_SERVER['REQUEST_METHOD'] == 'POST' )
+			$this->on_post();
+	}
+
 	/**
 	 * Method bound to the admin_menu action.
 	 */
@@ -274,8 +282,7 @@ FOOTER;
 	 */
 	function print_field( $field ) {
 		$default = isset( $field['default'] ) ? $field['default'] : '';
-		$value   = JanrainCapture::get_option( $field['name'] );
-		$value   = ( $value !== false ) ? $value : $default;
+		$value   = JanrainCapture::get_option( $field['name'], $default );
 		// echo $field['name'] . ": " . $value . "<br>Def: " . $default . "<br>"; return;
 		$r = ( isset( $field['required'] ) && $field['required'] == true ) ? ' <span class="description">(required)</span>' : '';
 		switch ( $field['type'] ) {
@@ -344,11 +351,12 @@ ENDSELECT;
 				break;
 			case 'multiselect':
 				sort( $field['options'] );
+				$mselect_height = ( count( $field['options'] ) * 24 ) . 'px';
 				echo <<<MSELECT
 		<tr>
 			<th><label for="{$field['name']}[]">{$field['title']}$r</label></th>
 			<td valign="top">
-				<select name="{$field['name']}[]" multiple="multiple">
+				<select name="{$field['name']}[]" multiple="multiple" style="height: {$mselect_height}">
 MSELECT;
 				foreach ( $field['options'] as $option ) {
 					$selected = in_array( $option, $value ) !== false ? ' selected="selected"' : '';

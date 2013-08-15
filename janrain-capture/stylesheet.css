@@ -22,3 +22,8 @@
 		margin-bottom: 1px !important; 
 		cursor:pointer !important; 
 }
+
+#janrain_capture_main select[multiple],
+#janrain_capture_ui select[multiple] {
+	height: 100px !important;
+}

@@ -40,6 +40,8 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 				add_shortcode( self::$name, array( &$this, 'shortcode' ) );
 				add_shortcode( 'janrain_share', array( &$this, 'shortcode_share' ) );
 			}
+
+
 			
 			require_once $this->path . 'janrain-capture-ui.php';
 			$this->ui = new JanrainCaptureUi();
