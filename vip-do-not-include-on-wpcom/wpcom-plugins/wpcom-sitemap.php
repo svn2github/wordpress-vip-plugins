@@ -177,7 +177,7 @@ function wpcom_print_sitemap() {
 			foreach ( $all_attachments as $attachment ) {
 
 				// Skip this particular attachment if we already have 5 for the post
-				if ( $attachment_count[$attachment->post_parent] >= 5 )
+				if ( array_key_exists( $attachment->post_parent, $attachment_count ) && $attachment_count[$attachment->post_parent] >= 5 )
 					continue;
 
 				$selected_attachments[] = $attachment->ID;
