@@ -517,7 +517,7 @@ class Sailthru_Horizon {
 
 			// Did the user set an expiry date?
 			if( ! empty( $_POST['sailthru_post_expiration'] ) && isset( $_POST['sailthru_post_expiration'] ) ) {
-				$expiry_time = strotime( $_POST['sailthru_post_expiration'] );
+				$expiry_time = strtotime( $_POST['sailthru_post_expiration'] );
 				if ( $expiry_time ) {
 					$expiry_date = date( 'Y-m-d', $expiry_time );
 				
