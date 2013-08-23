@@ -46,6 +46,8 @@ class WPCOM_Related_Posts {
 
 	protected static $instance;
 
+	private $_generation_method;
+
 	public static function instance() {
 		if ( ! isset( self::$instance ) ) {
 			self::$instance = new WPCOM_Related_Posts;
@@ -82,6 +84,11 @@ class WPCOM_Related_Posts {
 		$this->options = get_option( self::key, array() );
 
 		$this->options = wp_parse_args( $this->options, $this->default_options );
+
+		// We are using the related API, no need to load ES here.
+		if ( $this->_use_related_api() ) {
+			return;
+		}
 
 		// If Elastic Search exists, let's use that
 		$es_path = WP_CONTENT_DIR . '/plugins/elasticsearch.php';
@@ -206,13 +213,19 @@ class WPCOM_Related_Posts {
 		if ( $related_posts ) {
 			$related_posts_html[] = '<ul>';
 			foreach( $related_posts as $related_post ) {
+				if ( $this->_generation_method )
+					$related_post_url = BumpAndRedirect::generate_url( 'Elastic-Search-Related-Post-Hit', $this->_generation_method, get_permalink( $related_post->ID ), true );
+				else
+					$related_post_url = get_permalink( $related_post->ID );
+
+
 				$related_posts_html[] = '<li>';
 
 				if ( has_post_thumbnail( $related_post->ID ) ) {
-					$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . get_the_post_thumbnail( $related_post->ID, apply_filters( 'wrp_thumbnail_size', 'post-thumbnail' ) ) . '</a>';
+					$related_posts_html[] = '<a href="' . $related_post_url . '">' . get_the_post_thumbnail( $related_post->ID, apply_filters( 'wrp_thumbnail_size', 'post-thumbnail' ) ) . '</a>';
 				}
 
-				$related_posts_html[] = '<a href="' . get_permalink( $related_post->ID ) . '">' . apply_filters( 'the_title', $related_post->post_title ) . '</a>';
+				$related_posts_html[] = '<a href="' . $related_post_url . '">' . apply_filters( 'the_title', $related_post->post_title ) . '</a>';
 				$related_posts_html[] = '</li>';
 			}
 			$related_posts_html[] = '</ul>';
@@ -251,9 +264,48 @@ class WPCOM_Related_Posts {
 		$this->args = $args;
 
 		$related_posts = array();
+		$this->_generation_method = null;
 
-		// Use Elastic Search for the results if it's available
-		if ( $this->is_elastic_search && ( $current_post = get_post( $post_id ) ) ) {
+		if ( $this->_use_related_api() ) {
+			// Use related posts API
+
+			$body = array(
+				'size' => (int)$args['posts_per_page'],
+			);
+
+			$filters = $this->_get_es_filters_from_args( $args );
+			if ( ! empty( $filters ) )
+				$body['filter'] = array( 'and' => $filters );
+
+			$response = wp_remote_post(
+				'https://public-api.wordpress.com/rest/v1/sites/' . get_current_blog_id() . "/posts/$post_id/related/",
+				array(
+					'timeout'    => 10,
+					'user-agent' => 'wpcom-related-posts (VIP)',
+					'sslverify'  => true,
+					'body'       => $body,
+				)
+			);
+
+			if ( is_wp_error( $response ) ) {
+				return array();
+			}
+
+			$response = json_decode( wp_remote_retrieve_body( $response ), true );
+
+			$related_posts = array();
+			if ( is_array( $response ) && ! empty( $response['results']['hits'] ) ) {
+				foreach( $response['results']['hits'] as $hit ) {
+					if ( isset( $hit['fields']['post_id'] ) )
+						$related_posts[] = get_post( $hit['fields']['post_id'] );
+					elseif ( isset( $hit['_source']['id'] ) )
+						$related_posts[] = get_post( $hit['_source']['id'] );
+				}
+			}
+
+			$this->_generation_method = 'mlt';
+		} elseif ( $this->is_elastic_search && ( $current_post = get_post( $post_id ) ) ) {
+			// Use Elastic Search for the results if it's available
 
 			$keywords = $this->get_keywords( $current_post->post_title ) + $this->get_keywords( $current_post->post_content ) ;
 			$query = implode( ' ', array_unique( $keywords ) );
@@ -267,50 +319,8 @@ class WPCOM_Related_Posts {
 					'name'                => parse_url( site_url(), PHP_URL_HOST ),
 					'size'                => (int)$args['posts_per_page'] + 1,
 				);
-			$filters = array();
-			if ( ! empty( $args['has_terms'] ) ) {
-				foreach( (array)$args['has_terms'] as $term ) {
-					if ( mb_strlen( $term->taxonomy ) ) {
-						switch ( $term->taxonomy ) {
-							case 'post_tag':
-								$tax_fld = 'tag.slug';
-								break;
-							case 'category':
-								$tax_fld = 'category.slug';
-								break;
-							default:
-								$tax_fld = 'taxonomy.' . $term->taxonomy . '.slug';
-								break;
-						}
-						$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
-					}
-				}
-			}
-			$valid_post_types = get_post_types();
-			if ( is_array( $args['post_type'] ) ) {
-				$sanitized_post_types = array();
-				foreach ( $args['post_type'] as $pt ) {
-					if ( in_array( $pt, $valid_post_types ) )
-						$sanitized_post_types[] = $pt;
-				}
-				if ( ! empty( $sanitized_post_types ) )
-					$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
-			} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
-				$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
-			}
 
-			if ( is_array( $args['date_range'] ) &&
-				! empty( $args['date_range']['from'] ) &&
-				! empty( $args['date_range']['to'] ) ) {
-					$filters[] = array(
-						'range'	=> array(
-							'date' => array(
-								'from' 	=> date( 'Y-m-d', $args['date_range']['from'] ),
-								'to' 	=> date( 'Y-m-d', $args['date_range']['to'] )
-							)
-						)
-					);
-			}
+			$filters = $this->_get_es_filters_from_args( $args );
 
 			if ( ! empty( $filters ) )
 				$es_args['filter'] = array( 'and' => $filters );
@@ -334,6 +344,8 @@ class WPCOM_Related_Posts {
 			// If we're still over the initial request, just return the first N
 			if ( count( $related_posts) > (int)$args['posts_per_page'] )
 				$related_posts = array_slice( $related_posts, 0, (int)$args['posts_per_page'] );
+
+			$this->_generation_method = 'mlt-query';
 		} else {
 			$related_query_args = array(
 				'posts_per_page' => (int)$args['posts_per_page'],
@@ -363,7 +375,11 @@ class WPCOM_Related_Posts {
 			remove_filter( 'posts_where', array( $this, 'filter_related_posts_where' ) );
 
 			$related_posts = $related_query->get_posts();
+
+			$this->_generation_method = 'wp-query';
 		}
+
+		a8c_bump_stat( 'Elastic-Search-Related-Post-Gen', $this->_generation_method );
 
 		// Clear out the $args, as they are only meaningful inside get_related_posts()
 		$this->args = array();
@@ -414,6 +430,67 @@ class WPCOM_Related_Posts {
 		$where .= $wpdb->prepare( ' AND post_date < %s', date( 'Y-m-d', $this->args['date_range']['to'] ) );
 
 		return $where;
+	}
+
+	private function _use_related_api() {
+		return false;
+		return in_array(
+			get_current_blog_id(),
+			array(
+				'4779443', //hackadaycom.wordpress.com
+			)
+		);
+	}
+
+	private function _get_es_filters_from_args( array $args ) {
+		$filters = array();
+
+		if ( ! empty( $args['has_terms'] ) ) {
+			foreach( (array)$args['has_terms'] as $term ) {
+				if ( mb_strlen( $term->taxonomy ) ) {
+					switch ( $term->taxonomy ) {
+						case 'post_tag':
+							$tax_fld = 'tag.slug';
+							break;
+						case 'category':
+							$tax_fld = 'category.slug';
+							break;
+						default:
+							$tax_fld = 'taxonomy.' . $term->taxonomy . '.slug';
+							break;
+					}
+					$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
+				}
+			}
+		}
+
+		$valid_post_types = get_post_types();
+		if ( is_array( $args['post_type'] ) ) {
+			$sanitized_post_types = array();
+			foreach ( $args['post_type'] as $pt ) {
+				if ( in_array( $pt, $valid_post_types ) )
+					$sanitized_post_types[] = $pt;
+			}
+			if ( ! empty( $sanitized_post_types ) )
+				$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
+		} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
+			$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
+		}
+
+		if ( is_array( $args['date_range'] ) &&
+			! empty( $args['date_range']['from'] ) &&
+			! empty( $args['date_range']['to'] ) ) {
+				$filters[] = array(
+					'range' => array(
+						'date' => array(
+							'from' => date( 'Y-m-d', $args['date_range']['from'] ),
+							'to'   => date( 'Y-m-d', $args['date_range']['to'] )
+						)
+					)
+				);
+		}
+
+		return $filters;
 	}
 }
 
