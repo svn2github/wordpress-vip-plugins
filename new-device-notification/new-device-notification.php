@@ -122,7 +122,7 @@ class New_Device_Notification {
 		$send_email  = ( time() - $installed_time < (int) apply_filters( 'ndn_grace_period', $this->grace_period ) ) ? false : true;
 
 		$send_email = apply_filters( 'ndn_send_email', $send_email, array( 'user' => $current_user, 'location' => $location, 'ip' => $_SERVER['REMOTE_ADDR'], 'hostname' => $hostname ) );
-		
+
 		do_action( 'ndn_notify_of_new_device', $current_user, array(
 			'location' => $location,
 			'send_email' => $send_email,
@@ -133,39 +133,13 @@ class New_Device_Notification {
 			return false;
 
 		$subject = sprintf( apply_filters( 'ndn_subject', '[%1$s] Automated security advisory: %2$s has logged in from an unknown device' ), $blogname, $current_user->display_name );
-		$message = sprintf( apply_filters( 'ndn_message',
-'Hello,
 
-This is an automated email to all %2$s site moderators to inform you that %1$s has logged into %3$s from a device that we don\'t recognize or that had last been used before %9$s when this monitoring was first enabled.
-
-It\'s likely that %1$s simply logged in from a new web browser or computer (in which case this email can be safely ignored), but there is also a chance that their account has been compromised and someone else has logged into their account.
-
-Here are some details about the login to help verify if it was legitimate:
-
-WP.com Username: %8$s
-IP Address: %4$s
-Hostname: %5$s
-Guessed Location: %6$s  (likely completely wrong for mobile devices)
-Browser User Agent: %7$s
-
-If you believe that this log in was unauthorized, please immediately reply to this e-mail and our VIP team will work with you to remove %1$s\'s access.
-
-You should also advise %1$s to change their password immediately if you feel this log in was unauthorized:
-
-http://support.wordpress.com/passwords/
-
-Feel free to also reply to this e-mail if you have any questions whatsoever.
-
-- WordPress.com VIP' ),
-			$current_user->display_name,               // 1
-			$blogname,                                 // 2
-			trailingslashit( home_url() ),             // 3
-			$_SERVER['REMOTE_ADDR'],                   // 4
-			$hostname,                                 // 5
-			$location->human,                          // 6
-			strip_tags( $_SERVER['HTTP_USER_AGENT'] ), // 7, strip_tags() is better than nothing
-			$current_user->user_login,                 // 8
-			date( 'F jS, Y', $installed_time )         // 9, Not adjusted for timezone but close enough
+		$message = $this->get_standard_message( $current_user, array(
+				'blogname'       => $blogname,
+				'hostname'       => $hostname,
+				'location'       => $location->human,
+				'installed_time' => date( 'F jS, Y', $installed_time ),
+			)
 		);
 
 		// "admin_email" plus any e-mails passed to the vip_multiple_moderators() function
@@ -175,8 +149,10 @@ Feel free to also reply to this e-mail if you have any questions whatsoever.
 
 		$headers  = 'From: "WordPress.com VIP Support" <vip-support@wordpress.com>' . "\r\n";
 
-		if ( apply_filters( 'ndn_cc_current_user', true ) )
-			$headers .= 'CC: ' . $current_user->user_email . "\r\n";
+		// Filtering the email address instead of a boolean so we can change it if needed
+		$cc_user = apply_filters( 'ndn_cc_current_user', $current_user->user_email, $current_user );
+		if ( is_email( $cc_user ) )
+			$headers .= 'CC: ' . $cc_user . "\r\n";
 
 		wp_mail( $emails, $subject, $message, $headers );
 
@@ -224,6 +200,50 @@ Feel free to also reply to this e-mail if you have any questions whatsoever.
 
 		return false; // covers two scenarios: invalid ip or no ip whitelist
 	}
+
+	function get_standard_message( $user_obj, $args ) {
+		if ( ! isset( $args['blogname'], $args['hostname'], $args['location'], $args['installed_time'] ) ) {
+			return false;
+		}
+
+		$message = sprintf(
+			'Hello,
+
+This is an automated email to all %2$s site moderators to inform you that %1$s has logged into %3$s from a device that we don\'t recognize or that had last been used before %9$s when this monitoring was first enabled.
+
+It\'s likely that %1$s simply logged in from a new web browser or computer (in which case this email can be safely ignored), but there is also a chance that their account has been compromised and someone else has logged into their account.
+
+Here are some details about the login to help verify if it was legitimate:
+
+WP.com Username: %8$s
+IP Address: %4$s
+Hostname: %5$s
+Guessed Location: %6$s  (likely completely wrong for mobile devices)
+Browser User Agent: %7$s
+
+If you believe that this log in was unauthorized, please immediately reply to this e-mail and our VIP team will work with you to remove %1$s\'s access.
+
+You should also advise %1$s to change their password immediately if you feel this log in was unauthorized:
+
+http://support.wordpress.com/passwords/
+
+Feel free to also reply to this e-mail if you have any questions whatsoever.
+
+- WordPress.com VIP',
+			$user_obj->display_name,                   // 1
+			$args['blogname'],                         // 2
+			trailingslashit( home_url() ),             // 3
+			$_SERVER['REMOTE_ADDR'],                   // 4
+			$args['hostname'],                         // 5
+			$args['location'],                         // 6
+			strip_tags( $_SERVER['HTTP_USER_AGENT'] ), // 7, strip_tags() is better than nothing
+			$user_obj->user_login,                     // 8
+			$args['installed_time']                    // 9, Not adjusted for timezone but close enough
+		);
+
+		return apply_filters( 'ndn_message', $message, $user_obj, $args );
+	}
+
 }
 
 $new_device_notification = new New_Device_Notification();
