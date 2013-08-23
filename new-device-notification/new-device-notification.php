@@ -97,14 +97,13 @@ class New_Device_Notification {
 
 		$tenyrsfromnow = time() + 315569260;
 
-		// Front end (probably a mapped domain)
-		$parts = parse_url( home_url() );
-		setcookie( $this->cookie_name, $this->cookie_hash, $tenyrsfromnow, COOKIEPATH, $parts['host'], false, true );
+		// Covers all subdomains of wordpress.com, which covers admin section as well
+		setcookie( $this->cookie_name, $this->cookie_hash, $tenyrsfromnow, COOKIEPATH, 'wordpress.com', false, true );
 
-		// If admin area is on a different domain, set a cookie there too
+		// If site is on a mapped domain
 		if ( site_url() != home_url() ) {
-			$parts = parse_url( site_url() );
-			setcookie( $this->cookie_name, $this->cookie_hash, $tenyrsfromnow, SITECOOKIEPATH, $parts['host'], false, true );
+			$parts = parse_url( home_url() );
+			setcookie( $this->cookie_name, $this->cookie_hash, $tenyrsfromnow, COOKIEPATH, $parts['host'], false, true );
 		}
 	}
 
