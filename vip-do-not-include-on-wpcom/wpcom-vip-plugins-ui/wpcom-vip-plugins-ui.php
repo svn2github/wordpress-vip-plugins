@@ -154,6 +154,7 @@ class WPcom_VIP_Plugins_UI {
 			'five-min-video-suggest',
 			'stipple',
 			'brightcove',
+			'lift-search',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
