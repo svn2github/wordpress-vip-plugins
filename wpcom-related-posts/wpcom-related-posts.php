@@ -85,11 +85,6 @@ class WPCOM_Related_Posts {
 
 		$this->options = wp_parse_args( $this->options, $this->default_options );
 
-		// We are using the related API, no need to load ES here.
-		if ( $this->_use_related_api() ) {
-			return;
-		}
-
 		// If Elastic Search exists, let's use that
 		$es_path = WP_CONTENT_DIR . '/plugins/elasticsearch.php';
 		if ( file_exists( $es_path ) ) {
@@ -101,6 +96,11 @@ class WPCOM_Related_Posts {
 				$this->is_elastic_search = true;
 			else
 				$this->is_elastic_search = false;
+		}
+
+		// We are using the related API
+		if ( $this->_use_related_api() ) {
+			return;
 		}
 
 		$this->stopwords = array( 'a', 'about', 'above', 'above', 'across', 'after', 'afterwards', 'again', 'against', 'all', 'almost', 'alone', 'along', 'already', 'also','although','always','am','among', 'amongst', 'amoungst', 'amount',  'an', 'and', 'another', 'any','anyhow','anyone','anything','anyway', 'anywhere', 'are', 'around', 'as',  'at', 'back','be','became', 'because','become','becomes', 'becoming', 'been', 'before', 'beforehand', 'behind', 'being', 'below', 'beside', 'besides', 'between', 'beyond', 'bill', 'both', 'bottom','but', 'by', 'call', 'can', 'cannot', 'cant', 'co', 'con', 'could', 'couldnt', 'cry', 'de', 'describe', 'detail', 'do', 'done', 'down', 'due', 'during', 'each', 'eg', 'eight', 'either', 'eleven','else', 'elsewhere', 'empty', 'enough', 'etc', 'even', 'ever', 'every', 'everyone', 'everything', 'everywhere', 'except', 'few', 'fifteen', 'fify', 'fill', 'find', 'fire', 'first', 'five', 'for', 'former', 'formerly', 'forty', 'found', 'four', 'from', 'front', 'full', 'further', 'get', 'give', 'go', 'had', 'has', 'hasnt', 'have', 'he', 'hence', 'her', 'here', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'however', 'hundred', 'ie', 'if', 'in', 'inc', 'indeed', 'interest', 'into', 'is', 'it', 'its', 'itself', 'keep', 'last', 'latter', 'latterly', 'least', 'less', 'ltd', 'made', 'many', 'may', 'me', 'meanwhile', 'might', 'mill', 'mine', 'more', 'moreover', 'most', 'mostly', 'move', 'much', 'must', 'my', 'myself', 'name', 'namely', 'neither', 'never', 'nevertheless', 'next', 'nine', 'no', 'nobody', 'none', 'noone', 'nor', 'not', 'nothing', 'now', 'nowhere', 'of', 'off', 'often', 'on', 'once', 'one', 'only', 'onto', 'or', 'other', 'others', 'otherwise', 'our', 'ours', 'ourselves', 'out', 'over', 'own','part', 'per', 'perhaps', 'please', 'put', 'rather', 're', 'same', 'see', 'seem', 'seemed', 'seeming', 'seems', 'serious', 'several', 'she', 'should', 'show', 'side', 'since', 'sincere', 'six', 'sixty', 'so', 'some', 'somehow', 'someone', 'something', 'sometime', 'sometimes', 'somewhere', 'still', 'such', 'system', 'take', 'ten', 'than', 'that', 'the', 'their', 'them', 'themselves', 'then', 'thence', 'there', 'thereafter', 'thereby', 'therefore', 'therein', 'thereupon', 'these', 'they', 'thickv', 'thin', 'third', 'this', 'those', 'though', 'three', 'through', 'throughout', 'thru', 'thus', 'to', 'together', 'too', 'top', 'toward', 'towards', 'twelve', 'twenty', 'two', 'un', 'under', 'until', 'up', 'upon', 'us', 'very', 'via', 'was', 'we', 'well', 'were', 'what', 'whatever', 'when', 'whence', 'whenever', 'where', 'whereafter', 'whereas', 'whereby', 'wherein', 'whereupon', 'wherever', 'whether', 'which', 'while', 'whither', 'who', 'whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with', 'within', 'without', 'would', 'yet', 'you', 'your', 'yours', 'yourself', 'yourselves', 'und', 'de', 'la', 'www', 'en' );
@@ -266,40 +266,30 @@ class WPCOM_Related_Posts {
 		$related_posts = array();
 		$this->_generation_method = null;
 
-		if ( $this->_use_related_api() ) {
+		if ( $this->is_elastic_search && $this->_use_related_api() ) {
 			// Use related posts API
 
-			$body = array(
+			$mlt_args = array(
 				'size' => (int)$args['posts_per_page'],
 			);
 
 			$filters = $this->_get_es_filters_from_args( $args );
 			if ( ! empty( $filters ) )
-				$body['filter'] = array( 'and' => $filters );
+				$mlt_args['filter'] = array( 'and' => $filters );
 
-			$response = wp_remote_post(
-				'https://public-api.wordpress.com/rest/v1/sites/' . get_current_blog_id() . "/posts/$post_id/related/",
-				array(
-					'timeout'    => 10,
-					'user-agent' => 'wpcom-related-posts (VIP)',
-					'sslverify'  => true,
-					'body'       => $body,
-				)
-			);
+			// Set defaults
+			$mlt_args['name'] = 'global';
+			$mlt_args['blog_id'] = get_current_blog_id();
+			$mlt_args['id'] = $post_id;
+			$mlt_args['fields'] = array( 'post_id' );
 
-			if ( is_wp_error( $response ) ) {
-				return array();
-			}
+			$stat_app_name = 'blog-search-related';
 
-			$response = json_decode( wp_remote_retrieve_body( $response ), true );
-
+			$results = es_api_search_index_for_related( $mlt_args, $stat_app_name );
 			$related_posts = array();
-			if ( is_array( $response ) && ! empty( $response['results']['hits'] ) ) {
+			if ( !is_wp_error( $results ) && isset( $results['results']['hits'] ) && is_array( $results['results']['hits'] ) ){
 				foreach( $response['results']['hits'] as $hit ) {
-					if ( isset( $hit['fields']['post_id'] ) )
-						$related_posts[] = get_post( $hit['fields']['post_id'] );
-					elseif ( isset( $hit['_source']['id'] ) )
-						$related_posts[] = get_post( $hit['_source']['id'] );
+					$related_posts[] = get_post( $hit['fields']['post_id'] );
 				}
 			}
 
