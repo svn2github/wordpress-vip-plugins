@@ -327,7 +327,7 @@ class Chartbeat_Widget extends WP_Widget {
         }
     }
 	
-	function widget( $args ) {
+	function widget( $args, $instance ) {
 		extract( $args );
 		echo $before_widget;
 		
