@@ -369,7 +369,8 @@ class WPCOM_Related_Posts {
 			$this->_generation_method = 'wp-query';
 		}
 
-		a8c_bump_stat( 'Elastic-Search-Related-Post-Gen', $this->_generation_method );
+		if ( function_exists( 'a8c_bump_stat' ) )
+			a8c_bump_stat( 'Elastic-Search-Related-Post-Gen', $this->_generation_method );
 
 		// Clear out the $args, as they are only meaningful inside get_related_posts()
 		$this->args = array();
