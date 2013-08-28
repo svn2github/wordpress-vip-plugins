@@ -213,7 +213,7 @@ class WPCOM_Related_Posts {
 		if ( $related_posts ) {
 			$related_posts_html[] = '<ul>';
 			foreach( $related_posts as $related_post ) {
-				if ( $this->_generation_method )
+				if ( $this->_can_bump_stats() && $this->_generation_method )
 					$related_post_url = BumpAndRedirect::generate_url( 'Elastic-Search-Related-Post-Hit', $this->_generation_method, get_permalink( $related_post->ID ), true );
 				else
 					$related_post_url = get_permalink( $related_post->ID );
@@ -369,7 +369,7 @@ class WPCOM_Related_Posts {
 			$this->_generation_method = 'wp-query';
 		}
 
-		if ( function_exists( 'a8c_bump_stat' ) )
+		if ( $this->_can_bump_stats() )
 			a8c_bump_stat( 'Elastic-Search-Related-Post-Gen', $this->_generation_method );
 
 		// Clear out the $args, as they are only meaningful inside get_related_posts()
@@ -482,6 +482,10 @@ class WPCOM_Related_Posts {
 		}
 
 		return $filters;
+	}
+
+	private function _can_bump_stats() {
+		return function_exists( 'a8c_bump_stat' );
 	}
 }
 
