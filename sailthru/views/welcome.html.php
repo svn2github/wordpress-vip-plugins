@@ -37,7 +37,7 @@ $verify_setup = sailthru_verify_setup();
               <h3>Sailthru Documentation</h3>
                 <ul>
                     <li><a href="http://docs.sailthru.com/">Documentation</a></li>
-                    <li><a href="http://docs.sailthru.com/developers/client-libraries/wordpress-plugin">WordPress Documentation</a></li>
+                    <li><a href="http://docs.sailthru.com/wordpress-vip-plugin">WordPress Documentation</a></li>
                     <li><a href="http://docs.sailthru.com/documentation/products/scout">Scout Documentation</a></li>
                     <li><a href="http://docs.sailthru.com/documentation/products/concierge">Concierge Documentation</a></li>
           </div>

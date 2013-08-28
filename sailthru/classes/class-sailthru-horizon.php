@@ -141,7 +141,7 @@ class Sailthru_Horizon {
 
 		// datepicker for the meta box on post pages
 		wp_enqueue_script('jquery-ui-datepicker', array('jquery'));
-		wp_enqueue_style( 'jquery-style', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+		wp_enqueue_style( 'jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
 
 		// our own magic
 		wp_enqueue_script( 'sailthru-for-wordpress-admin-script', SAILTHRU_PLUGIN_URL . 'js/admin.js' , array('jquery') );
@@ -520,7 +520,7 @@ class Sailthru_Horizon {
 				$expiry_time = strtotime( $_POST['sailthru_post_expiration'] );
 				if ( $expiry_time ) {
 					$expiry_date = date( 'Y-m-d', $expiry_time );
-				
+
 					// Save the date. hehe.
 					update_post_meta( $post_id, 'sailthru_post_expiration', $expiry_date );
 				}

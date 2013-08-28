@@ -14,7 +14,7 @@
 					  </div>
 					  <?php else: ?>
 					  <div class="error settings-error">
-					    <p>Sailthru is not correctly configured, please check your API key &amp; Secret are correct and that you have selected an email template to use.</p>
+					    <p>Sailthru is not correctly configured, please check your API key and template settings.</p>
 					  </div>
 					  <?php endif; ?>
 					<?php endif; ?>
@@ -29,7 +29,6 @@
 
 										<div class="inside">
 											<?php
-
 												settings_fields( 'sailthru_setup_options' );
 												do_settings_sections( 'sailthru_setup_options' );
 
