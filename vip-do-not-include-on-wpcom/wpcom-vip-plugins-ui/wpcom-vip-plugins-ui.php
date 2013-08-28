@@ -213,6 +213,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Storify',
 				'description' => 'Easily add social media to every blog post with Storify.',
 			),
+			'tinypass'   => array(
+				'name' 		  => 'Tinypass',
+				'description' => 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
+			),
 			'zemanta'       => array(
 				'name'        => 'Zemanta',
 				'description' => 'Make more traffic. Zemanta is SEO & Related Content done the right way.',
