@@ -488,7 +488,8 @@ class EXP_Expiring_Posts {
 
 }
 
-EXP_Expiring_Posts::instance();
+// VIP: disabled for now pending some upcoming changes from Tanner
+//EXP_Expiring_Posts::instance();
 
 /**
  * Schedule a post to be expired. If the expiration date is not given,
