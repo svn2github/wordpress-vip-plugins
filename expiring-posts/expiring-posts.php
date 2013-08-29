@@ -128,7 +128,7 @@ class EXP_Expiring_Posts {
 
 		// If post is already expired, make sure the this is visually represented
 		if ( 'expired' == $post_status ) {
-			update_post_meta( $post_id, 'exp_enable_expiration', true );
+			update_post_meta( $post_id, 'exp_pending_expiration', true );
 
 			// post is scheduled to expire, enable expiration and set hook. Exception is if the post has
 			// just transitioned from expired to publish
@@ -176,7 +176,7 @@ class EXP_Expiring_Posts {
 		$post_type_object = get_post_type_object($post_type);
 		$can_publish = current_user_can($post_type_object->cap->publish_posts);
 		$expiration_date = strtotime( get_post_meta( $post->ID, 'exp_expiration_date', true ) );
-		$expiration_enabled = get_post_meta( $post->ID, 'exp_enable_expiration', true );
+		$expiration_enabled = get_post_meta( $post->ID, 'exp_pending_expiration', true );
 
 		// set default expiration date if one is not present.
 		// strtotime returns false if the string is not a valid time
@@ -270,7 +270,7 @@ class EXP_Expiring_Posts {
 		}
 		?>
 
-		<input type="checkbox" name="exp-enable" <?php checked( get_post_meta( $post_id, 'exp_enable_expiration', true ) == false ) ?> id="exp-enable" value="never" />
+		<input type="checkbox" name="exp-enable" <?php checked( get_post_meta( $post_id, 'exp_pending_expiration', true ) == false ) ?> id="exp-enable" value="never" />
 		<label for="exp-enable"><?php _e( 'Never expire' ); ?></label>
 
 		<p>
@@ -311,7 +311,7 @@ class EXP_Expiring_Posts {
 		$datef = __( 'Y-m-d H:i:s' );
 		$expiration_date = date_i18n( $datef, time() );
 		update_post_meta( $post_id, 'exp_expiration_date', sanitize_text_field( $expiration_date ) );
-		update_post_meta( $post_id, 'exp_enable_expiration', true );
+		update_post_meta( $post_id, 'exp_pending_expiration', true );
 	}
 
 	/**
@@ -351,7 +351,7 @@ class EXP_Expiring_Posts {
 		if ( ! $post = get_post( $post ) )
 			return new WP_Error( 'exp_expiring_posts_error', __( 'This is not a valid post.' ) );
 
-		update_post_meta( $post->ID, 'exp_enable_expiration', true );
+		update_post_meta( $post->ID, 'exp_pending_expiration', true );
 
 		if ( 'expired' === get_post_status( $post->ID ) )
 			return true;
@@ -376,7 +376,7 @@ class EXP_Expiring_Posts {
 		if ( ! $post = get_post( $post ) )
 			return new WP_Error( 'exp_expiring_posts_error', __( 'The post provided is not a valid post.' ) );
 
-		update_post_meta( $post->ID, 'exp_enable_expiration', false );
+		delete_post_meta( $post->ID, 'exp_pending_expiration' );
 
 		do_action( 'unschedule_expiring_post', $post->ID );
 
@@ -462,24 +462,23 @@ class EXP_Expiring_Posts {
 		$expiring_posts = array();
 
 		$querystr = "
-			SELECT $wpdb->posts.*
+			SELECT $wpdb->posts.ID
 			FROM $wpdb->posts, $wpdb->postmeta
 			WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
-			AND $wpdb->postmeta.meta_key = 'exp_enable_expiration'
-			AND $wpdb->postmeta.meta_value = 'true'
+			AND $wpdb->postmeta.meta_key = 'exp_pending_expiration'
 			AND $wpdb->posts.post_status != 'expired'
 			ORDER BY $wpdb->posts.post_date DESC
 		 ";
 
-		$posts = $wpdb->get_results( $querystr, OBJECT );
+		$post_ids = $wpdb->get_col( $querystr );
 
-		if ( ! is_array( $posts ) )
+		if ( ! is_array( $post_ids ) )
 			return false;
 
-		foreach ( $posts as $post ) {
-			$gmtime = get_gmt_from_date( get_post_meta( $post->ID, 'exp_expiration_date', true ) );
+		foreach ( $post_ids as $post_id ) {
+			$gmtime = get_gmt_from_date( get_post_meta( $post_id, 'exp_expiration_date', true ) );
 			if ( $expiration_date = strtotime( $gmtime ) )
-				$expiring_posts[$post->ID] = $expiration_date;
+				$expiring_posts[$post_id] = $expiration_date;
 		}
 
 		return $expiring_posts;
@@ -515,7 +514,7 @@ function exp_expire_post( $post, $expiration_date = false ) {
 	$expiration_datef = date_i18n( $datef, $expiration_date );
 
 	update_post_meta( $post->ID, 'exp_expiration_date', sanitize_text_field( $expiration_datef ) );
-	update_post_meta( $post->ID, 'exp_enable_expiration', true );
+	update_post_meta( $post->ID, 'exp_pending_expiration', true );
 
 	do_action( 'exp_expire_post', $post->ID, $expiration_date );
 
@@ -548,4 +547,3 @@ function exp_unschedule_expiring_post( $post ) {
 	return true;
 
 }
-
