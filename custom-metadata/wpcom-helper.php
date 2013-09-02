@@ -31,3 +31,14 @@ function _wpcom_vip_custom_metadata_save_user_data_as_attributes( $object_type, 
 	}
 }
 
+// Force user data to be saved as user attributes instead of user meta
+add_filter( 'custom_metadata_manager_get_value_callback', function( $callback, $field, $object_type ) {
+	if ( 'user' == $object_type )
+		return '_wpcom_vip_custom_metadata_get_user_data_as_attributes';
+
+	return false;
+}, 999, 3 );
+
+function _wpcom_vip_custom_metadata_get_user_data_as_attributes( $object_type, $object_id, $field_slug ) {
+	return get_user_attribute( $object_id, $field_slug );
+}
