@@ -1,5 +1,7 @@
 <?php
 
+add_action( 'load-users_page_grofiles-user-settings', array( $custom_metadata_manager, 'init_metadata' ) );
+
 // Force sanitize the value if a callback is not set
 add_filter( 'custom_metadata_manager_get_sanitize_callback', function( $callback, $field ) {
 	if ( empty( $callback ) )
