@@ -67,16 +67,16 @@ class custom_metadata_manager {
 
 	// field types that support being part of a multifield group
 	// @todo: workarounds needed for other field types
-	var $_field_types_that_support_multifield = array( 'text', 'textarea', 'password', 'number', 'email', 'tel' );
+	var $_field_types_that_support_multifield = array( 'text', 'textarea', 'password', 'number', 'email', 'tel', 'select' );
 
 	// taxonomy types
-	var $_taxonomy_fields = array( 'taxonomy_select', 'taxonomy_radio', 'taxonomy_checkbox' );
+	var $_taxonomy_fields = array( 'taxonomy_select', 'taxonomy_radio', 'taxonomy_checkbox', 'taxonomy_multi_select' );
 
 	// filed types that are saved as multiples but not cloneable
 	var $_multiple_not_cloneable = array( 'taxonomy_checkbox' );
 
 	// fields that always save as an array
-	var $_always_multiple_fields = array( 'taxonomy_checkbox', 'multi_select' );
+	var $_always_multiple_fields = array( 'taxonomy_checkbox', 'multi_select', 'taxonomy_multi_select' );
 
 	// Object types whose columns are generated through apply_filters instead of do_action
 	var $_column_filter_object_types = array( 'user' );
@@ -117,6 +117,8 @@ class custom_metadata_manager {
 		$this->_cloneable_field_types = apply_filters( 'custom_metadata_manager_cloneable_field_types', $this->_cloneable_field_types );
 		$this->_field_types_that_support_default_value = apply_filters( 'custom_metadata_manager_field_types_that_support_default_value', $this->_field_types_that_support_default_value );
 		$this->_field_types_that_support_placeholder = apply_filters( 'custom_metadata_manager_field_types_that_support_placeholder', $this->_field_types_that_support_placeholder );
+		$this->_field_types_that_are_read_only = apply_filters( 'custom_metadata_manager_field_types_that_are_read_only', $this->_field_types_that_are_read_only );
+		$this->_field_types_that_support_multifield = apply_filters( 'custom_metadata_manager_field_types_that_support_multifield', $this->_field_types_that_support_multifield );
 		$this->_taxonomy_fields = apply_filters( 'custom_metadata_manager_cloneable_field_types', $this->_taxonomy_fields );
 		$this->_column_filter_object_types = apply_filters( 'custom_metadata_manager_column_filter_object_types', $this->_column_filter_object_types );
 		$this->_pages_whitelist = apply_filters( 'custom_metadata_manager_pages_whitelist', $this->_pages_whitelist );
@@ -158,10 +160,10 @@ class custom_metadata_manager {
 		// Handle actions related to users
 		if ( $object_type == 'user' ) {
 			global $user_id;
-
+			
 			if ( empty( $user_id ) )
 				$user_id = get_current_user_id();
-
+				
 			// Editing another user's profile
 			add_action( 'edit_user_profile', array( $this, 'add_user_metadata_groups' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'save_user_metadata' ) );
@@ -279,6 +281,7 @@ class custom_metadata_manager {
 			'multifield' => false, // which multifield does this field belong to, if any
 			'field_type' => 'text', // The type of field; possibly values: text, checkbox, radio, select, image
 			'label' => $field_slug, // Label for the field
+			'slug' => $field_slug, // Slug for the field
 			'description' => '', // Description of the field, displayed below the input
 			'values' => array(), // values for select, checkbox, radio buttons
 			'default_value' => '', // default value
@@ -1001,13 +1004,16 @@ class custom_metadata_manager {
 	function _get_field_value( $field_slug, $field, $object_type, $object_id, $single = false ) {
 
 		$get_value_callback = $this->_get_value_callback( $field, $object_type );
+		echo $get_value_callback;
 		if ( $get_value_callback )
 			return call_user_func( $get_value_callback, $object_type, $object_id, $field_slug );
 
 		if ( !in_array( $object_type, $this->_non_post_types ) )
 			$object_type = 'post';
 
-		return get_metadata( $object_type, $object_id, $field_slug, $single );
+		$value = get_metadata( $object_type, $object_id, $field_slug, $single );
+
+		return $value;
 	}
 
 	function _save_field_value( $field_slug, $field, $object_type, $object_id, $value ) {
@@ -1083,7 +1089,7 @@ class custom_metadata_manager {
 	}
 
 	function _display_metadata_multifield( $slug, $multifield, $object_type, $object_id ) {
-		echo '<div class="custom-metadata-multifield" id="' . esc_attr( 'custom-metadata-multifield-' . str_replace( '_', '-', str_replace( '_x_multifield_', '', $slug ) ) ) . '">';
+		echo '<div class="custom-metadata-multifield" data-slug="' . esc_attr( $slug ) . '" id="' . esc_attr( 'custom-metadata-multifield-' . str_replace( '_', '-', str_replace( '_x_multifield_', '', $slug ) ) ) . '">';
 
 		if ( ! empty( $multifield->label ) ) {
 			printf( '<h2>%s</h2>', esc_html( $multifield->label ) );
@@ -1139,12 +1145,14 @@ class custom_metadata_manager {
 		if ( null === $value )
 			$value = $this->get_metadata_field_value( $field_slug, $field, $object_type, $object_id );
 
-		if ( isset( $field->display_callback ) && function_exists( $field->display_callback ) ) {
-			call_user_func( $field->display_callback, $field_slug, $field, $object_type, $object_id, $value );
+		$callback = $field->display_callback;
+
+		if ( $callback && is_callable( $callback ) ) {
+			call_user_func( $callback, $field_slug, $field, $object_type, $object_id, $value );
 			return;
 		}
 
-		echo '<div class="custom-metadata-field ' . sanitize_html_class( $field->field_type ) .'">';
+		echo '<div class="custom-metadata-field ' . sanitize_html_class( $field->field_type ) .'" data-slug="' . esc_attr( $field->slug ) . '">';
 		if ( ! in_array( $object_type, $this->_non_post_types ) )
 			global $post;
 
@@ -1221,6 +1229,7 @@ class custom_metadata_manager {
 					break;
 				case 'select' :
 					$select2 = ( $field->select2 ) ? ' class="custom-metadata-select2" ' : ' ';
+					$select2 .= ( $field->placeholder ) ? ' data-placeholder="'. esc_attr( $field->placeholder ) . '" ' : ' ';
 					printf( '<select id="%s" name="%s"%s>', esc_attr( $field_slug ), esc_attr( $field_id ), $select2 );
 					foreach ( $field->values as $value_slug => $value_label ) {
 						printf( '<option value="%s"%s>', esc_attr( $value_slug ), selected( $v, $value_slug, false ) );
@@ -1260,6 +1269,7 @@ class custom_metadata_manager {
 						break;
 					}
 					$select2 = ( $field->select2 ) ? ' class="custom-metadata-select2" ' : ' ';
+					$select2 .= ( $field->placeholder ) ? ' data-placeholder="'. esc_attr( $field->placeholder ) . '" ' : ' ';
 					printf( '<select name="%s" id="%s"%s>', esc_attr( $field_id ), esc_attr( $field_slug ), $select2 );
 					foreach ( $terms as $term ) {
 						printf( '<option value="%s"%s>%s</option>', esc_attr( $term->slug ), selected( $v, $term->slug, false ), esc_html( $term->name ) );
@@ -1300,6 +1310,7 @@ class custom_metadata_manager {
 			switch ( $field->field_type ) :
 				case 'multi_select' :
 					$select2 = ( $field->select2 ) ? ' class="custom-metadata-select2" ' : ' ';
+					$select2 .= ( $field->placeholder ) ? ' data-placeholder="'. esc_attr( $field->placeholder ) . '" ' : ' ';
 					printf( '<select id="%s" name="%s"%smultiple>', esc_attr( $field_slug ), esc_attr( $field_id ), $select2 );
 					foreach ( $field->values as $value_slug => $value_label ) {
 						printf( '<option value="%s"%s>', esc_attr( $value_slug ), selected( in_array( $value_slug, $value ), true, false ) );
@@ -1320,6 +1331,20 @@ class custom_metadata_manager {
 						echo esc_html( $term->name );
 						echo '</label>';
 					}
+					break;
+				case 'taxonomy_multi_select' :
+					$terms = get_terms( $field->taxonomy, array( 'hide_empty' => false ) );
+					if ( empty( $terms ) ) {
+						printf( __( 'There are no %s to select from yet.', $field->taxonomy ) );
+						break;
+					}
+					$select2 = ( $field->select2 ) ? ' class="custom-metadata-select2" ' : ' ';
+					$select2 .= ( $field->placeholder ) ? ' data-placeholder="'. esc_attr( $field->placeholder ) . '" ' : ' ';
+					printf( '<select name="%s" id="%s"%smultiple>', esc_attr( $field_id ), esc_attr( $field_slug ), $select2 );
+					foreach ( $terms as $term ) {
+						printf( '<option value="%s"%s>%s</option>', esc_attr( $term->slug ), selected( in_array( $term->slug, $value ), true, false ), esc_html( $term->name ) );
+					}
+					echo '</select>';
 					break;
 			endswitch;
 
