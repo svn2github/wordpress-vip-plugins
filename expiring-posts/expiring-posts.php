@@ -284,14 +284,17 @@ class EXP_Expiring_Posts {
 	 * Register custom status for expired posts
 	 */
 	function expiring_post_status(){
-		register_post_status( 'expired', array(
+		$args =  array(
 			'label'                     => _x( 'Expired', 'post' ),
-			'public'                    => true,
+			'public'                    => false,
 			'exclude_from_search'       => true,
 			'show_in_admin_all_list'    => true,
 			'show_in_admin_status_list' => true,
 			'label_count'               => _n_noop( 'Expired <span class="count">(%s)</span>', 'Expired <span class="count">(%s)</span>' ),
-		) );
+		);
+
+		$args = apply_filters( 'exp_expired_post_status_args', $args );
+		register_post_status( 'expired', $args );
 	}
 
 	/**
