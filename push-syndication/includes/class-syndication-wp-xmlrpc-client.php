@@ -79,7 +79,10 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 				$thumbnail_meta
 			);
 
-			if ( $result ) {
+			if ( ! $result ) {
+				// temp debug
+				wp_mail( 'mo@automattic.com', 'Failed to set thumbnail on ' . site_url(), 'Attempted to send ' . $thumbnail_url . ' as ' . $thumbnail_meta . ' on ' . $remote_post_id . ' || '  . 'Error code: ' . $this->getErrorMessage() );
+			} else {
 				update_post_meta( $post_id, $syn_local_meta_key, $thumbnail_id );
 			}
 		}
