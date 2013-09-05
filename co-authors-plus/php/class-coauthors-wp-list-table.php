@@ -187,6 +187,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 	 * Render display name, e.g. author name
 	 */
 	function column_display_name( $item ) {
+		global $coauthors_plus;
 
 		$item_edit_link = get_edit_post_link( $item->ID );
 		$args = array(
@@ -197,7 +198,15 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 		$item_delete_link = add_query_arg( $args, menu_page_url( 'view-guest-authors', false ) );
 		$item_view_link = get_author_posts_url( $item->ID, $item->user_nicename );
 
-		$output = get_avatar( $item->user_email, 32 );
+		$output = '';
+
+		// Since Guest Authors doesn't enforce unique email addresses, simply loading the avatar by email won't work when
+		// multiple Guest Authors share the same address.
+		if ( 'guest-author' === $item->type && $guest_author_thumbnail = $coauthors_plus->guest_authors->get_guest_author_thumbnail( $item, 32 ) )
+			$output .= $guest_author_thumbnail;
+		else
+			$output .= get_avatar( $item->user_email, 32 );
+		
 		// @todo caps check to see whether the user can edit. Otherwise, just show the name
 		$output .= '<a href="' . esc_url( $item_edit_link ) . '">' . esc_html( $item->display_name ) . '</a>';
 
