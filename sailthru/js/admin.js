@@ -15,21 +15,20 @@
 		{
 
 			var isFormValid = true;
+			var sailthru_fields = new Array("sailthru_api_key", "sailthru_api_secret", "sailthru_horizon_domain");
 
-			$("input").each( function() {
+			for (var i = 0; i < sailthru_fields.length; i++) {
+				var field = '#'+sailthru_fields[i];
 
-				if ($.trim($(this).val()).length == 0){
-
-					$(this).addClass("error-highlight");
+   				 if ($.trim($(field).val()).length == 0){
+   				 	$(field).addClass("error-highlight");
 					isFormValid = false;
 					e.preventDefault();
-
-				} else{
-
-					$(this).removeClass("error-highlight");
+   				 } else{
+					$(field).removeClass("error-highlight");
 					isFormValid = true;
 				}
-			});
+			}
 
 			return isFormValid;
 
