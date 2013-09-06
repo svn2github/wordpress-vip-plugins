@@ -399,10 +399,10 @@ class WPCOM_elasticsearch {
 		$this->additional_indices = array();
 
 		foreach( $domains as $domain ) {
-			$blog = get_blog_details( array( 'domain' => $domain ) );
+			$blog_id = (int) get_blog_id_from_url( $domain );
 
-			if ( $blog )
-				$this->additional_indices[] = array( 'blog_id' => (int) $blog->blog_id );
+			if ( $blog_id )
+				$this->additional_indices[] = array( 'blog_id' => $blog_id );
 		}
 	}
 
