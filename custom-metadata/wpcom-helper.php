@@ -1,6 +1,9 @@
 <?php
 
-add_action( 'load-users_page_grofiles-user-settings', array( $custom_metadata_manager, 'init_metadata' ) );
+if ( 'grofiles-user-settings' == $_GET['page'] ) {
+	// Run init_metadata right after the normal admin_init for custom metadata
+	add_action( 'admin_init', array( $custom_metadata_manager, 'init_metadata' ), 1001 );
+}
 
 // Force sanitize the value if a callback is not set
 add_filter( 'custom_metadata_manager_get_sanitize_callback', function( $callback, $field ) {

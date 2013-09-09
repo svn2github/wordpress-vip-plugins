@@ -1004,7 +1004,6 @@ class custom_metadata_manager {
 	function _get_field_value( $field_slug, $field, $object_type, $object_id, $single = false ) {
 
 		$get_value_callback = $this->_get_value_callback( $field, $object_type );
-		echo $get_value_callback;
 		if ( $get_value_callback )
 			return call_user_func( $get_value_callback, $object_type, $object_id, $field_slug );
 
