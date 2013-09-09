@@ -44,7 +44,7 @@ function json_feed() {
 		}
 	}
 
-	$output = apply_filters( 'json_feed_output_items', $output, $query_args );
+	$output = apply_filters( 'json_feed_output_items', $output, $query_args, $json_feed );
 
 	if ( get_query_var('jsonp') == '' ) {
 		header('Content-Type: application/json; charset=' . get_option('blog_charset'), true);
