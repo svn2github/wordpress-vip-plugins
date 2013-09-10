@@ -277,31 +277,41 @@ BACKPLANE;
 	 * Outputs the Sign in screen
 	 */
 	function sign_in_screen() {
-		locate_template( 'janrain-capture-screens/signin.html', true );
+		$template = locate_template( 'janrain-capture-screens/signin.html' );
+		if ( $template )
+			echo file_get_contents( $template );
 	}
 	
 	/**
 	 * Outputs the Sign in screen js
 	 */
 	function sign_in_screen_js() {
-		echo '<script type="text/javascript">';
-		locate_template( 'janrain-capture-screens/signin.js', true );
-		echo '</script>';
+		$template = locate_template( 'janrain-capture-screens/signin.js' );
+		if ( $template ) {
+			echo '<script type="text/javascript">';
+			echo file_get_contents( $template );
+			echo '</script>';
+		}
 	}
 	
 	/**
 	 * Outputs the Edit Profile screen
 	 */
 	function edit_screen() {
-		locate_template( 'janrain-capture-screens/edit-profile.html', true );
+		$template = locate_template( 'janrain-capture-screens/edit-profile.html' );
+		if ( $template )
+			echo file_get_contents( $template );
 	}
 	
 	/**
 	 * Outputs the Edit Profile screen js
 	 */
 	function edit_screen_js() {
-		echo '<script type="text/javascript">';
-		locate_template( 'janrain-capture-screens/edit-profile.js', true );
-		echo '</script>';
+		$template = locate_template( 'janrain-capture-screens/edit-profile.js' );
+		if ( $template ) {
+			echo '<script type="text/javascript">';
+			echo file_get_contents( $template );
+			echo '</script>';
+		}
 	}
 }
