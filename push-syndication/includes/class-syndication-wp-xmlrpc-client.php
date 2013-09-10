@@ -44,8 +44,13 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 
 		foreach ( $thumbnail_meta_keys as $thumbnail_meta ) {
 			$thumbnail_id = get_post_meta( $post_id, $thumbnail_meta, true );
-			$syn_local_meta_key = '_syn_push_syndicated_' . $thumbnail_meta;
-			$syndicated_thumbnail_id = get_post_meta( $post_id, $syn_local_meta_key, true );
+			$syn_local_meta_key = '_syn_push_thumb_' . $thumbnail_meta;
+			$syndicated_thumbnails_by_site = get_post_meta( $post_id, $syn_local_meta_key, true );
+
+			if ( ! is_array( $syndicated_thumbnails_by_site ) )
+				$syndicated_thumbnails_by_site = array();
+
+			$syndicated_thumbnail_id = isset( $syndicated_thumbnails_by_site[ $this->site_ID ] ) ? $syndicated_thumbnails_by_site[ $this->site_ID ] : false;
 
 			if ( ! $thumbnail_id ) {
 				if ( $syndicated_thumbnail_id ) {
@@ -58,7 +63,8 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 						$thumbnail_meta
 					);
 
-					delete_post_meta( $post_id, $syn_local_meta_key );
+					unset( $syndicated_thumbnails_by_site[ $this->site_ID ] ); 
+					update_post_meta( $post_id, $syn_local_meta_key, $syndicated_thumbnails_by_site );
 
 				}
 				continue;
@@ -79,12 +85,9 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 				$thumbnail_meta
 			);
 
-			if ( ! $result ) {
-				// temp debug
-				 wp_mail( 'mo@automattic.com', 'Failed to set thumbnail on ' . site_url(),'Attempted to send ' . $thumbnail_url . ' as ' . $thumbnail_meta . ' on ' . $remote_post_id . ' || '  . 'Error code: ' . $this->getErrorMessage() . ' || ' . var_export( $this->debug_response, true ) );
-			} else {
-				update_post_meta( $post_id, $syn_local_meta_key, $thumbnail_id );
-				wp_mail( 'mo@automattic.com', 'Set thumbnail on ' . site_url(), 'Attempted to send ' . $thumbnail_url . ' as ' . $thumbnail_meta . ' on ' . $remote_post_id . ' || ' . var_export( $this->debug_response, true ) );
+			if ( $result ) {
+				$syndicated_thumbnails_by_site[ $this->site_ID ] = $thumbnail_id;
+				update_post_meta( $post_id, $syn_local_meta_key, $syndicated_thumbnails_by_site );
 			}
 		}
 	}
