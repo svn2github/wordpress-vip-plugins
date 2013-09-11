@@ -1,6 +1,6 @@
 <?php
 
-if ( 'grofiles-user-settings' == $_GET['page'] ) {
+if ( is_admin() && ! empty( $_GET['page'] ) && 'grofiles-user-settings' == $_GET['page'] ) {
 	// Run init_metadata right after the normal admin_init for custom metadata
 	add_action( 'admin_init', array( $custom_metadata_manager, 'init_metadata' ), 1001 );
 }
