@@ -214,7 +214,7 @@ class WPCOM_Related_Posts {
 			$related_posts_html[] = '<ul>';
 			foreach( $related_posts as $related_post ) {
 				if ( $this->_can_bump_stats() && $this->_generation_method )
-					$related_post_url = BumpAndRedirect::generate_url( 'Elastic-Search-Related-Post-Hit', $this->_generation_method, get_permalink( $related_post->ID ), true );
+					$related_post_url = BumpAndRedirect::generate_url( 'ES-Related-Post-Hit', $this->_generation_method, get_permalink( $related_post->ID ), true );
 				else
 					$related_post_url = get_permalink( $related_post->ID );
 
@@ -293,7 +293,7 @@ class WPCOM_Related_Posts {
 				}
 			}
 
-			$this->_generation_method = 'mlt';
+			$this->_generation_method = 'MLT-API';
 		} elseif ( $this->is_elastic_search && ( $current_post = get_post( $post_id ) ) ) {
 			// Use Elastic Search for the results if it's available
 
@@ -335,7 +335,7 @@ class WPCOM_Related_Posts {
 			if ( count( $related_posts) > (int)$args['posts_per_page'] )
 				$related_posts = array_slice( $related_posts, 0, (int)$args['posts_per_page'] );
 
-			$this->_generation_method = 'mlt-query';
+			$this->_generation_method = 'MLT-Query';
 		} else {
 			$related_query_args = array(
 				'posts_per_page' => (int)$args['posts_per_page'],
@@ -366,11 +366,11 @@ class WPCOM_Related_Posts {
 
 			$related_posts = $related_query->get_posts();
 
-			$this->_generation_method = 'wp-query';
+			$this->_generation_method = 'WP-Query';
 		}
 
 		if ( $this->_can_bump_stats() )
-			a8c_bump_stat( 'Elastic-Search-Related-Post-Gen', $this->_generation_method );
+			a8c_bump_stat( 'ES-Related-Post-Gen', $this->_generation_method );
 
 		// Clear out the $args, as they are only meaningful inside get_related_posts()
 		$this->args = array();
