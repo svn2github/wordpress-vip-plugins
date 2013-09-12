@@ -68,10 +68,18 @@ class Post_Meta_Inspector
 			#post-meta-inspector table .key-column {
 				display: inline-block;
 				width: 20%;
+				border-bottom: 1px #e5e5e5 dotted;
+				padding: 0.5%;
+				margin: 0;
+				word-wrap: break-word;
 			}
 			#post-meta-inspector table .value-column {
 				display: inline-block;
-				width: 79%;
+				width: 77%;
+				border-bottom: 1px #e5e5e5 dotted;
+				padding: 0.5%;
+				margin: 0;
+				
 			}
 			#post-meta-inspector code {
 				word-wrap: break-word;
@@ -93,7 +101,7 @@ class Post_Meta_Inspector
 		?>
 			<?php foreach( $values as $value ) : ?>
 			<?php
-				$value = var_export( $value, true );
+				$value = var_export( maybe_unserialize( $value ), true );
 				$toggled = $toggle_length && strlen($value) > $toggle_length;
 			?>
 			<tr>
