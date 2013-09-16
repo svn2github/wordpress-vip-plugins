@@ -122,20 +122,10 @@ function vip_contrib_add_upload_cap() {
  * @see vip_contrib_add_upload_cap()
  */
 function _vip_contrib_add_upload_cap() {
-	global $wp_user_roles, $wp_roles, $current_user;
-
-	// only works on wp.com, not wp.org
-	if ( ! function_exists( 'wpcom_is_vip' ) )
-		return;
-
 	if ( ! is_admin() && ! defined( 'XMLRPC_REQUEST' ) )
 		return;
 
-	$wp_user_roles['contributor']['capabilities']['upload_files'] = true;
-	$wp_roles = new WP_Roles;
-	$id = $current_user->ID;
-	unset( $GLOBALS['current_user'] );
-	wp_set_current_user( $id );
+	wpcom_vip_add_role_caps( 'contributor', array( 'upload_files' ) );
 }
 
 /**
