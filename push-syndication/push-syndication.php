@@ -2,7 +2,7 @@
 /**
  * Plugin Name:  Syndication
  * Plugin URI:   http://wordpress.org/extend/plugins/push-syndication/
- * Description:  Syndicate content to and from your sites
+ * Description:  Syndicate content to and from your sites.
  * Version:      2.0
  * Author:       Automattic
  * Author URI:   http://automattic.com
