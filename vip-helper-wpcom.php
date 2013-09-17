@@ -130,7 +130,7 @@ function _vip_contrib_add_upload_cap() {
 	} else {
 		// Temp debug to track down broken themes
 		if ( function_exists( 'send_vip_team_irc_alert' ) )
-		send_vip_team_irc_alert( '[vip-helper fatal] add_role_cap no exist for _vip_contrib_add_upload_cap: ' . wp_debug_backtrace_summary() );
+		send_vip_team_irc_alert( '[vip-helper fatal] ' . site_url() . ' add_role_cap no exist for _vip_contrib_add_upload_cap: ' . wp_debug_backtrace_summary() );
 	}
 }
 
