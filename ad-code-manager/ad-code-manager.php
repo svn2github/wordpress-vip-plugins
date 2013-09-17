@@ -847,9 +847,6 @@ class Ad_Code_Manager {
 
 		$code_to_display = $this->get_matching_ad_code( $tag_id );
 
-		if ( empty( $code_to_display ) )
-			return;
-
 		// Run $url aganist a whitelist to make sure it's a safe URL
 		if ( !$this->validate_script_url( $code_to_display['url'] ) )
 			return;
@@ -890,7 +887,6 @@ class Ad_Code_Manager {
 	 */
 	public function get_matching_ad_code( $tag_id ) {
 		global $wp_query;
-
 		// If there aren't any ad codes, it's not worth it for us to do anything.
 		if ( !isset( $this->ad_codes[$tag_id] ) )
 			return;
