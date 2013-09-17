@@ -146,9 +146,9 @@ class Daylife_Meta_Box {
 				$width = round( $height / $ratio );
 			}
 
-			$url = str_replace( '/45x45.jpg', '/' . $width . 'x' . $height . '.jpg', $image->thumb_url );
+			$url = str_replace( '/45x45.jpg', '/' . absint( $width ) . 'x' . absint( $height ) . '.jpg', $image->thumb_url );
 			echo '<div class="daylife-image-wrap">';
-			echo '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $image->caption ) . '" data-thumb_url="' . esc_attr( $image->thumb_url ) . '" data-url="' . esc_attr( $image->url ) . '" data-credit="' . esc_attr( $image->credit ) . '" data-caption="' . esc_attr( $image->caption ) . '" data-daylife_url="' . esc_attr( $image->daylife_url ) . '" data-image_title="' . esc_attr( $image->image_title ) . '" data-width="' . esc_attr( $width ) . '" data-height="' . esc_attr( $height ) . '" />';
+			echo '<img src="' . esc_url( $url ) . '" alt="' . esc_attr( $image->caption ) . '" data-thumb_url="' . esc_attr( $image->thumb_url ) . '" data-url="' . esc_attr( $image->url ) . '" data-credit="' . esc_attr( $image->credit ) . '" data-caption="' . esc_attr( $image->caption ) . '" data-daylife_url="' . esc_attr( $image->daylife_url ) . '" data-image_title="' . esc_attr( $image->image_title ) . '" data-width="' . absint( $width ) . '" data-height="' . absint( $height ) . '" />';
 			echo '<div class="daylife-overlay" title="' . esc_attr( $image->caption ) . "\r\nSource: " . esc_attr( $image->source->name ) . "\r\nDate: " . esc_attr( date_i18n( get_option( 'date_format' ), $image->timestamp_epoch ) ) . '"></div>';
 			echo '<button class="daylife-ste button">' . __( 'Insert into Post', 'daylife' ) . '</button>';
 			echo '</div>';
