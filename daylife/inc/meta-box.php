@@ -143,7 +143,7 @@ class Daylife_Meta_Box {
 				$height = round( $width / $ratio );
 			} else {
 				$height = apply_filters( 'daylife-image-default-thumb', 200 );
-				$width = round( $height / $ratio );
+				$width = round( $height * $ratio );
 			}
 
 			$url = str_replace( '/45x45.jpg', '/' . absint( $width ) . 'x' . absint( $height ) . '.jpg', $image->thumb_url );
