@@ -831,3 +831,15 @@ If you have any questions, feel free to reply to this e-mail.
 	}, 10, 2 );
 
 }
+
+/**
+ * Remove devicepx.js from pageloads
+ *
+ * devicepx.js loads retina/HiDPI versions of certain files (Gravatars, etc) for devices that run at a
+ * higher resolution (such as smartphones), and is distributed inside Jetpack.
+ */
+function wpcom_vip_disable_devicepx_js() {
+	add_action( 'wp_enqueue_scripts', function () {
+		wp_dequeue_script( 'devicepx' );
+	}, 20 );
+}
