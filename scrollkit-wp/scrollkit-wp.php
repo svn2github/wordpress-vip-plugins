@@ -3,7 +3,7 @@
 Plugin Name: Scroll Kit
 Plugin URI: http://scrollkit.com
 Description: Adds a button to send a page's content to the scroll kit design interface, which generates custom html and css that override the page's default template.
-Version: 0.105
+Version: 0.107
 Author: Scroll Kit
 Author URI: http://scrollkit.com
 License: GPL2
@@ -48,14 +48,22 @@ class ScrollKit {
 
 	public function allow_data_tags() {
 		global $allowedposttags;
-	 
+
 		$tags = array( 'div', 'img', 'a');
 		$new_attributes = array( 'data-anchor-target' => array(), 'data-skrollr' => array() );
-	 
+
 		foreach ( $tags as $tag ) {
 			if ( isset( $allowedposttags[ $tag ] ) && is_array( $allowedposttags[ $tag ] ) )
 				$allowedposttags[ $tag ] = array_merge( $allowedposttags[ $tag ], $new_attributes );
 		}
+
+		// Let people add external stylesheets for fonts/styles
+		$allowedposttags['link'] = array(
+			'href' => true,
+			'rel' => true,
+			'type' => true,
+			'media' => true
+		);
 	}
 
 	/**
@@ -131,7 +139,7 @@ class ScrollKit {
 
 		?>
 			<div id="sk-load-scroll" style="display:none">
-				<h2>Copy Existing Scroll</h2>
+				<h2>Use Existing Scroll</h2>
 				<form method="GET" action="<?php bloginfo('url') ?>">
 					<input type="hidden" name="nonce" value="<?php echo wp_create_nonce( 'scrollkit-action' ); ?>" />
 					<input type="hidden" name="scrollkit" value="load" />
@@ -329,17 +337,17 @@ class ScrollKit {
 
 		$response_code = $results['response']['code'];
 		if ( $response_code !== 200 ) {
-			$this->log_error_and_die( "Error requesting content from $content_url, error code  " . $response_code );
+			$this->log_error_and_die( "Error requesting content from $content_url, error code $response_code<br><br>" . $results['body'] );
 		}
 
 		$data = json_decode( $results['body'] );
 
 		update_post_meta( $post_id , '_scroll_content' , wp_filter_post_kses( $data->content ) );
 		update_post_meta( $post_id , '_scroll_style'   , wp_filter_post_kses( $data->style ) );
+		update_post_meta( $post_id , '_scroll_head'   , wp_filter_post_kses( $data->head_html ) );
 		update_post_meta( $post_id , '_scroll_js'      , $this->sanitize_url_array( $data->js_paths ) );
 		update_post_meta( $post_id , '_scroll_fonts'   , $this->sanitize_text_array( $data->google_web_fonts ) );
 		update_post_meta( $post_id , '_scroll_css'     , $this->sanitize_url_array( $data->css_paths ) );
-
 		// trigger update incase the user has a cache
 		clean_post_cache( $post_id );
 	}
@@ -535,6 +543,7 @@ class ScrollKit {
 		delete_post_meta( $post_id, '_scroll_style' );
 		delete_post_meta( $post_id, '_scroll_js' );
 		delete_post_meta( $post_id, '_scroll_fonts' );
+		delete_post_meta( $post_id, '_scroll_head' );
 		delete_post_meta( $post_id, '_scroll_css' );
 		delete_post_meta( $post_id, '_scroll_mobile_redirect' );
 	}
