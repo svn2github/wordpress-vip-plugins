@@ -646,22 +646,22 @@ class Add_Meta_Tags {
 			}
 
 
-		} elseif ( is_category() ) {
+		} elseif ( is_tax() ) {
 			/*
-			Writes a description META tag only if a description for the current category has been set.
+			Writes a description META tag only if a description for the current term has been set.
 			*/
 
-			$cur_cat_desc = category_description();
+			$cur_cat_desc = term_description();
 			if ( $cur_cat_desc ) {
-				$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc($cur_cat_desc) ) . "\" />";
+				$my_metatags .= '<meta name="description" content="' . esc_attr( $this->amt_clean_desc($cur_cat_desc) ) . '" />';
 			}
 			
 			/*
-			Write a keyword metatag if there is a category name (always)
+			Write a keyword metatag if there is a term name (always)
 			*/
-			$cur_cat_name = single_cat_title($prefix = '', $display = false );
+			$cur_cat_name = single_term_title( '', false );
 			if ( $cur_cat_name ) {
-				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( strtolower($cur_cat_name) ) . "\" />";
+				$my_metatags .= '<meta name="keywords" content="' . esc_attr( strtolower($cur_cat_name) ) . '" />';
 			}
 		}
 
