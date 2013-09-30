@@ -217,7 +217,7 @@ class coauthors_plus {
 	function get_coauthor_by( $key, $value, $force = false ) {
 
 		// If Guest Authors are enabled, prioritize those profiles
-		if ( $this->is_guest_authors_enabled() ) {
+		if ( $this->is_guest_authors_enabled() && isset( $this->guest_authors ) ) {
 			$guest_author = $this->guest_authors->get_guest_author_by( $key, $value, $force );
 			if ( is_object( $guest_author ) ) {
 				return $guest_author;
