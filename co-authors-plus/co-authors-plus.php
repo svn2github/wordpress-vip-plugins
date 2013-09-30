@@ -246,7 +246,7 @@ class coauthors_plus {
 				$user->type = 'wpuser';
 				// However, if guest authors are enabled and there's a guest author linked to this
 				// user account, we want to use that instead
-				if ( $this->is_guest_authors_enabled() ) {
+				if ( $this->is_guest_authors_enabled() && isset( $this->guest_authors ) ) {
 					$guest_author = $this->guest_authors->get_guest_author_by( 'linked_account', $user->user_login );
 					if ( is_object( $guest_author ) )
 						$user = $guest_author;
