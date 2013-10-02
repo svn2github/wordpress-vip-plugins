@@ -839,7 +839,5 @@ If you have any questions, feel free to reply to this e-mail.
  * higher resolution (such as smartphones), and is distributed inside Jetpack.
  */
 function wpcom_vip_disable_devicepx_js() {
-	add_action( 'wp_enqueue_scripts', function () {
-		wp_dequeue_script( 'devicepx' );
-	}, 20 );
+	add_filter( 'devicepx_enabled', '__return_false' );
 }
