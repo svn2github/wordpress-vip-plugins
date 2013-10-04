@@ -5,15 +5,15 @@ require_once __DIR__ . '/form-controls.php';
 if ( !class_exists( 'Lift_Search_Form' ) ) {
 
 	/**
-	 * Lift_Search_Form is a class for building the fields and html used in the Lift Search plugin. 
+	 * Lift_Search_Form is a class for building the fields and html used in the Lift Search plugin.
 	 * This class uses the singleton design pattern, and shouldn't be called more than once on a document.
-	 * 
+	 *
 	 * There are three filters within the class that can be used to modify the output:
-	 * 
+	 *
 	 * 'lift_filters_default_fields' can be used to remove default search fields on the form.
-	 * 
+	 *
 	 * 'lift_filters_form_field_objects' can be used to add or remove Voce Search Field objects.
-	 * 
+	 *
 	 * 'lift_search_form' can be used to modify the form html output
 	 */
 	class Lift_Search_Form {
@@ -47,7 +47,7 @@ if ( !class_exists( 'Lift_Search_Form' ) ) {
 
 		/**
 		 * WP_Query instance reference for search
-		 * @var Lift_WP_Query 
+		 * @var Lift_WP_Query
 		 */
 		public $lift_query;
 
@@ -61,7 +61,7 @@ if ( !class_exists( 'Lift_Search_Form' ) ) {
 
 		/**
 		 * Returns the base url for the search.
-		 * 
+		 *
 		 * @todo allow the instance to be detached from the global site search
 		 * @return string
 		 */
@@ -71,7 +71,7 @@ if ( !class_exists( 'Lift_Search_Form' ) ) {
 
 		/**
 		 * Returns the current state of the search form.
-		 * 
+		 *
 		 * @todo allow instances to be detached from the global request vars
 		 * @return array
 		 */
@@ -130,6 +130,7 @@ if ( !class_exists( 'Lift_Search_Form' ) ) {
 
 		public function loop() {
 			$path = dirname( __DIR__ ) . '/templates/lift-loop.php';
+			$path = apply_filters( 'lift_search_get_template_loop', $path );
 			include_once $path;
 		}
 
@@ -150,7 +151,7 @@ if ( !class_exists( 'Lift_Search_Form' ) ) {
 }
 
 /**
- * Template Tags 
+ * Template Tags
  */
 if ( !function_exists( 'lift_search_form' ) ) {
 
@@ -178,12 +179,12 @@ if ( !function_exists( 'lift_loop' ) ) {
 
 /**
  * Embed the Lift Search form in a sidebar
- * @class Lift_Form_Widget 
+ * @class Lift_Form_Widget
  */
 class Lift_Form_Widget extends WP_Widget {
 
 	/**
-	 * @constructor 
+	 * @constructor
 	 */
 	public function __construct() {
 		parent::__construct(
@@ -193,7 +194,7 @@ class Lift_Form_Widget extends WP_Widget {
 
 	/**
 	 * Output the widget
-	 * 
+	 *
 	 * @method widget
 	 */
 	function widget( $args, $instance ) {

@@ -15,6 +15,7 @@
           .on('unsetDomainName', this.render, this);
       this.settings.on('sync reset', function() {
         var credentials = this.settings.getValue('credentials');
+        this.domains.settings = this.settings;
         if ('' === credentials.accessKey && '' === credentials.secretKey) {
           this.domains.disablePolling();
         } else {
@@ -56,7 +57,7 @@
           domain = domainname && this.domains.get(domainname);
           if (!domainname) {
             state = 'set_domainname';
-          } else if (domain && !(domain.get('DocService') && domain.get('DocService').Endpoint)) {
+          } else if ( domain && ( domain.get('Processing') || domain.get('RequiresIndexDocuments') ) ) {
             state = 'processing_setup';
           } else {
             if (!domain) {
@@ -177,19 +178,8 @@
   liftAdmin.templateLoader = {
     templates: {},
     getTemplate: function(name) {
-      return this.templates[name] || this.loadTemplate(name);
-    },
-    loadTemplate: function(name) {
-      var tmpUrl = window.liftData.templateDir + name + '.html';
-      $.ajax({
-        url: tmpUrl,
-        type: 'get',
-        dataType: 'html',
-        async: false,
-        success: function(data) {
-          liftAdmin.templateLoader.templates[name] = data;
-        }
-      });
+      if( !this.templates[name] && $('script#' + name + '-template').is('*') )
+        this.templates[name] = $('script#' + name + '-template').html();
       return this.templates[name] || false;
     }
   };
@@ -375,7 +365,7 @@
       this.collection.on('all', this.render, this).enablePolling();
     },
     events: {
-      'click #clear-logs': 'onClickClearLogs'
+      'click #error_logs_clear': 'onClickClearLogs'
     },
     render: function() {
       var _this = this;
@@ -386,12 +376,12 @@
           return;
         });
       }
-      $(this.el).html(this.template({errors: this.collection.toJSON(), meta: JSON.stringify(this.collection.meta)}));
+      $(this.el).html(this.template({errors: this.collection.toJSON(), meta: this.collection.meta}));
       return this;
     },
     onClickClearLogs: function(e) {
       e.preventDefault();
-
+      this.collection.fetch({type: 'POST'});
     }
   });
 
@@ -514,7 +504,8 @@
         _this.fetchWithDeferred();
       };
 
-      this.deferred = this.fetch()
+      var region = this.settings.get('region').get('value');
+      this.deferred = this.fetch({data: {region: region}})
           .always(function() {
         delete _this.deferred;
         if (_this.pollingEnabled) {
@@ -547,26 +538,34 @@
 
   liftAdmin.SetCredentialsView = Backbone.View.extend({
     _template: 'set-credentials',
+    loadText: $('<p id="lift-load-text">'),
+    loader: $('<p id="lift-ajax-loader">'),
     initialize: function() {
       this.template = _.template(liftAdmin.templateLoader.getTemplate(this._template));
       this.model.settings.get('credentials').on('error', this.onSaveError, this);
+      this.model.settings.get('credentials').on('sync', this.onSaveSuccess, this);
     },
     onClose: function() {
       this.model.settings.get('credentials').off('error', this.onSaveError, this);
+      this.model.settings.get('credentials').off('sync', this.onSaveSuccess, this);
     },
     events: {
       'click #save_credentials': 'updateCredentials'
     },
     render: function() {
       this.el.innerHTML = this.template(this.model.settings.toJSONObject());
+      $('#save_credentials').after(this.loader);
       return this;
+    },
+    ajaxLoader: function( text ) {
+      this.loadText.text(text);
+      this.loader.html(this.loadText);
+      this.loader.show();
     },
     beforeSave: function() {
       $('#errors').hide();
       $('#save_credentials').attr('disabled', 'disabled');
-    },
-    afterSave: function() {
-      $('#save_credentials').removeAttr('disabled');
+      this.ajaxLoader('Authenticating with Amazon');
     },
     updateCredentials: function() {
       var _this = this,
@@ -575,16 +574,18 @@
         secretKey: $('#secretKey').val()
       };
       this.beforeSave();
-
       this.model.settings.get('credentials').save({value: credentials}, {
-      }).always(function() {
-        _this.afterSave();
       });
     },
     onSaveError: function(model, resp) {
       var errors = $.parseJSON(resp.responseText).errors;
       this.renderErrors(errors);
+      $('#save_credentials').removeAttr('disabled');
+      this.loader.hide();
       return this;
+    },
+    onSaveSuccess: function() {
+      this.ajaxLoader('Saving');
     },
     renderErrors: function(errors) {
       var template = liftAdmin.templateLoader.getTemplate('errors');
@@ -663,6 +664,8 @@
   });
 
   liftAdmin.SetDomainView = Backbone.View.extend({
+    loadText: $('<p id="lift-load-text">'),
+    loader: $('<p id="lift-ajax-loader">'),
     initialize: function() {
       this.template = _.template(liftAdmin.templateLoader.getTemplate('set-domain'));
     },
@@ -671,8 +674,14 @@
       'click #cancel': 'goBack',
       'keypress #domainname' : 'submitOnEnter'
     },
+    ajaxLoader: function( text ) {
+      this.loadText.text(text);
+      this.loader.html(this.loadText);
+      this.loader.show();
+    },
     render: function() {
       this.el.innerHTML = this.template(this.model.settings.toJSONObject());
+      $('#save_domainname').after(this.loader);
       return this;
     },
     beforeSave: function() {
@@ -693,22 +702,27 @@
     setDomainname: function() {
       var domainname,
           domain,
-          modalView;
+          region;
       this.beforeSave();
       domainname = $('#domainname').val();
+      region = $('#region').val();
       domain = this.model.domains.get(domainname);
 
       if (!domain) {
         //if domain doesn't exist, create it
-        this.createDomain(domainname);
+        this.createDomain(domainname, region);
       } else {
         //have user confirm to override the existing domain
-        modalView = new liftAdmin.ModalConfirmDomainView({model: this.model.domains.get(domainname)});
+        var model = this.model.domains.get(domainname);
+        this.showConfirmModal(model);
+      }
+      return this;
+    },
+    showConfirmModal: function(model) {
+        var modalView = new liftAdmin.ModalConfirmDomainView({model: model});
         modalView.on('cancelled', this.modalCancelled, this);
         modalView.on('confirmed', this.modalConfirmed, this);
         adminApp.openModal(modalView);
-      }
-      return this;
     },
     modalCancelled: function(view) {
       $('#save_domainname').removeAttr('disabled');
@@ -720,9 +734,10 @@
       this.useDomain(domain);
       return this;
     },
-    createDomain: function(domainname) {
+    createDomain: function(domainname, region) {
       var domain;
-      domain = new liftAdmin.DomainModel({DomainName: domainname});
+      this.ajaxLoader('Creating Domain');
+      domain = new liftAdmin.DomainModel({DomainName: domainname, Region: region});
       domain.nonce = this.model.domains.nonce;
       domain.on('sync', this.onCreateDomainSuccess, this);
       domain.on('error', this.onCreateDomainError, this);
@@ -730,17 +745,36 @@
       return this;
     },
     onCreateDomainSuccess: function(model, resp) {
-      var domain = new liftAdmin.DomainModel(resp.data);
+      var _this = this;
+      this.ajaxLoader('Saving');
       model.off('sync', this.onCreateDomainSuccess, this);
       model.off('error', this.onCreateDomainError, this);
-      this.model.domains.add(domain);
-      this.useDomain(domain);
+      if ( resp.data ) {
+        var domain = new liftAdmin.DomainModel(resp.data);
+        this.model.domains.add(domain);
+        this.useDomain(domain);
+      } else {
+        this.ajaxLoader('Waiting for Amazon to initialize domain');
+        this.model.domains.on('sync', function(){
+          domain = this.model.domains.get(model);
+          if (domain) {
+            _this.useDomain(domain);
+          }
+        }, this)
+        this.model.domains.enablePolling();
+      }
     },
     onCreateDomainError: function(model, resp) {
       var errors = $.parseJSON(resp.responseText).errors;
+      this.loader.hide();
       model.off('sync', this.onCreateDomainSuccess, this);
       model.off('error', this.onCreateDomainError, this);
-      this.renderErrors(errors).afterSave();
+      if ( errors[0].code === 'domain_exists' ) {
+        this.model.domains.add(model);
+        this.showConfirmModal(model);
+      } else {
+        this.renderErrors(errors).afterSave();
+      }
 
     },
     renderErrors: function(errors) {
@@ -753,8 +787,7 @@
       return this;
     },
     useDomain: function(domain) {
-      adminApp.settings.get('domainname').save({value: domain.get('DomainName')});
-      this.afterSave();
+      adminApp.settings.get('domainname').save({value: domain.get('DomainName'), region: $('#region').val()});
       return this;
     }
   });

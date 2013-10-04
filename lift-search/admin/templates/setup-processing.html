@@ -17,17 +17,17 @@
 		<% if (!Created) { %>
 		<li class="active"><span>Creating Document Domain</span></li>
 		<li><span>Apply Schema And Default Access Policies</span></li>
-		<li><span>Initialize Document Service</span></li>
+		<li><span>Process Domain</span></li>
 		<li><span>Done</span></li>
 		<% } else if( RequiresIndexDocuments ) { %>
 		<li class="completed"><span>Document Domain Created</span></li>
 		<li class="active"><span>Applying Schema And Default Access Policies</span></li>
-		<li><span>Initialize Document Service</span></li>
+		<li><span>Process Domain</span></li>
 		<li><span>Done</span></li>
-		<% } else if( !DocService.Endpoint ) { %>
+		<% } else if( Processing ) { %>
 		<li class="completed"><span>Document Domain Created</span></li>
 		<li class="completed"><span>Applied Schema And Default Access Policies</span></li>
-		<li class="active"><span>Initializing Document Service</span></li>
+		<li class="active"><span>Processing Domain</span></li>
 		<li><span>Done</span></li>
 		<% } %>
 	</ul>

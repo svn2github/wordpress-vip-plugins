@@ -31,7 +31,7 @@
 		font-size:18px;
 		line-height:24px;
 	}
-	
+
 	.lift-balloon{
 		float:right;
 	}
@@ -41,7 +41,7 @@
 
 
 .form-block {
-	label { 
+	label {
 		display: block;
 	}
 	input[type="text"],
@@ -55,6 +55,15 @@
 .button-row {
 	text-align: center;
 	margin-top: $pad*2;
+}
+#lift-ajax-loader p {
+	background-image: url($imgLoc+'loader.gif');
+	background-repeat: no-repeat;
+	background-size: 24px 24px;
+	display: inline-block;
+	height: 24px;
+	line-height: 24px;
+	padding-left: 29px;
 }
 
 
@@ -105,7 +114,7 @@
 			width: 514px;
 			height: 117px;
 			right: -1px;
-		}		
+		}
 	}
 	.progressCircle {
 		display: inline-block;
@@ -127,7 +136,7 @@
 		display: table;
 		width: 100%;
 		margin: $pad 0;
-		ul { 
+		ul {
 			display: table-row;
 		}
 		li {
@@ -173,7 +182,7 @@
 						border-bottom-color: $lightGray;
 						margin-right: -46px;
 						right: 0;
-					}					
+					}
 				}
 			}
 		}
@@ -203,8 +212,8 @@
 			min-height: 90px;
 		}
 		.cloudSearch {
-			background-image: url($imgLoc+'amazon-cloud-search.png');	
-			min-height: 80px;		
+			background-image: url($imgLoc+'amazon-cloud-search.png');
+			min-height: 80px;
 		}
 		.a-z {
 			background-image: url($imgLoc+'a-z.png');
@@ -260,7 +269,7 @@
 	table {
 		border: 0px none;
 		background: #fff;
-		thead {  
+		thead {
 			tr {
 				th {
 					background: $tableBlue;
@@ -337,7 +346,7 @@
 			top: 0;
 			width: 50%;
 			height: 100%;
-			line-height: $toggleHeight;  
+			line-height: $toggleHeight;
 			text-align: center;
 			color: #fff;
 			font-weight: bold;
@@ -386,7 +395,7 @@
 			   right: 48%;
 			}
 		}
-	}	
+	}
 }
 #error_log {
 	margin-top: $pad*2;

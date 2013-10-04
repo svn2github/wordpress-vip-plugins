@@ -21,7 +21,7 @@ class Cloud_Config_API {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param Array $error with keys 'code' and 'message' set
 	 */
 	protected function set_last_error( $error ) {
@@ -64,7 +64,7 @@ class Cloud_Config_API {
 	 * @param array $payload
 	 * @return array [response string, Cloud_Config_Request object used for request]
 	 */
-	protected function _make_request( $method, $payload = array( ), $flatten_keys = true ) {
+	protected function _make_request( $method, $payload = array( ), $flatten_keys = true, $region = false ) {
 
 		if ( $payload && $flatten_keys ) {
 			$payload = $this->_flatten_keys( $payload );
@@ -73,7 +73,11 @@ class Cloud_Config_API {
 		$credentials['access-key-id'] = $this->access_key;
 		$credentials['secret-access-key'] = $this->secret_key;
 
-		$config = new Cloud_Config_Request( $credentials, $this->http_api );
+		if ( !( $region && Lift_Search::is_valid_region($region) ) ) {
+			$region = Lift_Search::get_domain_region();
+		}
+
+		$config = new Cloud_Config_Request( $credentials, $this->http_api, $region );
 
 		$r = $config->send_request( $method, $payload );
 
@@ -100,9 +104,9 @@ class Cloud_Config_API {
 
 	/**
 	 * @method DescribeDomains
-	 * @return boolean 
+	 * @return boolean
 	 */
-	public function DescribeDomains( $domain_names = array( ) ) {
+	public function DescribeDomains( $domain_names = array( ), $region = false ) {
 		$payload = array( );
 
 		if ( !empty( $domain_names ) ) {
@@ -112,15 +116,15 @@ class Cloud_Config_API {
 			}
 		}
 
-		return $this->_make_request( 'DescribeDomains', $payload );
+		return $this->_make_request( 'DescribeDomains', $payload, true, $region );
 	}
 
 	/**
 	 * @method CreateDomain
-	 * @param string $domain_name 
+	 * @param string $domain_name
 	 */
-	public function CreateDomain( $domain_name ) {
-		return $this->_make_request( 'CreateDomain', array( 'DomainName' => $domain_name ) );
+	public function CreateDomain( $domain_name, $region ) {
+		return $this->_make_request( 'CreateDomain', array( 'DomainName' => $domain_name ), true, $region );
 	}
 
 	public function DescribeServiceAccessPolicies( $domain_name ) {
@@ -165,23 +169,23 @@ class Cloud_Config_API {
 
 	/**
 	 * @method IndexDocuments
-	 * @param string $domain_name 
-	 * 
+	 * @param string $domain_name
+	 *
 	 * @return bool true if request completed and documents will be/are being
-	 * indexed or false if request could not be completed or domain was in a 
+	 * indexed or false if request could not be completed or domain was in a
 	 * status that documents could not be indexed
 	 */
-	public function IndexDocuments( $domain_name ) {
-		return $this->_make_request( 'IndexDocuments', array( 'DomainName' => $domain_name ) );
+	public function IndexDocuments( $domain_name, $region = false ) {
+		return $this->_make_request( 'IndexDocuments', array( 'DomainName' => $domain_name ), true, $region );
 	}
 
-	public function UpdateServiceAccessPolicies( $domain_name, $policies ) {
+	public function UpdateServiceAccessPolicies( $domain_name, $policies, $region = false ) {
 		$payload = array(
 			'AccessPolicies' => $policies,
 			'DomainName' => $domain_name,
 		);
 
-		return $this->_make_request( 'UpdateServiceAccessPolicies', $payload, false );
+		return $this->_make_request( 'UpdateServiceAccessPolicies', $payload, false, $region );
 	}
 
 	public function __parse_index_options( $field_type, $passed_options = array( ) ) {
@@ -285,12 +289,12 @@ class Cloud_Config_API {
 		return $this->_make_request( 'DefineIndexField', $payload, true );
 	}
 
-	public function DescribeIndexFields( $domain_name ) {
+	public function DescribeIndexFields( $domain_name, $region = false ) {
 		$payload = array(
 			'DomainName' => $domain_name,
 		);
 
-		return $this->_make_request( 'DescribeIndexFields', $payload, true );
+		return $this->_make_request( 'DescribeIndexFields', $payload, true, $region );
 	}
 
 }
@@ -303,6 +307,7 @@ class Cloud_Config_Request {
 	private $api_version = '2011-02-01';
 	private $key;
 	private $secret_key;
+	private $region = false;
 	public $status_code;
 	public $error;
 
@@ -312,10 +317,14 @@ class Cloud_Config_Request {
 	 */
 	private $http_interface;
 
-	public function __construct( $credentials, $http_interface ) {
+	public function __construct( $credentials, $http_interface, $region = false ) {
 		$this->key = $credentials['access-key-id'];
 		$this->secret_key = $credentials['secret-access-key'];
 		$this->http_interface = $http_interface;
+		if ( $region ) {
+			$this->endpoint = str_replace('us-east-1', $region, $this->endpoint);
+			$this->region   = $region;
+		}
 	}
 
 	public function send_request( $operation, $payload = array( ) ) {
@@ -484,6 +493,9 @@ class Cloud_Config_Request {
 	}
 
 	protected function region() {
+		if ( $this->region ) {
+			return $this->region;
+		}
 		return 'us-east-1';
 	}
 

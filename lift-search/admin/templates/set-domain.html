@@ -23,6 +23,16 @@
 				<label for="domainname">Search Domain Name</label>
 				<input type="text" id="domainname" value="<%- domainname %>" />
 			</div>
+			<div class="form-row">
+				<label for="region">Endpoint Region</label>
+				<select id="region">
+					<option value="us-east-1">US East (Northern Virginia) Region</option>
+					<option value="us-west-1">US West (Northern California) Region</option>
+					<option value="us-west-2">US West (Oregon) Region</option>
+					<option value="eu-west-1">EU (Ireland) Region</option>
+					<option value="ap-southeast-1">Asia Pacific (Singapore) Region</option>
+				</select>
+			</div>
 			<div id="errors" class="error" style="display:none;"></div>
 			<div class="button-row">
 				<input type="button" class="button" id="cancel" value="Cancel" />
