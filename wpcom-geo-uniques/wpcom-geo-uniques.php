@@ -75,7 +75,7 @@ class WPCOM_Geo_Uniques {
 
 				self::geolocate_user( $location_type );
 			} else {
-				WPCOM_Geo_Uniques::geolocate_js();
+				add_action( 'wp_head', array( __CLASS__, 'geolocate_js' ), -1 ); // We want this to run super early
 			}
 		}
 
