@@ -200,12 +200,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 
 		$output = '';
 
-		// Since Guest Authors doesn't enforce unique email addresses, simply loading the avatar by email won't work when
-		// multiple Guest Authors share the same address.
-		if ( 'guest-author' === $item->type && $guest_author_thumbnail = $coauthors_plus->guest_authors->get_guest_author_thumbnail( $item, 32 ) )
-			$output .= $guest_author_thumbnail;
-		else
-			$output .= get_avatar( $item->user_email, 32 );
+		$output .= coauthors_get_avatar( $item, 32 );
 		
 		// @todo caps check to see whether the user can edit. Otherwise, just show the name
 		$output .= '<a href="' . esc_url( $item_edit_link ) . '">' . esc_html( $item->display_name ) . '</a>';
