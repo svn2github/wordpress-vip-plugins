@@ -25,47 +25,71 @@ function vip_allow_title_orphans() {
 }
 
 /**
- * Experimental: VIP Find Related posts using WordPress.com search, based on the content of the post.
- * 
- * Use wpcom_vip_flaptor_related_posts() as a template tag.
+ * VIP Legacy Related Posts (HTML formatted results)
+ *
+ * Don't use for new projects, just use WPCOM_RelatedPosts directly, since it has hooks
+ * like jetpack_relatedposts_filter_args, jetpack_relatedposts_filter_filters
  * 
  * @param int $max_num Optional. Maximum number of results you want (default: 5).
- * @param array $additional_stopwords Optional(). Stop words are common words in your content that you want to exclude from the search. Most common english words are ignored by default.
- * @param bool $exclude_own_titles Optional. Exclude words from the title and description of this blog in the query (default: true).
+ * @param array $additional_stopwords No longer used, we leave the stopwords magic to ES which knows more about word frequencies across articles.
+ * @param bool $exclude_own_titles No longer used.
  * @return string Returns an HTML unordered list of related posts from the same blog.
  */
 function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ){
-	if ( function_exists( 'flaptor_related_inline' ) ) {
-		return flaptor_related_inline( $max_num, $additional_stopwords, $exclude_own_titles );
-	} else {
-		// Fallback for local environments where flaptor isn't available
-		$related_output = '';
-		$related_posts = wpcom_vip_get_flaptor_related_posts( $max_num, $additional_stopwords, $exclude_own_titles );
+	$related_output = '';
+	$related_posts = wpcom_vip_get_flaptor_related_posts( $max_num, $additional_stopwords, $exclude_own_titles );
 
-		if ( ! empty( $related_posts ) ) {
-			$related_output .= '<ul>';
-			foreach( $related_posts as $result ) {
-				$related_output .= '<li><a href="' . esc_url( $result['url'] ) . '">'. esc_html( $result['title'] ) . '</a></li>';
-			}
-			$related_output .= '</ul>';
+	if ( ! empty( $related_posts ) ) {
+		$related_output .= '<ul>';
+		foreach( $related_posts as $result ) {
+			$related_output .= '<li><a href="' . esc_url( $result['url'] ) . '">'. esc_html( $result['title'] ) . '</a></li>';
 		}
-		return $related_output;
+		$related_output .= '</ul>';
 	}
+	return $related_output;
 }
 
 /**
- * Experimental: VIP Find Related posts using WordPress.com search, based on the content of the post.
+ * VIP Legacy Related Posts (get post_id, title, url)
  *
- * Use wpcom_vip_get_flaptor_related_posts() if you prefer to get an array you can process.
- *
+ * Don't use for new projects, just use WPCOM_RelatedPosts directly, since it has hooks
+ * like jetpack_relatedposts_filter_args, jetpack_relatedposts_filter_filters
+ * 
+ * For backwards compatability, this function finds related posts on the current blog 
+ * using Elasticsearch, then converts the results to match the original sphere results format.
+ * 
  * @param int $max_num Optional. Maximum number of results you want (default: 5).
- * @param array $additional_stopwords Optional(). Stop words are common words in your content that you want to exclude from the search. Most common english words are ignored by default.
- * @param bool $exclude_own_titles Optional. Exclude words from the title and description of this blog in the query (default: true).
+ * @param array $additional_stopwords No longer used.
+ * @param bool $exclude_own_titles No longer used.
  * @return array of related posts.
  */
 function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ) {
-	if ( function_exists( 'get_flaptor_related' ) ) {
-		return get_flaptor_related( $max_num, $additional_stopwords, $exclude_own_titles );
+	if ( method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
+		$post_id = get_the_ID();
+		$rp = WPCOM_RelatedPosts::init();
+		$related = $rp->get_for_post_id( $post_id, array( 
+			'size' => $max_num,
+		) );
+	
+		if ( $related ) {
+			//rebuilding the array to match sphere related posts (and flaptor related posts)
+			$results = array();
+			foreach ( $related as $result) {
+				if ( $post_id == $result['id'] ) {
+					continue;
+				}
+				$new_result = array();
+				//This url contains aggregate click counting for performance tuning of WPCOM_RelatedPosts
+				$new_result['url'] = $result['url'];
+				$new_result['post_id'] = $result['id'];
+				$new_result['title'] = $result['title'];
+				$results[] = $new_result;
+			}
+			$results = array_slice( $results, 0, $max_num );
+			return $results;
+		}
+
+		return false;
 	} else {
 		// Fallback for local environments where flaptor isn't available
 		$related_posts = array();
