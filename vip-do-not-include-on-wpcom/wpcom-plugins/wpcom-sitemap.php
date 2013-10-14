@@ -73,26 +73,25 @@ function wpcom_print_xml_tag( $array, $depth = 0 ) {
  * Convert an array to a SimpleXML child of the passed tree.
  *
  * @param array $data array containing element value pairs, including other arrays, for XML contruction
- * @param SimpleXMLElement A SimpleXMLElement class object used to attach new children
+ * @param SimpleXMLElement $tree A SimpleXMLElement class object used to attach new children
  * @return SimpleXMLElement full tree with new children mapped from array
  */
-function wpcom_sitemap_array_to_simplexml($data, &$tree, $namespace = false ) {
+function wpcom_sitemap_array_to_simplexml($data, &$tree ) {
+	$doc_namespaces = $tree->getDocNamespaces();
+	
 	foreach( $data as $key => $value ) {
+		// Allow namespaced keys by use of colon in $key, namespaces must be part of the document
+		$namespace = null;
+		if ( false !== strpos( $key, ':' ) ) {
+			list( $namespace_prefix, $key ) = explode( ':', $key );
+			if ( isset( $doc_namespaces[$namespace_prefix] ) )
+				$namespace = $doc_namespaces[$namespace_prefix];
+		}
+		
 		if ( is_array($value) )
-			// For nodes that need child nodes to be namespaced, pass $key as $namespace
-			if ( in_array( $key, array( 'image' ) ) )
-				wpcom_sitemap_array_to_simplexml($value, $tree->addChild( $key, null, 'http://www.google.com/schemas/sitemap-image/1.1' ), $key );
-			else
-				wpcom_sitemap_array_to_simplexml($value, $tree->addChild( $key ) );
+			wpcom_sitemap_array_to_simplexml($value, $tree->addChild( $key, null, $namespace ) );
 		else {
-			// Special-case mobile node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-			if ( 'mobile' == $key )
-				$tree->addChild( $key, esc_html( $value ), 'http://www.google.com/schemas/sitemap-mobile/1.0' );
-			// Special-case image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
-			else if ( in_array( 'image', array( $key, $namespace ) ) )
-				$tree->addChild( $key, esc_html( $value ), 'http://www.google.com/schemas/sitemap-image/1.1' );
-			else
-				$tree->addChild( $key, esc_html( $value ) );
+			$tree->addChild( $key, esc_html( $value ), $namespace );
 		}
 	}
 	return $tree;
@@ -134,6 +133,9 @@ function wpcom_sitemap_initstr( $charset ) {
  * @todo set cache and expire on post publish, page publish or approved comment publish
  */
 function wpcom_print_sitemap() {
+	if ( defined( 'WPCOM_SKIP_DEFAULT_SITEMAP' ) && WPCOM_SKIP_DEFAULT_SITEMAP ) {
+		return;
+	}
 	global $wpdb, $current_blog;
 	$key = sitemap_cache_key();
 	$xml = wp_cache_get( $key, 'sitemap' );
@@ -149,6 +151,7 @@ function wpcom_print_sitemap() {
 		$post_types_in = join( ",", $post_types_in );
 
 		// use direct query instead because get_posts was acting too heavy for our needs
+		//$posts = get_posts( array( 'numberposts'=>1000, 'post_type'=>$post_types, 'post_status'=>'published' ) );
 		$posts = $wpdb->get_results( "SELECT ID, post_type, post_modified_gmt, comment_count FROM $wpdb->posts WHERE post_status='publish' AND post_type IN ({$post_types_in}) ORDER BY post_modified_gmt DESC LIMIT 1000" );
 		if ( empty($posts) )
 			header('HTTP/1.0 404 Not Found', True, 404);
@@ -175,9 +178,11 @@ function wpcom_print_sitemap() {
 			$attachment_count     = array();
 
 			foreach ( $all_attachments as $attachment ) {
+				if ( ! isset( $attachment_count[$attachment->post_parent] ) )
+					$attachment_count[$attachment->post_parent] = 0;
 
 				// Skip this particular attachment if we already have 5 for the post
-				if ( array_key_exists( $attachment->post_parent, $attachment_count ) && $attachment_count[$attachment->post_parent] >= 5 )
+				if ( $attachment_count[$attachment->post_parent] >= 5 )
 					continue;
 
 				$selected_attachments[] = $attachment->ID;
@@ -207,13 +212,13 @@ function wpcom_print_sitemap() {
 			$url             = array( 'loc'=> esc_url( get_permalink( $post->ID ) ) );
 
 			// Mobile node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-			$url['mobile']   = '';
+			$url['mobile:mobile']   = '';
 
 			// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
 			// These attachments were produced with batch SQL earlier in the script
 			if ( $attachments = wp_filter_object_list( $post_attachments, array( 'post_parent' => $post->ID ) ) ) {
 
-				$url['image'] = array();
+				$url['image:image'] = array();
 
 				foreach ( $attachments as $attachment ) {
 					$attachment_url = false;
@@ -229,21 +234,21 @@ function wpcom_print_sitemap() {
 						$attachment_url = apply_filters( 'wp_get_attachment_url', $attachment_url, $attachment->ID );
 
 						if ( ! $attachment_url ) {
-							unset( $url['image'] );
+							unset( $url['image:image'] );
 							continue;
 						}
 
-						$url['image']['loc'] = esc_url( $attachment_url );
+						$url['image:image']['loc'] = esc_url( $attachment_url );
 					}
 
 					// Only include title if not empty
 					if ( $attachment_title = apply_filters( 'the_title_rss', $attachment->post_title ) ) {
-						$url['image']['title'] = esc_html( $attachment_title );
+						$url['image:image']['title'] = esc_html( $attachment_title );
 					}
 
 					// Only include caption if not empty
 					if ( $attachment_caption = apply_filters( 'the_excerpt_rss', $attachment->post_excerpt ) ) {
-						$url['image']['caption'] = esc_html( $attachment_caption );
+						$url['image:image']['caption'] = esc_html( $attachment_caption );
 					}
 				}
 			}
@@ -274,7 +279,7 @@ function wpcom_print_sitemap() {
 			unset( $url );
 		}
 		$blog_home = array(
-			'loc'=>esc_url( get_bloginfo('siteurl').'/' ),
+			'loc' => esc_url( get_option( 'home' ) ),
 			'changefreq' => 'daily',
 			'priority' => '1.0'
 		);
@@ -301,6 +306,9 @@ function wpcom_print_sitemap() {
 }
 
 function wpcom_print_news_sitemap($format) {
+	if ( defined( 'WPCOM_SKIP_DEFAULT_NEWS_SITEMAP' ) && WPCOM_SKIP_DEFAULT_NEWS_SITEMAP )
+		return;
+
 	global $wpdb;
 	$limit = apply_filters( 'wpcom_sitemap_news_sitemap_count', 1000 );
 	$cur_datetime = current_time( 'mysql', true );
@@ -328,6 +336,11 @@ function wpcom_print_news_sitemap($format) {
 <?php
 	$posts = $wpdb->get_results( $query );
 	foreach ( $posts as $post ):
+
+		// Add in filter to allow skipping specific posts
+		if ( apply_filters( 'wpcom_sitemap_news_skip_post', false, $post ) )
+			continue;
+
 		$GLOBALS['post'] = $post;
 		$url = array();
 		$url['loc'] = get_permalink($post->ID);
@@ -368,8 +381,16 @@ function wpcom_print_news_sitemap($format) {
  */
 function sitemap_uri() {
 	global $current_blog;
+
 	$domain = $current_blog->primary_redirect ? $current_blog->primary_redirect : $current_blog->domain;
-	return 'http://' . $domain . '/sitemap.xml';
+	return apply_filters( 'sitemap_location', 'http://' . $domain . '/sitemap.xml' );
+}
+
+/**
+ * Absolute URL of the current blog's news sitemap
+ */
+function news_sitemap_uri() {
+	return apply_filters( 'news_sitemap_location', home_url( '/news-sitemap.xml', 'http' ) );
 }
 
 /**
@@ -407,7 +428,11 @@ add_action( 'pings_sitemap', 'do_sitemap_pings', 10, 1 );
  * Output the master sitemap URLs for the current blog context
  */
 function sitemap_discovery() {
-	echo 'Sitemap: ' . sitemap_uri() . "\n\n";
+	if ( ! defined( 'WPCOM_SKIP_DEFAULT_SITEMAP' ) || true !== WPCOM_SKIP_DEFAULT_SITEMAP )
+		echo 'Sitemap: ' . esc_url( sitemap_uri() ) . PHP_EOL;
+
+	if ( ! defined( 'WPCOM_SKIP_DEFAULT_NEWS_SITEMAP' ) || true !== WPCOM_SKIP_DEFAULT_NEWS_SITEMAP )
+		echo 'Sitemap: ' . esc_url( news_sitemap_uri() ) . PHP_EOL . PHP_EOL;
 }
 
 /**
@@ -417,18 +442,25 @@ function sitemap_discovery() {
  * @param int $post_id unique post identifier. not used.
  */
 function sitemap_handle_update( $post_id ) {
+	if ( defined( 'WPCOM_SKIP_DEFAULT_SITEMAP' ) && WPCOM_SKIP_DEFAULT_SITEMAP )
+		return;
+
 	global $current_blog;
 	wp_cache_delete( sitemap_cache_key(), 'sitemap' );
 
-	if ( function_exists( 'queue_pings_job' ) ) {	
-		$data = new stdClass();
-		$data->sitemap_uri = sitemap_uri();
-		$data->sitemap_endpoints = sitemap_endpoints();
-		$data->origin_ip = $_SERVER['REMOTE_ADDR'];
-		$data->blog_id = $current_blog->blog_id;
-		$data->post_id = $post_id;
-		queue_pings_job( $data, 'sitemap', (int)wpcom_is_vip(), 2 );
-	}
+	if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING )
+		return;
+
+	if ( ! function_exists( 'queue_pings_job' ) )
+		return;
+
+	$data = new stdClass();
+	$data->sitemap_uri = sitemap_uri();
+	$data->sitemap_endpoints = sitemap_endpoints();
+	$data->origin_ip = $_SERVER['REMOTE_ADDR'];
+	$data->blog_id = $current_blog->blog_id;
+	$data->post_id = $post_id;
+	queue_pings_job( $data, 'sitemap', (int)wpcom_is_vip(), 2 );
 }
 
 if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
@@ -439,8 +471,11 @@ if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
 	add_action( 'trash_post', 'sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'sitemap_handle_update', 12, 1 );
 
-	if ( false !== strpos( $_SERVER['REQUEST_URI'], '/sitemap.xml' ) )
+	if ( $_SERVER['REQUEST_URI'] == '/sitemap.xml' ) {
 		add_action( 'init', 'wpcom_print_sitemap', 99 ); // run later so things like custom post types have been registered
-	elseif ( false !== strpos( $_SERVER['REQUEST_URI'], '/news-sitemap.xml' ) )
+	} elseif ( $_SERVER['REQUEST_URI'] == '/news-sitemap.xml' ) {
 		add_action( 'init', 'wpcom_print_news_sitemap', 99 ); // run later so things like custom post types have been registered
+	
+	}
 }
+
