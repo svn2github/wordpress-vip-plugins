@@ -146,7 +146,7 @@ class EXP_Expiring_Posts {
 	 * Enqueue scripts for arranging elements
 	 */
 	function admin_scripts( $page ) {
-		if ( 'post.php' != $page )
+		if ( 'post.php' != $page && 'post-new.php' != $page )
 			return;
 
 		wp_enqueue_script( 'admin-expiring-posts', EXPIRING_POSTS_URL . '/inc/js/expiring-posts.js', array( 'jquery' ) );
