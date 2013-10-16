@@ -48,6 +48,7 @@ class WP_Push_Syndication_Server {
 
 		$this->register_syndicate_actions();
 
+		do_action( 'syn_after_setup_server' );
 	}
 
 	public function init() {
@@ -136,9 +137,13 @@ class WP_Push_Syndication_Server {
 
 		$this->version = get_option( 'syn_version' );
 
+		do_action( 'syn_after_init_server' );
 	}
 
 	public function register_syndicate_actions() {
+		add_action( 'syn_schedule_push_content', array( $this, 'schedule_push_content' ) );
+		add_action( 'syn_schedule_delete_content', array( $this, 'schedule_delete_content' ) );
+
 		add_action( 'syn_push_content', array( $this, 'push_content' ) );
 		add_action( 'syn_delete_content', array( $this, 'delete_content' ) );
 		add_action( 'syn_pull_content', array( $this, 'pull_content' ) );
@@ -801,13 +806,12 @@ class WP_Push_Syndication_Server {
 		if( !$this->current_user_can_syndicate() )
 			return;
 
-		$sites = $this->get_sites_by_post_ID( $post->ID );
-
-		$this->schedule_push_content( $sites );
-
+		do_action( 'syn_schedule_push_content', $post->ID );
 	}
 
-	function schedule_push_content( $sites ) {
+	function schedule_push_content( $post_id ) {
+		$sites = $this->get_sites_by_post_ID( $post_id );
+
 		wp_schedule_single_event(
 			time() - 1,
 			'syn_push_content',
@@ -820,7 +824,7 @@ class WP_Push_Syndication_Server {
 
 		// if another process running on it return
 		if( get_transient( 'syn_syndicate_lock' ) == 'locked' )
-			return
+			return;
 
 		// set value as locked, valid for 5 mins
 		set_transient( 'syn_syndicate_lock', 'locked', 60*5 );
@@ -832,6 +836,8 @@ class WP_Push_Syndication_Server {
 		// an array containing states of sites
 		$slave_post_states = get_post_meta( $post_ID, '_syn_slave_post_states', true );
 		$slave_post_states = !empty( $slave_post_states ) ? $slave_post_states : array() ;
+
+		$sites = apply_filters( 'syn_pre_push_post_sites', $sites, $post_ID, $slave_post_states );
 
 		if( !empty( $sites['selected_sites'] ) ) {
 
@@ -850,6 +856,7 @@ class WP_Push_Syndication_Server {
 					$result = $client->new_post( $post_ID );
 
 					$this->validate_result_new_post( $result, $slave_post_states, $site->ID, $client );
+					$this->update_slave_post_states( $post_ID, $slave_post_states );
 
 					do_action( 'syn_post_push_new_post', $result, $post_ID, $site, $transport_type, $client, $info );
 					
@@ -860,7 +867,8 @@ class WP_Push_Syndication_Server {
 					
 					$result = $client->edit_post( $post_ID, $info['ext_ID'] );
 
-					$this->validate_result_edit_post( $result, $slave_post_states, $site->ID, $client );
+					$this->validate_result_edit_post( $result, $info['ext_ID'], $slave_post_states, $site->ID, $client );
+					$this->update_slave_post_states( $post_ID, $slave_post_states );
 
 					do_action( 'syn_post_push_edit_post', $result, $post_ID, $site, $transport_type, $client, $info );
 				}
@@ -882,6 +890,7 @@ class WP_Push_Syndication_Server {
 					$result = $client->delete_post( $info['ext_ID'] );
 					if ( is_wp_error( $result ) ) {
 						$slave_post_states[ 'remove-error' ][ $site->ID ] = $result;
+						$this->update_slave_post_states( $post_ID, $slave_post_states );
 					}
 
 				}
@@ -890,7 +899,6 @@ class WP_Push_Syndication_Server {
 
 		}
 
-		update_post_meta( $post_ID, '_syn_slave_post_states', $slave_post_states );
 
 		/** end of critical section **/
 
@@ -1037,16 +1045,23 @@ class WP_Push_Syndication_Server {
 	 * edit-error   -> edit-error
 	 * success      -> edit-error
 	 */
-	public function validate_result_edit_post( $result, &$slave_post_states, $site_ID, $client ) {
+	public function validate_result_edit_post( $result, $ext_ID, &$slave_post_states, $site_ID, $client ) {
 		if ( is_wp_error( $result ) ) {
-			$slave_post_states[ 'edit-error' ][ $site_ID ] = $result;
+			$slave_post_states[ 'edit-error' ][ $site_ID ] = array(
+				'error' => $result,
+				'ext_ID' => (int) $ext_ID,
+			);
 		} else {
 			$slave_post_states[ 'success' ][ $site_ID ] = array(
-				'ext_ID'        => (int) $result
+				'ext_ID'        => (int) $ext_ID
 			);
 		}
 
 		return $result;
+	}
+
+	private function update_slave_post_states( $post_id, $slave_post_states ) {
+		update_post_meta( $post_id, '_syn_slave_post_states', $slave_post_states );
 	}
 
 	public function pre_schedule_delete_content( $post_id ) {
@@ -1059,8 +1074,7 @@ class WP_Push_Syndication_Server {
 		if( !$this->current_user_can_syndicate() )
 			return;
 
-		$this->schedule_delete_content( $post_id );
-
+		do_action( 'syn_schedule_delete_content', $post_id );
 	}
 
 	public function schedule_delete_content( $post_ID ) {
