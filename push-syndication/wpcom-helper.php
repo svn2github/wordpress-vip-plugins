@@ -1,6 +1,6 @@
 <?php
 add_action( 'syn_after_init_server', function() {
-	if ( true !== WPCOM_IS_VIP_ENV )
+	if ( true /* true !== WPCOM_IS_VIP_ENV*/ )
 		return;
 
 	global $push_syndication_server;
