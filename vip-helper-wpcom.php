@@ -120,6 +120,7 @@ function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopword
 				'timestamp' => get_the_time( 'Y-m-d', $related_post_id ),
 				'host' => $host,
 				'source' => $source_info,
+				'post_id' => $related_post_id,
 			);
 		}
 		return $related_posts;
