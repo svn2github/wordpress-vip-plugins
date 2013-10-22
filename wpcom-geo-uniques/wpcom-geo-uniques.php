@@ -99,7 +99,27 @@ class WPCOM_Geo_Uniques {
 		$query_args = array( self::ACTION_PARAM => '' );
 		$query_args = apply_filters( 'wpcom_geo_gelocate_js_query_args', $query_args );
 	?>
-		<script src="<?php echo esc_url( add_query_arg( $query_args, home_url() ) ); ?>"></script>
+		<script>
+		( function() {
+			// Avoid infinite loops and geolocation requests for clients that support javascript but not cookies
+			var cookies_enabled = ( 'undefined' !== navigator.cookieEnabled && navigator.cookieEnabled ) ? true : null;
+
+			if ( ! cookies_enabled ) {
+				document.cookie = '__testcookie=1';
+				if ( -1 !== document.cookie.indexOf( '__testcookie=1' ) ) {
+					cookies_enabled = true;
+				}
+				var expired_date = new Date( 2003, 5, 27 );
+				document.cookie = '__testcookie=1;expires=' + expired_date.toUTCString();
+			}
+
+			if ( cookies_enabled ) {
+				var s = document.createElement( 'script' );
+				s.src = '<?php echo esc_js( add_query_arg( $query_args, home_url() ) ); ?>';
+				document.body.appendChild( s );
+			}
+		} )();
+		</script>
 	<?php
 	}
 
