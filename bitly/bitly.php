@@ -10,6 +10,9 @@ class Bitly {
 	
 	// storing a copy of the api credentials
 	var $options;
+
+	// default post types
+	var $post_types = array( 'post', 'page' );
 	
 	/**
 	 * Set our options and some hooks
@@ -19,14 +22,25 @@ class Bitly {
 		$this->options = $this->get_options();
 
 		add_action( 'admin_menu', array( $this, 'admin_menu') );
-		
-		// default supported post types
-		add_post_type_support( 'post', 'bitly' );
-		add_post_type_support( 'page', 'bitly' );
+		add_action( 'init', array( $this, 'init' ), 99 ); // run later after post_types have been registered
 		
 		// only hook into the save_post hook if api credentials have been specified
 		if( isset( $this->options['api_login'] ) && isset( $this->options['api_key'] ) ) {
 			add_action( 'save_post', array( $this, 'save_post' ), 50, 2 );
+		}
+	}
+
+	/**
+	 * Add our post type support and allow post types to be filtered
+	 */
+	function init() {
+
+		// allow other post types to be supported
+		$this->post_types = (array) apply_filters( 'bitly_post_types', $this->post_types );
+		
+		// default supported post types
+		foreach( $this->post_types as $post_type ) {
+			add_post_type_support( $post_type, 'bitly' );
 		}
 	}
 	
@@ -299,6 +313,19 @@ function bitly_shortlink( $shortlink, $id, $context ) {
 add_filter( 'pre_get_shortlink', 'bitly_shortlink', 10, 3 );
 
 /**
+ * Helper to get available post types
+ */
+function bitly_get_post_types() {
+
+	global $bitly;
+
+	if( is_object( $bitly ) )
+		return $bitly->post_types;
+	else
+		return array( 'post', 'page' );
+}
+
+/**
  * Cron to process all of the posts that don't have bitly urls
  */
 function bitly_process_posts() {
@@ -310,23 +337,44 @@ function bitly_process_posts() {
 	if ( ! $blog_shortlink )
 		bitly_generate_blog_short_url();
 
-	// get 100 published posts that don't have a bitly url
-	$query = "
-		SELECT $wpdb->posts.ID
-		FROM $wpdb->posts
-		LEFT JOIN $wpdb->postmeta ON ( $wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key =  'bitly_url' ) 
-		WHERE 1=1
-		AND ( $wpdb->posts.post_type = 'post' OR $wpdb->posts.post_type = 'page' )
-		AND ( $wpdb->posts.post_status = 'publish' )
-		AND ( $wpdb->postmeta.post_id IS NULL )
-		GROUP BY $wpdb->posts.ID
-		ORDER BY $wpdb->posts.post_date DESC
-		LIMIT 0, 100
-	";
+	$post_type_sql = "";
+
+	// get the post types that are supported
+	$post_types = bitly_get_post_types();
+
+	// build the sql for querying post types
+	if( count( $post_types ) ) {
+
+		foreach( $post_types as $post_type ) {
+			$sanitized_post_types[] = $wpdb->prepare( '%s', $post_type );
+		}
+
+		$post_type_sql = sprintf( '%s IN ( %s )', "$wpdb->posts.post_type", implode( ',', $sanitized_post_types ) );
+	}
+
+	// only do the query if there's post_type sql
+	if( !empty( $post_type_sql ) ) {
+
+		// get 100 published posts that don't have a bitly url
+		$query = "
+			SELECT $wpdb->posts.ID
+			FROM $wpdb->posts
+			LEFT JOIN $wpdb->postmeta ON ( $wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key =  'bitly_url' ) 
+			WHERE 1=1
+			AND ( $post_type_sql )
+			AND ( $wpdb->posts.post_status = 'publish' )
+			AND ( $wpdb->postmeta.post_id IS NULL )
+			GROUP BY $wpdb->posts.ID
+			ORDER BY $wpdb->posts.post_date DESC
+			LIMIT 0, 100
+		";
+
+		$posts = $wpdb->get_results( $query );
+
+	}
 	
-	$posts = $wpdb->get_results( $query );
-	
-	if( $posts ) {
+	// this could be empty if there was no $post_type_sql
+	if( !empty( $posts ) ) {
 
 		// process these posts
 		foreach( $posts as $p ) {
