@@ -116,7 +116,7 @@ class WPCOM_Geo_Uniques {
 			if ( cookies_enabled ) {
 				var s = document.createElement( 'script' );
 				s.src = '<?php echo esc_js( add_query_arg( $query_args, home_url() ) ); ?>';
-				document.body.appendChild( s );
+				document.getElementsByTagName('head')[0].appendChild( s );
 			}
 		} )();
 		</script>
