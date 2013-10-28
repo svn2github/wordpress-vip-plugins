@@ -1,8 +1,8 @@
 === Social User Registration and Profile Storage with Janrain Capture ===
-Contributors: bhamrick, rwright, JeremyJanrain
+Contributors: byronjanrain, kylejanrain, rebekahjanrain
 Tags: capture, janrain, sso
-Requires at least: 3.0
-Tested up to: 3.4.2
+Requires at least: 3.5
+Tested up to: 3.6.1
 License: APL
 Stable tag: trunk
 
@@ -67,7 +67,7 @@ To insert links in your theme templates you can use the [do_shortcode](http://co
 
 As of version 0.0.4, this plugin supports Engage Social Sharing through the Engage application configured for Capture. To use this feature, ensure 'Enable Social Sharing' is checked in the UI Options administration page and use the [janrain_share] shortcode. If the $post object is available, the title, description, URL, and the most recent attached image URL will automatically be determined for sharing. These variables, as well as the button text, can be overridden with the following shortcode attributes:
 
-* title 
+* title
 * description
 * url
 * img
@@ -88,19 +88,19 @@ As of version 0.2.0 of the plugin, Capture 2.0 integration is available. This is
 1.	Log in to your WordPress Administrator Dashboard.
 1.	Navigate to Dashboard > Janrain Capture.
 1.	A new UI Type field has been added. Change the UI Type to Capture 2.0 and click save.
-1.	Capture 2.0 settings are configured in the 2.0 Settings and UI Settings tabs. Any existing Capture 1.0 settings will be preserved and hidden until you change the UI Type back. 
+1.	Capture 2.0 settings are configured in the 2.0 Settings and UI Settings tabs. Any existing Capture 1.0 settings will be preserved and hidden until you change the UI Type back.
 
 = Configuring Capture 2.0: =
-The Edit Profile page for Capture 2.0 requires creating a new WordPress page and adding only the following shortcode to it: [janrain_capture action="edit_profile"] 
+The Edit Profile page for Capture 2.0 requires creating a new WordPress page and adding only the following shortcode to it: [janrain_capture action="edit_profile"]
 
 We set the initial link for this setting to the default WordPress sample page. So if you are trying this out on a new WordPress installation you can just edit that page, and replace the text with shortcode.
 
-We also strongly recommend that you completely remove this page from the navigation menu. It is accessed through the "Edit My Profile" link in the Admin Bar for users who've been created through the Capture Service (that is, the default WordPress admin account will not have a Capture profile). 
+We also strongly recommend that you completely remove this page from the navigation menu. It is accessed through the "Edit My Profile" link in the Admin Bar for users who've been created through the Capture Service (that is, the default WordPress admin account will not have a Capture profile).
 
 = Styling Capture 2.0: =
 If you have access to your WordPress server's filesystem you can gain full control over how the widget is styled. (Note: This section of settings is hidden until you enable Filesystem Mode on the UI Settings tab).
 
-The latest version of the plugin contains a folder called /janrain_capture_screens/ inside the wp-content/plugins/janrain_capture/ folder. Copy the /janrain_capture_screens/ folder to the /wp-content/plugins/ folder. This creates a local backup, and working in this folder prevents plugin updates from overwriting custom screen styles. This is also the default location of the screens folder in Filesystem Mode. 
+The latest version of the plugin contains a folder called /janrain_capture_screens/ inside the wp-content/plugins/janrain_capture/ folder. Copy the /janrain_capture_screens/ folder to the /wp-content/plugins/ folder. This creates a local backup, and working in this folder prevents plugin updates from overwriting custom screen styles. This is also the default location of the screens folder in Filesystem Mode.
 Once in place, use the built-in Wordpress plugin editor to make modifications to your Capture screens.
 
 Note: You may also host this folder remotely on another server with PHP 5.2+ support, and change the folder under Filesystem Mode Settings.

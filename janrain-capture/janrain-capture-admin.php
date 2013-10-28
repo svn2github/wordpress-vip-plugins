@@ -17,10 +17,18 @@ class JanrainCaptureAdmin {
 	 * @param string $name
 	 *	 The plugin name to use as a namespace
 	 */
-	function __construct() {
-		
-		$site_url = site_url();
+	public function __construct() {
 		$this->postMessage = array( 'class' => '', 'message' => '' );
+		$this->fields = array();
+		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+	}
+
+	/**
+	 * Method bound to the init action.
+	 */
+	public function init() {
+		$site_url = site_url();
 		$this->fields = array(
 			array(
 				'name' => JanrainCapture::$name . '_address',
@@ -77,7 +85,7 @@ class JanrainCaptureAdmin {
 				'type' => 'long-text',
 				'screen' => 'main',
 			),
-		    array(
+			array(
 				'name' => JanrainCapture::$name . '_federate',
 				'title' => 'Federate Settings',
 				'type' => 'title',
@@ -114,6 +122,15 @@ class JanrainCaptureAdmin {
 				'screen' => 'main',
 			),
 			array(
+				'name' => JanrainCapture::$name . '_bp_server_base_url',
+				'title' => 'Server Base URL',
+				'description' => 'Your Backplane Server Base URL',
+				'prefix' => 'https://',
+				'default' => '',
+				'type' => 'text',
+				'screen' => 'main',
+			),
+			array(
 				'name' => JanrainCapture::$name . '_bp_bus_name',
 				'title' => 'Bus Name',
 				'description' => 'Your Backplane Bus Name',
@@ -130,34 +147,25 @@ class JanrainCaptureAdmin {
 				'options' => array( 1.2, 2 ),
 				'screen' => 'main',
 			),
-			
+
 			// widget UI settings
 			array(
 				'name' => JanrainCapture::$name . '_load_js',
 				'title' => 'Url for load.js file',
-				'description' => 'The absolute url (minus protocol) of the Widget load.js file <br/>(example: d16s8pqtk4uodx.cloudfront.net/default/load.js)',
-				'default' => 'd16s8pqtk4uodx.cloudfront.net/default/load.js',
+				'description' => 'The absolute url (minus protocol) of the Widget load file',
+				'default' => '',
 				'required' => true,
 				'type' => 'text',
 				'screen' => 'ui',
 			),
 			array(
-				'name' => JanrainCapture::$name . '_reg_flow',
-				'title' => 'Registration Flow',
-				'description' => 'Change this only when instructed to do so (default: socialRegistration)',
+				'name' => JanrainCapture::$name . '_widget_edit_page',
+				'title' => 'Edit Profile Page',
+				'description' => 'Create a page with the shortcode: [janrain_capture action="edit_profile"] and remove it from the menu.<br/>(example: '.site_url().'/edit-profile)',
 				'required' => true,
-				'default' => 'socialRegistration',
-				'type' => 'text',
+				'default' => site_url() . '/edit-profile/',
+				'type' => 'long-text',
 				'screen' => 'ui',
-			),
-			array(
-		        'name' => JanrainCapture::$name . '_widget_edit_page',
-		        'title' => 'Edit Profile Page',
-		        'description' => 'Create a page with the shortcode: [janrain_capture action="edit_profile"] and remove it from the menu.<br/>(example: '.site_url().'/edit-profile)',
-		        'required' => true,
-		        'default' => site_url() . '/edit-profile/',
-		        'type' => 'long-text',
-		        'screen' => 'ui',
 			),
 			array(
 				'name' => JanrainCapture::$name . '_ui_share_enabled',
@@ -182,55 +190,43 @@ class JanrainCaptureAdmin {
 				'type' => 'title',
 				'screen' => 'ui',
 			),
-
 		);
-		
-		add_action( 'init', array( &$this, 'init' ) );
-		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
-	}
-	
-	/**
-	 * Method bound to the init action.
-	 */
-	function init() {
-		if( $_SERVER['REQUEST_METHOD'] == 'POST' )
+
+		if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 			$this->on_post();
+		}
 	}
 
 	/**
 	 * Method bound to the admin_menu action.
 	 */
-	function admin_menu() {
+	public function admin_menu() {
 		$optPage = add_menu_page(
 			__( 'Janrain Capture' ),
 			__( 'Janrain Capture' ),
-			'manage_options', JanrainCapture::$name, array( &$this, 'main' )
+			'manage_options', JanrainCapture::$name, array( $this, 'main' )
 		);
 		$uiPage  = add_submenu_page(
 			JanrainCapture::$name,
 			__( 'Janrain Capture' ),
 			__( 'UI Settings' ),
-			'manage_options', JanrainCapture::$name . '_ui', array( &$this, 'ui' )
+			'manage_options', JanrainCapture::$name . '_ui', array( $this, 'ui' )
 		);
 	}
 
 	/**
 	 * Method bound to the Janrain Capture main menu.
 	 */
-	function main() {
-		$args = new stdClass;
-		$args->title  = 'Janrain Capture Settings';
-		$args->action = 'main';
+	public function main() {
+		$args = (object) array( 'title' => 'Janrain Capture Settings', 'action' => 'main');
 		$this->print_admin( $args );
 	}
 
 	/**
 	 * Method bound to the ui menu.
 	 */
-	function ui() {
-		$args = new stdClass;
-		$args->title  = 'UI Settings';
-		$args->action = 'ui';
+	public function ui() {
+		$args = (object) array( 'title' => 'UI Settings', 'action' => 'ui' );
 		$this->print_admin( $args );
 	}
 
@@ -240,8 +236,8 @@ class JanrainCaptureAdmin {
 	 * @param stdClass $args
 	 *	 Object with page title and action variables
 	 */
-	function print_admin( $args ) {
-		$name  = JanrainCapture::$name;
+	public function print_admin( $args ) {
+		$name = JanrainCapture::$name;
 		$nonce = wp_nonce_field( $name . '_action' );
 		echo <<<HEADER
 <div id="message" class="{$this->postMessage['class']} fade">
@@ -280,9 +276,10 @@ FOOTER;
 	 * @param array $field
 	 *	 A structured field definition with strings used in generating markup.
 	 */
-	function print_field( $field ) {
+	public function print_field( $field ) {
 		$default = isset( $field['default'] ) ? $field['default'] : '';
-		$value   = JanrainCapture::get_option( $field['name'], $default );
+		$value = JanrainCapture::get_option( $field['name'], $default );
+		$prefix = isset($field['prefix']) ? $field['prefix'] : '';
 		// echo $field['name'] . ": " . $value . "<br>Def: " . $default . "<br>"; return;
 		$r = ( isset( $field['required'] ) && $field['required'] == true ) ? ' <span class="description">(required)</span>' : '';
 		switch ( $field['type'] ) {
@@ -291,7 +288,7 @@ FOOTER;
 		<tr>
 			<th><label for="{$field['name']}">{$field['title']}$r</label></th>
 			<td>
-			<input type="text" name="{$field['name']}" value="$value" style="width:200px" />
+			$prefix<input type="text" name="{$field['name']}" value="$value" style="width:200px" />
 			<span class="description">{$field['description']}</span>
 			</td>
 		</tr>
@@ -399,8 +396,7 @@ TITLE;
 	public function on_post() {
 		if ( isset( $_POST[JanrainCapture::$name . '_action'] ) &&
 				current_user_can( 'manage_options' ) &&
-				check_admin_referer( JanrainCapture::$name . '_action' )
-		    ) {
+				check_admin_referer( JanrainCapture::$name . '_action' ) ) {
 			foreach ( $this->fields as $field ) {
 				if ( isset( $_POST[$field['name']] ) ) {
 					$value = $_POST[ $field['name'] ];
@@ -416,13 +412,14 @@ TITLE;
 					JanrainCapture::update_option( $field['name'], $value );
 				} else {
 					if ( $field['type'] == 'checkbox' && $field['screen'] == $_POST[JanrainCapture::$name . '_action'] ) {
-			            $value = '0';
-			            JanrainCapture::update_option( $field['name'], $value );
-			          } else {
-			            if (JanrainCapture::get_option( $field['name'] ) === false
-			              && isset($field['default']))
-			              JanrainCapture::update_option( $field['name'], $field['default'] );
-			          }
+						$value = '0';
+						JanrainCapture::update_option( $field['name'], $value );
+					} else {
+						if ( JanrainCapture::get_option( $field['name'] ) === false
+								&& isset($field['default'])) {
+							JanrainCapture::update_option( $field['name'], $field['default'] );
+						}
+					}
 				}
 			}
 		}
