@@ -268,32 +268,23 @@ class WPCOM_Related_Posts {
 
 		if ( $this->is_elastic_search && $this->_use_related_api() ) {
 			// Use related posts API
-
-			$mlt_args = array(
-				'size' => (int)$args['posts_per_page'],
+			include_once WPMU_PLUGIN_DIR . '/related-posts/raw-related-posts.php';
+			$response = Raw_RelatedPosts::init()->get_for_post_id(
+				$post_id,
+				array(
+					'size' => (int)$args['posts_per_page'],
+					'post_type' => $args['post_type'],
+					'has_terms' => $args['has_terms'],
+					'date_range' => $args['date_range'],
+				)
 			);
 
-			$filters = $this->_get_es_filters_from_args( $args );
-			if ( ! empty( $filters ) )
-				$mlt_args['filter'] = array( 'and' => $filters );
-
-			// Set defaults
-			$mlt_args['name'] = 'global';
-			$mlt_args['blog_id'] = get_current_blog_id();
-			$mlt_args['id'] = $post_id;
-			$mlt_args['fields'] = array( 'post_id' );
-
-			$stat_app_name = 'blog-search-related';
-
-			$results = es_api_search_index_for_related( $mlt_args, $stat_app_name );
-			$related_posts = array();
-			if ( !is_wp_error( $results ) && isset( $results['results']['hits'] ) && is_array( $results['results']['hits'] ) ){
-				foreach( $response['results']['hits'] as $hit ) {
-					$related_posts[] = get_post( $hit['fields']['post_id'] );
-				}
+		$related_posts = array();
+			foreach( $response as $hit ) {
+				$related_posts[] = get_post( $hit['id'] );
 			}
 
-			$this->_generation_method = 'MLT-API';
+			$this->_generation_method = 'MLT-API-VIP';
 		} elseif ( $this->is_elastic_search && ( $current_post = get_post( $post_id ) ) ) {
 			// Use Elastic Search for the results if it's available
 
@@ -424,13 +415,7 @@ class WPCOM_Related_Posts {
 	}
 
 	private function _use_related_api() {
-		return false;
-		return in_array(
-			get_current_blog_id(),
-			array(
-				'4779443', //hackadaycom.wordpress.com
-			)
-		);
+		return true;
 	}
 
 	private function _get_es_filters_from_args( array $args ) {
