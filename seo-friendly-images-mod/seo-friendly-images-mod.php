@@ -183,7 +183,7 @@ function seo_friendly_images_process($matches) {
 		$saved=$source[2];
 		
 		### Swap with file's base name.
-		preg_match('%[^/]+(?=\.[a-z]{3}\z)%', $source[2], $source);
+		preg_match('%[^/]+(?=\.[a-z]{3}(\z|\?))%', $source[2], $source);
 		### Separate URL by attributes.
 		$pieces = preg_split('/(\w+=)/', $matches[0], -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
 		### Add missing pieces.
