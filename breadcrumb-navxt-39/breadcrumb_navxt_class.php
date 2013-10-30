@@ -124,11 +124,14 @@ class bcn_breadcrumb
 	 */
 	public function set_anchor($template, $url)
 	{
-		//Set a safe tempalte if none was specified
-		if($template == '')
-		{
-			$template = __('<a title="Go to %title%." href="%link%">', 'breadcrumb_navxt');
-		}
+		// Sanity check.
+		if( ! is_string( $url ) )
+			$url = '';		
+
+		// Set a safe template if none was specified.
+		if( ! is_string( $template ) || $template == '' )
+			$template = __( '<a title="Go to %title%." href="%link%">', 'breadcrumb_navxt' );
+
 		//Set the anchor, we strip tangs from the title to prevent html validation problems
 		$this->anchor = str_replace('%title%', strip_tags($this->title), str_replace('%link%', $url, __($template, 'breadcrumb_navxt')));
 		//Set linked to true since we called this function
