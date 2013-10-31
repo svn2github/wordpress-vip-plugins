@@ -66,7 +66,7 @@ function wpcom_vip_get_page_by_title( $title, $output = OBJECT, $post_type = 'pa
 	$page_id = wp_cache_get( $cache_key, 'get_page_by_title' );
 
 	if ( $page_id === false ) {
-		$page = get_page_by_title( $title, $output, $post_type );
+		$page = get_page_by_title( $title, OBJECT, $post_type );
 		$page_id = $page ? $page->ID : 0;
 		wp_cache_set( $cache_key, $page_id, 'get_page_by_title' ); // We only store the ID to keep our footprint small
 	}
