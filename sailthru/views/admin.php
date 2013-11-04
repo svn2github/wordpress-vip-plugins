@@ -6,16 +6,20 @@
 			<?php
 
 
-				if( isset( $_GET[ 'page' ] ) ) {
+				if ( isset( $_GET[ 'page' ] ) ) {
 					$active_tab = $_GET[ 'page' ];
-				} else if( $active_tab == 'concierge_configuration_page' ) {
+				} else if ( $active_tab == 'concierge_configuration_page' ) {
 					$active_tab = 'concierge_configuration_page';
-				} else if( $active_tab == 'scout_configuration_page' ) {
+				} else if ( $active_tab == 'scout_configuration_page' ) {
 					$active_tab = 'scout_configuration_page';
-				} else if( $active_tab == 'settings_configuration_page') {
+				} else if ( $active_tab == 'settings_configuration_page') {
 					$active_tab = 'settings_configuration_page';
-				} else {
-					$active_tab = 'settings_configuration_page';
+				}
+				else if ( $active_tab == 'customforms_configuration_page') {
+					$active_tab = 'customforms_configuration_page';
+				}
+				else {
+					$active_tab = 'customforms_configuration_page';
 				} // end if/else
 
 
@@ -24,19 +28,19 @@
 				settings_errors();
 
 				// Sailthru setup options.
-				$sailthru = get_option('sailthru_setup_options');
+				$sailthru = get_option( 'sailthru_setup_options' );
 
 				// Setup
-				$setup = get_option('sailthru_setup_options');
+				$setup = get_option( 'sailthru_setup_options' );
 
 
 				// we have an api key, secret, and sitewide template
-				if( !empty( $sailthru['sailthru_api_key'] )
-						&& !empty( $sailthru['sailthru_api_secret'] ) ){
+				if ( ! empty ( $sailthru['sailthru_api_key'] )
+						&& ! empty( $sailthru['sailthru_api_secret'] ) ){
 
 
 					// sitewide template is picked
-					if( !empty($setup['sailthru_setup_email_template']) )	{
+					if ( ! empty( $setup['sailthru_setup_email_template'] ) )	{
 
 						/*
 						 *
@@ -49,7 +53,7 @@
 						 * overriding WP email.
 						 *
 						 */
-						if( false == get_option( 'sailthru_setup_complete' ) ) {
+						if ( false == get_option( 'sailthru_setup_complete' ) ) {
 							add_option( 'sailthru_setup_complete', 1 );
 						} // end if
  						?>
@@ -59,41 +63,50 @@
 							<a href="?page=settings_configuration_page" class="nav-tab <?php echo $active_tab == 'settings_configuration_page' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Settings', 'sailthru-for-wordpress' ); ?></a>
 							<a href="?page=concierge_configuration_page" class="nav-tab <?php echo $active_tab == 'concierge_configuration_page' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Concierge', 'sailthru-for-wordpress' ); ?></a>
 							<a href="?page=scout_configuration_page" class="nav-tab <?php echo $active_tab == 'scout_configuration_page' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Scout', 'sailthru-for-wordpress' ); ?></a>
+							<a href="?page=custom_fields_configuration_page" class="nav-tab <?php echo $active_tab == 'custom_fields_configuration_page' ? 'nav-tab-active' : ''; ?>"><?php _e( 'Subscribe Widget Fields', 'sailthru-for-wordpress' ); ?></a>
 
 						</h2>
 
 						<form method="post" action="options.php">
 							<?php
-								if( $active_tab == 'sailthru_configuration_page' ) {
+								if ( $active_tab == 'sailthru_configuration_page' ) {
 
 									require( SAILTHRU_PLUGIN_PATH . 'views/welcome.html.php' );
 
 								// general settings
-								}elseif( $active_tab == 'settings_configuration_page' ) {
+								}elseif ( $active_tab == 'settings_configuration_page' ) {
 
 									require( SAILTHRU_PLUGIN_PATH . '/views/settings.html.php' );
 
 								// concierge settings
-								} elseif( $active_tab == 'concierge_configuration_page' ) {
+								} elseif ( $active_tab == 'concierge_configuration_page' ) {
 
 									settings_fields( 'sailthru_concierge_options' );
 									do_settings_sections( 'sailthru_concierge_options' );
 
 								// email scout settings
-								} elseif( $active_tab == 'scout_configuration_page') {
+								} elseif ( $active_tab == 'scout_configuration_page') {
 
 									settings_fields( 'sailthru_scout_options' );
 									do_settings_sections( 'sailthru_scout_options' );
 
+								// show custom forms page
+								} elseif ( $active_tab == 'custom_fields_configuration_page') {
+										settings_fields( 'sailthru_forms_options' );
+										do_settings_sections( 'sailthru_forms_options' );
+										echo '</div>'; // ends the half column begun in delete_field()
 								// show welcome page
-								} else {
+								}
+								else {
 
 									require( SAILTHRU_PLUGIN_PATH . 'views/welcome.html.php' );
 
 								} // end if/else
 
-
+								echo '<div style="clear:both;">';
 								submit_button();
+								echo '</div>';
+
 
 							?>
 						</form>
@@ -108,12 +121,12 @@
 
 						<form method="post" action="options.php">
 							<?php
-								if( $active_tab == 'sailthru_configuration_page' ) {
+								if ( $active_tab == 'sailthru_configuration_page' ) {
 
 									require( SAILTHRU_PLUGIN_PATH . 'views/welcome.html.php' );
 
 								// site wide settings
-								}elseif( $active_tab == 'settings_configuration_page' ) {
+								}elseif ( $active_tab == 'settings_configuration_page' ) {
 
 									require( SAILTHRU_PLUGIN_PATH . '/views/settings.html.php' );
 

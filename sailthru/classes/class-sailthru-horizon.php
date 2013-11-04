@@ -95,15 +95,11 @@ class Sailthru_Horizon {
 			delete_option( 'sailthru_scout_options' );
 		}
 
-		// remove data feeds
-		if( false != get_option( 'sailthru_datafeeds') ) {
-			delete_option( 'sailthru_datafeeds' );
+		// remove custom fields options
+		if( false != get_option( 'sailthru_forms_options') ) {
+			delete_option( 'sailthru_forms_options' );
 		}
 
-		// remove email blast settings
-		if( false != get_option( 'sailthru_blast_options') ) {
-			delete_option( 'sailthru_blast_options' );
-		}
 
 
 	} // end deactivate
@@ -344,6 +340,26 @@ class Sailthru_Horizon {
 				array( &$this, 'load_sailthru_admin_display')
 			);
 			$this->admin_views[$scout_menu] = 'scout_configuration_page';
+
+			$scout_menu = add_submenu_page(
+				'sailthru_configuration_page',
+				__( 'Subscribe Widget Fields', 'sailthru-for-wordpress' ),
+				__( 'Subscribe Widget Fields', 'sailthru-for-wordpress' ),
+				'manage_options',
+				'custom_fields_configuration_page',
+				array( &$this, 'load_sailthru_admin_display')
+			);
+			$this->admin_views[$scout_menu] = 'customforms_configuration_page';
+
+			$forms_menu = add_submenu_page(
+				'customforms_configuration_page',
+				__( 'Custom Forms', 'sailthru-for-wordpress' ),
+				__( 'Custom Forms', 'sailthru-for-wordpress' ),
+				'manage_options',
+				'customforms_configuration_page',
+				array( &$this, 'load_sailthru_admin_display')
+			);
+			$this->admin_views[$forms_menu] = 'customforms_configuration_page';
 
 
 	} // end sailthru_menu

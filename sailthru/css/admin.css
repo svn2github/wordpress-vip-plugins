@@ -10,8 +10,48 @@
 #icon-sailthru {
 	background-image: url('../img/sailthru-header-icon.png');
 }
+.column-right {
+	margin-left: 60%;
+	margin-top: -410px;
+	width:18%;
+	padding: 10px;
+	position: absolute;
+}
+@media (max-width: 650px) {
+    .column-right {
+		margin-top: -520px;
+	}
+}
+@media (max-width: 1000px) {
+    .column-right {
+		margin-top: -502px;
+	}
+}
+@media (max-width: 1200px) {
+    .column-right {
+		margin-top: -493px;
+	}
+}
+@media (max-width: 1300px) {
+    .column-right {
+		margin-top: -463px;
+	}
+}
+.column-left {
+	width:55%;
+	height: 50%;
+	padding: 10px;
 
+}
 
+.column-half {
+	width: 45%;
+	float: left;
+}
+
+p{
+	position:relative;
+}
 /* welcome screen */
 #sailthru-admin .welcome-panel-column {
 	width: 49.5%;
@@ -34,6 +74,11 @@
 		#sailthru-admin #dashboard-widgets-wrap .postbox-container.last {
 			margin-right:0;
 		}
+
+#fields{
+	margin-left: 550px;
+	margin-top: -440px;
+}
 
 
 /* setup screen */
@@ -67,3 +112,14 @@ table.cmb_metabox input.cmb_text_small{
 
 /* simple gray border */
 .grayBorder { border: 1px solid #CCCCCC;}
+
+#sailthru-col-left {
+	width:60%;
+	padding:0 20px 0 0;
+	border-right:1px solid #cccccc;
+}
+#sailthru-col-right {
+	width:35%;
+	padding:0 10px 0 20px;
+}
+#add_attr {display:block;}

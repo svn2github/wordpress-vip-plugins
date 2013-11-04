@@ -3,69 +3,86 @@
 
 	<?php
 
-		$sailthru = get_option('sailthru_setup_options');
-
-		if( !is_array($sailthru) )
+		$sailthru     = get_option( 'sailthru_setup_options' );
+		$customfields = get_option( 'sailthru_forms_options' );
+		if ( ! is_array( $sailthru ) )
 		{
 
 			echo '<p>Please return to the <a href="' . esc_url( menu_page_url( 'sailthru_configuration_menu', false ) ) . '">Sailthru Settings screen</a> and set up your API key and secret before setting up this widget.</p>';
 			return;
 
 		}
-		$api_key = $sailthru['sailthru_api_key'];
+		$api_key    = $sailthru['sailthru_api_key'];
 		$api_secret = $sailthru['sailthru_api_secret'];
 
-		//$client = new Sailthru_Client( $api_key, $api_secret );
-		$client = new WP_Sailthru_Client( $api_key, $api_secret);
+		$client = new WP_Sailthru_Client( $api_key, $api_secret );
 			try {
-				if ($client) {
+				if ( $client ) {
 					$res = $client->getLists();
 				}
 			}
-			catch (Sailthru_Client_Exception $e) {
+			catch ( Sailthru_Client_Exception $e ) {
 				//silently fail
 				return;
 			}
-		
-			
+
+
 			$lists = $res['lists'];
 
 	?>
-
-        
-        <div id="<?php echo $this->get_field_id('title'); ?>_div" style="display: block;">
+                <div id="<?php echo $this->get_field_id( 'title' ); ?>_div" style="display: block;">
             <p>
-            	<label for="<?php echo $this->get_field_id('title'); ?>">
-            		<?php _e('Widget Title:'); ?> 
-            		<input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" />
+            	<label for="<?php echo $this->get_field_id( 'title' ); ?>">
+            		<?php _e( 'Widget Title:' ); ?>
+            		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
             	</label>
             </p>
-			<p>
-				<label for="<?php echo $this->get_field_id('show_first_name'); ?>">
-					<?php _e('Show first name field:'); ?> 
-					<input id="<?php echo $this->get_field_id('show_first_name'); ?>" name="<?php echo $this->get_field_name('show_first_name'); ?>" type="checkbox" <?php echo (($show_first_name) ? ' checked' : ''); ?> /> Yes.
-				</label>
-			</p> 
-			<p>
-				<label for="<?php echo $this->get_field_id('show_last_name'); ?>">
-					<?php _e('Show last name field:'); ?> 
-					<input id="<?php echo $this->get_field_id('show_last_name'); ?>" name="<?php echo $this->get_field_name('show_last_name'); ?>" type="checkbox" <?php echo (($show_last_name) ? ' checked' : ''); ?> /> Yes.
-				</label>
-			</p>
+            <p>
+			<?php
+			if ( get_option( 'sailthru_forms_key' ) ) {
+				$key = get_option( 'sailthru_forms_key' );
+					for ( $i = 0; $i < $key; $i++ ) {
+					 	$field_key = $i + 1;
+					 	if ( ! empty( $customfields[ $field_key ]['sailthru_customfield_name'] ) ) {
 
-			<p>			
-				<?php _e('Subscribe to list(s): '); ?>
+							$name_stripped = preg_replace("/[^\da-z]/i", '_', $customfields[ $field_key ]['sailthru_customfield_name']);
+							if( ! empty( $instance['show_'.$name_stripped.'_name'] ) ) {
+							echo '<label for="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '">Show \'' . $customfields[ $field_key ]['sailthru_customfield_name'] . '\' field:
+									<input id="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_name' ) . '" type="checkbox"' .(( $instance['show_'.$name_stripped.'_name']) ? ' checked' : '') . '/>
+								  </label><br>
+								  Required: <input id="' . $this->get_field_id( 'show_'.$name_stripped.'_required' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_required' ) . '" type="checkbox"' . (( $instance['show_'.$name_stripped.'_required'] ) ? ' checked' : '') . ' /> <br>';
+							}
+							else{
+
+								echo '<label for="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '">
+								Show \'' . $customfields[ $field_key ]['sailthru_customfield_name'] . '\' field:
+								<input id="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_name' ) . '" type="checkbox" /></label><br>
+								Required: <input id="' . $this->get_field_id( 'show_'.$name_stripped.'_required' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_required' ) . '" type="checkbox" /><br>';
+							}
+
+					} //if field name exists
+				} //for loop
+			} //if options exist
+
+            		?>
+
+					</p>
+			<p>
+				<?php _e( 'Subscribe to list(s): ' ); ?>
 				<?php
-					foreach( $lists as $key => $list )
-					{ 
+					foreach ( $lists as $key => $list ) {
+					if( ! empty( $instance['sailthru_list'][ $key ] ) ) {
+						$list_key = $instance['sailthru_list'][ $key ];
+					}
+					else{
+						$list_key = '';
+					}
 						?>
 						<br />
-						<input type="checkbox" value="<?php echo esc_attr( $list['name'] ); ?>" name="<?php echo $this->get_field_name('sailthru_list'); ?>[<?php echo $key; ?>]" id="<?php echo esc_attr( $this->get_field_id('sailthru_list') . '-' . $key ); ?>" <?php checked($instance['sailthru_list'][$key], $list['name']); ?>  /> 
-						<label for="<?php // echo esc_attr( $this->get_field_id('sailthru_list') . '-' . $key ); ?>"><?php echo esc_html( $list['name'] ); ?></label>
+						<input type="checkbox" value="<?php echo esc_attr( $list['name'] ); ?>" name="<?php echo $this->get_field_name( 'sailthru_list' ); ?>[<?php echo $key; ?>]" id="<?php echo esc_attr( $this->get_field_id( 'sailthru_list' ) . '-' . $key ); ?>" <?php checked( $list_key, $list['name'] ); ?>  />
+						<label for=""><?php echo esc_html( $list['name'] ); ?></label>
 						<?php
 					}
 				?>
-			</p>						
+			</p>
         </div>
-
-

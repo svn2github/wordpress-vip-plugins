@@ -1,5 +1,5 @@
 /* This stylesheet is used to style the public view of the widget. */
-.sailthru-signup-widget label { 
+.sailthru-signup-widget label {
 	display: block;
 	width: 80px;
 	float:left;
@@ -14,4 +14,44 @@
 .sailthru-signup-widget input[type="submit"] {
 	display:block;
 	clear: both;
+}
+
+.sailthru-widget-label {
+    padding:5px 0;
+}
+
+.sailthru-signup-widget .input-group-btn {
+   margin:10px 0 0 0;
+   display:block;
+}
+
+.sailthru-signup-widget .input-group-btn .btn {
+    padding: 5px 10px 5px 10px;
+}
+.sailthru-signup-widget-close {
+    float:right;
+    display:none;
+    font-size:85%;
+}
+
+#sailthru-modal
+{
+    position:absolute;
+    width:auto;
+    height:auto;
+    z-index:100;
+    text-align:center;
+    vertical-align:middle;
+    margin-top:-100px;
+}
+
+.sailthru_shortcode_hidden
+{
+    position:absolute;
+    padding: 20px;
+    z-index:101;
+    background-color: #d6d6d6;
+    -webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
 }
