@@ -139,7 +139,6 @@
                 <input type="hidden" name="sailthru_email_list" value="<?php echo esc_attr( $sailthru_list ); ?>" />
                 <input type="hidden" name="action" value="add_subscriber" />
                 <input type="hidden" name="vars[source]" value="<?php bloginfo( 'url' ); ?>" />
-            </div>
         </form>
 
 
