@@ -268,8 +268,7 @@ class WPCOM_Related_Posts {
 
 		if ( $this->is_elastic_search && $this->_use_related_api() ) {
 			// Use related posts API
-			include_once WPMU_PLUGIN_DIR . '/related-posts/raw-related-posts.php';
-			$response = Raw_RelatedPosts::init()->get_for_post_id(
+			$response = Jetpack_RelatedPosts::init_raw()->get_for_post_id(
 				$post_id,
 				array(
 					'size' => (int)$args['posts_per_page'],
@@ -284,7 +283,7 @@ class WPCOM_Related_Posts {
 				$related_posts[] = get_post( $hit['id'] );
 			}
 
-			$this->_generation_method = 'MLT-API-VIP';
+			$this->_generation_method = 'MLT-VIP-Raw';
 		} elseif ( $this->is_elastic_search && ( $current_post = get_post( $post_id ) ) ) {
 			// Use Elastic Search for the results if it's available
 
