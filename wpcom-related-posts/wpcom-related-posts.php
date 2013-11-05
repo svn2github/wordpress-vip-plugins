@@ -414,7 +414,7 @@ class WPCOM_Related_Posts {
 	}
 
 	private function _use_related_api() {
-		return true;
+		return class_exists( 'Jetpack_RelatedPosts' );
 	}
 
 	private function _get_es_filters_from_args( array $args ) {
