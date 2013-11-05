@@ -117,6 +117,21 @@ function wpcom_vip_flush_get_page_by_title_cache( $new_status, $old_status, $pos
 add_action( 'transition_post_status', 'wpcom_vip_flush_get_page_by_title_cache', 10, 3 );
 
 /**
+ * Flush the cache for published pages so we don't end up with stale data
+ *
+ * @param string  $new_status The post's new status
+ * @param string  $old_status The post's previous status
+ * @param WP_Post $post       The post
+ *
+ * @link http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
+ */
+function wpcom_vip_flush_get_page_by_path_cache( $new_status, $old_status, $post ) {
+	if ( 'publish' === $new_status || 'publish' === $old_status )
+		wp_cache_delete( $post->post_type . '_' . sanitize_key( $post->post_name ), 'get_page_by_path' );
+}
+add_action( 'transition_post_status', 'wpcom_vip_flush_get_page_by_path_cache', 10, 3 );
+
+/**
  * Cached version of url_to_postid, which can be expensive.
  *
  * Examine a url and try to determine the post ID it represents.
