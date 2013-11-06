@@ -64,28 +64,28 @@ function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = 
  * @return array of related posts.
  */
 function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopwords = array(), $exclude_own_titles = true ) {
-	if ( method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
+	if ( method_exists( 'Jetpack_RelatedPosts', 'init_raw' ) ) {
 		$post_id = get_the_ID();
-		$rp = WPCOM_RelatedPosts::init();
-		$related = $rp->get_for_post_id( $post_id, array( 
-			'size' => $max_num,
-		) );
-	
+
+		$related = Jetpack_RelatedPosts::init_raw()
+			->set_query_name( 'MLT-VIP-Flaptor' )
+			->get_for_post_id(
+				$post_id,
+				array(
+					'size' => $max_num,
+				)
+			);
+
 		if ( $related ) {
 			//rebuilding the array to match sphere related posts (and flaptor related posts)
 			$results = array();
-			foreach ( $related as $result) {
-				if ( $post_id == $result['id'] ) {
-					continue;
-				}
-				$new_result = array();
-				//This url contains aggregate click counting for performance tuning of WPCOM_RelatedPosts
-				$new_result['url'] = $result['url'];
-				$new_result['post_id'] = $result['id'];
-				$new_result['title'] = $result['title'];
-				$results[] = $new_result;
+			foreach ( $related as $result ) {
+				$results[] = array(
+					'post_id' => $result['id'],
+					'url' => get_permalink( $result['id'] ),
+					'title' => get_the_title( $result['id'] ),
+				);
 			}
-			$results = array_slice( $results, 0, $max_num );
 			return $results;
 		}
 
