@@ -111,7 +111,7 @@ add_action( 'admin_init', 'sailthru_initialize_setup_options' );
 
 function sailthru_initialize_forms_options() {
 
-	function sailthru_forms_callback() {
+	function sailthru_forms_callback( $args ) {
 
 		/*
 		** Custom and Extra Sections should be in a first column.
@@ -120,7 +120,32 @@ function sailthru_initialize_forms_options() {
 		echo '<div class="column-half" id="sailthru-col-left">';
 		echo '<h3>Custom fields</h3>';
 		echo '<p>Custom fields allow you to collect additional information from the user that can be stored in their Sailthru User Profile. </p>';
+
+		$customfields  = get_option( 'sailthru_forms_options' );
+		$key           = get_option( 'sailthru_forms_key' );
+
+		echo '<p><strong>Existing fields</strong></p>';
+		echo '<table class="wp-list-table widefat">';
+		echo '<thead>';
+		echo '<th scope="col" class="manage-column">Label</th>';
+		echo '<th scope="col" class="manage-column">Value</th>';
+		echo '<th scope="col" class="manage-column">Type</th>';
+		echo '</thead>';
+
+		for ( $i = 0; $i < $key; $i++ ) {
+			$field_key = $i + 1;
+			 if ( ! empty ( $customfields[ $field_key ]['sailthru_customfield_name'] ) ) {
+				echo '<tr>';
+				echo '<td>'. esc_html($customfields[ $field_key ]['sailthru_customfield_label']).' </td>';
+				echo '<td>'. esc_html($customfields[ $field_key ]['sailthru_customfield_name']).' </td>';
+				echo '<td>'. esc_html($customfields[ $field_key ]['sailthru_customfield_type']).' </td>';
+				echo '</tr>';
+			}
+		}
+		echo '</table>';
+
 		echo '<p>Use the form below to create a custom field library. Each created field will be available in our Sailthru Subscribe widget.</p>';
+
 
 	}
 
@@ -141,7 +166,7 @@ function sailthru_initialize_forms_options() {
 	// Render the output of the field type selector
 
 		echo '<select id="type" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name ) . ']">
-				  <option value="textbox"' . selected( esc_attr( $value ), 'textbox' ) . '>Textbox</option>
+				  <option value="text"' . selected( esc_attr( $value ), 'text' ) . '>Text Field</option>
 				  <option value="password"'. selected( esc_attr( $value ), 'password' ) . '>Password</option>
 				  <option value="tel"' . selected( esc_attr( $value ), 'tel' ) . '>Telephone</option>
 				  <option value="date"' . selected( esc_attr( $value ), 'date' ) . '>Date</option>
@@ -176,11 +201,12 @@ function sailthru_initialize_forms_options() {
 				for ( $i = 0; $i < $key; $i++ ) {
 					 $field_key = $i + 1;
 					 if ( ! empty ( $customfields[ $field_key ]['sailthru_customfield_name'] ) ) {
-					 echo '<option value="'.esc_attr($field_key).'" >'.esc_html($customfields[ $field_key ]['sailthru_customfield_name']).'</option>';
+					 echo '<option value="'.esc_attr($field_key).'" >'.esc_html($customfields[ $field_key ]['sailthru_customfield_label']).'</option>';
 					 }
 				} //end for loop
 		echo '</select>';
 		echo '<div>'.submit_button('Delete Field') .'</div>';
+
 	}
 
 	function sailthru_success_field ( $args ) {
@@ -308,6 +334,20 @@ function sailthru_initialize_forms_options() {
 				'sailthru_customfield_type',
 				'',
 				'sailthru_customfield_type'
+			)
+		);
+
+		add_settings_field(
+			'sailthru_customfield_label',					// ID used to identify the field throughout the theme
+			__( 'Field Label', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
+			'sailthru_html_text_input_callback',			// The name of the function responsible for rendering the option interface
+			'sailthru_forms_options',						// The page on which this option will be displayed
+			'sailthru_forms_section',						// The name of the section to which this field belongs
+			array(											// The array of arguments to pass to the callback. In this case, just a description.
+				'sailthru_forms_options',
+				'sailthru_customfield_label',
+				'',
+				'sailthru_customfield_label'
 			)
 		);
 
@@ -946,6 +986,7 @@ function sailthru_sanitize_text_input( $input ) {
 			add_option( 'sailthru_forms_key',$new_key );
 		}
 		if ( ! empty( $input['sailthru_customfield_name'] ) ) {
+			$output[ $new_key ]['sailthru_customfield_label']    = sanitize_text_field($input['sailthru_customfield_label']);
 			$output[ $new_key ]['sailthru_customfield_name']    = sanitize_text_field($input['sailthru_customfield_name']);
 			$output[ $new_key ]['sailthru_customfield_type']      = sanitize_text_field($input['sailthru_customfield_type']);
 			$output[ $new_key ]['sailthru_customfield_class']     = sanitize_html_class($input['sailthru_customfield_class']);

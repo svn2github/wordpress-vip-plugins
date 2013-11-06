@@ -72,7 +72,7 @@
 						if ( $customfields[ $field_key ]['sailthru_customfield_type'] == 'select' ) {
 
 
-				                echo '<label for="custom_' . esc_attr($name_stripped) . '">' . esc_html($customfields[ $field_key ]['sailthru_customfield_name']) . ':</label>
+				                echo '<label for="custom_' . esc_attr($name_stripped) . '">' . esc_html($customfields[ $field_key ]['sailthru_customfield_label']) . '</label>
 				                <select ' . sailthru_field_class( $customfields[ $field_key ]['sailthru_customfield_class'] ) .' '. sailthru_attributes( $attributes ) . 'name="custom_' . $name_stripped . '" id="sailthru_' . $name_stripped . '_name">';
 
 				                $items = explode( ',', $customfields[ $field_key ]['sailthru_customfield_value'] );
@@ -85,7 +85,7 @@
 						}
 						elseif ( $customfields[ $field_key ]['sailthru_customfield_type'] == 'radio' ) {
 				                $items = explode( ',', $customfields[ $field_key ]['sailthru_customfield_value'] );
-				                echo '<label for="custom_' . esc_attr($name_stripped) . '">' . esc_html($customfields[ $field_key ]['sailthru_customfield_name']) . ':</label>';
+				                echo '<label for="custom_' . esc_attr($name_stripped) . '">' . esc_html($customfields[ $field_key ]['sailthru_customfield_label']) . '</label>';
 				                foreach ( $items as $item ) {
 				                	$vals = explode( ':', $item );
 					                echo '<input ';
@@ -100,7 +100,7 @@
 			                //check if the field is required
 			                if ( $instance['show_'.$name_stripped.'_required'] == 'checked' ) {
 								if ( $customfields[ $field_key ]['sailthru_customfield_type'] != 'hidden' ) {
-									echo '<label for="custom_' . esc_attr($name_stripped) . '" class="sailthru-widget-label sailthru-widget-required">' . esc_html($customfields[ $field_key ]['sailthru_customfield_name']) . ' </label>';
+									echo '<label for="custom_' . esc_attr($name_stripped) . '" class="sailthru-widget-label sailthru-widget-required">' . esc_html($customfields[ $field_key ]['sailthru_customfield_label']) . ' </label>';
 					            }
 					            echo '<input ' . sailthru_field_class( esc_attr($customfields[ $field_key ]['sailthru_customfield_class']) ) . ' type="' . esc_attr($customfields[ $field_key ]['sailthru_customfield_type']) . '" ';
 					            if ( $customfields[ $field_key ]['sailthru_customfield_type'] == 'hidden' ) {
@@ -110,7 +110,7 @@
 							}
 							else{
 							if ( $customfields[ $field_key ]['sailthru_customfield_type'] != 'hidden' ) {
-								echo '<label for="custom_' .esc_attr($name_stripped) . '">' . esc_html($customfields[ $field_key ]['sailthru_customfield_name'] ). ':</label>';
+								echo '<label for="custom_' .esc_attr($name_stripped) . '">' . esc_html($customfields[ $field_key ]['sailthru_customfield_label'] ). '</label>';
 							}
 								echo '<input ';
 								if ( $customfields[ $field_key ]['sailthru_customfield_type'] == 'hidden' ) {
