@@ -133,6 +133,10 @@ class Bitly {
 	function shortlink_for_url( $url ) {
 		extract( $this->options );
 
+		if( !isset( $api_login ) || !isset( $api_key ) ) {
+			return false;
+		}
+
 		// need to test this if the post is a time_slide	
 		$params = http_build_query(
 			array(
