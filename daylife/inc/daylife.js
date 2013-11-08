@@ -23,6 +23,9 @@ jQuery( function($) {
 			start_date: $('#daylife-start-date').val(),
 			end_date: $('#daylife-end-date').val()
 		};
+		$('.daylife-response').html('<img src="images/wpspin_light.gif" />Loading');
+		$('.daylife-response').show();
+
 		$.post(ajaxurl, data, function(response) {
 			daylifeUpdateImages(response);
 		});
@@ -191,6 +194,9 @@ jQuery( function($) {
 				data.content = $('#content').val();
 			else
 				data.keyword = $('#daylife-search').val();
+
+			$('.daylife-response').html('<img src="/wp-includes/images/wpspin.gif" />Loading');
+
 			$.post(ajaxurl, data, function(response) {
 				daylifeUpdateImages(response);
 			});

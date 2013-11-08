@@ -35,7 +35,7 @@ class WP_Daylife_API {
 		foreach ( $args as &$arg )
 			$arg = rawurlencode( $arg );
 
-		$response = wp_remote_get( add_query_arg( $args, $url ) );
+		$response = wp_remote_get( add_query_arg( $args, $url ), array( 'timeout' => 15 ) );
 		if ( 200 != wp_remote_retrieve_response_code( $response ) )
 			return false;
 

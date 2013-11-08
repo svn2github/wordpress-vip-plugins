@@ -71,7 +71,7 @@ class Daylife_Meta_Box {
 		wp_nonce_field( 'daylife-add-nonce', 'daylife-add-nonce-field' );
 		submit_button( __( 'Search Images', 'daylife' ), 'secondary', 'daylife-search-button', false );
 		submit_button( __( 'Suggest Images', 'daylife' ), 'secondary', 'daylife-suggest-button', false );
-		?><div class="daylife-response" style="display: none">Loading</div><?php
+		?><div class="daylife-response" style="display: none"><img src="images/wpspin_light.gif" />Loading</div><?php
 	}
 
 	public function render_gallery_meta_box() {
