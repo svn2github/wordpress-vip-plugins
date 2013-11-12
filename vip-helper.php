@@ -557,11 +557,12 @@ function wpcom_vip_get_meta_desc() {
  * This function is an alternative method for getting random posts, though it's not as good but at least it won't destroy your site :).
  *
  * @param int $number Optional. Amount of random posts to get. Default 1.
+ * @param string $post_type Optional. Specify the post_type to use when randomizing posts. Default 'post'.
  * @param bool $return_ids Optional. To just get the IDs, set this to true, otherwise post objects are returned (the default).
  * @return array
  */
-function vip_get_random_posts( $number = 1, $return_ids = false ) {
-	$query = new WP_Query( array( 'posts_per_page' => 100, 'fields' => 'ids' ) );
+function vip_get_random_posts( $number = 1, $post_type = 'post', $return_ids = false ) {
+	$query = new WP_Query( array( 'posts_per_page' => 100, 'fields' => 'ids', 'post_type' => $post_type ) );
 
 	$post_ids = $query->posts;
 	shuffle( $post_ids );
@@ -570,7 +571,7 @@ function vip_get_random_posts( $number = 1, $return_ids = false ) {
 	if ( $return_ids )
 		return $post_ids;
 
-	$random_posts = get_posts( array( 'post__in' => $post_ids, 'numberposts' => count( $post_ids ) ) );
+	$random_posts = get_posts( array( 'post__in' => $post_ids, 'numberposts' => count( $post_ids ), 'post_type' => $post_type ) );
 
 	return $random_posts;
 }
