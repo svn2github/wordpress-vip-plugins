@@ -53,7 +53,7 @@ counter = {
 		    originalTitle = $('#title').val();
 
 		$title.siblings( '.mt_counter' ).find( '.count' ).replaceWith( t.updateCounter( count, limit ) );
-		$("#mt_snippet .title").html( $title.val().replace('%title%', originalTitle).substring(0, limit) );
+		$("#mt_snippet .title").html( jQuery( '<p>' + $title.val().replace('%title%', originalTitle).substring(0, limit) + '</p>' ).text() );
 	},
 
 	updateDesc : function() {
@@ -67,7 +67,7 @@ counter = {
 		    limit = $desc.attr('data-limit') || 140;
 
 		$desc.siblings( '.mt_counter' ).find( '.count' ).replaceWith( t.updateCounter( count, limit ) );
-		$('#mt_snippet .content').html( $desc.val().substring(0, limit) );
+		$('#mt_snippet .content').html( jQuery( '<p>' + $desc.val().substring(0, limit) + '</p>' ).text() );
 	},
 
 	updateCounter : function( count, limit ) {
