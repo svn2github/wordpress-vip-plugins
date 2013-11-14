@@ -653,7 +653,7 @@ class Add_Meta_Tags {
 			}
 
 
-		} elseif ( is_tax() ) {
+		} elseif ( is_tax() || is_tag() || is_category() ) {
 			/*
 			Writes a description META tag only if a description for the current term has been set.
 			*/
