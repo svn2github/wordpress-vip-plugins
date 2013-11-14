@@ -122,9 +122,16 @@ class Add_Meta_Tags {
 			*/
 
 			$options = array(
-				"site_description"	=> esc_attr( $_POST["site_description"] ),
-				"site_keywords"		=> esc_attr( $_POST["site_keywords"] ),
-				"site_wide_meta"	=> strip_tags( $_POST["site_wide_meta"], '<meta>' ),
+				"site_description"	=>  wp_strip_all_tags( trim( stripslashes( $_POST["site_description"] ) ) ),
+				"site_keywords"		=> wp_strip_all_tags( trim( stripslashes( $_POST["site_keywords"] ) ) ),
+				"site_wide_meta"	=> wp_kses( trim( stripslashes( $_POST["site_wide_meta"] ) ), array(
+					'meta' => array(
+						'http-equiv'	=> array(),
+						'name' 			=> array(),
+						'property' 		=> array(),
+						'content' 		=> array(),
+					)
+				) ),
 				"post_options"      => ( is_array( $_POST["post_options"] ) ) ? $this->amt_clean_array( $_POST["post_options"] ) : array(),
 				"page_options"      => ( is_array( $_POST["page_options"] ) ) ? $this->amt_clean_array( $_POST["page_options"] ) : array(),
 				"custom_post_types" => ( isset($_POST["custom_post_types"]) && is_array( $_POST["custom_post_types"] ) ) ? $this->amt_clean_array( $_POST["custom_post_types"] ) : array(),
@@ -205,14 +212,14 @@ class Add_Meta_Tags {
 				<fieldset class="options">
 					<legend>'.__('Site Description', 'add-meta-tags').'<br />
 						<p>'.__('The following text will be used in the "description" meta tag on the <strong>homepage only</strong>. If this is left <strong>empty</strong>, then the blog\'s description from the <em>General Options</em> (Tagline) will be used.', 'add-meta-tags').'</p>
-						<p><textarea name="site_description" id="site_description" cols="40" rows="3" style="width: 80%; font-size: 14px;" class="code">' . stripslashes($options["site_description"]) . '</textarea></p>
+						<p><textarea name="site_description" id="site_description" cols="40" rows="3" style="width: 80%; font-size: 14px;" class="code">' . esc_textarea( stripslashes( $options["site_description"] ) ) . '</textarea></p>
 					</legend>
 				</fieldset>
 
 				<fieldset class="options">
 					<legend>'.__('Site Keywords', 'add-meta-tags').'<br />
 						<p>'.__('The following keywords will be used for the "keywords" meta tag on the <strong>homepage only</strong>. Provide a comma-delimited list of keywords for your blog. If this field is left <strong>empty</strong>, then all of your blog\'s categories will be used as keywords for the "keywords" meta tag.', 'add-meta-tags').'</p>
-						<p><textarea name="site_keywords" id="site_keywords" cols="40" rows="3" style="width: 80%; font-size: 14px;" class="code">' . stripslashes($options["site_keywords"]) . '</textarea></p>
+						<p><textarea name="site_keywords" id="site_keywords" cols="40" rows="3" style="width: 80%; font-size: 14px;" class="code">' . esc_textarea( stripslashes( $options["site_keywords"] ) ) . '</textarea></p>
 						<p><strong>'.__('Example', 'add-meta-tags').'</strong>: <code>'.__('keyword1, keyword2, keyword3', 'add-meta-tags').'</code></p>
 					</legend>
 				</fieldset>
@@ -220,7 +227,7 @@ class Add_Meta_Tags {
 				<fieldset class="options">
 					<legend>'.__('Site-wide META tags', 'add-meta-tags').'<br />
 						<p>'.__('Provide the <strong>full XHTML code</strong> of META tags you would like to be included in <strong>all</strong> of your blog pages.', 'add-meta-tags').'</p>
-						<p><textarea name="site_wide_meta" id="site_wide_meta" cols="40" rows="10" style="width: 80%; font-size: 14px;" class="code">' . stripslashes($options["site_wide_meta"]) . '</textarea></p>
+						<p><textarea name="site_wide_meta" id="site_wide_meta" cols="40" rows="10" style="width: 80%; font-size: 14px;" class="code">' . esc_textarea( stripslashes( $options["site_wide_meta"] ) ) . '</textarea></p>
 						<p><strong>'.__('Example', 'add-meta-tags').'</strong>: <code>&lt;meta name="robots" content="index,follow" /&gt;</code></p>
 					</legend>
 				</fieldset>
