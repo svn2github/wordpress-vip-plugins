@@ -1,6 +1,5 @@
 <?php
 
-
 class Sailthru_Horizon {
 
 	protected $admin_views = array();
@@ -67,7 +66,6 @@ class Sailthru_Horizon {
 
 		if ( ! current_user_can( 'activate_plugins' ) )
             return;
-
 
 		// stop overriding Wordpress's built in email functions
 		if( false != get_option( 'sailthru_override_wp_mail' ) ) {
@@ -385,46 +383,37 @@ class Sailthru_Horizon {
 			return;
 		}
 
-
+		// filter to disable all output
+		if( false === apply_filters( 'sailthru_horizon_meta_tags_enable', true ) )
+			return;
 
 		global $post;
 
     	$post_object = get_post();
 
     	$horizon_tags = array();
-    		$horizon_tags[] = "<!-- BEGIN Sailthru Horizon Meta Information -->";
-    		$horizon_tags[] = "";
 
     		// date
     		$post_date = get_the_date( 'Y-m-d H:i:s' );
-    			$horizon_tags[] = "<meta name='sailthru.date' content='" . esc_attr( $post_date ) . "' />";
+    			$horizon_tags['sailthru.date'] =  esc_attr($post_date);
 
     		// title
     		$post_title = get_the_title();
-    			$horizon_tags[] = "<meta name='sailthru.title' content='" . esc_attr( $post_title ) . "' />";
+    			$horizon_tags['sailthru.title'] = esc_attr($post_title);
 
     		// tags
-    		$tags = get_the_tags();
-			if ($tags) {
-				$post_tags = '';
-
-				foreach($tags as $tag) {
-					$post_tags .= $tag->name . ', ';
-				}
-				$post_tags = rtrim( $post_tags, ", " );
-
-				$horizon_tags[] = "<meta name='sailthru.tags' content='" . esc_attr( $post_tags ) . "' />";
-			}
+    		$post_tags = get_the_tags();
+			if ( $post_tags )
+				$horizon_tags['sailthru.tags'] = implode( ', ', wp_list_pluck( esc_attr($post_tags), 'name' ) );
 
     		// author << works on display name. best option?
     		$post_author = get_the_author();
-    			if( !empty($post_author) ) {
-    				$horizon_tags[] = "<meta name='sailthru.author' content='" . esc_attr( $post_author ) . "' />";
-    			}
+    		if( ! empty( $post_author ) )
+    			$horizon_tags['sailthru.author'] = $post_author;
 
     		// description
     		$post_description = get_the_excerpt();
-    		if( empty($post_description) ) {
+    		if( empty( $post_description ) ) {
 				$excerpt_length = 250;
 				// get the entire post and then strip it down to just sentences.
 				$text = $post_object->post_content;
@@ -435,33 +424,38 @@ class Sailthru_Horizon {
 				$text = substr( $text, 0, $excerpt_length );
 				$post_description = $this->reverse_strrchr( $text, '.', 1 );
     		}
-    			$horizon_tags[] = "<meta name='sailthru.description' content='" . esc_attr( $post_description ) . "' />";
+    		$horizon_tags['sailthru.description'] = esc_html($post_description);
 
     		// image & thumbnail
-			if(has_post_thumbnail( $post_object->ID ) ) {
+			if( has_post_thumbnail( $post_object->ID ) ) {
 				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
 				$thumb = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'thumbnail' );
 
 	    		$post_image = $image[0];
-	    			$horizon_tags[] = "<meta name='sailthru.image.full' content='" . esc_attr( $post_image ) . "' /> ";
+	    			$horizon_tags['sailthru.image.full'] = esc_attr($post_image);
 	    		$post_thumbnail = $thumb[0];
-	    			$horizon_tags[] = "<meta name='sailthru.image.thumb' content='" . esc_attr( $post_thumbnail ) . "' />";
+	    			$horizon_tags['sailthru.image.thumb'] = $post_thumbnail;
 			}
 
 			// expiration date
-			$post_expiration = get_post_meta($post_object->ID, 'sailthru_post_expiration', true);
+			$post_expiration = get_post_meta( $post_object->ID, 'sailthru_post_expiration', true );
 
-			if( !empty( $post_expiration ) ) {
+			if( ! empty( $post_expiration ) )
+				$horizon_tags['sailthru.expire_date'] = esc_attr($post_expiration);
 
-				$horizon_tags[] = "<meta name='sailthru.expire_date' content='" . esc_attr( $post_expiration ) . "' />";
+			$horizon_tags = apply_filters( 'sailthru_horizon_meta_tags', $horizon_tags, $post_object );
+
+			$tag_output = "\n\n<!-- BEGIN Sailthru Horizon Meta Information -->\n";
+			foreach ( (array) $horizon_tags as $tag_name => $tag_content ) {
+				if ( empty( $tag_content ) )
+					continue; // Don't ever output empty tags
+				$meta_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $tag_name ), esc_attr( $tag_content ) );
+				$tag_output .= apply_filters( 'sailthru_horizon_meta_tags_output', $meta_tag );
+				$tag_output .= "\n";
 			}
+			$tag_output .= "<!-- END Sailthru Horizon Meta Information -->\n\n";
 
-
-    		$horizon_tags[] = "";
-    		$horizon_tags[] = "";
-    		$horizon_tags[] = "<!-- END Sailthru Horizon Meta Information -->";
-
-    	echo implode("\n", $horizon_tags);
+    	echo $tag_output;
 
 	} // sailthru_horizon_meta_tags
 

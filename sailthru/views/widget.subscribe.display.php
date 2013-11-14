@@ -48,6 +48,12 @@
         <div class="success" hidden="hidden"><?php echo $success;?></div>
          <form method="post" action="#" class="sailthru-add-subscriber-form">
             <div class="sailthru-add-subscriber-errors"></div>
+
+            <div class="sailthru_form_input input-group">
+                <label class="sailthru-widget-label">Email</label>
+                <input type="email" name="email" id="sailthru_email" value="" class="form-control"/>
+            </div>
+
             <?php
             $key = get_option( 'sailthru_forms_key' );
             if ( ! empty( $instance['fields'] ) ) {
@@ -96,7 +102,7 @@
 				                }
 						}
 						else{
-							echo '<div class="sailthru_form_input">';
+							echo '<div class="sailthru_form_input input-group">';
 			                //check if the field is required
 			                if ( $instance['show_'.$name_stripped.'_required'] == 'checked' ) {
 								if ( $customfields[ $field_key ]['sailthru_customfield_type'] != 'hidden' ) {
@@ -126,19 +132,14 @@
 				} // end if !empty field key
 			}// end for loop
             		?>
-
-            <div class="sailthru_form_input input-group">
-                <label class="sailthru-widget-label">Email</label>
-                <input type="email" name="email" id="sailthru_email" value="" class="form-control"/>
-                <span class="input-group-btn">
-                      <input class="btn btn-reverse" type="submit" value="Submit">
-                    </span>
-            </div>
-
                 <input type="hidden" name="sailthru_nonce" value="<?php echo $nonce; ?>" />
                 <input type="hidden" name="sailthru_email_list" value="<?php echo esc_attr( $sailthru_list ); ?>" />
                 <input type="hidden" name="action" value="add_subscriber" />
                 <input type="hidden" name="vars[source]" value="<?php bloginfo( 'url' ); ?>" />
+
+                <span class="input-group-btn">
+                    <input class="btn btn-reverse" type="submit" value="Submit">
+                </span>
         </form>
 
 
