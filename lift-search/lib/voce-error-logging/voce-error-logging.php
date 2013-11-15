@@ -191,11 +191,11 @@ class Voce_Error_Logging {
 	public static function get_log_count() {
 		global $wpdb;
 
-		if ( false === ($log_count = wp_cache_get( 'voce_error_log_count' )) ) {
+		if ( false === ($log_count = wp_cache_get( 'lift_log_count' )) ) {
 			$log_count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT( 1 ) FROM $wpdb->posts
 				WHERE post_type = %s", self::POST_TYPE ) );
 
-			wp_cache_set( 'voce_error_log_count', $log_count );
+			wp_cache_set( 'lift_log_count', $log_count );
 		}
 
 		return $log_count;
@@ -213,4 +213,5 @@ if ( !function_exists( 'voce_error_log' ) ) {
 	}
 
 }
+
 

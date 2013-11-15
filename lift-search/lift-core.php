@@ -541,7 +541,7 @@ if ( !class_exists( 'Lift_Search' ) ) {
 
     }
 
-    add_action( 'plugins_loaded', array( 'Lift_Search', 'init' ) );
+    add_action( 'after_setup_theme', array( 'Lift_Search', 'init' ) );
 }
 
 
