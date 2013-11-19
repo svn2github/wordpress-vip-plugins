@@ -305,6 +305,9 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 	$width = (int) $width;
 	$height = (int) $height;
 
+	if ( ! function_exists( 'wpcom_is_vip' ) || ! wpcom_is_vip() )
+		return ( $escape ) ? esc_url( $url ) : $url;
+
 	// Photon doesn't support redirects, so help it out by doing http://foobar.wordpress.com/files/ to http://foobar.files.wordpress.com/
 	if ( function_exists( 'new_file_urls' ) )
 		$url = new_file_urls( $url );
