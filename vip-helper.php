@@ -206,7 +206,8 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 			foreach ( explode( ',', $cache_header ) as $cache_control ) {
 				// In this scenario, only look for the max-age directive
 				if( 'max-age' == substr( trim( $cache_control ), 0, 7 ) )
-					list( $cache_header_type, $cache_header_time ) = explode( '=', trim( $cache_control ) );
+					// Note the array_pad() call prevents 'undefined offset' notices when explode() returns less than 2 results
+					list( $cache_header_type, $cache_header_time ) = array_pad( explode( '=', trim( $cache_control ), 2 ), 2, null );
 			}
 			// If the max-age directive was found and had a value set that is greater than our cache time
 			if ( isset( $cache_header_type ) && isset( $cache_header_time ) && $cache_header_time > $cache_time )
