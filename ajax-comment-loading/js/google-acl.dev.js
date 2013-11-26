@@ -57,7 +57,7 @@
 					gcl.load( state['cpage'] );
 				}
 			});
-			$('body').on( 'click', 'a[href*=/comment-page-], a[href*=cpage\=], #comments .navigation a', function(event){
+			$('body').on( 'click', 'a[href*=/comment-page-], a[href*=cpage], #comments .navigation a', function(event){
 				var href = $(this).attr('href');
 				if ( href.indexOf( $('link[rel=canonical]').attr('href') ) == 0 && href.indexOf('#respond') == -1 ) {
 					var newPage = gcl.cpage( href );
