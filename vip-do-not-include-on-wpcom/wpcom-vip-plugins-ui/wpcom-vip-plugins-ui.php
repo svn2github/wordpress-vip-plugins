@@ -213,6 +213,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Storify',
 				'description' => 'Easily add social media to every blog post with Storify.',
 			),
+			'thePlatform'   => array(
+				'name' 		  => 'thePlatform',
+				'description' => 'Easily publish and manage your videos in WordPress using thePlatform’s mpx.',
+			),
 			'tinypass'   => array(
 				'name' 		  => 'Tinypass',
 				'description' => 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
