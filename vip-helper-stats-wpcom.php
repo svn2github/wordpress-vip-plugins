@@ -519,5 +519,3 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 
 	return $result;
 }
-
-?>
