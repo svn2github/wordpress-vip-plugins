@@ -840,8 +840,10 @@ function wpcom_vip_disable_zemanta_for_all_users() {
 function wpcom_vip_check_site_url( $site_urls ) {
 	if ( ! is_array( $site_urls ) )
 	    	$site_urls = array( $site_urls );
-		 
-	return in_array( parse_url( site_url(), PHP_URL_HOST ), $site_urls );
+
+	$current_site_url = site_url();
+	$current_site_url =	path_join( parse_url( $current_site_url, PHP_URL_HOST ), parse_url( $current_site_url, PHP_URL_PATH ) ); // to allow for local subdomain setups like vip.dev/site
+	return in_array( $current_site_url, $site_urls );
 }
 
 /**
