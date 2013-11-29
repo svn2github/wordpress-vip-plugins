@@ -842,7 +842,7 @@ function wpcom_vip_check_site_url( $site_urls ) {
 	    	$site_urls = array( $site_urls );
 
 	$current_site_url = site_url();
-	$current_site_url =	path_join( parse_url( $current_site_url, PHP_URL_HOST ), parse_url( $current_site_url, PHP_URL_PATH ) ); // to allow for local subdomain setups like vip.dev/site
+	$current_site_url =	parse_url( $current_site_url, PHP_URL_HOST ) . parse_url( $current_site_url, PHP_URL_PATH ); // to allow for local subfolder setups like vip.dev/site
 	return in_array( $current_site_url, $site_urls );
 }
 
