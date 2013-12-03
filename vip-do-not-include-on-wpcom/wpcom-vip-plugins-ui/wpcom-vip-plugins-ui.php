@@ -155,6 +155,7 @@ class WPcom_VIP_Plugins_UI {
 			'stipple',
 			'brightcove',
 			'lift-search',
+			'msm-sitemap',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
