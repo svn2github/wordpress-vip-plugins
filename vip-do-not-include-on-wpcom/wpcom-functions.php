@@ -468,5 +468,11 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		}
 	endif;
 
+	if ( ! function_exists( 'wpcom_vip_debug' ) ) {
+		function wpcom_vip_debug( $type, $data ) {
+			// Just a stub
+		}
+	}
+
 
 endif; // function_exists( 'wpcom_is_vip' )
