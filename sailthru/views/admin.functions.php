@@ -127,9 +127,9 @@ function sailthru_initialize_forms_options() {
 		echo '<p><strong>Existing fields</strong></p>';
 		echo '<table class="wp-list-table widefat">';
 		echo '<thead>';
-		echo '<th scope="col" class="manage-column">Label</th>';
-		echo '<th scope="col" class="manage-column">Value</th>';
-		echo '<th scope="col" class="manage-column">Type</th>';
+		echo '<th scope="col" class="manage-column">Display Label</th>';
+		echo '<th scope="col" class="manage-column">Field Value</th>';
+		echo '<th scope="col" class="manage-column">Field Type</th>';
 		echo '</thead>';
 
 		for ( $i = 0; $i < $key; $i++ ) {
@@ -143,7 +143,6 @@ function sailthru_initialize_forms_options() {
 			}
 		}
 		echo '</table>';
-
 		echo '<p>Use the form below to create a custom field library. Each created field will be available in our Sailthru Subscribe widget.</p>';
 
 
@@ -173,7 +172,10 @@ function sailthru_initialize_forms_options() {
 				  <option value="hidden"' . selected( esc_attr( $value ), 'hidden' ) . '>Hidden</option>
 				  <option value="select"' . selected( esc_attr( $value ), 'select' ) . '>Select</option>
 				  <option value="radio"' . selected( esc_attr( $value ), 'radio' ) . '>Radio</option>
+				  <option value="checkbox"' . selected( esc_attr( $value ), 'radio' ) . '>Checkbox</option>
 			  </select>';
+		echo  '<div class="instructions">The type of html form field displayed.</div>';
+
 	}
 
 	function sailthru_create_second_column() {
@@ -245,7 +247,7 @@ function sailthru_initialize_forms_options() {
 						$name_stripped = preg_replace( "/[^\da-z]/i", '_', $customfields[ $field_key ]['sailthru_customfield_name'] );
 						//select field
 						if ( $customfields[ $field_key ]['sailthru_customfield_type'] == 'select' ) {
-					        echo '<br />
+					        echo '
 					        <label for="custom_' . $name_stripped . '">' . $customfields[ $field_key ]['sailthru_customfield_name'] . ':</label>
 							<select name="custom_' . $name_stripped .'" id="sailthru_' . $name_stripped . '_name">';
 
@@ -260,16 +262,16 @@ function sailthru_initialize_forms_options() {
 						elseif ( $customfields[ $field_key ]['sailthru_customfield_type'] == 'radio' ) {
 
 				                $items = explode( ',', $customfields[ $field_key ]['sailthru_customfield_value'] );
-				                echo '<br /><label >' . esc_html($customfields[ $field_key ]['sailthru_customfield_name']) . ':</label>';
+				                echo '<label >' . esc_html($customfields[ $field_key ]['sailthru_customfield_name']) . ':</label>';
 
 				                foreach ( $items as $item ) {
 				                	$vals = explode( ':', $item );
-					                echo '<br /><input type="radio" name="custom_' . esc_attr($name_stripped) . '" value="' . esc_attr($vals[0]) . '"> ' . esc_html($vals[1]);
+					                echo '<input type="radio" name="custom_' . esc_attr($name_stripped) . '" value="' . esc_attr($vals[0]) . '"> ' . esc_html($vals[1]);
 				                }
 						}
 						//hidden field
 						elseif ( $customfields[ $field_key ]['sailthru_customfield_type'] == 'hidden' ) {
-							echo '<br /><br/>hidden field: ' . esc_html($customfields[ $field_key ]['sailthru_customfield_name']).'<br/>';
+							echo 'hidden field: ' . esc_html($customfields[ $field_key ]['sailthru_customfield_name']).'';
 						}
 						//field is a text input
 						else{
@@ -294,7 +296,14 @@ function sailthru_initialize_forms_options() {
 		$html_id       = $args[3];
 		$options       = get_option( $collection );
 
-		echo '<input class="selection" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'1' ) . ']" type="text" placeholder="name" /><input class="selection" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name.'2' ) . ']" type="text"  placeholder="value"/><a id="add_value" href ="">Add Another</a><input id="value_amount" type="hidden" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'_val' ) . ']" value="2" />';
+		echo '<div class="sailthru_keypair_fields"  id="sailthru_value_fields_block">';
+		echo '<input class="selection" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'2' ) . ']" type="text" placeholder="display " />';
+		echo '<input class="selection" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name.'1' ) . ']" type="text"  placeholder="value"/>';
+		echo '<input id="value_amount" type="hidden" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'_val' ) . ']" value="1" />';
+		echo '</div>';
+		echo '<div class="instructions">';
+		echo '<a id="add_value" href ="">Add Another</a>';
+		echo '<div>';
 
 	}
 	function sailthru_attr_field ( $args ) {
@@ -304,7 +313,14 @@ function sailthru_initialize_forms_options() {
 		$html_id       = $args[3];
 		$options       = get_option( $collection );
 
-		echo '<input class="attribute" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'1' ) . ']" type="text" placeholder="name" /><input class="attribute" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name.'2' ) . ']" type="text"  placeholder="value"/><a id="add_attr" href ="">Add Another</a><input id="attr_amount" type="hidden" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'_val' ) . ']" value="2" />';
+		echo '<div class="sailthru_keypair_fields" id="sailthru_attr_fields_block">';
+		echo '<input class="attribute" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'1' ) . ']" type="text" placeholder="attribute" />';
+		echo '<input class="attribute" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name.'2' ) . ']" type="text"  placeholder="value"/>';
+		echo '<input id="attr_amount" type="hidden" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name .'_val' ) . ']" value="2" />';
+		echo '</div>';
+		echo '<div class="instructions">';
+		echo '<a id="add_attr" href ="">Add Another</a>';
+		echo '<div>';
 
 	}
 
@@ -339,7 +355,7 @@ function sailthru_initialize_forms_options() {
 
 		add_settings_field(
 			'sailthru_customfield_label',					// ID used to identify the field throughout the theme
-			__( 'Field Label', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
+			__( 'Display label', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
 			'sailthru_html_text_input_callback',			// The name of the function responsible for rendering the option interface
 			'sailthru_forms_options',						// The page on which this option will be displayed
 			'sailthru_forms_section',						// The name of the section to which this field belongs
@@ -347,13 +363,14 @@ function sailthru_initialize_forms_options() {
 				'sailthru_forms_options',
 				'sailthru_customfield_label',
 				'',
-				'sailthru_customfield_label'
+				'sailthru_customfield_label',
+				'The text in this field is used for the field label.',
 			)
 		);
 
 		add_settings_field(
 			'sailthru_customfield_name',					// ID used to identify the field throughout the theme
-			__( 'Field Name', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
+			__( 'Field name', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
 			'sailthru_html_text_input_callback',			// The name of the function responsible for rendering the option interface
 			'sailthru_forms_options',						// The page on which this option will be displayed
 			'sailthru_forms_section',						// The name of the section to which this field belongs
@@ -361,13 +378,14 @@ function sailthru_initialize_forms_options() {
 				'sailthru_forms_options',
 				'sailthru_customfield_name',
 				'',
-				'sailthru_customfield_name'
+				'sailthru_customfield_name',
+				'The name used as a var in the Sailthru user profile.',
 			)
 		);
 
 		add_settings_field(
 				'sailthru_customfield_value',				// ID used to identify the field throughout the theme
-				__( 'HTML value / visible value', 'sailthru-for-wordpress' ),					// The label to the left of the option interface element
+				__( 'Field values', 'sailthru-for-wordpress' ),					// The label to the left of the option interface element
 				'sailthru_value_field',						// The name of the function responsible for rendering the option interface
 				'sailthru_forms_options',					// The page on which this option will be displayed
 				'sailthru_forms_section',					// The name of the section to which this field belongs
@@ -375,19 +393,19 @@ function sailthru_initialize_forms_options() {
 					'sailthru_forms_options',
 					'sailthru_customfield_value',
 					'',
-					'sailthru_customfield_value'
+					'sailthru_customfield_value',
 				)
 		);
 
 	add_settings_section(
 		'sailthru_adv_section',								// ID used to identify this section and with which to register options
-		__( 'Extra Settings', 'sailthru-for-wordpress' ),	// Title to be displayed on the administration page
-		'',													// Callback used to render the description of the section
+		__( 'Additional HTML Attributes', 'sailthru-for-wordpress' ),	     // Title to be displayed on the administration page
+		'sailthru_html_fields_options_callback',													// Callback used to render the description of the section
 		'sailthru_forms_options'							// Page on which to add this section of options
 	);
 		add_settings_field(
 				'sailthru_customfield_class',				// ID used to identify the field throughout the theme
-				__( 'Class', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
+				__( 'CSS Class(es)', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
 				'sailthru_html_text_input_callback',		// The name of the function responsible for rendering the option interface
 				'sailthru_forms_options',					// The page on which this option will be displayed
 				'sailthru_adv_section',						// The name of the section to which this field belongs
@@ -395,12 +413,14 @@ function sailthru_initialize_forms_options() {
 					'sailthru_forms_options',
 					'sailthru_customfield_class',
 					'',
-					'sailthru_customfield_class'
+					'sailthru_customfield_class',
+					'Separate multiple css classes using a space'
 				)
 		);
+
 		add_settings_field(
 				'sailthru_customfield_attr',				// ID used to identify the field throughout the theme
-				__( 'Attributes', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
+				__( 'Data Attributes', 'sailthru-for-wordpress' ),	// The label to the left of the option interface element
 				'sailthru_attr_field',						// The name of the function responsible for rendering the option interface
 				'sailthru_forms_options',					// The page on which this option will be displayed
 				'sailthru_adv_section',						// The name of the section to which this field belongs
@@ -414,7 +434,7 @@ function sailthru_initialize_forms_options() {
 
 	add_settings_section(
 		'sailthru_delete_section',							// ID used to identify this section and with which to register options
-		__( '', 'sailthru-for-wordpress' ),	// Title to be displayed on the administration page
+		__( '', 'sailthru-for-wordpress' ),					// Title to be displayed on the administration page
 		'sailthru_create_second_column',					// Callback used to render the description of the section
 		'sailthru_forms_options'							// Page on which to add this section of options
 	);
@@ -713,6 +733,10 @@ function sailthru_scout_options_callback() {
 	echo '<p>Scout is an on-site tool that displays relevant content to users when viewing a particular page.</p>';
 } // end sailthru_scout_options_callback
 
+function sailthru_html_fields_options_callback() {
+	echo '<p>Add additional HTML attributes such as CSS classes and data attributes to the form field. These are optional fields to allow theme developers to integrate with their own themes.</p>';
+}
+
 
 /* ------------------------------------------------------------------------ *
  * Field Callbacks
@@ -733,6 +757,7 @@ function sailthru_html_text_input_callback( $args ) {
 	$option_name   = $args[1];
 	$default_value = $args[2];
 	$html_id       = $args[3];
+	$hint       = $args[4];
 	$options       = get_option( $collection );
 
 	// Make sure the element is defined in the options. If not, we'll use the preferred default
@@ -745,6 +770,9 @@ function sailthru_html_text_input_callback( $args ) {
 
 	// Render the output
 	echo '<input type="text" id="' . esc_attr( $html_id ) . '" name="' . esc_attr( $collection ) . '[' . esc_attr( $option_name ) . ']" value="' . esc_attr( $value ) . '" />';
+	if (isset($args[4])) {
+		echo '<div class="instructions">'.esc_html($args[4]).'</div>';
+	}
 
 } // end sandbox_twitter_callback
 
@@ -973,7 +1001,6 @@ function sailthru_sanitize_text_input( $input ) {
  */
  function sailthru_forms_handler( $input ) {
 
-
 	$fields = get_option( 'sailthru_forms_options' );
 	$output = $fields;
 	$key    = get_option( 'sailthru_forms_key' );
@@ -994,7 +1021,7 @@ function sailthru_sanitize_text_input( $input ) {
 			if ( ! empty( $input['sailthru_customfield_attr'] ) ) {
 			$output[ $new_key ]['sailthru_customfield_attr']      = sanitize_text_field($input['sailthru_customfield_attr']);
 			}
-			if ( $input['sailthru_customfield_type'] == 'select' || $input['sailthru_customfield_type'] == 'radio' ) {
+			if ( $input['sailthru_customfield_type'] == 'select' || $input['sailthru_customfield_type'] == 'radio' || $input['sailthru_customfield_type'] == 'checkbox' ) {
 				$amount = sanitize_text_field($input['sailthru_customfield_value_val']);
 					$values = '';
 					for( $i = 1; $i <= $amount; $i++ ) {

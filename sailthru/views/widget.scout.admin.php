@@ -12,8 +12,6 @@
 
 		}
 
-
-
 		/*
 		 * If Scout is not on, advise the user
 		 */

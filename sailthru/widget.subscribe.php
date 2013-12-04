@@ -14,7 +14,13 @@ return '';
 }
 function sailthru_field_class ( $class ) {
 if ( ! empty( $class ) ) {
-	return 'class="' . esc_attr($class).'"';
+	return 'class="form-control ' . esc_attr($class).'"';
+}
+return '';
+}
+function sailthru_field_id ( $id ) {
+if ( ! empty( $class ) ) {
+	return 'id="' . esc_attr($id).'"';
 }
 return '';
 }
@@ -371,11 +377,11 @@ function sailthru_widget_shortcode( $atts ) {
 		'text'   => 'Subscribe'
 	), $atts ) );
 	if ( empty($atts['text'] ) ) {
-		$atts['text'] = 'Subscribe';
+		$atts['text'] = 'Subscribe to our newsletter';
 	}
 	if ( ! empty($atts['modal'] ) ) {
 		if ( $atts['modal'] == 'true' ) {
-			$before_widget = '<a id="show_shortcode" href="#">' . esc_html($atts['text']) . '</a><div id="sailthru-modal"><div class="sailthru_shortcode_hidden">';
+			$before_widget = '<div id="mask"></div><a id="show_shortcode" href="#">' . esc_html($atts['text']) . '</a><div id="sailthru-modal"><div class="sailthru_shortcode_hidden">';
 			$after_widget = '</div></div>';
 		}
 		else{

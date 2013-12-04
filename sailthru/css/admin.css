@@ -6,6 +6,14 @@
 	box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 }
 
+ .instructions {
+    padding-top:5px;
+    font-size: 85%;
+  }
+  .instructions a {
+  	text-decoration:none;
+  }
+
 /* admin icon */
 #icon-sailthru {
 	background-image: url('../img/sailthru-header-icon.png');

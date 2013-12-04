@@ -41,34 +41,31 @@
 			<?php
 			if ( get_option( 'sailthru_forms_key' ) ) {
 				$key = get_option( 'sailthru_forms_key' );
+					echo '<table class="wp-list-table widefat">';
+					echo '<thead>';
+					echo '<tr><th align="left">Field</th><th align="left">Active</th><th>Req</th></tr>';
+					echo '</thead>';
+					echo '<tr><td>Email</td><td colspan="2">Always displayed</td></tr>';
 					for ( $i = 0; $i < $key; $i++ ) {
 					 	$field_key = $i + 1;
 					 	if ( ! empty( $customfields[ $field_key ]['sailthru_customfield_name'] ) ) {
-					 		echo '<table class="wp-list-table widefat">';
-					 		echo '<thead>';
-					 		echo '<tr><th align="left">Name</th><th align="left">Required?</th></tr>';
-					 		echo '</thead>';
-					 		echo '<tr>';
+							echo '<tr>';
 							$name_stripped = preg_replace("/[^\da-z]/i", '_', $customfields[ $field_key ]['sailthru_customfield_name']);
 
 							if( ! empty( $instance['show_'.$name_stripped.'_name'] ) ) {
-							echo '<td width="70%">';
-							echo '<label for="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '"> '. $customfields[ $field_key ]['sailthru_customfield_label'] . '
-									<input id="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_name' ) . '" type="checkbox"' .(( $instance['show_'.$name_stripped.'_name']) ? ' checked' : '') . '/>
-								  </label><td>
-								  <td width="30%"><input id="' . $this->get_field_id( 'show_'.$name_stripped.'_required' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_required' ) . '" type="checkbox"' . (( $instance['show_'.$name_stripped.'_required'] ) ? ' checked' : '') . ' /> </td>';
+								echo '<td>'. esc_html($customfields[ $field_key ]['sailthru_customfield_label']) . '</td>';
+								echo '<td><input id="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_name' ) . '" type="checkbox"' .(( $instance['show_'.$name_stripped.'_name']) ? ' checked' : '') . '/></td>';
+								echo '<td><input id="' . $this->get_field_id( 'show_'.$name_stripped.'_required' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_required' ) . '" type="checkbox"' . (( $instance['show_'.$name_stripped.'_required'] ) ? ' checked' : '') . ' /> </td>';
 							}
 							else{
-								echo '<td width="70%">';
-								echo '<label for="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '">
-								 ' . $customfields[ $field_key ]['sailthru_customfield_label'] . '
-								<input id="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_name' ) . '" type="checkbox" /></label></td>
-								<td width="30%"><input id="' . $this->get_field_id( 'show_'.$name_stripped.'_required' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_required' ) . '" type="checkbox" /></td>';
+								echo '<td>'. esc_html($customfields[ $field_key ]['sailthru_customfield_label'] ). '</td>';
+								echo '<td><input id="' . $this->get_field_id( 'show_'.$name_stripped.'_name' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_name' ) . '" type="checkbox" /></td>';
+								echo '<td><input id="' . $this->get_field_id( 'show_'.$name_stripped.'_required' ) . '" name="' . $this->get_field_name( 'show_'.$name_stripped.'_required' ) . '" type="checkbox" /></td>';
 							}
 							echo '</tr>';
-							echo '</table>';
 					} //if field name exists
 				} //for loop
+				echo '</table>';
 			} //if options exist
 
             		?>
