@@ -106,7 +106,8 @@ class ThePlatform_Options {
 	function internal_verify_account_settings()
 	{
 		if (!current_user_can('manage_options')) {
-			wp_die('<p>'.__('You do not have sufficient permissions to manage this plugin').'</p>');
+			//wp_die('<p>'.__('You do not have sufficient permissions to manage this plugin').'</p>');
+			return;
 		}
 
 		$hash = base64_encode($this->preferences['mpx_username'] . ':' . $this->preferences['mpx_password']);
