@@ -13,7 +13,7 @@ counter = {
 				t.updateTitle();
 			});
 
-			$title.live('change', function() {
+			$title.on('change', function() {
 				t.updateTitle();
 			});
 		}
@@ -25,7 +25,7 @@ counter = {
 				t.updateDesc();
 			});
 
-			$desc.live('change', function() {
+			$desc.on('change', function() {
 				t.updateDesc();
 			});
 		}
