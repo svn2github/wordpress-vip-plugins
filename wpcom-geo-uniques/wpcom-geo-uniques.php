@@ -77,7 +77,7 @@ class WPCOM_Geo_Uniques {
 		if ( false === apply_filters( 'wpcom_geo_process_request', true, $request ) )
 			return;
 
-		if ( ! self::user_has_location() ) {
+		if ( ! self::user_has_location_cookie() ) {
 			if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
 				// Determine which piece of geolocation data to salt the cache key with
 				$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
@@ -160,7 +160,7 @@ class WPCOM_Geo_Uniques {
 		if ( isset( $user_location ) )
 			return $user_location;
 
-		if ( static::$simple_mode ) {
+		if ( static::$simple_mode && ! self::user_has_location_cookie() ) {
 			$user_location = self::get_user_location_from_global( '$_SERVER[ "GEOIP_COUNTRY_CODE" ]' );
 		} else {
 			$user_location = self::get_user_location_from_global( sprintf( '$_COOKIE[ "%s" ]', static::COOKIE_NAME ) );
@@ -187,7 +187,7 @@ class WPCOM_Geo_Uniques {
 		return $user_location;
 	}
 
-	static function user_has_location() {
+	static function user_has_location_cookie() {
 		// TODO: should currently only be used in advanced mode
 		return static::run_vary_cache_on_function( 'return isset( $_COOKIE[ "' . self::COOKIE_NAME . '" ] );' );
 	}
