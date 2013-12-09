@@ -720,20 +720,8 @@ class coauthors_plus {
 			// If the user can't set authors and a co-author isn't currently set, we need to explicity set one
 			if ( ! $this->has_author_terms( $post_id ) ) {
 				$user = get_userdata( $post->post_author );
-				if ( $user ) {
-  					$debug_info = array(
-    					'datacenter'      	=> DATACENTER,
-						'current_user_id' 	=> get_current_user_id(),
-						'post_id'			=> $post_id,
-						'post'				=> var_export( $post, true ),
-						'has_author_terms' 	=> var_export( $this->has_author_terms( $post_id ), true ),
-						'current_user_can_set_authors' => var_export( $this->current_user_can_set_authors(), true ),
-  					);
-
-  					wpcom_vip_debug( 'coauthors_setting_coauthor', $debug_info );
-
-					$this->add_coauthors( $post_id, array( $user->user_login ) );
-				}
+				if ( $user )
+  					$this->add_coauthors( $post_id, array( $user->user_login ) );
 			}
 		}
 	}
