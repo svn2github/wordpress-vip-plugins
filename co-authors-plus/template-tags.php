@@ -25,6 +25,35 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 					$coauthors[] = $post_author;
 			}
 		} else if ( !$coauthors_plus->force_guest_authors ) {
+			// Temp VIP debugging
+			if ( in_array( get_current_blog_id(), array( 7369149, 15797879 ) ) ) {
+				// Check the db
+				$debug_terms = wp_get_object_terms( $post_id, $coauthors_plus->coauthor_taxonomy );
+
+				// Check memcaches
+				$debug_memcache_values = array();
+
+				foreach ( array( 'iad', 'sat', 'dfw' ) as $dc ) {
+					$old = $GLOBALS['memcached_servers'];
+		            $GLOBALS['memcached_servers'] = $GLOBALS['remote_memcached_clusters'][$dc];
+		            $test_cache = new WP_Object_Cache;
+		            $debug_memcache_values[$dc] = $test_cache->get( $post_id, $coauthors_plus->coauthor_taxonomy . '_relationships' );
+		            $GLOBALS['memcached_servers'] = $old;
+		        }
+
+				$debug_info = array(
+					'datacenter'      	=> DATACENTER,
+					'current_user_id' 	=> get_current_user_id(),
+					'post_id'			=> $post_id,
+					'post'				=> var_export( $post, true ),
+					'$coauthor_terms' 	=> var_export( $coauthor_terms, true ),
+					'uncached_terms'	=> var_export( $debug_terms, true ),
+					'memcache_values'	=> var_export( $debug_memcache_values, true )
+				);
+
+				wpcom_vip_debug( 'coauthors_setting_coauthor', $debug_info );
+			}
+
 			if ( $post ) {
 				$post_author = get_userdata( $post->post_author );
 			} else {
