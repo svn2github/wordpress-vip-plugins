@@ -3,7 +3,7 @@ jQuery(document).ready( function( $ ) {
 		$('#post-modification-notification').show( 'fast' ); 
 		return false; 
 	} );
-	$('input[name="dpn_notify"]').live( 'click change', function() {
+	$('input[name="dpn_notify"]').on( 'click change', function() {
 		var dpn_notify_what = $('input[name="dpn_notify"]:checked').val();
 		if( dpn_notify_what == '2' || dpn_notify_what == '1' ) {
 			$('#dpn-address-field').show();
