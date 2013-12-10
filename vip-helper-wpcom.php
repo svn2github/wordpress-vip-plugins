@@ -869,3 +869,32 @@ If you have any questions, feel free to reply to this e-mail.
 function wpcom_vip_disable_devicepx_js() {
 	add_filter( 'devicepx_enabled', '__return_false' );
 }
+
+/**
+ * Disables output of geolocation information in "public" locations--post content, meta tags, and feeds.
+ *
+ * @see http://en.support.wordpress.com/geotagging/
+ */
+function wpcom_vip_disable_geolocation_output() {
+	add_action( 'init', function() {
+		if ( defined( 'GEO_LOCATION__CLASS' ) && class_exists( GEO_LOCATION__CLASS ) ) {
+			$geo_loc_class = GEO_LOCATION__CLASS;
+			$geo_loc_instance = $geo_loc_class::init();
+
+			// Post Content
+			remove_filter( 'the_content', array( $geo_loc_instance, 'the_content' ) );
+
+			// Meta tags
+			remove_action( 'wp_head', array( $geo_loc_instance, 'wp_head' ) );
+
+			// Feeds
+			remove_action( 'rss2_ns', array( $geo_loc_instance, 'georss_namespace' ) );
+			remove_action( 'atom_ns', array( $geo_loc_instance, 'georss_namespace' ) );
+			remove_action( 'rdf_ns', array( $geo_loc_instance, 'georss_namespace' ) );
+			remove_action( 'rss_item', array( $geo_loc_instance, 'georss_item' ) );
+			remove_action( 'rss2_item', array( $geo_loc_instance, 'georss_item' ) );
+			remove_action( 'atom_entry', array( $geo_loc_instance, 'georss_item' ) );
+			remove_action( 'rdf_item', array( $geo_loc_instance, 'georss_item' ) );
+		}
+	}, 100 ); // later priority used to ensure this is ran after Geo_Location init (standard priority)
+}
