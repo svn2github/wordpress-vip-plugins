@@ -46,4 +46,21 @@ add_action( 'init', function() {
 		'delete_published_forks',
 		'publish_forks',
 	) );
+
+	wpcom_vip_add_role_caps( 'contributor', array(
+		'edit_forks',
+		'edit_published_forks',
+		'read_forks',
+		'delete_forks',
+	) );
+	wpcom_vip_remove_role_caps( 'contributor', array(
+		'edit_others_forks',
+		'edit_private_forks',
+		'read_private_forks',
+		'delete_others_forks',
+		'delete_private_forks',
+		'delete_published_forks',
+		'publish_forks',
+	) );
+
 } );
