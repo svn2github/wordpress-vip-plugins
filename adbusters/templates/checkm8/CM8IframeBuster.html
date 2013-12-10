@@ -1,5 +1,7 @@
 <HTML><HEAD></HEAD><BODY>
-  <SCRIPT LANGUAGE="JavaScript">
+  <SCRIPT TYPE="text/javascript">
+    CM8Server = "web2.checkm8.com";
+    CM8Static = "ch2lb.checkm8.com";   // Optional
     for (;;) {
       try {
         parent.parent.document;
@@ -12,13 +14,14 @@
       }
     }
   </SCRIPT>
-  <SCRIPT LANGUAGE="JavaScript">
+  <SCRIPT TYPE="text/javascript">
     var doc = parent.parent.document;
     if (! parent.parent.CM8IframeBusters)
       parent.parent.CM8IframeBusters = [];
-    parent.parent.CM8IframeBusters.push(document.location.search.substr(1));
+    parent.parent.CM8IframeBusters.push({params: "server=" + CM8Server + "&" + document.location.search.substr(1), window: window});
     var tag = doc.createElement('SCRIPT');
-    tag.src = ((document.location.protocol=="https:")?"https":"http") + "://web2.checkm8.com/adam/cm8adam_iframe_buster_in.js";
+    tag.src = ((document.location.protocol=="https:")?"https":"http") + "://" +
+        (CM8Static || CM8Server) + "/adam/cm8adam_iframe_buster_in.js";
     doc.body.insertBefore(tag, doc.body.firstChild);
   </SCRIPT>
 </BODY></HTML>
