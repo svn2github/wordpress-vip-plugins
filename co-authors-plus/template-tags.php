@@ -51,6 +51,7 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 
 					$debug_info = array(
 						'datacenter'      	=> DATACENTER,
+						'request_uri'		=> $_SERVER['REQUEST_URI'],
 						'current_user_id' 	=> get_current_user_id(),
 						'post_id'			=> $post_id,
 						'post'				=> var_export( $post, true ),
