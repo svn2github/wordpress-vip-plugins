@@ -25,46 +25,6 @@ function get_coauthors( $post_id = 0, $args = array() ) {
 					$coauthors[] = $post_author;
 			}
 		} else if ( !$coauthors_plus->force_guest_authors ) {
-			// Temp VIP debugging
-			if ( in_array( get_current_blog_id(), array( 7369149, 15797879 ) ) ) {
-				// Check the db
-				$debug_terms = wp_get_object_terms( $post_id, $coauthors_plus->coauthor_taxonomy );
-
-				// Only continue if the direct db lookup also results in a wp error -- otherwise we're probably just hitting a cache,
-				// not the troublemaker
-				if ( $debug_terms instanceof WP_Error ) {
-					// Check memcaches
-					$debug_memcache_values = array();
-
-					foreach ( array( 'iad', 'sat', 'dfw' ) as $dc ) {
-						if ( DATACENTER == $dc ) {
-							$old = $GLOBALS['memcached_servers'];
-				            $GLOBALS['memcached_servers'] = $GLOBALS['remote_memcached_clusters'][$dc];
-				            $test_cache = new WP_Object_Cache;
-				            $debug_memcache_values[$dc] = $test_cache->get( $post_id, $coauthors_plus->coauthor_taxonomy . '_relationships' );
-				            $GLOBALS['memcached_servers'] = $old;
-				        } else {
-				        	 wp_cache_get( $post_id, $coauthors_plus->coauthor_taxonomy . '_relationships' );
-				        }
-
-			        }
-
-					$debug_info = array(
-						'datacenter'      	=> DATACENTER,
-						'request_uri'		=> $_SERVER['REQUEST_URI'],
-						'current_user_id' 	=> get_current_user_id(),
-						'post_id'			=> $post_id,
-						'post'				=> var_export( $post, true ),
-						'$coauthor_terms' 	=> var_export( $coauthor_terms, true ),
-						'uncached_terms'	=> var_export( $debug_terms, true ),
-						'memcache_values'	=> var_export( $debug_memcache_values, true ),
-						'backtrace'			=> var_export( debug_backtrace(), true )
-					);
-
-					wpcom_vip_debug( 'coauthors_setting_coauthor', $debug_info );
-				}
-			}
-
 			if ( $post ) {
 				$post_author = get_userdata( $post->post_author );
 			} else {
