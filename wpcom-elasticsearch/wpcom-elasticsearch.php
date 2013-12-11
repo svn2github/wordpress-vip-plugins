@@ -281,6 +281,33 @@ class WPCOM_elasticsearch {
 			'blog_id'
 		);
 
+		// Ask for a search suggestion (to catch typos)
+		// See http://www.elasticsearch.org/guide/en/elasticsearch/reference/current/search-suggesters-phrase.html for options
+		$suggest_beta_blogs = array(
+			15797879, 	// viptest.wordpress.com
+			12269838, 	// lobby.vip.wordpress.com
+			2235322, 	// vip.wordpress.com
+		);
+
+		if ( in_array( get_current_blog_id(), $suggest_beta_blogs ) ) {
+			$es_query_args['suggest'] = array(
+				'text' => $query->get( 's' ),
+				'simple_phrase' => array(
+					'phrase' => array(
+						'field' => 'content',
+						'direct_generator' => array(
+							array(
+								'field' 		=> 'content',
+								'suggest_mode' 	=> 'popular',
+								'prefix_len' 	=> 3,
+								'max_term_freq' => 0.02 // If a term appears in this many (or more) documents, it's likely not a typo and we shouldn't suggest an alternative
+							)
+						)
+					)
+				)
+			);
+		}
+
 		// This filter is harder to use if you're unfamiliar with ES but it allows complete control over the query
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
 
@@ -411,6 +438,58 @@ class WPCOM_elasticsearch {
 			return $this->search_result;
 
 		return ( ! empty( $this->search_result ) && ! is_wp_error( $this->search_result ) && is_array( $this->search_result ) && ! empty( $this->search_result['results'] ) ) ? $this->search_result['results'] : false;
+	}
+
+	/**
+	 * Return a string representing a search suggestion for the given query
+	 *
+	 * Useful for retrieving the text for a 'Did You Mean...' style link
+	 * 
+	 * @return string The suggested query string
+	 */
+	public function get_search_suggestion() {
+		$result = $this->search_result;
+
+		$suggestions = $result['suggest'];
+
+		$search_suggestion = null;
+
+		$max_score = 0;
+
+		if ( is_array( $suggestions ) && ! empty( $suggestions ) ) {
+			foreach( $suggestions as $suggestion_query ) {
+				// Each $suggestion_query represents the 'suggest' query passed to ES...normally just one
+				if ( ! is_array( $suggestion_query ) || ! $suggest_result = $suggestion_query[0] )
+					continue;
+
+				$suggest_options = $suggest_result['options'];
+
+				// We want to find the highest scoring suggestion across all 'suggest' queries
+				foreach( $suggest_options as $suggest_option ) {
+					if ( $max_score > $suggest_option['score'] )
+						continue;
+
+					$search_suggestion 	= $suggest_option['text'];
+					$max_score 			= $suggest_option['score'];
+				}
+			}
+		}
+
+		$search_suggestion = apply_filters( 'wpcom_elasticsearch_search_suggestion', $search_suggestion, $this->search_result );
+
+		return $search_suggestion;
+	}
+
+	/**
+	 * Whether or not this search resulted in a query suggestion being generated
+	 *
+	 * A query suggestion is a similar, more common phrase meant for typo conversion,
+	 * much like Google's 'Did you mean...'
+	 * 
+	 * @return boolean Boolean indicating if a suggestion is present
+	 */
+	public function has_search_suggestion() {
+		return ( null == $this->get_search_suggestion() ) ? false : true;
 	}
 
 	public function get_search_facets() {
