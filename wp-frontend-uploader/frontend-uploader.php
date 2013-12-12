@@ -3,7 +3,7 @@
 Plugin Name: Frontend Uploader
 Description: Allow your visitors to upload content and moderate it.
 Author: Rinat Khaziev, Daniel Bachhuber
-Version: 0.5.8.1
+Version: 0.5.9.2
 Author URI: http://digitallyconscious.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -339,8 +339,8 @@ class Frontend_Uploader {
 	 */
 	function upload_content() {
 		$fields = array();
-		// @todo sanity check
-		$time = $_POST['request_time'];
+
+
 
 		// Bail if something fishy is going on
 		if ( !wp_verify_nonce( $_POST['fu_nonce'], FU_FILE_PATH ) ) {
@@ -743,6 +743,7 @@ class Frontend_Uploader {
 					'form_layout' => 'image',
 					'post_id' => get_the_ID(),
 					'post_type' => 'post',
+					'category' => '',
 				), $atts ) );
 
 		$post_id = (int) $post_id;
@@ -759,7 +760,6 @@ class Frontend_Uploader {
 			break;
 		default:
 		}
-
 		ob_start();
 ?>
 	<form action="<?php echo admin_url( 'admin-ajax.php' ) ?>" method="post" id="ugc-media-form" class="<?php echo esc_attr( $class )?>" enctype="multipart/form-data">

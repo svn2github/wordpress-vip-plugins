@@ -3,8 +3,8 @@ Contributors: rinatkhaziev, danielbachhuber
 Donate link: http://digitallyconscious.com/my-wordpress-plugins/
 Tags: frontend, image, images, media, uploader, upload, video, audio, photo, photos, picture, pictures, file
 Requires at least: 3.3
-Tested up to: 3.6-RC2
-Stable tag: 0.5.8.1
+Tested up to: 3.6
+Stable tag: 0.5.9.2
 
 This plugin allows your visitors to upload User Generated Content (media and posts/custom-post-types with media).
 
@@ -167,7 +167,7 @@ function my_fu_additional_html() {
 
 = 0.6 (Work in progress) =
 
-= 0.5.9 (Aug 19th, 2013) =
+= 0.5.9 (Aug 28th, 2013) =
 * Introduced setting to disable default fields
 * Fixed bug with inability to uncheck all extra file types
 
