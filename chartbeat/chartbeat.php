@@ -35,6 +35,15 @@ function chartbeat_console() {
 		wp_die( __('You do not have sufficient permissions to access this page.') );
 	}
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
+	?>
+    <style type="text/css">
+	#wpbody-content { height:100%; }
+	#chartbeat-iframe {
+		padding: 10px 0;
+		min-height: 640px;
+	}
+	</style>
+	<?php
 	if (!get_option('chartbeat_enable_newsbeat')) {
 		$iframe_url = add_query_arg( array(
 			'url' => chartbeat_get_display_url( $domain ),
@@ -42,7 +51,7 @@ function chartbeat_console() {
 			'slim' => 1,
 		), '//chartbeat.com/dashboard/' );
 		?>
-		<iframe width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
+		<iframe id="chartbeat-iframe" width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
 		<?php
 	} else {
 		$iframe_url = add_query_arg( array(
@@ -51,7 +60,7 @@ function chartbeat_console() {
 			'slim' => 1,
 		), '//chartbeat.com/publishing/dashboard/' );
 		?>
-		<iframe width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
+		<iframe id="chartbeat-iframe" width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
 	<?php
 	}
 }
