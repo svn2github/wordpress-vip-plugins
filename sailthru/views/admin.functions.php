@@ -97,6 +97,19 @@ function sailthru_initialize_setup_options() {
 			)
 		);
 
+		add_settings_field(
+			'sailthru_horizon_load_type',
+			'Horizon Loading',
+			'sailthru_horizon_loadtype_callback',
+			'sailthru_setup_options',
+			'sailthru_setup_section',
+			array(
+				'sailthru_setup_options',
+				'sailthru_horizon_load_type',
+				'',
+				'sailthru_horizon_load_type'
+				)
+			);
 
 
 	// Finally, we register the fields with WordPress
@@ -776,6 +789,18 @@ function sailthru_html_text_input_callback( $args ) {
 
 } // end sandbox_twitter_callback
 
+/**
+ * Creates a checkbox for the Horizon JS output type
+ *
+ */
+function sailthru_horizon_loadtype_callback() {
+
+	$options = get_option( 'sailthru_setup_options' );
+	$html = '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[sailthru_horizon_load_type]" value="1"' . checked( 1, $options['sailthru_horizon_load_type'], false ) . '/>';
+	$html .= 'Use synchronous loading for Horizon';
+	echo esc_html( $html );
+
+} // end sailthru_horizon_loadtype_callback
 
 /**
  * Creates a dropdown for the number of scout options
@@ -1076,6 +1101,7 @@ function sailthru_setup_handler( $input ) {
 
 	// api key
 	$output['sailthru_api_key'] = filter_var( $input['sailthru_api_key'], FILTER_SANITIZE_STRING );
+	$output['sailthru_horizon_load_type'] = $input['sailthru_horizon_load_type'] == '1' ? 1 : false;
 
 	if ( empty( $output['sailthru_api_key'] ) ) {
 		add_settings_error( 'sailthru-notices', 'sailthru-api-key-fail', __( 'Sailthru will not function without an API key.' ), 'error' );

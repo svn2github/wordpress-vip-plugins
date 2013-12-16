@@ -243,29 +243,43 @@ class Sailthru_Horizon {
 			$horizon_params =   "domain: '" . esc_js( $options['sailthru_horizon_domain'] ) . "'";
 		}
 
-	 	$horizon_js  = "<!-- Sailthru Horizon -->\n";
-		$horizon_js .= "<script type=\"text/javascript\">\n";
-		$horizon_js .= "(function() {\n";
-		$horizon_js .= "     function loadHorizon() {\n";
-		$horizon_js .= "           var s = document.createElement('script');\n";
-		$horizon_js .= "           s.type = 'text/javascript';\n";
-		$horizon_js .= "          s.async = true;\n";
-		$horizon_js .= "          s.src = location.protocol + '//ak.sail-horizon.com/horizon/v1.js';\n";
-		$horizon_js .= "         var x = document.getElementsByTagName('script')[0];\n";
-		$horizon_js .= "         x.parentNode.insertBefore(s, x);\n";
-		$horizon_js .= "      }\n";
-		$horizon_js .= "     loadHorizon();\n";
-		$horizon_js .= "      var oldOnLoad = window.onload;\n";
-		$horizon_js .= "      window.onload = function() {\n";
-		$horizon_js .= "          if (typeof oldOnLoad === 'function') {\n";
-		$horizon_js .= "            oldOnLoad();\n";
-		$horizon_js .= "         }\n";
-		$horizon_js .= "           Sailthru.setup({\n";
-		$horizon_js .= "              ". $horizon_params ."\n";
-		$horizon_js .= "         });\n";
-		$horizon_js .= "     };\n";
-		$horizon_js .= "  })();\n";
-		$horizon_js .= " </script>\n";
+	 	if ($options['sailthru_horizon_load_type'] == '1') {
+			$horizon_js =  "<!-- Sailthru Horizon Sync -->\n";
+			$horizon_js .= "<script type=\"text/javascript\" src=\"//ak.sail-horizon.com/horizon/v1.js\"></script>\n";
+			$horizon_js .= "<script type=\"text/javascript\">\n";
+			$horizon_js .= "$(function() { \n";
+			$horizon_js .= "  if (window.Sailthru) {\n";
+			$horizon_js .= "           Sailthru.setup({\n";
+			$horizon_js .= "              ". $horizon_params ."\n";
+			$horizon_js .= "         });\n";
+			$horizon_js .= "  }\n";
+			$horizon_js .= "});\n";
+			$horizon_js .= " </script>\n";
+        } else {
+			$horizon_js  = "<!-- Sailthru Horizon  Async-->\n";
+			$horizon_js .= "<script type=\"text/javascript\">\n";
+			$horizon_js .= "(function() {\n";
+			$horizon_js .= "     function loadHorizon() {\n";
+			$horizon_js .= "           var s = document.createElement('script');\n";
+			$horizon_js .= "           s.type = 'text/javascript';\n";
+			$horizon_js .= "          s.async = true;\n";
+			$horizon_js .= "          s.src = location.protocol + '//ak.sail-horizon.com/horizon/v1.js';\n";
+			$horizon_js .= "         var x = document.getElementsByTagName('script')[0];\n";
+			$horizon_js .= "		 x.parentNode.insertBefore(s, x);\n";
+			$horizon_js .= "	  }\n";
+			$horizon_js .= "     loadHorizon();\n";
+			$horizon_js .= "      var oldOnLoad = window.onload;\n";
+			$horizon_js .= "      window.onload = function() {\n";
+			$horizon_js .= "          if (typeof oldOnLoad === 'function') {\n";
+			$horizon_js .= "            oldOnLoad();\n";
+			$horizon_js .= "         }\n";
+			$horizon_js .= "           Sailthru.setup({\n";
+			$horizon_js .= "              ". $horizon_params ."\n";
+			$horizon_js .= "         });\n";
+			$horizon_js .= "     };\n";
+			$horizon_js .= "  })();\n";
+			$horizon_js .= " </script>\n";
+        }
 
 		echo $horizon_js;
 
