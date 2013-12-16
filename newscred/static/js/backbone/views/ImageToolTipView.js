@@ -1,5 +1,5 @@
 ncApp.ImageToolTipView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "image-tooltip" ) ),
+    template:_.template( $( "#nc-image-tooltip" ).html() ),
     className:"articles-tooltip-container tooltip-container",
     initialize:function () {
         _.bindAll( this, "render" );

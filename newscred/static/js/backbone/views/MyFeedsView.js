@@ -1,5 +1,5 @@
 ncApp.MyFeedsView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "myfeeds" ) ),
+    template:_.template( $( "#nc-myfeeds" ).html() ),
     id:"myfeed-tab",
     attributes:{index:2},
     className:"nc-side-bar-tab-content hide",

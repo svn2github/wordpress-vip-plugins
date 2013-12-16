@@ -6,6 +6,7 @@ ncApp.MetaBoxRouter = Backbone.Router.extend( {
          * initialize the MEtaBox
          * Router
          */
+
         ncApp.metaBox = new ncApp.MetaBoxView( {"query":"", "sort_by":"relevance"} );
 
         $( window ).load( function () {

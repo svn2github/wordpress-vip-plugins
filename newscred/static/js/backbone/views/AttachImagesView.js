@@ -1,6 +1,6 @@
 ncApp.AttachImagesView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "attach-image" ) ),
+    template:_.template( $( "#nc-attach-image" ).html() ),
     id:"nc-image-set-div",
     className:"postbox",
     initialize:function () {

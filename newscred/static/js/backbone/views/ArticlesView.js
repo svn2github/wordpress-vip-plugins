@@ -1,5 +1,5 @@
 ncApp.ArticlesView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "articles" ) ),
+    template:_.template( $("#nc-articles" ).html() ),
     id:"article-tab",
     className:"nc-side-bar-tab-content",
     attributes:{index:0},

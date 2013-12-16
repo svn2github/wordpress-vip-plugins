@@ -1,6 +1,6 @@
 ncApp.TagView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "tag" ) ),
+    template:_.template( $( "#nc-tag" ).html() ),
     tagName:'span',
     className:"tag tooltips",
     initialize:function () {

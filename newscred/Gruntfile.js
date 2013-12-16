@@ -3,17 +3,20 @@ module.exports = function(grunt) {
         concat: {
             metabox_js: {
                 src: [
-                    'static/js/backbone/start.js',
                     'static/js/backbone/main.js',
                     'static/js/backbone/models/*.js',
                     'static/js/backbone/collections/*.js',
                     'static/js/backbone/views/*.js',
                     'static/js/backbone/common.js',
                     'static/js/backbone/router.js',
-                    'static/js/backbone/run.js',
-                    'static/js/backbone/end.js'
+                    'static/js/backbone/run.js'
                 ],
-                dest: 'static/build/js/metabox.js'
+                dest: 'static/build/js/metabox.js',
+                options: {
+                    banner: 'var $nc = jQuery.noConflict();(function($){',
+                    footer : '})($nc);'
+                }
+
             },
             myfeeds_js: {
                 src: [
@@ -37,10 +40,16 @@ module.exports = function(grunt) {
                     'static/css/style.css'
                 ],
                 dest: 'static/css/style.min.css'
+            },
+            metabox_html: {
+                src: [
+                    'static/js/backbone/templates/*.html'
+                ],
+                dest: 'static/build/html/metabox.html'
             }
         },
         watch: {
-            files: ['static/js/**/*.js','static/css/**/*.css'],
+            files: ['static/js/**/*.js','static/css/**/*.css', 'static/js/backbone/templates/*.html'],
             tasks: ['dev' ]
         }
     });
@@ -59,7 +68,8 @@ module.exports = function(grunt) {
             'concat:metabox_js',
             'concat:myfeeds_js',
             'concat:nc_plugin_lib_js',
-            "concat:metabox_main_css"
+            'concat:metabox_main_css',
+            'concat:metabox_html'
         ]);
 
 

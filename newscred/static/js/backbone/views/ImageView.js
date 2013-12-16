@@ -1,6 +1,6 @@
 ncApp.ImageView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "image" ) ),
+    template:_.template( $( "#nc-image" ).html() ),
     tagName:'li',
     initialize:function () {
 

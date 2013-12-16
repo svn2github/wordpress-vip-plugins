@@ -1,5 +1,5 @@
 ncApp.ImagesView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "images" ) ),
+    template:_.template( $( "#nc-images" ).html() ),
     id:"image-tab",
     attributes:{index:1},
     className:"nc-side-bar-tab-content hide",

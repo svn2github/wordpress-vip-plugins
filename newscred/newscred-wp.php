@@ -83,6 +83,11 @@ define( 'NC_URL', plugins_url( '', __FILE__ ) );
 // = build Path =
 // ================
 define( 'NC_BUILD_URL', NC_URL . '/static/build' );
+// ================
+// = build Path =
+// ================
+define( 'NC_BUILD_PATH', NC_PATH . '/static/build' );
+
 
 // ================
 // = includes Path =

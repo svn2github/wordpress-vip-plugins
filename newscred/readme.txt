@@ -7,11 +7,11 @@ Stable tag: 1.0.3
 License: GPLv2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Publish fully licensed, full text articles and images from 4,000+ of the world’s best news sources!
+Publish fully licensed, full text articles and images from 2,500+ of the world’s best news sources!
 
 == Description ==
 
-Fuel your WordPress site with the world's best content. With articles and images from over 4,000 award-winning sources like Reuters and Associated Press, this NewsCred plug-in makes it effortless to keep your site populated with fresh, traffic-driving content. Best of all, because your content is licensed, full-text articles and images are always hosted on your site – users will never "click out" to read an article.
+Fuel your WordPress site with the world's best content. With articles and images from over 2,500 award-winning sources like Reuters and Associated Press, this NewsCred plug-in makes it effortless to keep your site populated with fresh, traffic-driving content. Best of all, because your content is licensed, full-text articles and images are always hosted on your site – users will never "click out" to read an article.
 
 Features include:
 

@@ -1,6 +1,6 @@
 ncApp.ArticleView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "article" ) ),
+    template:_.template( $( "#nc-article" ).html() ),
     tagName:'li',
     className:"articles-tooltip",
     initialize:function () {

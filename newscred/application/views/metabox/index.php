@@ -17,6 +17,8 @@
     <input type="hidden" name="nc_categories" id="nc_categories"
            value="<?php echo esc_attr( get_option('nc_article_categories') ); ?>"/>
     <?php wp_nonce_field('nc_metabox_nonce','nc_metabox_check_auth'); ?>
+    <?php include( NC_BUILD_PATH . "/html/metabox.html" );?>
+
 <?php else: ?>
     <div id="message" class="updated below-h2">
         <p>Please Add Newscred  <a href="<?php echo esc_url( NC_SETTINGS_URL ); ?>">Access Key</a></p>

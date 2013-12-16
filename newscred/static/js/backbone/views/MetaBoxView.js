@@ -1,5 +1,5 @@
 ncApp.MetaBoxView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "metabox" ) ),
+    template:_.template( $("#nc-metabox").html() ),
     initialize:function () {
         _.bindAll( this, "render", "searchTags", "selectSortBy", "changeTab" );
 

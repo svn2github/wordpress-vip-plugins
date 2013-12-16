@@ -1,7 +1,4 @@
-var $nc = jQuery.noConflict();
-
-(function($){
-/**
+var $nc = jQuery.noConflict();(function($){/**
  *  @package NewsCred WordPress Plugin
  *  @author  Md Imranur Rahman <imran.aspire@gmail.com>
  *
@@ -16,23 +13,6 @@ ncApp.imageUrl = NC_globals.imageurl;
 
 ncApp.defaultWidth = NC_globals.default_width;
 ncApp.defaultHeight = NC_globals.default_height;
-
-var templateUrl = NC_globals.jsurl + "/backbone/templates/";
-
-// get templates
-ncApp.template = function ( url ) {
-    var data = "<h1> failed to load url : " + url + "</h1>";
-    $.ajax( {
-        async:false,
-        url:templateUrl + url + ".html",
-        success:function ( response ) {
-            data = response;
-        }
-    } );
-    return data;
-}
-
-
 ncApp.Article = Backbone.Model.extend( {
     defaults:{
         guid:null,
@@ -76,7 +56,7 @@ ncApp.Tags = Backbone.Collection.extend( {
     model:ncApp.Tag
 } );
 ncApp.ArticleToolTipView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "article-tooltip" ) ),
+    template:_.template( $( "#nc-article-tooltip" ).html() ),
     className:"articles-tooltip-container tooltip-container",
     initialize:function () {
         _.bindAll( this, "render" );
@@ -95,7 +75,7 @@ ncApp.ArticleToolTipView = Backbone.View.extend( {
 } );
 ncApp.ArticleView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "article" ) ),
+    template:_.template( $( "#nc-article" ).html() ),
     tagName:'li',
     className:"articles-tooltip",
     initialize:function () {
@@ -295,7 +275,7 @@ ncApp.ArticleView = Backbone.View.extend( {
 
 } );
 ncApp.ArticlesView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "articles" ) ),
+    template:_.template( $("#nc-articles" ).html() ),
     id:"article-tab",
     className:"nc-side-bar-tab-content",
     attributes:{index:0},
@@ -615,7 +595,7 @@ ncApp.ArticlesView = Backbone.View.extend( {
 } );
 ncApp.AttachImagesView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "attach-image" ) ),
+    template:_.template( $( "#nc-attach-image" ).html() ),
     id:"nc-image-set-div",
     className:"postbox",
     initialize:function () {
@@ -675,7 +655,7 @@ ncApp.AttachImagesView = Backbone.View.extend( {
 
 } );
 ncApp.ImageToolTipView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "image-tooltip" ) ),
+    template:_.template( $( "#nc-image-tooltip" ).html() ),
     className:"articles-tooltip-container tooltip-container",
     initialize:function () {
         _.bindAll( this, "render" );
@@ -696,7 +676,7 @@ ncApp.ImageToolTipView = Backbone.View.extend( {
 } );
 ncApp.ImageView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "image" ) ),
+    template:_.template( $( "#nc-image" ).html() ),
     tagName:'li',
     initialize:function () {
 
@@ -747,7 +727,7 @@ ncApp.ImageView = Backbone.View.extend( {
 
 } );
 ncApp.ImagesView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "images" ) ),
+    template:_.template( $( "#nc-images" ).html() ),
     id:"image-tab",
     attributes:{index:1},
     className:"nc-side-bar-tab-content hide",
@@ -1065,7 +1045,7 @@ ncApp.ImagesView = Backbone.View.extend( {
 
 } );
 ncApp.MetaBoxView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "metabox" ) ),
+    template:_.template( $("#nc-metabox").html() ),
     initialize:function () {
         _.bindAll( this, "render", "searchTags", "selectSortBy", "changeTab" );
 
@@ -1246,7 +1226,7 @@ ncApp.MetaBoxView = Backbone.View.extend( {
 
 } );
 ncApp.MyFeedsView = Backbone.View.extend( {
-    template:_.template( ncApp.template( "myfeeds" ) ),
+    template:_.template( $( "#nc-myfeeds" ).html() ),
     id:"myfeed-tab",
     attributes:{index:2},
     className:"nc-side-bar-tab-content hide",
@@ -1484,7 +1464,7 @@ ncApp.MyFeedsView = Backbone.View.extend( {
 } );
 ncApp.TagView = Backbone.View.extend( {
 
-    template:_.template( ncApp.template( "tag" ) ),
+    template:_.template( $( "#nc-tag" ).html() ),
     tagName:'span',
     className:"tag tooltips",
     initialize:function () {
@@ -1689,6 +1669,7 @@ ncApp.MetaBoxRouter = Backbone.Router.extend( {
          * initialize the MEtaBox
          * Router
          */
+
         ncApp.metaBox = new ncApp.MetaBoxView( {"query":"", "sort_by":"relevance"} );
 
         $( window ).load( function () {
@@ -1852,5 +1833,4 @@ var scripts = {
 
 };
 
-ncApp.metaBoxRouter = new ncApp.MetaBoxRouter();
-})($nc);
+ncApp.metaBoxRouter = new ncApp.MetaBoxRouter();})($nc);

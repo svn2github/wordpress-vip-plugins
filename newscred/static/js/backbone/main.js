@@ -13,19 +13,3 @@ ncApp.imageUrl = NC_globals.imageurl;
 
 ncApp.defaultWidth = NC_globals.default_width;
 ncApp.defaultHeight = NC_globals.default_height;
-
-var templateUrl = NC_globals.jsurl + "/backbone/templates/";
-
-// get templates
-ncApp.template = function ( url ) {
-    var data = "<h1> failed to load url : " + url + "</h1>";
-    $.ajax( {
-        async:false,
-        url:templateUrl + url + ".html",
-        success:function ( response ) {
-            data = response;
-        }
-    } );
-    return data;
-}
-
