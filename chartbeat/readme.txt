@@ -2,22 +2,14 @@
 Contributors: chartbeat
 Tags: chartbeat, analytics
 Requires at least: 2.8
-Tested up to: 2.9.2
-Stable tag: 1.2
+Tested up to: 3.5.1
+Stable tag: 2.0.3
 
-Automatically adds pinging code for chartbeat real-time analytics service and provides top pages widget.
+The Chartbeat plugin automatically adds real-time data and a top pages widget to your blog. See who’s on your site, what they’re doing - right now
 
 == Description ==
 
-[Chartbeat](http://chartbeat.com) is a real-time analytics and
-monitoring service. Site owners add Javascript to their pages so that
-they can see how many people are using their site at any given
-time. This plugin automatically adds the needed Javascript to a
-WordPress blog.
-
-Additionally, the plugin contains a Top Pages sidebar widget. This
-allows site owners to show their users what the most popular pages are
-on their site using data from chartbeat.
+[Chartbeat](http://chartbeat.com) is a real-time data service for your website, social streams, and iOS apps. Once you [become a Chartbeat member](http://chartbeat.com/signup), you can use this plugin to automatically add the necessary JavaScript to your WordPress blog. After installing the plugin, you’ll instantly see your site’s traffic, and audience behaviors. 
 
 == Installation ==
 
@@ -35,35 +27,25 @@ the historical chart.
 
 = What is Chartbeat? =
 
-Chartbeat is a real-time analytics and uptime monitoring service used
-by everyone from mom-and-pop bloggers to some of the biggest sites on
-the web. Try the [demo](http://chartbeat.com/demo/) and then sign up
-for [a free trial](https://chartbeat.com/signup/)!
+We’re a real-time data service used by everyone from Foursquare to FoxNews to your mom’s blog (well, someone’s mom’s blog, if not yours.) 
+
+Use Chartbeat (and this plugin) to see how many people are on your site and what they’re up to while they’re there, so you can take smarter real-time actions. Check it out for yourself by playing with our [demo](http://chartbeat.com/demo/) and sign up for [a free trial](https://chartbeat.com/signup/)!
 
 = What does this plugin do? =
 
-This plugin makes it easy for chartbeat users to install the code they
-need to add to their site that enables chartbeat to track what's
-happening. Adding this plugin to your site if you do not have a
-chartbeat account will not provide you with any analytics.
-
-It also
+It’s an easy way for you to install the Chartbeat code you need in order to see what's happening on your WordPress site in real time. Make sure you [sign up for Chartbeat](http://chartbeat.com/signup) and have an active account first, or this plugin won’t work for your site.
 
 = Will this plugin slow down my site? =
 
-No, chartbeat's code is completely asynchronous. That means that it
-doesn't begin to run until everything else has already loaded.
-
-= How is this different from Google Analytics? =
-
-Chartbeat provides statistics in real-time and sends you alerts if
-your site goes down or your traffic spikes. This allows you to quickly
-respond by fixing your server, improving your content, responding to
-other bloggers, or whatever is appropriate for your site. Because
-chartbeat sends pings throughout a user's session, you also get a much
-richer sense of how people are using your site.
+Nope. Chartbeat code is completely asynchronous, meaning it doesn't begin to run until everything else on your page has already loaded.
 
 == Screenshots ==
+
+1. Chartbeat Overview
+1. Content View
+3. Social View
+4. Traffic Sources View
+5. Geo View
 
 == Changelog ==
 
@@ -76,5 +58,17 @@ richer sense of how people are using your site.
 = 1.3 =
 * 'trackadmin' option added by Jesse S. McDougall, jesse@catalystwebworks.com
 
+= 1.4 =
+* Security enhancements from automatic *
+
+= 1.4.1 =
+* Fix widget error in logs *
+
 = 2.0 =
 * Added Dashboard Widget, Active Visits in Post Board and Embedded Console
+
+= 2.0.2 =
+* Updated handling of window load event to ensure Chartbeat is always loaded
+
+= 2.0.3 =
+* Fixed issure where the Chartbeat console's iframe was too short to be usable

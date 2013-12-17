@@ -1,15 +1,15 @@
 <?php
-/**
- * Plugin Name: Chartbeat
- * Plugin URI: http://chartbeat.com/wordpress/
- * Description: Adds Chartbeat pinging to Wordpress.
- * Version: 1.3
- * Author: Chartbeat
- * Author URI: http://chartbeat.com/
- */
+/*
+Plugin Name: Chartbeat
+Plugin URI: http://chartbeat.com/wordpress/
+Description: Adds Chartbeat pinging to Wordpress.
+Version: 2.0.3
+Author: Chartbeat
+Author URI: http://chartbeat.com/
+*/
 
 /*
- Copyright 2009-2011 Chartbeat Inc.
+Copyright 2009-2013 Chartbeat Inc.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -36,12 +36,12 @@ function chartbeat_console() {
 	}
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	?>
-    <style type="text/css">
-	#wpbody-content { height:100%; }
-	#chartbeat-iframe {
-		padding: 10px 0;
-		min-height: 640px;
-	}
+	<style type="text/css">
+		#wpbody-content { height:100%; }
+		#chartbeat-iframe {
+			padding: 10px 0;
+			min-height: 640px;
+		}
 	</style>
 	<?php
 	if (!get_option('chartbeat_enable_newsbeat')) {
@@ -60,7 +60,7 @@ function chartbeat_console() {
 			'slim' => 1,
 		), '//chartbeat.com/publishing/dashboard/' );
 		?>
-		<iframe id="chartbeat-iframe" width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
+		<iframe id="chartbeat-iframe"width="100%" height="100%" src="<?php echo esc_url( $iframe_url ); ?>"></iframe>
 	<?php
 	}
 }
@@ -69,7 +69,7 @@ function chartbeat_options_page() {
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	?>
 	<div class="wrap">
-		<h2>chartbeat</h2>
+		<h2>Chartbeat</h2>
 		<form method="post" action="options.php" onsubmit="buildOptions()">
 			<?php
 			// outputs all of the hidden fields that options.php will check, including the nonce
@@ -81,10 +81,10 @@ function chartbeat_options_page() {
 				window.open('//chartbeat.com/wordpress/?site=' + encodeURIComponent(window.location.host));
 			}
 			</script>
-			To enable tracking, you must enter your chartbeat user id. <a href="#" onclick="showSettings()">Find yours.</a> <br />
+			To enable tracking, you must enter your chartbeat account id. <a href="#" onclick="showSettings()">Find yours.</a> <br />
 			<table class="form-table">
 				<tr>
-					<th scope="row">User ID</th>
+					<th scope="row">Account ID</th>
 					<td><input size="30" type="text" name="chartbeat_userid"
 						value="<?php echo esc_attr( get_option('chartbeat_userid') ); ?>" />
 					</td>
@@ -103,8 +103,8 @@ function chartbeat_options_page() {
 				</tr>
 	
 				<tr>
-					<th scope="row"><?php _e('Enable newsbeat?','chartbeat'); ?><br /> <small>Sign
-							up for <a href="http://chartbeat.com/newsbeat/">newsbeat</a>.
+					<th scope="row"><?php _e('Enable Chartbeat Publishing?','chartbeat'); ?><br /> <small>Sign
+							up for <a href="http://chartbeat.com/publishing/">Chartbeat Publishing</a>.
 					</small></th>
 					<td>
 						<input type="radio" name="chartbeat_enable_newsbeat" value="1" <?php checked( get_option('chartbeat_enable_newsbeat'), 1 ); ?> />
@@ -265,7 +265,7 @@ function add_chartbeat_footer() {
 		<script type="text/javascript">
 		var _sf_async_config={};
 		_sf_async_config.uid = <?php echo intval( $user_id ); ?>;
-		_sf_async_config.useCanonical = <?php echo $use_canonical; ?>;
+		_sf_async_config.useCanonical = <?php echo esc_js( $use_canonical ); ?>;
 		<?php
 		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
@@ -311,13 +311,13 @@ function add_chartbeat_footer() {
 			e.setAttribute('language', 'javascript');
 			e.setAttribute('type', 'text/javascript');
 			e.setAttribute('src',
-			   (("https:" == document.location.protocol) ? "https://s3.amazonaws.com/" : "http://") +
+			   (("https:" == document.location.protocol) ? "https://" : "http://") +
 			   "static.chartbeat.com/js/chartbeat.js");
 			document.body.appendChild(e);
 		  }
 		  var oldonload = window.onload;
 		  window.onload = (typeof window.onload != 'function') ?
-			 loadChartbeat : function() { oldonload(); loadChartbeat(); };
+			 loadChartbeat : function() { try { oldonload(); } catch (e) { loadChartbeat(); throw e} loadChartbeat(); };
 		})();
 		</script>
 		<?php
@@ -325,17 +325,17 @@ function add_chartbeat_footer() {
 }
 
 class Chartbeat_Widget extends WP_Widget {
-	
+
 	function __construct() {
         parent::__construct('chartbeat_widget', 'Chartbeat Widget',array( 'description' => __('Display your site\'s top pages')));
         
-        if ( is_active_widget(false,false,$this->id_base,true) ) {
+        if ( is_active_widget(false,false,$this->id_base,true) || is_admin() ) {
         	wp_enqueue_script( 'chartbeat_topwidget', plugins_url('media/topwidget.compiled.js', __FILE__) );
         	wp_localize_script( 'chartbeat_topwidget', 'cbproxy', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ),
         		'cbnonce' => wp_create_nonce( 'cbproxy-nonce' ) ) );
         }
     }
-	
+
 	function widget( $args, $instance ) {
 		extract( $args );
 		echo $before_widget;
@@ -347,7 +347,7 @@ class Chartbeat_Widget extends WP_Widget {
 		<div id="cb_top_pages"></div>
 		<script type="text/javascript">
 		var options = { };
-		new CBTopPagesWidget( <?php echo get_option('chartbeat_widgetconfig'); ?> );
+		new CBTopPagesWidget( <?php echo json_encode( json_decode( get_option('chartbeat_widgetconfig') ) ); ?> );
 		</script>
 		<?php
 		endif;
@@ -380,7 +380,7 @@ function cbproxy_submit() {
 		set_transient($transient,$response,5);
 	}
 	
-	echo $response;
+	echo json_encode( json_decode( $response ) );
 	exit;
 }
 
@@ -541,7 +541,7 @@ function chartbeat_custom_columns($column_name, $id) {
 		jQuery.getJSON('<?php echo esc_js( $json_url ); ?>',
 			function(data) {
 				if ( !data.visits ) data.visits = 0;
-				jQuery('#post-<?php echo $id; ?> .cb_visits').append(data.visits);
+				jQuery('#post-<?php echo absint( $id ); ?> .cb_visits').append(data.visits);
 			}
 		);
 		</script>
@@ -551,7 +551,7 @@ function chartbeat_custom_columns($column_name, $id) {
 
 // Returns URL for asset on the static.chartbeat domain
 function chartbeat_get_static_asset_url( $path = '' ) {
-	$domain = is_ssl() ? 'https://s3.amazonaws.com/static.chartbeat.com/' : 'http://static.chartbeat.com/';
+	$domain = (is_ssl() ? 'https' : 'http') . '://static.chartbeat.com/';
 	return $domain . ltrim( $path, '/' );
 }
 
