@@ -506,7 +506,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
  * @return array Fresh tasty data
  */
 function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 400 ) {
-	global $post_id, $wpdb;
+	global $wpdb;
 	$blog_id = $wpdb->blogid;
 
 	// adjust parameters
@@ -525,10 +525,6 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 		$num_days = 90;
 	else
 		$num_days = (int) $num_days;
-
-
-	if ( $table == 'postviews' && !empty($post_id) )
-		$and = "AND post_id = $post_id";
 
 	$args = array( $blog_id, $end_date, $num_days, $and, $limit );
 
