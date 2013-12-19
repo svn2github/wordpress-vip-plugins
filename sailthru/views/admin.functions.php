@@ -796,11 +796,10 @@ function sailthru_html_text_input_callback( $args ) {
 function sailthru_horizon_loadtype_callback() {
 
 	$options = get_option( 'sailthru_setup_options' );
-	$html = '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[sailthru_horizon_load_type]" value="1"' . checked( 1, $options['sailthru_horizon_load_type'], false ) . '/>';
-	$html .= 'Use synchronous loading for Horizon';
-	echo esc_html( $html );
-
-} // end sailthru_horizon_loadtype_callback
+	echo '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[sailthru_horizon_load_type]" value="1"' . checked( 1, esc_attr($options['sailthru_horizon_load_type']), false ) . '/>';
+	echo 'Use synchronous loading for Horizon';
+	
+}
 
 /**
  * Creates a dropdown for the number of scout options
