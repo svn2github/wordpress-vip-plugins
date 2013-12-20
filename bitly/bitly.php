@@ -7,7 +7,7 @@
  */
 
 if ( defined( 'WP_CLI' ) && WP_CLI )
-	require dirname( __FILE__ ) . '/bitly-wp-cli.php';
+	require dirname( __FILE__ ) . '/class-wp-cli.php';
 
 class Bitly {
 	
