@@ -6,6 +6,9 @@
  * Description: Uses bit.ly API to get shortened url for a post on publish and saves url as meta data. Based on TIME.com's Bit.ly plugin.
  */
 
+if ( defined( 'WP_CLI' ) && WP_CLI )
+	require dirname( __FILE__ ) . '/bitly-wp-cli.php';
+
 class Bitly {
 	
 	// storing a copy of the api credentials
