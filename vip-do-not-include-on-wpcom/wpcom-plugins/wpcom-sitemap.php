@@ -243,12 +243,12 @@ function wpcom_print_sitemap() {
 
 					// Only include title if not empty
 					if ( $attachment_title = apply_filters( 'the_title_rss', $attachment->post_title ) ) {
-						$url['image:image']['title'] = esc_html( $attachment_title );
+						$url['image:image']['title'] = html_entity_decode( esc_html( $attachment_title ), ENT_XML1 );
 					}
 
 					// Only include caption if not empty
 					if ( $attachment_caption = apply_filters( 'the_excerpt_rss', $attachment->post_excerpt ) ) {
-						$url['image:image']['caption'] = esc_html( $attachment_caption );
+						$url['image:image']['caption'] = html_entity_decode( esc_html( $attachment_caption ), ENT_XML1 );
 					}
 				}
 			}
@@ -345,12 +345,12 @@ function wpcom_print_news_sitemap($format) {
 		$url = array();
 		$url['loc'] = get_permalink($post->ID);
 		$news = array();
-		$news['n:publication']['n:name'] = get_bloginfo( 'name' );
+		$news['n:publication']['n:name'] = html_entity_decode( get_bloginfo( 'name' ), ENT_XML1 );
 		if ( function_exists( 'get_blog_lang_code' ) )
 			$news['n:publication']['n:language'] = get_blog_lang_code() ;
 		$news['n:publication_date'] = w3cdate_from_mysql($post->post_date_gmt);
-		$news['n:title'] = ent2ncr( $post->post_title );
-		if ( $post->keywords ) $news['n:keywords'] = $post->keywords;
+		$news['n:title'] = html_entity_decode( $post->post_title, ENT_XML1 );
+		if ( $post->keywords ) $news['n:keywords'] = html_entity_decode( $post->keywords, ENT_XML1 );
 		$url['n:news'] = $news;
 
 		// Add image to sitemap
