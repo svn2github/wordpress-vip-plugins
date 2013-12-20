@@ -12,8 +12,6 @@ class Bitly_Command extends WP_CLI_Command {
 	 * @subcommand delete-bitly-urls [--post_types=<post_types>] [--post_status=<post_status>] --[published_before=<published_before>]
 	 */
 	public function delete_bitly_urls( $args, $assoc_args ) {
-		global $coauthors_plus;
-
 		$defaults = array(
 			'post_types' 	=> 'post,page',
 			'post_status' 	=> 'any',
