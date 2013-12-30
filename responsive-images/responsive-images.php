@@ -14,16 +14,16 @@ class Responsive_Images {
 
 	const version = '0.1';
 
-	function init() {
+	public static function init() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ) );
 		add_filter( 'the_content', array( __CLASS__, 'add_image_placeholders' ), 99 );
 	}
 
-	function add_scripts() {
+	public static function add_scripts() {
 		wp_enqueue_script( 'responsive-images',  self::get_url( 'js/responsive-images.js' ), array( 'jquery' ), self::version, true );
 	}
 
-	function add_image_placeholders( $content ) {
+	public static function add_image_placeholders( $content ) {
 		// Don't load for feeds, previews, attachment pages, non-mobile views
 		if( is_preview() || is_feed() || is_attachment() || ( function_exists( 'jetpack_is_mobile' ) && ! jetpack_is_mobile() ) )
 			return $content;
@@ -79,7 +79,7 @@ class Responsive_Images {
 		return $content;
 	}
 
-	function get_url( $path = '' ) {
+	private static function get_url( $path = '' ) {
 		return plugins_url( ltrim( $path, '/' ), __FILE__ );
 	}
 }
