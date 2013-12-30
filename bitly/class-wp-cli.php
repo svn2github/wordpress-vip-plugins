@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * CLI commands to handle useful functions related to backfilling short URLs for posts
+ */
+
 WP_CLI::add_command( 'bitly', 'Bitly_Command' );
 
 class Bitly_Command extends WP_CLI_Command {
@@ -62,6 +66,31 @@ class Bitly_Command extends WP_CLI_Command {
 		}
 
 		WP_CLI::success( 'All done!' );
+	}
+	
+	/**
+	 * Runs the backfill from the command line.
+	 * You can optionally specify a new limit.
+	 * 
+	 * @subcommand run-backfill
+	 * @synopsis [--limit=<limit>]
+	 */
+	public function run_backfill( $args, $assoc_args ) {
+		$defaults = array();
+
+		$args = wp_parse_args( $assoc_args, $defaults );
+
+		// If a limit was passed in, use it
+		$hourly_limit = ( is_numeric( $args['limit'] ) ) ? $args['limit'] : null;
+		
+		// Run the backfill
+		$timestamp_start = microtime( true );
+
+		WP_CLI::line( "Starting backfill of bit.ly short URLs" );
+
+		bitly_process_posts( $hourly_limit );
+
+		WP_CLI::success( "Finished backfill of bit.ly short URLs in " . number_format( (microtime( true ) - $timestamp_start), 2 ) . " seconds" );
 	}
 
 	/**
