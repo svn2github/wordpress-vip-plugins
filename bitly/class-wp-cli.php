@@ -94,6 +94,50 @@ class Bitly_Command extends WP_CLI_Command {
 	}
 
 	/**
+	 * Counts how many posts don't have a bitly url yet.
+	 * 
+	 * @subcommand count-posts-missing-url
+	 */
+	public function count_posts_missing_url( $args, $assoc_args ) {
+		global $wpdb;
+
+		$post_type_sql = '';
+
+		// get the post types that are supported
+		$post_types = bitly_get_post_types();
+
+		// build the sql for querying post types
+		if( count( $post_types ) ) {
+
+			foreach( $post_types as $post_type ) {
+				$sanitized_post_types[] = $wpdb->prepare( '%s', $post_type );
+			}
+
+			$post_type_sql = sprintf( '%s IN ( %s )', "$wpdb->posts.post_type", implode( ',', $sanitized_post_types ) );
+		}
+
+		// Only do the query if there's post_type sql
+		if( empty( $post_type_sql ) )
+			WP_CLI::error( 'No supported post types found' );
+
+		$query = "
+			SELECT COUNT(*)
+			FROM $wpdb->posts
+			LEFT JOIN $wpdb->postmeta ON ( $wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key = 'bitly_url' ) 
+			WHERE 1=1
+			AND ( $post_type_sql )
+			AND ( $wpdb->posts.post_status = 'publish' )
+			AND ( $wpdb->postmeta.post_id IS NULL )
+			GROUP BY $wpdb->posts.ID
+		";
+					
+		// Get the posts
+		$count = $wpdb->query( $query );
+
+		WP_CLI::success( sprintf( 'Found %d posts without a bit.ly url', $count ) );
+	}
+
+	/**
 	 * Clear all of the caches for memory management
 	 */
 	private function stop_the_insanity() {
