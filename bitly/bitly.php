@@ -2,10 +2,10 @@
 /**
  * Plugin Name: Bit.ly
  * Version: 1.1
- * Author: Micah Ernst
+ * Author: Micah Ernst, Bradford Campeau-Laurion (Alley Interactive)
  * Description: Uses bit.ly API to get shortened url for a post on publish and saves url as meta data. Based on TIME.com's Bit.ly plugin.
  */
-
+ 
 if ( defined( 'WP_CLI' ) && WP_CLI )
 	require dirname( __FILE__ ) . '/class-wp-cli.php';
 
@@ -335,14 +335,29 @@ function bitly_get_post_types() {
 /**
  * Cron to process all of the posts that don't have bitly urls
  */
-function bitly_process_posts() {
+function bitly_process_posts( $hourly_limit = null ) {
 	global $wpdb;
+
+	// Check if we should even be running this
+	$bitly_processed = get_option( 'bitly_processed' );
+	if ( ! empty( $bitly_processed ) ) {
+		bitly_log( "All bit.ly URLs were processed. Run reset_process_status if you think this is in error and try again." );
+
+		return;
+	}
+
+	// Use the default limit if one was not set
+	if ( empty( $hourly_limit ) || ! is_numeric( $hourly_limit ) )
+		$hourly_limit = apply_filters( 'bitly_hourly_limit', 100 );
 
 	// Generate a shortlink for the homepage, if it doesn't exist
 	$blog_shortlink = bitly_get_blog_url();
 
-	if ( ! $blog_shortlink )
+	if ( ! $blog_shortlink ) {
+		bitly_log( "Set short URL for blog" );
+
 		bitly_generate_blog_short_url();
+	}
 
 	$post_type_sql = "";
 
@@ -359,39 +374,66 @@ function bitly_process_posts() {
 		$post_type_sql = sprintf( '%s IN ( %s )', "$wpdb->posts.post_type", implode( ',', $sanitized_post_types ) );
 	}
 
-	// only do the query if there's post_type sql
-	if( !empty( $post_type_sql ) ) {
+	// Only do the query if there's post_type sql
+	if( ! empty( $post_type_sql ) ) {
+		bitly_log( "Starting to process posts without bit.ly short URLs with a limit of {$hourly_limit}" );
+		
+		// Get $limit published posts that don't have a bitly url
+		// Only query for a maximum of 100 posts at a time
+		$processed 	= 0;
+		$per_page 	= 100;
 
-		// get 100 published posts that don't have a bitly url
-		$query = "
-			SELECT $wpdb->posts.ID
-			FROM $wpdb->posts
-			LEFT JOIN $wpdb->postmeta ON ( $wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key =  'bitly_url' ) 
-			WHERE 1=1
-			AND ( $post_type_sql )
-			AND ( $wpdb->posts.post_status = 'publish' )
-			AND ( $wpdb->postmeta.post_id IS NULL )
-			GROUP BY $wpdb->posts.ID
-			ORDER BY $wpdb->posts.post_date DESC
-			LIMIT 0, 100
-		";
+		do {
+			$query = "
+				SELECT $wpdb->posts.ID
+				FROM $wpdb->posts
+				LEFT JOIN $wpdb->postmeta ON ( $wpdb->posts.ID = $wpdb->postmeta.post_id AND $wpdb->postmeta.meta_key =  'bitly_url' ) 
+				WHERE 1=1
+				AND ( $post_type_sql )
+				AND ( $wpdb->posts.post_status = 'publish' )
+				AND ( $wpdb->postmeta.post_id IS NULL )
+				GROUP BY $wpdb->posts.ID
+				ORDER BY $wpdb->posts.post_date DESC
+				LIMIT $per_page
+			";
+						
+			// Get the posts
+			$posts = $wpdb->get_results( $query );
+			
+			// Increment the counter
+			$processed += count( $posts );
+		
+			// This could be empty if there was no $post_type_sql
+			if ( ! empty( $posts ) ) {
+				// Process these posts
+				foreach( $posts as $p ) {
+					bitly_log( "Generating short_url for post ID {$p->ID}" );
+					
+					bitly_generate_short_url( $p->ID );
+				}
+			} else {
+				// Kill our scheduled event
+				bitly_log( "No posts were found. Killing the event." );
 
-		$posts = $wpdb->get_results( $query );
+				bitly_processed();
+			}
+			
+			bitly_log( "Processed {$processed} posts" );
 
+			sleep( 2 );
+		} while ( count( $posts ) && $processed < $hourly_limit );
+	} else {
+		// Kill our scheduled event
+		bitly_log( "No bit.ly post types were found. Killing the event." );
+
+		bitly_processed();
 	}
 	
-	// this could be empty if there was no $post_type_sql
-	if( !empty( $posts ) ) {
+	// If $per_page isn't equal to the number of posts found on the last run, we should disable this forever
+	if ( $per_page != count( $posts ) ) {
+		bitly_log( "All bit.ly posts were processed. Killing the event." );
 
-		// process these posts
-		foreach( $posts as $p ) {
-			bitly_generate_short_url( $p->ID );
-		}
-	} else {
-
-		// kill our scheduled event
-		add_option( 'bitly_processed', 1 );
-		wp_clear_scheduled_hook( 'bitly_hourly_hook' );
+		bitly_processed();
 	}
 }
 
@@ -406,4 +448,25 @@ function bitly_init_post_backfill() {
 
 	if ( ( ! $bitly_processed || ! $blog_shortlink ) && ! wp_next_scheduled( 'bitly_hourly_hook' ) )
 		wp_schedule_event( time() + 30, 'hourly', 'bitly_hourly_hook' );
+}
+
+/**
+ * Disables the backfill process from running in the future because no URLs remain
+ *
+ * @return void
+ */
+function bitly_processed() {
+	add_option( 'bitly_processed', 1 );
+	wp_clear_scheduled_hook( 'bitly_hourly_hook' );
+}
+
+/**
+ * Helper function to log output if the backfill is being executed from a CLI script
+ *
+ * @param string $message
+ * @return void
+ */
+function bitly_log( $message ) {
+	if ( defined( 'WP_CLI' ) && WP_CLI )
+		WP_CLI::line( $message );
 }
