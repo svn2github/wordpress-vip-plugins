@@ -64,6 +64,9 @@ class Bitly {
 		
 		if( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
 			return;
+
+		if ( ! bitly_is_url_generation_enabled() )
+			return;
 		
 		// only save short urls for the following post types		
 		if( !post_type_supports( $post->post_type, 'bitly' ) )	
@@ -282,6 +285,10 @@ function bitly_get_blog_url() {
  */
 function bitly_generate_short_url( $post_id ) {
 	global $bitly;
+
+	if ( ! bitly_is_url_generation_enabled() )
+		return false;
+
 	if ( is_object( $bitly ) && is_callable( array( $bitly, 'generate_bitly_url' ) ) )
 		return call_user_func( array( $bitly, 'generate_bitly_url' ), $post_id );
 	return false;
@@ -292,6 +299,9 @@ function bitly_generate_short_url( $post_id ) {
  */
 function bitly_generate_blog_short_url() {
 	global $bitly;
+
+	if ( ! bitly_is_url_generation_enabled() )
+		return false;
 
 	if ( is_object( $bitly ) && is_callable( array( $bitly, 'generate_bitly_blog_url' ) ) )
 		return call_user_func( array( $bitly, 'generate_bitly_blog_url' ) );
@@ -337,6 +347,12 @@ function bitly_get_post_types() {
  */
 function bitly_process_posts( $hourly_limit = null ) {
 	global $wpdb;
+
+	if ( ! bitly_is_url_generation_enabled() ) {
+		bitly_log( 'Bit.ly backfill is currently disabled via code' );
+
+		return;
+	}
 
 	// Check if we should even be running this
 	$bitly_processed = get_option( 'bitly_processed' );
@@ -441,6 +457,9 @@ function bitly_process_posts( $hourly_limit = null ) {
 add_action( 'init', 'bitly_init_post_backfill' );
 
 function bitly_init_post_backfill() {
+	if ( ! bitly_is_url_generation_enabled() )
+		return;
+
 	add_action( 'bitly_hourly_hook', 'bitly_process_posts' );
 
 	$bitly_processed 	= get_option( 'bitly_processed' );
@@ -448,6 +467,18 @@ function bitly_init_post_backfill() {
 
 	if ( ( ! $bitly_processed || ! $blog_shortlink ) && ! wp_next_scheduled( 'bitly_hourly_hook' ) )
 		wp_schedule_event( time() + 30, 'hourly', 'bitly_hourly_hook' );
+}
+
+/**
+ * Should we actually generate bit.ly urls for posts?
+ *
+ * Generation can be disabled for dev environments, where generating bit.ly urls would create links
+ * to a dev address.
+ *
+ * @return  bool Boolean indicating if bit.ly urls should be generated
+ */
+function bitly_is_url_generation_enabled() {
+	return (bool) apply_filters( 'bitly_enable_url_generation', true );
 }
 
 /**
