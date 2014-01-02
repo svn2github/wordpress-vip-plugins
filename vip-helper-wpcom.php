@@ -526,15 +526,25 @@ function wpcom_vip_disable_post_flair() {
  * @link http://en.support.wordpress.com/sharing/ Sharing
  */
 function wpcom_vip_disable_sharing() {
-	$function = function() {
-		remove_filter( 'post_flair', 'sharing_display', 20 );
-	};
-
 	// Post Flair sets things up on init so we need to call on that if init hasn't fired yet.
-	if ( did_action( 'init' ) )
-		call_user_func( $function );
-	else
-		add_action( 'init', $function, 99 );
+	_wpcom_vip_call_on_hook_or_execute( function() {
+		remove_filter( 'post_flair', 'sharing_display', 20 );
+		wpcom_vip_disable_sharing_resources();
+	}, 'init', 99 );
+}
+
+/**
+ * Disable CSS and JS output for WPCOM Sharing.
+ *
+ * Note: this disables things like smart buttons and share counts displayed alongside the buttons. Those will need to be handled manually if desired.
+ *
+ * @link http://en.support.wordpress.com/sharing/ Sharing
+ */
+function wpcom_vip_disable_sharing_resources() {
+	_wpcom_vip_call_on_hook_or_execute( function() {
+		add_filter( 'sharing_js', '__return_false' );
+		remove_action( 'wp_head', 'sharing_add_header', 1 );
+	}, 'init', 99 );
 }
 
 /**
@@ -546,6 +556,18 @@ function wpcom_vip_disable_sharing() {
  */
 function wpcom_vip_enable_sharing() {
 	add_filter( 'post_flair', 'sharing_display', 20 );
+}
+
+/**
+ * Enable CSS and JS output for WPCOM sharing.
+ *
+ * Note: if resources were disabled previously and this is called after wp_head, it may not work as expected.
+ *
+ * @link http://en.support.wordpress.com/sharing/ Sharing
+ */
+function wpcom_vip_enable_sharing_resources() {
+	remove_filter( 'sharing_js', '__return_false' );
+	add_action( 'wp_head', 'sharing_add_header', 1 );
 }
 
 /**
