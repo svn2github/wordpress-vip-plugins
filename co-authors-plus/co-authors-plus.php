@@ -3,7 +3,7 @@
 Plugin Name: Co-Authors Plus
 Plugin URI: http://wordpress.org/extend/plugins/co-authors-plus/
 Description: Allows multiple authors to be assigned to a post. This plugin is an extended version of the Co-Authors plugin developed by Weston Ruter.
-Version: 3.1-working
+Version: 3.0.7-alpha
 Author: Mohammad Jangda, Daniel Bachhuber, Automattic
 Copyright: 2008-2013 Shared and distributed between Mohammad Jangda, Daniel Bachhuber, Weston Ruter
 
@@ -24,12 +24,10 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'COAUTHORS_PLUS_VERSION', '3.1-working' );
-
-define( 'COAUTHORS_PLUS_PATH', dirname( __FILE__ ) );
-define( 'COAUTHORS_PLUS_URL', plugin_dir_url( __FILE__ ) );
+define( 'COAUTHORS_PLUS_VERSION', '3.0.7-alpha' );
 
 require_once( dirname( __FILE__ ) . '/template-tags.php' );
+require_once( dirname( __FILE__ ) . '/deprecated.php' );
 
 require_once( dirname( __FILE__ ) . '/php/class-coauthors-template-filters.php' );
 
@@ -99,8 +97,8 @@ class coauthors_plus {
 		// Restricts WordPress from blowing away term order on bulk edit
 		add_filter( 'wp_get_object_terms', array( $this, 'filter_wp_get_object_terms' ), 10, 4 );
 
-		// Fix for author info not properly displaying on author pages
-		add_action( 'template_redirect', array( $this, 'fix_author_page' ) );
+		// Make sure we've correctly set author data on author pages
+		add_filter( 'posts_selection', array( $this, 'fix_author_page' ) ); // use posts_selection since it's after WP_Query has built the request and before it's queried any posts
 		add_action( 'the_post', array( $this, 'fix_author_page' ) );
 
 		// Support for Edit Flow's calendar and story budget
@@ -302,6 +300,8 @@ class coauthors_plus {
 
 		$post_id = $post->ID;
 
+		$default_user = apply_filters( 'coauthors_default_author', wp_get_current_user() );
+
 		// @daniel, $post_id and $post->post_author are always set when a new post is created due to auto draft,
 		// and the else case below was always able to properly assign users based on wp_posts.post_author,
 		// but that's not possible with force_guest_authors = true.
@@ -309,7 +309,7 @@ class coauthors_plus {
 			$coauthors = array();
 			// If guest authors is enabled, try to find a guest author attached to this user ID
 			if ( $this->is_guest_authors_enabled() ) {
-				$coauthor = $coauthors_plus->guest_authors->get_guest_author_by( 'linked_account', wp_get_current_user()->user_login );
+				$coauthor = $coauthors_plus->guest_authors->get_guest_author_by( 'linked_account', $default_user->user_login );
 				if ( $coauthor ) {
 					$coauthors[] = $coauthor;
 				}
@@ -318,7 +318,7 @@ class coauthors_plus {
 			// logged in user, so long as force_guest_authors is false. If force_guest_authors = true, we are
 			// OK with having an empty authoring box.
 			if ( !$coauthors_plus->force_guest_authors && empty( $coauthors ) ) {
-				$coauthors[] = wp_get_current_user();
+				$coauthors[] = $default_user;
 			}
 		} else {
 			$coauthors = get_coauthors();
@@ -721,7 +721,7 @@ class coauthors_plus {
 			if ( ! $this->has_author_terms( $post_id ) ) {
 				$user = get_userdata( $post->post_author );
 				if ( $user )
-  					$this->add_coauthors( $post_id, array( $user->user_login ) );
+					$this->add_coauthors( $post_id, array( $user->user_login ) );
 			}
 		}
 	}
@@ -856,9 +856,12 @@ class coauthors_plus {
 	}
 
 	/**
-	 * Fix for author info not properly displaying on author pages
+	 * Fix for author pages 404ing or not properly displaying on author pages
 	 *
-	 * On an author archive, if the first story has coauthors and
+	 * If an author has no posts, we need to still force the queried object to be
+	 * set in case a site wants to still display the author's profile.
+	 *
+	 * Alternatively, on an author archive, if the first story has coauthors and
 	 * the first author is NOT the same as the author for the archive,
 	 * the query_var is changed.
 	 *
@@ -944,6 +947,7 @@ class coauthors_plus {
 		add_filter( 'terms_clauses', array( $this, 'filter_terms_clauses' ) );
 		$found_terms = get_terms( $this->coauthor_taxonomy, $args );
 		remove_filter( 'terms_clauses', array( $this, 'filter_terms_clauses' ) );
+
 		if ( empty( $found_terms ) )
 			return array();
 
@@ -999,8 +1003,8 @@ class coauthors_plus {
 
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_script( 'jquery-ui-sortable' );
-		wp_enqueue_style( 'co-authors-plus-css', COAUTHORS_PLUS_URL . 'css/co-authors-plus.css', false, COAUTHORS_PLUS_VERSION, 'all' );
-		wp_enqueue_script( 'co-authors-plus-js', COAUTHORS_PLUS_URL . 'js/co-authors-plus.js', array('jquery', 'suggest'), COAUTHORS_PLUS_VERSION, true);
+		wp_enqueue_style( 'co-authors-plus-css', plugins_url( 'css/co-authors-plus.css', __FILE__ ), false, COAUTHORS_PLUS_VERSION, 'all' );
+		wp_enqueue_script( 'co-authors-plus-js', plugins_url( 'js/co-authors-plus.js', __FILE__ ), array('jquery', 'suggest'), COAUTHORS_PLUS_VERSION, true);
 
 		$js_strings = array(
 			'edit_label' => __( 'Edit', 'co-authors-plus' ),
@@ -1195,6 +1199,7 @@ class coauthors_plus {
 				'slug'          => $coauthor_slug,
 				'description'   => $term_description,
 			);
+
 			$new_term = wp_insert_term( $coauthor->user_login, $this->coauthor_taxonomy, $args );
 		}
 		wp_cache_delete( 'author-term-' . $coauthor->user_nicename, 'co-authors-plus' );

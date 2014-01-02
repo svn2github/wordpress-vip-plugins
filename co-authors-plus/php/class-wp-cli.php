@@ -472,6 +472,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 						}
 					}
 
+					// Add the 'to' author on
+					$coauthors[] = $to_userlogin;
+
 					// By not passing $append = false as the 3rd param, we replace all existing coauthors
 					$coauthors_plus->add_coauthors( $post->ID, $coauthors, false );
 				
@@ -482,8 +485,6 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 					WP_CLI::line( $posts_total . ': Post #' . $post->ID . ' will be assigned "' . $to_userlogin . '" as a co-author' );
 				}
 			}
-			
-			$query_args['paged']++;
 
 			$this->stop_the_insanity();
 
@@ -654,7 +655,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				$posts = new WP_Query( $args );
 			}
 		}
-		
+		 
 		WP_CLI::success( "All done" );
 	}
 

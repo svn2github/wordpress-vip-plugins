@@ -187,7 +187,6 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 	 * Render display name, e.g. author name
 	 */
 	function column_display_name( $item ) {
-		global $coauthors_plus;
 
 		$item_edit_link = get_edit_post_link( $item->ID );
 		$args = array(
