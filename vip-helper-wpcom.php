@@ -318,6 +318,40 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
 }
 
 /**
+ * Returns a URL for a given attachment with the appropriate resizing querystring.
+ *
+ * Typically, you should be using image sizes for handling this.
+ *
+ * However, this function can come in handy if you want a specific artibitrary or varying image size.
+ *
+ * @link http://vip.wordpress.com/documentation/image-resizing-and-cropping/
+ *
+ * @param int $attachment_id ID of the attachment
+ * @param int $width Width of our resized image
+ * @param int $height Height of our resized image
+ * @param bool $crop (optional) whether or not to crop the image
+ * @return string URL of the resized attachmen
+ */
+function wpcom_vip_get_resized_attachment_url( $attachment_id, $width, $height, $crop = false ) {
+	$url = wp_get_attachment_url( $attachment_id );
+
+	if ( ! $url ) {
+		return false;
+	}
+
+	$url = add_query_arg( array( 
+		'w' => intval( $width ),
+		'h' => intval( $height ),
+	), $url );
+
+	if ( $crop ) {
+		$url = add_query_arg( 'crop', 1, $url );
+	}
+
+	return $url;
+}
+
+/**
  * Gets the data used by the "Top Posts" widget.
  * 
  * Our Top Posts widget (http://en.support.wordpress.com/widgets/top-posts-widget/) uses a display_top_posts() function to display a list of popular posts.
