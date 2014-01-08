@@ -2,7 +2,7 @@
 /**
  * The page is normally added under "Plugins"
  */
-add_action( 'admin_init', function() {
+add_action( 'admin_menu', function() {
 	global $image_metadata_cruncher;
 
 	add_options_page(
