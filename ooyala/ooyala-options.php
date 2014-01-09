@@ -131,8 +131,12 @@ class Ooyala_Options {
 		$options = get_option( 'ooyala' );
 
 		if ( isset( $options['api_key'], $options['api_secret'] ) ) {
-			$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
-			$players = $api->get( "players" );
+			try {
+				$api = new OoyalaApi( $options['api_key'], $options['api_secret'] );
+				$players = $api->get( "players" );
+			} catch ( Exception $e ) {
+				$players = array();
+			}
 
 			$options['players'] = array();
 			foreach ( $players->items as $player ) {
