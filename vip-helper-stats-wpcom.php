@@ -505,7 +505,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
  * @param int $limit Optional. The maximum number of records to return. Default is 100 (also the maximum).
  * @return array Fresh tasty data
  */
-function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 400 ) {
+function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_days = 1, $and = '', $limit = 100 ) {
 	global $wpdb;
 	$blog_id = $wpdb->blogid;
 
