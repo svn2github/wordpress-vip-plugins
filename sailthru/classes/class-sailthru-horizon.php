@@ -132,14 +132,21 @@ class Sailthru_Horizon {
 	 */
 	public function register_admin_scripts( $hook ) {
 
+		/* loads the admin js and css for editing/creating posts to make sure this
+			is only loaded in context rather than everywhere in the admin screens
+		*/
 
-		// datepicker for the meta box on post pages
-		wp_enqueue_script('jquery-ui-datepicker', array('jquery'));
-		wp_enqueue_style( 'jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+		$screens = array('post-new.php', 'post.php', 'edit.php');
 
-		// our own magic
-		wp_enqueue_script( 'sailthru-for-wordpress-admin-script', SAILTHRU_PLUGIN_URL . 'js/admin.js' , array('jquery') );
-
+		if (in_array($hook, $screens)) {
+			if ($_GET['action'] == 'edit') {
+				// datepicker for the meta box on post pages
+				wp_enqueue_script('jquery-ui-datepicker', array('jquery'));
+				wp_enqueue_style( 'jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+				// our own magic
+				wp_enqueue_script( 'sailthru-for-wordpress-admin-script', SAILTHRU_PLUGIN_URL . 'js/admin.js' , array('jquery') );
+			}
+		}
 
 		// abandon if we're not on our own pages.
 		if( !stristr( $hook, 'sailthru' ) &&
@@ -150,7 +157,8 @@ class Sailthru_Horizon {
 			return;
 		}
 
-		// our own magic
+		// loads the admin js and css for the configuration pages
+		wp_enqueue_script( 'sailthru-for-wordpress-admin-script', SAILTHRU_PLUGIN_URL . 'js/admin.js' , array('jquery') );
 		wp_enqueue_style( 'sailthru-for-wordpress-admin-styles', SAILTHRU_PLUGIN_URL . 'css/admin.css'  );
 
 	} // end register_admin_scripts
@@ -243,11 +251,11 @@ class Sailthru_Horizon {
 			$horizon_params =   "domain: '" . esc_js( $options['sailthru_horizon_domain'] ) . "'";
 		}
 
-	 	if ($options['sailthru_horizon_load_type'] == '1') {
+		if ($options['sailthru_horizon_load_type'] == '1') {
 			$horizon_js =  "<!-- Sailthru Horizon Sync -->\n";
 			$horizon_js .= "<script type=\"text/javascript\" src=\"//ak.sail-horizon.com/horizon/v1.js\"></script>\n";
 			$horizon_js .= "<script type=\"text/javascript\">\n";
-			$horizon_js .= "$(function() { \n";
+			$horizon_js .= "jQuery(function() { \n";
 			$horizon_js .= "  if (window.Sailthru) {\n";
 			$horizon_js .= "           Sailthru.setup({\n";
 			$horizon_js .= "              ". $horizon_params ."\n";
@@ -255,7 +263,7 @@ class Sailthru_Horizon {
 			$horizon_js .= "  }\n";
 			$horizon_js .= "});\n";
 			$horizon_js .= " </script>\n";
-        } else {
+		} else {
 			$horizon_js  = "<!-- Sailthru Horizon  Async-->\n";
 			$horizon_js .= "<script type=\"text/javascript\">\n";
 			$horizon_js .= "(function() {\n";
@@ -265,8 +273,8 @@ class Sailthru_Horizon {
 			$horizon_js .= "          s.async = true;\n";
 			$horizon_js .= "          s.src = location.protocol + '//ak.sail-horizon.com/horizon/v1.js';\n";
 			$horizon_js .= "         var x = document.getElementsByTagName('script')[0];\n";
-			$horizon_js .= "		 x.parentNode.insertBefore(s, x);\n";
-			$horizon_js .= "	  }\n";
+			$horizon_js .= "         x.parentNode.insertBefore(s, x);\n";
+			$horizon_js .= "      }\n";
 			$horizon_js .= "     loadHorizon();\n";
 			$horizon_js .= "      var oldOnLoad = window.onload;\n";
 			$horizon_js .= "      window.onload = function() {\n";
@@ -279,7 +287,9 @@ class Sailthru_Horizon {
 			$horizon_js .= "     };\n";
 			$horizon_js .= "  })();\n";
 			$horizon_js .= " </script>\n";
-        }
+		}
+
+
 
 		echo $horizon_js;
 

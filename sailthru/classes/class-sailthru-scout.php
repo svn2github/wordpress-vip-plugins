@@ -137,7 +137,7 @@ class Sailthru_Scout_Widget extends WP_Widget {
 				}
 	           echo "});\n";
 
-		     echo " if(SailthruScout.allContent.length == 0) { $('#sailthru-scout').hide() }";
+		     echo " if(SailthruScout.allContent.length == 0) { jQuery('#sailthru-scout').hide() }";
 		     echo "</script>\n";
 		}
 

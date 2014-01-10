@@ -98,18 +98,18 @@ function sailthru_initialize_setup_options() {
 		);
 
 		add_settings_field(
-			'sailthru_horizon_load_type',
-			'Horizon Loading',
-			'sailthru_horizon_loadtype_callback',
-			'sailthru_setup_options',
-			'sailthru_setup_section',
-			array(
+		    'sailthru_horizon_load_type',
+		    'Horizon Loading',
+		    'sailthru_horizon_loadtype_callback',
+		    'sailthru_setup_options',
+		    'sailthru_setup_section',
+		    array(
 				'sailthru_setup_options',
 				'sailthru_horizon_load_type',
 				'',
 				'sailthru_horizon_load_type'
-				)
-			);
+			)
+		);
 
 
 	// Finally, we register the fields with WordPress
@@ -795,10 +795,11 @@ function sailthru_html_text_input_callback( $args ) {
  */
 function sailthru_horizon_loadtype_callback() {
 
-	$options = get_option( 'sailthru_setup_options' );
-	echo '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[sailthru_horizon_load_type]" value="1"' . checked( 1, esc_attr($options['sailthru_horizon_load_type']), false ) . '/>';
-	echo 'Use synchronous loading for Horizon';
-	
+    $options = get_option( 'sailthru_setup_options' );
+    $load_type = isset($options['sailthru_horizon_load_type']) ? $options['sailthru_horizon_load_type'] : '';
+   echo '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[sailthru_horizon_load_type]" value="1"' . checked( 1, esc_attr($load_type), false ) . '/>';
+   echo 'Use synchronous loading for Horizon';
+
 }
 
 /**
@@ -1100,7 +1101,10 @@ function sailthru_setup_handler( $input ) {
 
 	// api key
 	$output['sailthru_api_key'] = filter_var( $input['sailthru_api_key'], FILTER_SANITIZE_STRING );
-	$output['sailthru_horizon_load_type'] = $input['sailthru_horizon_load_type'] == '1' ? 1 : false;
+	$output['sailthru_horizon_load_type'] = filter_var( $input['sailthru_horizon_load_type'], FILTER_SANITIZE_STRING );
+	$output['sailthru_horizon_load_type'] = $input['sailthru_horizon_load_type'] == '1' ? $input['sailthru_horizon_load_type'] : false;
+
+
 
 	if ( empty( $output['sailthru_api_key'] ) ) {
 		add_settings_error( 'sailthru-notices', 'sailthru-api-key-fail', __( 'Sailthru will not function without an API key.' ), 'error' );
@@ -1124,8 +1128,8 @@ function sailthru_setup_handler( $input ) {
 		if ( substr( $output['sailthru_horizon_domain'], -1 ) == '/' ) {
 		    $output['sailthru_horizon_domain'] = substr( $output['sailthru_horizon_domain'], 0, -1 );
 		}
-
 	}
+
 
 	/*
 	 * Of course we want to vaildate this field,
