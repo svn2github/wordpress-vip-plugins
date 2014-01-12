@@ -23,7 +23,7 @@ function wpcom_vip_get_category_by_slug( $slug ) {
  * @param string $field Either 'slug', 'name', or 'id'
  * @param string|int $value Search for this term value
  * @param string $taxonomy Taxonomy Name
- * @param string $output Optional. Constant OBJECT*, ARRAY_A, or ARRAY_N
+ * @param string $output Optional. Constant OBJECT, ARRAY_A, or ARRAY_N
  * @param string $filter Optional. Default is 'raw' or no WordPress defined filter will applied.
  * @return mixed|null|bool Term Row from database in the type specified by $filter. Will return false if $taxonomy does not exist or $term was not found.
  * @link http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
@@ -50,6 +50,26 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 		$term = false;
 
 	return $term;
+}
+
+/**
+ * Optimized version of get_term_link that adds caching for slug-based lookups.
+ *
+ * Returns permalink for a taxonomy term archive, or a WP_Error object if the term does not exist.
+ *
+ * @param int|string|object $term The term object / term ID / term slug whose link will be retrieved.
+ * @param string $taxonomy The taxonomy slug. NOT required if you pass the term object in the first parameter 
+ *
+ * @return string|WP_Error HTML link to taxonomy term archive on success, WP_Error if term does not exist. 
+ */
+function wpcom_vip_get_term_link( $term, $taxonomy ) {
+	// ID- or object-based lookups already result in cached lookups, so we can ignore those.
+	if ( is_numeric( $term ) || is_object( $term ) ) {
+		return get_term_link( $term, $taxonomy );
+	}
+
+	$term_object = wpcom_vip_get_term_by( 'slug', $term, $taxonomy );
+	return get_term_link( $term_object );
 }
 
 /**
