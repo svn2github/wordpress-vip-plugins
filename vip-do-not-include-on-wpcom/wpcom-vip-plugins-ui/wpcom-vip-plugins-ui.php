@@ -178,6 +178,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Facebook',
 				'description' => 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
 			),
+			'getty-images'       => array(
+				'name'        => 'Getty Images',
+				'description' => 'Search and use Getty Images photos in your posts without ever leaving WordPress.com.',
+			),
 			'janrain-capture' => array(
 				'name'        => 'Janrain',
 				'description' => 'User Registration and Social Integration for WordPress.com VIP.',
