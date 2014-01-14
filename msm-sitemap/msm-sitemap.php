@@ -279,7 +279,7 @@ class Metro_Sitemap {
 
 		$sitemap_last_run = get_option( 'msm_sitemap_update_last_run', false );
 		
-		$date = date( 'Y-m-d H:i:s', ( time() - 3600 ) ); // posts changed within the last hour
+		$date = date( 'Y-m-d H:i:s', ( current_time( 'timestamp', 1 ) - 3600 ) ); // posts changed within the last hour
 
 		if ( $sitemap_last_run ) {
 			$date = date( 'Y-m-d H:i:s', $sitemap_last_run );
@@ -287,7 +287,7 @@ class Metro_Sitemap {
 		$post_types = apply_filters( 'msm_sitemap_entry_post_type', 'post' );
 		$post_types_in = sprintf( "'%s'", implode( "','", (array) $post_types ) );
 
-		$modified_posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM $wpdb->posts WHERE post_type IN ( $post_types_in ) AND post_modified >= %s ORDER BY post_date LIMIT 1000", $date ) );
+		$modified_posts = $wpdb->get_results( $wpdb->prepare( "SELECT ID, post_date FROM $wpdb->posts WHERE post_type IN ( $post_types_in ) AND post_modified_gmt >= %s ORDER BY post_date LIMIT 1000", $date ) );
 		return $modified_posts;
 	}
 
@@ -310,7 +310,7 @@ class Metro_Sitemap {
 	 * Update the sitemap with changes from recently modified posts
 	 */
 	public static function update_sitemap_from_modified_posts() {
-		$time = time();
+		$time = current_time( 'timestamp', 1 );
 		$last_modified_posts = self::get_last_modified_posts();
 		$dates = self::get_post_dates( $last_modified_posts );
 
@@ -321,7 +321,7 @@ class Metro_Sitemap {
 
 			do_action( 'msm_update_sitemap_for_year_month_date', array( $year, $month, $day ), $time );
 		}
-		update_option( 'msm_sitemap_update_last_run', time() );
+		update_option( 'msm_sitemap_update_last_run', current_time( 'timestamp', 1 ) );
 	}
 
 	/**
@@ -332,6 +332,99 @@ class Metro_Sitemap {
 			$template = dirname( __FILE__ ) . '/templates/full-sitemaps.php';
 		}
 		return $template;
+	}
+
+
+	/**
+	 * Build Root sitemap XML - currently all days
+	 */
+	public static function build_root_sitemap_xml() {
+
+		$xml_prefix = '<?xml version="1.0" encoding="utf-8"?>';
+		global $wpdb;
+		// Direct query because we just want dates of the sitemap entries and this is much faster than WP_Query
+		$sitemaps = $wpdb->get_col( $wpdb->prepare( "SELECT post_date FROM $wpdb->posts WHERE post_type = %s ORDER BY post_date DESC LIMIT 10000", Metro_Sitemap::SITEMAP_CPT ) );        
+
+		$xml = new SimpleXMLElement( $xml_prefix . '<sitemapindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>' );
+		foreach ( $sitemaps as $sitemap_date ) {
+			$sitemap_time = strtotime( $sitemap_date );
+			$sitemap_url = add_query_arg( array(
+				'yyyy' => date( 'Y', $sitemap_time ),
+				'mm' => date( 'm', $sitemap_time ),
+				'dd' => date( 'd', $sitemap_time ),        
+			), home_url( '/sitemap.xml' ) ); 
+
+			$sitemap = $xml->addChild( 'sitemap' );
+			$sitemap->loc = $sitemap_url; // manually set the child instead of addChild to prevent "unterminated entity reference" warnings due to encoded ampersands http://stackoverflow.com/a/555039/169478
+		}
+		return $xml->asXML();
+	}
+
+	/**
+	 * Get XML for individual day
+	 */
+	public static function build_individual_sitemap_xml( $year, $month, $day ) {
+			
+		// Get XML for an individual day. Stored as full xml
+		$sitemap_args = array(
+			'year' => $year,
+			'monthnum' => $month,
+			'day' => $day,
+			'orderby' => 'ID',
+			'order' => 'ASC',
+			'posts_per_page' => 1,
+			'fields' => 'ids',
+			'post_type' => self::SITEMAP_CPT,
+			'no_found_rows' => true,
+			'update_term_cache' => false,
+			'suppress_filters' => false,
+		);
+		$sitemap_query = get_posts( $sitemap_args );
+		if ( ! empty( $sitemap_query ) ) {
+			$sitemap_content = get_post_meta( $sitemap_query[0], 'msm_sitemap_xml', true );
+	   		$output .= $sitemap_content;
+			// Return is now as it should be valid xml!
+			return $output;
+		} else {
+			/* There are no posts for this day */
+			$xml = new SimpleXMLElement( '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"/>' );
+			return $xml->asXML();
+		}
+	}
+
+	/**
+	 * Build XML for output to clean up the template file
+	 */
+	public static function build_xml( $request = array() ) {
+
+		$year = $request['year'];
+		$month = $request['month'];
+		$day = $request['day'];
+
+		if ( false === $year && false === $month && false === $day ) {
+			$xml = self::build_root_sitemap_xml();
+		} else if ( $year > 0 && $month > 0 && $day > 0 ) {
+			$xml = self::build_individual_sitemap_xml( $year, $month, $day );
+		} else {
+			/* Invalid options sent */
+			return false;
+		}
+		return $xml;
+	}
+
+	public static function find_valid_days( $year ) {
+		$days = 31;
+		if ( $m == 2 ) {
+			$days = date( 'L', strtotime( $year . '-01-01' ) ) ? 29 : 28;  // leap year
+		} elseif ( $m == 4 || $m == 6 || $m == 9 || $m == 11 ) {
+			$days = 30;
+		}
+
+		if ( $m == date( 'm' ) ) {
+			$days = date( 'd' );
+		}
+
+		return $days;
 	}
 
 	public static function get_supported_post_types() {
