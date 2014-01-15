@@ -198,13 +198,17 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Nativo',
 				'description' => 'Unlock a premium revenue stream with native ads.',
 			),
-			'publishthis'        => array(
-				'name'        => 'PublishThis',
-				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
+			'newscred'        => array(
+				'name'        => 'NewsCred',
+				'description' => 'Publish fully licensed, full text articles and images from 4,000+ of the world’s best news sources!',
 			),
 			'ooyala'        => array(
 				'name'        => 'Ooyala',
 				'description' => 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
+			),
+			'publishthis'        => array(
+				'name'        => 'PublishThis',
+				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
 			),
 			'shoplocket'    => array(
 				'name'        => 'Shoplocket',
