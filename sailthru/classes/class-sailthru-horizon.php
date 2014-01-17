@@ -18,7 +18,7 @@ class Sailthru_Horizon {
 	function __construct() {
 
 		// Load plugin text domain
-		add_action( 'init', array( $this, 'plugin_textdomain' ) );
+		add_action( 'init', array( $this, 'sailthru_init' ) );
 
 		// Register admin styles and scripts
 		// Documentation says: admin_print_styles should not be used to enqueue styles or scripts on the admin pages. Use admin_enqueue_scripts instead.
@@ -113,15 +113,21 @@ class Sailthru_Horizon {
 		// nothing to see here.
 	} // end uninstall
 
-	/**
-	 * Loads the plugin text domain for translation
-	 */
-	public function plugin_textdomain() {
 
+	public function sailthru_init() {
+
+		/**
+	 	* Loads the plugin text domain for translation
+	 	*/
 		$domain = 'sailthru-for-wordpress-locale';
 		$locale = apply_filters( 'plugin_locale', get_locale(), $domain );
-        load_textdomain( $domain, SAILTHRU_PLUGIN_PATH . $domain . '-' . $locale . '.mo' );
-        load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
+        	load_textdomain( $domain, SAILTHRU_PLUGIN_PATH . $domain . '-' . $locale . '.mo' );
+        	load_plugin_textdomain( $domain, FALSE, dirname( plugin_basename( __FILE__ ) ) . '/lang/' );
+
+        	// Add a thumbnail size for concierge
+        	add_theme_support( 'post-thumbnails' );
+        	add_image_size( 'concierge-thumb', 50, 50 );
+
 
 	} // end plugin_textdomain
 
@@ -454,7 +460,7 @@ class Sailthru_Horizon {
     		// image & thumbnail
 			if( has_post_thumbnail( $post_object->ID ) ) {
 				$image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
-				$thumb = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'thumbnail' );
+				$thumb = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'concierge-thumb' );
 
 	    		$post_image = $image[0];
 	    			$horizon_tags['sailthru.image.full'] = esc_attr($post_image);
