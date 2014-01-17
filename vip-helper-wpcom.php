@@ -563,6 +563,9 @@ function wpcom_vip_disable_sharing() {
 	// Post Flair sets things up on init so we need to call on that if init hasn't fired yet.
 	_wpcom_vip_call_on_hook_or_execute( function() {
 		remove_filter( 'post_flair', 'sharing_display', 20 );
+		remove_filter( 'the_content', 'sharing_display', 19 ); 
+   		remove_filter( 'the_excerpt', 'sharing_display', 19 ); 
+
 		wpcom_vip_disable_sharing_resources();
 	}, 'init', 99 );
 }
