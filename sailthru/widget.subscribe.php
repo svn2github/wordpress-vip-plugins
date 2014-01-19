@@ -85,12 +85,12 @@ class Sailthru_Subscribe_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 
+		if ( empty( $instance['sailthru_list'] ) ) {
+			return false;
+		}
 		extract( $args, EXTR_SKIP );
-
 		echo $before_widget;
-
 		include( SAILTHRU_PLUGIN_PATH . 'views/widget.subscribe.display.php' );
-
 		echo $after_widget;
 
 	} // end widget
