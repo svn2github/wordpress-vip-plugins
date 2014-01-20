@@ -158,8 +158,7 @@ class WPCOM_elasticsearch {
 		}
 
 		// Listen for the start/end of The Loop, to add some action handlers for transparently loading the post
-		add_action( 'loop_start', 	array( $this, 'action__loop_start' ) );
-		add_action( 'loop_end', 	array( $this, 'action__loop_end' ) );
+		$this->register_loop_hooks();
 
 		return $posts;
 	}
@@ -357,7 +356,8 @@ class WPCOM_elasticsearch {
 	}
 
 	public function action__loop_end() {
-		remove_action( 'the_post', array( $this, 'action__the_post' ) );
+		// Once The Loop is finished, remove any hooks so future queries are unaffected by our shenanigans
+		$this->unregister_loop_hooks();
 
 		// Restore the original blog, if we're not on it
 		if ( get_current_blog_id() !== $this->original_blog_id )
@@ -403,6 +403,27 @@ class WPCOM_elasticsearch {
 		} else {
 			$pages = array( $post->post_content );
 		}
+	}
+
+	/**
+	 * Register the hooks needed to transparently handle posts in The Loop
+	 *
+	 * Handles inflating the post, switching to the appropriate blog context, and setting up post data
+	 */
+	public function register_loop_hooks() {
+		add_action( 'loop_start', 	array( $this, 'action__loop_start' ) );
+		add_action( 'loop_end', 	array( $this, 'action__loop_end' ) );
+	}
+
+	/**
+	 * Unregister the hooks for The Loop
+	 *
+	 * Needs to be called when the search Loop is complete, so later queries are not affected
+	 */
+	public function unregister_loop_hooks() {
+		remove_action( 'loop_start', 	array( $this, 'action__loop_start' ) );
+		remove_action( 'the_post', 		array( $this, 'action__the_post' ) );
+		remove_action( 'loop_end', 		array( $this, 'action__loop_end' ) );
 	}
 
 	/**
