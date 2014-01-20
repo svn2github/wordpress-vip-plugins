@@ -178,6 +178,8 @@ class WPCOM_elasticsearch {
 			'query'          => $query->get( 's' ),
 			'posts_per_page' => $query->get( 'posts_per_page' ),
 			'paged'          => $page,
+			'orderby'        => $query->get( 'orderby' ),
+			'order'          => $query->get( 'order' ),
 		);
 
 		// Look for query variables that match registered and supported facets
