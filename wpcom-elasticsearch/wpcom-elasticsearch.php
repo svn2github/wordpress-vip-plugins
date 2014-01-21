@@ -349,15 +349,23 @@ class WPCOM_elasticsearch {
 		return $es_query_args;
 	}
 
-	public function action__loop_start() {
+	public function action__loop_start( $query ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() ) {
+			return;
+		}
+
 		add_action( 'the_post', array( $this, 'action__the_post' ) );
 
 		$this->original_blog_id = get_current_blog_id();
 	}
 
-	public function action__loop_end() {
+	public function action__loop_end( $query ) {
 		// Once The Loop is finished, remove any hooks so future queries are unaffected by our shenanigans
 		$this->unregister_loop_hooks();
+
+		if ( ! $query->is_main_query() || ! $query->is_search() ) {
+			return;
+		}
 
 		// Restore the original blog, if we're not on it
 		if ( get_current_blog_id() !== $this->original_blog_id )
@@ -421,7 +429,6 @@ class WPCOM_elasticsearch {
 	 * Needs to be called when the search Loop is complete, so later queries are not affected
 	 */
 	public function unregister_loop_hooks() {
-		remove_action( 'loop_start', 	array( $this, 'action__loop_start' ) );
 		remove_action( 'the_post', 		array( $this, 'action__the_post' ) );
 		remove_action( 'loop_end', 		array( $this, 'action__loop_end' ) );
 	}
