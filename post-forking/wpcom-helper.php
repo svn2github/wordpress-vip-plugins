@@ -1,6 +1,10 @@
 <?php
 // Add capabilities to admin + editor + author roles for the Post Forking plugin
 add_action( 'init', function() {
+	if ( ! function_exists( 'wpcom_vip_add_role_caps' ) ) {
+		return;
+	}
+
 	wpcom_vip_add_role_caps( 'administrator', array(
 		'edit_forks',
 		'edit_fork',
