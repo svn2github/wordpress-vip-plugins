@@ -70,7 +70,7 @@ if (!class_exists('AdvancedExcerpt')):
     );
 
 
-    function AdvancedExcerpt()
+    function __construct()
     {
       $this->name           = strtolower(get_class($this));
       $this->text_domain    = $this->name;
@@ -108,11 +108,6 @@ if (!class_exists('AdvancedExcerpt')):
         &$this,
         'filter'
       ));
-    }
-
-    function __construct()
-    {
-      self::AdvancedExcerpt();
     }
 
     function filter($text)
