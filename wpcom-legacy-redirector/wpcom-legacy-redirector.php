@@ -39,7 +39,8 @@ class WPCOM_Legacy_Redirector {
 		if ( ! is_404() )
 			return;
 
-		$request_path = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+		$request_path = apply_filters( 'wpcom_legacy_redirector_request_path', parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) );
+
 		if ( $request_path ) {
 			$redirect_uri = self::get_redirect_uri( $request_path );
 
