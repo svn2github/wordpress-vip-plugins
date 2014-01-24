@@ -652,7 +652,7 @@ class WPCOM_elasticsearch {
 				}
 
 				$facets_data[ $label ]['items'][] = array(
-					'url'        => add_query_arg( $query_vars ),
+					'url'        => add_query_arg( array_merge( $query_vars, $_GET ), home_url() ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
 					'count'      => $item['count'],
