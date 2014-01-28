@@ -140,6 +140,7 @@ class WPcom_VIP_Plugins_UI {
 			'vip-do-not-include-on-wpcom', // Local dev helper
 			'internacional', // Not ready yet (ever?)
 			'wpcom-profiler', // Used internally to debug sites
+			'wpcom-legacy-redirector', // requires code-level changes
 
 			// Premium
 			'new-device-notification',
