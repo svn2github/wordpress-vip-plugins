@@ -18,6 +18,10 @@
  * Please contact us before using this plugin.
  */
 
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require( __DIR__ . '/includes/wp-cli.php' );
+}
+
 class WPCOM_Legacy_Redirector {
 	const POST_TYPE = 'vip-legacy-redirect';
 	const CACHE_GROUP = 'vip-legacy-redirect-2';
