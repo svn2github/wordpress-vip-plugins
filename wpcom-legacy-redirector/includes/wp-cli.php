@@ -44,7 +44,7 @@ class WPCOM_Legacy_Redirector_CLI extends WP_CLI_Command {
  	 * post_id,url
  	 *
  	 * @subcommand import-from-csv
- 	 * @synopsis --csv=<path/to/csv>
+ 	 * @synopsis --csv=<path-to-csv>
  	 */
 	function import_from_csv( $args, $assoc_args ) {
 		define( 'WP_IMPORTING', true );
