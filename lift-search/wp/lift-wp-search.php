@@ -10,7 +10,7 @@ class Lift_WP_Query {
 
 	/**
 	 * WP_Query instance reference for search
-	 * @var WP_Query 
+	 * @var WP_Query
 	 */
 	public $wp_query;
 	private $results = false;
@@ -200,6 +200,8 @@ class Lift_WP_Search {
 		add_filter( 'posts_results', array( __CLASS__, '_filter_posts_results' ), 10, 2 );
 
 		add_filter( 'list_search_bq_parameters', array( __CLASS__, '_bq_filter_post_status' ), 10, 2 );
+
+		do_action( 'lift_wp_search_init' );
 	}
 
 	/**
@@ -417,8 +419,8 @@ class Lift_Expression_Set extends aLift_Expression implements Countable {
 	}
 
 	/**
-	 * 
-	 * @param aLift_Expression $expression 
+	 *
+	 * @param aLift_Expression $expression
 	 */
 	public function addExpression( $expression ) {
 		$this->sub_expressions[] = $expression;
@@ -488,7 +490,7 @@ class BQParser {
 
 	/**
 	 *
-	 * @var Lift_Expression_Set 
+	 * @var Lift_Expression_Set
 	 */
 	protected $currentSet;
 	// input string to parse

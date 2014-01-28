@@ -3,7 +3,7 @@ Contributors: voceplatforms
 Tags: search, cloudsearch, amazon, aws
 Requires at least: 3.4.2
 Tested up to: 3.6.1
-Stable tag: 1.7.0
+Stable tag: 1.9.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -112,6 +112,23 @@ By default, posts and pages are indexed. To modify this, use the `lift_indexed_p
 4. Lift Search Form
 
 == Changelog ==
+== 1.9.1 ==
+* Fixed built in facet option for custom taxonomy fields.
+* Added automatic registration of watcher for custom taxonomy fields.
+
+= 1.9.0 =
+* Added 'lift_form_fields_html' filter to allow adding/prefixing form with custom html
+
+= 1.8.2 =
+* Bug Fix: Correctly applied the 'lift_search_form' filter.
+
+= 1.8.1 =
+ * Fixing failed merge cleanup
+
+= 1.8 =
+ * Cleanup of handling around *LiftField classes.
+ * Implemented a TextPostMetaTextField class to simplify adding text fields in post meta.
+
 = 1.7 =
 * Enhancement: Allow for other region options for CloudSearch domain
 * Enhancement: Adding PHP version check on activation

@@ -465,7 +465,7 @@ if ( !class_exists( 'Lift_Search' ) ) {
 
                     foreach ( $terms as $term ) {
                         $post_data["taxonomy_{$taxonomy}_label"][] = $term->name;
-                        $post_data["taxonomy_{$taxonomy}_id"][] = $term->term_id;
+                        $post_data["taxonomy_{$taxonomy}_id"][] = (string) $term->term_id;
                     }
 
                     $post_data["taxonomy_{$taxonomy}_label"] = implode( ', ', $post_data["taxonomy_{$taxonomy}_label"] );

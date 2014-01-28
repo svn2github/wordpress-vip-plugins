@@ -138,7 +138,6 @@ class Lift_Domain_Manager {
 				}
 			}
 		}
-
 		if ( count( $changed_fields ) ) {
 			TAE_Async_Event::WatchWhen( array( $this, 'needs_indexing' ), array( $domain_name, $region ), 60, 'lift_needs_indexing_'. $domain_name )
 				->then( array( $this, 'index_documents' ), array( $domain_name, $region ), true )

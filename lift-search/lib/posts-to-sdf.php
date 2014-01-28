@@ -61,7 +61,7 @@ class Lift_Posts_To_SDF {
 	 *
 	 * @return string
 	 */
-	function get_document_id_prefix() {
+	public static function get_document_id_prefix() {
 
 		// generate prefix if we haven't already
 		if ( empty( self::$document_id_prefix ) ) {
@@ -87,7 +87,7 @@ class Lift_Posts_To_SDF {
 	 * @param array $args WP_Query args
 	 * @return array formatted posts
 	 */
-	function get_posts_for_batch_add( $args = array( ) ) {
+	public static function get_posts_for_batch_add( $args = array( ) ) {
 
 		$posts = get_posts( $args );
 
@@ -105,7 +105,7 @@ class Lift_Posts_To_SDF {
 	 * @param $data - document properties (action, time)
 	 * @return array
 	 */
-	function format_post( $post, $data ) {
+	public static function format_post( $post, $data ) {
 		$valid_types = array( 'add', 'delete' );
 
 		// Only valid actions

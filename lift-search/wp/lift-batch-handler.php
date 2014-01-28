@@ -376,7 +376,6 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 							'action' => $action,
 							'time' => time()
 						) );
-
 					try {
 						$batch->add_document( ( object ) $sdf_doc );
 

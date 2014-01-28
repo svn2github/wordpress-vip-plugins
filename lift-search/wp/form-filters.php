@@ -40,7 +40,7 @@ abstract class aLiftFormFilter {
 	}
 
 	/**
-	 * 
+	 * @param string $filterHTML the unfiltered html to be overwritten
 	 * @param Lift_Search_Form $lift_search_form
 	 * @param array $args
 	 * @return string the resulting control
@@ -111,13 +111,10 @@ class LiftSingleSelectFilter extends aLiftFormFilter {
 				'label' => $this->field->wpToLabel( array( ) )
 		);
 
-
 		$selectedFound = false;
-
 		foreach ( $this->getItems() as $wp_vars ) {
 			$bq = $this->field->wpToBooleanQuery( $wp_vars );
 			$facet_request_vars = $this->field->bqToRequest( $bq );
-
 			//determine if this item is selected by comparing the relative wp vars to this query
 			$selected = 0 === count( array_diff_semi_assoc_recursive( $wp_vars, $lift_query->wp_query->query_vars ) );
 			if ( $selected ) {

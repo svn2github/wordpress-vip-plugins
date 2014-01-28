@@ -15,10 +15,10 @@ interface iLiftField {
 	public function getType();
 
 	/**
-	 * Sets options for the index field. The IndexFieldType indicates which of 
-	 * the options will be present. It is invalid to specify options for a type 
+	 * Sets options for the index field. The IndexFieldType indicates which of
+	 * the options will be present. It is invalid to specify options for a type
 	 * other than the IndexFieldType.
-	 * 
+	 *
 	 * @param string $name The name of the option
 	 * @param mixed $value
 	 * @return iLiftField
@@ -27,7 +27,7 @@ interface iLiftField {
 
 	/**
 	 * Adds one or more request variables to the public query vars accepted during
-	 * a HTTP request.  
+	 * a HTTP request.
 	 * @param array $request_vars
 	 * @return iLiftField
 	 */
@@ -41,12 +41,12 @@ interface iLiftField {
 	public function getDocumentValue( $post_id );
 
 	/**
-	 * Returns the tanslated request variables as key/value array for the given 
-	 * AWS bolean query value for this field.  Default behavior is to return single 
+	 * Returns the tanslated request variables as key/value array for the given
+	 * AWS bolean query value for this field.  Default behavior is to return single
 	 * item array with $this->name as the key and the value as the bq as the value.
-	 * 
+	 *
 	 * @todo Implement full BQ parsing for fallback
-	 * 
+	 *
 	 * @param string $bq_value
 	 * @return array
 	 */
@@ -71,8 +71,8 @@ interface iLiftField {
 abstract class aLiftField implements iLiftField {
 
 	/**
-	 * 
-	 * @var string 
+	 *
+	 * @var string
 	 */
 	protected $name;
 
@@ -100,19 +100,19 @@ abstract class aLiftField implements iLiftField {
 
 	/**
 	 *
-	 * @var array 
+	 * @var array
 	 */
 	protected $type_options;
 
 	/**
 	 *
-	 * @var array 
+	 * @var array
 	 */
 	protected $request_vars;
 
 	/**
 	 *
-	 * @var array 
+	 * @var array
 	 */
 	protected $options;
 
@@ -139,10 +139,10 @@ abstract class aLiftField implements iLiftField {
 	}
 
 	/**
-	 * Sets options for the index field. The IndexFieldType indicates which of 
-	 * the options will be present. It is invalid to specify options for a type 
+	 * Sets options for the index field. The IndexFieldType indicates which of
+	 * the options will be present. It is invalid to specify options for a type
 	 * other than the IndexFieldType.
-	 * 
+	 *
 	 * @param string $name The name of the option
 	 * @param mixed $value
 	 * @return iLiftField
@@ -154,7 +154,7 @@ abstract class aLiftField implements iLiftField {
 
 	/**
 	 * Adds one or more request variables to the public query vars accepted during
-	 * a HTTP request.  
+	 * a HTTP request.
 	 * @param array $request_vars
 	 * @return iLiftField
 	 */
@@ -164,9 +164,9 @@ abstract class aLiftField implements iLiftField {
 	}
 
 	/**
-	 * Registers the needed hooks to add this field to the AWS schema and 
+	 * Registers the needed hooks to add this field to the AWS schema and
 	 * document submission
-	 * 
+	 *
 	 * @return iLiftField
 	 */
 	protected function _registerSchemaHooks() {
@@ -177,8 +177,8 @@ abstract class aLiftField implements iLiftField {
 
 	/**
 	 * Callback during 'wp_loaded' used to apply any filters that should be applied
-	 * after initial construction that. 
-	 * 
+	 * after initial construction that.
+	 *
 	 * @access protected
 	 */
 	public function _registerSearchHooks() {
@@ -194,7 +194,7 @@ abstract class aLiftField implements iLiftField {
 	/**
 	 * Callback to 'lift_domain_schema' to append this field to the schema.
 	 * @access protected
-	 * 
+	 *
 	 * @param array $schema
 	 * @return array
 	 */
@@ -216,7 +216,7 @@ abstract class aLiftField implements iLiftField {
 	/**
 	 * Callback for 'query_vars' to append any extra needed request variables.
 	 * @access protected
-	 * 
+	 *
 	 * @param array $query_vars
 	 * @return array
 	 */
@@ -230,7 +230,7 @@ abstract class aLiftField implements iLiftField {
 	 * Filter callback for 'list_search_bq_parameters' to append new parameters to
 	 * the AWS query.
 	 * @access protected
-	 * 
+	 *
 	 * @param array $bq
 	 * @param Lift_WP_Query $lift_query
 	 * @return array
@@ -244,9 +244,9 @@ abstract class aLiftField implements iLiftField {
 	 * Callback to 'lift_post_changes_to_data' to append this field to the document
 	 * as it's sent to the domain.
 	 * @access protected
-	 * 
+	 *
 	 * @param array $post_data
-	 * @param array $changed_fields Names of 
+	 * @param array $changed_fields Names of
 	 * @param int $post_id
 	 * @return array
 	 */
@@ -260,19 +260,13 @@ abstract class aLiftField implements iLiftField {
 	 * @param array $query_vars
 	 * @return string The resulting boolean query parameter
 	 */
-	public function wpToBooleanQuery( $query_vars ) {
-		$value = $this->wpToBooleanQueryValue( $query_vars );
-		if ( $value ) {
-			return $this->name . ':' . $value;
-		}
-		return '';
-	}
+	abstract public function wpToBooleanQuery( $query_vars );
 
 	/**
-	 * Returns the tanslated request variables as key/value array for the given 
-	 * AWS bolean query value for this field.  Default behavior is to return single 
+	 * Returns the tanslated request variables as key/value array for the given
+	 * AWS bolean query value for this field.  Default behavior is to return single
 	 * item array with $this->name as the key and the value as the bq as the value.
-	 * 
+	 *
 	 * @param string $bq_value
 	 * @return array
 	 */
@@ -296,6 +290,9 @@ abstract class aLiftField implements iLiftField {
 
 }
 
+/**
+ * Wrapper to Create a Field for a Taxonomy
+ */
 class LiftTaxonomyField extends aLiftField {
 
 	protected $taxonomy;
@@ -308,17 +305,26 @@ class LiftTaxonomyField extends aLiftField {
 	public function __construct( $taxonomy, $options = array( ) ) {
 		$this->taxonomy = $taxonomy;
 		parent::__construct( "taxonomy_{$taxonomy}_id", 'literal', $options );
-		$this->addTypeOption( 'facet', true );
+		$this->addTypeOption( 'facet', 'true' );
 
 		$this->addPublicRequestVars( $this->name );
 		add_action( 'lift_filter_items_' . $this->getName(), array( $this, '_lift_filter_items' ) );
+		if ( empty($this->options['_built_in'] ) ) {
+			add_filter( 'lift_watched_taxonomies', array( $this, 'filter_watched_taxonomies' ) );
+		}
+	}
+
+	public function filter_watched_taxonomies( $taxonomies ) {
+		return array_merge( $taxonomies, array( $this->taxonomy ) );
 	}
 
 	public function getDocumentValue( $post_id ) {
 		$terms = get_the_terms( $post_id, $this->taxonomy );
 		$value = array( );
-		foreach ( $terms as $term ) {
-			$value[] = ( int ) $term->term_id;
+		if ( is_array( $terms ) && !empty( $terms ) ) {
+			foreach ( $terms as $term ) {
+				$value[] = ( string ) $term->term_id;
+			}
 		}
 		return $value;
 	}
@@ -443,11 +449,11 @@ class LiftTaxonomyField extends aLiftField {
 
 	/**
 	 * Converts query_vars into a WP_Tax_Query which has a more standardized form
-	 * to work with.  
-	 * 
+	 * to work with.
+	 *
 	 * Technically WP_Query::parse_tax_query is marked as protected.  Hopefully
 	 * a real factory function is created in core before it actually gets set as such.
-	 * 
+	 *
 	 * @param type $query_vars
 	 * @return WP_Tax_Query
 	 */
@@ -469,6 +475,138 @@ class LiftTaxonomyField extends aLiftField {
 
 }
 
+/**
+ * Custom Field handling for storing postmeta as text
+ */
+class LiftPostMetaTextField extends aLiftField {
+
+	protected $meta_key;
+
+	/**
+	 * Constructor
+	 * @param string $taxonomy
+	 * @param array $options Options
+	 */
+	public function __construct( $name, $options = array( ) ) {
+
+		if ( isset( $options['meta_key'] ) ) {
+			$this->meta_key = $options['meta_key'];
+		}
+		parent::__construct( $name, 'text', $options );
+		$this->addPublicRequestVars( array( $this->name ) );
+	}
+
+	/**
+	 * Converts request variables to WP_Query variables.  Variables used by this
+	 * field should be sanitized here.
+	 * @param array $request_vars
+	 * @return array
+	 */
+	public function requestToWP( $request_vars ) {
+		if ( !empty( $request_vars[$this->name] ) ) {
+			$sub_meta_query = array(
+				'key' => $this->meta_key,
+				'value' => $request_vars[$this->name],
+				'compare' => 'LIKE'
+			);
+			if ( !isset( $request_vars['meta_query'] ) ) {
+				$request_vars['meta_query'] = array( $sub_meta_query );
+			} elseif ( is_array( $request_vars['meta_query'] ) ) {
+				$request_vars['meta_query'][] = $sub_meta_query;
+			} else {
+				$request_vars['meta_query'] = array_merge( $request_vars['meta_query'], $sub_meta_query );
+			}
+			unset( $request_vars[$this->name] );
+		}
+		return $request_vars;
+	}
+
+	/**
+	 * Returns the value to insert in this field for the specified document
+	 * @param int $post_id
+	 * @return mixed The value that should be set in the document for this field
+	 */
+	public function getDocumentValue( $post_id ) {
+		$meta_value = get_post_meta( $post_id, $this->meta_key, true );
+		return ( string ) $meta_value;
+	}
+
+	/**
+	 * Returns a boolean query param based on the current WP_Query
+	 * @param array $query_vars
+	 * @return string The resulting boolean query parameter
+	 */
+	public function wpToBooleanQuery( $query_vars ) {
+		$meta_query = new WP_Meta_Query( );
+		$meta_query->parse_query_vars( $query_vars );
+
+		if ( count( $meta_query->queries ) > 0 ) {
+			$expressionSet = new Lift_Expression_Set( strtolower( $meta_query->relation ) );
+			foreach ( $meta_query->queries as $subquery ) {
+				if ( $subquery['key'] == $this->meta_key ) {
+					if ( $subquery['compare'] === 'LIKE' ) {
+						foreach ( ( array ) $subquery['value'] as $value ) {
+							$expressionSet->addExpression( new Lift_Expression_Field( $this->name, $value ) );
+						}
+					} elseif ( $subquery['compare'] === 'NOT LIKE' ) {
+						$subExpression = new Lift_Expression_Set( 'NOT' );
+						foreach ( ( array ) $subquery['value'] as $value ) {
+							$subExpression->addExpression( new Lift_Expression_Field( $this->name, $value ) );
+						}
+						$expressionSet->addExpression( $subExpression );
+					}
+				}
+			}
+			return $expressionSet;
+		}
+
+		return '';
+	}
+
+	/**
+	 * Returns the tanslated request variables as key/value array for the given
+	 * AWS bolean query value for this field.  Default behavior is to return single
+	 * item array with $this->name as the key and bq as the value.
+	 *
+	 * @param string $bq_value
+	 * @return array
+	 */
+	public function bqToRequest( $bq ) {
+		$request = array( $this->name => false );
+		$expression = liftBqToExpression( $bq );
+		if ( $expression ) {
+			$request[$this->name] = $expression->getValue();
+		}
+		return $request;
+	}
+
+	/**
+	 * Convert WP_Query query_var value into a human readable label
+	 *
+	 * @param array $query_vars WP_Query query vars.
+	 * @return string the label based on the given vars.
+	 */
+	public function wpToLabel( $query_vars ) {
+		$meta_query = new WP_Meta_Query( );
+		$meta_query->parse_query_vars( $query_vars );
+		$label = '';
+		if ( count( $meta_query->queries ) > 0 ) {
+			$expressionSet = new Lift_Expression_Set( strtolower( $meta_query->relation ) );
+			foreach ( $meta_query->queries as $subquery ) {
+				if ( $subquery['key'] == $this->meta_key ) {
+					$label = ( string ) $subquery->value;
+				}
+			}
+		}
+
+		return $label;
+	}
+
+}
+
+/**
+ * Wrapper to simplify creating custom fields by using delegate callbacks
+ */
 class LiftDelegatedField extends aLiftField {
 
 	private $delegates = array( );
@@ -497,10 +635,7 @@ class LiftDelegatedField extends aLiftField {
 	 * @return string The resulting boolean query parameter
 	 */
 	public function wpToBooleanQuery( $query_vars ) {
-		if ( $this->getDelegate( __FUNCTION__ ) ) {
-			return $this->execDelegate( __FUNCTION__, $query_vars );
-		}
-		return parent::wpToBooleanQuery( $query_vars );
+		return $this->execDelegate( __FUNCTION__, $query_vars );
 	}
 
 	/**
@@ -513,12 +648,12 @@ class LiftDelegatedField extends aLiftField {
 	}
 
 	/**
-	 * Returns the tanslated request variables as key/value array for the given 
-	 * AWS bolean query value for this field.  Default behavior is to return single 
+	 * Returns the tanslated request variables as key/value array for the given
+	 * AWS bolean query value for this field.  Default behavior is to return single
 	 * item array with $this->name as the key and the value as the bq as the value.
-	 * 
+	 *
 	 * @todo Implement full BQ parsing for fallback
-	 * 
+	 *
 	 * @param string $bq_value
 	 * @return array
 	 */
@@ -527,6 +662,20 @@ class LiftDelegatedField extends aLiftField {
 			return $this->execDelegate( __FUNCTION__, $bq );
 		}
 		return parent::bqToRequest( $bq );
+	}
+
+	/**
+	 *
+	 * Converts request variables to WP_Query variables.  Variables used by this
+	 * field should be sanitized here.
+	 * @param array $request_vars
+	 * @return array
+	 */
+	public function requestToWP( $query_vars ) {
+		if ( $this->getDelegate( __FUNCTION__ ) ) {
+			return $this->execDelegate( __FUNCTION__, $query_vars );
+		}
+		return parent::requestToWP( $query_vars );
 	}
 
 	/**
@@ -616,7 +765,7 @@ add_action( 'init', function() {
 					} elseif ( $min ) {
 						return sprintf( __( 'Less than %s ago', 'lift-search' ), human_time_diff( $min ) );
 					} elseif ( $max ) {
-						return sprintf( __('More than %s ago', 'lift-search' ), human_time_diff( $max ) );
+						return sprintf( __( 'More than %s ago', 'lift-search' ), human_time_diff( $max ) );
 					} else {
 						return "Any Time";
 					}
