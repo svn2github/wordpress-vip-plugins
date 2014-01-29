@@ -487,7 +487,7 @@ function bitly_is_url_generation_enabled() {
  * @return void
  */
 function bitly_processed() {
-	add_option( 'bitly_processed', 1 );
+	update_option( 'bitly_processed', 1 );
 	wp_clear_scheduled_hook( 'bitly_hourly_hook' );
 }
 
