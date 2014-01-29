@@ -138,11 +138,22 @@ class Ooyala_Options {
 				$players = array();
 			}
 
-			$options['players'] = array();
-			foreach ( $players->items as $player ) {
-				$options['players'][] = $player->id;
+			if ( $players && ! empty( $players->items ) ) {
+				$options['players'] = array();
+				foreach ( $players->items as $player )
+					$options['players'][] = $player->id;
 			}
-			$options['default_player'] = $options['players'][0];
+
+			if ( $players ) {
+				$options['players'] = array();
+				foreach ( $players->items as $player ) {
+					$options['players'][] = $player->id;
+				}
+				if ( empty( $options['player_id'] ) ) {
+					$options['player_id'] = $options['players'][0];
+				}	
+			}
+			
 			update_option( 'ooyala', $options );
 		}
 

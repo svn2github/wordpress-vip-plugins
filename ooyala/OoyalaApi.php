@@ -138,7 +138,7 @@ class OoyalaApi
         $this->httpRequest = new OoyalaHttpRequest(array(
             'shouldFollowLocation' => true,
             'contentType' => 'application/json',
-            'curlOptions' => array(CURLOPT_SSL_VERIFYPEER => false)));
+            'curlOptions' => array(CURLOPT_SSL_VERIFYPEER => false, CURLOPT_SSL_VERIFYHOST => false)));
     }
 
     /**
