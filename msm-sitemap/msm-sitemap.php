@@ -49,7 +49,7 @@ class Metro_Sitemap {
 		$schedules[ 'ms-sitemap-15-min-cron-interval' ] = array(
 			'interval' => 900,
 			'display' => __( 'Every 15 minutes', 'metro-sitemaps' ),
-		);
+			);
 		return $schedules;
 	}
 
@@ -62,14 +62,153 @@ class Metro_Sitemap {
 		add_rewrite_rule( '^sitemap.xml$','index.php?sitemap=true','top' );
 
 		add_filter( 'robots_txt', array( __CLASS__, 'robots_txt' ), 10, 2 );
-
+		add_action( 'admin_menu', array( __CLASS__, 'metro_sitemap_menu' ) );
 		add_action( 'msm_cron_update_sitemap', array( __CLASS__, 'update_sitemap_from_modified_posts' ) );
-
-		add_action( 'msm_cron_generate_sitemap_for_year', array( __CLASS__, 'generate_sitemap_for_year' ) );
-		add_action( 'msm_cron_generate_sitemap_for_year_month', array( __CLASS__, 'generate_sitemap_for_year_month' ) );
-		add_action( 'msm_cron_generate_sitemap_for_year_month_day', array( __CLASS__, 'generate_sitemap_for_year_month_day' ) );
 	}
 
+	/**
+	 * Register admin menu for sitemap
+	 */
+	public static function metro_sitemap_menu() {
+		add_management_page( __( 'Sitemap', 'metro-sitemaps' ), __( 'Sitemap', 'metro-sitemaps' ), 'manage_options', 'metro-sitemap', array( __CLASS__, 'render_sitemap_options_page' ) );
+	}
+
+	/**
+	 * Render admin options page
+	 */
+	public static function render_sitemap_options_page() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( __( 'You do not have sufficient permissions to access this page.', 'metro-sitemaps' ) );
+		}
+
+		// Array of possible user actions
+		$actions = apply_filters( 'msm_sitemap_actions', array() );
+
+		// Start outputting html
+		echo '<div class="wrap">';
+		screen_icon();
+		echo '<h2>' . __( 'Sitemap', 'metro-sitemaps' ) . '</h2>';
+
+		if ( ! self::is_blog_public() ) {
+			self::show_action_message( __( 'Oops! Sitemaps are not supported on private blogs. Please make your blog public and try again.', 'metro-sitemaps' ), 'error' );
+			echo '</div>';
+			return;
+		}
+
+		if ( isset( $_POST['action'] ) ) {
+			check_admin_referer( 'msm-sitemap-action' );
+			foreach ( $actions as $slug => $action ) {
+				if ( $action['text'] !== $_POST['action'] )	continue;
+
+				do_action( 'msm_sitemap_action-' . $slug );
+				break;
+			}
+		}
+
+		// All the settings we need to read to display the page
+		$sitemap_create_in_progress = get_option( 'msm_sitemap_create_in_progress' ) === true;
+		$sitemap_update_last_run = get_option( 'msm_sitemap_update_last_run' );
+		$sitemap_update_next_run = $sitemap_update_last_run + 900;
+		$modified_posts = Metro_Sitemap::get_last_modified_posts();
+		$modified_posts_count = count( $modified_posts );
+		$modified_posts_label = $modified_posts_count == 1 ? 'post' : 'posts';
+		$days_to_process = get_option( 'msm_days_to_process' );
+
+		// Determine sitemap status text
+		$sitemap_create_status = apply_filters(
+			'msm_sitemap_create_status',
+			$sitemap_create_in_progress ? __( 'Running', 'metro-sitemaps' ) : __( 'Not Running', 'metro-sitemaps' )
+		);
+		
+		echo '<p><strong>' . __( 'Sitemap Create Status:', 'metro-sitemaps' ) . '</strong> ' . esc_html( $sitemap_create_status );
+		if ( $days_to_process ) {
+			$years_to_process = get_option( 'msm_years_to_process' );
+			$months_to_process = get_option( 'msm_months_to_process' );
+			echo '<p><b>' . ( $sitemap_create_in_progress ? __( 'Current position:', 'metro-sitemaps' ) : __( 'Restart position:', 'metro-sitemaps' ) ). ' </b>';
+			$current_day = count( $days_to_process ) - 1;
+			$current_month = count( $months_to_process ) - 1;
+			$current_year = count( $years_to_process ) - 1;
+			printf( __( 'Day: %s Month: %s Year: %s</p>' ), $days_to_process[$current_day], $months_to_process[$current_month], $years_to_process[$current_year] );
+			$years_to_process = ( $current_year == 0 ) ? array( 1 ) : $years_to_process;
+			printf( __( '<p><b>Years to process:</b> %s </p>' ), implode( ',', $years_to_process ) );
+		}
+
+		?>
+		<p><strong><?php _e( 'Last updated:', 'metro-sitemaps' ); ?></strong> <?php echo human_time_diff( $sitemap_update_last_run ); ?> ago</p>
+		<p><strong><?php _e( 'Next update:', 'metro-sitemaps' ); ?></strong> <?php echo $modified_posts_count . ' ' . $modified_posts_label; ?> will be updated in <?php echo human_time_diff( $sitemap_update_next_run ); ?></p>
+
+		<h3><?php _e( 'Stats', 'metro-sitemaps' ) ?></h3>
+		<p><?php printf( __( 'Currently your site has %s sitemaps and %s indexed URLs.', 'metro-sitemaps' ), '<strong>' . number_format( Metro_Sitemap::count_sitemaps() ) . '</strong>', '<strong>' . number_format( Metro_Sitemap::get_total_indexed_url_count() ) . '</strong>' ); ?></p>
+
+		<form action="<?php echo menu_page_url( 'metro-sitemap', false ) ?>" method="post" style="float: left;">
+			<?php wp_nonce_field( 'msm-sitemap-action' ); ?>
+			<?php foreach ( $actions as $action ):
+				if ( ! $action['enabled'] ) continue; ?>
+				<input type="submit" name="action" class="button-secondary" value="<?php echo esc_attr( $action['text'] ); ?>">
+			<?php endforeach; ?>
+		</form>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Displays a notice, error or warning to the user
+	 * @param str $message The message to show to the user
+	 */
+	public static function show_action_message( $message, $level = 'notice' ) {
+		$class = 'updated';
+		if ( $level === 'warning' )
+			$class = 'update-nag';
+		elseif ( $level === 'error' )
+			$class = 'error';
+
+		echo '<div class="' . esc_attr( $class ) . ' msm-sitemap-message"><p>' . esc_html( $message ) . '</p></div>';
+	}
+		
+	/**
+	 * Counts the number of sitemaps that have been generated.
+	 * 
+	 * @return int The number of sitemaps that have been generated
+	 */
+	public static function count_sitemaps() {
+		$count = wp_count_posts( Metro_Sitemap::SITEMAP_CPT );
+		return (int) $count->publish;
+	}
+	
+	/**
+	 * Gets the current number of URLs indexed by msm-sitemap accross all sitemaps.
+	 * 
+	 * @return int The number of total number URLs indexed
+	 */
+	public static function get_total_indexed_url_count() {
+		$counts = (array) get_option( 'msm_sitemap_indexed_url_count', array() );
+		return array_sum( $counts );
+	}
+	
+	public static function is_blog_public() {
+		return ( 1 == get_option( 'blog_public' ) );
+	}
+	
+	/**
+	 * Gets the number of URLs indexed for the given sitemap.
+	 * 
+	 * @param array $sitemaps The sitemaps to retrieve counts for. If $sitemaps is not given, counts are retrieved for all sitemaps.
+	 */
+	public static function get_indexed_url_count( $sitemaps = null ) {
+		$counts = (array) get_option( 'msm_sitemap_indexed_url_count', array() );
+		$return_vals = array();
+
+		if ( is_null( $sitemaps ) )
+			return $counts;
+
+		foreach ( $sitemaps as $sitemap ) {
+			if ( in_array( $sitemap, $counts ) ) 
+				$return_vals[$sitemap] = (int) $counts[$sitemap];
+		}
+
+		return $return_vals;
+	}
+		
 	/**
 	 * Add entry to the bottom of robots.txt
 	 */
@@ -88,7 +227,7 @@ class Metro_Sitemap {
 	 * Add cron jobs required to generate these sitemaps
 	 */
 	public static function sitemap_init_cron() {
-		if ( ! wp_next_scheduled( 'msm_cron_update_sitemap' ) ) {
+		if ( self::is_blog_public() && ! wp_next_scheduled( 'msm_cron_update_sitemap' ) ) {
 			wp_schedule_event( time(), 'ms-sitemap-15-min-cron-interval', 'msm_cron_update_sitemap' );
 		}
 	}
@@ -185,7 +324,7 @@ class Metro_Sitemap {
 			'post_type' => self::SITEMAP_CPT,
 			'post_status' => 'publish',
 			'post_date' => $sitemap_date,
-		);
+			);
 
 		$sitemap_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_name = %s LIMIT 1", self::SITEMAP_CPT, $sitemap_name ) );
 
@@ -196,7 +335,7 @@ class Metro_Sitemap {
 			$sitemap_exists = true;
 		}
 
-		$query_args = array(
+		$query_args = apply_filters( 'msm_sitemap_query_args', array(
 			'year' => $year,
 			'monthnum' => $month,
 			'day' => $day,
@@ -205,26 +344,47 @@ class Metro_Sitemap {
 			'post_type' => self::get_supported_post_types(),	
 			'posts_per_page' => apply_filters( 'msm_sitemap_entry_posts_per_page', self::DEFAULT_POSTS_PER_SITEMAP_PAGE ),
 			'no_found_rows' => true,
-		);
+		) );
 
 		$query = new WP_Query( $query_args );
 		$post_count = $query->post_count;
 
+		$url_counts = (array) get_option( 'msm_sitemap_indexed_url_count', array() );
 		if ( ! $post_count ) {
 			// If no entries - delete the whole sitemap post
 			if ( $sitemap_exists ) {
 				wp_delete_post( $sitemap_id, true );
 				do_action( 'msm_delete_sitemap_post', $sitemap_id, $year, $month, $day );
+				unset( $url_counts[$sitemap_name] );
+				update_option( 'msm_sitemap_indexed_url_count' , $url_counts );
 			}
 			return;
 		}
 
-		// Create XML
 		// SimpleXML doesn't allow us to define namespaces using addAttribute, so we need to specify them in the construction instead.
-		$xml = new SimpleXMLElement( '<?xml version="1.0" encoding="utf-8"?><urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:n="http://www.google.com/schemas/sitemap-news/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd"></urlset>' );
+		$namespaces = apply_filters( 'msm_sitemap_namespace', array(
+			'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+			'xmlns' => 'http://www.sitemaps.org/schemas/sitemap/0.9',
+			'xmlns:n' => 'http://www.google.com/schemas/sitemap-news/0.9',
+			'xmlns:image' => 'http://www.google.com/schemas/sitemap-image/1.1',
+			'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
+		) );
 
+		$namespace_str = '<?xml version="1.0" encoding="utf-8"?><urlset';
+		foreach ( $namespaces as $ns => $value ) {
+			$namespace_str .= printf( ' %s="%s"', esc_attr( $ns ), esc_attr( $value ) );
+		}
+		$namespace_str .= '></urlset>';
+
+		// Create XML
+		$xml = new SimpleXMLElement( $namespace_str );
+
+		$url_count = 0;
 		while ( $query->have_posts() ) {
 			$query->the_post();
+			
+			if ( apply_filters( 'msm_sitemap_skip_post', false ) )
+				continue;
 
 			$url = $xml->addChild( 'url' );
 			$url->addChild( 'loc', get_permalink() );
@@ -232,9 +392,13 @@ class Metro_Sitemap {
 			$url->addChild( 'changefreq', 'monthly' );
 			$url->addChild( 'priority', '0.7' );
 
+			apply_filters( 'msm_sitemap_entry', $url );
+
+			++$url_count;
 			// TODO: add images to sitemap via <image:image> tag
 		}
-		
+
+				// Save the sitemap
 		if ( $sitemap_exists ) {
 			update_post_meta( $sitemap_id, 'msm_sitemap_xml', $xml->asXML() );
 			do_action( 'msm_update_sitemap_post', $sitemap_id, $year, $month, $day );
@@ -244,6 +408,11 @@ class Metro_Sitemap {
 			add_post_meta( $sitemap_id, 'msm_sitemap_xml', $xml->asXML() );
 			do_action( 'msm_insert_sitemap_post', $sitemap_id, $year, $month, $day );
 		}
+
+				// Update indexed url counts
+		$url_counts[$sitemap_name] = $url_count;
+		update_option( 'msm_sitemap_indexed_url_count' , $url_counts );
+
 		wp_reset_postdata();
 	}
 
@@ -257,7 +426,7 @@ class Metro_Sitemap {
 				'labels'       => array(
 					'name'          => __( 'Sitemaps' ),
 					'singular_name' => __( 'Sitemap' ),
-				),
+					),
 				'public'       => false,
 				'has_archive'  => false,
 				'rewrite'      => false,
@@ -265,9 +434,9 @@ class Metro_Sitemap {
 				'show_in_menu' => false, // Since we're manually adding a Sitemaps menu, no need to auto-add one through the CPT.
 				'supports'     => array(
 					'title',
-				),
-			)
-		);
+					),
+				)
+			);
 	}
 
 	/**
@@ -299,7 +468,7 @@ class Metro_Sitemap {
 	public static function get_post_dates( $posts ) {
 		$dates = array();
 		foreach ( $posts as $post ) {
-		    $dates[] = date( 'Y-m-d', strtotime( $post->post_date ) );
+			$dates[] = date( 'Y-m-d', strtotime( $post->post_date ) );
 		}
 		$dates = array_unique( $dates );
 
@@ -348,11 +517,14 @@ class Metro_Sitemap {
 		$xml = new SimpleXMLElement( $xml_prefix . '<sitemapindex xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></sitemapindex>' );
 		foreach ( $sitemaps as $sitemap_date ) {
 			$sitemap_time = strtotime( $sitemap_date );
-			$sitemap_url = add_query_arg( array(
-				'yyyy' => date( 'Y', $sitemap_time ),
-				'mm' => date( 'm', $sitemap_time ),
-				'dd' => date( 'd', $sitemap_time ),        
-			), home_url( '/sitemap.xml' ) ); 
+			$sitemap_url = add_query_arg(
+				array(
+					'yyyy' => date( 'Y', $sitemap_time ),
+					'mm' => date( 'm', $sitemap_time ),
+					'dd' => date( 'd', $sitemap_time ),
+				),
+				home_url( '/sitemap.xml' )
+			);
 
 			$sitemap = $xml->addChild( 'sitemap' );
 			$sitemap->loc = $sitemap_url; // manually set the child instead of addChild to prevent "unterminated entity reference" warnings due to encoded ampersands http://stackoverflow.com/a/555039/169478
