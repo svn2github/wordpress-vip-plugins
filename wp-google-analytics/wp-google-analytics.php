@@ -172,6 +172,7 @@ class wpGoogleAnalytics {
 		add_settings_field( 'code', __( 'Google Analytics tracking ID:', 'wp-google-analytics' ), array( $this, 'field_code' ), 'wga', 'wga_general' );
 		add_settings_field( 'additional_items', __( 'Additional items to log:', 'wp-google-analytics' ), array( $this, 'field_additional_items' ), 'wga', 'wga_general' );
 		add_settings_field( 'do_not_track', __( 'Visits to ignore:', 'wp-google-analytics' ), array( $this, 'field_do_not_track' ), 'wga', 'wga_general' );
+		add_settings_field( 'other_options', __( 'Other options:', 'wp-google-analytics' ), array( $this, 'field_other_options' ), 'wga', 'wga_general' );
 		add_settings_field( 'custom_vars', __( 'Custom variables:', 'wp-google-analytics' ), array( $this, 'field_custom_variables' ), 'wga', 'wga_general' );
 	}
 
@@ -267,6 +268,22 @@ class wpGoogleAnalytics {
 			echo '</label><br />';
 		}
 	}
+	
+	/**
+	 * Options that don't belong anywhere else.
+	 */
+	public function field_other_options() {
+		$other_options = array(
+			'enable_display_advertising'	=> sprintf( __( 'Enable <a href="%s">Display Advertising</a>', 'wp-google-analytics' ), 'https://support.google.com/analytics/answer/2444872?hl=en&utm_id=ad' ),
+			);
+			
+		foreach( $other_options as $id => $label ) {
+			echo '<label for="wga_' . $id . '">';
+			echo '<input id="wga_' . $id . '" type="checkbox" name="wga[' . $id . ']" value="true" ' . checked( 'true', $this->_get_options( $id ), false ) . ' />';
+			echo '&nbsp;&nbsp;' . $label;
+			echo '</label><br />';
+		}
+	}
 
 	/**
 	 * Sanitize all of the options associated with the plugin
@@ -286,6 +303,7 @@ class wpGoogleAnalytics {
 				'log_404s',
 				'log_searches',
 				'log_outgoing',
+				'enable_display_advertising',
 				// Things to ignore
 				'ignore_admin_area',
 			);
@@ -466,16 +484,31 @@ class wpGoogleAnalytics {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
 		}
 
-		$async_code = "<script type='text/javascript'>
-	var _gaq = _gaq || [];
-	%custom_vars%
+		if ($wga['enable_display_advertising'] == true) {
+			$async_code = "<script type='text/javascript'>
+								var _gaq = _gaq || [];
+								%custom_vars%
 
-	(function() {
-		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	})();
-</script>";
+								(function() {
+									var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+									ga.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'stats.g.doubleclick.net/dc.js';
+									var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+								})();
+							</script>";
+		} else {
+			$async_code = "<script type='text/javascript'>
+								var _gaq = _gaq || [];
+								%custom_vars%
+
+								(function() {
+									var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+									ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+									var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+								})();
+							</script>";
+			
+		}
+		
 		$custom_vars_string = implode( "\r\n", $custom_vars );
 		$async_code = str_replace( '%custom_vars%', $custom_vars_string, $async_code );
 
