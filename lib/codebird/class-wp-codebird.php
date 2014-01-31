@@ -6,7 +6,7 @@
  *
  * @version 1.1.2
  */
-class WP_Codebird extends Codebird {
+class WP_Codebird extends \Codebird\Codebird {
 	/**
 	 * The current singleton instance
 	 */
@@ -326,22 +326,31 @@ class WP_Codebird extends Codebird {
 
 			// check for filenames
 			if ( in_array( $key, $possible_files ) ) {
-				if (
-					in_array( strtolower( end( explode( ".", $value ) ) ), $this->_supported_media_files_extensions )
-					&& file_exists( $value )
-					&& is_readable( $value )
-					&& $data = getimagesize( $value )
-				) {
-					if ( // is it a supported image format?
-					in_array( $data[2], $this->_supported_media_files )
-					) {
-						// try to read the file
-						$data = file_get_contents( $value );
-						if ( strlen( $data ) == 0 ) {
-							continue;
-						}
-						$value = $data;
+				$data = false;
+
+				if ( filter_var( $value, FILTER_VALIDATE_URL ) ) {
+					$filename = basename( parse_url( $value, PHP_URL_PATH ) );
+					if ( $this->is_supported_media_file_extension( $filename ) ) {
+						$data = getimagesize( $value );
 					}
+				} elseif (
+					file_exists( $value )
+					&& is_readable( $value )
+					&& $this->is_supported_media_file_extension( basename( $value ) )
+				) {
+					$data = getimagesize( $value );
+				} 
+
+				// is it a supported image format?
+				if ( $data && in_array( $data[2], $this->_supported_media_files ) ) {
+					// try to read the file
+					$data = file_get_contents( $value );
+					if ( strlen( $data ) == 0 ) {
+						continue;
+					}
+					$value = $data;
+				} else {
+					continue;
 				}
 			}
 
@@ -351,6 +360,11 @@ class WP_Codebird extends Codebird {
 		$multipart_request .= '--' . $multipart_border . '--';
 
 		return $multipart_request;
+	}
+
+	private function is_supported_media_file_extension( $filename ) {
+		$extension = pathinfo( $filename, PATHINFO_EXTENSION );
+		return in_array( strtolower( $extension ), $this->_supported_media_files_extensions );
 	}
 
 }
