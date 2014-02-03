@@ -345,13 +345,13 @@ function wpcom_print_news_sitemap($format) {
 		$url = array();
 		$url['loc'] = get_permalink($post->ID);
 		$news = array();
-		$news['n:publication']['n:name'] = html_entity_decode( get_bloginfo( 'name' ), ENT_XML1 );
+		$news['news:publication']['news:name'] = html_entity_decode( get_bloginfo( 'name' ), ENT_XML1 );
 		if ( function_exists( 'get_blog_lang_code' ) )
-			$news['n:publication']['n:language'] = get_blog_lang_code() ;
-		$news['n:publication_date'] = w3cdate_from_mysql($post->post_date_gmt);
-		$news['n:title'] = html_entity_decode( $post->post_title, ENT_XML1 );
-		if ( $post->keywords ) $news['n:keywords'] = html_entity_decode( $post->keywords, ENT_XML1 );
-		$url['n:news'] = $news;
+			$news['news:publication']['news:language'] = get_blog_lang_code() ;
+		$news['news:publication_date'] = w3cdate_from_mysql($post->post_date_gmt);
+		$news['news:title'] = html_entity_decode( $post->post_title, ENT_XML1 );
+		if ( $post->keywords ) $news['news:keywords'] = html_entity_decode( $post->keywords, ENT_XML1 );
+		$url['news:news'] = $news;
 
 		// Add image to sitemap
 		if ( current_theme_supports( 'post-thumbnails' ) && has_post_thumbnail( $post->ID ) ) {
