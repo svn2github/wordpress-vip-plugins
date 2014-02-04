@@ -394,3 +394,16 @@ if ( defined( 'WPCOM_IS_VIP_ENV' ) && ! WPCOM_IS_VIP_ENV ) {
 	add_action( 'init', 'wpcom_vip_local_development_refresh_wp_rewrite', 9999 );
 }
 
+
+/**
+ * If you don't want people (de)activating plugins via this UI
+ * and only want to enable plugins via wpcom_vip_load_plugin()
+ * calls in your theme's functions.php file, then call this
+ * function to disable this plugin's (de)activation links.
+ */
+function wpcom_vip_plugins_ui_disable_activation() {
+	//The Class is not loaded on local environments
+	if ( class_exists( "WPcom_VIP_Plugins_UI" )){
+		WPcom_VIP_Plugins_UI()->activation_disabled = true;
+	}
+}

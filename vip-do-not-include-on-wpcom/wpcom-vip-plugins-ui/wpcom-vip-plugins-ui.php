@@ -637,14 +637,5 @@ function WPcom_VIP_Plugins_UI() {
 WPcom_VIP_Plugins_UI();
 
 
-/**
- * If you don't want people (de)activating plugins via this UI
- * and only want to enable plugins via wpcom_vip_load_plugin()
- * calls in your theme's functions.php file, then call this
- * function to disable this plugin's (de)activation links.
- */
-function wpcom_vip_plugins_ui_disable_activation() {
-	WPcom_VIP_Plugins_UI()->activation_disabled = true;
-}
 
 ?>
