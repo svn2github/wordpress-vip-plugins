@@ -17,6 +17,10 @@ class JanrainCaptureUi {
 		if ( ! is_admin() && JanrainCapture::get_option( JanrainCapture::$name . '_address' ) != false ) {
 			add_action( 'wp_head', array( $this, 'head' ) );
 		}
+		if ( JanrainCapture::get_option( JanrainCapture::$name . '_backplane_enabled' ) > 0 ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'backplane_head' ) );
+			add_action( 'wp_footer', array( $this, 'backplane_js' ) );
+		}
 	}
 
 	/**
@@ -189,7 +193,7 @@ WIDGETCAPTURE;
 
 	// federate settings
 	janrain.settings.capture.federate = <?php echo $settings['capture.federate'] ?>;
-	janrain.settings.capture.federateServer = 'https://<?php echo $settings['capture.federateServer'] ?>';
+	janrain.settings.capture.federateServer = '<?php echo $settings['capture.federateServer'] ?>';
 	janrain.settings.capture.federateXdReceiver = '<?php echo $settings['capture.federateXdReceiver'] ?>';
 	janrain.settings.capture.federateLogoutUri = '<?php echo $settings['capture.federateLogoutUri'] ?>';
 		<?php }
@@ -214,6 +218,57 @@ WIDGETCAPTURE;
 })();
 </script>
 WIDGETFINISH;
+	}
+
+	/**
+	 * Outputs backplane.js include file
+	 */
+	function backplane_head() {
+		if ( JanrainCapture::get_option( JanrainCapture::$name . '_bp_version', 1.2 ) != 2 ) {
+			wp_register_script( 'backplane', 'http://d134l0cdryxgwa.cloudfront.net/backplane.js' );
+		} else {
+			wp_register_script( 'backplane', 'http://d134l0cdryxgwa.cloudfront.net/backplane2.js' );
+		}
+		wp_enqueue_script( 'backplane' );
+	}
+
+	/**
+	 * Outputs backplane setttings js block
+	 */
+	function backplane_js() {
+		$bus = JanrainCapture::get_option( JanrainCapture::$name . '_bp_bus_name' );
+		$ver = JanrainCapture::get_option( JanrainCapture::$name . '_bp_version', 1.2 );
+		if ( $ver == 1.2 ) {
+			echo <<<BACKPLANE
+<script type="text/javascript">
+ function setup_bp() {
+	/*
+	 * Initialize Backplane:
+	 * This creates a channel and adds a cookie for the channel.
+	 * It also sets the function to call when this is complete.
+	 */
+	Backplane(bp_ready);
+	Backplane.init({
+		serverBaseURL: "http://backplane1.janrainbackplane.com/v$ver",
+		busName: "$bus"
+	});
+}
+
+function bp_ready() {
+	/*
+	 * This function is called when Backplane.init is complete.
+	 */
+	if (Backplane.getChannelID() != undefined) {
+		// backplane loaded
+		//console.log(Backplane.getChannelID());
+		return false;
+	}
+}
+
+setup_bp();
+</script>
+BACKPLANE;
+		}
 	}
 
 	/**
