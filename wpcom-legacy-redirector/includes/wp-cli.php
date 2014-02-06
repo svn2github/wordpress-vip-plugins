@@ -41,7 +41,7 @@ class WPCOM_Legacy_Redirector_CLI extends WP_CLI_Command {
 	/**
  	 * Bulk import redirects from a CSV file matching the following structure:
  	 *
- 	 * post_id,url
+ 	 * redirect_from_path,(redirect_to_post_id|redirect_to_path|redirect_to_url)
  	 *
  	 * @subcommand import-from-csv
  	 * @synopsis --csv=<path-to-csv>
@@ -57,11 +57,11 @@ class WPCOM_Legacy_Redirector_CLI extends WP_CLI_Command {
 		if ( ( $handle = fopen( $assoc_args['csv'], "r" ) ) !== FALSE ) {
 			while ( ( $data = fgetcsv( $handle, 2000, "," ) ) !== FALSE ) {
 				$row++;
-				$post_id = $data[ 0 ];
-				$url = $data[ 1 ];
-				WP_CLI::line( "Adding (CSV) redirect for {$post_id} from {$url}" );
+				$redirect_from = $data[ 0 ];
+				$redirect_to = $data[ 1 ];
+				WP_CLI::line( "Adding (CSV) redirect for {$redirect_from} to {$redirect_to}" );
 				WP_CLI::line( "-- at $row" );
-				WPCOM_Legacy_Redirector::insert_legacy_redirect( $url, $post_id );
+				WPCOM_Legacy_Redirector::insert_legacy_redirect( $redirect_from, $redirect_to );
 
 				if ( 0 == $row % 100 ) {
 					if ( function_exists( 'stop_the_insanity' ) )
