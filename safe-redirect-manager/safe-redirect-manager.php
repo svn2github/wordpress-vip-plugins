@@ -768,6 +768,10 @@ class SRM_Safe_Redirect_Manager {
 	 */
 	public function action_parse_request() {
 
+		// Don't redirect from wp-admin
+		if ( is_admin() )
+			return;
+
 		// get redirects from cache or recreate it
 		if ( false === ( $redirects = get_transient( $this->cache_key_redirects ) ) ) {
 			$redirects = $this->update_redirect_cache();
