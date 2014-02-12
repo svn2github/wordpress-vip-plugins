@@ -262,6 +262,11 @@ function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
 	$vip_dir = $content_dir . '/themes/vip';
 	$vip_url = content_url( '/themes/vip' );
 
+	// Don't bother with non-VIP or non-path URLs
+	if ( ! $plugin || 0 !== strpos( $plugin, $vip_dir ) ) {
+		return $url;
+	}
+
 	if( 0 === strpos( $plugin, $vip_dir ) )
 		$url_override = str_replace( $vip_dir, $vip_url, dirname( $plugin ) );
 	elseif  ( 0 === strpos( $plugin, get_stylesheet_directory() ) )
