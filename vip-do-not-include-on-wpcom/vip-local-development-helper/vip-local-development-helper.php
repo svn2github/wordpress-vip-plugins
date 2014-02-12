@@ -254,13 +254,21 @@ function wpcom_vip_noncdn_uri( $path ) {
  * @return string
  */
 function wpcom_vip_plugins_url( $url = '', $path = '', $plugin = '' ) {
+	static $content_dir, $vip_dir, $vip_url;
 
-	// Be gentle on Windows, borrowed from core, see plugin_basename
-	$content_dir = str_replace( '\\','/', WP_CONTENT_DIR ); // sanitize for Win32 installs
-	$content_dir = preg_replace( '|/+|','/', $content_dir ); // remove any duplicate slash
+	if ( ! isset( $content_dir ) ) {
+		// Be gentle on Windows, borrowed from core, see plugin_basename
+		$content_dir = str_replace( '\\','/', WP_CONTENT_DIR ); // sanitize for Win32 installs
+		$content_dir = preg_replace( '|/+|','/', $content_dir ); // remove any duplicate slash
+	}
 
-	$vip_dir = $content_dir . '/themes/vip';
-	$vip_url = content_url( '/themes/vip' );
+	if ( ! isset( $vip_dir ) ) {
+		$vip_dir = $content_dir . '/themes/vip';
+	}
+
+	if ( ! isset( $vip_url ) ) {
+		$vip_url = content_url( '/themes/vip' );
+	}
 
 	// Don't bother with non-VIP or non-path URLs
 	if ( ! $plugin || 0 !== strpos( $plugin, $vip_dir ) ) {
