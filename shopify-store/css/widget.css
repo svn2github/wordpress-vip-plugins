@@ -1,0 +1,115 @@
+.shopify_widget {
+	font-size: 15px;
+	margin: 0;
+	overflow: hidden;
+	width: auto;
+	height: auto;
+	padding: 0;
+	border: none;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	display: inline-block;
+}
+
+.shopify_widget .widget_image {
+	text-align: center;
+}
+
+.shopify_widget .widget_caption {
+	overflow: hidden;
+}
+
+.shopify_widget .widget_buy_button {
+	margin-bottom: 12px;
+	padding: 12px 15px;
+	cursor: pointer;
+	outline: 0;
+	border: none;
+	border-radius: 1px;
+	background: #333741;
+	color: #fff;
+}
+
+.shopify_widget .widget_buy_button:hover {
+	background: #3b404b;
+}
+
+.shopify_widget .widget_options select.show {
+	display: block;
+}
+
+.shopify_help_link {
+	margin: 0 0 12px;
+	display: block;
+}
+
+
+/*------------------------------- PRESET: CENTERED ----------------------------------*/
+.shopify_widget.centered {
+	border: 1px #ddd solid;
+	padding: 10px;
+}
+
+.shopify_widget.centered .widget_image {
+	text-align: center;
+}
+
+.shopify_widget.centered .widget_caption {
+	margin: 12px 0 0;
+	text-align: center;
+}
+
+.shopify_widget.centered .widget_title {
+	display: block;
+	margin-bottom: 10px;
+	font-size: 22px;
+}
+
+.shopify_widget.centered .widget_price {
+	font-size: 22px;
+	font-weight: 300;
+	color: #444;
+}
+
+.shopify_widget.centered .widget_options select {
+	min-width: 150px;
+	margin: 12px auto;
+}
+
+.shopify_widget.centered .widget_buy_button {
+	min-width: 150px;
+}
+
+/*------------------------------- PRESET: SIMPLE ----------------------------------*/
+.shopify_widget.simple .widget_caption {
+	padding: 8px 8px 0;
+}
+
+.shopify_widget.simple .widget_title {
+	display: none;
+}
+
+.shopify_widget.simple .widget_price {
+	color: #000000;
+	font-size: 20px;
+	font-weight: 500;
+}
+
+.shopify_widget.simple .widget_options {
+	margin: 12px 0;
+}
+
+.shopify_widget.simple .select_price {
+	width: 100%;
+}
+
+.shopify_widget.simple .widget_buy_button {
+	background: #e95c40;
+	text-transform: uppercase;
+	padding: 15px;
+	color: #fff;
+	width: 100%;
+}
+
+.shopify_widget.simple .widget_buy_button:hover {
+	background: #e8644a;
+}

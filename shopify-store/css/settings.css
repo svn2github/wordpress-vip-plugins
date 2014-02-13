@@ -1,0 +1,124 @@
+.submit {
+	text-align: right;
+	margin: 0;
+	padding: 0;
+}
+
+#shopify_settings h4 {
+	font-size: 24px;
+	font-weight: 300;
+	margin: 35px 0 20px;
+}
+
+#shopify_settings input.large {
+	padding: 12px;
+}
+
+#shopify_settings .large {
+	vertical-align: middle;
+	font-size: 16px;
+}
+
+#shopify_settings span.large {
+	padding-right: 12px;
+}
+
+#shopify_settings .button-primary {
+	border-radius: 1px;
+	font-size: 14px;
+	height: 100%;
+	vertical-align: middle;
+	padding: 8px 24px;
+	cursor: pointer;
+	color: #fff;
+	background: #96bf48;
+	border: 1px solid #8bb43f;
+	text-shadow: 0 1px 0 #80a53a;
+	box-sizing: border-box;
+	box-shadow: none;
+}
+
+#shopify_settings .button-primary:hover {
+	background: #a1c65b;
+}
+
+#shopify_error {
+	padding: 11px 15px;
+	display: none;
+	text-align: center;
+}
+
+#shopify_settings .updated {
+	display: none;
+}
+
+#setup {
+	background: #f5f5f5;
+	border: 1px solid #dde2eb;
+	border-radius: 3px;
+	width: 380px;
+	padding: 35px 55px;
+	margin: 25px auto;
+}
+
+#widget_preview {
+	float: left;
+	margin-left: 25px;
+}
+
+#widget_preview h3 {
+	margin: 30px 0 0;
+}
+
+#shopify_settings_form {
+	border: 1px solid #dde2eb;
+	border-radius: 2px;
+	padding: 15px;
+	float: left;
+	background-color: #fff;
+}
+
+#shopify_settings_form .form-table:last-of-type {
+	display:none;
+}
+
+.form-table {
+	margin-bottom: 35px;
+}
+
+.form-table select,
+.form-table input{
+	width: 100%;
+}
+
+.form-table th {
+	padding: 10px 0;
+}
+
+#shopify_getting_started {
+	padding: 10px 15px;
+	margin: 5px 0;
+	background-color: #fff;
+}
+
+#shopify_getting_started h3 {
+	font-size: 120%;
+}
+
+.smaller_code {
+	font-size: 95%;
+}
+
+/*------------------------------- HELP DOC ----------------------------------*/
+#help .help-section {
+	font-size: 14px;
+	margin-bottom: 45px;
+}
+
+#help h3 {
+	font-size: 18px;
+}
+
+#help li img {
+	margin-bottom: 30px;
+}
