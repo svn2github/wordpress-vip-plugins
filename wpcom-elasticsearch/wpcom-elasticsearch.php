@@ -651,8 +651,11 @@ class WPCOM_elasticsearch {
 						//continue 2; // switch() is considered a looping structure
 				}
 
+				// Need to urlencode param values since add_query_arg doesn't
+				$url_params = urlencode_deep( array_merge( $query_vars, $_GET ) );
+
 				$facets_data[ $label ]['items'][] = array(
-					'url'        => add_query_arg( array_merge( $query_vars, $_GET ), home_url() ),
+					'url'        => add_query_arg( $url_params, home_url() ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
 					'count'      => $item['count'],
