@@ -16,7 +16,10 @@ class Shopify_Assets
 		wp_enqueue_style( 'shopify-widget', plugins_url( 'css/widget.css', __FILE__ ) );
 	}
 
-	public function settings_styles() {
+	public function settings_styles( $hook ) {
+		if( 'settings_page_shopify_menu' != $hook )
+			return;
+
 		$this->widget_styles();
 		wp_enqueue_style( 'shopify-settings', plugins_url( 'css/settings.css', __FILE__ ) );
 	}
@@ -28,7 +31,10 @@ class Shopify_Assets
 		wp_enqueue_script( 'shopify-widget', plugins_url( 'javascripts/widget.js', __FILE__ ) );
 	}
 
-	public function settings_scripts() {
+	public function settings_scripts( $hook ) {
+		if( 'settings_page_shopify_menu' != $hook )
+			return;
+
 		$this->widget_scripts();
 		wp_enqueue_script( 'iris' );
 		wp_enqueue_script( 'shopify-settings', plugins_url( 'javascripts/settings.js', __FILE__ ) );

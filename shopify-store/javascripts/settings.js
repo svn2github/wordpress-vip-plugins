@@ -1,51 +1,85 @@
 ( function( $ ){
-	Shopify.getShopifySettings = function(){
-		var address = $( "#shopify_url" ).val().replace( "https://", "" ).replace( "http://", "" ).split( "." )[0];
+	Shopify.connectStore = function() {
+		var address = $( "#login-shopify-url" ).val().replace( "https://", "" ).replace( "http://", "" ).split( "." )[0];
+		Shopify.getShopifySettings( address + ".myshopify.com" );
+	};
+
+	Shopify.submitSettingsForm = function( e ) {
+		e.preventDefault();
+		Shopify.getShopifySettings( $( "#shopify_myshopify_domain" ).val() );
+		return false;
+	};
+
+	Shopify.getShopifySettings = function( address ){
+		if( typeof Shopify.timeoutId === "undefined" ) {
+			Shopify.timeoutId = window.setTimeout(Shopify.jsonpFail, 700);
+		}
 		$.ajax({
-			url: "//" + address + ".myshopify.com/meta.json",
+			url: "//" + address + "/meta.json",
 			dataType: "jsonp",
-			success: function( json ){
-				if( $( "#shopify_setup" ).val() === "false") {
-					window.open( "https://wordpress-shortcode-generator.shopifyapps.com/login?shop=" + json.myshopify_domain + "&wordpress_admin_url=" + $( "#signin" ).data( "wordpressdomain" ) );
-				}
-				$( "#shopify_myshopify_domain" ).val( json.myshopify_domain );
-				$( "#shopify_primary_shopify_domain" ).val( json.domain );
-				$( "#shopify_money_format" ).val( json.money_format );
-				$( "#shopify_setup" ).val( "true" );
-				$( "#shopify_settings_form" ).submit();
-			}})
-		.fail( function(){
-			$( "#shopify_error" ).append( "We're sorry, but something went wrong. Please try again or contact <a href='http://docs.shopify.com/support'>Shopify Support</a>" );
+			success: Shopify.jsonpSuccess
 		});
 	};
 
-	Shopify.hideTip = function(){
+	Shopify.jsonpFail = function(){
+		$( "#shopify-error" ).empty().append( "<b>Invalid store address</b>. Please try again or contact <a href='http://docs.shopify.com/support'>Shopify Support</a>." ).fadeIn(300).fadeOut(200).fadeIn(300);
+	};
+
+	Shopify.jsonpSuccess = function( json ) {
+		window.clearTimeout(Shopify.timeoutId);
+		delete Shopify.timeoutId;
+
+		if( $( "#shopify_setup" ).val() === "false" ) {
+			Shopify.setCookie( "redirectToShopifyApp" );
+		}
+
+		$( "#shopify_myshopify_domain" ).val( json.myshopify_domain );
+		$( "#shopify_primary_shopify_domain" ).val( json.domain );
+		$( "#shopify_money_format" ).val( json.money_format );
+		$( "#shopify_setup" ).val( "true" );
+		$( "#shopify-settings-form" ).submit();
+	};
+
+	Shopify.setCookie = function( name ) {
 		var d = new Date();
 		d.setTime( d.getTime() + ( 5*365*24*60*60*1000 ) ); //5 year cookie
 		var expires = "expires=" + d.toGMTString();
-		$( "#shopify_getting_started" ).fadeOut();
-		document.cookie = "shopifyHideTip=true; " + expires;
+		document.cookie = "" + name + "=true; " + expires;
+	};
+
+	Shopify.checkCookie = function( name ) {
+		return document.cookie.indexOf( name ) !== -1;
+	};
+
+	Shopify.deleteCookie = function( name ) {
+		document.cookie = "" + name + "=true;expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+	};
+
+	Shopify.hideTip = function(){
+		$( "#shopify-getting-started" ).fadeOut();
+		$( "#shopify-help-link" ).fadeIn();
+		Shopify.setCookie( "shopifyHideTip" );
 	};
 
 	Shopify.updateWidgetPreview = function( element ){
-		var widget_id = $( "#widget_preview form" ).attr( "id" );
+		var widget_id = $( "#shopify-widget-preview form" ).attr( "id" );
 		var widget = Shopify.allWidgets[widget_id];
 		switch( element.id ) {
 			case "shopify_text_color":
 				if ( widget.widget_container.hasClass( "centered" )) {
 					widget.widget_container.css( "color", element.value );
 				} else {
-					widget.widget_container.find( ".widget_price" ).css( "color", element.value );
+					widget.widget_container.find( ".widget-price" ).css( "color", element.value );
 				}
 				break;
 			case "shopify_button_text_color":
-				widget.widget_container.find( ".widget_buttons input[type='submit']" ).css( "color", element.value );
+				widget.widget_container.find( ".widget-buttons input[type='submit']" ).css( "color", element.value );
 				break;
 			case "shopify_button_background":
-				widget.widget_container.find( ".widget_buttons input[type='submit']" ).css( "background", element.value );
+				widget.widget_container.find( ".widget-buttons input[type='submit']" ).css( "background", element.value );
 				break;
 			case "shopify_button_text":
-				widget.widget_container.find( ".widget_buttons input[type='submit']" ).val( element.value );
+				widget.widget_container.find( ".widget-buttons input[type='submit']" ).val( element.value );
 				break;
 			case "shopify_background_color":
 				widget.widget_container.css( "background", element.value );
@@ -72,12 +106,12 @@
 				var button = "";
 				var button_text = $( "#shopify_button_text" ).attr( "value" );
 				if( element.value === "cart" ){
-					button = "<input type='hidden' class='selected_variant' name='id' value=''/> <input type='submit' class='widget_buy_button' value='" + button_text + "' target='#'/>";
+					button = "<input type='hidden' class='selected-variant' name='id' value=''/> <input type='submit' class='widget-buy-button' value='" + button_text + "' target='#'/>";
 				} else {
-					button = "<input type='hidden' name='return_to' value='/checkout'/><input type='submit' class='widget_buy_button' value='" + button_text + "' target='#' onclick='Shopify.allWidgets." + widget_id + ".buyNow();return false;'/>";
+					button = "<input type='hidden' name='return-to' value='/checkout'/><input type='submit' class='widget-buy-button' value='" + button_text + "' target='#' onclick='Shopify.allWidgets." + widget_id + ".buyNow();return false;'/>";
 				}
 				widget.widget_container.find( ".destination" ).attr( "value", element.value );
-				widget.widget_container.find( ".widget_buttons" ).empty().append( button );
+				widget.widget_container.find( ".widget-buttons" ).empty().append( button );
 				widget.updateVisablePrice(); //set id posted by form properly
 				break;
 			default:
@@ -85,53 +119,70 @@
 		}
 	};
 
+	Shopify.toggleEditMyshopify = function() {
+		$( "#shopify_myshopify_domain" ).toggle();
+		$( "#edit-myshopify-domain" ).toggle();
+		return false;
+	};
+
 	$( function(){
-		if( location.search.indexOf( "shopify_menu" ) !== -1) {
-			if( $( "#shopify_setup" ).val() === "true" ){
-				if( document.cookie.indexOf( "shopifyHideTip" ) === -1 ){
-					$( "#store_link" ).attr("href", "http://" + $( "#shopify_primary_shopify_domain").val() + "/collections/all" );
-					$( "#shopify_getting_started" ).show();
-				}
+		if( $( "#shopify_setup" ).val() === "true" ){
 
-				$( "#shopify_settings_form" ).keyup( function( e ) {
-					var code = e.keyCode || e.which;
-					if ( code == 13 ) {
-						e.preventDefault();
-						Shopify.getShopifySettings();
-						return false;
-					}});
-
-				if( location.search.indexOf( "settings-updated=true" ) !== -1 ){
-					$( "#flash" ).show().append( "Settings updated" );
-					setTimeout( function(){$( "#flash" ).fadeOut();}, 5000 );
-				}
-
-				$( "#shopify_settings_form" ).bind( "change keyup", function( e ){
-					Shopify.updateWidgetPreview( e.target );
-				});
-
-				$( ".color-picker" ).iris({
-					hide: true,
-					palettes: true,
-					size: 140,
-					change: function( event, ui ) {
-						Shopify.updateWidgetPreview( event.target );
-					}
-				});
-				$( ".color-picker" ).click( function( event ){
-					$( ".color-picker" ).iris( "hide" );
-					$( event.target ).iris( "show" );
-				});
-			} else {
-				$( "#shopify_url" ).keyup( function( e ) {
-					var code = e.keyCode || e.which;
-					if ( code == 13 ) {
-						e.preventDefault();
-						Shopify.getShopifySettings();
-						return false;
-					}});
-				$( "#shopify_nag" ).hide();
+			if( Shopify.checkCookie( "redirectToShopifyApp" ) ){
+				Shopify.deleteCookie( "redirectToShopifyApp" );
+				window.location.href =  "https://wordpress-shortcode-generator.shopifyapps.com/login?shop=" + $( "#shopify_myshopify_domain" ).val() + "&wordpress_admin_url=" + $( "#shopify-store-signin" ).data( "wordpressdomain" );
 			}
+
+			if( !Shopify.checkCookie( "shopifyHideTip" ) ){
+				$( "#shopify-getting-started" ).show();
+				$( "#shopify-help-link" ).hide();
+			}
+
+			$( "#shopify-settings-form" ).keyup( function( e ) {
+				var code = e.keyCode || e.which;
+				if ( code == 13 ) {
+					return Shopify.submitSettingsForm( e );
+				}
+			});
+
+			$( "#save-shopify-settings" ).click(function( e ){
+				return Shopify.submitSettingsForm( e );
+			});
+
+			$( "#shopify-settings-form" ).bind( "change keyup", function( e ){
+				Shopify.updateWidgetPreview( e.target );
+			});
+
+			$( ".color-picker" ).iris({
+				hide: true,
+				palettes: true,
+				size: 140,
+				change: function( event, ui ) {
+					Shopify.updateWidgetPreview( event.target );
+				}
+			});
+			$( ".color-picker" ).click( function( event ){
+				$( ".color-picker" ).iris( "hide" );
+				$( event.target ).iris( "show" );
+			});
+
+			$( "#shopify-settings-form .form-table" ).last().hide();
+
+			var domain = $( "#shopify_myshopify_domain" );
+			domain.hide();
+			domain.after(
+					"<div id='edit-myshopify-domain'>" + domain.val() + "</div>"
+			);
+
+		} else {
+			$( "#login-shopify-url" ).keyup( function( e ) {
+				var code = e.keyCode || e.which;
+				if ( code == 13 ) {
+					e.preventDefault();
+					Shopify.connectStore();
+					return false;
+				}});
+			$( "#shopify-connect-banner" ).hide();
 		}
 	});
 })( jQuery );

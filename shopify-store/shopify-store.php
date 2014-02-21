@@ -19,6 +19,3 @@ new Shopify_Settings();
 
 require_once( dirname( __FILE__ ) . '/class-assets.php');
 new Shopify_Assets();
-
-require_once( dirname( __FILE__ ) . '/class-help.php');
-new Shopify_Help();

@@ -51,6 +51,10 @@ class Shopify_Shortcode
 		if ( false === strpos( $content, $settings['myshopify_domain'] ) )
 			return $content;
 
+		if ( ( false === strpos( $content, $settings['myshopify_domain'] ) ) && ( false === strpos( $content, $settings['primary_shopify_domain'] ) ) ) {
+			return $content;
+		}
+
 		$content = preg_replace(
 			'/^(?:<p>)?(https?:\/\/(?:' . preg_quote( $settings['myshopify_domain'] ) . '|' . preg_quote( $settings['primary_shopify_domain'] ) . ')(?:\/[\w-\d\/]+)?\/products\/[\w-\d]+)\/?(?:<\/p>)?$/m',
 			esc_html( '[shopify product=\1]' ),

@@ -7,7 +7,7 @@
 		this.referer = options.referer;
 		this.size = options.size;
 		this.widget = $( "#" + this.widget_id );
-		this.widget_container = $( "#" + this.widget_id + "_container" );
+		this.widget_container = $( "#" + this.widget_id + "-container" );
 	};
 
 	Widget.prototype.fetchProduct = function() {
@@ -23,18 +23,18 @@
 	};
 
 	Widget.prototype.updateWidget = function() {
-		this.widget.find( ".widget_title" ).text( this.product.title );
-		this.widget.find( ".this.product_price" ).text( this.product.variants[0].price );
+		this.widget.find( ".widget-title" ).text( this.product.title );
+		this.widget.find( ".this.product-price" ).text( this.product.variants[0].price );
 		if ( this.product.variants.length > 1 ) {
-			this.widget.find( ".select_price" ).addClass( "show" );
-			this.widget_container.addClass( "with_options" );
+			this.widget.find( ".select-price" ).addClass( "show" );
+			this.widget_container.addClass( "with-options" );
 		}
-		this.widget.find( ".selected_variant" ).val( this.product.variants[0].id ).empty();
-		this.widget.find( ".select_price" ).empty();
+		this.widget.find( ".selected-variant" ).val( this.product.variants[0].id ).empty();
+		this.widget.find( ".select-price" ).empty();
 		for ( var i in this.product.variants ) {
 			var variant = this.product.variants[i];
 			var option = $( '<option value="' + variant.id + '" data-price="' + Shopify.formatMoney( variant.price, this.money_format ) + '">' + variant.title + '</option>' );
-			this.widget.find( ".select_price" ).append( option );
+			this.widget.find( ".select-price" ).append( option );
 		}
 		this.updateImage();
 		this.updateVisablePrice();
@@ -46,17 +46,29 @@
 			var ext = "." + this.getLocation( src ).pathname.split( "." ).pop();
 			var img = src.split( ext )[0] + "_" + this.size + ext;
 			img = img.replace( "http:", "https:" );
-			this.widget.find( ".widget_image img" ).attr( 'src', img ).attr( 'alt', this.product.title );
+			var img_elm = this.widget.find( ".widget-image img" );
+			img_elm.on('load', $.proxy( this.updateWidgetSize, this ));
+			img_elm.attr( 'src', img ).attr( 'alt', this.product.title );
+			window.setTimeout( $.proxy( this.updateWidgetSize, this ), 2000); //just in case on load doesn't work
+		}
+	};
+
+	Widget.prototype.updateWidgetSize = function() {
+		var img_elm = this.widget.find( ".widget-image img" );
+		if( this.size !== "small" ){
+			this.widget.css( "width", img_elm.width() );
+		} else {
+			this.widget.css( "width", 120 );
 		}
 	};
 
 	Widget.prototype.updateVisablePrice = function() {
-		var el = this.widget.find( ".select_price" )[0];
+		var el = this.widget.find( ".select-price" )[0];
 		var selected = el.children[el.selectedIndex];
-		var price_el = this.widget.find( ".product_price" )[0];
+		var price_el = this.widget.find( ".product-price" )[0];
 		var price = selected.getAttribute( 'data-price' );
 		price_el.innerHTML = price;
-		this.widget.find( ".selected_variant" ).val( selected.value );
+		this.widget.find( ".selected-variant" ).val( selected.value );
 	};
 
 	Widget.prototype.getLocation = function( href ) {
@@ -67,7 +79,7 @@
 
 
 	Widget.prototype.buyNow = function() {
-		var variant_id = $( '#' + this.widget_id + ' [name=variant_id]:first' ).val();
+		var variant_id = $( '#' + this.widget_id + ' [name=variant-id]:first' ).val();
 		var qty = 1;
 		if ( $( '#' + this.widget_id + ' .destination' ).val() === 'product' ) {
 			// redirect to the product page

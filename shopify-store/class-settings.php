@@ -5,7 +5,7 @@ class Shopify_Settings
 	protected $options = array(
 		#setting => { label => label_text, type => (text_field | select | hidden | color), (values => [one, two, three])}
 		'myshopify_domain' => array(
-			'label' =>'Shopify store address',
+			'label' =>'Store address (<a id="shopify-edit-link" href="#" onClick="Shopify.toggleEditMyshopify();return false">edit</a>)',
 			'type' => 'text',
 			'section' => 'store'
 		),
@@ -34,7 +34,7 @@ class Shopify_Settings
 			'section' => 'widget'
 		),
 		'money_format' => array(
-			'label' => 'Currency format',
+			'label' => '',
 			'type' => 'hidden',
 			'section' => 'hidden_field_section'
 		),
@@ -162,7 +162,7 @@ class Shopify_Settings
 	public function admin_notices() {
 		$settings = get_option( $this->option_name, array() );
 		if ( $settings['setup'] !== 'true' ) {
-			echo "<div class='error' id='shopify_nag'><p><a href='" . esc_url( $this->settings_page_url() ) . "'>Connect your Shopify store</a></p></div>";
+			echo "<div class='error' id='shopify-connect-banner'><p><a href='" . esc_url( $this->settings_page_url() ) . "'>Click here</a> to link your Shopify store to your WordPress blog.</p></div>";
 		}
 	}
 
