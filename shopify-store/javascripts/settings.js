@@ -155,7 +155,6 @@
 
 			$( ".color-picker" ).iris({
 				hide: true,
-				palettes: true,
 				size: 140,
 				change: function( event, ui ) {
 					Shopify.updateWidgetPreview( event.target );

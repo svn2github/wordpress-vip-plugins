@@ -71,11 +71,11 @@
 
 .shopify-widget.centered .widget-options select {
 	margin: 12px auto;
-	min-width: 150px;
+	min-width: 100px;
 }
 
 .shopify-widget.centered .widget-buy-button {
-	min-width: 150px;
+	min-width: 100px;
 }
 
 /*------------------------------- PRESET: SIMPLE ----------------------------------*/
