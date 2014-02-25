@@ -164,7 +164,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		 * @return bool|string False if WP_Error, otherwise JSON string
 		 */
 		function es_api_search_index( $args ) {
-			if ( class_exists( 'Jetpack' ) ) {
+			if ( class_exists( 'Jetpack' ) && empty( $args['blog_id'] ) ) {
 				$jetpack_blog_id = Jetpack::get_option( 'id' );
 				if ( ! $jetpack_blog_id ) {
 					return array( 'error' => 'Failed to get Jetpack blog_id' );
