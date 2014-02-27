@@ -421,11 +421,6 @@ class EXP_Expiring_Posts {
 	 */
 	function check_and_expire_scheduled_post() {
 
-		// Catch multiple simultaneous cron calls. This will reset any cron that is
-		// scheduled within the next minute so that we don't loose it.
-		if ( ! wpcom_set_option_lock( 'exp_cron_lock', 60 ) )
-			return $this->reset_expiration_event();
-
 		$curr_time = time();
 
 		$next_scheduled = wp_next_scheduled( 'exp_expire_post_event');
