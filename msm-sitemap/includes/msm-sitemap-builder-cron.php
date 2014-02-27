@@ -2,7 +2,7 @@
 
 class MSM_Sitemap_Builder_Cron {
 
-	function setup() {
+	public static function setup() {
 		add_action( 'msm_update_sitemap_for_year_month_date', array( __CLASS__, 'schedule_sitemap_update_for_year_month_date' ), 10, 2 );
 
 		add_action( 'msm_cron_generate_sitemap_for_year', array( __CLASS__, 'generate_sitemap_for_year' ) );
@@ -118,22 +118,35 @@ class MSM_Sitemap_Builder_Cron {
 	public static function action_reset_data() {
 		// Do the same as when we finish then tell use to delete manuallyrather than remove all data
 		self::reset_sitemap_data();
-		Metro_Sitemap::show_action_message( __( 'Sitemap data reset. If you want to remove the data you must do so manually', 'metro-sitemaps' ) );
+		Metro_Sitemap::show_action_message( sprintf(
+				__( '<p>Sitemap data reset. If you want to completely remove the data you must do so manually by deleting all posts with post type <code>%1$s</code>.</p><p>The WP-CLI command to do this is: <code>%2$s</code></p>', 'msm-sitemap' ),
+				Metro_Sitemap::SITEMAP_CPT,
+				'wp post delete $(wp post list --post_type=' . Metro_Sitemap::SITEMAP_CPT . ' --format=ids)'
+		) );
 	}
 
 	/**
 	 * Reset sitemap options
 	 */
 	public static function reset_sitemap_data() {
+		// Remove the stats meta information
+		delete_post_meta_by_key( 'msm_indexed_url_count' );
+
+		// Remove the XML sitemap data
+		delete_post_meta_by_key( 'msm_sitemap_xml' );
+
+		// Delete state options
 		delete_option( 'msm_days_to_process' );
 		delete_option( 'msm_months_to_process' );
 		delete_option( 'msm_years_to_process' );
 		delete_option( 'msm_stop_processing' );
 		delete_option( 'msm_sitemap_create_in_progress' );
+
+		// Delete stats options
 		delete_option( 'msm_sitemap_indexed_url_count' );
 	}
 
-	function schedule_sitemap_update_for_year_month_date( $date, $time ) {
+	public static function schedule_sitemap_update_for_year_month_date( $date, $time ) {
 		list( $year, $month, $day ) = $date;
 
 		wp_schedule_single_event(

@@ -181,6 +181,43 @@ class Metro_Sitemap_CLI extends WP_CLI_Command {
 		return true;
 	}
 
+
+	/**
+	 * @subcommand recount-indexed-posts
+	 */
+	public function recount_indexed_posts() {
+
+		$all_sitemaps = get_posts(
+			array(
+				'post_type' => Metro_Sitemap::SITEMAP_CPT,
+				'post_status' => 'publish',
+				'fields' => 'ids',
+				'suppress_filters' => false,
+				'posts_per_page' => -1,
+			)
+		);
+
+		$total_count = 0;
+		$sitemap_count = 0;
+
+		foreach ( $all_sitemaps as $sitemap_id ) {
+
+			$xml_data = get_post_meta( $sitemap_id, 'msm_sitemap_xml', true );
+
+			$xml = simplexml_load_string( $xml_data );
+			$count = count( $xml->url );
+			update_post_meta( $sitemap_id, 'msm_indexed_url_count', $count );
+
+			$total_count += $count;
+			$sitemap_count += 1;
+		}
+
+		update_option( 'msm_sitemap_indexed_url_count', $total_count );
+		WP_CLI::line( sprintf( 'Total posts found: %s', $total_count ) );
+		WP_CLI::line( sprintf( 'Number of sitemaps found: %s', $sitemap_count ) );
+
+	}
+
 	/**
 	 * Check if the user has flagged to bail on sitemap generation.
 	 *
