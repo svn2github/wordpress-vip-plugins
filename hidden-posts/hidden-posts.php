@@ -85,7 +85,7 @@ class Hidden_Posts {
      * Get the array of posts
      */
     static function get_posts() {
-        return get_option( self::META_KEY, array() );
+        return array_filter( array_map( 'absint', get_option( self::META_KEY, array() ) ) );
     }
 
     /**
