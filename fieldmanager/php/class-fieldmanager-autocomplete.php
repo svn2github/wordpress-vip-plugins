@@ -58,7 +58,7 @@ class Fieldmanager_Autocomplete extends Fieldmanager_Field {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
-		fm_add_script( 'fm_autocomplete_js', 'js/fieldmanager-autocomplete.js', array(), '1.0.1', false, 'fm_search', array( 'nonce' => wp_create_nonce( 'fm_search_nonce' ) ) );
+		fm_add_script( 'fm_autocomplete_js', 'js/fieldmanager-autocomplete.js', array(), '1.0.2', false, 'fm_search', array( 'nonce' => wp_create_nonce( 'fm_search_nonce' ) ) );
 
 		if ( empty( $this->datasource ) ) {
 			$message = __( 'You must supply a datasource for the autocomplete field' );
@@ -101,12 +101,15 @@ class Fieldmanager_Autocomplete extends Fieldmanager_Field {
 
 		if ( $this->datasource->use_ajax ) {
 			$this->attributes['data-action'] = $this->datasource->get_ajax_action( $this->name );
+			list ( $context, $subcontext ) = fm_get_context();
+			$this->attributes['data-context'] = $context;
+			$this->attributes['data-subcontext'] = $subcontext;
 		} else {
-			$this->attributes['data-options'] = htmlspecialchars( json_encode( $this->datasource->options ) );
+			$this->attributes['data-options'] = htmlspecialchars( json_encode( $this->datasource->get_items() ) );
 		}
 
 		$element = sprintf(
-			'<input class="fm-autocomplete fm-element" type="text" id="%s" value="%s" %s />',
+			'<input class="fm-autocomplete fm-element fm-incrementable" type="text" id="%s" value="%s" %s />',
 			$this->get_element_id(),
 			$this->datasource->get_value( $value ),
 			$this->get_element_attributes()

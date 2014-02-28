@@ -60,7 +60,7 @@ class Fieldmanager_Context_Submenu extends Fieldmanager_Context {
 	 * @param string $menu_slug
 	 * @param Fieldmanager_Field $fm
 	 */
-	public function __construct( $parent_slug, $page_title, $menu_title = Null, $capability = 'manage_options', $menu_slug = Null, $fm ) {
+	public function __construct( $parent_slug, $page_title, $menu_title = Null, $capability = 'manage_options', $menu_slug = Null, $fm = Null, $already_registered = False ) {
 		$this->fm = $fm;
 		$this->menu_slug = $menu_slug ?: $this->fm->name;
 		$this->menu_title = $menu_title ?: $page_title;
@@ -68,7 +68,7 @@ class Fieldmanager_Context_Submenu extends Fieldmanager_Context {
 		$this->page_title = $page_title;
 		$this->capability = $capability;
 		$this->uniqid = $this->fm->get_element_id() . '_form';
-		add_action( 'admin_menu', array( $this, 'register_submenu_page' ) );
+		if ( !$already_registered ) add_action( 'admin_menu', array( $this, 'register_submenu_page' ) );
 		add_action( 'admin_init', array( $this, 'handle_submenu_save' ) );
 	}
 
@@ -98,7 +98,7 @@ class Fieldmanager_Context_Submenu extends Fieldmanager_Context {
 		printf( '<input type="submit" name="fm-submit" class="button-primary" value="%s" />', esc_attr( $this->submit_button_label ) ?: __( 'Save Options' ) );
 		echo '</form>';
 		echo '</div>';
-		
+
 		// Check if any validation is required
 		$fm_validation = Fieldmanager_Util_Validation( $this->uniqid, 'submenu' );
 		$fm_validation->add_field( $this->fm );
@@ -109,21 +109,21 @@ class Fieldmanager_Context_Submenu extends Fieldmanager_Context {
 	 * @return void
 	 */
 	public function handle_submenu_save() {
-		if ( ! empty( $_POST ) && $_GET['page'] == $this->fm->name && current_user_can( $this->capability ) ) {
+		if ( ! empty( $_POST ) && $_GET['page'] == $this->menu_slug && current_user_can( $this->capability ) ) {
 			// Make sure that our nonce field arrived intact
 			if( !wp_verify_nonce( $_POST['fieldmanager-' . $this->fm->name . '-nonce'], 'fieldmanager-save-' . $this->fm->name ) ) {
-				$this->_unauthorized_access( 'Nonce validation failed' );
+				$this->fm->_unauthorized_access( 'Nonce validation failed' );
 			}
 			$this->fm->data_id = $this->fm->name;
 			$this->fm->data_type = 'options';
-			$current = get_option( $this->fm->name );
+			$current = get_option( $this->fm->name, null );
 			$value = isset( $_POST[ $this->fm->name ] ) ? $_POST[ $this->fm->name ] : "";
 			$data = $this->fm->presave_all( $value, $current );
 			$data = apply_filters( 'fm_submenu_presave_data', $data, $this );
-			if ( get_option( $this->fm->name ) ) {
+			if ( isset( $current ) ) {
 				update_option( $this->fm->name, $data );
 			} else {
-				add_option( $this->fm->name, $data, ' ', $this->wp_option_autoload ? 'yes' : 'no' );
+				add_option( $this->fm->name, $data, '', $this->wp_option_autoload ? 'yes' : 'no' );
 			}
 		}
 	}

@@ -27,10 +27,10 @@
 abstract class Fieldmanager_Field {
 
 	/**
-	 * @var debug
+	 * @var boolean
 	 * If true, throw exceptions for illegal behavior
 	 */
-	public static $debug = True;
+	public static $debug = FM_DEBUG;
 
 	/**
 	 * @var int
@@ -127,7 +127,7 @@ abstract class Fieldmanager_Field {
 	 * Functions to use to validate input
 	 */
 	public $validate = array();
-	
+
 	/**
 	 * @var string|array
 	 * jQuery validation rule(s) used to validate this field, entered as a string or associative array.
@@ -135,7 +135,7 @@ abstract class Fieldmanager_Field {
 	 * For more information see http://jqueryvalidation.org/documentation/
 	 */
 	public $validation_rules;
-	
+
 	/**
 	 * @var string|array
 	 * jQuery validation messages used by the rule(s) defined for this field, entered as a string or associative array.
@@ -144,7 +144,7 @@ abstract class Fieldmanager_Field {
 	 * For more information see http://jqueryvalidation.org/documentation/
 	 */
 	public $validation_messages;
-	
+
 	/**
 	 * @var boolean
 	 * Makes the field required on WordPress context forms that already have built-in validation.
@@ -287,7 +287,6 @@ abstract class Fieldmanager_Field {
 	 */
 	public function __construct( $label = '', $options = array() ) {
 		$this->set_options( $label, $options );
-
 		add_filter( 'fm_submenu_presave_data', 'stripslashes_deep' );
 	}
 
@@ -440,7 +439,7 @@ abstract class Fieldmanager_Field {
 		if ( !( $this->field_class == 'group' && ( !isset( $this->label ) || empty( $this->label ) ) ) ) {
 			$classes[] = 'fm-' . $this->field_class;
 		}
-		
+
 		// Check if the required attribute is set. If so, add the class.
 		if ( $this->required ) {
 			$classes[] = 'form-required';
@@ -541,18 +540,6 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
-	 * Get full path (e.g. parent_group_element)
-	 * @return string full path
-	 */
-	public function get_full_path() {
-		$names = array();
-		foreach ( $this->get_form_tree() as $level ) {
-			$names[] = $level->name;
-		}
-		return implode( '_', $names );
-	}
-
-	/**
 	 * Recursively build path to this element (e.g. array(grandparent, parent, this) )
 	 * @return array of parents
 	 */
@@ -588,7 +575,7 @@ abstract class Fieldmanager_Field {
 	 */
 	public function presave_all( $values, $current_values ) {
 
-		if ( $this->limit == 1 ) {
+		if ( $this->limit == 1 && empty( $this->multiple ) ) {
 			$values = $this->presave_alter_values( array( $values ), array( $current_values ) );
 			if ( ! empty( $values ) )
 				$value = $this->presave( $values[0], $current_values );
@@ -610,21 +597,25 @@ abstract class Fieldmanager_Field {
 			);
 		}
 
+		if ( empty( $values ) ) $values = array();
+
 		if ( isset( $values['proto'] ) ) {
 			unset( $values['proto'] );
 		}
 
+		# Condense the array to account for middle items removed
+		$values = array_values( $values );
+
 		$values = $this->presave_alter_values( $values, $current_values );
 
 		foreach ( $values as $i => $value ) {
-			if ( !is_numeric( $i ) ) {
-				// If $this->limit != 1 and $values contains something other than a numeric key...
-				$this->_unauthorized_access( '$values should be a number-indexed array, but found key ' . $i );
-			}
-			$values[$i] = $this->presave( $value, empty( $current_values[$i] ) ? array() : $current_values[$i] );
-			if ( !$this->save_empty && empty( $values[$i] ) ) unset( $values[$i] );
+			$values[ $i ] = $this->presave( $value, empty( $current_values[ $i ] ) ? array() : $current_values[ $i ] );
+			if ( !$this->save_empty && empty( $values[ $i ] ) )
+				unset( $values[ $i ] );
 		}
-		if ( !empty( $this->index ) ) $this->save_index( $values, $current_values );
+		if ( !empty( $this->index ) )
+			$this->save_index( $values, $current_values );
+
 		return $values;
 	}
 
@@ -634,6 +625,7 @@ abstract class Fieldmanager_Field {
 	 * Is called multiple times for multi-fields (e.g. limit => 0)
 	 * @param array $values
 	 * @return void
+	 * @todo make this a context method
 	 */
 	protected function save_index( $values, $current_values ) {
 		if ( $this->data_type != 'post' || empty( $this->data_id ) ) return;
@@ -733,7 +725,7 @@ abstract class Fieldmanager_Field {
 	 * @return string button HTML.
 	 */
 	public function add_another() {
-		$classes = array( 'fm-add-another', 'fm-' . $this->name . '-add-another' );
+		$classes = array( 'fm-add-another', 'fm-' . $this->name . '-add-another', 'button-secondary' );
 		$out = '<div class="fm-add-another-wrapper">';
 		$out .= sprintf(
 			'<input type="button" class="%s" value="%s" name="%s" data-related-element="%s" />',
@@ -789,15 +781,17 @@ abstract class Fieldmanager_Field {
 
 	/**
 	 * Add a form on a frontend page
+	 * @see Fieldmanager_Context_Form
 	 * @param string $uniqid a unique identifier for this form
 	 */
 	public function add_page_form( $uniqid ) {
 		$this->require_base();
 		return new Fieldmanager_Context_Page( $uniqid, $this );
 	}
-	
+
 	/**
 	 * Add a form on a term add/edit page
+	 * @see Fieldmanager_Context_Term
 	 * @param string $title
 	 * @param string|array $taxonomies The taxonomies on which to display this form
 	 * @param boolean $show_on_add Whether or not to show the fields on the add term form
@@ -810,7 +804,8 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
-	 * Add this field as a metabox to a content type
+	 * Add this field as a metabox to a post type
+	 * @see Fieldmanager_Context_Post
 	 * @param string $title
 	 * @param string|string[] $post_type
 	 * @param string $context
@@ -824,6 +819,19 @@ abstract class Fieldmanager_Field {
 	}
 
 	/**
+	 * Add this field to a post type's quick edit box.
+	 * @see Fieldmanager_Context_Quickedit
+	 * @param string $title
+	 * @param string|string[] $post_type
+	 * @param string $column_title
+	 * @param callable $column_display_callback
+	 */
+	public function add_quickedit_box( $title, $post_types, $column_display_callback, $column_title = '' ) {
+		$this->require_base();
+		return new Fieldmanager_Context_QuickEdit( $title, $post_types, $column_display_callback, $column_title, $this );
+	}
+
+	/**
 	 * Add this group to an options page
 	 * @param string $title
 	 */
@@ -832,22 +840,21 @@ abstract class Fieldmanager_Field {
 		return new Fieldmanager_Context_Submenu( $parent_slug, $page_title, $menu_title, $capability, $menu_slug, $this );
 	}
 
+	/**
+	 * Activate this group in an already-added submenu page
+	 * @param string $title
+	 */
+	public function activate_submenu_page() {
+		$this->require_base();
+		$submenus = _fieldmanager_registry( 'submenus' );
+		$s = $submenus[ $this->name ];
+		$active_submenu = new Fieldmanager_Context_Submenu( $s[0], $s[1], $s[2], $s[3], $s[4], $this, True );
+		_fieldmanager_registry( 'active_submenu', $active_submenu );
+	}
+
 	private function require_base() {
 		if ( !empty( $this->parent ) ) {
 			throw new FM_Developer_Exception( __( 'You cannot use this method on a subgroup' ) );
-		}
-	}
-
-	/**
-	 * How many elements should we render?
-	 * @return string
-	 */
-	protected function get_multiple_count( $values ) {
-		if ( $this->limit == 0 ) {
-			return max( $this->starting_count, count( $values ) + $this->extra_elements );
-		}
-		else {
-			return $this->limit;
 		}
 	}
 
@@ -881,7 +888,7 @@ abstract class Fieldmanager_Field {
 			);
 		}
 	}
-	
+
 	/**
 	 * Die violently. If self::$debug is true, throw an exception.
 	 * @param string $debug_message
@@ -904,6 +911,10 @@ abstract class Fieldmanager_Field {
 		return $this->has_proto() ? 'proto' : $this->seq;
 	}
 
+	/**
+	 * Are we in the middle of generating a prototype element for repeatable fields?
+	 * @return boolean
+	 */
 	protected function has_proto() {
 		if ( $this->is_proto ) return True;
 		if ( $this->parent ) return $this->parent->has_proto();

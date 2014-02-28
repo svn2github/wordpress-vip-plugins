@@ -4,16 +4,27 @@ var fm = {};
 
 var dynamic_seq = 0;
 
+var init_sortable_container = function( el ) {
+	if ( !$( el ).hasClass( 'ui-sortable' ) ) {
+		$( el ).sortable( {
+			handle: '.fmjs-drag',
+			items: '> .fm-item',
+			stop: function( e, ui ) {
+				var $parent = ui.item.parents( '.fm-wrapper' ).first();
+				fm_renumber( $parent );
+			}
+		} );
+	}
+}
+
 var init_sortable = function() {
 	$( '.fmjs-sortable' ).each( function() {
-		if ( !$( this ).hasClass( 'ui-sortable' ) && $( this ).is( ':visible' ) ) {
-			$( this ).sortable( {
-				handle: '.fmjs-drag',
-				items: '> .fm-item',
-				stop: function( e, ui ) {
-					var $parent = ui.item.parents( '.fm-wrapper' ).first();
-					fm_renumber( $parent );
-				}
+		if ( $( this ).is( ':visible' ) ) {
+			init_sortable_container( this );
+		} else {
+			var sortable = this;
+			$( sortable ).parents( '.fm-group' ).first().bind( 'fm_collapsible_toggle', function() {
+				init_sortable_container( sortable );
 			} );
 		}
 	} );
@@ -58,24 +69,33 @@ var fm_renumber = function( $wrappers ) {
 		if ( level_pos > 0 ) {
 			$( this ).find( '> .fm-item' ).each( function() {
 				if ( $( this ).hasClass( 'fmjs-proto' ) ) return; // continue
-				$( this ).find( '.fm-element' ).each( function() {
+				$( this ).find( '.fm-element, .fm-incrementable' ).each( function() {
 					var fname = $(this).attr( 'name' );
-					if ( !fname ) return;
-					fname = fname.replace( /\]/g, '' );
-					parts = fname.split( '[' );
-					if ( parts[ level_pos ] != order ) {
-						parts[ level_pos ] = order;
-						var new_fname = parts[ 0 ] + '[' + parts.slice( 1 ).join( '][' ) + ']';
-						$( this ).attr( 'name', new_fname );
-						if ( $( this ).attr( 'id' ) && $( this ).attr( 'id' ).match( '-proto' ) ) {
-							$( this ).attr( 'id', 'fm-edit-dynamic-' + dynamic_seq );
-							dynamic_seq++;
+					if ( fname ) {
+						fname = fname.replace( /\]/g, '' );
+						parts = fname.split( '[' );
+						if ( parts[ level_pos ] != order ) {
+							parts[ level_pos ] = order;
+							var new_fname = parts[ 0 ] + '[' + parts.slice( 1 ).join( '][' ) + ']';
+							$( this ).attr( 'name', new_fname );
+							if ( $( this ).attr( 'id' ) && $( this ).attr( 'id' ).match( '-proto' ) ) {
+								$( this ).attr( 'id', 'fm-edit-dynamic-' + dynamic_seq );
+								dynamic_seq++;
+								return; // continue;
+							}
 						}
+					}
+					if ( $( this ).hasClass( 'fm-incrementable' ) ) {
+						$( this ).attr( 'id', 'fm-edit-dynamic-' + dynamic_seq );
+						dynamic_seq++;
 					}
 				} );
 				order++;
 			} );
 		}
+		$( this ).find( '.fm-wrapper' ).each( function() {
+			fm_renumber( $( this ) );
+		} );
 	} );
 }
 
@@ -90,7 +110,7 @@ var match_value = function( values, match_string ) {
 
 fm_add_another = function( $element ) {
 	var el_name = $element.attr( 'data-related-element' );
-	$new_element = $( '.fmjs-proto.fm-' + el_name ).first().clone();
+	$new_element = $( '.fmjs-proto.fm-' + el_name, $element.closest( '.fm-wrapper' ) ).first().clone();
 	$new_element.removeClass( 'fmjs-proto' );
 	$new_element = $new_element.insertBefore( $element.parent() );
 	fm_renumber( $element.parents( '.fm-wrapper' ) );
