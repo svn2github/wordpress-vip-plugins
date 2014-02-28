@@ -44,7 +44,14 @@ class Hidden_Posts {
         if ( apply_filters( 'hidden_posts_show_posts', is_single() ) )
             return;
 
-        $query->set( 'post__not_in', self::get_posts() );
+		$hidden_posts = self::get_posts();
+		$post_not_in = $query->get( 'post__not_in' );
+		if ( is_array( $post_not_in ) ) {
+			$post_not_in = array_unique( array_merge( $post_not_in, $hidden_posts ) );
+		} else {
+			$post_not_in = $hidden_posts;
+		}
+		$query->set( 'post__not_in', $post_not_in );
     }
 
     /**
