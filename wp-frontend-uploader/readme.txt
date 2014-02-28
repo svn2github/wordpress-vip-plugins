@@ -1,42 +1,46 @@
 === Frontend Uploader ===
-Contributors: rinatkhaziev, danielbachhuber
-Donate link: http://digitallyconscious.com/my-wordpress-plugins/
-Tags: frontend, image, images, media, uploader, upload, video, audio, photo, photos, picture, pictures, file
+Contributors: rinatkhaziev, danielbachhuber, jtrees
+Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rinat%2ekhaziev%40gmail%2ecom
+Tags: frontend, image, images, media, uploader, upload, video, audio, photo, photos, picture, pictures, file, user generated content
 Requires at least: 3.3
-Tested up to: 3.6
-Stable tag: 0.5.9.2
+Tested up to: 3.8.1
+Stable tag: 0.7.1
 
 This plugin allows your visitors to upload User Generated Content (media and posts/custom-post-types with media).
 
 == Description ==
 
-This plugin gives you an ability to easily accept, moderate and publish user generated content (currently, there are 3 modes: media, post, post + media). The plugin allows you to create a front end form with multiple fields (easily customizable with shortcodes). You can limit which MIME-types are supported for each field. All of the submissions are safely held for moderation in Media/Post/Custom Post Types menu under a special tab "Manage UGC". Review, moderate and publish. It's that easy!
+**What is Frontend Uploader?**
+This plugin is a simple way for users to submit content to your site. The plugin uses shortcodes to let you add submission forms to your posts and pages. Once the content is submitted, it is held for moderation until you hit “Publish.” It’s that easy!
 
-This plugin supports multiple uploads for modern browsers. Multiple file uploads are enabled for default form. To use it in your custom shortcode add multiple="" attribute to file shortcode.
+**5 Steps to using Frontend Uploader**
 
-If you want to customize your form, please refer to FAQ section.
+Step 1: Install the plugin.
 
-By default plugin allows all MIME-types that are whitelisted in WordPress. However, there's a filter if you need to add some exotic MIME-type. Be sure to check out FAQ to get a grasp on how to customize the upload form with actions and filters.
+Step 2: Insert the Frontend Uploader shortcode into a post. The basic form can be inserted using [fu-upload-form], please visit the FAQs for more complex forms.
 
-= New in v0.5 =
+Step 3: Users submit content using the form.
 
-You can choose what type of files you allow your visitors to upload from Frontend Uploader Settings
+Step 4: Go to “Manage UGC” under the “Media” tab. Find the media item you’d like to approve, and click “Approve.”
 
-= New in v0.4 =
+Step 5: Your user generated media is live.
 
-Now your visitors are able to upload not only media, but guest posts as well!
-Use [fu-upload-form form_layout="post_image"] to get default form to upload post content and images
-Use [fu-upload-form form_layout="post"] to get default form to upload post content
+**Exploring Customizations**
+* You can modify the submission form as needed, and have users submit posts. Please visit the FAQ page for more information.
+* This plugin can be applied to Posts, Pages, and Custom Post Types. You can enable this via Settings > Frontend Uploader Settings.
+* In addition to the WordPress whitelisted file types, this also supports uploading of Microsoft Office and Adobe files, as well as various video and audio files. You can enable these file types via Settings > Frontend Uploader Settings.
+* The plugin allows you to upload all filetypes that are whitelisted in WordPress. If you’d like to add more file types and are comfortable with theme development, there's a filter that'll allow you to add some exotic MIME-type.
 
 You can also manage UGC for selected custom post types (Please refer to the plugin's settings page). By default, UGC is enabled for posts and attachments. If you want to be able to get any other post types UGC submissions just select desired post types at the plugin's settings page, and pass post_type='my_post_type' to the [fu-upload-form] shortcode.
 
 = Translations: =
 
-* Se habla español (Spanish) (props gastonbesada)
+* Se habla español (Spanish) (props Rafael Calzada, gastonbesada)
 * Мы говорим по-русски (Russian)
 * Nous parlons français (French) (props dapickboy)
 * Nous parlons français (Canadian French) (props rfzappala)
 * Vi snakker norsk (Norwegian) (props André Langseth)
+* Wir sprechen Deutsch (German) (props Joshua Trees)
 
 [Fork the plugin on Github](https://github.com/rinatkhaziev/wp-frontend-uploader/)
 
@@ -52,23 +56,45 @@ You can also manage UGC for selected custom post types (Please refer to the plug
 == Screenshots ==
 
 1. Screenshot of plugin's UI (It's looks like standard media list table, with slightly better Parent column and additional row action: "Approve")
+1. Default media upload form
+1. Example of customized form
+1. WYSIWYG editor in upload form
 
 == Frequently Asked Questions ==
 
+= I get a white screen or "0" when trying to upload a file =
+The major cause of this is either request timeout or request exceeding maximum request size. This  means that either the file was uploading for too long or it was too big. Two PHP settings to look at are:
+[max_execution_time](http://us1.php.net/manual/en/info.configuration.php#ini.max-execution-time) and [upload_max_filesize](http://us3.php.net/manual/en/ini.core.php#ini.upload-max-filesize). If you don't have any ability to modify these settings, please contact your hosting company's support.
+
 = Shortcode parameters =
+
+**Customizing Your Form with Shortcode Parameters**
+Frontend Uploader uses shortcodes to insert a form into a page or post. The default form is [fu-upload-form], which will upload a media file.
+
+If you would like to build a custom form, it must begin with [fu-upload-form] and end with [/fu-upload-form].
+
+Within it, you can add various fields.
+
+1. [input type="text" name="post_title" => A text box for one line of text
+1. [textarea name="post_content"] => A text box for multiple lines of text
+1. [input type="file" name="photo"] => A file uploader
+1. [checkboxes name="foo" class="checkboxes" description="Pick a fruit" values="value:Description,124:Banana,cherry:Cherry"]
+1. [select name="foo" class="select" description="Pick a fruit" values="Apple,Banana,Cherry"]
+1. [input type="submit" class="btn" value="Submit"] => A submit button
 
 The [fu-upload-form] shortcode has several parameters that can modify its behavior:
 
-1. 'title' => Headline that will be displayed before the form
-1. 'class' => HTML class of the form, defaults to 'validate'. If you want your form being validated - do not remove validate class
-1. 'category' => ID of category the post should be attached (only in post or post+image mode). The category should be whitelisted in the settings
-1. 'success_page' => URL to redirect on successful submission, defaults to the URL where the form is being displayed
-1. 'form_layout' => There are three different modes: post, post_image, image. Default is image
-1. 'post_id' => ID of the post the image should be attached to. Defaults to current post id
+1. ‘form_layout' => This determines whether the form is saved as a post (‘post’), as a media file (‘image’), or as a post with images (‘post_image’). The default is ‘image.’  Example: [fu-upload-form class="your-class" title="Upload your media" form_layout=”post”]
+1. 'title' => Add this [fu-upload-form] shortcode, and this will be the Headline that will be displayed before the form. Example: [fu-upload-form class="your-class" title="Upload your media"]
+1. 'class' => HTML class of the form, defaults to 'validate'. If you want your form being validated - do not remove validate class. If you would like to item to be required before a user can submit, you can set it to ‘required.’ Example: [input type="text" name="post_title" id="title" class="required"]
+1. 'success_page' => URL to redirect on successful submission, defaults to the URL where the form is being displayed.
+1. 'category' => ID of category the post should be attached (only in post or post+image mode).
+1.  'post_id' => ID of the post the image should be attached to. Defaults to the post ID of the post the shortcode is on.
 1. 'post_type' => Any registered whitelisted post type. Defaults to 'post'. Works only in post and post+image modes.
+1. 'suppress_default_fields' => Override global setting for supressing default form fields (true or false).
 
 = Example of default media upload form =
-Here's example of default form (you don't need to enter all that if you want to use default form, just use [fu-upload-form]):
+Here's example of default form (*you don't need to enter all that if you want to use default form, just use [fu-upload-form]*):
 
 `[fu-upload-form class="your-class" title="Upload your media"]
 [input type="text" name="post_title" id="title" class="required" description="Title" multiple=""]
@@ -77,11 +103,32 @@ Here's example of default form (you don't need to enter all that if you want to 
 [input type="submit" class="btn" value="Submit"]
 [/fu-upload-form]`
 
+= Where are the plugin's settings? =
+You can find Frontend Uploader's settings under Settings > Frontend Uploader Settings.
+
+= Can I get email notifications? =
+Yes you can enable this in Settings > Frontend Uploader settings. By default the site admin will receive email notifications. If you’d like to change that to another email, you can also change that in settings.
+
+= How are authors determined? =
+If someone is logged in, their user profile is automatically linked to the post. Otherwise, you can enable an “Author Field” under Settings > Frontend Uploader that allows the users to write in their name.
+
+= Are other filetypes supported? =
+In addition to the WordPress whitelisted file types, Frontend Uploader also supports uploading of Microsoft Office and Adobe files, as well as various video and audio files. You can enable these file types via Settings > Frontend Uploader Settings.
+
+= Where does the user submitted content go? =
+If you used the default form, the uploaded file will go into Media > Manage UGC. You can have the submitted content go into Post > Manage UGC by setting the parameter: form_layout="post".
+
+= Help, I pasted in the above shortcode and now my fields are duplicated =
+As stated in previous answer, you don't need to put inner contents if you only need default form fields.
+E.g. `[fu-upload-form class="your-class" title="Upload your media"]` will be enough to render the default form.
+You can suppress rendering of default form fields with "Suppress default fields" checkbox in settings
+
 = I want to customize my form =
 You can include additional elements with a set of shortcodes
 [input type="text" name="post_title" id="title" class="required" description="Title" multiple=""]
 [select name="foo" class="select" id="ug_select" description="Pick a fruit" values="Apple,Banana,Cherry"]
 [textarea name="post_content" class="textarea" id="ug_caption" description="Description (optional)"]
+[checkboxes name="foo" class="checkboxes" description="Pick a fruit" values="value:Description,124:Banana,cherry:Cherry"]
 
 = I want to be allow users to upload mp3, psd, or any other file restricted by default. =
 You are able to do that within Frontend Uploader Settings admin page. The settings there cover the most popular extensions/MIME-types.
@@ -119,6 +166,10 @@ function my_fu_allowed_mime_types( $mime_types ) {
 	}
 	return $mime_types;
 }`
+
+= There's no captcha! =
+The plugin runs on multiple websites doing millions of pageviews daily. So far I haven't received a single report regarding spam.
+If you do get spam, please report it in support forums.
 
 = Configuration Filters =
 
@@ -163,9 +214,38 @@ function my_fu_additional_html() {
 <?php
 }`
 
+= fu_is_debug =
+
+If you're experiencing issues with upload it might be due to server misconfiguration, enabling debug mode will give you more detailed error messages
+
+`add_filter( 'fu_is_debug', '__return_true' );`
+
+= fu_upload_result =
+
+This action runs after form was uploaded. Arguments are: (string) $layout (form layout), (array) $result - result of the upload.
+`add_action('fu_upload_result', 'my_fu_upload_result', 10, 2 );
+
+function my_fu_upload_result( $layout, $result ) {
+	// do something
+}`
+
 == Changelog ==
 
-= 0.6 (Work in progress) =
+= 0.7.1 =
+* Fixed fatal error being produced when trying to upload with iOS device
+* Fixed issue with malformed query arguments when redirecting to upload result
+
+= 0.7 =
+* Meta fields get saved automatically
+* Bugfix: title param of fu-upload-form now actually changes the title
+* Better readme (props Steph Yiu)
+
+= 0.6 (Oct 29, 2013) =
+* Updated German translation
+* Updated Spanish translation
+* Hidden inputs are no longer getting wrapped in label and div
+* Added an option to set a default file name
+* Fixed category attribute of shortcode
 
 = 0.5.9 (Aug 28th, 2013) =
 * Introduced setting to disable default fields

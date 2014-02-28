@@ -90,13 +90,6 @@ class Frontend_Uploader_Settings {
 					'sanitize_callback' => 'sanitize_email',
 				),
 				array(
-					'name' => 'allowed_categories',
-					'label' => __( 'Allowed categories', 'frontend-uploader' ),
-					'desc' => __( 'Comma separated IDs (leave blank for all)', 'frontend-uploader' ),
-					'type' => 'text',
-					'default' => '',
-				),
-				array(
 					'name' => 'show_author',
 					'label' => __( 'Show author field', 'frontend-uploader' ),
 					'desc' => __( 'Yes', 'frontend-uploader' ),
@@ -120,7 +113,7 @@ class Frontend_Uploader_Settings {
 				),
 				array(
 					'name' => 'enabled_files',
-					'label' => __( 'Allow following files to be uploaded', 'frontend-uploader' ),
+					'label' => __( 'Also allow to upload these files (in addition to the ones that WP allows by default)', 'frontend-uploader' ),
 					'desc' => '',
                     'type' => 'multicheck',
                     'default' => array(),
@@ -139,6 +132,14 @@ class Frontend_Uploader_Settings {
 					'desc' => __( 'Yes', 'frontend-uploader' ),
 					'type' => 'checkbox',
 					'default' => '',
+				),
+				array(
+					'name' => 'default_file_name',
+					'label' => __( 'Default file name', 'frontend-uploader' ),
+					'desc' => __( 'Leave blank to use original file name', 'frontend-uploader' ),
+					'type' => 'text',
+					'default' => 'Unnamed',
+					/* No need to set a sanitize callback. It is handled automagically. */
 				),
 				array(
 					'name' => 'suppress_default_fields',

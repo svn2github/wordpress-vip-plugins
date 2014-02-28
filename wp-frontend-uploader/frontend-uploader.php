@@ -3,7 +3,7 @@
 Plugin Name: Frontend Uploader
 Description: Allow your visitors to upload content and moderate it.
 Author: Rinat Khaziev, Daniel Bachhuber
-Version: 0.5.9.2
+Version: 0.7.1
 Author URI: http://digitallyconscious.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,10 +25,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
 // Define consts and bootstrap and dependencies
-define( 'FU_VERSION', '0.6-working' );
+define( 'FU_VERSION', '0.7.1' );
 define( 'FU_ROOT' , dirname( __FILE__ ) );
 define( 'FU_FILE_PATH' , FU_ROOT . '/' . basename( __FILE__ ) );
 define( 'FU_URL' , plugins_url( '/', __FILE__ ) );
+define( 'FU_NONCE', 'frontend-uploader-upload-media' );
 
 require_once FU_ROOT . '/lib/php/class-frontend-uploader-wp-media-list-table.php';
 require_once FU_ROOT . '/lib/php/class-frontend-uploader-wp-posts-list-table.php';
@@ -67,8 +68,6 @@ class Frontend_Uploader {
 		/**
 		 * Should consist of fields to be proccessed automatically on content submission
 		 *
-		 * @todo this is just a pass one
-		 *
 		 * Example field:
 		 *  array(
 		 *  'name' => '{form name}',
@@ -87,7 +86,7 @@ class Frontend_Uploader {
 		load_plugin_textdomain( 'frontend-uploader', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 		// Hooking to wp_ajax
 
-		add_action( 'wp_ajax_approve_ugc', array( $this, 'approve_photo' ) );
+		add_action( 'wp_ajax_approve_ugc', array( $this, 'approve_media' ) );
 		add_action( 'wp_ajax_approve_ugc_post', array( $this, 'approve_post' ) );
 		add_action( 'wp_ajax_delete_ugc', array( $this, 'delete_post' ) );
 
@@ -99,12 +98,8 @@ class Frontend_Uploader {
 
 		// Currently supported shortcodes
 		add_shortcode( 'fu-upload-form', array( $this, 'upload_form' ) );
-		add_shortcode( 'input', array( $this, 'shortcode_content_parser' ) );
-		add_shortcode( 'textarea', array( $this, 'shortcode_content_parser' ) );
-		add_shortcode( 'select', array( $this, 'shortcode_content_parser' ) );
 
 		// Static assets
-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 
 		// Unautop the shortcode
@@ -238,8 +233,9 @@ class Frontend_Uploader {
 				continue;
 			}
 
+			$typecheck = wp_check_filetype_and_ext( $k['tmp_name'], $k['name'], false );
 			// Add an error message if MIME-type is not allowed
-			if ( ! in_array( $k['type'], (array) $this->allowed_mime_types ) ) {
+			if ( ! in_array( $typecheck['type'], (array) $this->allowed_mime_types ) ) {
 				$errors['fu-disallowed-mime-type'][] = array( 'name' => $k['name'], 'mime' => $k['type'] );
 				continue;
 			}
@@ -256,9 +252,10 @@ class Frontend_Uploader {
 			elseif ( isset( $_POST['post_content'] ) )
 				$caption = sanitize_text_field( $_POST['post_content'] );
 			// @todo remove or refactor
+			$filename = !empty( $this->settings['default_file_name'] ) ? $this->settings['default_file_name'] : pathinfo( $k['name'], PATHINFO_FILENAME );
 			$post_overrides = array(
 				'post_status' => $this->_is_public() ? 'publish' : 'private',
-				'post_title' => isset( $_POST['post_title'] ) && ! empty( $_POST['post_title'] ) ? sanitize_text_field( $_POST['post_title'] ) : 'Unnamed',
+				'post_title' => isset( $_POST['post_title'] ) && ! empty( $_POST['post_title'] ) ? sanitize_text_field( $_POST['post_title'] ) : sanitize_text_field( $filename ),
 				'post_content' => empty( $caption ) ? __( 'Unnamed', 'frontend-uploader' ) : $caption,
 				'post_excerpt' => empty( $caption ) ? __( 'Unnamed', 'frontend-uploader' ) :  $caption,
 			);
@@ -272,14 +269,17 @@ class Frontend_Uploader {
 		}
 
 		$success = empty( $errors ) && !empty( $media_ids ) ? true : false;
+
+		if ( $success ) {
+			foreach( $media_ids as $media_id ) {
+				$this->_save_post_meta_fields( $media_id );
+			}
+
+		}
 		// Allow additional setup
 		// Pass array of attachment ids
 		do_action( 'fu_after_upload', $media_ids, $success );
 		return array( 'success' => $success, 'media_ids' => $media_ids, 'errors' => $errors );
-	}
-
-	function get_value_for_role( $role = 'meta', $name = '', $fallback = '' ) {
-
 	}
 
 	/**
@@ -297,14 +297,8 @@ class Frontend_Uploader {
 			'post_title'    => isset( $_POST['caption'] ) ? sanitize_text_field( $_POST['caption'] )  : sanitize_text_field( $_POST['post_title'] ),
 			'post_content'  => wp_filter_post_kses( $_POST['post_content'] ),
 			'post_status'   => $this->_is_public() ? 'publish' : 'private',
+			'post_category' => isset( $_POST['post_category'] ) ? (int) $_POST['post_category'] : 0,
 		);
-
-		// Determine if we have a whitelisted category
-		$allowed_categories = array_filter( explode( ",", str_replace( " ", "",  $this->settings['allowed_categories'] ) ) );
-
-		if (  isset( $_POST['post_category'] ) && in_array( $_POST['post_category'], $allowed_categories ) ) {
-			$post_array = array_merge( $post_array, array( 'post_category' => array( (int) $_POST['post_category'] ) ) );
-		}
 
 		$author = isset( $_POST['post_author'] ) ? sanitize_text_field( $_POST['post_author'] ) : '';
 		$users = get_users( array(
@@ -315,7 +309,9 @@ class Frontend_Uploader {
 		if ( isset( $users[0] ) ) {
 			$post_array['post_author'] = (int) $users[0];
 		}
-
+		
+		$post_array = apply_filters( 'fu_before_create_post', $post_array );
+		
 		$post_id = wp_insert_post( $post_array, true );
 		// Something went wrong
 		if ( is_wp_error( $post_id ) ) {
@@ -323,6 +319,8 @@ class Frontend_Uploader {
 			$success = false;
 		} else {
 			do_action( 'fu_after_create_post', $post_id );
+
+			$this->_save_post_meta_fields( $post_id );
 			// If the author name is not in registered users
 			// Save the author name if it was filled and post was created successfully
 			if ( $author )
@@ -332,21 +330,51 @@ class Frontend_Uploader {
 		return array( 'success' => $success, 'post_id' => $post_id, 'errors' => $errors );
 	}
 
+	private function _save_post_meta_fields( $post_id = 0 ) {
+		// Post ID not set, bailing
+		if ( ! $post_id = (int) $post_id )
+			return false;
+
+		// No meta fields in field mapping, bailing
+		if ( !isset( $this->form_fields['meta'] ) || empty( $this->form_fields['meta'] ) )
+			return false;
+
+		foreach ( $this->form_fields['meta'] as $meta_field ) {
+			if ( !isset( $_POST[$meta_field] ) )
+				continue;
+
+			$value = $_POST[$meta_field];
+
+			// Sanitize array
+			if ( is_array( $value ) ) {
+				$value = array_map( array( $this, '_sanitize_array_element_callback' ), $value );
+			// Sanitize everything else
+			} else {
+				$value = sanitize_text_field( $value );
+			}
+			add_post_meta( $post_id, $meta_field, $value, true );
+		}
+	}
+
 	/**
 	 * Handle post, post+media, or just media files
 	 *
 	 * @since  0.4
 	 */
 	function upload_content() {
-		$fields = array();
-
-
+		$fields = $result = array();
 
 		// Bail if something fishy is going on
-		if ( !wp_verify_nonce( $_POST['fu_nonce'], FU_FILE_PATH ) ) {
+		if ( !wp_verify_nonce( $_POST['fu_nonce'], FU_NONCE ) ) {
 			wp_safe_redirect( add_query_arg( array( 'response' => 'fu-error', 'errors' =>  'nonce-failure' ), wp_get_referer() ) );
 			exit;
 		}
+
+		$form_post_id = isset( $_POST['form_post_id'] ) ? (int) $_POST['form_post_id'] : 0;
+		$hash = sanitize_text_field( $_POST['ff'] );
+		$this->form_fields = !empty( $this->form_fields ) ? $this->form_fields : $this->_get_fields_for_form( $form_post_id, $hash );
+
+		// @todo handle form fields error (false or empty)
 
 		$layout = isset( $_POST['form_layout'] ) && !empty( $_POST['form_layout'] ) ? $_POST['form_layout'] : 'image';
 		switch ( $layout ) {
@@ -358,13 +386,13 @@ class Frontend_Uploader {
 		// Upload the post first, and then upload media and attach to the post
 		case 'post_image':
 		case 'post_media';
-			$response = $this->_upload_post();
-			if ( ! is_wp_error( $response['post_id'] ) ) {
-				$result = $this->_upload_files( $response['post_id'] );
-				$result = array_merge( $result, $response );
+			$result = $this->_upload_post();
+			if ( ! is_wp_error( $result['post_id'] ) ) {
+				$media_result = $this->_upload_files( $result['post_id'] );
+				$result = array_merge( $result, $media_result );
 			}
 			break;
-		// Upload media 
+		// Upload media
 		case 'image':
 		case 'media':
 
@@ -374,7 +402,16 @@ class Frontend_Uploader {
 
 			break;
 		}
-		// Notify the admin via email 
+
+		/**
+		 * Process result with filter
+		 *
+		 * @param  string $layout form layout
+		 * @param  array  $result assoc array holding $post_id, $media_ids, bool $success, array $errors
+		 */
+		do_action( 'fu_upload_result', $layout, $result );
+
+		// Notify the admin via email
 		$this->_notify_admin( $result );
 
 		// Handle error and success messages, and redirect
@@ -393,7 +430,6 @@ class Frontend_Uploader {
 		$to = !empty( $this->settings['notification_email'] ) && filter_var( $this->settings['notification_email'], FILTER_VALIDATE_EMAIL ) ? $this->settings['notification_email'] : get_option( 'admin_email' );
 		$subj = __( 'New content was uploaded on your site', 'frontend-uploader' );
 		wp_mail( $to, $subj, $this->settings['admin_notification_text'] );
-
 	}
 
 	/**
@@ -435,10 +471,6 @@ class Frontend_Uploader {
 
 			// Iterate through key=>value pairs of errors
 			foreach ( $result['errors'] as $key => $error ) {
-
-				// Do not display mime-types in production
-				if ( !$this->is_debug && isset( $error[0]['mime'] ) )
-					unset( $error[0]['mime'] );
 				if ( isset( $error[0] ) )
 					$_errors[$key] = join( ',,,', (array) $error[0] );
 			}
@@ -450,7 +482,30 @@ class Frontend_Uploader {
 			$query_args['errors'] = join( ';', $errors_formatted );
 		}
 
-		wp_safe_redirect( add_query_arg( array( $query_args ) , $url ) );
+		$redirect_url = '';
+
+		// Account for ugly permalinks
+		if ( ! get_option( 'permalink_structure' ) ) {
+			// This is a workaround to delete duplicate query params
+			// E.g. make sure that ?p=x&response=fu-error&response=fu-error is not possible
+			$query_args = array_merge( wp_parse_args( $url ), $query_args );
+
+			$redirect_url = build_query( $query_args );
+
+			/**
+			 * build_query produces '/=&' instead of proper /?= when
+			 * first element in array is '/'
+			 */
+			$redirect_url = str_replace( '/=&', '/?', $redirect_url );
+
+			// We need full url, not just query part
+			$redirect_url = home_url( $redirect_url );
+		} else {
+			// Use add_query_arg for nice permalinks
+			$redirect_url =  add_query_arg( array( $query_args ) , $url );
+		}
+
+		wp_safe_redirect( $redirect_url );
 	}
 
 	/**
@@ -507,7 +562,7 @@ class Frontend_Uploader {
 	 * @todo refactor in 0.6
 	 * @return [type] [description]
 	 */
-	function approve_photo() {
+	function approve_media() {
 		// Check permissions, attachment ID, and nonce
 		if ( ! $this->_check_perms_and_nonce() || 0 !== (int) $_GET['id'] )
 			wp_safe_redirect( get_admin_url( null, 'upload.php?page=manage_frontend_uploader&error=id_or_perm' ) );
@@ -583,7 +638,7 @@ class Frontend_Uploader {
 	 * @return bool
 	 */
 	function _check_perms_and_nonce() {
-		return current_user_can( $this->manage_permissions ) && wp_verify_nonce( $_REQUEST['fu_nonce'], FU_FILE_PATH );
+		return current_user_can( $this->manage_permissions ) && wp_verify_nonce( $_REQUEST['fu_nonce'], FU_NONCE );
 	}
 
 	/**
@@ -609,11 +664,10 @@ class Frontend_Uploader {
 
 		extract( $atts );
 
+		$role = in_array( $role, array( 'meta', 'title', 'description', 'author', 'internal', 'content' ) ) ? $role : 'meta';
+		$name =  sanitize_text_field( $name );
 		// Add the field to fields map
-		$this->form_fields[] = array(
-			'name' => sanitize_text_field( $name ),
-			'role' => in_array( $role, array( 'meta', 'title', 'description', 'author', 'internal', 'content' ) ) ? $role : 'meta',
-		);
+		$this->form_fields[$role][] = $name;
 
 		// Render the element if render callback is available
 		$callback = array( $this, "_render_{$tag}" );
@@ -639,7 +693,13 @@ class Frontend_Uploader {
 		if ( !strpos( $name, '[]' ) && $type == 'file' )
 			$name = 'files' . '[]';
 
-		$element = $this->html->element( 'label', $description . $this->html->input( $type, $name, $value, $atts ) , array( 'for' => $id ), false );
+		$input = $this->html->input( $type, $name, $value, $atts );
+
+		// No need for wrappers or labels for hidden input
+		if ( $type == 'hidden' )
+			return $input;
+
+		$element = $this->html->element( 'label', $description . $input , array( 'for' => $id ), false );
 
 		return $this->html->element( 'div', $element, array( 'class' => 'ugc-input-wrapper' ), false );
 	}
@@ -666,13 +726,10 @@ class Frontend_Uploader {
 			return $this->html->element( 'div', $label . $tiny, array( 'class' => 'ugc-input-wrapper' ), false ) ;
 		}
 		// Render plain textarea
-		$element = $this->html->element( 'label', $description . $this->html->element( 'textarea', '', array(
-					'name' => $name,
-					'id' => $id,
-					'class' => $class
-				) ), array( 'for' => $id ), false );
+		$element = $this->html->element( 'textarea', '', array( 'name' => $name, 'id' => $id, 'class' => $class ) );
+		$label = $this->html->element( 'label', $description, array( 'for' => $id ), false );
 
-		return $this->html->element( 'div', $element, array( 'class' => 'ugc-input-wrapper' ), false );
+		return $this->html->element( 'div', $label . $element, array( 'class' => 'ugc-input-wrapper' ), false );
 	}
 
 	/**
@@ -683,7 +740,25 @@ class Frontend_Uploader {
 	 */
 	function _render_checkboxes( $atts ) {
 		extract( $atts );
-		return;
+		$atts = array( 'values' => $values );
+		$values = explode( ',', $values );
+		$options = '';
+
+		// Making sure we're having array of values for checkboxes
+		if ( false === stristr( '[]', $name ) )
+			$name = $name . '[]';
+
+		//Build options for the list
+		foreach ( $values as $option ) {
+			$kv = explode(":", $option );
+			$options .= $this->html->_checkbox( $name, isset( $kv[1] ) ? $kv[1] : $kv[0], $kv[0], $atts, array() );
+		}
+
+		$description = $label = $this->html->element( 'label', $description, array(), false );
+
+		// Render select field
+		$element = $this->html->element( 'div', $description . $options, array( 'class' => 'checkbox-wrapper' ), false );
+		return $this->html->element( 'div', $element, array( 'class' => 'ugc-input-wrapper' ), false );
 	}
 
 	/**
@@ -730,9 +805,14 @@ class Frontend_Uploader {
 	 * @param string  $content content that is encloded in [fu-upload-form][/fu-upload-form]
 	 */
 	function upload_form( $atts, $content = null ) {
+		add_shortcode( 'input', array( $this, 'shortcode_content_parser' ) );
+		add_shortcode( 'textarea', array( $this, 'shortcode_content_parser' ) );
+		add_shortcode( 'select', array( $this, 'shortcode_content_parser' ) );
+		add_shortcode( 'checkboxes', array( $this, 'shortcode_content_parser' ) );
 
 		// Reset postdata in case it got polluted somewhere
 		wp_reset_postdata();
+		$form_post_id = get_the_id();
 
 		extract( shortcode_atts( array(
 					'description' => '',
@@ -744,25 +824,18 @@ class Frontend_Uploader {
 					'post_id' => get_the_ID(),
 					'post_type' => 'post',
 					'category' => '',
+					'suppress_default_fields' => false,
 				), $atts ) );
 
 		$post_id = (int) $post_id;
 
+		$this->enqueue_scripts();
+
 		$form_layout = in_array( $form_layout, array( 'post', 'image', 'media', 'post_image', 'post_media' ) ) ? $form_layout : 'media';
 
-		switch ( $form_layout ) {
-		case 'image':
-		case 'media':
-			$title = __( 'Submit a media file', 'frontend-uploader' );
-			break;
-		case 'post':
-		case 'post_media':
-			break;
-		default:
-		}
 		ob_start();
 ?>
-	<form action="<?php echo admin_url( 'admin-ajax.php' ) ?>" method="post" id="ugc-media-form" class="<?php echo esc_attr( $class )?>" enctype="multipart/form-data">
+	<form action="<?php echo admin_url( 'admin-ajax.php' ) ?>" method="post" id="ugc-media-form" class="<?php echo esc_attr( $class )?> fu-upload-form" enctype="multipart/form-data">
 	  <div class="ugc-inner-wrapper">
 		  <h2><?php echo esc_html( $title ) ?></h2>
 <?php
@@ -772,9 +845,9 @@ class Frontend_Uploader {
 		$textarea_desc = __( 'Description', 'frontend-uploader' );
 		$file_desc = __( 'Your Media Files', 'frontend-uploader' );
 		$submit_button = __( 'Submit', 'frontend-uploader' );
-		
-		if( !( isset( $this->settings['suppress_default_fields'] ) && 'on' == $this->settings['suppress_default_fields'] ) ) {
-		
+
+		if( !( isset( $this->settings['suppress_default_fields'] ) && 'on' == $this->settings['suppress_default_fields'] ) && ( $suppress_default_fields === false ) ) {
+
 			// Display title field
 			echo $this->shortcode_content_parser( array(
 				'type' => 'text',
@@ -785,10 +858,10 @@ class Frontend_Uploader {
 				'description' =>  __( 'Title', 'frontend-uploader' ),
 				), null, 'input' );
 
-	   /**
-		* Render default fields
-		* 
-		*/
+			/**
+			* Render default fields
+			* Looks gross but somewhat faster than using do_shortcode
+			*/
 			switch ( $form_layout ) {
 			case 'post_image':
 			case 'post_media':
@@ -803,15 +876,6 @@ class Frontend_Uploader {
 					'class' => 'required',
 					'description' =>  __( 'Post content or file description', 'frontend-uploader' ),
 					), null, 'textarea' );
-
-				echo $this->shortcode_content_parser( array(
-					'type' => 'file',
-					'role' => 'file',
-					'name' => 'files',
-					'id' => 'ug_photo',
-					'multiple' => '',
-					'description' =>  $file_desc,
-					), null, 'input' );
 
 				break;
 			case 'post':
@@ -828,6 +892,7 @@ class Frontend_Uploader {
 		}
 
 		// Show author field
+		// @todo remove
 		if ( isset( $this->settings['show_author'] ) && $this->settings['show_author'] == 'on' ) {
 			echo $this->shortcode_content_parser( array(
 				'type' => 'text',
@@ -843,7 +908,21 @@ class Frontend_Uploader {
 		if ( $content )
 			echo do_shortcode( $content );
 
-		if ( !( isset( $this->settings['suppress_default_fields'] ) && 'on' == $this->settings['suppress_default_fields'] ) ) {
+		if ( !( isset( $this->settings['suppress_default_fields'] ) && 'on' == $this->settings['suppress_default_fields'] ) && ( $suppress_default_fields === false ) ) {
+
+			if  ( in_array( $form_layout, array( 'image', 'media', 'post_image', 'post_media' ) ) ) {
+				// Default upload field
+				echo $this->shortcode_content_parser( array(
+					'type' => 'file',
+					'role' => 'file',
+					'name' => 'files',
+					'id' => 'ug_photo',
+					'multiple' => '',
+					'description' =>  $file_desc,
+					), null, 'input' );
+			}
+
+
 			echo $this->shortcode_content_parser( array(
 				'type' => 'submit',
 				'role' => 'internal',
@@ -884,10 +963,10 @@ class Frontend_Uploader {
 				'role' => 'internal',
 				'name' => 'success_page',
 				'value' =>  $success_page
-			), null, 'input' );			
+			), null, 'input' );
 		}
 
-		// One of supported form layouts 
+		// One of supported form layouts
 		echo $this->shortcode_content_parser( array(
 			'type' => 'hidden',
 			'role' => 'internal',
@@ -895,13 +974,7 @@ class Frontend_Uploader {
 			'value' =>  $form_layout
 		), null, 'input' );
 
-		// @todo 0.6
-		// Mapping of form fields and their corresponding roles
-		// Should help to get rid of hardcoded logic of content upload
-		// Thus giving users more flexibility without requiring PHP knowledge
-		?> <input type="hidden" name="form_fields" value="<?php echo esc_attr( json_encode( $this->form_fields ) ) ?>" /> <?php
-
-		// Set post type for the content submission
+		// Set post type for layouts that include uploading of posts
 		if ( in_array( $form_layout, array( "post_media", "post_image", "post" ) ) ) {
 			echo $this->shortcode_content_parser( array(
 				'type' => 'hidden',
@@ -911,15 +984,53 @@ class Frontend_Uploader {
 			), null, 'input' );
 		}
 
-		// Allow a little customization
+		// Allow a little markup customization
 		do_action( 'fu_additional_html' );
 		?>
-		<?php wp_nonce_field( FU_FILE_PATH, 'fu_nonce' ); ?>
+		<?php wp_nonce_field( FU_NONCE, 'fu_nonce' ); ?>
+		<input type="hidden" name="ff" value="<?php echo esc_attr( $this->_get_fields_hash() ) ?>" />
+		<input type="hidden" name="form_post_id" value="<?php echo (int) $form_post_id ?>" />
 		<div class="clear"></div>
 	  </div>
 	  </form>
 <?php
+		$this->maybe_update_fields_map( $form_post_id );
 		return ob_get_clean();
+	}
+
+	/**
+	 * Save field map
+	 * @param  integer $form_post_id [description]
+	 * @return [type]                [description]
+	 */
+	private function maybe_update_fields_map( $form_post_id = 0 ) {
+		$form_post_id = (int) $form_post_id ?  (int) $form_post_id : get_the_id();
+		$key = 'fu_form:' . $this->_get_fields_hash();
+
+		// See if we already have field map saved as meta
+		$fields = get_post_meta( $form_post_id, $key, true );
+
+		// If not, update it
+		if ( ! $fields ) {
+			update_post_meta( $form_post_id, $key, $this->form_fields );
+		}
+	}
+
+	/**
+	 * Get a key for a form (supposed to be unique to not conflict with multiple forms)
+	 * @return string hash
+	 */
+	function _get_fields_hash() {
+		$hash = md5( serialize( $this->form_fields ) );
+		return $hash;
+	}
+
+	function _get_fields_for_form( $post_id, $hash ) {
+		$fields = get_post_meta( $post_id, "fu_form:{$hash}", true );
+		if ( $fields )
+			return $fields;
+
+		return false;
 	}
 
 	/**
@@ -1002,6 +1113,8 @@ class Frontend_Uploader {
 			),
 		);
 
+
+		// @todo DAMN SON you should refactor this
 		foreach ( $errors_arr as $error ) {
 			$error_type = explode( ':', $error );
 			$error_details = explode( '|', $error_type[1] );
@@ -1102,6 +1215,10 @@ class Frontend_Uploader {
 			'post_content' => $content,
 		);
 		return wp_update_post( $post_to_update );
+	}
+
+	function _sanitize_array_element_callback( $el ) {
+		return sanitize_text_field( $el );
 	}
 }
 
