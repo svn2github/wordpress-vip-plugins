@@ -157,6 +157,7 @@ class WPcom_VIP_Plugins_UI {
 			'brightcove',
 			'lift-search',
 			'msm-sitemap',
+			'zemanta',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
@@ -230,10 +231,6 @@ class WPcom_VIP_Plugins_UI {
 			'tinypass'   => array(
 				'name' 		  => 'Tinypass',
 				'description' => 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
-			),
-			'zemanta'       => array(
-				'name'        => 'Zemanta',
-				'description' => 'Make more traffic. Zemanta is SEO & Related Content done the right way.',
 			),
 		);
 	}
