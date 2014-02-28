@@ -74,33 +74,32 @@ class JanrainCaptureUi {
 		$realm     = str_ireplace( '.rpxnow.com', '', $realm );
 		$providers = JanrainCapture::get_option( JanrainCapture::$name . '_rpx_share_providers' );
 		$providers = implode( "', '", array_map( 'esc_js', $providers ) );
-		echo <<<SHARE
-<script type="text/javascript">
-(function() {
-	if (typeof window.janrain !== 'object') window.janrain = {};
-	if (typeof window.janrain.settings !== 'object') window.janrain.settings = {};
-	if (typeof window.janrain.settings.share !== 'object') window.janrain.settings.share = {};
-	if (typeof window.janrain.settings.packages !== 'object') janrain.settings.packages = ['share'];
-	else janrain.settings.packages.push('share');
+		echo
+		"<script type='text/javascript'>
+		(function() {
+			if (typeof window.janrain !== 'object') window.janrain = {};
+			if (typeof window.janrain.settings !== 'object') window.janrain.settings = {};
+			if (typeof window.janrain.settings.share !== 'object') window.janrain.settings.share = {};
+			if (typeof window.janrain.settings.packages !== 'object') janrain.settings.packages = ['share'];
+			else janrain.settings.packages.push('share');
 
-	janrain.settings.share.message = "";
-	janrain.settings.share.providers = ['$providers'];
+			janrain.settings.share.message = '';
+			janrain.settings.share.providers = ['$providers'];
 
-})();
-function setShare(url, title, desc, img, provider) {
-	if(img=='') img = null;
-	janrain.engage.share.setUrl(url);
-	janrain.engage.share.setTitle(title);
-	janrain.engage.share.setDescription(desc);
-	janrain.engage.share.setImage(img);
-	janrain.engage.share.showProvider(provider);
-	janrain.engage.share.show();
-}
-</script>
-<style>
-#janrain-share { z-index: 99999 !important; }
-</style>
-SHARE;
+		})();
+		function setShare(url, title, desc, img, provider) {
+			if(img=='') img = null;
+			janrain.engage.share.setUrl(url);
+			janrain.engage.share.setTitle(title);
+			janrain.engage.share.setDescription(desc);
+			janrain.engage.share.setImage(img);
+			janrain.engage.share.showProvider(provider);
+			janrain.engage.share.show();
+		}
+		</script>
+		<style>
+		#janrain-share { z-index: 99999 !important; }
+		</style>";
 	}
 
 	/**
@@ -120,12 +119,15 @@ SHARE;
 		$settings['appUrl']                     = JanrainCapture::get_option( JanrainCapture::$name . '_engage_url' );
 		$settings['capture.federate']           = JanrainCapture::get_option( JanrainCapture::$name . '_sso_enabled' );
 		$settings['capture.federateServer']     = JanrainCapture::get_option( JanrainCapture::$name . '_sso_address' );
-		$settings['capture.federateXdReceiver'] = plugin_dir_url( __FILE__ ) . 'xdcomm.html';
-		$settings['capture.federateLogoutUri']  = site_url() .'/wp-login.php?loggedout=true';
-		$settings['capture.backplane']          = JanrainCapture::get_option( JanrainCapture::$name . '_backplane_enabled' );
-		$settings['capture.backplaneServerBaseUrl'] = JanrainCapture::get_option( JanrainCapture::$name . '_bp_server_base_url' );
+		$settings['capture.federateXdReceiver'] = wpcom_vip_noncdn_uri( dirname( __FILE__ ) ) . '/xdcomm.html';
+
+		$settings['capture.backplane']          = JanrainCapture::get_option( JanrainCapture::$name . '_backplane_enabled' ) ? 'true' : 'false';
 		$settings['capture.backplaneBusName']   = JanrainCapture::get_option( JanrainCapture::$name . '_bp_bus_name' );
 		$settings['capture.backplaneVersion']   = JanrainCapture::get_option( JanrainCapture::$name . '_bp_version' );
+		// prepare backplane server url
+		$backplaneBaseUrl = untrailingslashit( JanrainCapture::get_option( JanrainCapture::$name . '_bp_server_base_url' ) );
+		// append version string
+		$settings['capture.backplaneServerBaseUrl'] = "{$backplaneBaseUrl}/v{$settings['capture.backplaneVersion']}";
 		$settings['capture.stylesheets']        = $folder . 'stylesheets/styles.css';
 		$settings['capture.mobileStylesheets']  = $folder . 'stylesheets/mobile-styles.css';
 
@@ -135,89 +137,82 @@ SHARE;
 				$setting = esc_js( $setting );
 			}
 		}
-
-		echo <<<WIDGETCAPTURE
-<script type="text/javascript">
-function janrainSignOut(){
-	janrain.capture.ui.endCaptureSession();
-}
-(function() {
-	if (typeof window.janrain !== 'object') window.janrain = {};
-	window.janrain.settings = {};
-	window.janrain.settings.capture = {};
-
-	// capture settings
-	janrain.settings.capture.redirectUri = '{$settings["capture.redirectUri"]}';
-	janrain.settings.capture.appId= '{$settings["capture.appId"]}';
-	janrain.settings.capture.clientId = '{$settings["capture.clientId"]}';
-	janrain.settings.capture.responseType = 'token';
-	janrain.settings.capture.captureServer = '{$settings["capture.captureServer"]}';
-	janrain.settings.capture.registerFlow = 'socialRegistration';
-	janrain.settings.packages = ['$janrain_packages'];
-
-	janrain.settings.capture.setProfileCookie = true;
-	janrain.settings.capture.keepProfileCookieAfterLogout = true;
-	janrain.settings.capture.setProfileData = 'true';
-
-	// styles
-	janrain.settings.capture.stylesheets = ['{$settings["capture.stylesheets"]}'];
-	janrain.settings.capture.mobileStylesheets = ['{$settings["capture.mobileStylesheets"]}'];
-	janrain.settings.capture.recaptchaPublicKey = '6LeVKb4SAAAAAGv-hg5i6gtiOV4XrLuCDsJOnYoP';
-WIDGETCAPTURE;
-
-		if ( in_array( 'login', $settings['capture.packages'] ) ) { ?>
+		// entity-encoded ampersand breaks when called from the federated site
+		$settings['capture.federateLogoutUri']  = str_replace( '&amp;', '&', wp_logout_url() );
 
 
-	// engage settings
-	janrain.settings.appUrl = '<?php echo $settings['appUrl'] ?>';
-	janrain.settings.tokenAction = 'event';
-		<?php }
+		echo
+		"<script type='text/javascript'>
+		function janrainSignOut(){
+			janrain.capture.ui.endCaptureSession();
+		}
+		(function() {
+			if (typeof window.janrain !== 'object') window.janrain = {};
+			window.janrain.settings = {};
+			window.janrain.settings.capture = {};
 
-		if ( $settings['capture.backplane'] ) { ?>
+			// capture settings
+			janrain.settings.capture.redirectUri = '{$settings["capture.redirectUri"]}';
+			janrain.settings.capture.appId= '{$settings["capture.appId"]}';
+			janrain.settings.capture.clientId = '{$settings["capture.clientId"]}';
+			janrain.settings.capture.responseType = 'token';
+			janrain.settings.capture.captureServer = '{$settings["capture.captureServer"]}';
+			janrain.settings.capture.registerFlow = 'socialRegistration';
+			janrain.settings.packages = ['$janrain_packages'];
 
+			janrain.settings.capture.setProfileCookie = true;
+			janrain.settings.capture.keepProfileCookieAfterLogout = true;
+			janrain.settings.capture.setProfileData = 'true';
 
-	//backplane settings
-	janrain.settings.capture.backplane = <?php echo $settings['capture.backplane'] ?>;
-	janrain.settings.capture.backplaneBusName = '<?php echo $settings['capture.backplaneBusName'] ?>';
-	janrain.settings.capture.backplaneVersion = <?php echo $settings['capture.backplaneVersion'] ?>;
-		<?php
-			if ( isset($settings['capture.backplaneServerBaseUrl']) && $settings['capture.backplaneServerBaseUrl'] != '' ) {
-				?>
-			janrain.settings.capture.backplaneServerBaseUrl = 'https://<?php echo $settings['capture.backplaneServerBaseUrl']?>';
-				<?php
-			}
+			janrain.settings.capture.federateEnableSafari = true;
+
+			// styles
+			janrain.settings.capture.stylesheets = ['{$settings["capture.stylesheets"]}'];
+			janrain.settings.capture.mobileStylesheets = ['{$settings["capture.mobileStylesheets"]}'];
+			janrain.settings.capture.recaptchaPublicKey = '6LeVKb4SAAAAAGv-hg5i6gtiOV4XrLuCDsJOnYoP';\n";
+		if ( in_array( 'login', $settings['capture.packages'] ) ) {
+			echo
+			"// engage settings
+			janrain.settings.appUrl = '{$settings['appUrl']}';
+			janrain.settings.tokenAction = 'event';\n";
 		}
 
-		if ( $settings['capture.federate'] ) { ?>
+		if ( $settings['capture.backplane'] ) {
+			echo
+			"//backplane settings
+			janrain.settings.capture.backplane = {$settings['capture.backplane']};
+			janrain.settings.capture.backplaneBusName = '{$settings['capture.backplaneBusName']}';
+			janrain.settings.capture.backplaneVersion = {$settings['capture.backplaneVersion']};\n";
+			if ( isset($settings['capture.backplaneServerBaseUrl']) && $settings['capture.backplaneServerBaseUrl'] != '' ) {
+				echo "janrain.settings.capture.backplaneServerBaseUrl = 'https://{$settings['capture.backplaneServerBaseUrl']}';";
+			}
+		}
+		if ( $settings['capture.federate'] ) {
+			echo
+			"// federate settings
+			janrain.settings.capture.federate = {$settings['capture.federate']};
+			janrain.settings.capture.federateServer = 'https://{$settings['capture.federateServer']}';
+			janrain.settings.capture.federateXdReceiver = '{$settings['capture.federateXdReceiver']}';
+			janrain.settings.capture.federateLogoutUri = '{$settings['capture.federateLogoutUri']}';\n";
+		}
 
-
-	// federate settings
-	janrain.settings.capture.federate = <?php echo $settings['capture.federate'] ?>;
-	janrain.settings.capture.federateServer = '<?php echo $settings['capture.federateServer'] ?>';
-	janrain.settings.capture.federateXdReceiver = '<?php echo $settings['capture.federateXdReceiver'] ?>';
-	janrain.settings.capture.federateLogoutUri = '<?php echo $settings['capture.federateLogoutUri'] ?>';
-		<?php }
-
-		echo <<<WIDGETFINISH
-
-	function isReady() { janrain.ready = true; };
-	if (document.addEventListener) {
-		document.addEventListener("DOMContentLoaded", isReady, false);
-	} else {
-		window.attachEvent('onload', isReady);
-	}
-
-	var e = document.createElement('script');
-	e.type = 'text/javascript';
-	e.id = 'janrainAuthWidget'
-	var url = document.location.protocol === 'https:' ? 'https://' : 'http://';
-	url += '{$settings["capture.loadJsUrl"]}';
-	e.src = url;
-	var s = document.getElementsByTagName('script')[0];
-	s.parentNode.insertBefore(e, s);
-})();
-</script>
-WIDGETFINISH;
+		echo
+			"function isReady() { janrain.ready = true; };
+			if (document.addEventListener) {
+				document.addEventListener('DOMContentLoaded', isReady, false);
+			} else {
+				window.attachEvent('onload', isReady);
+			}
+			var e = document.createElement('script');
+			e.type = 'text/javascript';
+			e.id = 'janrainAuthWidget'
+			var url = document.location.protocol === 'https:' ? 'https://' : 'http://';
+			url += '{$settings["capture.loadJsUrl"]}';
+			e.src = url;
+			var s = document.getElementsByTagName('script')[0];
+			s.parentNode.insertBefore(e, s);
+		})();
+		</script>";
 	}
 
 	/**
@@ -236,38 +231,25 @@ WIDGETFINISH;
 	 * Outputs backplane setttings js block
 	 */
 	function backplane_js() {
-		$bus = JanrainCapture::get_option( JanrainCapture::$name . '_bp_bus_name' );
-		$ver = JanrainCapture::get_option( JanrainCapture::$name . '_bp_version', 1.2 );
+		$bus = esc_js( JanrainCapture::get_option( JanrainCapture::$name . '_bp_bus_name' ) );
+		$ver = esc_js( JanrainCapture::get_option( JanrainCapture::$name . '_bp_version', 1.2 ) );
+		$server = esc_js( untrailingslashit( JanrainCapture::get_option( JanrainCapture::$name . '_bp_server_base_url' ) ) );
 		if ( $ver == 1.2 ) {
-			echo <<<BACKPLANE
-<script type="text/javascript">
- function setup_bp() {
-	/*
-	 * Initialize Backplane:
-	 * This creates a channel and adds a cookie for the channel.
-	 * It also sets the function to call when this is complete.
-	 */
-	Backplane(bp_ready);
-	Backplane.init({
-		serverBaseURL: "http://backplane1.janrainbackplane.com/v$ver",
-		busName: "$bus"
-	});
-}
-
-function bp_ready() {
-	/*
-	 * This function is called when Backplane.init is complete.
-	 */
-	if (Backplane.getChannelID() != undefined) {
-		// backplane loaded
-		//console.log(Backplane.getChannelID());
-		return false;
-	}
-}
-
-setup_bp();
-</script>
-BACKPLANE;
+			echo
+				"<script type='text/javascript'>
+				function bp_ready() {
+					// called when bp init completes
+					if (Backplane.getChannelID() != undefined) {
+						// backplane loaded
+						return false;
+					}
+				}
+				Backplane(bp_ready);
+				Backplane.init({
+					serverBaseURL: 'https://$server/v$ver',
+					busName: '$bus'
+				});
+				</script>\n";
 		}
 	}
 

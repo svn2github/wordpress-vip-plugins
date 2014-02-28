@@ -6,11 +6,11 @@
 Plugin Name: Social User Registration and Profile Storage with Janrain Capture for Wordpress VIP
 Plugin URI: http://www.janrain.com/capture/
 Description: Collect, store and leverage user profile data from social networks in a flexible, lightweight hosted database.
-Version: 0.5.1
+Version: 0.5.3
 Author: Janrain
 Author URI: http://developers.janrain.com/extensions/wordpress-for-capture/
 License: Apache License, Version 2.0
- */
+*/
 
 if ( ! class_exists( 'JanrainCapture' ) ) {
 	class JanrainCapture {
@@ -24,6 +24,8 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 		 * Initializes the plugin.
 		 */
 		function init() {
+			header('P3P: CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+
 			$this->path = plugin_dir_path( __FILE__ );
 			$this->url  = plugin_dir_url( __FILE__ );
 
@@ -154,63 +156,51 @@ SCREEN2;
 		}
 
 		/**
-		 * Method used for the janrain_capture_logout action on admin-ajax.php.
-		 */
-		function logout() {
-			$s = isset( $_SERVER['HTTPS'] ) ? '; secure' : '';
-			$n = self::$name;
-			$r = isset( $_GET['source'] ) ? esc_url_raw( $_GET['source'] ) : home_url();
-			$r = wp_validate_redirect( $r, home_url() );
-			echo <<<LOGOUT
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" >
-	<head>
-	<title>Janrain Capture</title>
-	</head>
-	<body>
-	<script type="text/javascript">
-		document.cookie = 'backplane-channel=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/$s';
-		window.location.href = '$r';
-	</script>
-	</body>
-</html>
-LOGOUT;
-			exit();
-		}
-
-		/**
 		 * Implementation of the janrain_capture shortcode.
+		 *   #case 1: no content, just drop the [janrain_capture] tag on the page
+		 *   #case 2: custom link string [janrain_capture text='Login']
+		 *   #case 3: custom login body [janrain_capture] My custom stuff here [/janrain_capture]
+		 *   #case 4: custom text and custom body (custom body wins)
+		 *   #case 5: special case [janrain_capture action="edit_profile"] only renders profile
 		 *
-		 * @param string $args
-		 *	 Arguments appended to the shortcode
+		 * @param string $atts
+		 *   Arguments appended to the shortcode
 		 *
 		 * @return string
-		 *	 Text or HTML to render in place of the shortcode
+		 *   Text or HTML to render in place of the shortcode
 		 */
-		function shortcode( $args ) {
-			$atts = array(
-					'text' => 'Sign in / Register',
-					'action' => 'signin',
+		public function shortcode( $atts, $content = null ) {
+			$defaultAfterLogout = home_url();
+			$defaults = array(
+				'action' => 'signin',
+				'text' => __( 'Sign in / Register' ),
+				'logouttext' => __( 'Logout' ),
+				'afterlogout' => $defaultAfterLogout,
 			);
+			$atts = shortcode_atts( $defaults, $atts );
 
-			$atts = shortcode_atts( $atts, $args );
-
-			if ( strpos( $atts['action'], 'edit_profile' ) === 0 ) {
+			if ( 'edit_profile' == $atts['action'] ) {
+				// short circuit since we're showing the profile
 				return $this->profile();
 			}
 
-			$link = '<a id="janrain_auth" href="#" class="capture_modal_open" >' . sanitize_text_field( $atts['text'] ) . '</a>
-					 <script>
-						 if(localStorage && localStorage.getItem("janrainCaptureToken")) {
-						 var authLink = document.getElementById("janrain_auth");
-						 authLink.innerHTML = "Log out";
-						 authLink.setAttribute("href", "'.admin_url().'admin-ajax.php?action=janrain_capture_logout&source='.esc_js( JanrainCaptureUi::current_page_url() ).'");
-						 authLink.setAttribute("onclick", "janrain.capture.ui.endCaptureSession()");
-						 authLink.setAttribute("class","");
-						 }
-					 </script>';
-			return $link;
+			// not showing profile process shortcode content
+			$shortcodeScriptUrl = plugins_url( 'shortcode.js', __FILE__ );
+			wp_enqueue_script('janrain_capture_shortcode', $shortcodeScriptUrl, array('jquery'));
+			if ( empty( $content ) ) {
+				// closed tag can either have custom or default text.
+				$out =
+					"<a href='#' id='janrain_auth' class='janrainShortcode capture_modal_open' data-afterlogout='%s'>"
+						."<span class='janrainShortcodeLoginContent'>%s</span>"
+						."<span class='janrainShortcodeLogoutContent' style='display:none'>%s</span>"
+					."</a>\n";
+				$out = sprintf($out, esc_url( $atts['afterlogout'] ), esc_html( $atts['text'] ), esc_html( $atts['logouttext'] ) );
+			} else {
+				// custom tag, user is responsible for updating/replacing content on the frontend.
+				$out = "<div class='capture_modal_open janrainShortcode' style='display:inline-block' data-afterlogout='%s'>%s</div>\n";
+				$out = sprintf($out, esc_url( $atts['afterlogout'] ), do_shortcode( wp_kses_post( $content ) ) );
+			}
+			return $out;
 		}
 
 		/**
@@ -229,7 +219,6 @@ LOGOUT;
 					'url' => ($post->ID ? get_permalink() : ''),
 					'title' => ($post->ID ? get_the_title() : ''),
 					'description' => ($post->ID ? get_the_excerpt() : ''),
-					'img' => $image,
 					'text' => 'Share on',
 				);
 
@@ -237,7 +226,9 @@ LOGOUT;
 				$url		 = addslashes( sanitize_text_field( $atts['url'] ) );
 				$description = addslashes( sanitize_text_field( $atts['description'] ) );
 				$title		 = addslashes( sanitize_text_field( $atts['title'] ) );
-				$img		 = addslashes( sanitize_text_field( $atts['img'] ) );
+				$img = empty( $atts['img'] )
+					? ''
+					: addslashes( sanitize_text_field( $atts['img'] ) );
 				$text		 = sanitize_text_field( $atts['text'] );
 				$onclick     = "setShare('$url', '$title', '$description', '$img', this.getAttribute('rel'))";
 				$link		 = '<div class="janrain-share-container">';
@@ -298,20 +289,21 @@ LOGOUT;
 		}
 
 		/**
-		 * Retrieves the plugin version.
+		 * Detect if sharing is enabled on configured with at least one share provider
 		 *
-		 * @return string
-		 *	 String version
+		 * @return bool
+		 *   true if sharing is on and 1 or more share providers configured
+		 *   false if sharing is off or no share providers configured
 		 */
 		static function share_enabled() {
 			$enabled = self::get_option( self::$name . '_ui_share_enabled' );
 			if ( $enabled == '0' ) {
+				#sharing setting turned off
 				return false;
 			}
-			$realm			 = self::get_option( self::$name . '_rpx_realm' );
 			$share_providers = JanrainCapture::get_option( JanrainCapture::$name . '_rpx_share_providers' );
-			$share_providers = implode( "', '", array_map( 'esc_js', $share_providers ) );
-			return ($realm && "['$share_providers']");
+			#sharing turned on and at least 1 share provider configured.
+			return count( $share_providers ) > 0;
 		}
 
 		/**
