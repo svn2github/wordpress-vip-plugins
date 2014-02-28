@@ -1,4 +1,4 @@
-ncApp.ArticleToolTipView = Backbone.View.extend( {
+ncApp.ArticleToolTipView = wp.Backbone.View.extend( {
     template:_.template( $( "#nc-article-tooltip" ).html() ),
     className:"articles-tooltip-container tooltip-container",
     initialize:function () {

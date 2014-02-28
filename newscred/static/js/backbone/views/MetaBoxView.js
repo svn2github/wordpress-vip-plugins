@@ -1,4 +1,4 @@
-ncApp.MetaBoxView = Backbone.View.extend( {
+ncApp.MetaBoxView = wp.Backbone.View.extend( {
     template:_.template( $("#nc-metabox").html() ),
     initialize:function () {
         _.bindAll( this, "render", "searchTags", "selectSortBy", "changeTab" );

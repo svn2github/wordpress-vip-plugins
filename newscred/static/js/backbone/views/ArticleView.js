@@ -1,4 +1,4 @@
-ncApp.ArticleView = Backbone.View.extend( {
+ncApp.ArticleView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-article" ).html() ),
     tagName:'li',

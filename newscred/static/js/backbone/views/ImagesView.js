@@ -1,4 +1,4 @@
-ncApp.ImagesView = Backbone.View.extend( {
+ncApp.ImagesView = wp.Backbone.View.extend( {
     template:_.template( $( "#nc-images" ).html() ),
     id:"image-tab",
     attributes:{index:1},

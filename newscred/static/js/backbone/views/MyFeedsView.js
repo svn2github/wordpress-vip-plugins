@@ -1,4 +1,4 @@
-ncApp.MyFeedsView = Backbone.View.extend( {
+ncApp.MyFeedsView = wp.Backbone.View.extend( {
     template:_.template( $( "#nc-myfeeds" ).html() ),
     id:"myfeed-tab",
     attributes:{index:2},

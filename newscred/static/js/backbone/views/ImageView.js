@@ -1,4 +1,4 @@
-ncApp.ImageView = Backbone.View.extend( {
+ncApp.ImageView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-image" ).html() ),
     tagName:'li',

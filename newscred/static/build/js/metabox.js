@@ -55,7 +55,7 @@ ncApp.Images = Backbone.Collection.extend( {
 ncApp.Tags = Backbone.Collection.extend( {
     model:ncApp.Tag
 } );
-ncApp.ArticleToolTipView = Backbone.View.extend( {
+ncApp.ArticleToolTipView = wp.Backbone.View.extend( {
     template:_.template( $( "#nc-article-tooltip" ).html() ),
     className:"articles-tooltip-container tooltip-container",
     initialize:function () {
@@ -73,7 +73,7 @@ ncApp.ArticleToolTipView = Backbone.View.extend( {
         return this;
     }
 } );
-ncApp.ArticleView = Backbone.View.extend( {
+ncApp.ArticleView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-article" ).html() ),
     tagName:'li',
@@ -274,7 +274,7 @@ ncApp.ArticleView = Backbone.View.extend( {
     }
 
 } );
-ncApp.ArticlesView = Backbone.View.extend( {
+ncApp.ArticlesView = wp.Backbone.View.extend( {
     template:_.template( $("#nc-articles" ).html() ),
     id:"article-tab",
     className:"nc-side-bar-tab-content",
@@ -593,7 +593,7 @@ ncApp.ArticlesView = Backbone.View.extend( {
     }
 
 } );
-ncApp.AttachImagesView = Backbone.View.extend( {
+ncApp.AttachImagesView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-attach-image" ).html() ),
     id:"nc-image-set-div",
@@ -654,7 +654,7 @@ ncApp.AttachImagesView = Backbone.View.extend( {
 
 
 } );
-ncApp.ImageToolTipView = Backbone.View.extend( {
+ncApp.ImageToolTipView = wp.Backbone.View.extend( {
     template:_.template( $( "#nc-image-tooltip" ).html() ),
     className:"articles-tooltip-container tooltip-container",
     initialize:function () {
@@ -674,7 +674,7 @@ ncApp.ImageToolTipView = Backbone.View.extend( {
     }
 
 } );
-ncApp.ImageView = Backbone.View.extend( {
+ncApp.ImageView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-image" ).html() ),
     tagName:'li',
@@ -726,7 +726,7 @@ ncApp.ImageView = Backbone.View.extend( {
 
 
 } );
-ncApp.ImagesView = Backbone.View.extend( {
+ncApp.ImagesView = wp.Backbone.View.extend( {
     template:_.template( $( "#nc-images" ).html() ),
     id:"image-tab",
     attributes:{index:1},
@@ -1044,7 +1044,7 @@ ncApp.ImagesView = Backbone.View.extend( {
 
 
 } );
-ncApp.MetaBoxView = Backbone.View.extend( {
+ncApp.MetaBoxView = wp.Backbone.View.extend( {
     template:_.template( $("#nc-metabox").html() ),
     initialize:function () {
         _.bindAll( this, "render", "searchTags", "selectSortBy", "changeTab" );
@@ -1225,7 +1225,7 @@ ncApp.MetaBoxView = Backbone.View.extend( {
     }
 
 } );
-ncApp.MyFeedsView = Backbone.View.extend( {
+ncApp.MyFeedsView = wp.Backbone.View.extend( {
     template:_.template( $( "#nc-myfeeds" ).html() ),
     id:"myfeed-tab",
     attributes:{index:2},
@@ -1462,7 +1462,7 @@ ncApp.MyFeedsView = Backbone.View.extend( {
     }
 
 } );
-ncApp.TagView = Backbone.View.extend( {
+ncApp.TagView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-tag" ).html() ),
     tagName:'span',
@@ -1491,7 +1491,7 @@ ncApp.TagView = Backbone.View.extend( {
 
 
 } );
-ncApp.TagsView = Backbone.View.extend( {
+ncApp.TagsView = wp.Backbone.View.extend( {
 
     className:"nc-fliter-tag",
     initialize:function () {

@@ -1,4 +1,4 @@
-ncApp.TagsView = Backbone.View.extend( {
+ncApp.TagsView = wp.Backbone.View.extend( {
 
     className:"nc-fliter-tag",
     initialize:function () {

@@ -1,4 +1,4 @@
-ncApp.AttachImagesView = Backbone.View.extend( {
+ncApp.AttachImagesView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-attach-image" ).html() ),
     id:"nc-image-set-div",

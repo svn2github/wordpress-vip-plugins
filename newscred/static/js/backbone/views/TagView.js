@@ -1,4 +1,4 @@
-ncApp.TagView = Backbone.View.extend( {
+ncApp.TagView = wp.Backbone.View.extend( {
 
     template:_.template( $( "#nc-tag" ).html() ),
     tagName:'span',

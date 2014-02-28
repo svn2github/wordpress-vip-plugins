@@ -1,4 +1,4 @@
-ncApp.ArticlesView = Backbone.View.extend( {
+ncApp.ArticlesView = wp.Backbone.View.extend( {
     template:_.template( $("#nc-articles" ).html() ),
     id:"article-tab",
     className:"nc-side-bar-tab-content",
