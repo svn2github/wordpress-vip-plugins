@@ -484,7 +484,7 @@ class wpGoogleAnalytics {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
 		}
 
-		if ($wga['enable_display_advertising'] == true) {
+		if ($wga['enable_display_advertising'] == 'true' ) {
 			$async_code = "<script type='text/javascript'>
 								var _gaq = _gaq || [];
 								%custom_vars%
