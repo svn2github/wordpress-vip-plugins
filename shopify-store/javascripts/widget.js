@@ -83,10 +83,10 @@
 		var qty = 1;
 		if ( $( '#' + this.widget_id + ' .destination' ).val() === 'product' ) {
 			// redirect to the product page
-			window.parent.location.href = "https://" + this.myshopify_domain + "/products/" + this.product_handle + "?referer=" + this.referer;
+			window.parent.location.href = "https://" + this.myshopify_domain + "/products/" + this.product_handle + "?referer=" + this.referer + "&wp_refer=true";
 		} else {
 			// redirect to checkout endout with parameters => /checkout?variant_id:qty
-			window.parent.location.href = "https://" + this.myshopify_domain + "/cart/" + variant_id + ":" + qty + "?referer=" + this.referer;
+			window.parent.location.href = "https://" + this.myshopify_domain + "/cart/" + variant_id + ":" + qty + "?referer=" + this.referer + "&wp_refer=true";
 		}
 		return false;
 	};
