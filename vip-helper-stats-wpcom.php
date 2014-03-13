@@ -315,7 +315,17 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 
 		case 'views' :
 			if ( !is_null( $summarize ) )
-				$_rows = array( array( 'date' => '-', 'views' => array_sum( array_map( create_function( '$row', 'return $row["views"];' ), $rows ) ) ) );
+				$_rows = array(
+					array(
+						'date' => '-',
+						'views' => array_sum( 
+							array_map( function( $row ) { 
+									return $row["views"];
+								}
+							, $rows )
+						)
+					)
+				);
 			else
 				$_rows =& $rows;
 
@@ -499,7 +509,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
 				}
 			}
 
-			$return .= "\t" . '<total>' . (int) array_sum( array_map( create_function( '$row', 'return $row["views"];' ), $rows ) ) . '</total>' . "\n";
+			$return .= "\t" . '<total>' . (int) array_sum( array_map( function( $row ) { return $row["views"]; }, $rows ) ) . '</total>' . "\n";
 			
 			break;
 
@@ -518,7 +528,7 @@ function wpcom_vip_stats_xml_print( $rows, $table, $limit, $summarize = NULL ) {
 					}
 				}
 
-				$return .= "\t" . '<total>' . (int) array_sum( array_map( create_function( '$row', 'return $row[ $GLOBALS[\'post_id\']];' ), $rows ) ) . '</total>' . "\n";
+				$return .= "\t" . '<total>' . (int) array_sum( array_map( function( $row ) { return $row[ $GLOBALS['post_id']]; }, $rows ) ) . '</total>' . "\n";
 				
 				break;
 			}

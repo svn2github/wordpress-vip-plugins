@@ -234,7 +234,7 @@ function wpcom_vip_remove_feed_tracking_bug() {
 function wpcom_vip_audio_player_colors( $colors ) {
 	$default_colors = array("bg" => "0xf8f8f8", "leftbg" => "0xeeeeee", "lefticon" => "0x666666", "rightbg" => "0xcccccc", "rightbghover" => "0x999999", "righticon" => "0x666666", "righticonhover" => "0xffffff", "text" => "0x666666", "slider" => "0x666666", "track" => "0xFFFFFF", "border" => "0x666666", "loader" => "0x9FFFB8");
 
-	add_filter('audio_player_default_colors', create_function( '', 'return '.var_export( array_merge($default_colors, $colors), true ).';') );
+	add_filter('audio_player_default_colors', function() use ( $default_colors, $colors ) { return var_export( array_merge( $default_colors, $colors ), true ); } );
 }
 
 /**
@@ -446,7 +446,7 @@ function _wpcom_vip_allow_full_size_images_for_real( $ignore, $id, $size ) {
  */
 function wpcom_vip_crop_small_thumbnail() {
 	if ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV )
-		add_filter( 'pre_option_thumbnail_crop', create_function('', 'return 1;'), 11 ); // 11 = after our disable filter
+		add_filter( 'pre_option_thumbnail_crop', function() { return 1; }, 11 ); // 11 = after our disable filter
 }
 
 /**
@@ -526,7 +526,7 @@ function wpcom_vip_sharing_twitter_via( $via = '' ) {
 		$via = preg_replace( '/[^A-Za-z0-9_\-]/', '', $via );
 		$via = apply_filters( 'sanitize_key', $via, $raw_via );
 
-		$via_callback = create_function( '', sprintf( 'return "%s";', $via ) );
+		$via_callback = function() use ( $via ) { return $via; };
 	}
 
 	add_filter( 'jetpack_sharing_twitter_via', $via_callback );
