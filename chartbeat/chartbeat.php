@@ -259,6 +259,13 @@ function add_chartbeat_footer() {
 			$use_canonical = 'true';
 		else
 			$use_canonical = 'false';
+		
+		$js_url    = 'static.chartbeat.com/js/chartbeat.js';
+		$use_video = apply_filters( 'chartbeat_config_enable_video' , false );	
+		
+		if( $use_video ) {
+			$js_url   = 'static.chartbeat.com/js/chartbeat_video.js';
+		}		
 		?>
 
 		<!-- /// LOAD CHARTBEAT /// -->
@@ -312,7 +319,7 @@ function add_chartbeat_footer() {
 			e.setAttribute('type', 'text/javascript');
 			e.setAttribute('src',
 			   (("https:" == document.location.protocol) ? "https://" : "http://") +
-			   "static.chartbeat.com/js/chartbeat.js");
+			   "<?php echo esc_js( $js_url );?>");
 			document.body.appendChild(e);
 		  }
 		  var oldonload = window.onload;
