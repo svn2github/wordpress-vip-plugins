@@ -1,0 +1,301 @@
+/**
+ * Meta-box
+ */
+
+#ftb {
+	background: #f4f4f4;
+	overflow: hidden;
+}
+
+#ftb-sidebar {
+	font-size: 12px;
+}
+
+#ftb .inside,
+#ftb-wd-load {
+	color: #4d4d4d;
+	font-family: Helvetica, Arial, sans-serif;
+	font-weight: 300;
+	-webkit-font-smoothing: antialiased;
+	margin: 0;
+	padding: 0;
+}
+
+#ftb .nav-bar {
+	background: #fff;
+	border-bottom: 1px solid #ddd;
+	-webkit-box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.125);
+	-moz-box-shadow:    0px 2px 4px rgba(0, 0, 0, 0.125);
+	box-shadow:         0px 2px 4px rgba(0, 0, 0, 0.125);
+	/* Box shadow should always be above next content (see #ftb-loading). */
+	position: relative;
+	z-index: 1001;
+}
+
+#ftb .static-bar {
+	padding: 10px;
+}
+
+#ftb .svg {
+	display: none !important;
+}
+
+#ftb-term {
+	width: 100%;
+}
+
+#ftb .clear {
+	clear: both;
+}
+
+#ftb-term-container {
+	height: 26px;
+	line-height: 26px;
+	margin-right: 45px;
+}
+
+#ftb-term {
+	width: 100%;
+}
+
+#ftb-search {
+	float: right;
+	width: 36px;
+}
+
+#ftb-edit {
+	margin-top: 10px;
+	width: 100%;
+}
+
+#ftb-content {
+	position: relative;
+}
+
+#ftb-suggestions .section {
+	border-bottom: 1px solid #ddd;
+	width: 100%;
+}
+
+#ftb-suggestions .section-text {
+	padding: 10px;
+	text-transform: uppercase;
+}
+
+#ftb-suggestions .item {
+	background: #fff;
+	border-bottom: 1px solid #ddd;
+	cursor: pointer;
+	display: table;
+	width: 100%;
+}
+
+#ftb-suggestions .item:hover {
+	background: #4d4d4d;
+	color: #fff;
+}
+
+#ftb-suggestions .item-content {
+	padding: 10px;
+}
+
+#ftb-suggestions .image-container {
+	display: table-cell;
+	height: 28px;
+	line-height: 28px;
+	padding-right: 10px;
+	width: 28px;
+}
+
+#ftb-suggestions .image-container.right {
+	padding-left: 10px;
+	padding-right: 0;
+}
+
+#ftb-suggestions .image {
+	background: #f4f4f4;
+	-webkit-border-radius: 2px;
+	-moz-border-radius:    2px;
+	border-radius:         2px;
+	height: 28px;
+	line-height: 27px;
+	overflow: hidden;
+	text-align: center;
+	vertical-align: middle;
+	width: 28px;
+}
+
+#ftb-suggestions .image img {
+	max-height: 28px;
+	max-width: 28px;
+	vertical-align: middle;
+}
+
+#ftb-suggestions .label {
+	display: table-cell;
+	vertical-align: middle;
+}
+
+#ftb-suggestions .label strong {
+	font-weight: bold;
+}
+
+#ftb-suggestions .label b {
+	color: #000;
+}
+
+#ftb-suggestions .item:hover .label b {
+	color: #fff;
+}
+
+#ftb-suggestions div:last-child {
+	border: none;
+}
+
+#ftb-suggestions {
+	display: none;
+	height: 245px;
+	overflow: auto;
+}
+
+#ftb-info {
+	padding: 21px;
+}
+
+#ftb-no-results {
+	padding: 21px;
+	display: none;
+}
+
+#ftb-loading {
+	background: #f4f4f4;
+	background: rgba(244, 244, 244, .9);
+	display: none;
+	height: 245px;
+	line-height: 25px;
+	text-align: center;
+	position: absolute;
+	width: 100%;
+	z-index: 1000;
+}
+
+#ftb-loading .load {
+	padding-top: 85px;
+}
+
+#ftb-loading .load img,
+#ftb-wd-load img {
+	height: 30px;
+	margin-bottom: 15px;
+	width: 30px;
+}
+
+#ftb-wd-load {
+	background: #f4f4f4;
+	padding: 20px;
+	text-align: center;
+}
+
+/**
+ * Inputs
+ */
+
+#ftb input[type="text"] {
+	background: #fff;
+	border: 1px solid #ddd;
+	-webkit-border-radius: 2px;
+	-moz-border-radius:    2px;
+	border-radius:         2px;
+	-webkit-box-shadow: none;
+	-moz-box-shadow:    none;
+	box-shadow:         none;
+	color: #000;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	height: 26px;
+	line-height: 120%;
+	margin: 0;
+}
+
+#ftb input[type="text"]:focus {
+	border-color: #0bf;
+}
+
+/**
+ * Buttons
+ */
+
+#ftb .button-image {
+	margin-top: -2px;
+}
+
+#ftb .button {
+	background-color: #0bf;
+	background-image: -webkit-gradient(linear, left bottom, left top,
+	                  color-stop(29%, rgba(43, 43, 43, .02)),
+										color-stop(100%, rgba(255, 255, 255, 0)));
+	background-image: -moz-linear-gradient(bottom, rgba(43, 43, 43, .02) 29%,
+	                  rgba(255, 255, 255, 0) 100%);
+	background-image:   -o-linear-gradient(bottom, rgba(43, 43, 43, .02) 29%,
+	                  rgba(255, 255, 255, 0) 100%);
+	background-image:      linear-gradient(bottom, rgba(43, 43, 43, .02) 29%,
+	                  rgba(255, 255, 255, 0) 100%);
+	border: 1px solid #0bf;
+	-webkit-border-radius: 2px;
+	-moz-border-radius:    2px;
+	border-radius:         2px;
+	box-shadow: none;
+	color: #fff !important;
+	cursor: pointer;
+	display: inline-block;
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	height: 26px;
+	line-height: 120%;
+	outline: 0;
+	padding: 5px 9px;
+	text-align: center;
+	text-shadow: 0px 1px 0px rgba(0, 0, 0, 0.1);
+	-webkit-transition: .3s;
+	-moz-transition:    .3s;
+	-o-transition:      .3s;
+	transition:         .3s;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select:  none;
+	-moz-user-select:    none;
+	-ms-user-select:     none;
+	user-select:         none;
+}
+
+#ftb .button:hover {
+	background-color: #0cf;
+	border-color: #0cf;
+	-webkit-box-shadow: 0px 3px 4px -3px rgba(0, 0, 0, 0.1);
+	-moz-box-shadow:    0px 3px 4px -3px rgba(0, 0, 0, 0.1);
+	box-shadow:         0px 3px 4px -3px rgba(0, 0, 0, 0.1);
+	color: #fff;
+	text-decoration: none !important;
+}
+
+#ftb .button:active {
+	-webkit-box-shadow: inset 0px 1px 3px rgba(0,0,0,0.1);
+	-moz-box-shadow:    inset 0px 1px 3px rgba(0,0,0,0.1);
+	box-shadow:         inset 0px 1px 3px rgba(0,0,0,.1);
+	-webkit-transition: .0s;
+	-moz-transition:    .0s;
+	-o-transition:      .0s;
+	transition:         .0s;
+}
+
+#ftb .button.disabled {
+	background-color: #ddd;
+	border-color: #ddd;
+	pointer: default;
+	pointer-events: none;
+}
+
+#ftb .button img {
+	vertical-align: middle;
+}

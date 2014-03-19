@@ -1,0 +1,13 @@
+.ftb-tiny-mce-widget {
+	background: #ccc url(../images/placeholder.png) no-repeat center center;
+	background-size: 200px 150px;
+	-webkit-border-radius: 2px;
+	-moz-border-radius:    2px;
+	border-radius:         2px;
+	display: block;
+	height: 150px;
+	margin: 0 auto;
+	width: 200px;
+	max-height: inherit;
+	max-width: inherit;
+}
