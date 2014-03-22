@@ -37,7 +37,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * > EyeReturn (/eyereturn/eyereturn.html)
  * > Unicast (/unicast/unicastIFD.html)
  * > Yahoo - AdInterax (/adinterax/adx-iframe-v2.html)
- * > Jivox (/jivox/jivoxIBuster.html)
  *
  * @since Adbusters (1.0)
  */
@@ -48,12 +47,14 @@ function wpcom_vip_maybe_load_ad_busters() {
 		'atlas/atlas_rm.htm',                // Atlas
 		'blogads/iframebuster-4.html',       // BlogAds
 		'checkm8/CM8IframeBuster.html',      // CheckM8
+		'comscore/cs-arIframe.htm',          // comScore
 		'doubleclick/DARTIframe.html',       // Google - DoubleClick
 		'doubleclick/fif.html',              // Flite
 		'eyeblaster/addineyeV2.html',        // MediaMind - EyeBlaster
 		'flite/fif.html',                    // Flite
 		'gumgum/iframe_buster.html',         // gumgum
 		'interpolls/pub_interpolls.html',    // Interpolls
+		'jivox/jivoxIBuster.html',           // Jivox
 		'jpd/jpxdm.html',                    // Jetpack Digital
 		'klipmart/km_ss.html',               // Google - DoubleClick - Klipmart
 		'mediamind/MMbuster.html',           // MediaMind - addineye (?)
