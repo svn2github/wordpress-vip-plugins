@@ -282,7 +282,7 @@ function add_chartbeat_footer() {
 			<?php 
 			// Auto detect video turn off
 			if( $use_video && $auto_det === false ) {
-				echo '_sf_async_config.autoDetect = false';
+				echo "_sf_async_config.autoDetect = false;\n";
 			}
 			// Only add these values on blog posts use the queried object in case there
 			// are multiple Loops on the page.
