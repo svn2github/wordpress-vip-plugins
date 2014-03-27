@@ -261,6 +261,7 @@ function add_chartbeat_footer() {
 			$use_canonical = 'false';
 		
 		$js_url    = 'static.chartbeat.com/js/chartbeat.js';
+		$auto_det  = apply_filters( 'chartbeat_config_video_autodetect' , true );	
 		$use_video = apply_filters( 'chartbeat_config_enable_video' , false );	
 		
 		if( $use_video ) {
@@ -279,6 +280,10 @@ function add_chartbeat_footer() {
 		if ($enable_newsbeat) { ?>
 			_sf_async_config.domain = '<?php echo esc_js( $domain ); ?>';
 			<?php 
+			// Auto detect video turn off
+			if( $use_video && $auto_det === false ) {
+				echo '_sf_async_config.autoDetect = false';
+			}
 			// Only add these values on blog posts use the queried object in case there
 			// are multiple Loops on the page.
 			if (is_single()) {
