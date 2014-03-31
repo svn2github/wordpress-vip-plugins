@@ -310,8 +310,19 @@ function wpcom_print_news_sitemap($format) {
 		return;
 
 	global $wpdb;
+	$post_types = apply_filters( 'wpcom_sitemap_news_sitemap_post_types', array( 'post' ) );
+	if ( empty( $post_types ) )
+		return;
+
+	$post_types_in = array();
+	foreach ( $post_types as $post_type ) {
+		$post_types_in[] = $wpdb->prepare( '%s', $post_type );
+	}
+	$post_types_in_string = implode( ', ', $post_types_in );
+
 	$limit = apply_filters( 'wpcom_sitemap_news_sitemap_count', 1000 );
 	$cur_datetime = current_time( 'mysql', true );
+
 	$query = $wpdb->prepare( "
 		SELECT p.ID, p.post_title, p.post_type, p.post_date, p.post_name, p.post_date_gmt, GROUP_CONCAT(t.name SEPARATOR ', ') AS keywords
 		FROM
@@ -319,7 +330,7 @@ function wpcom_print_news_sitemap($format) {
 			LEFT JOIN $wpdb->term_taxonomy AS tt ON r.term_taxonomy_id = tt.term_taxonomy_id AND tt.taxonomy = 'post_tag'
 			LEFT JOIN $wpdb->terms AS t ON tt.term_id = t.term_id
 		WHERE
-			post_status='publish' AND post_type='post' AND post_date_gmt > (%s - INTERVAL 2 DAY)
+			post_status='publish' AND post_type IN ( {$post_types_in_string} ) AND post_date_gmt > (%s - INTERVAL 2 DAY)
 		GROUP BY p.ID	
 		ORDER BY p.post_date_gmt DESC LIMIT %d", $cur_datetime, $limit );
 
