@@ -68,9 +68,7 @@ class Plugin_Comment_Probation {
 		if ( 1 != $approved )
 			return $approved;
 
-		// Logged-in users get a pass.
-		if ( is_user_logged_in() )
-			return $approved;
+		// WPCOM: is_user_logged_in() exception removed as open registration is allowed.
 
 		// The only other situation is check_comment() returning true.
 		$comment_ids = $wpdb->get_col( $wpdb->prepare( "SELECT comment_ID FROM $wpdb->comments
