@@ -82,21 +82,24 @@ class PushUp_Notifications {
 	 */
 	public static function wp_enqueue_scripts() {
 
-		$username = PushUp_Notifications_Core::get_username();
-		$api_key  = PushUp_Notifications_Core::get_api_key();
-
-		if ( empty( $username ) || empty( $api_key ) ) {
+		// Get data required for theme-side API requests
+		$authentication = PushUp_Notifications_Authentication::get_authentication_data();
+		if ( false === $authentication ) {
 			return;
 		}
 
-		$script = plugins_url( 'js/pushup.js', dirname( __FILE__ ) );
-		wp_enqueue_script( 'pushup', $script, array( 'jquery' ), '1.0', true );
+		// Allow base path to be filtered
+		$base = apply_filters( 'pushup-notification-base-script-path', plugins_url( '', dirname( __FILE__ ) ) );
 
+		// Enqueue the main PushUp JS used to prompt visitors
+		wp_enqueue_script( 'pushup', $base . '/js/pushup.js', array( 'jquery' ), PushUp_Notifications_Core::get_script_version(), true );
+
+		// Localize the Notification prompt strings
 		wp_localize_script( 'pushup', 'PushUpNotificationSettings', array(
-			'domain'        => PushUp_Notifications_Core::get_site_url(),
-			'websitePushID' => PushUp_Notifications_Core::get_website_push_id(),
+			'domain'        => $authentication['domain'],
+			'userID'        => $authentication['user_id'],
+			'websitePushID' => $authentication['website_push_id'],
 			'webServiceURL' => self::$_api_url,
-			'userID'        => PushUp_Notifications_Core::get_user_id(),
 		) );
 	}
 
@@ -217,9 +220,6 @@ class PushUp_Notifications {
 			return;
 		}
 
-		// Try to authenticate the user
-		PushUp_Notifications_JSON_API::authenticate();
-
 		// Bail if not an allowed post type
 		if ( ! self::_is_post_type_allowed( $post_type ) ) {
 			return;
@@ -253,7 +253,7 @@ class PushUp_Notifications {
 				<img class="pushup-notification-pushed-icon" src="<?php echo plugin_dir_url( __FILE__ ); ?>../images/pushup-grey.svg" width="16" height="16" />
 				<span class="pushup-notification-pushed-time"><?php printf( __( 'Pushed on: %s', 'pushup' ), '<strong>' . date_i18n( 'M j, Y @ G:i', $value['time'], false ) . '</strong>' ); ?></span>
 
-			<?php elseif ( PushUp_Notifications_JSON_API::is_authenticated() && PushUp_Notifications_JSON_API::is_domain_enabled() ) : ?>
+			<?php elseif ( PushUp_Notifications_Authentication::is_authenticated() && PushUp_Notifications_JSON_API::is_domain_enabled() ) : ?>
 
 				<?php wp_nonce_field( 'push_notification_nonce', 'post_nonce_' . $post_id ); ?>
 				<input <?php checked( !empty( $value['time'] ) ); ?> title="<?php esc_html_e( 'Push to registered OS X subscribers upon publication', 'pushup' ); ?>" type="checkbox" name="pushup-notification-creation" id="pushup-notification-creation" />

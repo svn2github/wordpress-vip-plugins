@@ -1,6 +1,5 @@
 <?php
 
-// ecaccde8
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
@@ -21,23 +20,11 @@ class PushUp_Notifications_JSON_API {
 	protected static $_api_url = 'https://push.10up.com/json.php';
 
 	/**
-	 * The transient key that will be used to store the most recent authentication attemp.
-	 *
-	 * @var string
-	 */
-	public static $_authentication_transient_key = 'pushup_authentication';
-
-	/**
 	 * The last remote request that was processed
 	 *
 	 * @var array
 	 */
 	protected static $_last_request = null;
-
-	/**
-	 * @var bool Internal variable for determining if we are currently authenticated (especially when transients are broken)
-	 */
-	private static $_is_authenticated = false;
 
 	/**
 	 * Handles initializing this class and returning the singleton instance after it's been cached.
@@ -51,7 +38,6 @@ class PushUp_Notifications_JSON_API {
 
 		if ( null === $instance ) {
 			$instance = new self();
-			// add_filter( 'transient_' . self::$_authentication_transient_key, '__return_false', 100 ); // broken transient / caching problem testing
 		}
 
 		return $instance;
@@ -61,38 +47,6 @@ class PushUp_Notifications_JSON_API {
 	 * An empty constructor
 	 */
 	public function __construct() { /* Purposely do nothing here */ }
-
-	/** Auth ******************************************************************/
-
-	/**
-	 * An unauthenticated request to the JSON API to check the validity of a
-	 * username and an API key
-	 *
-	 * @return array
-	 */
-	public static function authenticate() {
-
-		// Make an unauthenticated request to the API
-		$response = self::_perform_unauthenticated_query( array(
-			'push.authenticate' => array(
-				'username' => PushUp_Notifications_Core::get_username(),
-				'api_key'  => PushUp_Notifications_Core::get_api_key(),
-			)
-		) );
-
-		// If we got a response, let's use it
-		if ( true === $response['push.authenticate'] ) {
-
-			// Cache the authentication
-			self::_set_cached_authentication( true );
-
-			// Authenticated
-			return true;
-		}
-
-		// Boourns... not authenticated
-		return false;
-	}
 
 	/**
 	 * Gets the settings data for an ideal settings page with everything unlocked. Caches these settings to an internal
@@ -139,7 +93,7 @@ class PushUp_Notifications_JSON_API {
 			)
 		);
 
-		self::$_settings_data = self::_perform_authenticated_query( $actions, $username, $api_key );
+		self::$_settings_data = self::perform_authenticated_query( $actions, $username, $api_key );
 
 		return self::$_settings_data;
 	}
@@ -160,7 +114,7 @@ class PushUp_Notifications_JSON_API {
 			return false;
 		}
 
-		return self::_perform_authenticated_query( array(
+		return self::perform_authenticated_query( array(
 			'push.icons.update' => array(
 				'domain' => PushUp_Notifications_Core::get_site_url(),
 				'data'   => $data,
@@ -177,7 +131,7 @@ class PushUp_Notifications_JSON_API {
 	 * @return bool
 	 */
 	public static function set_website_name( $name = '', $username = '', $api_key = '' ) {
-		return self::_perform_authenticated_query( array(
+		return self::perform_authenticated_query( array(
 			'push.domain.config.setWebsiteName' => array(
 				'domain'       => PushUp_Notifications_Core::get_site_url(),
 				'website_name' => sanitize_text_field( $name ),
@@ -306,24 +260,6 @@ class PushUp_Notifications_JSON_API {
 	/** _is_ ******************************************************************/
 
 	/**
-	 * Checks to make sure the user is authenticated or not.
-	 *
-	 * @return bool
-	 */
-	public static function is_authenticated() {
-
-		// Does a transient exist?
-		if ( self::_get_cached_authentication() ) {
-			return true;
-		}
-
-		// Kill any old auths
-		self::_kill_cached_authentication();
-
-		return false;
-	}
-
-	/**
 	 * Checks the settings for this domain name to see if it's enabled or not.
 	 *
 	 * @return bool
@@ -360,40 +296,6 @@ class PushUp_Notifications_JSON_API {
 		return true;
 	}
 
-	/**
-	 * Does a previously successful  authentication attempt exist?
-	 *
-	 * @return bool
-	 */
-	public static function _get_cached_authentication() {
-		return ( self::$_is_authenticated || get_transient( self::$_authentication_transient_key ) );
-	}
-
-	/**
-	 * Kill any previously successful authentication attempts
-	 *
-	 * @return bool
-	 */
-	public static function _kill_cached_authentication() {
-		return delete_transient( self::$_authentication_transient_key );
-	}
-
-	/**
-	 * Attempt to cache the current successful authentication
-	 *
-	 * @param bool $auth
-	 * @return bool
-	 */
-	public static function _set_cached_authentication( $auth = false ) {
-		if ( true !== $auth ) {
-			return self::_kill_cached_authentication();
-		} else {
-			self::$_is_authenticated = true;
-			set_transient( self::$_authentication_transient_key, $auth, 6 * HOUR_IN_SECONDS );
-			return true;
-		}
-	}
-
 	/** Requests **************************************************************/
 
 	/**
@@ -402,7 +304,7 @@ class PushUp_Notifications_JSON_API {
 	 * @param array $actions
 	 * @return array|bool|mixed
 	 */
-	protected static function _perform_unauthenticated_query( $actions = array() ) {
+	public static function perform_unauthenticated_query( $actions = array() ) {
 
 		$request = self::_remote_post( array(
 			'actions' => $actions,
@@ -417,7 +319,7 @@ class PushUp_Notifications_JSON_API {
 	 * @param array $actions
 	 * @return array|bool|mixed
 	 */
-	protected static function _perform_authenticated_query( $actions = array(), $username = '', $api_key = '' ) {
+	public static function perform_authenticated_query( $actions = array(), $username = '', $api_key = '' ) {
 
 		// Use username if none passed
 		if ( empty( $username ) ) {
