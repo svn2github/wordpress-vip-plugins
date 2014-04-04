@@ -420,3 +420,16 @@ function wpcom_vip_plugins_ui_disable_activation() {
 		WPcom_VIP_Plugins_UI()->activation_disabled = true;
 	}
 }
+
+/** 
+ * Return the language code. 
+ *
+ * Internal wpcom function that's used by the wpcom-sitemap plugin
+ * 
+ * @return string 
+ */
+if ( ! function_exists( 'get_blog_lang_code' ) ) {
+	function get_blog_lang_code() { 
+		return 'en'; 
+	}
+}
