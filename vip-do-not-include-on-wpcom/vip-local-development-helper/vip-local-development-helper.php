@@ -425,6 +425,9 @@ function wpcom_vip_plugins_ui_disable_activation() {
  * Return the language code. 
  *
  * Internal wpcom function that's used by the wpcom-sitemap plugin
+ *
+ * Note: Not overrideable in production - this function exists solely for dev environment
+ * compatibility. To set blog language, use the Dashboard UI.
  * 
  * @return string 
  */
