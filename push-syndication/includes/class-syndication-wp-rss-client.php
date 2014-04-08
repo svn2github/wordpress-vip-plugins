@@ -141,8 +141,7 @@ class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client 
 
         <?php
 
-        do_action( 'syn_after_site_form', $site );
-
+        do_action( 'syn_after_site_form', $site ); 
     }
 
     public static function save_settings( $site_ID ) {
@@ -190,7 +189,7 @@ class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client 
         return $posts;
 
     }
-
+    
     public static function save_meta( $result, $post, $site, $transport_type, $client ) {
         if ( ! $result || is_wp_error( $result ) || ! isset( $post['postmeta'] ) ) {
             return false;
@@ -286,5 +285,4 @@ class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client 
             }
         }
     }
-
 }
