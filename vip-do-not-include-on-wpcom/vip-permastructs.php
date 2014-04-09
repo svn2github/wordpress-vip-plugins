@@ -118,7 +118,9 @@ function wpcom_vip_load_custom_cdn( $args ) {
 	if ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED )
 		return;
 
-	if ( false === WPCOM_IS_VIP_ENV )
+	$is_wpcom = ( defined( 'IS_WPCOM' ) && IS_WPCOM );
+
+	if ( false === WPCOM_IS_VIP_ENV && ! $is_wpcom )
 		return;
 
 	$args = wp_parse_args( $args, array(
