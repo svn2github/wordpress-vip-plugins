@@ -85,7 +85,27 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		 * @link http://www.shauninman.com/post/heap/2006/08/22/widont_wordpress_plugin Typesetting widows
 		 */
 		function widont( $str = '' ) {
-			return preg_replace( '|([^\s])\s+([^\s]+)\s*$|', '$1&nbsp;$2', $str );
+			// Don't apply on non-tablet mobile devices so the browsers can fit to the viewport properly.
+			if (
+				function_exists( 'jetpack_is_mobile' ) && jetpack_is_mobile() &&
+				class_exists( 'Jetpack_User_Agent_Info' ) && ! Jetpack_User_Agent_Info::is_tablet()
+			) {
+				return $str;
+			}
+
+			// We're dealing with whitespace from here out, let's not have any false positives. :)
+			$str = trim( $str );
+
+			// If string contains three or fewer words, don't join.
+			if ( count( preg_split( '#\s+#', $str ) ) <= 3 ) {
+				return $str;
+			}
+
+			// Don't join if words exceed a certain length: minimum 10 characters, default 15 characters, filterable via `widont_max_word_length`.
+			$widont_max_word_length = max( 10, absint( apply_filters( 'widont_max_word_length', 15 ) ) );
+			$regex = '#\s+([^\s]{1,' . $widont_max_word_length . '})\s+([^\s]{1,' . $widont_max_word_length . '})$#';
+
+			return preg_replace( $regex, ' $1&nbsp;$2', $str );
 		}
 		add_filter( 'the_title', 'widont' );
 	endif;
@@ -171,7 +191,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 				}
 
 				$args['blog_id'] = $jetpack_blog_id;
-			} 
+			}
 
 			$defaults = array(
 				'blog_id' => get_current_blog_id(),
@@ -204,7 +224,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		 * A wrapper for es_api_search_index() that accepts WP-style args
 		 *
 		 * This is a copy/paste, up to date as of WP.com r65003 (Jan 7th, 2013)
-		 * 
+		 *
 		 * @param array $args
 		 * @param string $stat_app_name Optional.
 		 * @return bool|string False if WP_Error, otherwise JSON string
