@@ -53,6 +53,20 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 }
 
 /**
+ * Properly clear wpcom_vip_get_term_by() cache when a term is updated
+ */
+add_action( 'edit_terms', function( $term_id, $taxonomy ) {
+
+	$term = get_term_by( 'id', $term_id, $taxonomy );
+	foreach( array( 'name', 'slug' ) as $field ) {
+		$cache_key = $field . '|' . $taxonomy . '|' . md5( $term->$field );
+		$cache_group = 'get_term_by';
+		wp_cache_delete( $cache_key, $cache_group );
+	}
+
+}, 10, 2 );
+
+/**
  * Optimized version of get_term_link that adds caching for slug-based lookups.
  *
  * Returns permalink for a taxonomy term archive, or a WP_Error object if the term does not exist.
