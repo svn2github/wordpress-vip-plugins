@@ -91,6 +91,9 @@ class WPCOM_elasticsearch {
 
 		# Note: Advanced Post Cache hooks in at 10 so it's important to hook in before that
 
+		// Force $q['cache_results'] = false; this prevents the un-inflated WP_Post objects from being stored in cache
+		add_action( 'pre_get_posts', array( $this, 'action__pre_get_posts' ), 5 );
+
 		// Run the ES query and kill the standard search query - allow the 'the_posts' filter to handle inflation
 		add_filter( 'posts_request', array( $this, 'filter__posts_request' ), 5, 2 );
 
@@ -347,6 +350,13 @@ class WPCOM_elasticsearch {
 			$es_query_args['additional_indices'] = $this->additional_indices;
 
 		return $es_query_args;
+	}
+
+	public function action__pre_get_posts( $query ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() )
+			return;
+
+		$query->set( 'cache_results', false );
 	}
 
 	public function action__loop_start( $query ) {
