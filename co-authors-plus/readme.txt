@@ -1,9 +1,9 @@
 === Co-Authors Plus ===
 Contributors: batmoo, danielbachhuber, automattic
 Tags: authors, users, multiple authors, coauthors, multi-author, publishing
-Tested up to: 3.7.1
-Requires at least: 3.3
-Stable tag: 3.0.6
+Tested up to: 3.8.1
+Requires at least: 3.7
+Stable tag: 3.1.1
 
 Assign multiple bylines to posts, pages, and custom post types via a search-as-you-type input box
 
@@ -43,6 +43,12 @@ Yep! There's a template tag called `coauthors_wp_list_authors()` that accepts ma
 
 == Upgrade Notice ==
 
+= 3.1 =
+Manage co-authors from quick edit, Jetpack Open Graph support, bug fixes.
+
+= 3.0.7 =
+Support for symlink installations, updated French translation, bug fixes.
+
 = 3.0.4 =
 Bug fixes and the ability to automatically add co-authors to your feeds.
 
@@ -51,8 +57,30 @@ Bug fixes and minor enhancements
 
 == Changelog ==
 
-= 3.0.7 (??? ?? ????) =
+= ??? (??? ?? ????) =
+* New Russian and Ukrainian translations, courtesy of [Jurko Chervony](http://skinik.name/).
+
+= 3.1.1 (Mar. 20, 2014) =
+* Bug fix: Co-authors selection UI should appear when creating a new post too.
+
+= 3.1 (Mar. 17, 2014) =
+* Manage co-authors from Quick Edit. Props [mpatek](https://github.com/mpatek).
+* Updated Spanish translation, courtesy of [sergiomajluf](https://github.com/sergiomajluf).
+* Now matches core behavior when displaying author archive on multisite: user of the blog, or previously published author on the blog.
+* Breaking change: "Create Profile" link is no longer shown by default on the Manage Users screen. Instead, it can be enabled with the `coauthors_show_create_profile_user_link` filter.
+* Guest authors work properly with Jetpack Open Graph tags. Props [hibernation](https://github.com/hibernation).
+* Guest author profile editor now supports a few different fields. Props [alpha1](https://github.com/alpha1).
+* New `coauthors_count_published_post_types` filter for specifying the post type(s) used when calculating the user's number of published posts.
+* Bug fix: Ensure `post_author` is set to one of the co-authors assigned to a post.
+* Bug fix: Filter author feed link for guest authors on the author page. Props [hibernation](https://github.com/hibernation).
+* Packages a composer.json file for those using Composer.
+* Beginnings of unit test coverage for core features. Increased minimum required WordPress version to 3.7 because WordPress.org unit testing framework doesn't work reliabilty below that.
+
+= 3.0.7 (Jan. 27, 2014) =
 * Better support for installing Co-Authors Plus as a symlinked directory. [Follow these instructions](http://kaspars.net/blog/wordpress/plugins-via-symlinks) to filter `plugins_url`.
+* Links to authors' posts pages to comply to hCard microformat, which Google depends on.
+* New `coauthors_emails()` template tag to list email addresses of the co-authors. Props [benlk](https://github.com/benlk).
+* Bug fix: Remove extraneous space between last two co-authors output. Props [johnciacia](https://github.com/johnciacia). 
 * Updated French translation, courtesy of Jojaba (via email).
 
 = 3.0.6 (Dec. 9, 2013) =
