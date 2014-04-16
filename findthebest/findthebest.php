@@ -20,14 +20,17 @@ define( 'FTB_SETTINGS_PREFS', 'ftb_widget_designer_prefs' );
 define( 'FTB_REMOTE_ROOT', 'http://www.findthebest.com' );
 
 function add_meta_box() {
-	\add_meta_box(
-		'ftb',
-		__( 'FindTheBest Suggestions' ),
-		__NAMESPACE__ . '\\meta_box_shim',
-		'post',
-		'side',
-		'high'
-	);
+	// Add optional support for custom post types. Always add to post_type post.
+	if( post_type_supports( get_post_type(), 'findthebest' ) || get_post_type() == 'post' ) {
+		\add_meta_box(
+			'ftb',
+			__( 'FindTheBest Suggestions' ),
+			__NAMESPACE__ . '\\meta_box_shim',
+			get_post_type(),
+			'side',
+			'high'
+		);
+	}
 }
 
 function admin_footer_shim() {
