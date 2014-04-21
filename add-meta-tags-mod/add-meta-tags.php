@@ -527,17 +527,23 @@ class Add_Meta_Tags {
 			Custom post field "description" overrides post's excerpt in Single Post View.
 			*/
 			if ( true == $cmpvalues['mt_seo_description'] ) {
-
+				$meta_description = '';
 				if ( !empty($mt_seo_description) ) {
 					/*
 					  If there is a custom field, use it
 					*/
-					$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc( $mt_seo_description ) ) . "\" />";
+					$meta_description = $mt_seo_description;
 				} elseif ( is_single() ) {
 					/*
 					  Else, use the post's excerpt. Only for Single Post View (not valid for Pages)
 					*/
-					$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc( $this->amt_get_the_excerpt() ) ) . "\" />";
+					 $meta_description = $this->amt_get_the_excerpt();
+				}
+
+				// WPCOM -- allow filtering of the meta description
+				$meta_description = apply_filters( 'amt_meta_description', $meta_description );
+				if ( ! empty( $meta_description ) ) {
+					$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc( $meta_description ) ) . "\" />";
 				}
 			}
 			/*
