@@ -11,6 +11,10 @@ require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-permastructs.php' );
 require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-mods.php' );
 require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-media.php' );
 
+// Load WP_CLI helpers
+if ( defined( 'WP_CLI' ) && WP_CLI )
+    require_once( __DIR__ . '/vip-do-not-include-on-wpcom/vip-wp-cli.php' );
+
 // These are helper functions specific to WP.com-related functionality
 wpcom_vip_load_helper_wpcom(); // vip-helper-wpcom.php
 wpcom_vip_load_helper_stats(); // vip-helper-stats-wpcom.php
