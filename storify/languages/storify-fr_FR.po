@@ -43,8 +43,8 @@ msgid "Storify Login:"
 msgstr "Storify Login:"
 
 #: storify.php:500
-msgid "Don't have a login? <a href=\"http://storify.com\" target=\"_blank\">Sign up for free</a>."
-msgstr "Pas de compte Storify? <a href=\"http://storify.com\" target=\"_blank\">Créez votre compte gratuit</a>."
+msgid "Don't have a login? <a href=\"https://storify.com\" target=\"_blank\">Sign up for free</a>."
+msgstr "Pas de compte Storify? <a href=\"https://storify.com\" target=\"_blank\">Créez votre compte gratuit</a>."
 
 #. #-#-#-#-#  plugin.pot (Storify 1.0.1)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
@@ -75,12 +75,9 @@ msgstr "Vous n'êtes pas autorisé à être ici"
 #. Plugin URI of the plugin/theme
 #. #-#-#-#-#  plugin.pot (Storify 1.0.1)  #-#-#-#-#
 #. Author URI of the plugin/theme
-msgid "http://storify.com"
-msgstr "http://storify.com"
+msgid "https://storify.com"
+msgstr "https://storify.com"
 
 #. Description of the plugin/theme
 msgid "Brings the power of Storify, the popular social media storytelling platform to your WordPress site"
 msgstr "Rajoutez la puissance de Storify, le populaire outil pour créer des histoires avec le contenu des réseaux sociaux, à votre site Wordpress"
-
-#~ msgid "http://www.storify.com"
-#~ msgstr "http://www.storify.com"

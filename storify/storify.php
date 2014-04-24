@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Storify
-Plugin URI: http://storify.com
+Plugin URI: https://storify.com
 Description: Brings the power of Storify, the popular social media storytelling platform to your WordPress site
 Version: 1.0.5
 Author: Storify
@@ -25,43 +25,43 @@ class WP_Storify {
 	public $version_option      = 'storify_version'; //option key to store current version
 	public $login_meta          = '_storify_login'; //key used to store storify login within usermeta
 	public $description_meta    = 'storify_description_added'; //postmeta to store if description has been added
-	public $create_url          = 'http://storify.com/create'; //URL to create new story via iframe
+	public $create_url          = 'https://storify.com/create'; //URL to create new story via iframe
 	public $callback_query_arg  = 'callback'; //query argument to pass callback url via iframe
 	public $permalink_query_arg = 'storyPermalink'; //query arg to look for on callback
 
 	//regex to parse permalinks within posts
-	public $permalink_regex = '#http://(www\.)?storify.com/([A-Z0-9-_]+)/([A-Z0-9-]+)(/)?#i';
+	public $permalink_regex = '#https?://(www\.)?storify.com/([A-Z0-9-_]+)/([A-Z0-9-]+)(/)?#i';
 
 	//regex to parse permalink from callback
 	//(should be nearly identical to $permalink_regex, but with ^ and $ to prevent other strings
-	public $permalink_callback_regex = '#^http://(www\.)?storify.com/([A-Z0-9-_]+)/([A-Z0-9-]+)(/)?$#i';
+	public $permalink_callback_regex = '#^(https?:)?//(www\.)?storify.com/([A-Z0-9-_]+)/([A-Z0-9-]+)(/)?$#i';
 
 	//embed code, %1$s is username, %2$s is story slug
-	public $embed_code = '<script src="http://storify.com/%1$s/%2$s.js?header=false&sharing=false&border=false"></script>';
+	public $embed_code = '<script src="//storify.com/%1$s/%2$s.js?header=false&sharing=false&border=false"></script>';
 
 	//link to edit story, %1$s is username, %2$s is story slug
-	public $edit_link = 'http://storify.com/%1$s/%2$s/edit';
+	public $edit_link = 'https://storify.com/%1$s/%2$s/edit';
 
 	//URL to story's json data, %1$s is username, %2$s is story slug
-	public $story_json = 'http://api.storify.com/v1/stories/%1$s/%2$s';
+	public $story_json = 'https://api.storify.com/v1/stories/%1$s/%2$s';
 
 	//what elements to retrieve when getting story metadata
 	public $story_metadata = array( 'title', 'description', 'status', 'thumbnail', 'shortlink'  );
 
 	//URL to noscript Embed code (will parse begining with <body>)
-	public $noscript_embed = 'http://storify.com/%1$s/%2$s.html';
+	public $noscript_embed = 'https://storify.com/%1$s/%2$s.html';
 
 	//Link to story to appened within noscript tags, , %1$s is username, %2$s is story slug, %3$s is story title
-	public $noscript_link = '<a href="http://storify.com/%1$s/%2$s.html" target="_blank">View the story "%3$s" on Storify</a>';
+	public $noscript_link = '<a href="https://storify.com/%1$s/%2$s.html" target="_blank">View the story "%3$s" on Storify</a>';
 
 	//regex to parse noscript version of story from HTML (because HTML returns with <html>,<body>, and <head> tags)
 	public $noscript_regex = '#<body>(.*)</body>#ism';
 
 	//url to get userdata, %s = username
-	public $userdata_url = 'http://api.storify.com/v1/users/%s';
+	public $userdata_url = 'https://api.storify.com/v1/users/%s';
 
 	//url to get user's stories, %s = username
-	public $userstory_url = 'http://api.storify.com/v1/stories/%s';
+	public $userstory_url = 'https://api.storify.com/v1/stories/%s';
 
 	//TTL for transient cache in seconds, default (3600) = 1 HR
 	public $ttl = '3600';
@@ -433,6 +433,7 @@ class WP_Storify {
 		if ( $ttl == null )
 			$ttl = apply_filters( 'storify_ttl', $this->ttl, 'api_query' );
 
+
 		$cache_key = 'storify_api_' . md5( $query );
 
 		if ( $data = get_transient( $cache_key ) )
@@ -545,7 +546,7 @@ class WP_Storify {
 				<label for="login" class="screen-reader-text"><?php _e( 'Storify Login:', 'storify' ); ?></label>
 				<input type="text" name="login" />
 				<input type="submit" class="button-primary" value="Save" />
-				<p><?php _e( 'Don\'t have a login? <a href="http://storify.com" target="_blank">Sign up for free</a>.', 'storify' ); ?></p>
+				<p><?php _e( 'Don\'t have a login? <a href="https://storify.com" target="_blank">Sign up for free</a>.', 'storify' ); ?></p>
 			</form>
 			<?php do_action( 'post_storify_login' ); ?>
 		</div>
@@ -580,6 +581,7 @@ class WP_Storify {
 		//cap check
 		if ( !current_user_can( 'edit_posts' ) )
 			return $title;
+
 
 		$permalink = apply_filters( 'storify_permalink', $_GET[ $this->permalink_query_arg ] );
 
@@ -763,10 +765,10 @@ class WP_Storify {
 	 */
 	function maybe_add_http( $url ) {
 
-		if ( strpos( $url, 'http://' ) !== false )
+		if ( strpos( $url, '//' ) !== false )
 			return $url;
 
-		return 'http://' . $url;
+		return '//' . $url;
 
 	}
 

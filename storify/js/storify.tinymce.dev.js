@@ -63,7 +63,7 @@
                         return {
                                 longname : 'Storify',
                                 author : 'Storify',
-                                authorurl : 'http://storify.com',
+                                authorurl : 'https://storify.com',
                                 infourl : '',
                                 version : "1.0"
                         };

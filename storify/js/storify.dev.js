@@ -47,7 +47,7 @@ function resizeStorifyIframe() {
 	
 	if ( !jQuery( 'iframe#storify' ) )
 		return;
-
+	
 	var height = jQuery( 'body' ).height() - 120;
 	
 	//WP hides the footer on short screens so we can take up more space

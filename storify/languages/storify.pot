@@ -46,7 +46,7 @@ msgstr ""
 
 #: storify.php:500
 msgid ""
-"Don't have a login? <a href=\"http://storify.com\" target=\"_blank\">Sign up "
+"Don't have a login? <a href=\"https://storify.com\" target=\"_blank\">Sign up "
 "for free</a>."
 msgstr ""
 
@@ -78,7 +78,7 @@ msgstr ""
 #. Plugin URI of the plugin/theme
 #. #-#-#-#-#  plugin.pot (Storify 1.0.1)  #-#-#-#-#
 #. Author URI of the plugin/theme
-msgid "http://storify.com"
+msgid "https://storify.com"
 msgstr ""
 
 #. Description of the plugin/theme
