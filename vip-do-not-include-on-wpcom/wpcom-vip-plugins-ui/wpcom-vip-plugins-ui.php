@@ -607,7 +607,7 @@ class WPcom_VIP_Plugins_UI {
 	 * @return string URL to the plugin's menu page.
 	 */
 	public function get_menu_url( $extra_query_args = array() ) {
-		$menu_url = ( $this->is_wpcom_vip() ) ? 'admin.php' : 'plugins.php';
+		$menu_url = ( 'plugins.php' == $this->parent_menu_slug ) ? 'plugins.php' : 'admin.php';
 
 		$menu_url = add_query_arg(
 			array_merge(
