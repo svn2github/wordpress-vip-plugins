@@ -54,7 +54,7 @@ class ThePlatform_Plugin {
 	/**
 	 * Initialize plugin
 	 */
-	function &init() {
+	static function init() {
 		static $instance = false;
 
 		if ( !$instance ) {
