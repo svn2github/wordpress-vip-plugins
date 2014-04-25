@@ -73,8 +73,9 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 	 * @param string $plugin_file The filename of the plugin being handled
 	 * @param array $plugin_data Data from {@link https://core.trac.wordpress.org/browser/trunk/wp-admin/includes/plugin.php#L108}) for the plugin
 	 */
-	public function single_row( $plugin_file, $plugin_data ) {
+	public function single_row( $plugin_file ) {
 		$plugin = basename( dirname( $plugin_file ) );
+		$plugin_data = get_plugin_data( WP_CONTENT_DIR . '/themes/vip/' . $plugin_file );
 
 		$is_active = WPcom_VIP_Plugins_UI()->is_plugin_active( $plugin );
 
