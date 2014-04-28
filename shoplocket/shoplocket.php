@@ -526,7 +526,7 @@ class ShopLocket {
 		if (! isset($shoplocket["access_token"])) {$shoplocket["access_token"] = "";}       
 
 		$from_shoplocket = wp_remote_request("https://www.shoplocket.com/api/v1/products.json?state=published&access_token=" . $shoplocket["access_token"]);
-		if (isset($from_shoplocket["response"]["code"])) {
+		if ( ! is_wp_error( $from_shoplocket ) && isset( $from_shoplocket["response"]["code"] ) ) {
 			$to_wordpress = array('code' => $from_shoplocket["response"]["code"]);
 			if ($from_shoplocket["response"]["code"] == 200) {
 				// $to_wordpress["body"] = $from_shoplocket["body"];
