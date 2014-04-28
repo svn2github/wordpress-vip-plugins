@@ -145,12 +145,15 @@ class Sailthru_Horizon {
 		$screens = array('post-new.php', 'post.php', 'edit.php');
 
 		if (in_array($hook, $screens)) {
-			if ($_GET['action'] == 'edit') {
-				// datepicker for the meta box on post pages
-				wp_enqueue_script('jquery-ui-datepicker', array('jquery'));
-				wp_enqueue_style( 'jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
-				// our own magic
-				wp_enqueue_script( 'sailthru-for-wordpress-admin-script', SAILTHRU_PLUGIN_URL . 'js/admin.js' , array('jquery') );
+
+			if (isset($_GET['action'])) {
+				if ($_GET['action'] == 'edit') {
+					// datepicker for the meta box on post pages
+					wp_enqueue_script('jquery-ui-datepicker', array('jquery'));
+					wp_enqueue_style( 'jquery-style', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.2/themes/smoothness/jquery-ui.css');
+					// our own magic
+					wp_enqueue_script( 'sailthru-for-wordpress-admin-script', SAILTHRU_PLUGIN_URL . 'js/admin.js' , array('jquery') );
+				}
 			}
 		}
 
@@ -238,7 +241,9 @@ class Sailthru_Horizon {
 	 		if( !isset($concierge['sailthru_concierge_filter']) ) {
 	 			$concierge_filter = '';
 	 		} else {
-	 			$concierge_filter = strlen($concierge['sailthru_concierge_filter']) >  0 ? "filter: '". esc_js( $concierge['sailthru_concierge_filter'] ) ."'" : '';
+	 			//remove whitespace around the commas
+	 			$tags_filtered = preg_replace("/\s*([\,])\s*/", "$1", $concierge['sailthru_concierge_filter']);
+	 			$concierge_filter = strlen($concierge['sailthru_concierge_filter']) >  0 ? "filter: {tags: '". esc_js($tags_filtered) ."'}" : '';
 	 		}
 
 

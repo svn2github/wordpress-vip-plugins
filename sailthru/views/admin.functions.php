@@ -1225,6 +1225,7 @@ function sailthru_verify_setup() {
   $api_secret = $sailthru['sailthru_api_secret'];
   $template   = isset( $sailthru['sailthru_setup_email_template'] ) ? $sailthru['sailthru_setup_email_template'] : '';
   $res        = array();
+  $tpl_errors = array();
 
   if ( $template == '' ) {
 	  $res['error'] = true;
@@ -1239,12 +1240,12 @@ function sailthru_verify_setup() {
 
   	if ( !isset( $res['error'] ) ) {
   		// we can make a call, now check the template is configured
-		try {
-  			$tpl = $client->getTemplate( $template );
-  			$tpl_errors = sailthru_verify_template( $tpl );
-		} catch ( Exception $e ) {
-			$tpl_errors = array( 'Request to Sailthru API failed: ' . $e->getMessage() );	
-		}
+  		try {
+           	$tpl = $client->getTemplate( $template );
+           	$tpl_errors = sailthru_verify_template( $tpl );
+           } catch ( Exception $e ) {
+           	$tpl_errors = array( 'Request to Sailthru API failed: ' . $e->getMessage() );
+           }
 
   		if ( count( $tpl_errors ) > 0 ) {
   			// add errors to the error message
