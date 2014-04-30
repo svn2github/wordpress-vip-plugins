@@ -766,11 +766,11 @@ function sailthru_html_fields_options_callback() {
  */
 function sailthru_html_text_input_callback( $args ) {
 
-	$collection    = $args[0];
-	$option_name   = $args[1];
-	$default_value = $args[2];
-	$html_id       = $args[3];
-	$hint       = $args[4];
+	$collection    = isset( $args[0] ) ? $args[0] : '';
+	$option_name   = isset( $args[1] ) ? $args[1] : '';
+	$default_value = isset( $args[2] ) ? $args[2] : '';
+	$html_id       = isset( $args[3] ) ? $args[3] : '';
+	$hint          = isset( $args[4] ) ? $args[4] : '';
 	$options       = get_option( $collection );
 
 	// Make sure the element is defined in the options. If not, we'll use the preferred default
