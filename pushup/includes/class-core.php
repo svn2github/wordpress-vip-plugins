@@ -30,14 +30,14 @@ class PushUp_Notifications_Core {
 	 *
 	 * @var int
 	 */
-	protected static $database_version = 1050;
+	protected static $database_version = 1060;
 
 	/**
 	 * Script version, for CSS/JS caching
 	 *
 	 * @var string
 	 */
-	protected static $script_version = '20140401a';
+	protected static $script_version = '20140423a';
 
 	/**
 	 * Handles initializing this class and returning the singleton instance after it's been cached.
@@ -73,14 +73,32 @@ class PushUp_Notifications_Core {
 		}
 
 		// Add our methods to some actions
-		add_action( 'admin_init',                         array( __CLASS__, 'database_upgrade'         ), 2 ); // Early to upgrade old options before authentication
-		add_action( 'admin_init',                         array( __CLASS__, 'register_settings'        ), 6 ); // Early so settings could be conditionally de-registered
-		add_action( 'admin_menu',                         array( __CLASS__, 'admin_menu'               )    );
-		add_action( 'admin_notices',                      array( __CLASS__, 'activation_notice'        )    );
-		add_action( 'admin_enqueue_scripts',              array( __CLASS__, 'admin_enqueue_scripts'    )    );
-		add_action( 'wp_ajax_update-push-package-icon',   array( __CLASS__, 'update_push_package_icon' )    );
-		add_action( 'load-settings_page_pushup-settings', array( __CLASS__, 'settings_fields'          )    );
-		add_action( 'load-settings_page_pushup-settings', array( __CLASS__, 'settings_help'            )    );
+		add_action( 'admin_init',                         array( __CLASS__, 'database_upgrade'         ), 2  ); // Early to upgrade old options before authentication
+		add_action( 'admin_init',                         array( __CLASS__, 'register_settings'        ), 6  ); // Early so settings could be conditionally de-registered
+		add_action( 'admin_menu',                         array( __CLASS__, 'admin_menu'               )     );
+		add_action( 'admin_notices',                      array( __CLASS__, 'activation_notice'        )     );
+		add_action( 'admin_enqueue_scripts',              array( __CLASS__, 'admin_enqueue_scripts'    )     );
+		add_action( 'wp_ajax_update-push-package-icon',   array( __CLASS__, 'update_push_package_icon' )     );
+		add_action( 'load-settings_page_pushup-settings', array( __CLASS__, 'settings_fields'          )     );
+		add_action( 'load-settings_page_pushup-settings', array( __CLASS__, 'settings_help'            )     );
+
+		// add filters
+		add_filter( 'pushup_get_shortlink',               array( __CLASS__, 'add_pushup_query_arg'     )     );
+	}
+
+	/**
+	 * Filter the default `pushup_get_shortlink` so that it returns the URL with
+	 * "pushup=1" appended to it.
+	 *
+	 * @param string $shortlink A shortlink URL that will be filtered to add
+	 *                          "pushup=1" for analytics.
+	 *
+	 * @return string           A shortlink or an empty string if no shortlink
+	 *                          exists for the requested resource or if
+	 *                          shortlinks are not enabled.
+	 */
+	public static function add_pushup_query_arg( $shortlink = '' ) {
+		return add_query_arg( 'pushup', '1', $shortlink );
 	}
 
 	/** Admin Init ************************************************************/
@@ -178,8 +196,7 @@ class PushUp_Notifications_Core {
 
 		// Override the 'db-version' to current
 		if ( isset( $settings['db-version'] ) && $settings['db-version'] !== self::$database_version ) {
-			$settings['db-version'] = self::$database_version;
-			$needs_update           = true;
+			$needs_update = true;
 		}
 
 		// Maybe add 'post-title' to settings
@@ -196,6 +213,12 @@ class PushUp_Notifications_Core {
 
 		// Update the option if it needs it
 		if ( true === $needs_update ) {
+
+			// Always update to the current database version. If this doesn't
+			// happen, exil and mysterious bugs appear out of no-where.
+			$settings['db-version'] = self::$database_version;
+
+			// Update the option
 			update_option( self::$option_key, $settings );
 		}
 	}
@@ -303,6 +326,74 @@ class PushUp_Notifications_Core {
 	public static function get_post_title() {
 		$options = get_option( self::$option_key );
 		return !empty( $options['post_title'] ) ? $options['post_title'] : __( 'Just published...', 'pushup' );
+	}
+
+	/**
+	 * Return a shortlink for a post, page, attachment, or blog.
+	 *
+	 * Default shortlink support is limited to providing ?p= style
+	 * links for posts. Plugins can short-circuit this function via the
+	 * 'pushup_pre_get_shortlink' filter or filter the output via the
+	 * 'pushup_get_shortlink' filter.
+	 *
+	 * This is mostly a fork of WordPress's `wp_get_shortlink` function to allow
+	 * PushUp to not interfere with existing shortlink plugins (Jetpack, etc...)
+	 *
+	 * @param int    $id          A post or blog id. Default is 0, which means
+	 *                            the current post or blog.
+	 * @param string $context     Whether the id is a 'blog' id, 'post' id, or
+	 *                            'media' id. If 'post', the post_type of the
+	 *                            post is consulted. If 'query', the current
+	 *                            query is consulted to determine the id and
+	 *                            context. Default is 'post'.
+	 * @param bool   $allow_slugs Whether to allow post slugs in the shortlink.
+	 *                            It is up to the plugin how and whether to
+	 *                            honor this.
+	 *
+	 * @return string             A shortlink or an empty string if no shortlink
+	 *                            exists for the requested resource or if
+	 *                            shortlinks are not enabled.
+	 */
+	public static function get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
+
+		// Use this to short-circuit our function completely
+		$shortlink = apply_filters( 'pushup_pre_get_shortlink', false, $id, $context, $allow_slugs );
+		if ( false !== $shortlink ) {
+			return $shortlink;
+		}
+
+		// Define some basic variables
+		global $wp_query;
+		$post_id = 0;
+
+		// Querying posts
+		if ( ( 'query' === $context ) && is_singular() ) {
+			$post_id = $wp_query->get_queried_object_id();
+			$post    = get_post( $post_id );
+
+		// Querying single post
+		} elseif ( 'post' === $context ) {
+			$post = get_post( $id );
+			if ( ! empty( $post->ID ) ) {
+				$post_id = $post->ID;
+			}
+		}
+
+		// Return p= link for all public post types.
+		if ( ! empty( $post_id ) ) {
+			$post_type = get_post_type_object( $post->post_type );
+
+			// If page is the home page, use the root of home_url()
+			if ( ( 'page' === $post->post_type ) && ( $post->ID === (int) get_option( 'page_on_front' ) ) && ( 'page' == get_option( 'show_on_front' ) ) ) {
+				$shortlink = home_url( '/' );
+
+			// If post is of a public type
+			} elseif ( true === $post_type->public ) {
+				$shortlink = home_url( '?p=' . $post_id );
+			}
+		}
+
+		return apply_filters( 'pushup_get_shortlink', (string) $shortlink, $id, $context, $allow_slugs );
 	}
 
 	/**
