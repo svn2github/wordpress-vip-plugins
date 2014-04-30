@@ -165,6 +165,7 @@ class WPcom_VIP_Plugins_UI {
 			'feedwordpress', // breaks all the time
 			'wordtwit-1.3-mod', // use publicize
 			'uppsite', // Retired from FPP but a couple VIPs still using it
+			'wpcom-related-posts', // Now part of JP / WP.com
 		);
 
 		$this->fpp_plugins = array(
