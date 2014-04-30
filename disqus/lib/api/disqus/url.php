@@ -235,7 +235,7 @@ function dsq_urlopen($url, $postdata=false, $file=false) {
 	if($file) {
 		extract($file, EXTR_PREFIX_ALL, 'file');
 	}
-	if(!$file_name || !$file_field) {
+	if( ! isset( $file_name ) || ! ! isset( $file_field ) ) {
 		$file_name = false;
 		$file_field = false;
 	}
