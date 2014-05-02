@@ -214,6 +214,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Ooyala',
 				'description' => 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
 			),
+			'wp-parsely'        => array(
+				'name'        => 'Parsely',
+				'description' => 'The Content Performance Authority',
+			),
 			'publishthis'        => array(
 				'name'        => 'PublishThis',
 				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
