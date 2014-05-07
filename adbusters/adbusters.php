@@ -36,7 +36,6 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  * Note: the following networks/scripts are insecure and will not be added to the plugin:
  * > EyeReturn (/eyereturn/eyereturn.html)
  * > Unicast (/unicast/unicastIFD.html)
- * > Yahoo - AdInterax (/adinterax/adx-iframe-v2.html)
  *
  * @since Adbusters (1.0)
  */
@@ -52,6 +51,7 @@ function wpcom_vip_maybe_load_ad_busters() {
 		'doubleclick/DARTIframe.html',       // Google - DoubleClick
 		'doubleclick/fif.html',              // Flite
 		'eyeblaster/addineyeV2.html',        // MediaMind - EyeBlaster
+		'flashtalking/ftlocal.html',         // Flashtalking
 		'flite/fif.html',                    // Flite
 		'gumgum/iframe_buster.html',         // gumgum
 		'interpolls/pub_interpolls.html',    // Interpolls
