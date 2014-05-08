@@ -27,13 +27,9 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 class WPCOM_Related_Posts {
 
-	public $is_elastic_search = null;
-	public $index;
-
 	public $options_capability = 'manage_options';
 	public $default_options = array();
 	public $options = array();
-	public $stopwords = array();
 
 	/**
 	 * Store the $args for a get_related_posts() query so they are
@@ -43,6 +39,9 @@ class WPCOM_Related_Posts {
 	protected $args = array();
 
 	const key = 'wpcom-related-posts';
+
+	const CACHE_GROUP 		= 'wpcom-related-posts';
+	const CACHE_LIFETIME 	= 300;
 
 	protected static $instance;
 
@@ -84,32 +83,6 @@ class WPCOM_Related_Posts {
 		$this->options = get_option( self::key, array() );
 
 		$this->options = wp_parse_args( $this->options, $this->default_options );
-
-		// If Elastic Search exists, let's use that
-		$es_path = WP_CONTENT_DIR . '/plugins/elasticsearch.php';
-		if ( file_exists( $es_path ) ) {
-			require_once $es_path;
-			// Check if the index exists. If it doesn't, let the user know we need to create it for them
-			$index_name = parse_url( site_url(), PHP_URL_HOST );
-			$this->index = es_api_get_index( $index_name, get_current_blog_id() );
-			if ( $this->index )
-				$this->is_elastic_search = true;
-			else
-				$this->is_elastic_search = false;
-		}
-
-		if ( !$this->_use_related_api() ) {
-			$this->stopwords = array( 'a', 'about', 'above', 'above', 'across', 'after', 'afterwards', 'again', 'against', 'all', 'almost', 'alone', 'along', 'already', 'also','although','always','am','among', 'amongst', 'amoungst', 'amount',  'an', 'and', 'another', 'any','anyhow','anyone','anything','anyway', 'anywhere', 'are', 'around', 'as',  'at', 'back','be','became', 'because','become','becomes', 'becoming', 'been', 'before', 'beforehand', 'behind', 'being', 'below', 'beside', 'besides', 'between', 'beyond', 'bill', 'both', 'bottom','but', 'by', 'call', 'can', 'cannot', 'cant', 'co', 'con', 'could', 'couldnt', 'cry', 'de', 'describe', 'detail', 'do', 'done', 'down', 'due', 'during', 'each', 'eg', 'eight', 'either', 'eleven','else', 'elsewhere', 'empty', 'enough', 'etc', 'even', 'ever', 'every', 'everyone', 'everything', 'everywhere', 'except', 'few', 'fifteen', 'fify', 'fill', 'find', 'fire', 'first', 'five', 'for', 'former', 'formerly', 'forty', 'found', 'four', 'from', 'front', 'full', 'further', 'get', 'give', 'go', 'had', 'has', 'hasnt', 'have', 'he', 'hence', 'her', 'here', 'hereafter', 'hereby', 'herein', 'hereupon', 'hers', 'herself', 'him', 'himself', 'his', 'how', 'however', 'hundred', 'ie', 'if', 'in', 'inc', 'indeed', 'interest', 'into', 'is', 'it', 'its', 'itself', 'keep', 'last', 'latter', 'latterly', 'least', 'less', 'ltd', 'made', 'many', 'may', 'me', 'meanwhile', 'might', 'mill', 'mine', 'more', 'moreover', 'most', 'mostly', 'move', 'much', 'must', 'my', 'myself', 'name', 'namely', 'neither', 'never', 'nevertheless', 'next', 'nine', 'no', 'nobody', 'none', 'noone', 'nor', 'not', 'nothing', 'now', 'nowhere', 'of', 'off', 'often', 'on', 'once', 'one', 'only', 'onto', 'or', 'other', 'others', 'otherwise', 'our', 'ours', 'ourselves', 'out', 'over', 'own','part', 'per', 'perhaps', 'please', 'put', 'rather', 're', 'same', 'see', 'seem', 'seemed', 'seeming', 'seems', 'serious', 'several', 'she', 'should', 'show', 'side', 'since', 'sincere', 'six', 'sixty', 'so', 'some', 'somehow', 'someone', 'something', 'sometime', 'sometimes', 'somewhere', 'still', 'such', 'system', 'take', 'ten', 'than', 'that', 'the', 'their', 'them', 'themselves', 'then', 'thence', 'there', 'thereafter', 'thereby', 'therefore', 'therein', 'thereupon', 'these', 'they', 'thickv', 'thin', 'third', 'this', 'those', 'though', 'three', 'through', 'throughout', 'thru', 'thus', 'to', 'together', 'too', 'top', 'toward', 'towards', 'twelve', 'twenty', 'two', 'un', 'under', 'until', 'up', 'upon', 'us', 'very', 'via', 'was', 'we', 'well', 'were', 'what', 'whatever', 'when', 'whence', 'whenever', 'where', 'whereafter', 'whereas', 'whereby', 'wherein', 'whereupon', 'wherever', 'whether', 'which', 'while', 'whither', 'who', 'whoever', 'whole', 'whom', 'whose', 'why', 'will', 'with', 'within', 'without', 'would', 'yet', 'you', 'your', 'yours', 'yourself', 'yourselves', 'und', 'de', 'la', 'www', 'en' );
-			$this->stopwords = apply_filters( 'wrp_stopwords', $this->stopwords );
-		}
-
-		if ( false === $this->is_elastic_search )
-			add_action( 'admin_notices', array( self::$instance, 'admin_notice_no_index' ) );
-
-	}
-
-	public function admin_notice_no_index() {
-		echo '<div class="error"><p>' . __( 'WordPress.com Related Posts needs a little extra configuration behind the scenes. Please contact support to make it happen.' ) . '</p></div>';
 	}
 
 	public function action_admin_init() {
@@ -257,13 +230,27 @@ class WPCOM_Related_Posts {
 		if ( is_array( $args['date_range'] ) )
 			$args['date_range'] = array_map( 'intval', $args['date_range'] );
 
+		// To have a reasonable cache hitrate, we must ignore the date range, as it's comprised (by default) of 
+		// time() calls
+		$cache_key_args = $args;
+
+		unset( $cache_key_args['date_range'] );
+
+		$cache_key = 'related_posts_' . $post_id . '_' . md5( serialize( $cache_key_args ) );
+
+		$related_posts = wp_cache_get( $cache_key, self::CACHE_GROUP );
+
+		if ( false !== $related_posts ) {
+			return $related_posts;
+		}
+
 		// Store the args so any 'posts_where' filters can access them
 		$this->args = $args;
 
 		$related_posts = array();
 		$this->_generation_method = null;
 
-		if ( $this->is_elastic_search && $this->_use_related_api() ) {
+		if ( $this->_use_related_api() ) {
 			// Use related posts API
 			$response = Jetpack_RelatedPosts::init_raw()->get_for_post_id(
 				$post_id,
@@ -275,55 +262,13 @@ class WPCOM_Related_Posts {
 				)
 			);
 
-		$related_posts = array();
+			$related_posts = array();
 			foreach( $response as $hit ) {
 				$related_posts[] = get_post( $hit['id'] );
 			}
 
 			$this->_generation_method = 'MLT-VIP-Raw';
-		} elseif ( $this->is_elastic_search && ( $current_post = get_post( $post_id ) ) ) {
-			// Use Elastic Search for the results if it's available
-
-			$keywords = $this->get_keywords( $current_post->post_title ) + $this->get_keywords( $current_post->post_content ) ;
-			$query = implode( ' ', array_unique( $keywords ) );
-			$es_args = array(
-					'more_like_this'          => array(
-							'fields'          => array( 'title', 'content' ),
-							'like_text'       => $query,
-							'min_term_freq'   => 1,
-							'max_query_terms' => 12,
-						),
-					'name'                => parse_url( site_url(), PHP_URL_HOST ),
-					'size'                => (int)$args['posts_per_page'] + 1,
-				);
-
-			$filters = $this->_get_es_filters_from_args( $args );
-
-			if ( ! empty( $filters ) )
-				$es_args['filter'] = array( 'and' => $filters );
-
-			$es_args = apply_filters( 'wrp_es_api_search_index_args', $es_args, $current_post );
-			$related_es_query = es_api_search_index( $es_args, 'related-posts' );
-			$related_posts = array();
-			if ( is_array( $related_es_query ) && ! empty( $related_es_query['results']['hits'] ) ) {
-				foreach( $related_es_query['results']['hits'] as $hit ) {
-					if ( isset( $hit['fields']['post_id'] ) )
-						$related_posts[] = get_post( $hit['fields']['post_id'] );
-					elseif ( isset( $hit['_source']['id'] ) )
-						$related_posts[] = get_post( $hit['_source']['id'] );
-				}
-			}
-			foreach( $related_posts as $key => $related_post ) {
-				// Ignore the current post if it ends up being a related post
-				if ( $post_id == $related_post->ID )
-					unset( $related_posts[$key] );
-			}
-			// If we're still over the initial request, just return the first N
-			if ( count( $related_posts) > (int)$args['posts_per_page'] )
-				$related_posts = array_slice( $related_posts, 0, (int)$args['posts_per_page'] );
-
-			$this->_generation_method = 'MLT-Query';
-		} else {
+		} else { 
 			$related_query_args = array(
 				'posts_per_page' => (int)$args['posts_per_page'],
 				'post__not_in'   => array( $post_id ),
@@ -362,32 +307,9 @@ class WPCOM_Related_Posts {
 		// Clear out the $args, as they are only meaningful inside get_related_posts()
 		$this->args = array();
 
+		wp_cache_set( $cache_key, $related_posts, self::CACHE_GROUP, self::CACHE_LIFETIME );
+
 		return $related_posts;
-	}
-
-	/**
-	 * Get keywords from a string of text
-	 *
-	 * @param string $text String of text to pull keywords from
-	 * @param int $word_count Maximum number of words to pull
-	 * @return array $keywords The keywords we've found
-	 */
-	protected function get_keywords( $text, $word_count = 5 ) {
-		$keywords = array();
-		$word_count = apply_filters( 'wrp_keyword_word_count', $word_count );
-		$word_count = min( max( 1, intval($word_count) ), 100 );
-		$text = strip_tags( $text );
-		foreach( (array)explode( ' ', $text ) as $word ) {
-			// Strip characters we don't want
-			$word = trim( $word, '?.;,"' );
-			if ( in_array( $word, $this->stopwords ) )
-				continue;
-
-			$keywords[] = $word;
-			if ( count( $keywords ) == $word_count )
-				break;
-		}
-		return $keywords;
 	}
 
 	/**
@@ -412,57 +334,6 @@ class WPCOM_Related_Posts {
 
 	private function _use_related_api() {
 		return class_exists( 'Jetpack_RelatedPosts' );
-	}
-
-	private function _get_es_filters_from_args( array $args ) {
-		$filters = array();
-
-		if ( ! empty( $args['has_terms'] ) ) {
-			foreach( (array)$args['has_terms'] as $term ) {
-				if ( mb_strlen( $term->taxonomy ) ) {
-					switch ( $term->taxonomy ) {
-						case 'post_tag':
-							$tax_fld = 'tag.slug';
-							break;
-						case 'category':
-							$tax_fld = 'category.slug';
-							break;
-						default:
-							$tax_fld = 'taxonomy.' . $term->taxonomy . '.slug';
-							break;
-					}
-					$filters[] = array( 'term' => array( $tax_fld => $term->slug ) );
-				}
-			}
-		}
-
-		$valid_post_types = get_post_types();
-		if ( is_array( $args['post_type'] ) ) {
-			$sanitized_post_types = array();
-			foreach ( $args['post_type'] as $pt ) {
-				if ( in_array( $pt, $valid_post_types ) )
-					$sanitized_post_types[] = $pt;
-			}
-			if ( ! empty( $sanitized_post_types ) )
-				$filters[] = array( 'terms' => array( 'post_type' => $sanitized_post_types ) );
-		} else if ( in_array( $args['post_type'], $valid_post_types ) && 'all' != $args['post_type'] ) {
-			$filters[] = array( 'term' => array( 'post_type' => $args['post_type'] ) );
-		}
-
-		if ( is_array( $args['date_range'] ) &&
-			! empty( $args['date_range']['from'] ) &&
-			! empty( $args['date_range']['to'] ) ) {
-				$filters[] = array(
-					'range' => array(
-						'date' => array(
-							'from' => date( 'Y-m-d', $args['date_range']['from'] ),
-							'to'   => date( 'Y-m-d', $args['date_range']['to'] )
-						)
-					)
-				);
-		}
-
-		return $filters;
 	}
 
 	private function _can_bump_stats() {
