@@ -216,7 +216,7 @@ class WPcom_VIP_Plugins_UI {
 			),
 			'wp-parsely'        => array(
 				'name'        => 'Parsely',
-				'description' => 'The Content Performance Authority',
+				'description' => 'Start a trial to finally see your audience clearly.',
 			),
 			'publishthis'        => array(
 				'name'        => 'PublishThis',
