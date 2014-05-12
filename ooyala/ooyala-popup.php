@@ -139,7 +139,7 @@ if ( ! class_exists( 'OoyalaBacklotAPI' ) )
 			myUploader.uploadFile( document.getElementById('ooyala-file').files[0], {
 				assetCreationUrl : ajaxurl+'?action=ooyala_uploader&request=asset-create',
 				assetUploadingUrl : ajaxurl+'?action=ooyala_uploader&request=asset-upload',
-				assetStatusUpdateUrl : ajaxurl+'?action=ooyala_uploader&request=asset-status',
+				assetStatusUpdateUrl : ajaxurl+'?action=ooyala_uploader&request=asset-status&asset_id=assetID',
 				labelCreationUrl : ajaxurl+'?action=ooyala_uploader&request=labels-create',
 				labelAssignmentUrl : ajaxurl+'?action=ooyala_uploader&request=labels-assign',
 				name : jQuery('#ooyala-file-name').val(),

@@ -1,6 +1,6 @@
 <?php
 if ( !class_exists( 'OoyalaApi' ) )
-	require __DIR__ . '/OoyalaApi.php';
+	require dirname( __FILE__ ) . '/OoyalaApi.php';
 
 class Ooyala_Options {
 	public static $instance;

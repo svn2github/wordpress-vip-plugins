@@ -2,7 +2,7 @@
 require_once 'OoyalaApi.php';
 
 $ooyala = get_option( 'ooyala' );
-if ( empty( $options['api_key'] ) || empty( $options['api_secret'] ) )
+if ( empty( $ooyala['api_key'] ) || empty( $ooyala['api_secret'] ) )
 	die();
 
 /**
@@ -118,11 +118,12 @@ function uploadAsset($clientAsset) {
  * @return
  * The status of the asset.
  */
-function uploadStatus( $asset ) {
+function uploadStatus( $asset_id ) {
+	$ooyala = get_option( 'ooyala' );
 	try {
 		$api = new OoyalaApi( $ooyala['api_key'], $ooyala['api_secret'] );
 
-		$response = $api->put( "assets/" . $asset->embed_code . "/upload_status", $asset );
+		$response = $api->put( "assets/" . $asset_id . "/upload_status", array( 'status' => 'uploaded' ) );
 		return $response;
 	}
 	catch( Exception $e ){
@@ -146,6 +147,10 @@ switch ( $_GET['request'] ) {
 		echo json_encode( $response );
 		break;
 	case 'asset-status':
+		if ( !empty( $_GET['asset_id'] ) ) {
+			$response = uploadStatus( sanitize_text_field( $_GET['asset_id'] ) );
+			echo json_encode( $response );			
+		}
 		break;
 	case 'labels-create':
 		break;

@@ -3,7 +3,7 @@
 Plugin Name: Ooyala Video
 Plugin URI: http://www.ooyala.com/wordpressplugin/
 Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in the <a href="options-general.php?page=ooyala-options"> plugin settings</a>.
-Version: 1.7
+Version: 1.7.5
 License: GPL
 Author: Ooyala
 
@@ -23,7 +23,7 @@ class Ooyala_Video {
 	/**
 	 * Singleton
 	 */
-	function &init() {
+	public static function init() {
 		static $instance = false;
 
 		if ( !$instance ) {
