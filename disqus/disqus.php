@@ -884,7 +884,8 @@ function dsq_sso() {
 	$payload = $user_data.' '.$hmac.' '.$time;
 	echo '<script type="text/javascript" src="http://'.$dsq_api->short_name.'.disqus.com/remote_auth.js?remote_auth_s2='.urlencode($payload).'"></script>';
 }
-add_action('wp_head', 'dsq_sso');
+// WPCOM: disable discus v2 SSO as it is no longer supported and causes JS errors. /z 28343
+// add_action('wp_head', 'dsq_sso');
 
 // from: http://www.php.net/manual/en/function.sha1.php#39492
 //Calculate HMAC-SHA1 according to RFC2104
