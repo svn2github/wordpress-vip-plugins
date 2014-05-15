@@ -2,7 +2,7 @@
 Contributors: byronjanrain, kylejanrain, rebekahjanrain
 Tags: capture, janrain, sso
 Requires at least: 3.5
-Tested up to: 3.6.1
+Tested up to: 3.8.3
 License: APL
 Stable tag: trunk
 

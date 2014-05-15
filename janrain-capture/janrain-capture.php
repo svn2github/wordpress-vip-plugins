@@ -6,7 +6,7 @@
 Plugin Name: Social User Registration and Profile Storage with Janrain Capture for Wordpress VIP
 Plugin URI: http://www.janrain.com/capture/
 Description: Collect, store and leverage user profile data from social networks in a flexible, lightweight hosted database.
-Version: 0.5.1
+Version: 0.5.2
 Author: Janrain
 Author URI: http://developers.janrain.com/extensions/wordpress-for-capture/
 License: Apache License, Version 2.0
@@ -24,6 +24,7 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 		 * Initializes the plugin.
 		 */
 		function init() {
+			header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
 			$this->path = plugin_dir_path( __FILE__ );
 			$this->url  = plugin_dir_url( __FILE__ );
 
@@ -38,7 +39,6 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 				add_action( 'wp_ajax_nopriv_' . self::$name . '_logout', array( $this, 'logout' ) );
 			} else {
 				add_shortcode( self::$name, array( $this, 'shortcode' ) );
-				add_shortcode( 'janrain_share', array( $this, 'shortcode_share' ) );
 			}
 
 			require_once $this->path . 'janrain-capture-ui.php';
@@ -200,55 +200,17 @@ LOGOUT;
 				return $this->profile();
 			}
 
-			$link = '<a id="janrain_auth" href="#" class="capture_modal_open" >' . sanitize_text_field( $atts['text'] ) . '</a>
+			$link = '<a id="janrain_auth" href="#" class="capture_modal_open" >' . esc_html( $atts['text'] ) . '</a>
 					 <script>
 						 if(localStorage && localStorage.getItem("janrainCaptureToken")) {
 						 var authLink = document.getElementById("janrain_auth");
 						 authLink.innerHTML = "Log out";
-						 authLink.setAttribute("href", "'.admin_url().'admin-ajax.php?action=janrain_capture_logout&source='.esc_js( JanrainCaptureUi::current_page_url() ).'");
+						 authLink.setAttribute("href", "'. esc_url( admin_url() ) .'admin-ajax.php?action=janrain_capture_logout&source='.esc_js( JanrainCaptureUi::current_page_url() ).'");
 						 authLink.setAttribute("onclick", "janrain.capture.ui.endCaptureSession()");
 						 authLink.setAttribute("class","");
 						 }
 					 </script>';
 			return $link;
-		}
-
-		/**
-		 * Implementation of the janrain_share shortcode.
-		 *
-		 * @param string $args
-		 *	 Arguments appended to the shortcode
-		 *
-		 * @return string
-		 *	 Text or HTML to render in place of the shortcode
-		 */
-		function shortcode_share( $args ) {
-			if ( self::share_enabled() ) {
-				global $post;
-				$atts = array(
-					'url' => ($post->ID ? get_permalink() : ''),
-					'title' => ($post->ID ? get_the_title() : ''),
-					'description' => ($post->ID ? get_the_excerpt() : ''),
-					'img' => $image,
-					'text' => 'Share on',
-				);
-
-				$atts = shortcode_atts( $atts, $args );
-				$url		 = addslashes( sanitize_text_field( $atts['url'] ) );
-				$description = addslashes( sanitize_text_field( $atts['description'] ) );
-				$title		 = addslashes( sanitize_text_field( $atts['title'] ) );
-				$img		 = addslashes( sanitize_text_field( $atts['img'] ) );
-				$text		 = sanitize_text_field( $atts['text'] );
-				$onclick     = "setShare('$url', '$title', '$description', '$img', this.getAttribute('rel'))";
-				$link		 = '<div class="janrain-share-container">';
-				if ( $icons = self::social_icons( $onclick ) ) {
-					$link .= '<span class="janrain-share-text">' . $text . '</span>'.$icons;
-				}
-				$link .= '</div>';
-				return $link;
-			} else {
-				return '';
-			}
 		}
 
 		/**

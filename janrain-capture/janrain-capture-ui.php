@@ -120,7 +120,7 @@ SHARE;
 		$settings['appUrl']                     = JanrainCapture::get_option( JanrainCapture::$name . '_engage_url' );
 		$settings['capture.federate']           = JanrainCapture::get_option( JanrainCapture::$name . '_sso_enabled' );
 		$settings['capture.federateServer']     = JanrainCapture::get_option( JanrainCapture::$name . '_sso_address' );
-		$settings['capture.federateXdReceiver'] = plugin_dir_url( __FILE__ ) . 'xdcomm.html';
+		$settings['capture.federateXdReceiver'] = wpcom_vip_noncdn_uri( dirname( __FILE__ ) ) . '/xdcomm.html';
 		$settings['capture.federateLogoutUri']  = site_url() .'/wp-login.php?loggedout=true';
 		$settings['capture.backplane']          = JanrainCapture::get_option( JanrainCapture::$name . '_backplane_enabled' );
 		$settings['capture.backplaneServerBaseUrl'] = JanrainCapture::get_option( JanrainCapture::$name . '_bp_server_base_url' );
@@ -158,6 +158,7 @@ function janrainSignOut(){
 	janrain.settings.capture.setProfileCookie = true;
 	janrain.settings.capture.keepProfileCookieAfterLogout = true;
 	janrain.settings.capture.setProfileData = 'true';
+	janrain.settings.capture.federateEnableSafari = true;
 
 	// styles
 	janrain.settings.capture.stylesheets = ['{$settings["capture.stylesheets"]}'];
@@ -249,7 +250,7 @@ WIDGETFINISH;
 	 */
 	Backplane(bp_ready);
 	Backplane.init({
-		serverBaseURL: "http://backplane1.janrainbackplane.com/v$ver",
+		serverBaseURL: "http://backplane1.janrainbackplane.com/v1.2",
 		busName: "$bus"
 	});
 }
