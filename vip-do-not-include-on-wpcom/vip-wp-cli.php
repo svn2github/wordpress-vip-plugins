@@ -5,7 +5,7 @@ class WPCOM_VIP_CLI_Command extends WP_CLI_Command {
 	/*
 	 *  Clear all of the caches for memory management
 	 */
-	private function stop_the_insanity() {
+	function stop_the_insanity() {
 		global $wpdb, $wp_object_cache;
 
 		$wpdb->queries = array(); // or define( 'WP_IMPORTING', true );
