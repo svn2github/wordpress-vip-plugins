@@ -90,7 +90,7 @@ class WPCOM_Geo_Uniques {
 
 	}
 
-	function geolocate_user( $location_type = 'country_short' ) {
+	static function geolocate_user( $location_type = 'country_short' ) {
 		$location = static::ip2location( $location_type );
 		$expiry_date = date( 'D, d M Y H:i:s T', strtotime( "+" . static::$expiry_time . " seconds", current_time( 'timestamp', 1 ) ) );
 		// output js and redirect
@@ -103,7 +103,7 @@ class WPCOM_Geo_Uniques {
 		exit;
 	}
 
-	function geolocate_js() {
+	static function geolocate_js() {
 		do_action( 'wpcom_geo_uniques_gelocate_js');
 		$query_args = array( self::ACTION_PARAM => '' );
 		$query_args = apply_filters( 'wpcom_geo_gelocate_js_query_args', $query_args );
