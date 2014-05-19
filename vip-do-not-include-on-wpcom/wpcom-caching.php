@@ -121,7 +121,11 @@ function wpcom_vip_get_page_by_title( $title, $output = OBJECT, $post_type = 'pa
  * @link http://vip.wordpress.com/documentation/uncached-functions/ Uncached Functions
  */
 function wpcom_vip_get_page_by_path( $page_path, $output = OBJECT, $post_type = 'page' ) {
-	$cache_key = $post_type . '_' . sanitize_key( $page_path );
+	if ( is_array( $post_type ) )
+		$cache_key = sanitize_key( $page_path ) . '_' . md5( serialize( $post_type ) );
+	else
+		$cache_key = $post_type . '_' . sanitize_key( $page_path );
+
 	$page_id = wp_cache_get( $cache_key, 'get_page_by_path' );
 
 	if ( $page_id === false ) {
