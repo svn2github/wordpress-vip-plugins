@@ -778,7 +778,13 @@ class Add_Meta_Tags {
 
 		// Bail if not a valid post type
 		$options = get_option("add_meta_tags_opts");
-		$valid_post_types = array_merge( array( 'post', 'page' ), array_keys( (array) $options['custom_post_types'] ) );
+
+		$valid_post_types = array( 'post', 'page' );
+
+		if ( ! empty( $options['custom_post_types'] ) ) {
+			$valid_post_types = array_merge( $valid_post_types, array_keys( (array) $options['custom_post_types'] ) );
+		}
+
 		if( ! isset( $_POST['post_type'] ) || ! in_array( $_POST['post_type'], $valid_post_types ) )
 			return;
 
