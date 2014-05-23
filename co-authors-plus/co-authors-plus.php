@@ -707,7 +707,7 @@ class coauthors_plus {
 		if ( ! $this->is_post_type_enabled( $post->post_type ) )
 			return;
 
-		if ( $this->current_user_can_set_authors() ) {
+		if ( $this->current_user_can_set_authors( $post ) ) {
 			// if current_user_can_set_authors and nonce valid
 			if( isset( $_POST['coauthors-nonce'] ) && isset( $_POST['coauthors'] ) ) {
 				check_admin_referer( 'coauthors-edit', 'coauthors-nonce' );
@@ -835,10 +835,17 @@ class coauthors_plus {
 	/**
 	 * Checks to see if the current user can set authors or not
 	 */
-	function current_user_can_set_authors( ) {
-		global $post, $typenow;
+	function current_user_can_set_authors( $post = null ) {
+		global $typenow;
 
-		$post_type = get_post_type();
+		if ( ! $post ) {
+			$post = get_post();
+			if ( ! $post )
+				return false;
+		}
+
+		$post_type = $post->post_type;
+
 		// TODO: need to fix this; shouldn't just say no if don't have post_type
 		if( ! $post_type ) return false;
 
