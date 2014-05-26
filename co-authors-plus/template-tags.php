@@ -166,8 +166,8 @@ function coauthors__echo( $tag, $type = 'tag', $separators = array(), $tag_args 
 			$output .= $separators['between'];
 		
 		if ( $i->is_last() && $i->count() > 1 ) {
-			$output = rtrim( $output, " {$separators['between']}" );
-			$output .= ' ' . $separators['betweenLast'];
+			$output = rtrim( $output, $separators['between'] );
+			$output .= $separators['betweenLast'];
 		}
 		
 		$output .= $author_text;
@@ -227,19 +227,24 @@ function coauthors_posts_links( $between = null, $betweenLast = null, $before = 
  */
 function coauthors_posts_links_single( $author ) {
 	$args = array(
+		'before_html' => '',
 		'href' => get_author_posts_url( $author->ID, $author->user_nicename ),
 		'rel' => 'author',
 		'title' => sprintf( __( 'Posts by %s', 'co-authors-plus' ), get_the_author() ),
+		'class' => 'url fn',
 		'text' => get_the_author(),
+		'after_html' => ''
 	);
 	$args = apply_filters( 'coauthors_posts_link', $args, $author );
-	return sprintf(
-			'<a href="%1$s" title="%2$s" rel="%3$s">%4$s</a>',
+	$single_link = sprintf(
+			'<a href="%1$s" title="%2$s" class="%3$s" rel="%4$s">%5$s</a>',
 			esc_url( $args['href'] ),
 			esc_attr( $args['title'] ),
+			esc_attr( $args['class'] ),
 			esc_attr( $args['rel'] ),
 			esc_html( $args['text'] )
 	);
+	return $args['before_html'] . $single_link . $args['after_html'];
 }
 
 /**
@@ -312,6 +317,24 @@ function coauthors_links($between = null, $betweenLast = null, $before = null, $
 		'before' => $before,
 		'after' => $after
 	), null, $echo );
+}
+
+/**
+ * Outputs the co-authors email addresses
+ *
+ * @param string $between Delimiter that should appear between the email addresses
+ * @param string $betweenLast Delimiter that should appear between the last two email addresses
+ * @param string $before What should appear before the presentation of email addresses
+ * @param string $after What should appear after the presentation of email addresses
+ * @param bool $echo Whether the co-authors should be echoed or returned. Defaults to true.
+ */
+function coauthors_emails($between = null, $betweenLast = null, $before = null, $after = null, $echo = true ) {
+	return coauthors__echo('get_the_author_meta', 'tag', array(
+		'between' => $between,
+		'betweenLast' => $betweenLast,
+		'before' => $before,
+		'after' => $after
+	), 'user_email', $echo );
 }
 
 /**
