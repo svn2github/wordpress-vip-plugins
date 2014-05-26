@@ -41,10 +41,10 @@ class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client 
         add_action( 'syn_post_pull_edit_post', array( __CLASS__, 'update_tax' ), 10, 5 );
     }
 
-	public static function get_client_data() {
-		return array( 'id' => 'WP_RSS', 'modes' => array( 'pull' ), 'name' => 'RSS' );
-	}
-		
+    public static function get_client_data() {
+        return array( 'id' => 'WP_RSS', 'modes' => array( 'pull' ), 'name' => 'RSS' );
+    }
+
     public function new_post($post_ID) {
         // Not supported
         return false;
@@ -199,11 +199,11 @@ class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client 
                 'post_category'     => $taxonomy['cats'],
                 'tags_input'        => $taxonomy['tags']
             );
-			// This filter can be used to exclude or alter posts during a pull import
-			$post = apply_filters( 'syn_rss_pull_filter_post', $post, $args, $item );
-			if ( false === $post )
-				continue;
-			$posts[] = $post;
+            // This filter can be used to exclude or alter posts during a pull import
+            $post = apply_filters( 'syn_rss_pull_filter_post', $post, $args, $item );
+            if ( false === $post )
+                continue;
+            $posts[] = $post;
         }
 
         return $posts;
@@ -226,7 +226,7 @@ class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client 
             } elseif ( $result = get_term_by( 'name', $cat->term, 'post_tag' ) ) {
                 if ( isset( $result->term_id ) ) {
                     $ids['tags'][] = $result->term_id;
-                }
+                }                    
             } else {
                 // creates if not
                 $result = wp_insert_term( $cat->term, 'category' );
@@ -239,7 +239,7 @@ class Syndication_WP_RSS_Client extends SimplePie implements Syndication_Client 
         // returns array ready for post creation
         return $ids;
     }
-
+    
     public static function save_meta( $result, $post, $site, $transport_type, $client ) {
         if ( ! $result || is_wp_error( $result ) || ! isset( $post['postmeta'] ) ) {
             return false;
