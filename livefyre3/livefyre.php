@@ -363,31 +363,36 @@ class Livefyre_Display {
     function lf_init_script() {
         global $post, $current_user, $wp_query;
         $network = $this->ext->get_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
-        if ( $this->livefyre_show_comments() && comments_open() ) {// is this a post page?
-			// It is possible that the ID of the queried object is for a revision. Be sure to get it back to the originating post.
-            if( $parent_id = wp_is_post_revision( $wp_query->get_queried_object_id() ) ) {
-                $original_id = $parent_id;
-            } else {
-                $original_id = $wp_query->get_queried_object_id();
+        try{
+            if ( $this->livefyre_show_comments() && comments_open() ) {// is this a post page?
+                // It is possible that the ID of the queried object is for a revision. Be sure to get it back to the originating post.
+                if( $parent_id = wp_is_post_revision( $wp_query->get_queried_object_id() ) ) {
+                    $original_id = $parent_id;
+                } else {
+                    $original_id = $wp_query->get_queried_object_id();
+                }
+                $post_obj = get_post( $wp_query->get_queried_object_id() );
+                $domain = $this->lf_core->lf_domain_object;
+                $site = $this->lf_core->site;
+                $article = $site->article( $original_id, get_permalink($original_id), get_the_title($original_id) );
+                $conv = $article->conversation();
+                $initcfg = array();
+                $initcfg['betaBanner'] = false;
+                if ( function_exists( 'livefyre_onload_handler' ) ) {
+                    $initcfg['onload'] = livefyre_onload_handler();
+                }
+                if ( function_exists( 'livefyre_delegate_name' ) ) {
+                    $initcfg['delegate'] = livefyre_delegate_name();
+                }
+                echo $conv->to_initjs_v3('comments', $initcfg);
+            } else if ( !is_single() ) {
+                echo '<script type="text/javascript" data-lf-domain="' . esc_attr( $network ) . '" id="ncomments_js" src="' . esc_url( $this->lf_core->assets_url ) .'/wjs/v1.0/javascripts/CommentCount.js"></script>';
             }
-            $post_obj = get_post( $wp_query->get_queried_object_id() );
-            $domain = $this->lf_core->lf_domain_object;
-            $site = $this->lf_core->site;
-            $article = $site->article( $original_id, get_permalink($original_id), get_the_title($original_id) );
-            $conv = $article->conversation();
-            $initcfg = array();
-            $initcfg['betaBanner'] = false;
-            if ( function_exists( 'livefyre_onload_handler' ) ) {
-                $initcfg['onload'] = livefyre_onload_handler();
-            }
-            if ( function_exists( 'livefyre_delegate_name' ) ) {
-                $initcfg['delegate'] = livefyre_delegate_name();
-            }
-            echo $conv->to_initjs_v3('comments', $initcfg);
-        } else if ( !is_single() ) {
-            echo '<script type="text/javascript" data-lf-domain="' . esc_attr( $network ) . '" id="ncomments_js" src="' . esc_url( $this->lf_core->assets_url ) .'/wjs/v1.0/javascripts/CommentCount.js"></script>';
+        } catch ( Exception $error ) {
+            // do nothing but silence the jsonEncode utf-8 error see http://99deploys.wordpress.com/2014/05/27/these-fatal-errors-have-been/
+            // http://99deploys.wordpress.com/2014/05/21/i-got-99-fatals-and/
+            return false;
         }
-
     }
 
     function livefyre_comments( $cmnts ) {
