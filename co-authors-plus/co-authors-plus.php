@@ -951,7 +951,9 @@ class coauthors_plus {
 			$authordata = $author;
 			$term = $this->get_author_term( $authordata );
 		}
-		if ( ( is_object( $authordata ) && is_user_member_of_blog( $authordata->ID ) )
+		// VIP - stopgap fix for $term-count returning 0 incorrectly
+		// /z 28282, 29703
+		if ( ( is_object( $authordata ) ) 
 			|| ( ! empty( $term ) && $term->count ) ) {
 			$wp_query->queried_object = $authordata;
 			$wp_query->queried_object_id = $authordata->ID;
