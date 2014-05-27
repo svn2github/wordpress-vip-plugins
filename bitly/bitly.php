@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Bit.ly
- * Version: 1.1
+ * Version: 1.2
  * Author: Micah Ernst, Bradford Campeau-Laurion (Alley Interactive)
  * Description: Uses bit.ly API to get shortened url for a post on publish and saves url as meta data. Based on TIME.com's Bit.ly plugin.
  */
@@ -105,7 +105,7 @@ class Bitly {
 	
 			$permalink = get_permalink( $post_id );
 			
-			$shortlink = $this->shortlink_for_url( $permalink );
+			$shortlink = $this->shortlink_for_url( $permalink, $post_id );
 
 			if ( $shortlink )
 				update_post_meta( $post_id, 'bitly_url', $shortlink );
@@ -136,23 +136,25 @@ class Bitly {
 		
 	}
 
-	function shortlink_for_url( $url ) {
+	function shortlink_for_url( $url, $post_id = null ) {
 		extract( $this->options );
 
 		if( !isset( $api_login ) || !isset( $api_key ) ) {
 			return false;
 		}
 
-		// need to test this if the post is a time_slide	
-		$params = http_build_query(
-			array(
+		$params = array(
 				'login' 	=> $api_login,
 				'apiKey' 	=> $api_key,
 				'longUrl' 	=> $url,
 				'format' 	=> 'json',
-			)
 		);
-		
+
+		// allow api credentials and other options to be switched
+		$params = (array) apply_filters( 'bitly_http_options', $params, $post_id );
+
+		$params = http_build_query( $params );
+
 		$rest_url = 'https://api-ssl.bitly.com/v3/shorten?' . $params;
 		
 		$response = wp_remote_get( $rest_url );
