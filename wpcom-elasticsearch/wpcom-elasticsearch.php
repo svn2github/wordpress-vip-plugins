@@ -269,7 +269,7 @@ class WPCOM_elasticsearch {
 
 		// Facets
 		// Note - Only supported on the WP.com environment, as the REST API does not currently support them
-		if ( ! empty( $this->facets ) && ( defined( WPCOM_IS_VIP_ENV ) && true === WPCOM_IS_VIP_ENV ) ) {
+		if ( ! empty( $this->facets ) && ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) ) {
 			$es_wp_query_args['facets'] = $this->facets;
 		}
 
