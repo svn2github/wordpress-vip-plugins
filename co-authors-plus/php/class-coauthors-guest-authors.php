@@ -779,31 +779,24 @@ class CoAuthors_Guest_Authors
 
 		$cache_key = $this->get_cache_key( $key, $value );
 
-		if ( false == $force && false !== ( $retval = wp_cache_get( $cache_key, self::$cache_group ) ) ) {
-			// Properly catch our false condition cache
-			if ( is_object( $retval ) )
+		if ( false == $force && false !== ( $retval = wp_cache_get( $cache_key, self::$cache_group ) ) )
 				return $retval;
-			else
-				return false;
-		}
 
 		switch( $key ) {
 			case 'ID':
 			case 'id':
 				$query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE ID=%d", $value );
 				$post_id = $wpdb->get_var( $query );
-				if ( empty( $post_id ) ) {
-					$post_id = '0';
-				}
+				if ( empty( $post_id ) )
+					return false;
 				break;
 			case 'user_nicename':
 			case 'post_name':
 				$value = $this->get_post_meta_key( $value );
 				$query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_name=%s AND post_type = %s", $value, $this->post_type );
 				$post_id = $wpdb->get_var( $query );
-				if ( empty( $post_id ) ) {
-					$post_id = '0';
-				}
+				if ( empty( $post_id ) )
+					return false;
 				break;
 			case 'login':
 			case 'user_login':
@@ -819,19 +812,16 @@ class CoAuthors_Guest_Authors
 				if ( empty( $post_id ) ) {
 					if ( 'user_login' == $key )
 						return $this->get_guest_author_by( 'post_name', $value ); // fallback to post_name in case the guest author isn't a linked account
-					$post_id = '0';
+					return false;
 				}
 				break;
 			default:
-				$post_id = '0';
+				return false;
 				break;
 		}
 
-		if ( ! $post_id ) {
-			// Best hacky way to cache the false condition
-			wp_cache_set( $cache_key, '0', self::$cache_group );
+		if ( ! $post_id )
 			return false;
-		}
 
 		$guest_author = array(
 			'ID' => $post_id,
