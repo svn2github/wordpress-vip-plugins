@@ -28,7 +28,10 @@ function w3cdate_from_mysql($mysql_date) {
  * @returns string cache key
  */
 function sitemap_cache_key() {
-	return 'sitemap-blog-' . $GLOBALS['blog_id'];
+	// en.wordpress.com and other xx.wordpress.com blogs
+	// have same blog id but need separate URLS in the sitemap
+	// otherwise we get de.wordpress.com URLs for en.wordpress.com/sitemap.xml
+	return 'sitemap-blog-' . get_locale() . '-' . $GLOBALS['blog_id'];
 }
 
 /**
@@ -56,15 +59,14 @@ function wpcom_print_sitemap_item($data) {
 	wpcom_print_xml_tag(array('url' => $data));
 }
 
-function wpcom_print_xml_tag( $array, $depth = 0 ) {
-	$tabs = str_repeat("\t", $depth + 1);
+function wpcom_print_xml_tag( $array ) {
 	foreach($array as $key => $value) {
 		if ( is_array( $value) ) {
-			echo "$tabs\t<$key>\n";
-			wpcom_print_xml_tag($value, $depth + 1);
-			echo "$tabs\t</$key>\n";
+			echo "<$key>";
+			wpcom_print_xml_tag($value);
+			echo "</$key>";
 		} else {
-			echo "$tabs\t<$key>".wp_specialchars($value)."</$key>\n";
+			echo "<$key>".esc_html($value)."</$key>";
 		}
 	}
 }
@@ -88,9 +90,10 @@ function wpcom_sitemap_array_to_simplexml($data, &$tree ) {
 				$namespace = $doc_namespaces[$namespace_prefix];
 		}
 		
-		if ( is_array($value) )
-			wpcom_sitemap_array_to_simplexml($value, $tree->addChild( $key, null, $namespace ) );
-		else {
+		if ( is_array( $value ) ) {
+			$child = $tree->addChild( $key, null, $namespace );
+			wpcom_sitemap_array_to_simplexml( $value, $child );
+		} else {
 			$tree->addChild( $key, esc_html( $value ), $namespace );
 		}
 	}
@@ -216,7 +219,7 @@ function wpcom_print_sitemap() {
 
 			// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
 			// These attachments were produced with batch SQL earlier in the script
-			if ( $attachments = wp_filter_object_list( $post_attachments, array( 'post_parent' => $post->ID ) ) ) {
+			if ( !post_password_required( $post->ID ) && $attachments = wp_filter_object_list( $post_attachments, array( 'post_parent' => $post->ID ) ) ) {
 
 				$url['image:image'] = array();
 
@@ -356,17 +359,17 @@ function wpcom_print_news_sitemap($format) {
 		$url = array();
 		$url['loc'] = get_permalink($post->ID);
 		$news = array();
-		$news['news:publication']['news:name'] = html_entity_decode( get_bloginfo( 'name' ), ENT_XML1 );
+		$news['n:publication']['n:name'] = html_entity_decode( get_bloginfo( 'name' ), ENT_XML1 );
 		if ( function_exists( 'get_blog_lang_code' ) )
-			$news['news:publication']['news:language'] = get_blog_lang_code() ;
-		$news['news:publication_date'] = w3cdate_from_mysql($post->post_date_gmt);
-		$news['news:title'] = html_entity_decode( $post->post_title, ENT_XML1 );
-		if ( $post->keywords ) $news['news:keywords'] = html_entity_decode( $post->keywords, ENT_XML1 );
-		$url['news:news'] = $news;
+			$news['n:publication']['n:language'] = get_blog_lang_code() ;
+		$news['n:publication_date'] = w3cdate_from_mysql($post->post_date_gmt);
+		$news['n:title'] = html_entity_decode( $post->post_title, ENT_XML1 );
+		if ( $post->keywords ) $news['n:keywords'] = html_entity_decode( $post->keywords, ENT_XML1 );
+		$url['n:news'] = $news;
 
 		// Add image to sitemap
 		if ( current_theme_supports( 'post-thumbnails' ) && has_post_thumbnail( $post->ID ) ) {
-			$post_thumbnail_id = get_post_thumbnail_id( $post_id );
+			$post_thumbnail_id = get_post_thumbnail_id( $post->ID );
 			$post_thumbnail_src = wp_get_attachment_image_src( $post_thumbnail_id );
 			if ( $post_thumbnail_src )
 				$url['image:image'] = array( 'image:loc' => esc_url( $post_thumbnail_src[0] ) );
@@ -384,6 +387,49 @@ function wpcom_print_news_sitemap($format) {
 <?php
 	die();
 }
+/**
+* Transitionary solution in migration from n to news namespace
+* 
+* While we get all the VIP clients that have filters that changing the namespace 
+* would impact we will convert n: to news: as late as possible. 
+* 
+* @param mixed $url
+*/
+function wpcom_sitemap_n_to_news_namespace( $url ) {
+
+	if ( empty( $url ) ){
+		return $url;
+	}
+	
+	//We are going to take both n and news namespace arrays since filters will potentially have added items to n or to news. 
+	//We prioritize items from news since this is the newer namespace
+	$news_n = $url['n:news'];
+	$news_news = $url['news:news'];
+	
+	//loop thru the old n: bucket and its subheadings and only put in items that are not already present in the current news: bucket (presumably added by filters)
+	foreach ( $news_n as $current_sitemap_index => $value ) {
+		if ( is_array( $value ) ){
+			foreach( $value as $current_sitemap_index_subheader => $sub_value ) {
+				$new_sub_index = str_replace( 'n:', 'news:', $current_sitemap_index_subheader );
+				if ( $new_sub_index !== false ) {
+					$value[ $new_sub_index ] = $sub_value;
+					unset( $value[ $current_sitemap_index_subheader ] );
+				}
+			}
+		}
+		
+		$new_index = str_replace( 'n:', 'news:', $current_sitemap_index );
+		if ( ! isset( $news_news[ $new_index ] ) ){ //only input the new "news:" value generated from n: if there has not been one created by a filter earlier on
+			$news_news[ $new_index ] = $value;
+		}
+	}
+	
+	$url['news:news'] = $news_news;
+	unset( $url['n:news'] );
+	
+	return $url;
+}
+add_filter( 'wpcom_sitemap_news_sitemap_item', 'wpcom_sitemap_n_to_news_namespace', 1000 );
 
 /**
  * Absolute URL of the current blog's sitemap
