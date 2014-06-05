@@ -115,12 +115,12 @@ add_action( 'widgets_init', 'vip_powered_wpcom_widget_init' );
 function vip_powered_wpcom_img_html( $image ) {
 	$vip_powered_wpcom_images = array(
 		//image file, width, height
-		1 => array('vip-powered-wpcom-dark-small.png', 166, 26),
-		2 => array('vip-powered-wpcom-dark.png', 208, 56),
-		3 => array('vip-powered-wpcom-dark-long.png', 295, 56),
-		4 => array('vip-powered-wpcom-light-small.png', 166, 26),
-		5 => array('vip-powered-wpcom-light.png', 208, 56),
-		6 => array('vip-powered-wpcom-light-long.png', 295, 56)
+		1 => array('vip-powered-light-small.png', 187, 26),
+		2 => array('vip-powered-light-normal.png', 209, 56),
+		3 => array('vip-powered-light-long.png', 305, 56),
+		4 => array('vip-powered-dark-small.png', 187, 26),
+		5 => array('vip-powered-dark-normal.png', 209, 56),
+		6 => array('vip-powered-dark-long.png', 305, 56)
 		);
 
 		if ( array_key_exists( $image, $vip_powered_wpcom_images ) )
