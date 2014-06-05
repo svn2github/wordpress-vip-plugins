@@ -903,7 +903,7 @@ class Add_Meta_Tags {
 		$mt_seo_title = str_replace("%title%", $title, $mt_seo_title);
 		$mt_seo_title = strip_tags( $mt_seo_title );
 		
-		if ( !empty( $sep ) ) {
+		if ( apply_filters( 'mt_seo_title_append_separator', true ) && ! empty( $sep ) ) {
 			if ( 'right' == $seplocation ) {
 				$mt_seo_title .= " $sep ";
 			} else {
@@ -921,6 +921,15 @@ class Add_Meta_Tags {
 
 		$supported_post_types = array_merge( array( 'post', 'page' ), array_keys( $options['custom_post_types'] ) );
 		return in_array( $post_type, $supported_post_types );
+	}
+
+	function post_has_seo_title( $post_id = null ) {
+		$_post = get_post( $post_id );
+		if ( ! $_post || ! $_post->ID ) {
+			return false;
+		}
+		$mt_seo_title = (string) get_post_meta( $_post->ID, 'mt_seo_title', true );
+		return ! empty( $mt_seo_title );
 	}
 
 }
