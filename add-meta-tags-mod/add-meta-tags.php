@@ -913,7 +913,7 @@ class Add_Meta_Tags {
 		return $mt_seo_title;
 	}
 
-	function is_supported_post_type( $post_type ) {
+	static function is_supported_post_type( $post_type ) {
 		$options = get_option( 'add_meta_tags_opts' );
 
 		if ( empty( $options['custom_post_types'] ) )
@@ -923,7 +923,7 @@ class Add_Meta_Tags {
 		return in_array( $post_type, $supported_post_types );
 	}
 
-	function post_has_seo_title( $post_id = null ) {
+	static function post_has_seo_title( $post_id = null ) {
 		$_post = get_post( $post_id );
 		if ( ! $_post || ! $_post->ID ) {
 			return false;
