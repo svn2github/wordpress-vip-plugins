@@ -222,17 +222,7 @@ function mysiteapp_print_post($iterator = 0) {
  * @return string    Logout url
  */
 function mysiteapp_logout_url_wrapper() {
-    if (function_exists('wp_logout_url')) {
-        return wp_logout_url();
-    }
-    // Create the URL ourselves
-    $logout_url = site_url('wp-login.php') . "?action=logout";
-    if (function_exists('wp_create_nonce')) {
-        // Create nonce only if can
-        // @since WP 2.0.3
-        $logout_url .= "&amp;_wpnonce=" . wp_create_nonce('log-out');
-    }
-    return $logout_url;
+    return wp_logout_url();
 }
 
 /**

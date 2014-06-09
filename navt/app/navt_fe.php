@@ -1191,7 +1191,7 @@ class NAVT_FE {
             else {
                 // user is logged in
                 if( $opt & USE_FORM ) {
-                    $split_anchor = "&nbsp;&bull;&nbsp;<a href='$site_url/wp-login.php?action=logout&amp;redirect_to=$site_url' title='logout'>" .
+                    $split_anchor = "&nbsp;&bull;&nbsp;<a href='" . wp_logout_url( $site_url ) . "' title='logout'>" .
                     __("Sign out", 'navt_domain')."</a>";
                 }
             }
