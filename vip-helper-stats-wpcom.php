@@ -623,3 +623,15 @@ function _wpcom_vip_get_stats_result( $table = 'views', $end_date = false, $num_
 
 	return $result;
 }
+
+/**
+ * Set the roles that can view stats
+ *
+ * @param array $roles The roles that can view stats
+ */
+function wpcom_vip_stats_roles( array $roles ) {
+	add_filter( 'pre_option_stats_options', function( $stats_options ) use ( $roles ) {
+		$stats_options['roles'] = $roles;
+		return $stats_options;
+	});
+}
