@@ -494,5 +494,18 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		}
 	}
 
+	// Mimic batcache's behavior when it's not available (for catching code that batcache will reject)
+	// 
+	// Has no affect on caching
+	if ( ! function_exists( 'vary_cache_on_function' ) ) {
+		function vary_cache_on_function( $function ) {
+			if ( preg_match('/include|require|echo|print|dump|export|open|sock|unlink|`|eval/i', $function) )
+				die('Illegal word in variant determiner.');
+
+			if ( !preg_match('/\$_/', $function) )
+				die('Variant determiner should refer to at least one $_ variable.');
+		}
+	}
+
 
 endif; // function_exists( 'wpcom_is_vip' )
