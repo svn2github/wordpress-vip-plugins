@@ -59,6 +59,7 @@ function wpcom_vip_maybe_load_ad_busters() {
 		'jpd/jpxdm.html',                    // Jetpack Digital
 		'klipmart/km_ss.html',               // Google - DoubleClick - Klipmart
 		'mediamind/MMbuster.html',           // MediaMind - addineye (?)
+		'mixpo/framebust.html',              // Mixpo
 		'oggifinogi/oggiPlayerLoader.htm',   // Collective - OggiFinogi
 		'pictela/Pictela_iframeproxy.html',  // AOL - Pictela
 		'pointroll/PointRollAds.htm',        // PointRoll
@@ -70,6 +71,7 @@ function wpcom_vip_maybe_load_ad_busters() {
 		'viewpoint/vwpt.html',               // Enliven Marketing Technologies Corporation - Viewpoint
 		'xaxis/InfinityIframe.html',         // Xaxis
 		'_uac/adpage.html',                  // AOL - atwola.com
+		'adcom/aceFIF.html',                 // Advertising.com (ad.com)
 	);
 
 	// To ignore an ad network, use this filter and return an array containing the values of $ad_busters to not load
