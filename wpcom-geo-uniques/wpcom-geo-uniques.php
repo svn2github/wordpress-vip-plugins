@@ -91,6 +91,13 @@ class WPCOM_Geo_Uniques {
 	}
 
 	static function geolocate_user_and_die( $location_type = 'country_short' ) {
+		if ( self::user_has_location_cookie() ) {
+			?>
+			// no location cookie needed
+			<?php
+			exit;
+		}
+
 		$location = static::ip2location( $location_type );
 		$expiry_date = date( 'D, d M Y H:i:s T', strtotime( "+" . static::$expiry_time . " seconds", current_time( 'timestamp', 1 ) ) );
 		// output js and redirect
