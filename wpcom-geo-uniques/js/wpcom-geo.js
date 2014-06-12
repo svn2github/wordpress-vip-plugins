@@ -21,8 +21,9 @@ wpcom_geo = {
 		xhr.send( null );
 
 		var responseText = xhr.responseText;
-		// TODO: json_decode
-		if ( xhr.status === 200 ) {
+
+		// Only geolocate modern browsers
+		if ( xhr.status === 200 && window.JSON ) {
 			var location = wpcom_geo_settings.success_callback.call( undefined, JSON.parse( responseText ) );
 			
 			if ( location ) {
