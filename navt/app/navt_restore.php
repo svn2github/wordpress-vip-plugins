@@ -181,7 +181,7 @@ if( !$doin_the_deed ) {
 
 // Displayed only if we're not doing the actual restore ?>
 <?php if (isset($_GET['message'])) : ?>
-<div id="message" class="updated fade"><p><?php echo $_GET['message']; ?></p></div>
+<div id="message" class="updated fade"><p><?php echo esc_html( $_GET['message'] ); ?></p></div>
 <?php endif; ?>
 
 <div class="wrap">
