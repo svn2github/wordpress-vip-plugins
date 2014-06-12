@@ -77,7 +77,7 @@ wpcom_geo = {
 		var cookies_enabled = ( 'undefined' !== navigator.cookieEnabled && navigator.cookieEnabled ) ? true : null;
 
 		if ( ! cookies_enabled ) {
-			document.cookie = '__testcookie=1';
+			document.cookie = '__wpcomgeo_testcookie=1';
 			if ( -1 !== document.cookie.indexOf( '__wpcomgeo_testcookie=1' ) ) {
 				cookies_enabled = true;
 			}
