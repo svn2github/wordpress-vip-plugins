@@ -126,7 +126,7 @@ class history_help {
 	public function mec_user_history_js_print( ) {
 		if( isset( $_GET["post"] ) ) {
 		?>
-			<script language="javascript" type="text/javascript" defer="defer"> AddPost_ID( '<?php echo $_GET["post"] ?>' ); </script>
+			<script language="javascript" type="text/javascript" defer="defer"> AddPost_ID( '<?php echo esc_js( $_GET["post"] ); ?>' ); </script>
 		<?php
 		}
 	}
