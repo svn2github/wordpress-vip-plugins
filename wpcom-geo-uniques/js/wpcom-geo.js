@@ -23,7 +23,16 @@ wpcom_geo = {
 		var responseText = xhr.responseText;
 		// TODO: json_decode
 		if ( xhr.status === 200 ) {
-			wpcom_geo_settings.success_callback.call( undefined, JSON.parse( responseText ) );
+			var location = wpcom_geo_settings.success_callback.call( undefined, JSON.parse( responseText ) );
+			
+			if ( location ) {
+				wpcom_geo.set_location( location );
+			} else {
+				wpcom_geo.set_default_location();
+			}
+
+			wpcom_geo.refresh();
+
 		} else {
 			this.gracefully_fail( 'wpcom-geo: geolocation request failed :(' );
 			if ( 'function' === typeof( wpcom_geo_settings.error_callback ) ) {
