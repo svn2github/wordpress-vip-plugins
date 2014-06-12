@@ -56,7 +56,7 @@ wpcom_geo.set_detect_success_callback( function( geo_data ) {
 	//  - city
 
 	if ( 'SAN FRANCISCO' === geo_data.city ) {
-		return 'san francisco';
+		return 'san-francisco';
 	}
 
 	return false; // default
