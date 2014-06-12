@@ -77,20 +77,20 @@ class WPCOM_Geo_Uniques {
 		if ( false === apply_filters( 'wpcom_geo_process_request', true, $request ) )
 			return;
 
-		if ( ! self::user_has_location_cookie() ) {
-			if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
-				// Determine which piece of geolocation data to salt the cache key with
-				$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
+		if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
+			// Determine which piece of geolocation data to salt the cache key with
+			$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
 
-				self::geolocate_user( $location_type );
-			} else {
-				add_action( 'wp_head', array( __CLASS__, 'geolocate_js' ), -1 ); // We want this to run super early
-			}
+			self::geolocate_user_and_die( $location_type );
+		} 
+
+		if ( ! self::user_has_location_cookie() ) {
+			add_action( 'wp_head', array( __CLASS__, 'geolocate_js' ), -1 ); // We want this to run super early
 		}
 
 	}
 
-	static function geolocate_user( $location_type = 'country_short' ) {
+	static function geolocate_user_and_die( $location_type = 'country_short' ) {
 		$location = static::ip2location( $location_type );
 		$expiry_date = date( 'D, d M Y H:i:s T', strtotime( "+" . static::$expiry_time . " seconds", current_time( 'timestamp', 1 ) ) );
 		// output js and redirect
