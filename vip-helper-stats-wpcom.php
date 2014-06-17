@@ -255,7 +255,7 @@ function wpcom_vip_get_most_shared_posts( $limit = 5, $cache_duration = 3600 ) {
 
 	// No cache, so query the DB and set the cache
 	if ( false === $shares ) {
-		$shares = $wpdb->get_results( $wpdb->prepare( "SELECT post_id as ID, SUM( count ) as total_shares FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY count DESC LIMIT %d", $wpdb->blogid, $limit ) );
+		$shares = $wpdb->get_results( $wpdb->prepare( "SELECT post_id as ID, SUM( count ) as total_shares FROM sharing_stats WHERE blog_id = %d GROUP BY post_id ORDER BY total_shares DESC LIMIT %d", $wpdb->blogid, $limit ) );
 		
 		wp_cache_set( $cache_key, $shares, 'vip_stats', $cache_duration );
 	}
