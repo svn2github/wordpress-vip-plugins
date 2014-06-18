@@ -3,8 +3,8 @@ Contributors: 10up, carldanley, jakemgold, johnjamesjacoby, houseofgrays, cmmars
 Donate link: https://pushupnotifications.com/
 Tags: push notifications, push notification, notifications, push, news, services
 Requires at least: 3.8
-Tested up to: 3.8.1
-Stable tag: 1.1.7
+Tested up to: 3.9.1
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -71,6 +71,11 @@ After the first month, we have a "pay as you grow" model where you pay for the a
 4. Visitors click allow in Safari 7 to receive notifications. That's it.
 
 == Changelog ==
+
+= 1.2 =
+* Customize when the notification prompt should appear: after a set number of visits, and/or an easily defined custom event like clicking a link
+* Fix edge case resulting in Website Name and/or Notification Title disappearing in the settings screen
+* Updates to inline help
 
 = 1.1.7 =
 * Fix scheduled posts not being pushed in some instances

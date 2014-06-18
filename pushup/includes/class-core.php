@@ -37,7 +37,7 @@ class PushUp_Notifications_Core {
 	 *
 	 * @var string
 	 */
-	protected static $script_version = '20140423a';
+	protected static $script_version = '20140616a';
 
 	/**
 	 * Handles initializing this class and returning the singleton instance after it's been cached.
@@ -329,6 +329,21 @@ class PushUp_Notifications_Core {
 	}
 
 	/**
+	 * Gets the notification prompt configuration (when to prompt visitors for notifications)
+	 *
+	 * Must be an integer; 0 implies a custom configuration; default if unset should be 1 page view
+	 *
+	 * @return array
+	 */
+	public static function get_prompt_setting() {
+		$options = get_option( self::$option_key );
+		return array(
+			'prompt'        => ( empty( $options['prompt'] ) || $options['prompt'] != 'custom' ) ? 'visits' : 'custom',
+			'prompt_views'  => empty( $options['prompt_views'] ) ? 1 : (int) $options['prompt_views']
+		);
+	}
+
+	/**
 	 * Return a shortlink for a post, page, attachment, or blog.
 	 *
 	 * Default shortlink support is limited to providing ?p= style
@@ -465,10 +480,9 @@ class PushUp_Notifications_Core {
 	 * render notification display settings section
 	 */
 	public static function _render_display_settings_section() {
-		?>
-		<p><?php esc_html_e( 'Customize your notification title and icon to better match your site.', 'pushup' ); ?></p>
-		<p><?php esc_html_e( 'Please note that website name and icons are cached by subscribers; changes may not appear for existing subscribers.', 'pushup' ); ?></p>
-		<?php
+	?>
+		<p><?php esc_html_e( 'Customize your notification title and icon to better match your site. (Changes may not appear immediately for existing subscribers.)', 'pushup' ); ?></p>
+	<?php
 	}
 
 	/**
@@ -734,6 +748,46 @@ class PushUp_Notifications_Core {
 	<?php
 	}
 
+	/**
+	 * Control prompt for notifications
+	 */
+	public static function _render_display_prompt_field() {
+
+		// 0 = custom, otherwise this contains the number of page views
+		$prompt = self::get_prompt_setting(); ?>
+
+		<fieldset><legend class="screen-reader-text"><span>Prompt Visitor for Notifications</span></legend>
+			<label title="<?php esc_attr_e( 'After a specified number of page views.', 'pushup' ); ?>">
+				<input type="radio" name="pushup[prompt]" value="visits" <?php checked( $prompt['prompt'], 'visits' ); ?>> <?php esc_html_e( 'After', 'pushup' ); ?></label> <label for="pushup[prompt_views]"><input name="pushup[prompt_views]" type="number" min="1" step="1" id="pushup[prompt_views]" value="<?php echo (int) $prompt['prompt_views']; ?>" class="small-text"> <?php esc_html_e( 'page view(s)', 'pushup' ); ?>
+			</label>
+			<br>
+			<label title="<?php esc_attr_e( 'On a custom event.', 'pushup' ); ?>">
+				<input type="radio" name="pushup[prompt]" value="custom" <?php checked( $prompt['prompt'], 'custom' ); ?>> <?php esc_html_e( 'On a custom event', 'pushup' ); ?>
+			</label>
+			
+			<div id="pushup_custom_prompt_help" class="postbox"<?php if ( $prompt['prompt'] !== 'custom' ) :?>style="display: none;"<?php endif; ?>>
+				<div class="inside">
+					<ul>
+						<li>
+							<p><?php printf( esc_html__( 'Assign the class %s to any element to prompt the visitor on-click.', 'pushup' ), '<code>"pushup_button"</code>' ); ?></p>
+							<p><?php printf( esc_html__( 'Example: %s', 'pushup' ), '<code>&lt;a href="#" class="pushup_button"&gt;' . esc_html__( 'Receive Desktop Notifications', 'pushup' ) . '&lt;/a&gt;</code>' ); ?></p>
+						</li>
+
+						<?php if ( current_theme_supports( 'menus' ) ) : ?>
+							<li><p><?php printf( esc_html__( '%s can be configured to prompt on-click by enabling CSS Classes under Screen Options.', 'pushup' ), '<a href="' . admin_url( 'nav-menus.php' ) . '">' . esc_html__( 'Menu items', 'pushup' ) . '</a>' ); ?></p></li>
+						<?php endif; ?>
+
+						<li><p class="description"><?php esc_html_e( 'Elements with this special class are hidden from visitors who already accepted/denied notifications or are using unsupported browsers.', 'pushup' ); ?></p></li>
+					</ul>
+				</div>
+			</div>
+			
+			<p class="description"><?php esc_html_e( 'Customize when visitors see the prompt offering notifications in supported browsers.', 'pushup' ); ?></p>
+		</fieldset>
+
+	<?php
+	}
+
 	/** Help & Notices ********************************************************/
 
 	/**
@@ -752,7 +806,7 @@ class PushUp_Notifications_Core {
 		$current_screen->add_help_tab( array(
 			'id'      => 'overview',
 			'title'   => esc_html__( 'Overview', 'pushup' ),
-			'content' => '<p>' . __( 'This screen provides access to all of the PushUp settings.',                          'pushup' ) . '</p>' .
+			'content' => '<p>' . __( 'This screen provides access to all of the PushUp settings.', 'pushup' ) . '</p>' .
 						 '<p>' . __( 'Please see the additional help tabs for more information on each indiviual section.', 'pushup' ) . '</p>'
 		) );
 
@@ -788,11 +842,13 @@ class PushUp_Notifications_Core {
 		$current_screen->add_help_tab( array(
 			'id'      => 'notifications_settings',
 			'title'   => esc_html__( 'Notification Settings', 'pushup' ),
-			'content' => '<p>' . esc_html__( 'The Notification Settings section has two fields:', 'pushup' ) . '</p>' .
+			'content' => '<p>' . esc_html__( 'The Notification Settings section has four fields:', 'pushup' ) . '</p>' .
 						 '<p>' .
 							'<ul>' .
-								'<li>' . __( '<strong>Name of Your Website</strong> - The name of your website your readers will see as the source of the push notification. You can leave this blank, and PushUp will use the name of your site in General Settings.',  'pushup' ) . '</li>' .
-								'<li>' . __( '<strong>Icons</strong> - You can upload several different size icons for use in OS X Mavericks and Safari. For the best results, create icons for each specific dimension available.', 'pushup' ) . '</li>' .
+								'<li>' . __( '<strong>Website Name</strong> - The name of your website that readers will see as the source of the push notification. You can leave this blank, and PushUp will use the name of your site from General Settings.',  'pushup' ) . '</li>' .
+								'<li>' . __( '<strong>Notification Title</strong> - A very short title that appears before the unique title of your content. Only fits about 4 or 5 short words, and defaults to "Just published...".', 'pushup' ) . '</li>' .
+								'<li>' . __( '<strong>Icon(s)</strong> - You can upload several different size icons for use in OS X Mavericks and Safari. For the best results, create icons for each specific dimension available.', 'pushup' ) . '</li>' .
+								'<li>' . __( '<strong>Offer Notifications</strong> - Prompt visitors in supported browsers after they visit this site a set number of times (defaults to the first time), and/or upon an event like clicking a link. Although presented as alternatives, a custom event link will work in in concert with a set number of page views.', 'pushup' ) . '</li>' .
 							'</ul>' .
 						'</p>' .
 						'<p>' . __( 'You must click the Save Changes button at the bottom of the screen for new settings to take effect.', 'pushup' ) . '</p>'
@@ -980,6 +1036,10 @@ class PushUp_Notifications_Core {
 			$sanitized_input['post_title'] = __( 'Just published...', 'pushup' );
 		}
 
+		// save prompt configuration
+		$sanitized_input['prompt'] = ( empty( $input['prompt'] ) || $input['prompt'] != 'custom' ) ? 'visits' : 'custom';
+		$sanitized_input['prompt_views'] = empty( $input['prompt_views'] ) ? 1 : (int) $input['prompt_views'];
+
 		return $sanitized_input;
 	}
 
@@ -1123,22 +1183,18 @@ class PushUp_Notifications_Core {
 			/** Display *******************************************************/
 
 			// Website Name
-			if ( PushUp_Notifications_JSON_API::get_website_name() ) {
-				$settings_fields['website_name'] = array(
-					'title'    => esc_html__( 'Website Name', 'pushup' ),
-					'callback' => array( __CLASS__, '_render_display_website_name_field' ),
-					'section'  => 'display'
-				);
-			}
+			$settings_fields['website_name'] = array(
+				'title'    => esc_html__( 'Website Name', 'pushup' ),
+				'callback' => array( __CLASS__, '_render_display_website_name_field' ),
+				'section'  => 'display'
+			);
 
-			// Website Name
-			if ( self::get_post_title() ) {
-				$settings_fields['post_title'] = array(
-					'title'    => esc_html__( 'Post Title', 'pushup' ),
-					'callback' => array( __CLASS__, '_render_display_post_title_field' ),
-					'section'  => 'display'
-				);
-			}
+			// Notification Title
+			$settings_fields['post_title'] = array(
+				'title'    => esc_html__( 'Notification Title', 'pushup' ),
+				'callback' => array( __CLASS__, '_render_display_post_title_field' ),
+				'section'  => 'display'
+			);
 
 			// Icons
 			if ( PushUp_Notifications_JSON_API::get_icon_data() ) {
@@ -1148,6 +1204,13 @@ class PushUp_Notifications_Core {
 					'section'  => 'display'
 				);
 			}
+
+			// Prompt Visitor
+			$settings_fields['prompt'] = array(
+				'title'    => esc_html__( 'Offer Notifications', 'pushup' ),
+				'callback' => array( __CLASS__, '_render_display_prompt_field' ),
+				'section'  => 'display'
+			);
 		}
 
 		return $settings_fields;

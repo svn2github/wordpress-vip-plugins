@@ -88,11 +88,16 @@ class PushUp_Notifications {
 			return;
 		}
 
+		// Get notification prompt configuration (0 = custom)
+		$prompt_settings = PushUp_Notifications_Core::get_prompt_setting();
+		$prompts = ( $prompt_settings['prompt'] == 'custom' ) ? 0 : (int) $prompt_settings['prompt_views'];
+
 		// Allow base path to be filtered
 		$base = apply_filters( 'pushup-notification-base-script-path', plugins_url( '', dirname( __FILE__ ) ) );
 
 		// Enqueue the main PushUp JS used to prompt visitors
-		wp_enqueue_script( 'pushup', $base . '/js/pushup.js', array( 'jquery' ), PushUp_Notifications_Core::get_script_version(), true );
+		$append = ( defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ) ? '' : '.min';
+		wp_enqueue_script( 'pushup', $base . '/js/pushup' . $append . '.js', array( 'jquery' ), PushUp_Notifications_Core::get_script_version(), true );
 
 		// Localize the Notification prompt strings
 		wp_localize_script( 'pushup', 'PushUpNotificationSettings', array(
@@ -100,6 +105,7 @@ class PushUp_Notifications {
 			'userID'        => $authentication['user_id'],
 			'websitePushID' => $authentication['website_push_id'],
 			'webServiceURL' => self::$_api_url,
+			'prompt'        => (int) $prompts,
 		) );
 	}
 

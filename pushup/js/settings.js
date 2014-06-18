@@ -15,7 +15,9 @@
 		domainXHR : null,
 		$basicMode : null,
 		$advancedMode : null,
-		currentMode : 'basic'
+		currentMode : 'basic',
+		$promptMode : null,
+		$promptHelp : null
 	};
 
 	/**
@@ -23,6 +25,13 @@
 	 */
 	function bindEvents() {
 		Cache.$wrapper.on( 'click', '.icon-preview input[type="button"], .icon-preview .thumbnail, .icon-preview .thumbnail img', onIconPreviewButtonClick );
+		Cache.$promptMode.on( 'change', function(){
+			if ( this.value == 'custom' ) {
+				Cache.$promptHelp.slideDown(250);
+			} else {
+				Cache.$promptHelp.slideUp(250);
+			}
+		});
 	}
 
 	/**
@@ -207,6 +216,8 @@
 		Cache.$wrapper = $( document.querySelector( '.pushup-notifications-settings' ) );
 		Cache.$basicMode = $( document.querySelector( '.basic-mode' ) );
 		Cache.$advancedMode = $( document.querySelector( '.advanced-mode' ) );
+		Cache.$promptMode = $( document.getElementsByName( 'pushup[prompt]' ) );
+		Cache.$promptHelp = $( document.getElementById('pushup_custom_prompt_help') );
 	}
 
 	/**

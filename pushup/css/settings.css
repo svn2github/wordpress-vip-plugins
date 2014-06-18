@@ -130,3 +130,18 @@
 .pushup.ThisMonth {
 	color: #63bde4;
 }
+
+#pushup_custom_prompt_help,
+#pushup_custom_prompt_help .inside {
+	margin-bottom: 0;
+	padding-bottom: 0;
+}
+
+#pushup_custom_prompt_help li {
+	list-style: square;
+	margin-left: 20px;
+}
+#pushup_custom_prompt_help p,
+#pushup_custom_prompt_help code {
+	font-size: 1em;
+}
