@@ -884,3 +884,12 @@ function wpcom_vip_disable_geolocation_output() {
 		}
 	}, 100 ); // later priority used to ensure this is ran after Geo_Location init (standard priority)
 }
+
+/**
+ * Disables Olark live chat
+ *
+ * @see show_live_chat()
+ */
+function wpcom_vip_remove_livechat() {
+	add_filter( 'vip_live_chat_enabled', '__return_false' );
+}
