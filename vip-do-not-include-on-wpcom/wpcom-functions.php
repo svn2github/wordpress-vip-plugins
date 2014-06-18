@@ -334,7 +334,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			if ( is_array( $args['terms'] ) ) {
 				foreach ( $args['terms'] as $tax => $terms ) {
 					$terms = (array) $terms;
-					if ( count( $terms ) ) {
+					if ( count( $terms ) && mb_strlen( $tax ) ) {
 						switch ( $tax ) {
 							case 'post_tag':
 								$tax_fld = 'tag.slug';
@@ -368,6 +368,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 					'query'  => $args['query'],
 					'fields' => $args['query_fields'],
 					'operator'  => 'and',
+					'type'  => 'cross_fields',
 				) );
 
 				if ( ! $args['orderby'] ) {
