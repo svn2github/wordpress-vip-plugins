@@ -1,35 +1,14 @@
 <?php
 /**
  * Plugin Name: WP.com Geo Uniques
- * Description: Batcache-friendly way to handle geo-targetting of users at a specific set of locations. Relies on WP.com-specific functions but will work with WP_DEBUG.
+ * Description: Batcache-friendly way to handle geo-targetting of users at a specific set of locations.
  * Author: Automattic, WordPress.com VIP
- * Version: 0.2
+ * Version: 0.3
  * License: GPLv2
- * Usage:
- *
- * 		wpcom_vip_load_plugin( 'wpcom-geo-uniques' );
- * 		wpcom_geo_add_location( 'us' ); // add list of supported countries
- *
- * 		if ( 'us' == wpcom_geo_get_user_location() ) {
- * 			echo "USA: A-Okay!";
- *		} else {
- *			echo "You're not American! No soup for you!";
- *		}
- *
- *	Note that this should only be used with a very small list of locations for performance reasons.
- *
- *	By default, geo-location happens at a country-level but this can be extended to cities and states.
- *
- *	== Changelog ==
- *
- *	= 0.2 =
- *	- Props Zack Tollman and 10up
- *	- Support for more granular location sets (e.g. city-level)
- *	- New filters for tweaks (wpcom_geo_uniques_return_data, wpcom_geo_gelocate_js_query_args, etc.)
- *	- Fallback data for local testing
  */
 class WPCOM_Geo_Uniques {
 
+	const GEO_API_ENDPOINT = 'https://public-api.wordpress.com/geo/';
 	const COOKIE_NAME = '_wpcom_geo'; // must be prefixed with "_" since batcache ignores cookies starting with "wp"
 	const ACTION_PARAM = 'wpcom-geolocate';
 
@@ -65,78 +44,64 @@ class WPCOM_Geo_Uniques {
 	}
 
 	static function init_advanced_geolocation() {
-		// Handle location detection on parse_request so we know the context of the request
-		add_action( 'parse_request', array( 'WPCOM_Geo_Uniques', 'action_parse_request' ) );
-	}
-
-	static function action_parse_request( $request ) {
-		// Don't do this on feed requests or robots.txt
-		if ( ! empty( $request->query_vars['feed'] ) || ! empty( $request->query_vars['robots'] ) )
-			return;
-
-		if ( false === apply_filters( 'wpcom_geo_process_request', true, $request ) )
-			return;
-
-		if ( isset( $_GET[ self::ACTION_PARAM ] ) ) {
-			// Determine which piece of geolocation data to salt the cache key with
-			$location_type = apply_filters( 'wpcom_geo_uniques_return_data', 'country_short' );
-
-			self::geolocate_user_and_die( $location_type );
-		} 
+		wp_register_script( 'wpcom-geo-js', plugins_url( 'js/wpcom-geo.js', __FILE__ ) );
 
 		if ( ! self::user_has_location_cookie() ) {
-			add_action( 'wp_head', array( __CLASS__, 'geolocate_js' ), -1 ); // We want this to run super early
-		}
+			// TODO: Temporary until we get the global endpoint
+			if ( '/geolocate' === $_SERVER['REQUEST_URI']  ) {
+				self::geolocate_user_and_die();
+			}
 
+			add_action( 'wp_head', array( __CLASS__, 'geolocate_advanced_js' ), -1 ); // We want this to run super early
+		}
 	}
 
-	static function geolocate_user_and_die( $location_type = 'country_short' ) {
-		if ( self::user_has_location_cookie() ) {
-			?>
-			// no location cookie needed
-			<?php
+	// TODO: delete after self-geolocation is removed
+	static function geolocate_user_and_die() {
+		$location = self::get_geolocation_data_from_ip();
+
+		if ( ! $location || '-' == $location->country_short ) {
+			header( 'HTTP/1.1 404 Not Found' );
 			exit;
 		}
 
-		$location = static::ip2location( $location_type );
-		$expiry_date = date( 'D, d M Y H:i:s T', strtotime( "+" . static::$expiry_time . " seconds", current_time( 'timestamp', 1 ) ) );
-		// output js and redirect
+		$location_trimmed = array(
+			'latitude'        => $location->latitude,
+			'longitude'       => $location->longitude,
+			'country_short'   => $location->country_short,
+			'country_long'    => $location->country_long,
+			'region'          => $location->region,
+			'city'            => $location->city,
+		);
+
 		header( 'Content-type: text/javascript' );
-		do_action( 'wpcom_geo_uniques_locate_user', $location, $expiry_date );
-	?>
-		document.cookie = '<?php printf( '%s=%s; expires=%s; max-age=%s; path=/', esc_js( self::COOKIE_NAME ), esc_js( $location ), esc_js( $expiry_date ), esc_js( self::$expiry_time ) ); ?>';
-		window.location.reload();
-	<?php
+		echo json_encode( $location_trimmed );
 		exit;
 	}
 
-	static function geolocate_js() {
-		do_action( 'wpcom_geo_uniques_gelocate_js');
-		$query_args = array( self::ACTION_PARAM => '' );
-		$query_args = apply_filters( 'wpcom_geo_gelocate_js_query_args', $query_args );
-	?>
-		<script>
-		( function() {
-			// Avoid infinite loops and geolocation requests for clients that support javascript but not cookies
-			var cookies_enabled = ( 'undefined' !== navigator.cookieEnabled && navigator.cookieEnabled ) ? true : null;
+	static function geolocate_advanced_js() {
+		$geolocate_script_src = apply_filters( 'wpcom_geo_client_js_src', '' );
 
-			if ( ! cookies_enabled ) {
-				document.cookie = '__testcookie=1';
-				if ( -1 !== document.cookie.indexOf( '__wpcomgeo_testcookie=1' ) ) {
-					cookies_enabled = true;
-				}
-				var expired_date = new Date( 2003, 5, 27 );
-				document.cookie = '__wpcomgeo_testcookie=1;expires=' + expired_date.toUTCString();
-			}
+		if ( empty( $geolocate_script_src ) ) {
+			_doing_it_wrong( __METHOD__, 'Please specify a script src via the `wpcom_geo_client_js_src` filter that utilizes the wpcom_geo JS API.', 0.3 );
+			return;
+		}
 
-			if ( cookies_enabled ) {
-				var s = document.createElement( 'script' );
-				s.src = '<?php echo esc_js( add_query_arg( $query_args, home_url() ) ); ?>';
-				document.getElementsByTagName('head')[0].appendChild( s );
-			}
-		} )();
-		</script>
-	<?php
+		$settings = array(
+			'geolocation_endpoint' => apply_filters( 'wpcom_geo_api_endpoint', self::GEO_API_ENDPOINT ),
+			'locations' => self::get_registered_locations(),
+			'default_location' => self::get_default_location(),
+			'cookie_name' => self::COOKIE_NAME,
+			'expiry_date' => date( 'D, d M Y H:i:s T', strtotime( "+" . static::$expiry_time . " seconds", current_time( 'timestamp', 1 ) ) ),
+			'expiry_time' => self::$expiry_time,
+		);
+
+		// We don't care much for other scripts since the client-js will result in a page reload.
+		// So, let's output it all now and early without waiting for other things.
+		wp_enqueue_script( 'wpcom-geo-client-js', $geolocate_script_src, array( 'wpcom-geo-js' ) );
+		wp_localize_script( 'wpcom-geo-client-js', 'wpcom_geo_settings', $settings );
+
+		wp_print_scripts( 'wpcom-geo-client-js' );
 	}
 
 	static function is_valid_location( $location ) {
@@ -148,9 +113,11 @@ class WPCOM_Geo_Uniques {
 	}
 
 	static function set_default_location( $location ) {
-		if ( self::is_valid_location( $location ) ) {
-			static::$default_location = $location;
+		if ( ! self::is_valid_location( $location ) ) {
+			static::add_location( $location );
 		}
+
+		static::$default_location = $location;
 	}
 
 	static function add_location( $location ) {
@@ -195,6 +162,7 @@ class WPCOM_Geo_Uniques {
 	}
 
 	static function user_has_location_cookie() {
+		// TODO: add static var in case this is called multiple times
 		// TODO: should currently only be used in advanced mode
 		return static::run_vary_cache_on_function( 'return isset( $_COOKIE[ "' . self::COOKIE_NAME . '" ] );' );
 	}
