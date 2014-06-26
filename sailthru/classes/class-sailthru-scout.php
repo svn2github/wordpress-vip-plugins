@@ -169,7 +169,8 @@ class Sailthru_Scout_Widget extends WP_Widget {
 
 
 		// If the page doesn't already exist, then create it
-		if( null == get_page_by_title( $title ) ) {
+		$create_page = function_exists( 'wpcom_vip_get_page_by_title' ) ? null == wpcom_vip_get_page_by_title( $title ) : null == get_page_by_title( $title );
+		if( $create_page ) {
 
 			// Set the post ID so that we know the post was created successfully
 			$post_id = wp_insert_post(
