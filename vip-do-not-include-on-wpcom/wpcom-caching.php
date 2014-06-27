@@ -192,3 +192,65 @@ function wpcom_vip_url_to_postid( $url ) {
 
 	return $post_id;
 }
+
+/**
+ * Cached version of wp_old_slug_redirect.
+ *
+ * Cache the results of the _wp_old_slug meta query, which can be expensive.
+ */
+function wpcom_vip_old_slug_redirect() {
+    global $wp_query;
+    if ( is_404() && '' != $wp_query->query_vars['name'] ) :
+        global $wpdb;
+
+        // Guess the current post_type based on the query vars.
+        if ( get_query_var('post_type') )
+            $post_type = get_query_var('post_type');
+        elseif ( !empty($wp_query->query_vars['pagename']) )
+            $post_type = 'page';
+        else
+            $post_type = 'post';
+
+        if ( is_array( $post_type ) ) {
+            if ( count( $post_type ) > 1 )
+                return;
+            $post_type = array_shift( $post_type );
+        }
+
+        // Do not attempt redirect for hierarchical post types
+        if ( is_post_type_hierarchical( $post_type ) )
+            return;
+
+        $query = $wpdb->prepare("SELECT post_id FROM $wpdb->postmeta, $wpdb->posts WHERE ID = post_id AND post_type = %s AND meta_key = '_wp_old_slug' AND meta_value = %s", $post_type, $wp_query->query_vars['name']);
+
+        // if year, monthnum, or day have been specified, make our query more precise
+        // just in case there are multiple identical _wp_old_slug values
+        if ( '' != $wp_query->query_vars['year'] )
+            $query .= $wpdb->prepare(" AND YEAR(post_date) = %d", $wp_query->query_vars['year']);
+        if ( '' != $wp_query->query_vars['monthnum'] )
+            $query .= $wpdb->prepare(" AND MONTH(post_date) = %d", $wp_query->query_vars['monthnum']);
+        if ( '' != $wp_query->query_vars['day'] )
+            $query .= $wpdb->prepare(" AND DAYOFMONTH(post_date) = %d", $wp_query->query_vars['day']);
+
+        $cache_key = md5( serialize( $query ) );
+
+        if ( false === $id = wp_cache_get( $cache_key, 'wp_old_slug_redirect' ) ) {
+            $id = (int) $wpdb->get_var($query);
+
+            wp_cache_set( $cache_key, $id, 'wp_old_slug_redirect', 5 * MINUTE_IN_SECONDS );
+        }
+
+        if ( ! $id )
+            return;
+
+        $link = get_permalink($id);
+
+        if ( !$link )
+            return;
+
+        wp_redirect( $link, 301 ); // Permanent redirect
+        exit;
+    endif;
+}
+remove_filter( 'template_redirect', 'wp_old_slug_redirect' );
+add_action( 'template_redirect', 'wpcom_vip_old_slug_redirect' );
