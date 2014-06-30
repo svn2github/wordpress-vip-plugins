@@ -378,7 +378,14 @@ function cbproxy_submit() {
 	$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 	$url = 'http://api.chartbeat.com';
 	$url .= $_GET['url'];
-	$url .= '&host=' . chartbeat_get_display_url(esc_js($domain)) .'&apikey=' . get_option('chartbeat_apikey');
+	$url .= '&host=' . chartbeat_get_display_url(esc_js($domain)) .'&apikey=' . sanitize_key( get_option('chartbeat_apikey') );
+
+	// Verify the request is still for api.chartbeat.com
+	// The user can insert an @ into the URL, which makes api.chartbeat.com a 
+	// username, and lets us request data from any URL.
+	if ( 'api.chartbeat.com' != parse_url( $url, PHP_URL_HOST ) )
+		wp_die( 'Cheatin eh?' );
+
 	$transient = 'cbproxy_' . md5($url);
 	header( 'Content-Type: application/json' );
 	$response = get_transient( $transient );
