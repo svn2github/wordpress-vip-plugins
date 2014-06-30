@@ -202,9 +202,8 @@ function postrelease_template_redirect() {
  */
 function postrelease_is_key_valid($key) {
 	if( false != get_option('prx_plugin_key', false) ) { //there is a key saved here
-		$key_url = $_GET['id'];	
 		$md5_key = md5(get_option('prx_plugin_key'));
-		if(strcmp($md5_key,$key_url) == 0) {
+		if(strcmp($md5_key,$key) === 0) {
 			return true;
 		}
 	}
@@ -304,7 +303,7 @@ function postrelease_handle_signup_requests() {
 
 		if(isset($_REQUEST['id'])) { //there is a key saved here
 			$key_url = sanitize_text_field( $_REQUEST['id'] );
-			$security_check_ok = postrelease_is_key_valid($key);
+			$security_check_ok = postrelease_is_key_valid( $key_url );
 		}		
 
 		// these functions require security check to be called
