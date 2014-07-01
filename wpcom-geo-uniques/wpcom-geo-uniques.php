@@ -44,7 +44,7 @@ class WPCOM_Geo_Uniques {
 	}
 
 	static function init_advanced_geolocation() {
-		wp_register_script( 'wpcom-geo-js', plugins_url( 'js/wpcom-geo.js', __FILE__ ) );
+		add_action( 'wp_enqueue_scripts' , array( __CLASS__, 'add_wpcom_geo_js' ) );
 
 		if ( ! self::user_has_location_cookie() ) {
 			// TODO: Temporary until we get the global endpoint
@@ -54,6 +54,10 @@ class WPCOM_Geo_Uniques {
 
 			add_action( 'wp_head', array( __CLASS__, 'geolocate_advanced_js' ), -1 ); // We want this to run super early
 		}
+	}
+
+	static function add_wpcom_geo_js() {
+		wp_register_script( 'wpcom-geo-js', plugins_url( 'js/wpcom-geo.js', __FILE__ ) );
 	}
 
 	// TODO: delete after self-geolocation is removed
@@ -95,6 +99,8 @@ class WPCOM_Geo_Uniques {
 			'expiry_date' => date( 'D, d M Y H:i:s T', strtotime( "+" . static::$expiry_time . " seconds", current_time( 'timestamp', 1 ) ) ),
 			'expiry_time' => self::$expiry_time,
 		);
+
+		$settings = apply_filters( 'wpcom_geo_client_js_settings', $settings );
 
 		// We don't care much for other scripts since the client-js will result in a page reload.
 		// So, let's output it all now and early without waiting for other things.
