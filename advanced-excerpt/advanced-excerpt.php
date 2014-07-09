@@ -93,7 +93,9 @@ if (!class_exists('AdvancedExcerpt')):
         'install'
       ));
       */
-      $this->install(); // WPCOM
+	  if ( ! get_option($this->name . '_length') ){
+      	$this->install(); // WPCOM only add options if options don't exists
+	  }
 
       //register_deactivation_hook($file, array(&$this, 'uninstall'));
 
