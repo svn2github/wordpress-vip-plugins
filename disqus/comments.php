@@ -1,26 +1,27 @@
 <?php
 global $dsq_response, $dsq_version;
 
-function dsq_render_single_comment( $comment, $args, $depth ) {
-	$GLOBALS['comment'] = $comment;
-	?>
-	<li id="dsq-comment-<?php echo comment_ID(); ?>">
-		<div id="dsq-comment-header-<?php echo comment_ID(); ?>" class="dsq-comment-header">
-			<cite id="dsq-cite-<?php echo comment_ID(); ?>">
-				<?php if(comment_author_url()) : ?>
-					<a id="dsq-author-user-<?php echo comment_ID(); ?>" href="<?php echo comment_author_url(); ?>" target="_blank" rel="nofollow"><?php echo comment_author(); ?></a>
-				<?php else : ?>
-					<span id="dsq-author-user-<?php echo comment_ID(); ?>"><?php echo comment_author(); ?></span>
-				<?php endif; ?>
-			</cite>
-		</div>
-		<div id="dsq-comment-body-<?php echo comment_ID(); ?>" class="dsq-comment-body">
-			<div id="dsq-comment-message-<?php echo comment_ID(); ?>" class="dsq-comment-message"><?php wp_filter_kses(comment_text()); ?></div>
-		</div>
-	</li>
-	<?php
+if ( ! function_exists( 'dsq_render_single_comment' ) ) {
+	function dsq_render_single_comment( $comment, $args, $depth ) {
+		$GLOBALS['comment'] = $comment;
+		?>
+		<li id="dsq-comment-<?php echo comment_ID(); ?>">
+			<div id="dsq-comment-header-<?php echo comment_ID(); ?>" class="dsq-comment-header">
+				<cite id="dsq-cite-<?php echo comment_ID(); ?>">
+					<?php if(comment_author_url()) : ?>
+						<a id="dsq-author-user-<?php echo comment_ID(); ?>" href="<?php echo comment_author_url(); ?>" target="_blank" rel="nofollow"><?php echo comment_author(); ?></a>
+					<?php else : ?>
+						<span id="dsq-author-user-<?php echo comment_ID(); ?>"><?php echo comment_author(); ?></span>
+					<?php endif; ?>
+				</cite>
+			</div>
+			<div id="dsq-comment-body-<?php echo comment_ID(); ?>" class="dsq-comment-body">
+				<div id="dsq-comment-message-<?php echo comment_ID(); ?>" class="dsq-comment-message"><?php wp_filter_kses(comment_text()); ?></div>
+			</div>
+		</li>
+		<?php
+	}
 }
-
 
 ?>
 <div id="disqus_thread">
