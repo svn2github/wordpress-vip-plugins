@@ -43,7 +43,12 @@ class WPCOM_Legacy_Redirector {
 		if ( ! is_404() )
 			return;
 
-		$request_path = apply_filters( 'wpcom_legacy_redirector_request_path', parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) );
+		$url = parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH );
+
+		if ( ! empty( $_SERVER['QUERY_STRING'] ) )
+			$url .= '?' . $_SERVER['QUERY_STRING'];
+
+		$request_path = apply_filters( 'wpcom_legacy_redirector_request_path', $url );
 
 		if ( $request_path ) {
 			$redirect_uri = self::get_redirect_uri( $request_path );
