@@ -158,6 +158,7 @@ class WPcom_VIP_Plugins_UI {
 			'lift-search',
 			'msm-sitemap',
 			'zemanta',
+			'pushup',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
@@ -166,6 +167,7 @@ class WPcom_VIP_Plugins_UI {
 			'wordtwit-1.3-mod', // use publicize
 			'uppsite', // Retired from FPP but a couple VIPs still using it
 			'wpcom-related-posts', // Now part of JP / WP.com
+			'scrollkit-wp', // Scroll Kit shut down but still a few people with it activated
 		);
 
 		$this->fpp_plugins = array(
