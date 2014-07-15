@@ -102,7 +102,7 @@ class Airship {
         $response = $request->request( $url,  array( 'method' => $method, 'body' => $body, 'headers' => $headers ) );
 
         if ( is_wp_error( $response ) )
-            throw new AirshipFailure( $response->get_error_message(), $response->get_error_code() );
+            throw new AirshipFailure( $response->get_error_message() );
 
         if ( $response['response']['code'] == 401 ) {
             throw new Unauthorized();

@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.5-working
+Version: 0.5
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.5-working' );
+define( 'BLIMPLY_VERSION', '0.5' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
@@ -38,7 +38,7 @@ require_once BLIMPLY_ROOT . '/lib/blimply-settings.php';
 
 class Blimply {
 
-	protected $airships, $airship, $options, $tags;
+	public $options, $airships, $airship, $tags;
 	/**
 	 * Instantiate
 	 */
@@ -90,6 +90,9 @@ class Blimply {
 			BLIMPLY_PREFIX  . '_app_key' => '',
 			BLIMPLY_PREFIX . '_app_secret' => '',
 			BLIMPLY_PREFIX . '_character_limit' => 140,
+			BLIMPLY_PREFIX . '_quiet_time_from' => '',
+			BLIMPLY_PREFIX . '_quiet_time_to' => '',
+			BLIMPLY_PREFIX . '_enable_quiet_time' => ''
 		);
 		// Try to set default options if option doesn't exist
 		$this->options = get_option( 'urban_airship', $defaults );
@@ -256,7 +259,8 @@ class Blimply {
 	 * @todo implement ability to actually pick specific post types
 	 */
 	function post_meta_boxes() {
-		$post_types = get_post_types( array( 'public' => true ), 'objects' );
+		// Enable meta box for all public post types by default but allow to override with filters
+		$post_types = apply_filters( 'blimply_enabled_post_types', get_post_types( array( 'public' => true ), 'objects' ) );
 		foreach ( $post_types as $post_type => $props )
 			add_meta_box( BLIMPLY_PREFIX, __( 'Push Notification', 'blimply' ), array( $this, 'post_meta_box' ), $post_type, 'side' );
 	}

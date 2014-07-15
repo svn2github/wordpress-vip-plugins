@@ -2,8 +2,8 @@
 Contributors: rinatkhaziev
 Tags: push, urban airship, notifications, widget, iphone, android, blackberry, ios
 Requires at least: 3.3
-Tested up to: 3.6-beta1
-Stable tag: 0.4
+Tested up to: 3.9.1
+Stable tag: 0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -39,6 +39,9 @@ There's English .pot file in lib/languages. Translations are welcome.
 Plugin is maintained on [Github](https://github.com/rinatkhaziev/blimply). Comments, issues, and pull requests are welcome.
 
 == Changelog ==
+
+= 0.5 =
+* Added 'blimply_enabled_post_types' filter to enable/disable meta box per post type
 
 = 0.4 =
 * Added Blackberry support
