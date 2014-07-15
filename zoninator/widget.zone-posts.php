@@ -64,7 +64,7 @@ class Zoninator_ZonePosts_Widget extends WP_Widget {
 		</ul>
 		
 		<?php echo $after_widget; ?>
-		<?php				
+		<?php
 		$cache[$args['widget_id']] = ob_get_flush();
 		wp_cache_set( 'widget-zone-posts', $cache, 'widget' );
 	}
@@ -96,7 +96,7 @@ class Zoninator_ZonePosts_Widget extends WP_Widget {
 		$zones = z_get_zones();
 		
 		if( empty( $zones ) ) {
-			_e( 'You need to create at least one zone before you use this widget!', 'zoninator' );
+			esc_html_e( 'You need to create at least one zone before you use this widget!', 'zoninator' );
 			return;
 		}	
 		
@@ -105,14 +105,14 @@ class Zoninator_ZonePosts_Widget extends WP_Widget {
 		?>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id( 'zone_id' ); ?>"><?php _e('Zone:'); ?></label>
-			<select class="widefat" id="<?php echo $this->get_field_id( 'zone_id' ); ?>" name="<?php echo $this->get_field_name( 'zone_id' ); ?>">
+			<label for="<?php echo esc_attr( $this->get_field_id( 'zone_id' ) ); ?>"><?php esc_html_e( 'Zone:' ); ?></label>
+			<select class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'zone_id' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'zone_id' ) ); ?>">
 				<option value="0" <?php selected( $zone_id, 0 ); ?>>
-					<?php _e( '-- Select a zone --', 'zoninator' ); ?>
+					<?php esc_html_e( '-- Select a zone --', 'zoninator' ); ?>
 				</option>
 				
 				<?php foreach( $zones as $zone ) : ?>
-					<option value="<?php echo $zone->term_id; ?>" <?php selected( $zone_id, $zone->term_id ); ?>>
+					<option value="<?php echo esc_attr( $zone->term_id ); ?>" <?php selected( $zone_id, $zone->term_id ); ?>>
 					<?php echo esc_html( $zone->name ); ?>
 					</option>
 				<?php endforeach; ?>
@@ -120,9 +120,9 @@ class Zoninator_ZonePosts_Widget extends WP_Widget {
 		</p>
 		
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_description' ); ?>">
-				<input id="<?php echo $this->get_field_id( 'show_description' ); ?>" name="<?php echo $this->get_field_name( 'show_description' ); ?>" <?php checked( true, $show_description ); ?> type="checkbox" value="1" />
-				<?php _e( 'Show zone description in widget', 'zoninator' ); ?>
+			<label for="<?php echo esc_attr( $this->get_field_id( 'show_description' ) ); ?>">
+				<input id="<?php echo esc_attr( $this->get_field_id( 'show_description' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'show_description' ) ); ?>" <?php checked( true, $show_description ); ?> type="checkbox" value="1" />
+				<?php esc_html_e( 'Show zone description in widget', 'zoninator' ); ?>
 			</label>
 		</p>
 		<?php
