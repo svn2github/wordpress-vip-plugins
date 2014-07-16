@@ -321,7 +321,7 @@ function bitly_shortlink( $shortlink, $id, $context ) {
 			$id = get_queried_object_id();
 		$bitly = bitly_get_url( $id );
 		if( $bitly ) $shortlink = esc_url( $bitly );
-	} elseif ( 'query' == $context && is_home() ) {
+	} elseif ( 'query' == $context && ( is_home() || is_front_page() ) ) {
 		$bitly = bitly_get_blog_url();
 
 		if ( $bitly ) $shortlink = esc_url( $bitly );
