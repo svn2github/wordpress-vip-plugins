@@ -90,7 +90,7 @@ class Daylife_Meta_Box {
 		if ( 'post-new.php' != $hook && 'post.php' != $hook )
 			return;
 
-		wp_enqueue_script( 'daylife', plugins_url( 'daylife.js', __FILE__ ), array( 'jquery', 'media' ), '20120304', true );
+		wp_enqueue_script( 'daylife', plugins_url( 'daylife.js', __FILE__ ), array( 'jquery', 'media-views', 'media-models' ), '20120304', true );
 		wp_enqueue_style( 'daylife', plugins_url( 'daylife.css', __FILE__ ), array(), '20120305' );
 	}
 
