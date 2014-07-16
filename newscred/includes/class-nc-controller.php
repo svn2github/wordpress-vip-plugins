@@ -316,35 +316,31 @@ class NC_Controller {
 
     /* Adds a box to the main column on the Post and Page edit screens */
     function nc_editors_picks_meta_box () {
-
-        $custom_post_type = get_option( "nc_article_custom_post_type" );
-
-        add_meta_box( 'ncmeta_sectionid', 'NewsCred',
-            array(
-                $this->_nc_utility,
-                'load_controller'
-            ),
-            'post',
-            'side',
-            'high',
-            array(
-                'controller' => "Metabox"
-            ) );
-
-        if ( isset( $custom_post_type ) && $custom_post_type ) {
-            $custom_posts = explode( ",", $custom_post_type );
-            if ( $custom_posts ) {
-                foreach ( $custom_posts as $custom_post ) {
-                    add_meta_box( 'ncmeta_sectionid', 'NewsCred', array( $this->_nc_utility, 'load_controller' ),
-                                  $custom_post, 'side', 'high', array( 'controller' => "Metabox" ) );
-                }
-            }
+        foreach ( $this->get_supported_post_types() as $post_type ) {
+            add_meta_box( 'ncmeta_sectionid', 'NewsCred', array( $this->_nc_utility, 'load_controller' ),
+                          $post_type, 'side', 'high', array( 'controller' => "Metabox" ) );
         }
     }
 
+    function get_custom_post_types() {
+        $custom_post_type = get_option( "nc_article_custom_post_type" );
 
+        $custom_post_types = array();
 
+        if ( isset( $custom_post_type ) && $custom_post_type ) {
+            $custom_post_types = explode( ",", $custom_post_type );
+        }
 
+        return $custom_post_types;
+    }
+
+    function get_supported_post_types() {
+        $post_types = $this->get_custom_post_types();
+
+        $post_types[] = 'post';
+
+        return $post_types;
+    }
 
     function add_nc_plugin_setting_options () {
 
@@ -500,7 +496,7 @@ class NC_Controller {
      */
     function nc_scripts () {
 
-        global $pagenow;
+        global $pagenow, $typenow;
 
 
         if ( $pagenow == "post.php"
@@ -544,9 +540,8 @@ class NC_Controller {
 
         }
 
-
         // meta box scripts
-        if ( $pagenow == "post.php" || $pagenow == "post-new.php" ){
+        if ( ( $pagenow == "post.php" || $pagenow == "post-new.php" ) && ( in_array( get_current_screen()->post_type, $this->get_supported_post_types() ) ) ) {
             wp_enqueue_script( 'nc-backbone-script', NC_BUILD_URL . '/js/metabox.js',
                 array(
                     'jquery',
