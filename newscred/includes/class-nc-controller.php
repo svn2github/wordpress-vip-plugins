@@ -496,7 +496,7 @@ class NC_Controller {
      */
     function nc_scripts () {
 
-        global $pagenow, $typenow;
+        global $pagenow;
 
 
         if ( $pagenow == "post.php"
