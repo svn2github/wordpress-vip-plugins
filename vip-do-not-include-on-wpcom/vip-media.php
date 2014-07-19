@@ -13,6 +13,10 @@
  * @return $thumbnail_id id of the thumbnail attachment post id
  */
 function wpcom_vip_download_image( $image_url, $post_id, $description = '' ) {
+	if ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'GET' ) {
+		return new WP_Error( 'invalid-request-method', 'Media sideloading is not supported via GET. Use POST.' );
+	}
+
 	if ( ! is_admin() ) {
 		return new WP_Error( 'not-in-admin', 'Media sideloading can only be done in when `true === is_admin()`.' );
 	}
