@@ -109,7 +109,7 @@
 	classes.push('licensing-' + data.LicensingModel);
 	#>
 
-	<div class="attachment-preview getty-attachment {{ classes.join(' ') }}">
+	<div class="attachment-preview js--select-attachment getty-attachment {{ classes.join(' ') }}">
 		<# if ( data.uploading ) { #>
 			<div class="media-progress-bar"><div></div></div>
 		<# } else { #>
