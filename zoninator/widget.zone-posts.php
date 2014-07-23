@@ -100,7 +100,6 @@ class Zoninator_ZonePosts_Widget extends WP_Widget {
 			wp_cache_set( $cache_key . '-save_blocked', 1, 'widget', $block_save_cache_seconds );
 
 		}
-
 		wp_cache_delete( $cache_key, 'widget' );
 	}
 
