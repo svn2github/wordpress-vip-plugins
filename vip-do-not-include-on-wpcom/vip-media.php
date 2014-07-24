@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Downloads an external image and attaches it to a post.
+ * Downloads an external image and optionally attaches it to a post.
  *
  * Contains most of core's media_sideload_image() but returns an attachment ID instead of HTML.
  *
@@ -12,7 +12,7 @@
  * @param int $post_ID ID of the post it should be attached to.
  * @return $thumbnail_id id of the thumbnail attachment post id
  */
-function wpcom_vip_download_image( $image_url, $post_id, $description = '' ) {
+function wpcom_vip_download_image( $image_url, $post_id = 0, $description = '' ) {
 	if ( isset( $_SERVER['REQUEST_METHOD'] ) && strtoupper( $_SERVER['REQUEST_METHOD'] ) == 'GET' ) {
 		return new WP_Error( 'invalid-request-method', 'Media sideloading is not supported via GET. Use POST.' );
 	}
@@ -21,8 +21,8 @@ function wpcom_vip_download_image( $image_url, $post_id, $description = '' ) {
 		return new WP_Error( 'not-in-admin', 'Media sideloading can only be done in when `true === is_admin()`.' );
 	}
 
-	if ( empty( $post_id ) ) {
-		return new WP_Error( 'no-post-id', 'Please specify a valid post ID.' );
+	if ( $post_id < 0 ) {
+		return new WP_Error( 'invalid-post-id', 'Please specify a valid post ID.' );
 	}
 
 	if ( ! filter_var( $image_url, FILTER_VALIDATE_URL ) ) {
