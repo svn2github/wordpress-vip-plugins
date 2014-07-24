@@ -2,7 +2,7 @@
 /**
  * Media Library List Table class.
  *
- * @todo Unhack
+ * TODO: Unhack
  */
 require_once ABSPATH . '/wp-admin/includes/class-wp-list-table.php';
 require_once ABSPATH . '/wp-admin/includes/class-wp-media-list-table.php';
@@ -41,40 +41,6 @@ class FU_WP_Media_List_Table extends WP_Media_List_Table {
 
 	function modify_post_status_to_private( $where ) {
 		return str_replace( "post_status = 'inherit' ", "post_status = 'private' ", $where );
-	}
-
-	function get_views() {
-		global $wpdb, $post_mime_types, $avail_post_mime_types;
-		$type_links = array();
-		$_num_posts = (array) wp_count_attachments();
-
-		$_total_posts = array_sum( $_num_posts ) - $_num_posts['trash'];
-		if ( !isset( $total_orphans ) )
-			$total_orphans = $wpdb->get_var( "SELECT COUNT( * ) FROM $wpdb->posts WHERE post_type = 'attachment' AND post_status != 'trash' AND post_parent < 1" );
-		$matches = wp_match_mime_types( array_keys( $post_mime_types ), array_keys( $_num_posts ) );
-		foreach ( $matches as $type => $reals )
-			foreach ( $reals as $real )
-				$num_posts[$type] = ( isset( $num_posts[$type] ) ) ? $num_posts[$type] + $_num_posts[$real] : $_num_posts[$real];
-
-			$class = ( empty( $_GET['post_mime_type'] ) && !$this->detached && !isset( $_GET['status'] ) ) ? ' class="current"' : '';
-		$type_links['all'] = "<a href='upload.php'$class>" . sprintf( _nx( 'All <span class="count">(%s)</span>', 'All <span class="count">(%s)</span>', $_total_posts, 'uploaded files' ), number_format_i18n( $_total_posts ) ) . '</a>';
-		foreach ( $post_mime_types as $mime_type => $label ) {
-			$class = '';
-
-			if ( !wp_match_mime_types( $mime_type, $avail_post_mime_types ) )
-				continue;
-
-			if ( !empty( $_GET['post_mime_type'] ) && wp_match_mime_types( $mime_type, $_GET['post_mime_type'] ) )
-				$class = ' class="current"';
-			if ( !empty( $num_posts[$mime_type] ) )
-				$type_links[$mime_type] = "<a href='upload.php?post_mime_type=$mime_type'$class>" . sprintf( translate_nooped_plural( $label[2], $num_posts[$mime_type] ), number_format_i18n( $num_posts[$mime_type] ) ) . '</a>';
-		}
-		$type_links['detached'] = '<a href="upload.php?detached=1"' . ( $this->detached ? ' class="current"' : '' ) . '>' . sprintf( _nx( 'Unattached <span class="count">(%s)</span>', 'Unattached <span class="count">(%s)</span>', $total_orphans, 'detached files' ), number_format_i18n( $total_orphans ) ) . '</a>';
-
-		if ( !empty( $_num_posts['trash'] ) )
-			$type_links['trash'] = '<a href="upload.php?status=trash"' . ( ( isset( $_GET['status'] ) && $_GET['status'] == 'trash' ) ? ' class="current"' : '' ) . '>' . sprintf( _nx( 'Trash <span class="count">(%s)</span>', 'Trash <span class="count">(%s)</span>', $_num_posts['trash'], 'uploaded files' ), number_format_i18n( $_num_posts['trash'] ) ) . '</a>';
-
-		return array();
 	}
 
 	function get_bulk_actions() {
@@ -300,7 +266,7 @@ class FU_WP_Media_List_Table extends WP_Media_List_Table {
 				} else {
 				$delete_ays = !MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
 				// $actions['delete'] = "<a class='submitdelete'$delete_ays href='" . wp_nonce_url( "post.php?action=delete&amp;post=$post->ID", 'delete-attachment_' . $post->ID ) . "'>" . __( 'Delete Permanently', 'frontend-uploader' ) . "</a>";
-				$actions['delete'] = '<a href="'.admin_url( 'admin-ajax.php' ).'?action=delete_ugc&id=' . $post->ID . '&fu_nonce=' . wp_create_nonce( FU_FILE_PATH ). '">'. __( 'Delete Permanently', 'frontend-uploader' ) .'</a>';
+				$actions['delete'] = '<a href="'.admin_url( 'admin-ajax.php' ).'?action=delete_ugc&id=' . $post->ID . '&fu_nonce=' . wp_create_nonce( FU_NONCE ). '">'. __( 'Delete Permanently', 'frontend-uploader' ) .'</a>';
 			}
 			$actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View "%s"', 'frontend-uploader' ), $att_title ) ) . '" rel="permalink">' . __( 'View', 'frontend-uploader' ) . '</a>';
 			if ( current_user_can( 'edit_post', $post->ID ) )
@@ -321,8 +287,8 @@ class FU_WP_Media_List_Table extends WP_Media_List_Table {
 
 				if ( $post->post_status == 'private' ) {
 					$delete_ays = !MEDIA_TRASH ? " onclick='return showNotice.warn();'" : '';
-					$actions['pass'] = '<a href="'.admin_url( 'admin-ajax.php' ).'?action=approve_ugc&id=' . $post->ID . '&fu_nonce=' . wp_create_nonce( FU_FILE_PATH ). '">'. __( 'Approve', 'frontend-uploader' ) .'</a>';
-					$actions['delete'] = '<a ' .  $delete_ays . ' href="'.admin_url( 'admin-ajax.php' ).'?action=delete_ugc&id=' . $post->ID . '&fu_nonce=' . wp_create_nonce( FU_FILE_PATH ). '">'. __( 'Delete Permanently', 'frontend-uploader' ) .'</a>';
+					$actions['pass'] = '<a href="'.admin_url( 'admin-ajax.php' ).'?action=approve_ugc&id=' . $post->ID . '&fu_nonce=' . wp_create_nonce( FU_NONCE ). '">'. __( 'Approve', 'frontend-uploader' ) .'</a>';
+					$actions['delete'] = '<a ' .  $delete_ays . ' href="'.admin_url( 'admin-ajax.php' ).'?action=delete_ugc&id=' . $post->ID . '&fu_nonce=' . wp_create_nonce( FU_NONCE ). '">'. __( 'Delete Permanently', 'frontend-uploader' ) .'</a>';
 				}
 			}
 			if ( !$this->is_trash ) {
