@@ -5,16 +5,14 @@ jQuery( document ).ready( function( $ ) {
 			.children(':first')
 			.after($(this).html());
 	} );
-	$( '#subheading_append' ).click( function( e ) {
-		if ( e.setup ) {
-			e.preventDefault();
-		}
+
+	function checkbox_handler() {
 		$( '#subheading_before, #subheading_after' ).parent().css(
 			'display',
 			( $( this ).is( ':checked' ) ? '' : 'none' )
 		);
-	} ).trigger( {
-		type: 'click',
-		setup: true 
-	} );
+	}
+	$( '#subheading_append' ).click( checkbox_handler );
+
+	checkbox_handler();
 } );
