@@ -3,8 +3,8 @@ Contributors: stvwhtly
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MTEDNQFNQVYLS
 Tags: sub, heading, title, admin, template, page, post, byline, rss, custom, h2, headline, intro, text
 Requires at least: 3.2.1
-Tested up to: 3.5.1
-Stable tag: 1.7.2
+Tested up to: 3.6
+Stable tag: 1.7.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -174,6 +174,9 @@ Stricter validation rules were added to the before and after settings values, pl
 2. Settings are managed via the Settings > Reading page.
 
 == Changelog ==
+
+= 1.7.3 =
+* Fixed a bug with the JavaScript used by the settings page, which would incorrectly toggle the auto append value.
 
 = 1.7.2 =
 * Markup tags are now removed from the subheadings displayed on the admin post list columns.
