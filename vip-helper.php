@@ -859,7 +859,8 @@ function wpcom_vip_get_home_host() {
 }
 
 /**
- * Give themes the opportunity to disable WPCOM-specific smilies
+ * Give themes the opportunity to disable WPCOM-specific smilies.
+ * Note: Smilies disabled by this method will not fall back to core smilies.
  * @param  mixed $smilies_to_disable List of strings that will not be converted into smilies.
  *               A single string will be converted to an array & work
  * @uses filter smileyproject_smilies
