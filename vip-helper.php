@@ -857,3 +857,28 @@ function wpcom_vip_get_home_host() {
 		$host = parse_url( home_url(), PHP_URL_HOST );
 	return $host;
 }
+
+/**
+ * Give themes the opportunity to disable WPCOM-specific smilies
+ * @param  mixed $smilies_to_disable List of strings that will not be converted into smilies.
+ *               A single string will be converted to an array & work
+ * @uses filter smileyproject_smilies
+ */
+function wpcom_vip_disable_smilies( $smilies_to_disable ) {
+	if ( is_string( $smilies_to_disable ) ) {
+		$smilies_to_disable = array( $smilies_to_disable );
+	}
+
+	if ( ! is_array( $smilies_to_disable ) || ! count( $smilies_to_disable ) ) {
+		return;
+	}
+
+	add_filter( 'smileyproject_smilies', function( $smilies ) use ( $smilies_to_disable ) {
+		foreach ( $smilies_to_disable as $smiley ) {
+			if ( is_string( $smiley ) && isset( $smilies[$smiley] ) ) {
+				unset( $smilies[$smiley] );
+			}
+		}
+		return $smilies;
+	} );
+}
