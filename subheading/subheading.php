@@ -503,7 +503,7 @@ if ( ! class_exists( 'SubHeading' ) ) {
 		function search_join( $join )
 		{
 			global $wpdb;
-			return $join .= " LEFT JOIN $wpdb->postmeta ON ($wpdb->postmeta.meta_key = '_{$this->tag}' AND $wpdb->posts.ID = $wpdb->postmeta.post_id) ";
+			return $join .= " LEFT JOIN $wpdb->postmeta as subheading_postmeta ON (subheading_postmeta.meta_key = '_{$this->tag}' AND $wpdb->posts.ID = subheading_postmeta.post_id) ";
 		}
 		
 		/**
