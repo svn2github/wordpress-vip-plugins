@@ -213,8 +213,9 @@ class Ooyala_Video {
 				'version' => 2,
 			) , 'http://player.ooyala.com/player.js' );
 
-			if ( !empty( $options['player_id'] ) ) {
-				$output .= '<script src="http://player.ooyala.com/v3/' . esc_attr( $player_id ) . '?platform=' .$platform . '"></script>
+			if ( !empty( $player_id ) ) {
+				$v3_url = "http://player.ooyala.com/v3/{$player_id}?platform={$platform}";
+				$output .= '<script src="' . esc_url( $v3_url ) . '"></script>
 <div id="playerContainer-' . esc_attr( $sanitized_embed ) . '" class="' . esc_attr( $wrapper_class ) . '"></div>
 <script>
 var myPlayer = OO.Player.create("playerContainer-' . esc_attr( $sanitized_embed ) . '", "' . esc_attr( $code ) .'", {
