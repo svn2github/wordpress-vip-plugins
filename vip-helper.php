@@ -883,3 +883,15 @@ function wpcom_vip_disable_smilies( $smilies_to_disable ) {
 		return $smilies;
 	} );
 }
+
+/*
+ * Allow VIP themes to disable hovercard functionality and removes the scripts.
+ */
+
+function wpcom_vip_disable_hovercards() {
+	// disables hovercards
+	define( 'GRAVATAR_HOVERCARDS__DISABLE', true );
+
+	// removes associated scripts
+	remove_action( 'wp_footer', 'grofiles_enable_noinit' );
+}
