@@ -894,7 +894,7 @@ function wpcom_vip_remove_livechat() {
 	add_filter( 'vip_live_chat_enabled', '__return_false' );
 }
 
-/*
+/**
  * Allow VIP themes to disable hovercard functionality and removes the scripts.
  */
 
