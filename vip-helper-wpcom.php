@@ -893,3 +893,15 @@ function wpcom_vip_disable_geolocation_output() {
 function wpcom_vip_remove_livechat() {
 	add_filter( 'vip_live_chat_enabled', '__return_false' );
 }
+
+/*
+ * Allow VIP themes to disable hovercard functionality and removes the scripts.
+ */
+
+function wpcom_vip_disable_hovercards() {
+	// disables hovercards
+	define( 'GRAVATAR_HOVERCARDS__DISABLE', true );
+
+	// removes associated scripts
+	remove_action( 'wp_footer', 'grofiles_enable_noinit' );
+}
