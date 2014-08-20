@@ -1339,7 +1339,8 @@ class SyndicatedPost {
 			);
 			foreach ($fields as $field) {
 				// For DB sanitization, no post ID needs passed
-				$data[$field] = sanitize_post_field($field, $dbpost[$field], null, 'db');
+				if( ! empty( $dbpost[ $field ] ) )
+					$data[$field] = sanitize_post_field($field, $dbpost[$field], null, 'db');
 			}
 		}
 		return $data;
@@ -1359,7 +1360,8 @@ class SyndicatedPost {
 			);
 			foreach ($fields as $field) {
 				// For DB sanitization, no post ID needs passed
-				$data[$field] = sanitize_post_field($field, $dbpost[$field], null, 'db');
+				if( ! empty( $dbpost[ $field ] ) )
+					$data[$field] = sanitize_post_field($field, $dbpost[$field], null, 'db');
 			}
 		}
 		return $data;
