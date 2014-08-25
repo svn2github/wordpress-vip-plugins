@@ -18,6 +18,7 @@ class Ecwid_Shopping_Cart {
 	const DEFAULT_CATEGORY_VIEW = 'grid';
 
 	protected $scriptjs_rendered = false;
+	protected $rendered_widgets = array();
 
 	public function __construct()
 	{
@@ -28,7 +29,9 @@ class Ecwid_Shopping_Cart {
 
 	protected function add_hooks() {
 		if ( ! is_admin() ) {
-			add_shortcode( 'ecwid', array( $this, 'shortcode' ) );
+			add_shortcode( 'ecwid', array( $this, 'ecwid_shortcode' ) );
+			add_shortcode( 'ecwid_product', array( $this, 'ecwid_product_shortcode' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'add_frontend_css' ) );
 		} else {
 			add_filter( 'content_save_pre', array( $this, 'process_ecwid_script_tags' ) );
 		}
@@ -57,11 +60,11 @@ class Ecwid_Shopping_Cart {
 	 *
 	 * More information about widgets attributes of certain widgets can be found here: http://kb.ecwid.com/w/page/15853259/Ecwid%20widgets
 	 *
-	 * @param $args
+	 * @param $attributes
 	 *
 	 * @return string
 	 */
-	public function shortcode( $attr ) {
+	public function ecwid_shortcode( $attributes ) {
 		$args = shortcode_atts(
 			array(
 				'id'                  => self::DEMO_STORE_ID,
@@ -71,25 +74,20 @@ class Ecwid_Shopping_Cart {
 				'category_view'       => self::DEFAULT_CATEGORY_VIEW,
 				'responsive'          => 'yes',
 				'default_category_id' => 0,
+				'layout'			  => '',
 				// grid, list and table are not reset to defaults because if one does not specify them, then the products view does not include that type of display
 				'grid'                => null,
 				'table'               => null,
 				'list'                => null,
 			),
-			$attr,
+			$attributes,
 			'ecwid'
 		);
 
 		$result = '<div>';
 
 		if ( ! $this->scriptjs_rendered ) {
-			$store_id = intval( $args['id'] );
-			if ( ! $store_id ) {
-				$args['id'] = $store_id = self::DEMO_STORE_ID;
-			}
-			$url = '//' . self::ECWID_URL . '/script.js?' . $store_id . '&data_platform=wpcom';
-			$result .= '<script type="text/javascript" src="' . esc_url( $url ) . '"></script>';
-			$this->scriptjs_rendered = true;
+			$result .= $this->render_scriptjs( $args['id'] );
 		}
 
 		$widgets = explode( ' ', $args['widgets'] );
@@ -98,7 +96,12 @@ class Ecwid_Shopping_Cart {
 
 			switch ( $widget ) {
 				case 'productbrowser':
-					$result .= $this->get_widget_productbrowser( $args );
+					if ( !in_array( $widget, $this->rendered_widgets ) ) {
+						$result .= $this->get_widget_productbrowser( $args );
+					} else {
+						$result .= $this->get_productbrowser_placeholder();
+					}
+
 					break;
 
 				case 'categories':
@@ -117,9 +120,108 @@ class Ecwid_Shopping_Cart {
 					$result .= $this->get_widget_minicart( $args );
 					break;
 			}
+
+			$this->rendered_widgets[] = $widget;
 		}
 
 		$result .= '</div>';
+
+		return $result;
+	}
+
+	public function ecwid_product_shortcode( $shortcode_attributes ) {
+
+		$attributes = shortcode_atts(
+			array(
+				'store_id' => null,
+				'product_id' => null,
+				'display' => 'picture title price options addtobag',
+				'link' => null
+			),
+			$shortcode_attributes
+		);
+
+		$store_id = $attributes['store_id'];
+
+		$product_id = $attributes['product_id'];
+
+		if ( is_null( $store_id ) || !is_numeric( $store_id ) || $store_id <= 0 ) return;
+		if ( is_null( $product_id ) || !is_numeric( $product_id ) || $product_id <= 0 ) return;
+
+		$display_items = array(
+			'picture'  => '<div itemprop="picture"></div>',
+			'title'    => '<div class="ecwid-title" itemprop="title"></div>',
+			'price'    => '<div itemtype="http://schema.org/Offer" itemscope itemprop="offers">'
+				. '<div class="ecwid-productBrowser-price ecwid-price" itemprop="price"></div>'
+				. '</div>',
+			'options'  => '<div itemprop="options"></div>',
+			'qty'      => '<div itemprop="qty"></div>',
+			'addtobag' => '<div itemprop="addtobag"></div>'
+		);
+
+		$result = $this->render_scriptjs( $store_id );
+		$result .= sprintf(
+			'<div class="ecwid ecwid-SingleProduct ecwid-Product ecwid-Product-%d" '
+			. 'itemscope itemtype="http://schema.org/Product" '
+			. 'data-single-product-id="%d">',
+			$store_id, $product_id
+		);
+
+		$items = preg_split( '![^0-9^a-z^A-Z^\-^_]!', $attributes['display'] );
+
+		if ( is_array( $items ) && count( $items ) > 0 ) {
+			foreach ( $items as $item ) {
+				if ( array_key_exists( $item, $display_items ) ) {
+					if ( isset( $attributes['link'] ) && in_array( $item, array( 'title', 'picture' ) ) ) {
+						$product_link = $attributes['link'] . '#!/~/product/id=' . $product_id;
+						$result .= '<a href="' . esc_url( $product_link ) . '">' . esc_html( $display_items[$item] ) . '</a>';
+					} else {
+						$result .= esc_html( $display_items[$item] );
+					}
+				}
+			}
+		}
+
+		$result .= '</div>';
+
+		$result .= '<script type="text/javascript">xSingleProduct();</script>';
+
+		return $result;
+	}
+
+	public function add_frontend_css()
+	{
+		wp_enqueue_style( 'ecwid-frontend', plugin_dir_url( __FILE__ ) . 'css/frontend.css' );
+	}
+
+	protected function get_productbrowser_placeholder()
+	{
+		$header = __( 'Unable to show storefront', 'ecwid-shortcode' );
+		$message = __(
+			'There can be only one Ecwid Product Browser or Ecwid Search widget'
+			. ' on a single page. Please, choose which one should stay on the page'
+			. ' and remove other widgets.',
+			'ecwid-shortcode'
+		);
+
+		$content = '<div class="ecwid-warning">'
+			. '<div class="header">' . esc_html( $header ) . '</div>'
+			. '<div class="message">' . esc_html( $message ) . '</div>'
+			. '</div>';
+
+		return $content;
+	}
+
+	protected function render_scriptjs( $store_id ) {
+
+		$store_id = intval( $store_id );
+		if ( ! $store_id ) {
+			$store_id = self::DEMO_STORE_ID;
+		}
+
+		$url = '//' . self::ECWID_URL . '/script.js?' . $store_id . '&data_platform=wpcom';
+		$result = '<script type="text/javascript" src="' . esc_url( $url ) . '"></script>';
+		$this->scriptjs_rendered = true;
 
 		return $result;
 	}
@@ -222,14 +324,18 @@ class Ecwid_Shopping_Cart {
 
 	protected function get_widget_minicart( $args ) {
 
-		$layout      = $args['layout'];
+		$layout      = strtolower( isset($args['layout']) ? $args['layout'] : '' );
 		$layout_code = '';
 
-		if ( in_array( $layout, array( 'attachToCategories', 'floating', 'Mini', 'MiniAttachToProductBrowser' ) ) ) {
-			$layout_code = ",'layout=" . esc_js( $layout ) . "'";
+		$valid_layouts = array( 'attachToCategories', 'floating', 'Mini', 'MiniAttachToProductBrowser' );
+
+		foreach ( $valid_layouts as $valid ) {
+			if ( strtolower( $valid ) == $layout ) {
+				$layout_code = ",'layout=" . esc_js( $valid ) . "'";
+			}
 		}
 
-		$result = "<script type=\"text/javascript\"> xMinicart('style='$layout_code);</script>";
+		$result = '<script type="text/javascript"> xMinicart("style="' . $layout_code. ');</script>';
 
 		return $result;
 	}
