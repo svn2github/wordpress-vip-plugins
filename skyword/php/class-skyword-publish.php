@@ -299,19 +299,18 @@ class Skyword_Publish
 	*/
 	public function skyword_newMediaObject( $args ) {
 		global $wp_xmlrpc_server;
-		$wp_xmlrpc_server->escape( $args );
 		$login = $this->login($args);
 		if ( 'success' == $login['status'] ) {
 			global $wpdb;
 
 			$data = $args[3];
 			$name = sanitize_file_name( $data['name'] );
-			$type = $data['type'];
+			$type = esc_html ($data['type'] );
 			$bits = $data['bits'];
-			$title = $data['title'];
-			$caption = $data['caption'];
-			$alttext = $data['alttext'];
-			$description = $data['description'];
+			$title =  esc_html( $data['title'] );
+			$caption =  esc_html( $data['caption'] );
+			$alttext = esc_html( $data['alttext'] );
+			$description =  esc_html( $data['description'] );
 			if (!isset($title)) {
 				$title = $name;
 			}
@@ -324,7 +323,6 @@ class Skyword_Publish
 			if ( $upload_err = apply_filters( 'pre_upload_error', false ) )
 				return new IXR_Error(500, $upload_err);
 
-			
 			$upload = wp_upload_bits($name, NULL, $bits);
 			if ( ! empty($upload['error']) ) {
 				$errorString = esc_html (sprintf(__('Could not write file %1$s (%2$s)'), $name, $upload['error']) );
