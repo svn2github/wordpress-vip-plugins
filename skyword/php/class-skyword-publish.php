@@ -187,7 +187,7 @@ class Skyword_Publish
 	public function skyword_post( $args ) {
 		global $wp_xmlrpc_server;
 		global $coauthors_plus;
-		$wp_xmlrpc_server->escape( $args );
+		//$wp_xmlrpc_server->escape( $args );
 		$login = $this->login( $args );
 		if ( 'success' == $login['status'] ) {
 			$data = $args[3];
