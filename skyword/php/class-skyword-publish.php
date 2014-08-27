@@ -323,6 +323,7 @@ class Skyword_Publish
 			if ( $upload_err = apply_filters( 'pre_upload_error', false ) )
 				return new IXR_Error(500, $upload_err);
 
+			
 			$upload = wp_upload_bits($name, NULL, $bits);
 			if ( ! empty($upload['error']) ) {
 				$errorString = esc_html (sprintf(__('Could not write file %1$s (%2$s)'), $name, $upload['error']) );
