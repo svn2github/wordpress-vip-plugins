@@ -349,7 +349,7 @@ class Skyword_Publish
 			wp_update_attachment_metadata( $id, wp_generate_attachment_metadata( $id, $upload['file'] ) );
 			//adds alt text as meta
 			add_post_meta( $id, "_wp_attachment_image_alt", $alttext, false) ;
-			return apply_filters( 'wp_handle_upload', array( 'file' => $name, 'url' => $upload[ 'url' ], 'type' => $type ), 'upload' );
+			return apply_filters( 'wp_handle_upload', array( 'file' => $upload[ 'file' ], 'url' => $upload[ 'url' ], 'type' => $type ), 'upload' );
 		} else {
 			return esc_html( $login['message'] );
 		}
