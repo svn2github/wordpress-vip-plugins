@@ -148,7 +148,7 @@ class Skyword_Publish
  					}
  					if ($terms){
 	 					$struct['terms'] = $termsArr;
-	 					$struct['termString'] = $termString;
+	 					$struct['termString'] = $termString;	//@todo undefined variable
 						$taxonomiesStruct[] = $struct;
 					}
 					unset($termsArr);
@@ -185,9 +185,7 @@ class Skyword_Publish
 	* Creates posts from write.skyword.com
 	*/
 	public function skyword_post( $args ) {
-		global $wp_xmlrpc_server;
 		global $coauthors_plus;
-		//$wp_xmlrpc_server->escape( $args );
 		$login = $this->login( $args );
 		if ( 'success' == $login['status'] ) {
 			$data = $args[3];
@@ -198,7 +196,7 @@ class Skyword_Publish
 				$post_date = current_time('mysql');
 			}
 			if ( null != $data['publication-state'] ) {
-				$state = $data['publication-state'];
+				$state = sanitize_text_field( ['publication-state'] );
 			} else {
 				$state = "draft";
 			}
@@ -217,23 +215,23 @@ class Skyword_Publish
 			$new_post = array(
 				'post_status' => $state,
 				'post_date' =>  $post_date,
-				'post_excerpt' => $data['excerpt'],
-				'post_type' => $data['post-type'],
+				'post_excerpt' => wp_kses_post( $data['excerpt'] ),
+				'post_type' => sanitize_text_field( ['post-type'] ),
 				'comment_status' => 'open',
-				'post_category' => $post_category
+				'post_category' => $post_category	//sanitized above
 			);
 
 			if (null != $data['title']) {
-				$new_post['post_title'] = $data['title'];
+				$new_post['post_title'] = wp_kses_post( $data['title'] );
 			}
 			if (null != $data['description']) {
-				$new_post['post_content'] = addslashes( $data['description'] );
+				$new_post['post_content'] = wp_kses_post ( $data['description'] );
 			}
 			if (null != $data['slug']) {
-				$new_post['post_name'] = $data['slug'];
+				$new_post['post_name'] = sanitize_text_field( ['slug'] );
 			}
 			if (null != $data['post-id']) {
-				$new_post['ID'] = $data['post-id'];
+				$new_post['ID'] = (int) $data['post-id'];
 			}
 			if (null != $data['user-id'] &&  is_numeric( trim( $data['user-id'] ) ) ) {
 				$new_post['post_author'] = $data['user-id'];
@@ -248,11 +246,11 @@ class Skyword_Publish
 			$this->attach_attachments( $post_id, $data );
 			//add content template/attachment information as meta
 			$this->create_custom_fields( $post_id, $data );
-			$this->update_custom_field( $post_id, 'skyword_tracking_tag', $data['tracking'] );
-			$this->update_custom_field( $post_id, 'skyword_seo_title', $data['metatitle'] );
-			$this->update_custom_field( $post_id, 'skyword_metadescription', $data['metadescription'] );
-			$this->update_custom_field( $post_id, 'skyword_keyword', $data['metakeyword'] );
-			$this->update_custom_field( $post_id, 'skyword_content_id', $data['skyword_content_id'] );
+			$this->update_custom_field( $post_id, 'skyword_tracking_tag', $data['tracking'] );	//@todo should be sanitized
+			$this->update_custom_field( $post_id, 'skyword_seo_title', $data['metatitle'] );	//@todo should be sanitized
+			$this->update_custom_field( $post_id, 'skyword_metadescription', $data['metadescription'] );	//@todo should be sanitized
+			$this->update_custom_field( $post_id, 'skyword_keyword', $data['metakeyword'] );	//@todo should be sanitized
+			$this->update_custom_field( $post_id, 'skyword_content_id', $data['skyword_content_id'] );	//@todo should be sanitized
 			
 			//add custom taxonomy values
 			foreach ( $data["taxonomies"] as $taxonomy ) { 
@@ -260,6 +258,7 @@ class Skyword_Publish
 			}
 			
 			//Create sitemap information
+			//@todo the input below should be sanitized before being inserted into the DB.
 			if ( 'news' == $data['publication-type'] ) {
 				$this->update_custom_field($post_id, 'skyword_publication_type', 'news');
 				if ( null != $data['publication-access'] ) {
@@ -298,7 +297,6 @@ class Skyword_Publish
 	* Adds ability to include alt title, caption, and description to attachment
 	*/
 	public function skyword_newMediaObject( $args ) {
-		global $wp_xmlrpc_server;
 		$login = $this->login($args);
 		if ( 'success' == $login['status'] ) {
 			global $wpdb;
