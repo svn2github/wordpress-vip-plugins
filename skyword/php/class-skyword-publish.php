@@ -196,7 +196,7 @@ class Skyword_Publish
 				$post_date = current_time('mysql');
 			}
 			if ( null != $data['publication-state'] ) {
-				$state = sanitize_text_field( ['publication-state'] );
+				$state = sanitize_text_field( $data['publication-state'] );
 			} else {
 				$state = "draft";
 			}
@@ -216,7 +216,7 @@ class Skyword_Publish
 				'post_status' => $state,
 				'post_date' =>  $post_date,
 				'post_excerpt' => wp_kses_post( $data['excerpt'] ),
-				'post_type' => sanitize_text_field( ['post-type'] ),
+				'post_type' => sanitize_text_field( $data['post-type'] ),
 				'comment_status' => 'open',
 				'post_category' => $post_category	//sanitized above
 			);
@@ -228,7 +228,7 @@ class Skyword_Publish
 				$new_post['post_content'] = wp_kses_post ( $data['description'] );
 			}
 			if (null != $data['slug']) {
-				$new_post['post_name'] = sanitize_text_field( ['slug'] );
+				$new_post['post_name'] = sanitize_text_field( $data['slug'] );
 			}
 			if (null != $data['post-id']) {
 				$new_post['ID'] = (int) $data['post-id'];
