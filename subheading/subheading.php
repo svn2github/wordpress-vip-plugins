@@ -486,7 +486,7 @@ if ( ! class_exists( 'SubHeading' ) ) {
 				global $wpdb, $wp;
 				$where = preg_replace(
 					"/\({$wpdb->posts}.post_title (LIKE '%{$wp->query_vars['s']}%')\)/i",
-					"$0 OR ($wpdb->postmeta.meta_value $1)",
+					"$0 OR (subheading_postmeta.meta_value $1)",
 					$where
 				);
 				add_filter( 'posts_join_request', array( &$this, 'search_join' ) );
