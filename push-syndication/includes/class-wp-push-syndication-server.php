@@ -1237,7 +1237,7 @@ class WP_Push_Syndication_Server {
 	}
 
 	public function pull_content( $sites ) {
-		do_action( 'syn_before_pull' );
+		do_action( 'syn_before_pull_content' );
 
 		add_filter( 'http_headers_useragent', array( $this, 'syndication_user_agent' ) );
 	
