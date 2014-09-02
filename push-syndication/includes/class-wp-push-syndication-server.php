@@ -1237,6 +1237,8 @@ class WP_Push_Syndication_Server {
 	}
 
 	public function pull_content( $sites ) {
+		do_action( 'syn_before_pull' );
+
 		add_filter( 'http_headers_useragent', array( $this, 'syndication_user_agent' ) );
 	
 		if ( empty( $sites ) )
@@ -1311,6 +1313,8 @@ class WP_Push_Syndication_Server {
 		}
 
 		remove_filter( 'http_headers_useragent', array( $this, 'syndication_user_agent' ) );
+
+		do_action( 'syn_after_pull_content' );
 	}
 
 	public function syndication_user_agent( $user_agent ) {
