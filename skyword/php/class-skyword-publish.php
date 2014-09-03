@@ -246,11 +246,11 @@ class Skyword_Publish
 			$this->attach_attachments( $post_id, $data );
 			//add content template/attachment information as meta
 			$this->create_custom_fields( $post_id, $data );
-			$this->update_custom_field( $post_id, 'skyword_tracking_tag', $data['tracking'] );	//@todo should be sanitized
-			$this->update_custom_field( $post_id, 'skyword_seo_title', $data['metatitle'] );	//@todo should be sanitized
-			$this->update_custom_field( $post_id, 'skyword_metadescription', $data['metadescription'] );	//@todo should be sanitized
-			$this->update_custom_field( $post_id, 'skyword_keyword', $data['metakeyword'] );	//@todo should be sanitized
-			$this->update_custom_field( $post_id, 'skyword_content_id', $data['skyword_content_id'] );	//@todo should be sanitized
+			$this->update_custom_field( $post_id, 'skyword_tracking_tag', $data['tracking'] );
+			$this->update_custom_field( $post_id, 'skyword_seo_title', wp_kses_post( $data['metatitle'] ) );
+			$this->update_custom_field( $post_id, 'skyword_metadescription', wp_kses_post( $data['metadescription'] ) );
+			$this->update_custom_field( $post_id, 'skyword_keyword', wp_kses_post( $data['metakeyword'] ) );
+			$this->update_custom_field( $post_id, 'skyword_content_id', wp_kses_post( $data['skyword_content_id'] ) );
 			
 			//add custom taxonomy values
 			foreach ( $data["taxonomies"] as $taxonomy ) { 
@@ -262,19 +262,19 @@ class Skyword_Publish
 			if ( 'news' == $data['publication-type'] ) {
 				$this->update_custom_field($post_id, 'skyword_publication_type', 'news');
 				if ( null != $data['publication-access'] ) {
-					$this->update_custom_field($post_id, 'skyword_publication_access', $data['publication-access']);
+					$this->update_custom_field($post_id, 'skyword_publication_access', wp_kses_post( ['publication-access'] ) );
 				}
 				if ( null != $data['publication-name'] ) {
-					$this->update_custom_field($post_id, 'skyword_publication_name', $data['publication-name']);
+					$this->update_custom_field($post_id, 'skyword_publication_name', wp_kses_post( $data['publication-name'] ) );
 				}
 				if ( null != $data['publication-geolocation'] ) {
-					$this->update_custom_field($post_id, 'skyword_geolocation', $data['publication-geolocation']);
+					$this->update_custom_field($post_id, 'skyword_geolocation', wp_kses_post( $data['publication-geolocation'] ) );
 				}
 				if ( null != $data['publication-keywords'] ) {
-					$this->update_custom_field($post_id, 'skyword_tags', $data['publication-keywords']);
+					$this->update_custom_field($post_id, 'skyword_tags', wp_kses_post( $data['publication-keywords'] ) );
 				}
 				if ( null != $data['publication-stocktickers'] ) {
-					$this->update_custom_field($post_id, 'skyword_stocktickers', $data['publication-stocktickers']);
+					$this->update_custom_field($post_id, 'skyword_stocktickers', wp_kses_post( $data['publication-stocktickers'] ) );
 				}
 			} else {
 				$this->update_custom_field($post_id, 'skyword_publication_type', 'evergreen');
