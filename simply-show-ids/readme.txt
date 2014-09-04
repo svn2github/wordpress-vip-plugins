@@ -2,9 +2,9 @@
 Contributors: sivel
 Donate Link: http://sivel.net/donate
 Tags: simply-show-ids, simply, show, ids, id, admin, post, page, media, links, category, tag, user
-Requires at least: 2.7
+Requires at least: 3.0
 Tested up to: 3.0
-Stable tag: 1.3.1
+Stable tag: 1.3.3
 
 Simply shows the ID of Posts, Pages, Media, Links, Categories, Tags and Users in the admin tables for easy access.
 
@@ -41,9 +41,18 @@ Props to [Joel Fisher](http://flushinc.com/) for getting me moving on this plugi
 
 == Upgrade Notice ==
 
-Add support to show IDs on comments and custom taxonomies
+= 1.3.3 =
+
+Improvements for WordPress 3.0.  Now requires WordPress 3.0.
 
 == Changelog ==
+
+= 1.3.3 (2010-06-25): =
+* More WordPress 3.0 improvements
+* Increase minimum required WordPress version to 3.0
+
+= 1.3.2 (2010-05-12): =
+* Fix conflict with other plugins that add custom columns, props Jeremy Hou
 
 = 1.3.1 (2010-04-04): =
 * Fix incompatibilities with WordPress version prior to 3.0
