@@ -174,9 +174,9 @@ class Ecwid_Shopping_Cart {
 				if ( array_key_exists( $item, $display_items ) ) {
 					if ( isset( $attributes['link'] ) && in_array( $item, array( 'title', 'picture' ) ) ) {
 						$product_link = $attributes['link'] . '#!/~/product/id=' . $product_id;
-						$result .= '<a href="' . esc_url( $product_link ) . '">' . esc_html( $display_items[$item] ) . '</a>';
+						$result .= '<a href="' . esc_url( $product_link ) . '">' . $display_items[$item] . '</a>';
 					} else {
-						$result .= esc_html( $display_items[$item] );
+						$result .= $display_items[$item];
 					}
 				}
 			}
