@@ -622,6 +622,11 @@ class coauthors_plus {
 
 			$terms = array();
 			$coauthor = $this->get_coauthor_by( 'user_nicename', $author_name );
+
+            if( ! $coauthor ) {
+                $coauthor = $this->get_coauthor_by( 'user_login', $author_name );
+            }
+
 			if ( $author_term = $this->get_author_term( $coauthor ) )
 				$terms[] = $author_term;
 			// If this coauthor has a linked account, we also need to get posts with those terms
@@ -943,8 +948,10 @@ class coauthors_plus {
 			return;
 		}
 
-		$author = $this->get_coauthor_by( 'user_nicename', $author_name );
-
+        $author = $this->get_coauthor_by( 'user_nicename', $author_name );
+        if( ! $author ) {
+            $author = $this->get_coauthor_by( 'linked_account', $author_name );
+        }
 		global $wp_query, $authordata;
 
 		if ( is_object( $author ) ) {
