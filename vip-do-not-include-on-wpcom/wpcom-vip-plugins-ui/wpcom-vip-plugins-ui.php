@@ -228,7 +228,7 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Shoplocket',
 				'description' => 'Everything you need to start selling professionally from WordPress, in minutes.',
 			),
-			'simplereach'    => array(
+			'simple-reach-analytics'    => array(
 				'name'        => 'SimpleReach',
 				'description' => 'Content ROI made simple.',
 			),
