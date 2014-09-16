@@ -228,6 +228,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Shoplocket',
 				'description' => 'Everything you need to start selling professionally from WordPress, in minutes.',
 			),
+			'simplereach'    => array(
+				'name'        => 'SimpleReach',
+				'description' => 'Content ROI made simple.',
+			),
 			'socialflow'    => array(
 				'name'        => 'SocialFlow',
 				'description' => 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
