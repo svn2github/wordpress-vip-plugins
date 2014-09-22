@@ -137,7 +137,7 @@ TheplatformUploader = ( function() {
 
 		this.finishedUploadingFragments = true;
 
-		var url = params.upload_base + '/web/Upload/finishUpload?';
+		var url = params.upload_base.substring(5) + '/web/Upload/finishUpload?';
 		url += 'schema=1.1';
 		url += '&token=' + params.token;
 		url += '&account=' + encodeURIComponent( params.account_id );
@@ -194,7 +194,7 @@ TheplatformUploader = ( function() {
 			return;
 		}
 
-		var url = params.upload_base + '/web/Upload/uploadFragment?';
+		var url = params.upload_base.substring(5) + '/web/Upload/uploadFragment?';
 		url += 'schema=1.1';
 		url += '&token=' + params.token;
 		url += '&account=' + encodeURIComponent( params.account_id );
