@@ -1,0 +1,135 @@
+/*	--------------------------------------------------
+	Reveal Modals
+	-------------------------------------------------- */
+		
+	.reveal-modal-bg { 
+		position: fixed; 
+		height: 100%;
+		width: 100%;
+		background: #000;
+		background: rgba(0,0,0,.6);
+		z-index: 100;
+		display: none;
+		top: 0;
+		left: 0; 
+		}
+	
+	.reveal-modal {
+		visibility: hidden;
+		top: 100px; 
+		left: 50%;
+		margin-left: -300px;
+		width: 520px;
+		background: #000;
+		position: absolute;
+		z-index: 101;
+		padding: 20px 10px 20px;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+		-moz-box-shadow: 10px 10px 10px rgba(0,0,0,.5);
+		-webkit-box-shadow: 10px 10px 10px rgba(0,0,0,.5);
+		box-shadow: 10px 10px 10px rgba(0,0,0,.5);
+                color: #fff;
+		}
+	
+        .reveal-modal .infoBox {
+                    background: url("../images/grid_noise.png") repeat top left #FFFFFF;
+                    border-radius: 3px 3px 3px 3px;
+                    padding: 15px;
+                    color: #000;
+                    margin-bottom: 10px;
+                    }
+         .reveal-modal .infoBox h2 {
+            border-bottom: 1px solid #999999;
+            padding-bottom: 2px;
+            margin-bottom:  5px;
+            font-weight: normal;
+         }
+                
+         .reveal-modal .btn-modal-box{
+            border: 0 none;
+            padding: 0; 
+            float: right;
+            margin-left: 10px;  
+            filter: 
+                progid:DXImageTransform.Microsoft.Shadow(color=#000000,direction=0,strength=2), 
+                progid:DXImageTransform.Microsoft.Shadow(color=#000000,direction=90,strength=2), 
+                progid:DXImageTransform.Microsoft.Shadow(color=#000000,direction=180,strength=2), 
+                progid:DXImageTransform.Microsoft.Shadow(color=#000000,direction=270,strength=2);
+        }
+        .reveal-modal .btn-modal-box .accordion-left {
+            background: url("../images/accordion_left.png") repeat-y scroll 0 0 #000000;
+            height: 33px;
+            width: 3px;
+            float:left;
+        }
+        .reveal-modal .btn-modal-box .accordion-center {
+            background: url("../images/accordion_center.png") repeat-x scroll 0 0 #000000;
+            height: 33px;            
+            float: left;
+        }
+        .reveal-modal .btn-modal-box .accordion-right {
+            background: url("../images/accordion_right.png") repeat-y scroll 0 0 #000000;
+            height: 33px;
+            width: 3px;
+            float: left;
+        }
+        .reveal-modal .btn-modal-box a{ 
+            color: #FFF !important;
+            display: block;            
+            text-decoration: none;
+            line-height: 33px !important;
+        }
+        .reveal-modal .btn-modal-box .accordion-center a:hover{
+            color: #FF0000 !important;
+            cursor: default;
+        }        
+        .reveal-modal .btn-modal-box:hover, .global-zeroclipboard-container:hover{
+            color: #FF0000;
+            -webkit-box-shadow: 0px 0px 5px rgba(255, 0 , 0, 0.75);
+            -moz-box-shadow: 0px 0px 5px rgba(255, 0 , 0, 0.75);
+            box-shadow: 0px 0px 5px rgba(255, 0 , 0, 0.75);
+            border-radius: 3px;
+            filter: 
+                progid:DXImageTransform.Microsoft.Shadow(color=#FF0000,direction=0,strength=2), 
+                progid:DXImageTransform.Microsoft.Shadow(color=#FF0000,direction=90,strength=2), 
+                progid:DXImageTransform.Microsoft.Shadow(color=#FF0000,direction=180,strength=2), 
+                progid:DXImageTransform.Microsoft.Shadow(color=#FF0000,direction=270,strength=2); 
+        }
+        
+	.reveal-modal.small 		{ width: 200px; margin-left: -140px;}
+	.reveal-modal.medium 		{ width: 400px; margin-left: -240px;}
+	.reveal-modal.large 		{ width: 600px; margin-left: -340px;}
+	.reveal-modal.xlarge 		{ width: 800px; margin-left: -440px;}
+	
+	.reveal-modal .close-reveal-modal {
+		/*font-size: 22px;
+		line-height: .5;
+		position: absolute;
+		top: 8px;
+		right: 11px;
+		color: #aaa;
+		text-shadow: 0 -1px 1px rbga(0,0,0,.6);
+		font-weight: bold;
+		cursor: pointer;*/
+		} 
+        .reveal-modal .clr{
+                    clear: both;
+                }
+	/*
+		
+	NOTES
+	
+	Close button entity is &#215;
+	
+	Example markup
+	
+	<div id="myModal" class="reveal-modal">
+		<h2>Awesome. I have it.</h2>
+		<p class="lead">Your couch.  I it's mine.</p>
+		<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In ultrices aliquet placerat. Duis pulvinar orci et nisi euismod vitae tempus lorem consectetur. Duis at magna quis turpis mattis venenatis eget id diam. </p>
+		<a class="close-reveal-modal">&#215;</a>
+	</div>
+	
+	*/
