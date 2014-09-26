@@ -276,14 +276,14 @@ class Blimply {
 			echo '<div class="blimply-wrapper">';
 			wp_nonce_field( BLIMPLY_FILE_PATH, 'blimply_nonce' );
 			echo '<label for="blimply_push_alert">';
-			_e( 'Push message', 'blimply' );
+			esc_html_e( 'Push message', 'blimply' );
 			$nice_warning = __( 'Keep in mind that all HTML will be stripped out, and refrain from putting any links in the message.', 'blimply' );
 			// 0 means no limit
 			$limit = (int) apply_filters( BLIMPLY_PREFIX . '_character_limit', $this->options[BLIMPLY_PREFIX . '_character_limit'] );
 			$limit_html = $limit ? sprintf( ' maxlength="%d" ', $limit ) :  '';
-			echo "</label><br/><small>{$nice_warning} Character limit is: {$limit}</small><br/>";
-			echo '<textarea id="blimply_push_alert" name="blimply_push_alert" class="bl_textarea"' . $limit_html . '>' . esc_html( $post->post_title ) . '</textarea><br/>';
-			echo '<strong>' . __( 'Send Push to following Urban Airship tags', 'blimply' ) . '</strong>';
+			echo '</label><br/><small>' . esc_html( $nice_warning ) . 'Character limit is: ' . $limit . '</small><br/>';
+			echo '<textarea id="blimply_push_alert" name="blimply_push_alert" class="bl_textarea"' . $limit_html . '>' . esc_textarea( $post->post_title ) . '</textarea><br/>';
+			echo '<strong>' . esc_html__( 'Send Push to following Urban Airship tags', 'blimply' ) . '</strong>';
 			foreach ( (array) $this->tags as $tag ) {
 				echo '<input type="radio" name="blimply_push_tag" id="blimply_tag_' . esc_attr( $tag->term_id ) . '" value="' . esc_attr( $tag->slug ) . '"/>';
 				echo '<label class="selectit" for="blimply_tag_' . esc_attr( $tag->term_id ) . '" style="margin-left: 4px">';
@@ -294,24 +294,24 @@ class Blimply {
 			if ( isset( $this->options['blimply_allow_broadcast'] ) && $this->options['blimply_allow_broadcast'] == 'on' ) {
 				echo '<input type="radio" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
 				echo '<label class="selectit" for="blimply_tag_broadcast" style="margin-left: 4px">';
-				_e( 'Broadcast (send to all tags)', 'blimply' );
+				esc_html_e( 'Broadcast (send to all tags)', 'blimply' );
 				echo '</label><br/>';
 			}
 
 			echo '<br/><label class="selectit" for="blimply_no_sound" style="margin-left: 4px">';
 			echo '<input type="checkbox" style="float:left" name="blimply_no_sound" id="blimply_no_sound" value="1" '. checked( $this->_is_quiet_time(), true, false ) . ' />';
-			_e( 'Turn the sound off', 'blimply' );
+			esc_html_e( 'Turn the sound off', 'blimply' );
 			echo '</label><br/>';
 
 			echo '<br/><input type="hidden" id="" name="blimply_push" value="0" />';
 			echo '<input type="checkbox" id="blimply_push" name="blimply_push" value="1" disabled="disabled" />';
 			echo '<label for="blimply_push">';
-			_e( 'Check to confirm sending', 'blimply' );
+			esc_html_e( 'Check to confirm sending', 'blimply' );
 			echo '</label> ';
 			echo '</div>';
 
 		} else {
-			_e( 'Push notification is already sent', 'blimply' );
+			esc_html_e( 'Push notification is already sent', 'blimply' );
 		}
 	}
 
@@ -350,18 +350,18 @@ class Blimply {
 		$limit_html = $limit ? sprintf( ' maxlength="%d" ', $limit ) :  '';
 ?>
 		<form name="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" id="blimply-dashboard-widget">
-			<h4 id="content-label"><label for="content"><?php _e( 'Send Push Notification' ) ?></label></h4>
-			<small><?php _e( 'Keep in mind that all HTML will be stripped out, and refrain from putting any links in the message.', 'blimply' ); ?></small><br/>
+			<h4 id="content-label"><label for="content"><?php esc_html_e( 'Send Push Notification' ) ?></label></h4>
+			<small><?php esc_html_e( 'Keep in mind that all HTML will be stripped out, and refrain from putting any links in the message.', 'blimply' ); ?></small><br/>
 			<?php if ( $limit ): ?>
-			<small><?php _e( 'Character limit is: ', 'blimply' ); ?><strong><?php echo (int) $limit ?></strong>.</small> <br/>
-			<small><strong><?php _e( 'Characters left: ', 'blimply' ); ?><span class="limit"><?php echo (int) $limit ?></strong></span>.
-			<?php _e( "You won't be able to type more than that.", 'blimply' ); ?>
+			<small><?php esc_html_e( 'Character limit is: ', 'blimply' ); ?><strong><?php echo (int) $limit ?></strong>.</small> <br/>
+			<small><strong><?php esc_html_e( 'Characters left: ', 'blimply' ); ?><span class="limit"><?php echo (int) $limit ?></strong></span>.
+			<?php esc_html_e( "You won't be able to type more than that.", 'blimply' ); ?>
 			</small>
 			<?php endif; ?>
 			<div class="textarea-wrap">
 				<textarea name="blimply_push_alert" id="content" rows="3" cols="15" tabindex="2" <?php echo $limit_html ?> placeholder="Your push message"></textarea>
 			</div>
-			<h4><label for="tags-input"><?php _e( 'Choose a tag' ) ?></label></h4>
+			<h4><label for="tags-input"><?php esc_html_e( 'Choose a tag' ) ?></label></h4>
 <?php
 		foreach ( (array) $this->tags as $tag ) {
 			echo '<label class="float-left f-left selectit" for="blimply_tag_' . esc_attr( $tag->term_id ) . '" style="margin-left: 4px">';
@@ -373,15 +373,15 @@ class Blimply {
 		if ( isset( $this->options['blimply_allow_broadcast'] ) && $this->options['blimply_allow_broadcast'] == 'on' ) {
 			echo '<label class="selectit" for="blimply_tag_broadcast" style="margin-left: 4px">';
 			echo '<input type="radio" style="float:left" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
-			_e( 'Broadcast (send to all tags)', 'blimply' );
+			esc_html_e( 'Broadcast (send to all tags)', 'blimply' );
 			echo '</label><br/>';
 		}
 		?>
 		<br/>
-		<h4><label for="blimply_no_sound"><?php _e( 'Turn the sound off' ) ?></label></h4> <?php
+		<h4><label for="blimply_no_sound"><?php esc_html_e( 'Turn the sound off' ) ?></label></h4> <?php
 		echo '<label class="selectit" for="blimply_no_sound" style="margin-left: 4px">';
 		echo '<input type="checkbox" style="float:left" name="blimply_no_sound" id="blimply_no_sound" value="1" '. checked( $this->_is_quiet_time(), true, false ) . ' />';
-		_e( 'Turn the sound off', 'blimply' );
+		esc_html_e( 'Turn the sound off', 'blimply' );
 		echo '</label><br/>';
 ?>
 			<p class="submit">
