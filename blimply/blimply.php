@@ -281,7 +281,7 @@ class Blimply {
 			// 0 means no limit
 			$limit = (int) apply_filters( BLIMPLY_PREFIX . '_character_limit', $this->options[BLIMPLY_PREFIX . '_character_limit'] );
 			$limit_html = $limit ? sprintf( ' maxlength="%d" ', $limit ) :  '';
-			echo '</label><br/><small>' . esc_html( $nice_warning ) . 'Character limit is: ' . (int) $limit . '</small><br/>';
+			echo '</label><br/><small>' . esc_html( $nice_warning ) . ' Character limit is: ' . (int) $limit . '</small><br/>';
 			echo '<textarea id="blimply_push_alert" name="blimply_push_alert" class="bl_textarea"' . $limit_html . '>' . esc_textarea( $post->post_title ) . '</textarea><br/>';
 			echo '<strong>' . esc_html__( 'Send Push to following Urban Airship tags', 'blimply' ) . '</strong>';
 			foreach ( (array) $this->tags as $tag ) {
