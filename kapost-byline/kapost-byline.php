@@ -3,11 +3,12 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.7.4
+	Version: 1.9.0
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.7.4-WIP');
+define('KAPOST_BYLINE_VERSION', '1.9.0-WIP');
+define('KAPOST_BYLINE_ANALYTICS_URL', 'http://analytics.kapost.com');
 
 function kapost_byline_custom_fields($raw_custom_fields)
 {
@@ -27,41 +28,47 @@ function kapost_byline_custom_fields($raw_custom_fields)
 
 function kapost_is_protected_meta($protected_fields, $field)
 {
-    if(!in_array($field, $protected_fields))
-        return false;
+	if(!in_array($field, $protected_fields))
+		return false;
 
-    if(function_exists('is_protected_meta'))
-        return is_protected_meta($field, 'post');
+	if(function_exists('is_protected_meta'))
+		return is_protected_meta($field, 'post');
 
-    return ($field[0] == '_');
+	return ($field[0] == '_');
 }
 
 function kapost_byline_protected_custom_fields($custom_fields)
-{       
-    if(!isset($custom_fields['_kapost_protected']))
-        return array();
+{		
+	if(!isset($custom_fields['_kapost_protected']))
+		return array();
 
-    $protected_fields = array();
-    foreach(explode('|', $custom_fields['_kapost_protected']) as $p)
-    {
-        list($prefix, $keywords) = explode(':', $p);
+	$protected_fields = array();
+	foreach(explode('|', $custom_fields['_kapost_protected']) as $p)
+	{
+		list($prefix, $keywords) = explode(':', $p);
 
-        $prefix = trim($prefix);
-        foreach(explode(',', $keywords) as $k)
-        {
-            $kk = trim($k);
-            $protected_fields[] = "_${prefix}_${kk}";
-        }
-    }   
-        
-    $pcf = array();
-    foreach($custom_fields as $k => $v)
-    {   
-        if(kapost_is_protected_meta($protected_fields, $k))
-            $pcf[$k] = $v;                                                                                                
-    }
-    
-    return $pcf;
+		$prefix = trim($prefix);
+		if(empty($keywords))
+		{	
+			$protected_fields[] = "_${prefix}";
+			continue;
+		}
+
+		foreach(explode(',', $keywords) as $k)
+		{
+			$kk = trim($k);
+			$protected_fields[] = "_${prefix}_${kk}";
+		}
+	}	
+		
+	$pcf = array();
+	foreach($custom_fields as $k => $v)
+	{	
+		if(kapost_is_protected_meta($protected_fields, $k))
+			$pcf[$k] = $v;																								  
+	}
+	
+	return $pcf;
 }
 
 function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=false)
@@ -149,7 +156,7 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 	if(!empty($taxonomies))
 	{
 		foreach($custom_fields as $k => $v)
-		{                                                                                                       
+		{																										
 			if(in_array($k, $taxonomies))
 				wp_set_object_terms($id, explode(',', $v), $k);
 		}
@@ -183,7 +190,7 @@ function kapost_byline_inject_analytics()
 	if(empty($kapost_analytics))
 		return;
 
-	$url = "http://savoy-prod.heroku.com";
+	$url = KAPOST_BYLINE_ANALYTICS_URL;
 
 	$post_id = esc_js($kapost_analytics['post_id']);
 
@@ -328,6 +335,13 @@ function kapost_byline_xmlrpc_editPost($args)
 	return $result;
 }
 
+function kapost_byline_xmlrpc_getPost($args)
+{
+	global $wp_xmlrpc_server;
+	
+	return $wp_xmlrpc_server->mw_getPost($args);
+}
+
 function kapost_byline_xmlrpc_newMediaObject($args)
 {
 	global $wpdb, $wp_xmlrpc_server;
@@ -402,42 +416,24 @@ function kapost_byline_xmlrpc_getPermalink($args)
 	if(!is_object($post) || !isset($post->ID))
 		return new IXR_Error(401, __('Sorry, you cannot edit this post.'));
 
-	if(!empty($post->post_title) && in_array($post->post_status, array('draft', 'pending', 'auto-draft')))
-	{
-		$sample_post = clone $post;
-		$sample_post->filter = 'sample';
-		$sample_post->post_status = 'publish';
+	list($permalink, $post_name) = get_sample_permalink($post->ID);
+	$permalink = str_replace(array('%postname%', '%pagename%'), $post_name, $permalink);
 
-		if(empty($sample_post->post_date) || $sample_post->post_date == '0000-00-00 00:00:00')
-		{
-			$sample_post->post_date = current_time('mysql');
-			$sample_post->post_date_gmt = current_time('mysql', 1);
-		}
-
-		if(empty($sample_post->post_name))
-		{
-			$sample_post->post_name = wp_unique_post_slug(sanitize_title($sample_post->post_title), 
-														  $sample_post->ID, 
-														  $sample_post->post_status, 
-														  $sample_post->post_type, 
-														  $sample_post->post_parent);
-		}
-
-		$sample_permalink = get_permalink($sample_post);
-		if(strpos($sample_permalink, "%") === false) # make sure it doesn't contain %day%, etc.
-			return $sample_permalink;
-	}
+	if(strpos($permalink, "%") === false) # make sure it doesn't contain %day%, etc.
+			return $permalink;
 
 	return get_permalink($post);
 }
 
 function kapost_byline_xmlrpc($methods)
 {
-	$methods['kapost.version'] = 'kapost_byline_xmlrpc_version';
-	$methods['kapost.newPost'] = 'kapost_byline_xmlrpc_newPost';
-	$methods['kapost.editPost'] = 'kapost_byline_xmlrpc_editPost';
-	$methods['kapost.newMediaObject'] = 'kapost_byline_xmlrpc_newMediaObject';
-	$methods['kapost.getPermalink']	= 'kapost_byline_xmlrpc_getPermalink';
+	$methods['kapost.version']			= 'kapost_byline_xmlrpc_version';
+	$methods['kapost.newPost']			= 'kapost_byline_xmlrpc_newPost';
+	$methods['kapost.editPost']			= 'kapost_byline_xmlrpc_editPost';
+	$methods['kapost.getPost']			= 'kapost_byline_xmlrpc_getPost';
+	$methods['kapost.newMediaObject']	= 'kapost_byline_xmlrpc_newMediaObject';
+	$methods['kapost.getPermalink']		= 'kapost_byline_xmlrpc_getPermalink';
+	
 	return $methods;
 }
 add_filter('xmlrpc_methods', 'kapost_byline_xmlrpc');
