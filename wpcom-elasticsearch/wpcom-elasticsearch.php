@@ -268,20 +268,18 @@ class WPCOM_elasticsearch {
 		}
 
 		// Facets
-		// Note - Only supported on the WP.com environment, as the REST API does not currently support them
-		if ( ! empty( $this->facets ) && ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) ) {
+		if ( ! empty( $this->facets ) ) {
 			$es_wp_query_args['facets'] = $this->facets;
 		}
 
 		// You can use this filter to modify the search query parameters, such as controlling the post_type.
 		// These arguments are in the format for wpcom_search_api_wp_to_es_args(), i.e. WP-style.
 		$es_wp_query_args = apply_filters( 'wpcom_elasticsearch_wp_query_args', $es_wp_query_args, $query );
-		
 
 		// Convert the WP-style args into ES args
 		$es_query_args = wpcom_search_api_wp_to_es_args( $es_wp_query_args );
 
-		$es_query_args['fields'] = array( 
+		$es_query_args['fields'] = array(
 			'post_id',
 			'blog_id'
 		);
@@ -594,7 +592,7 @@ class WPCOM_elasticsearch {
 
 				switch ( $this->facets[ $label ]['type'] ) {
 					case 'taxonomy':
-						$term = get_term_by( 'id', $item['term'], $this->facets[ $label ]['taxonomy'] );
+						$term = get_term_by( 'slug', $item['term'], $this->facets[ $label ]['taxonomy'] );
 
 						if ( ! $term )
 							continue 2; // switch() is considered a looping structure

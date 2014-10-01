@@ -436,7 +436,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 
 							$es_query_args['facets'][$label] = array(
 								'terms' => array(
-									'field' => $field . '.term_id',
+									'field' => $field . '.slug',
 									'size' => $facet['count'],
 								),
 							);
