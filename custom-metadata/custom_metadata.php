@@ -273,6 +273,17 @@ class custom_metadata_manager {
 	}
 
 	function add_metadata_field( $field_slug, $object_types = array( 'post' ), $args = array() ) {
+		static $localized_strings;
+
+		if ( ! $localized_strings ) {
+			$localized_strings = (object) array(
+				'upload_modal_title' => __( 'Choose a file', 'custom-metadata' ), // upload modal title (for upload field only)
+				'upload_modal_button_text' => __( 'Select this file', 'custom-metadata' ), // upload modal button text (for upload field only)
+				'upload_clear_button_text' => __( 'Clear', 'custom-metadata' ), // upload clear field text (for upload field only)
+				'link_modal_button_text' => __( 'Select', 'custom-metadata' ), // link field button text
+			);
+		}
+
 		$defaults = array(
 			'group' => '', // To which meta_box the field should be added
 			'multifield' => false, // which multifield does this field belong to, if any
@@ -294,10 +305,10 @@ class custom_metadata_manager {
 			'select2' => false, // applies select2.js (work on select and multi select field types)
 			'min' => false, // a minimum value (for number field only)
 			'max' => false, // a maximum value (for number field only)
-			'upload_modal_title' => __( 'Choose a file', 'custom-metadata' ), // upload modal title (for upload field only)
-			'upload_modal_button_text' => __( 'Select this file', 'custom-metadata' ), // upload modal button text (for upload field only)
-			'upload_clear_button_text' => __( 'Clear', 'custom-metadata' ), // upload clear field text (for upload field only)
-			'link_modal_button_text' => __( 'Select', 'custom-metadata' ), // link field button text
+			'upload_modal_title' => $localized_strings->upload_modal_title,
+			'upload_modal_button_text' => $localized_strings->upload_modal_button_text,
+			'upload_clear_button_text' => $localized_strings->upload_clear_button_text,
+			'link_modal_button_text' => $localized_strings->link_modal_button_text,
 		);
 
 		// upload field is readonly by default (can be set explicitly to false though)
