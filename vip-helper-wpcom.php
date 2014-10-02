@@ -76,6 +76,13 @@ function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopword
 				)
 			);
 
+		$host = parse_url( home_url(), PHP_URL_HOST );
+		$source_info = array(
+			'sourcename' => get_bloginfo( 'name' ),
+			'sourceurl' => home_url(),
+			'sourcetype' => 'same_domain',
+		);
+
 		if ( $related ) {
 			//rebuilding the array to match sphere related posts (and flaptor related posts)
 			$results = array();
@@ -84,6 +91,9 @@ function wpcom_vip_get_flaptor_related_posts( $max_num = 5, $additional_stopword
 					'post_id' => $result['id'],
 					'url' => get_permalink( $result['id'] ),
 					'title' => get_the_title( $result['id'] ),
+					'timestamp' => get_the_time( 'Y-m-d', $result['id'] ),
+					'host' => $host,
+					'source' => $source_info,
 				);
 			}
 			return $results;
