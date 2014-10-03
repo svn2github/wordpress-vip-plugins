@@ -254,3 +254,27 @@ function wpcom_vip_old_slug_redirect() {
 }
 remove_filter( 'template_redirect', 'wp_old_slug_redirect' );
 add_action( 'template_redirect', 'wpcom_vip_old_slug_redirect' );
+
+/**
+ * Cached version of count_user_posts, which is uncached but doesn't always need to hit the db
+ *
+ * count_user_posts is generally fast, but it can be easy to end up with many redundant queries
+ * if it's called several times per request. This allows bypassing the db queries in favor of 
+ * the cache
+ */
+function wpcom_vip_count_user_posts( $user_id ) {
+    if ( ! is_numeric( $user_id ) ) {
+        return 0;
+    }
+
+    $cache_key = 'vip_' . (int) $user_id;
+    $cache_group = 'user_posts_count';
+
+    if ( false === ( $count = wp_cache_get( $cache_key, $cache_group ) ) ) {
+        $count = count_user_posts( $user_id );
+
+        wp_cache_set( $cache_key, $count, $cache_group, 5 * MINUTE_IN_SECONDS );
+    }
+
+    return $count;
+}
