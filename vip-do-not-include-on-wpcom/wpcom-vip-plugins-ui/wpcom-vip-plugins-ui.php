@@ -224,6 +224,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'PublishThis',
 				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
 			),
+			'sailthru'    => array(
+				'name'        => 'Sailthru for WordPress',
+				'description' => 'Sailthru is the leading provider of personalized marketing communications.',
+			),
 			'shoplocket'    => array(
 				'name'        => 'Shoplocket',
 				'description' => 'Everything you need to start selling professionally from WordPress, in minutes.',
