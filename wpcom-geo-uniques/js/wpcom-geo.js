@@ -15,31 +15,34 @@ wpcom_geo = {
 			this.gracefully_fail( 'wpcom-geo: Uh oh! Looks like you haven\'t defined an error callback using `wpcom_geo.set_detect_success_callback();`' );
 			return;
 		}
+		try {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', wpcom_geo_settings.geolocation_endpoint, false); // we want a synchronous request since we want geo to happen before other things
+			xhr.send(null);
 
-		var xhr = new XMLHttpRequest();
-		xhr.open( 'GET', wpcom_geo_settings.geolocation_endpoint, false ); // we want a synchronous request since we want geo to happen before other things
-		xhr.send( null );
+			var responseText = xhr.responseText;
 
-		var responseText = xhr.responseText;
+			// Only geolocate modern browsers
+			if (xhr.status === 200 && window.JSON) {
+				var location = wpcom_geo_settings.success_callback.call(undefined, JSON.parse(responseText));
 
-		// Only geolocate modern browsers
-		if ( xhr.status === 200 && window.JSON ) {
-			var location = wpcom_geo_settings.success_callback.call( undefined, JSON.parse( responseText ) );
-			
-			if ( location ) {
-				wpcom_geo.set_location( location );
+				if (location) {
+					wpcom_geo.set_location(location);
+				} else {
+					wpcom_geo.set_default_location();
+				}
+
+				wpcom_geo.refresh();
+
 			} else {
-				wpcom_geo.set_default_location();
+				this.gracefully_fail('wpcom-geo: geolocation request failed :(');
+				if ('function' === typeof( wpcom_geo_settings.error_callback )) {
+					wpcom_geo_settings.error_callback.call(undefined, responseText);
+				}
+				return;
 			}
-
-			wpcom_geo.refresh();
-
-		} else {
-			this.gracefully_fail( 'wpcom-geo: geolocation request failed :(' );
-			if ( 'function' === typeof( wpcom_geo_settings.error_callback ) ) {
-				wpcom_geo_settings.error_callback.call( undefined, responseText );
-			}
-			return;
+		} catch( e ){
+			//avoid IE errors
 		}
 	},
 
