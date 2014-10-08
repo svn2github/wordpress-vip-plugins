@@ -127,6 +127,7 @@ function wpcom_vip_load_custom_cdn( $args ) {
 		'cdn_host_media' => '',
 		'cdn_host_static' => '',
 		'include_admin' => false,
+		'disable_ssl' => false,
 	) );
 
 	if ( ! $args['include_admin'] && is_admin() )
@@ -137,10 +138,18 @@ function wpcom_vip_load_custom_cdn( $args ) {
 
 	if ( ! empty( $cdn_host_static ) ) {
 		_wpcom_vip_cdn_load_static( $cdn_host_static );
+
+		if ( true === $args['disable_ssl'] ) {
+			_wpcom_vip_cdn_disable_ssl( $cdn_host_static );
+		}
 	}
 
 	if ( ! empty( $cdn_host_media ) ) {
 		_wpcom_vip_cdn_load_media( $cdn_host_media );
+
+		if ( true === $args['disable_ssl'] ) {
+			_wpcom_vip_cdn_disable_ssl( $cdn_host_media );
+		}
 	}
 
 }
@@ -231,6 +240,21 @@ function _wpcom_vip_cdn_load_media( $cdn_host_media ) {
 		}
 		return $content;
 	}, 999 );
+}
+
+/**
+ * Disable SSL for custom CDN
+ *
+ * Private function; do not call directly
+ *
+ * @internal
+ */
+function _wpcom_vip_cdn_disable_ssl( $domains ) {
+	add_filter( 'the_content', function( $content ) use ( $domains ) {
+		foreach( $domains as $domain ) {
+			return str_replace( "https://{$domain}", "http://{$domain}", $content );
+		}
+	}, 1000 );
 }
 
 /**
