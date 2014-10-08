@@ -113,6 +113,7 @@ if ( ! function_exists( 'wpcom_vip_load_custom_cdn' ) ):
  * 		string|array cdn_host_media => Hostname of the CDN for media library assets.
  * 		string|array cdn_host_static => Optional. Hostname of the CDN for static assets.
  * 		bool include_admin => Optional. Whether the custom CDN host should be used in the admin context as well.
+ * 		bool disable_ssl => Optional. Whether SSL should be disabled for the custom CDN.
  */
 function wpcom_vip_load_custom_cdn( $args ) {
 	if ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED )
