@@ -42,6 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function wpcom_vip_maybe_load_ad_busters() {
 
 	$ad_busters = array(
+		'adcade/adcadebuster.html',          // Adcade
 		'adcentric/ifr_b.html',              // AdCentric
 		'adinterax/adx-iframe-v2.html',      // AdInterax
 		'atlas/atlas_rm.htm',                // Atlas
