@@ -1,0 +1,17 @@
+
+#sailthru-scout .image {
+  float:left;
+  width:70px;
+}
+
+#sailthru-scout .title {
+  margin-left: 80px;
+}
+
+#sailthru-scout .content-item {
+  padding:15px 0;
+  display:block;
+  clear:both;
+  border-bottom:1px solid #ebebeb;
+}
+

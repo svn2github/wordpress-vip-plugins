@@ -48,10 +48,15 @@ class Sailthru_Horizon {
 	 * 			uses "Network Activate" action, false if WPMU is
 	 * 			disabled or plugin is activated on an individual blog
 	 */
-	public function activate( $network_wide ) {
+	public static function activate( $network_wide ) {
 
 		if ( ! current_user_can( 'activate_plugins' ) )
             return;
+
+          // signal that it's ok to override Wordpress's built-in email functions
+		if( false == get_option( 'sailthru_override_wp_mail' ) ) {
+			add_option( 'sailthru_override_wp_mail', 1 );
+		} // end if
 
 	} // end activate
 
@@ -62,7 +67,7 @@ class Sailthru_Horizon {
 	 * 			uses "Network Activate" action, false if WPMU is
 	 * 			disabled or plugin is activated on an individual blog
 	 */
-	public function deactivate( $network_wide ) {
+	public static function deactivate( $network_wide ) {
 
 		if ( ! current_user_can( 'activate_plugins' ) )
             return;
@@ -98,6 +103,20 @@ class Sailthru_Horizon {
 			delete_option( 'sailthru_forms_options' );
 		}
 
+			if( false != get_option('sailthru_customfields_order_widget') ) {
+				delete_option('sailthru_customfields_order_widget');
+			}
+
+			if( false != get_option('sailthru_customfields_order') ) {
+				delete_option('sailthru_customfields_order');
+			}
+
+
+		// remove integrations options
+		if( false != get_option('sailthru_integrations_options') ) {
+			delete_option( 'sailthru_integrations_options' );
+		}
+
 
 
 	} // end deactivate
@@ -109,7 +128,7 @@ class Sailthru_Horizon {
 	 * 			uses "Network Activate" action, false if WPMU is
 	 * 			disabled or plugin is activated on an individual blog
 	 */
-	public function uninstall( $network_wide ) {
+	public static function uninstall( $network_wide ) {
 		// nothing to see here.
 	} // end uninstall
 
@@ -259,7 +278,7 @@ class Sailthru_Horizon {
 	 		}";
 
 		} else {
-			$horizon_params =   "domain: '" . esc_js( $options['sailthru_horizon_domain'] ) . "'";
+			$horizon_params =   "domain:'" . esc_js( $options['sailthru_horizon_domain'] ) ."'";
 		}
 
 		if ($options['sailthru_horizon_load_type'] == '1') {
@@ -300,11 +319,9 @@ class Sailthru_Horizon {
 			$horizon_js .= " </script>\n";
 		}
 
-
-
-		echo $horizon_js;
-
-
+		if ( !is_404() &&  !is_preview() ) {
+			echo $horizon_js;
+		}
 
 	 } // end sailthru_client_horizon
 
@@ -394,7 +411,6 @@ class Sailthru_Horizon {
 			);
 			$this->admin_views[$forms_menu] = 'customforms_configuration_page';
 
-
 	} // end sailthru_menu
 
 	/**
@@ -436,11 +452,31 @@ class Sailthru_Horizon {
     		$post_title = get_the_title();
     			$horizon_tags['sailthru.title'] = esc_attr($post_title);
 
-    		// tags
-    		$post_tags = get_the_tags();
-		if ( $post_tags ) {
-			$horizon_tags['sailthru.tags'] = esc_attr(implode( ', ', wp_list_pluck( $post_tags, 'name' )) );
-		}
+    		// tags in the order of priority
+    		// first sailthru tags
+    		$post_tags = get_post_meta( $post_object->ID, 'sailthru_meta_tags', true);
+
+	    		// wordpress tags
+	    		if( empty( $post_tags ) ) {
+		    		$post_tags = get_the_tags();
+		    		if( $post_tags ) {
+						$post_tags = esc_attr(implode( ', ', wp_list_pluck( $post_tags, 'name' )) );
+		    		}
+	    		}
+
+	    			// wordpress categories
+	    			if( empty( $post_tags ) ) {
+	    				$post_categories = get_the_category( $post_object->ID );
+	    				foreach( $post_categories as $post_category ) {
+	    					$post_tags .= $post_category->name . ', ';
+	    				}
+	    				$post_tags = substr($post_tags, 0, -2);
+	    			}
+
+			if ( ! empty( $post_tags ) ) {
+				$horizon_tags['sailthru.tags'] = $post_tags;
+			}
+
 
     		// author << works on display name. best option?
     		$post_author = get_the_author();
@@ -514,13 +550,14 @@ class Sailthru_Horizon {
 	 *--------------------------------------------*/
 
 	/**
-	 * Introduces the meta box for expiring content.
+	 * Introduces the meta box for expiring content,
+	 * and a meta box for Sailthru tags.
 	 */
 	public function sailthru_post_metabox() {
 
 		add_meta_box(
-			'sailthru-expiration-date',
-			__( 'Sailthru Expiration Date', 'sailthru' ),
+			'sailthru-post-data',
+			__( 'Sailthru Post Data', 'sailthru' ),
 			array( $this, 'post_metabox_display' ),
 			'post',
 			'side',
@@ -538,13 +575,28 @@ class Sailthru_Horizon {
 
 
 		$sailthru_post_expiration = get_post_meta( $post->ID, 'sailthru_post_expiration', true);
+		$sailthru_meta_tags = get_post_meta( $post->ID, 'sailthru_meta_tags', true);
 
 		wp_nonce_field( plugin_basename( __FILE__ ), $this->nonce );
-		$html  = '<input id="sailthru_post_expiration" type="text" name="sailthru_post_expiration" value="' . esc_attr($sailthru_post_expiration) . '" size="25" class="datepicker" />';
 
+		// post expiration
+		$html  = '<p><strong>Sailthru Post Expiration</strong></p>';
+		$html .= '<input id="sailthru_post_expiration" type="text" placeholder="YYYY-MM-DD" name="sailthru_post_expiration" value="' . esc_attr($sailthru_post_expiration) . '" size="25" class="datepicker" />';
 		$html .= '<p class="description">';
-		$html .= '<br>Flash sales, events and some news stories should not be recommended after a certain date and time. Use this Sailthru-specific meta tag to prevent Horizon from suggesting the content at the given point in time. <a href="http://docs.sailthru.com/documentation/products/horizon-data-collection/horizon-meta-tags" target="_blank">More information can be found here</a>.';
+		$html .= 'Flash sales, events and some news stories should not be recommended after a certain date and time. Use this Sailthru-specific meta tag to prevent Horizon from suggesting the content at the given point in time. <a href="http://docs.sailthru.com/documentation/products/horizon-data-collection/horizon-meta-tags" target="_blank">More information can be found here</a>.';
 		$html .= '</p><!-- /.description -->';
+
+
+		// post meta tags
+		$html .= '<p>&nbsp;</p>';
+		$html .= '<p><strong>Sailthru Meta Tags</strong></p>';
+		$html .= '<input id="sailthru_meta_tags" type="text" name="sailthru_meta_tags" value="' . esc_attr($sailthru_meta_tags) . '" size="25"  />';
+		$html .= '<p class="description">';
+		$html .= 'Tags are used to measure user interests and later to send them content customized to their tastes.';
+		$html .= '</p><!-- /.description -->';
+		$html .= '<p class="howto">Separate tags with commas</p>';
+
+
 
 		echo $html;
 
@@ -561,17 +613,29 @@ class Sailthru_Horizon {
 		// First, make sure the user can save the post
 		if( $this->user_can_save( $post_id, $this->nonce ) ) {
 
-			// Did the user set an expiry date?
-			if( ! empty( $_POST['sailthru_post_expiration'] ) && isset( $_POST['sailthru_post_expiration'] ) ) {
+			// Did the user set an expiry date, or are they clearing an old one?
+			if( ! empty( $_POST['sailthru_post_expiration'] ) && isset( $_POST['sailthru_post_expiration'] )
+					|| get_post_meta($post_id, 'sailthru_post_expiration', TRUE) ) {
+
 				$expiry_time = strtotime( $_POST['sailthru_post_expiration'] );
 				if ( $expiry_time ) {
 					$expiry_date = date( 'Y-m-d', $expiry_time );
 
 					// Save the date. hehe.
-					update_post_meta( $post_id, 'sailthru_post_expiration', $expiry_date );
+					update_post_meta( $post_id, 'sailthru_post_expiration', esc_attr( $expiry_date) );
 				}
 
 			} // end if
+
+			// Did the user set some meta tags, or are they clearing out old tags?
+			if( ! empty( $_POST['sailthru_meta_tags'] ) && isset( $_POST['sailthru_meta_tags'] )
+					|| get_post_meta($post_id, 'sailthru_meta_tags', TRUE) ) {
+
+				//remove trailing comma
+				$meta_tags = rtrim( $_POST['sailthru_meta_tags'], ',');
+				update_post_meta( $post_id, 'sailthru_meta_tags', esc_attr( $meta_tags ) );
+
+			}
 
 		} // end if
 

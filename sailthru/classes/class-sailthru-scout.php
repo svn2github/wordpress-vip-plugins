@@ -15,11 +15,7 @@ class Sailthru_Scout_Widget extends WP_Widget {
 		// Register Scout Javascripts
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_scout_scripts' ) );
 
-		// Attempt to create the page needed for Scout
-		$post_id = $this->create_scout_page();
-
 		// Attempt to register the sidebar widget for Scout
-		//wp_register_sidebar_widget('sailthru-recommend-widget', 'Sailthru Recommends', array($this, 'widget'));
 
 		// load plugin text domain
 		add_action( 'init', array( $this, 'load_widget_text_domain' ) );
@@ -35,7 +31,6 @@ class Sailthru_Scout_Widget extends WP_Widget {
 		);
 
 	} // end constructor
-
 
 	/*--------------------------------------------------*/
 	/* Public Functions
@@ -62,11 +57,13 @@ class Sailthru_Scout_Widget extends WP_Widget {
 		// is scout turned on?
 		if( isset($params['sailthru_scout_is_on']) &&  $params['sailthru_scout_is_on']) {
 
+			wp_enqueue_style( 'sailthru-scout-widget-styles', SAILTHRU_PLUGIN_URL . 'css/widget.scout.css' );
+
+
 			// Check first, otherwise js could throw errors
 			if( get_option('sailthru_setup_complete') ) {
 
 				//wp_enqueue_script( 'sailthru-scout', '//ak.sail-horizon.com/scout/v1.js', array('jquery', 'sailthru-horizon') );
-
 				//wp_enqueue_script( 'sailthru-scout-params', SAILTHRU_PLUGIN_URL .'/js/scout.params.js' , array('sailthru-scout') );
 
 				// if conceirge is on, we want noPageView to be set to true
@@ -100,6 +97,7 @@ class Sailthru_Scout_Widget extends WP_Widget {
 	 	$options = get_option('sailthru_setup_options');
 		$horizon_domain = $options['sailthru_horizon_domain'];
 		$scout = get_option('sailthru_scout_options');
+
 		$scout_params = array();
 
 		// inlcudeConsumed?
@@ -116,14 +114,12 @@ class Sailthru_Scout_Widget extends WP_Widget {
 			$scout['sailthru_scout_renderItem'] = '';
 		}
 
-		if( isset( $scout['scout_num_visible']) ) {
-			$scout_params[] = strlen($scout['scout_num_visible']) > 0 ?  "numVisible:'". esc_js( $scout['sailthru_scout_number'] )."' ": '';
-		} else {
-			$scout['scout_num_visible'] = '';
+		if( isset( $scout['sailthru_scout_numVisible']) ) {
+			$scout_params[] = strlen($scout['sailthru_scout_numVisible']) > 0 ?  "numVisible: ". (int) $scout['sailthru_scout_numVisible'] ." ": '';
 		}
 
-
 		if ($scout['sailthru_scout_is_on'] == 1) {
+
 			echo "<script type=\"text/javascript\" src=\"//ak.sail-horizon.com/scout/v1.js\"></script>";
 		 	echo "<script type=\"text/javascript\">\n";
 	           echo "SailthruScout.setup({\n";
@@ -136,64 +132,10 @@ class Sailthru_Scout_Widget extends WP_Widget {
 					}
 				}
 	           echo "});\n";
-
-		     echo " if(SailthruScout.allContent.length == 0) { jQuery('#sailthru-scout').hide() }";
 		     echo "</script>\n";
 		}
 
 	 }
-
-	/**
-	 * A function used to programmatically create a page needed for Scout. The slug, author ID, and title
-	 * are defined within the context of the function.
-	 *
-	 * @returns -1 if the post was never created, -2 if a post with the same title exists, or the ID
-	 *          of the post if successful.
-	 */
-
-	private function create_scout_page() {
-
-		// never run this on public facing pages
-		if( !is_admin() ) {
-			return;
-		}
-
-		// -1 = No action has been taken.
-		$post_id = -1;
-
-		// Our specific settings
-		$slug = 'scout-from-sailthru';
-		$title = 'Recommended for You';
-		$post_type = 'page';
-		$post_content = '<div id="sailthru-scout"><div class="loading">Loading, please wait...</div></div>';
-
-
-		// If the page doesn't already exist, then create it
-		$create_page = function_exists( 'wpcom_vip_get_page_by_title' ) ? null == wpcom_vip_get_page_by_title( $title ) : null == get_page_by_title( $title );
-		if( $create_page ) {
-
-			// Set the post ID so that we know the post was created successfully
-			$post_id = wp_insert_post(
-				array(
-					'comment_status'	=>	'closed',
-					'ping_status'		=>	'closed',
-					'post_name'			=>	$slug,
-					'post_title'		=>	$title,
-					'post_status'		=>	'publish',
-					'post_type'			=>	$post_type,
-					'post_content'		=>	$post_content
-				)
-			);
-
-		} else {
-
-	    	$post_id = -2;
-
-		} // end if
-
-		return $post_id;
-
-	}
 
 
 	/*--------------------------------------------------*/

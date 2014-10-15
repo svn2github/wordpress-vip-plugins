@@ -1,10 +1,10 @@
 <?php
 
 /**
- * Description 
- * 
+ * Description
+ *
  * An extension of the Sailthru_Client class to use WordPress' HTTP API instead of cURL.
- * Provides a drop in replacement for the PHP5 Sailthru library with improved WordPress integration 
+ * Provides a drop in replacement for the PHP5 Sailthru library with improved WordPress integration
  * by replacing all cURL calls with WordPress HTTP API calls.
  */
 
@@ -40,7 +40,7 @@ class WP_Sailthru_Client extends Sailthru_Client {
                 'headers' => array(),
                 'body' => $data,        // data passed to us by the user
                 'cookies' => array()
-            );            
+            );
         }
 
 
@@ -50,16 +50,21 @@ class WP_Sailthru_Client extends Sailthru_Client {
             $reply = wp_remote_post( $url, $data );
         }
 
-
         if ( isset( $reply ) ) {
             if ( is_wp_error( $reply ) ) {
                 throw new Sailthru_Client_Exception("Bad response received from $url: " . $reply->get_error_message() );
             } else {
 
                 if( wp_remote_retrieve_response_code( $reply ) == 200 ) {
-                   return $reply['body']; 
+                   return $reply['body'];
                 }
-                
+
+                if ( isset ($reply['body']) ) {
+                    return $reply['body'];
+                } else {
+                    return;
+                }
+
             }
         } else {
             throw new Sailthru_Client_Exception( 'A reply was never generated.' );
@@ -68,4 +73,4 @@ class WP_Sailthru_Client extends Sailthru_Client {
     }	// end httpRequestCurl()
 
 
-} // end of WP_Sailthru_Client	
+} // end of WP_Sailthru_Client
