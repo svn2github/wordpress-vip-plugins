@@ -259,7 +259,7 @@ function sailthru_setup_email_template_callback( $args ) {
 		// if there are no templates available create a basic one
 		// since multiple settings use this callback, we do this
 		// only if we're in setup mode:
-		if( isset($arg[1]) ) {
+		if( isset($args[1]) ) {
 			$has_default_template = 'sailthru_setup_email_template';
 		} else {
 			$has_default_template = false;
@@ -272,7 +272,7 @@ function sailthru_setup_email_template_callback( $args ) {
 				$email = get_bloginfo('admin_email');
 				try {
 
-					if ( $sailthru_client ){
+					if ( $client ){
 
 						$template = 'default-template';
 						$options = array(
