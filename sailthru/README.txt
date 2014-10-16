@@ -1,24 +1,37 @@
 === Plugin Name ===
-Contributors: nickgundry, automattic, irms, zackify, natebot
+Contributors: nickgundry, automattic (this should be a list of wordpress.org userid's)
 Tags: personalization, email,
-Requires at least: 3.6
-Tested up to: 3.9.1
-Stable tag: 3.0.5
+Requires at least: 3.3.1
+Tested up to: 3.3.1
+Stable tag: 3.0
 
 This plugin  provides fast and easy integration of the core Sailthru features into your Wordpress site.
 
 == Description ==
 
-Provides an integration with Sailthru
+UNDER DEVELOPMENT
+
+* Automatically adds Horizon Javascript to pages
+* Automatically adds Sailthru Meta Tags to all posts
+* Admin area to configure Sailthru Scout and the Sailthru Concierge Slider
+* Adds a page to provides personalized recommendations for users
+* Widget for simple email subscription
+* Widget for "personalized" content for the user via Sailthru Scout
+* Recommended content using Sailthru Concierge
+*  All Wordpress emails re-routed to use Sailthru's email service.
 
 == Installation ==
 
 For full installation instructions, documentation, and examples please visit:
-http://docs.sailthru.com/integrations/wordpress
+http://getstarted.sailthru.com/developers/api-libraries/wordpress
 
-== Screenshots ==
-1. Welcome Screen with quick links to Sailthru support
-2. The setup screen allows you to get up and running with Sailthru in a few clicks.
-3. Configure Sailthru's Concierge widget in the WordPress admin. No JavaScript knowledge needed.
-4. Configure Scout in the WordPress admin.
-5. Add customizable fields to the Signup widget
+==== Sailthru Specific ====
+Create a template in your Sailthru account with {subject} as the subject line and {body} in the code area.
+You can design your template to match your brand but the {body} variable will be replaced by content
+sent via Wordpress
+
+==== Wordpress Installation =====
+
+For full installation instructions, documentation, and examples please visit:
+http://getstarted.sailthru.com/developers/api-libraries/wordpress
+

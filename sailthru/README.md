@@ -1,4 +1,5 @@
-Sailthru WordPress Plugin
+sailthru-wordpress-plugin
 =========================
 
-For full documentation on this plugin please visit http://docs.sailthru.com/integrations/wordpress
+widget usage:
+[sailthru_widget fields="names,of,fields" modal=true]
