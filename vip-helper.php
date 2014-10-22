@@ -883,3 +883,12 @@ function wpcom_vip_disable_smilies( $smilies_to_disable ) {
 		return $smilies;
 	} );
 }
+
+/**
+ * Get the URL of theme files relative to the home_url
+ *
+ * @param string $path The path of the file to get a URL for
+ */
+function wpcom_vip_home_template_uri( $path ) {
+	return str_replace( site_url(), home_url(), get_template_directory_uri() . $path );
+}
