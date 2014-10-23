@@ -159,6 +159,7 @@ class WPcom_VIP_Plugins_UI {
 			'msm-sitemap',
 			'zemanta',
 			'pushup',
+			'livepress',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
