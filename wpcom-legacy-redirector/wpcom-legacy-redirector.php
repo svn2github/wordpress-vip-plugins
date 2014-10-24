@@ -136,4 +136,3 @@ class WPCOM_Legacy_Redirector {
 }
 
 WPCOM_Legacy_Redirector::start();
-
