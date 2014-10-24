@@ -20,8 +20,7 @@ function buildDragColumns() {
 				value = 'hide';
 			cols[value].push( {
 				id: $( this ).attr( 'id' ),
-				name: name,
-				userfield: $( this ).data('userfield')
+				name: name
 			} );
 		} );
 
@@ -35,7 +34,7 @@ function buildDragColumns() {
 			var $col = $( 'ul[data-col=' + colName + ']' );
 			for ( var i in cols[colName] ) {
 				var field = cols[colName][i];
-				$col.append( '<li data-id="' + field.id + '" data-userfield="' + field.userfield + '">' + field.name + '</li>' );
+				$col.append( '<li data-id="' + field.id + '">' + field.name + '</li>' );
 			}
 		}
 		$dragColumnsContainer.append( '<div class="clear"></div>' );
@@ -46,14 +45,9 @@ function buildDragColumns() {
 			receive: function( e, ui ) {
 				var receiver = $( e.target ).data( 'col' );
 				var itemId = $( ui.item ).data( 'id' );
-				
-				if ( receiver == "write" && $( ui.item ).data('userfield') == true ) {
-					$(ui.sender).sortable('cancel');
-				} else {
-					var $selectField = $( 'select[name="' + $optionsPageName.val() + '[' + itemId + ']"]' );
-					$selectField.find( 'option:selected' ).attr( 'selected', false );
-					$selectField.find( 'option[value="' + receiver + '"]' ).attr( 'selected', true );
-				}
+				var $selectField = $( 'select[name="' + $optionsPageName.val() + '[' + itemId + ']"]' );
+				$selectField.find( 'option:selected' ).attr( 'selected', false );
+				$selectField.find( 'option[value="' + receiver + '"]' ).attr( 'selected', true );
 			}
 		} ).disableSelection();
 	}
