@@ -40,7 +40,7 @@ class LivePress_Admin_Settings {
 			array(
 				'api_key'                      => '',
 				'feed_order'                   => 'top',
-				'notifications'                => array( 'tool-tip' ),
+				'notifications'                => array( 'tool-tip', 'effects' ),
 				'byline_style'                 => '',
 				'allow_remote_twitter'         => true,
 				'allow_sms'                    => true,
@@ -53,6 +53,8 @@ class LivePress_Admin_Settings {
 				'author_display'               => '',
 				'timestamp_format'             => 'timeago',
 				'update_format'                => 'default',
+				'facebook_app_id'              => '',
+				'sharing_ui'                   => 'display',
 			)
 		);
 	}
@@ -109,6 +111,8 @@ class LivePress_Admin_Settings {
 		add_settings_field( 'allow_remote_twitter',  esc_html__( 'Allow authors to publish via Twitter', 'livepress' ), array( $this, 'allow_remote_twitter_form' ), 'livepress-settings', 'lp-remote' );
 		add_settings_field( 'allow_sms',  esc_html__( 'Allow authors to publish via SMS', 'livepress' ), array( $this, 'allow_sms_form' ), 'livepress-settings', 'lp-remote' );
 		add_settings_field( 'post_to_twitter',  esc_html__( 'Publish Updates to Twitter', 'livepress' ), array( $this, 'push_to_twitter_form' ), 'livepress-settings', 'lp-remote' );
+		add_settings_field( 'sharing_ui',  esc_html__( 'Display Sharing links per update', 'livepress' ), array( $this, 'sharing_ui_form' ), 'livepress-settings', 'lp-remote' );
+		add_settings_field( 'facebook_app_id',  esc_html__( 'Facebook App Id', 'livepress' ), array( $this, 'facebook_app_id_form' ), 'livepress-settings', 'lp-remote' );
 	}
 
 	/**
@@ -279,6 +283,8 @@ class LivePress_Admin_Settings {
 		checked( true, in_array( 'audio', $settings->notifications ), false ) . '> ' . esc_html__( 'A soft chime (audio)', 'livepress' ) . '</label></p>';
 		echo '<p><label><input type="checkbox" name="livepress[notifications][]" id="lp-notifications" value="scroll" '
 		. checked( true, in_array( 'scroll', $settings->notifications ), false ) . '> ' . esc_html__( 'Autoscroll to update', 'livepress' ) . ' </label></p>';
+		echo '<p><label><input type="checkbox" name="livepress[notifications][]" id="lp-notifications" value="effects" '
+		. checked( true, in_array( 'effects', $settings->notifications ), false ) . '> ' . esc_html__( 'Color highlight effect', 'livepress' ) . ' </label></p>';
 	}
 
 	/**
@@ -294,7 +300,7 @@ class LivePress_Admin_Settings {
 	function allow_remote_twitter_form() {
 		$settings = $this->settings;
 		echo '<p><label><input type="checkbox" name="livepress[allow_remote_twitter]" id="lp-remote" value="allow"' .
-		checked( 'allow', $settings->allow_remote_twitter, false ) . '"> ' . esc_html__( 'Allow', 'livepress' ) . '</label></p>';
+		checked( 'allow', $settings->allow_remote_twitter, false ) . '> ' . esc_html__( 'Allow', 'livepress' ) . '</label></p>';
 	}
 
 	/**
@@ -303,7 +309,7 @@ class LivePress_Admin_Settings {
 	function allow_sms_form() {
 		$settings = $this->settings;
 		echo '<p><label><input type="checkbox" name="livepress[allow_sms]" id="lp-sms" value="allow"' .
-		checked( 'allow', $settings->allow_sms, false ) . '"> ' . esc_html__( 'Allow', 'livepress' ) . '</label></p>';
+		checked( 'allow', $settings->allow_sms, false ) . '> ' . esc_html__( 'Allow', 'livepress' ) . '</label></p>';
 	}
 
 	/**
@@ -324,6 +330,19 @@ class LivePress_Admin_Settings {
 		}
 		echo '</span>';
 		echo '<br /><a href="#" id="lp-post-to-twitter-change_link" style="display: none">' . esc_html__( 'Click here to change accounts.', 'livepress' ).  '</a>';
+	}
+
+	function facebook_app_id_form() {
+		$options = get_option( 'livepress' );
+		$facebook_app_id = isset( $options['facebook_app_id'] ) ? trim( $options['facebook_app_id'] ) : '';
+
+		echo '<input type="text" name="livepress[facebook_app_id]" id="facebook_app_id" value="' . esc_attr( $facebook_app_id ) . '">';
+	}
+
+	function sharing_ui_form() {
+		$settings = $this->settings;
+		echo '<p><label><input type="checkbox" name="livepress[sharing_ui]" id="lp-sharing-ui" value="display"' .
+		checked( 'display', $settings->sharing_ui, false ) . '> ' . esc_html__( 'Display', 'livepress' ) . '</label></p>';
 	}
 
 	/**
@@ -410,6 +429,16 @@ class LivePress_Admin_Settings {
 
 		if ( isset( $input['post_to_twitter'] ) ) {
 			$sanitized_input['post_to_twitter'] = (bool) $input['post_to_twitter'];
+		}
+
+		if ( isset( $input['sharing_ui'] ) ) {
+			$sanitized_input['sharing_ui'] = 'display';
+		} else {
+			$sanitized_input['sharing_ui'] = 'dont_display';
+		}
+
+		if ( isset( $input['facebook_app_id'] ) ) {
+			$sanitized_input['facebook_app_id'] = sanitize_text_field( $input['facebook_app_id'] );
 		}
 
 		$merged_input = wp_parse_args( $sanitized_input, (array) $this->settings ); // For the settings not exposed

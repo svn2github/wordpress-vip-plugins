@@ -50,10 +50,15 @@ final class LivePress_Blogging_Tools {
 	function opengraph_request(){
 		if ( isset( $_GET['lpup'] ) ){
 			$id = absint( $_GET['lpup'] );
-			$update = $this->get_update( $id );
+			$update = $this->lp_get_single_update( $id );
 			$data = $this->opengraph_data( $update );
 			$post_parent_url = get_permalink( $update->post_parent );
-			$canonical_url = $post_parent_url . '&lpup=' . $id . '#livepress-update-' . $id;
+			if ( 0 === preg_match('/\/\?/', $post_parent_url ) ) {
+				$post_parent_url .= "?";
+			} else {
+				$post_parent_url .= "&";
+			}
+			$canonical_url = $post_parent_url . 'lpup=' . $id . '#livepress-update-' . $id;
 
 			echo "<!DOCTYPE HTML>\n";
 			echo "<html>\n";
@@ -88,6 +93,7 @@ final class LivePress_Blogging_Tools {
 			echo "<meta property=\"og:type\" content=\"" .      esc_attr( $data->type ) . "\" />\n";
 			echo '<meta property="og:url" content="' .          esc_url( $canonical_url ) .	"\" />\n";
 			echo '<meta property="og:image" content="' .        esc_attr( $data->img ) . "\" />\n";
+			echo '<meta property="og:image:url" content="' .        esc_attr( $data->img ) . "\" />\n";
 			echo '<meta property="og:site_name" content="' .    esc_attr( get_bloginfo( 'name' ) ) . "\" />\n";
 			echo '<meta property="og:description" content="' .  esc_attr( $data->description ) . "\" />\n";
 
@@ -102,27 +108,21 @@ final class LivePress_Blogging_Tools {
 		}
 	}
 
-	private function get_update($id){
-		$lp_updates = LivePress_PF_Updates::get_instance();
-		remove_action( 'pre_get_posts', array( $lp_updates, 'filter_children_from_query' )  );
-		$args = array(
-			'name'            => 'livepress_update__' . $id,
-			'posts_per_page'  => 1,
-			'nopaging'        => true,
-			'no_found_rows'   => true,
-			'suppress_filters'=> true
-		);
-
-		$results = new WP_Query( $args );
-
-		//Temporal hack since WP_Query is not working again:
+	private function lp_get_single_update( $id ){
 		global $wpdb;
-		$results = $wpdb->get_results("SELECT   wp_posts.* FROM wp_posts " .
-		" WHERE 1=1  AND wp_posts.post_name = 'livepress_update__" . $id .
-		"' AND wp_posts.post_type = 'post'  ORDER BY wp_posts.post_date DESC");
-		add_action( 'pre_get_posts', array( $lp_updates, 'filter_children_from_query' ) );
-		//return $results->posts[0];
-		return $results[0];
+
+		$lp_get_post_cache_key = 'lp__get_post_cache_key_' . $id;
+		if ( false === ( $theresult = get_transient( $lp_get_post_cache_key ) ) ) {
+
+			$query = $wpdb->prepare( "SELECT wp_posts.* FROM wp_posts " .
+				"WHERE wp_posts.post_name = '%s' " .
+				"AND wp_posts.post_type = 'post' ORDER BY wp_posts.post_date DESC LIMIT 1", 'livepress_update__' . $id );
+
+			$results = $wpdb->get_results( $query );
+			$theresult = $results[0];
+			set_transient( $lp_get_post_cache_key, $theresult, DAY_IN_SECONDS );
+		}
+		return $theresult;
 	}
 
 	private function opengraph_data( $update ){

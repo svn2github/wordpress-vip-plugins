@@ -150,8 +150,16 @@ body#tinymce .livepress-meta img {
 }
 
 .livepress-update-format-default .livepress-update-header,
-.livepress-update-format-default .livepress-byline  {
+.livepress-update-format-default .livepress-byline,
+.lp-authorID  {
 	display: none;
+}
+
+.live-author-gravatar img {
+	width: 48px;
+	height: 48px;
+	padding: 4px;
+	clear: both;
 }
 
 .livepress-meta .livepress-update-header {
@@ -165,17 +173,6 @@ body#tinymce .livepress-meta img {
 	font-style: italic;
 }
 
-.live-update-author:last-child:before {
-	content: ' and ';
-}
-
-.live-update-author:first-child:before {
-	content: '\2014  ';
-}
-
-.live-update-author:before {
-	content: ', ';
-}
 
 div.livepress-update-header > input,
 div.livepress-byline > input {
@@ -1202,6 +1199,14 @@ a.lp-term-clean-button:hover{
 
 .livepress-live #postdivrich {
 	display: none;
+}
+
+/* Limit embed widths */
+embed,
+iframe,
+object,
+video {
+	max-width: 100%;
 }
 
 /**

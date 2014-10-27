@@ -537,14 +537,26 @@ class LivePress_Administration {
 	 */
 	public static function lp_get_authors() {
 
-		$lp_author_transient_key = 'lp_author_list_' . LP_PLUGIN_VERSION;
+		$lp_author_transient_key = 'lp_author_list_plus_' . LP_PLUGIN_VERSION;
 		if ( false ===( $return = get_transient( $lp_author_transient_key ) ) ) {
-			$users = get_users( array( 'number' => 100 ) );
+			$users     = get_users( array( 'number' => 100 ) );
+			$names     = [];
+			$gravatars = [];
 
 			foreach ( $users as $user ) {
-				$return[] = $user->display_name;
+				array_push( $names, array(
+					'id'   => $user->ID,
+					'text' => $user->display_name,
+				) );
+				array_push( $gravatars, array(
+					'id'           => $user->ID,
+					'avatar'       => get_avatar( $user->ID ),
+				) );
 			}
-
+			$return = array(
+				'names'     => $names,
+				'gravatars' => $gravatars,
+			);
 			set_transient( $lp_author_transient_key, $return, 60 );
 		}
 		return $return;

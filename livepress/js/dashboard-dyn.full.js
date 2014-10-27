@@ -784,31 +784,31 @@ Livepress.DOMManipulator.prototype = {
 		this.selector('.oortle-diff-removed-block').remove();
 	},
 
-    process_twitter: function(el, html) {
-        if ( html.match( /<blockquote[^>]*twitter-tweet/i )) {
-            if ( 'twttr' in window ) {
-                try {
+	process_twitter: function(el, html) {
+		if ( html.match( /<blockquote[^>]*twitter-tweet/i )) {
+			if ( 'twttr' in window ) {
+				try {
 					window.twttr.events.bind(
 						'loaded',
 						function (event) {
-								jQuery( document ).trigger( 'live_post_update' );
+							jQuery( document ).trigger( 'live_post_update' );
 						}
 					);
 					console.log('loading twitter');
 					window.twttr.widgets.load(el);
 				} catch ( e ) {}
-            } else {
-                try {
-                    if(!document.getElementById('twitter-wjs')) {
-                        var wg = document.createElement('script');
-                        wg.src = "https://platform.twitter.com/widgets.js";
-                        wg.id = "twitter-wjs";
-                        document.getElementsByTagName('head')[0].appendChild(wg);
-                    }
-                } catch(e) {}
-            }
-        }
-    },
+			} else {
+				try {
+					if(!document.getElementById('twitter-wjs')) {
+						var wg = document.createElement('script');
+						wg.src = "https://platform.twitter.com/widgets.js";
+						wg.id = "twitter-wjs";
+						document.getElementsByTagName('head')[0].appendChild(wg);
+					}
+				} catch(e) {}
+			}
+		}
+	},
 
 	apply_changes: function (changes, options) {
 		var $ = jQuery;
@@ -1208,11 +1208,11 @@ Livepress.DOMManipulator.prototype = {
 			return false;
 		}
 		var colors = {
-			'oortle-diff-inserted':       "#55C64D",
-			'oortle-diff-changed':        "#55C64D",
-			'oortle-diff-inserted-block': "#ffff66",
-			'oortle-diff-removed-block':  "#C63F32",
-			'oortle-diff-removed':        "#C63F32"
+			'oortle-diff-inserted':       LivepressConfig.oortle_diff_inserted,
+			'oortle-diff-changed':        LivepressConfig.oortle_diff_changed,
+			'oortle-diff-inserted-block': LivepressConfig.oortle_diff_inserted_block,
+			'oortle-diff-removed-block':  LivepressConfig.oortle_diff_removed_block,
+			'oortle-diff-removed':        LivepressConfig.oortle_diff_removed
 		};
 
 		var color_hex = "#fff";
@@ -1230,7 +1230,7 @@ Livepress.DOMManipulator.prototype = {
 		var $el = jQuery(el);
 
 		// if user is not on the page
-		if (!LivepressConfig.page_active) {
+		if (!LivepressConfig.page_active && LivepressConfig.effects ) {
 			$el.getBg();
 			$el.data("oldbg", $el.css('background-color'));
 			$el.addClass('unfocused-lp-update');

@@ -277,8 +277,10 @@
 			opacity: 0;
 		}
 
-.livepress-inline-editor-tabs {
+.wp-editor-tabs.livepress-inline-editor-tabs {
 	margin-right: 10px;
+	height: 33px;
+	float: none;
 }
 
 .livepress-author-info {

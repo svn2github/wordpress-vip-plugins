@@ -337,79 +337,42 @@
 }
 
 .lp-pre-update-ui {
-  border-radius: 5px;
-  background: #333333;
   text-align: center;
   font-family: Helvetica;
   font-size: 20px;
   height: 40px;
   min-width: 120px;
-  position: absolute;
-  bottom: 40px;
-  z-index: 2000;
-  display: none;
-  color: #fff;
-  left: -20px;
-}
-
-.lp-pre-update-ui:after, .lp-pre-update-ui:before {
-  top: 100%;
-  left: 60px;
-  border: solid transparent;
-  content: " ";
-  height: 0;
-  width: 0;
-  position: absolute;
-  pointer-events: none;
-}
-
-.lp-pre-update-ui:after {
-  border-color: rgba(51, 51, 51, 0);
-  border-top-color: #333333;
-  border-width: 10px;
-  margin-left: -10px;
-}
-
-.lp-pre-update-ui:before {
-  border-color: rgba(51, 51, 51, 0);
-  border-top-color: #333333;
-  border-width: 11px;
-  margin-left: -11px;
-}
-
-.visible{
-  visibility: visible;
 }
 
 .lp-pre-update-ui .lp-pu-ui-feature {
-  cursor: pointer;
-  display: inline-block;
-  height: 40px;
+  display: inline;
   padding: 0 5px;
 }
 
 .lp-pre-update-ui .lp-pu-ui-feature .lp-pu-ico {
   float: left;
-  margin-top: 10px;
-  height: 30px;
-  width: 30px;
+  margin-left: 10px;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 2px;
+  background: #aaa;
 }
 
 .lp-permalink-meta{
-  float: right;
+  float: left;
+  margin: -2px 10px;
 }
 
 .lp-permalink-meta span{
-  margin: 0 10px;
   font-size: 0.6em;
 }
 
 .lp-permalink-meta input{
-  height: 25px;
-  width: 200px;
-  margin-top: 8px;
+  height: 30px;
+  width: 125px;
   padding: 0 0.5em;
   font-size: 0.6em;
+  margin-right: 10px;
 }
 
 /* Icomoon icons */
@@ -424,7 +387,7 @@
   font-style: normal;
 }
 
-[class^="icon-"], [class*=" icon-"] {
+[class^="icon-"], [class*="lp-icon-"] {
   font-family: 'icomoon';
   speak: none;
   font-style: normal;
@@ -437,16 +400,16 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-share:before {
+.lp-icon-share:before {
   content: "\e600";
 }
-.icon-facebook:before {
+.lp-icon-facebook:before {
   content: "\e601";
 }
-.icon-twitter:before {
+.lp-icon-twitter:before {
   content: "\e602";
 }
-.icon-hyperlink:before {
+.lp-icon-hyperlink:before {
   content: "\e603";
 }
 

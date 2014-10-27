@@ -396,7 +396,6 @@ class LivePress_Updater {
 				'comment_status'       => esc_html__( 'Comment Status', 'livepress' ),
 				'copy_permalink'       => esc_html__( 'Ctrl / Cmd C to copy', 'livepress' ),
 				'filter_by_tag'        => esc_html__( 'Filter by Tag:', 'livepress' ),
-				'share'                => esc_html__( 'Share', 'livepress' ),
 				'by'                   => esc_html__( 'by', 'livepress' ),
 				));
 
@@ -426,6 +425,8 @@ class LivePress_Updater {
 			wp_enqueue_style( 'lp_admin_font', LP_PLUGIN_URL . 'fonts/livepress-admin/style.css' );
 
 			wp_enqueue_script( 'lp-admin', LP_PLUGIN_URL . 'js/admin/livepress-admin.' . $mode . '.js', array( 'jquery' ), LP_PLUGIN_VERSION );
+
+			$livepress_authors = LivePress_Administration::lp_get_authors();
 
 			$lp_strings = array(
 				'unexpected'                   => esc_html__( 'Unexpected result from the LivePress server.  Please contact LivePress support at support@livepress.com for help.', 'livepress' ),
@@ -462,7 +463,8 @@ class LivePress_Updater {
 				'comments'                     => esc_html__( 'Comments', 'livepress' ),
 				'include_timestamp'            => esc_html__( 'include timestamp', 'livepress' ),
 				'live_update_tags'             => esc_html__( 'Live tags:', 'livepress' ),
-				'lp_authors'                   => LivePress_Administration::lp_get_authors(),
+				'lp_authors'                   => $livepress_authors['names'],
+				'lp_gravatars'                 => $livepress_authors['gravatars'],
 				'live_tags_select_placeholder' => esc_html__( 'Live update tag(s)', 'livepress' ),
 				'live_update_header'           => esc_html__( 'Live update header', 'livepress' ),
 				'live_update_byline'           => esc_html__( 'Author(s):', 'livepress' ),
@@ -721,6 +723,13 @@ class LivePress_Updater {
 
 		$ljsc->new_value( 'sounds_default', in_array("audio", $this->options['notifications']), Livepress_Configuration_Item::$BOOLEAN);
 		$ljsc->new_value( 'autoscroll', in_array("scroll", $this->options['notifications']), Livepress_Configuration_Item::$BOOLEAN);
+		$ljsc->new_value( 'effects', in_array( 'effects', $this->options['notifications']), Livepress_Configuration_Item::$BOOLEAN );
+
+		$ljsc->new_value( 'oortle_diff_inserted',       apply_filters( 'livepress_effects_inserted', '#55C64D' ) );
+		$ljsc->new_value( 'oortle_diff_changed',        apply_filters( 'livepress_effects_changed', '#55C64D' ) );
+		$ljsc->new_value( 'oortle_diff_inserted_block', apply_filters( 'livepress_effects_inserted_block', '#ffff66' ) );
+		$ljsc->new_value( 'oortle_diff_removed_block',  apply_filters( 'livepress_effects_removed_block', '#C63F32' ) );
+		$ljsc->new_value( 'oortle_diff_removed',        apply_filters( 'livepress_effects_removed', '#C63F32' ) );
 
 		if ( is_admin() || $is_live ) {
 			if (isset($post->ID)&&$post->ID) {
@@ -782,8 +791,12 @@ class LivePress_Updater {
 
 				// Set the author name
 				if ($this->options['update_author']) {
-					$author_display_name = LivePress_Live_Update::get_author_display_name($this->options);
-					$ljsc->new_value( 'author_display_name', $author_display_name);
+					$use_default_author = apply_filters( 'livepress_use_default_author', true );
+					$author_display_name = $use_default_author ? LivePress_Live_Update::get_author_display_name( $this->options ) : '';
+					$ljsc->new_value( 'author_display_name', $author_display_name );
+					$user = wp_get_current_user();
+					$author_id = ( isset( $user->ID ) ) ? $user->ID : 0;
+					$ljsc->new_value( 'author_id', $use_default_author ? $author_id : '' );
 				}
 				// The last attribute shouldn't have a comma
 				// Set where the live updates should be inserted (top|bottom)
@@ -811,6 +824,15 @@ class LivePress_Updater {
 		$settings = get_option( 'livepress' );
 		if( isset( $settings['update_format'] ) ){
 			$ljsc->new_value( 'timestamp_format', $settings['timestamp_format'] );
+		}
+
+		// Check for Facebook App Id for sharing UI:
+		if ( isset( $settings['facebook_app_id'] ) ) {
+			$ljsc->new_value( 'facebook_app_id', $settings['facebook_app_id'] );
+		}
+
+		if ( isset( $settings['sharing_ui'])) {
+			$ljsc->new_value( 'sharing_ui', $settings['sharing_ui']);
 		}
 
 		// Localize `LivepressConfig` in admin and on front end live posts

@@ -127,12 +127,6 @@ class LivePress_Live_Update {
 
 		if ($time) {
 			$timestring = date( apply_filters( 'livepress_timestamp_time_format', 'g:i A' ), strtotime( $atts['timestamp'] ) + ( get_option('gmt_offset') * 3600 ) );
-			$postdate = date( apply_filters( 'livepress_timestamp_date_format', 'n/j/Y' ), strtotime( $atts['timestamp'] ) + ( get_option('gmt_offset') * 3600 ) );
-			$currentdate = date( apply_filters( 'livepress_timestamp_date_format', 'n/j/Y' ), time() + ( get_option('gmt_offset') * 3600 )  );
-
-			if ( $postdate !== $currentdate ){
-				$timestring = $postdate . ' ~ ' . $timestring;
-			}
 
 			if ( isset( $options['timestamp_format'] ) && 'timeof' === $options['timestamp_format'] ) {
 					$metainfo .= '<span class="livepress-update-header-timestamp">';

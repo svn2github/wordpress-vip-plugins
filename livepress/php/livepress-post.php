@@ -60,7 +60,12 @@ class LivePress_Post {
 		$content = stripslashes($this->content);
 		$dom = new DOMDocument();
 		$xml = $this->get_valid_xml($content);
+		// Suppress XML parse warnings
+		$previous_libxml_use_internal_errors_value = libxml_use_internal_errors( TRUE );
 		$parse_success = $dom->loadXML( html_entity_decode( $xml ) );
+		libxml_clear_errors();
+		// Restore previous error handling setting
+		libxml_use_internal_errors( $previous_libxml_use_internal_errors_value );
 		if (!$parse_success) {
 			$dom->loadHTML( $content );
 		}

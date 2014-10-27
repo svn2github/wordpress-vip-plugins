@@ -158,8 +158,9 @@ Livepress.Ui.Controller = function (config, hooks) {
 			var $this = jQuery( this );
 			if ( ! $this.is( '.lp-live' ) ) {
 				$this.addClass('lp-live');
-				return new Livepress.Ui.UpdateView($this, current_post_link, window.location, config.disable_comments);
-
+				if (LivepressConfig.sharing_ui !== 'dont_display'){
+					return new Livepress.Ui.UpdateView($this, current_post_link, config.disable_comments);
+				}
 			}
 		});
 	}
