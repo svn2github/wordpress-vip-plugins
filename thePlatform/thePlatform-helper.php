@@ -46,8 +46,7 @@ function theplatform_account_options_validate ( $input ) {
 	}
 			
 	$account_is_verified = $tp_api->internal_verify_account_settings();
-	if ( $account_is_verified ) {
-		$region_is_verified = $tp_api->internal_verify_account_region();
+	if ( $account_is_verified ) {		
 		
 		if ( strpos( $input['mpx_account_id'], '|' ) !== FALSE ) {
 			$ids = explode( '|', $input['mpx_account_id'] );			
@@ -59,7 +58,6 @@ function theplatform_account_options_validate ( $input ) {
 			$ids = explode( '|', $input['mpx_region'] );
 			$input['mpx_region'] = $ids[0];
 		}
-
 	}
 	
 	foreach ($input as $key => $value) {
@@ -127,8 +125,7 @@ function theplatform_setting_changed( $key, $oldArray, $newArray ) {
  * @return array A cleaned up copy of the array, invalid values will be cleared.
  */
 function theplatform_preferences_options_validate( $input ) {	
-	$tp_api = new ThePlatform_API;
-	$defaults = TP_PREFERENCES_OPTIONS_DEFAULTS();
+	$tp_api = new ThePlatform_API;	
 
 	$account_is_verified = $tp_api->internal_verify_account_settings();	
 	if ( $account_is_verified ) {
@@ -292,21 +289,21 @@ function theplatform_plugin_version_changed() {
 	}
 	
 	if ( !isset( $preferences['plugin_version'] ) ) {
-		return TRUE; //Old versions didn't have plugin_version stored
+		return TP_PLUGIN_VERSION('1.0.0'); //Old versions didn't have plugin_version stored
 	}
 	
-	$version = explode( '.', $preferences['plugin_version'] );
+	$version = TP_PLUGIN_VERSION( $preferences['plugin_version'] );
 	$currentVersion = TP_PLUGIN_VERSION();
-	if ( $version[0] != $currentVersion['major']) {
-		return TRUE;
+	if ( $version['major'] != $currentVersion['major']) {
+		return $version;
 	}
 	
-	if ( $version[1] != $currentVersion['minor']) {
-		return TRUE;
+	if ( $version['minor'] != $currentVersion['minor']) {
+		return $version;
 	}
 	
-	if ( $version[2] != $currentVersion['patch']) {
-		return TRUE;
+	if ( $version['patch'] != $currentVersion['patch']) {
+		return $version;
 	}	
 	
 	return FALSE;
