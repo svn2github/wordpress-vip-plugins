@@ -1,3 +1,5 @@
+**Warning, you are looking at a development branch which may not be stable. For the latest Wordpress VIP release please switch to either the Master or Release branch**
+
 # === thePlatform Video Manager ===
 Developed By: thePlatform for Media, Inc.  
 Tags: embedding, video, embed, portal, theplatform, shortcode  
@@ -38,7 +40,6 @@ Copy the folder "thePlatform-video-manager" with all included files into the "wp
 * Admins can choose to display either the username, full name or email address instead of the numerical user id.
 * Fixed the autoPlay shortcode attribute
 * Admins can choose the Player embed type - either full player or a single embedded player
-* Disabled players no longer show up in the Players dropdown
 
 ## = 1.2.3 = 
 * Fix uploads sporadically not working in HTTPS 
