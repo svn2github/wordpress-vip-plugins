@@ -36,12 +36,14 @@ class ThePlatform_API_HTTP {
 			$url = esc_url_raw( $url );
 		}			
 		
-		if ( $cache && defined( 'WPCOM_IS_VIP_ENV' ) ) {
+		if ($cache && TRUE === WPCOM_IS_VIP_ENV) {
 			return wpcom_vip_file_get_contents( $url );
 		}
 		else {
 			return wp_remote_get( $url, $data );
 		}
+		
+		return $response;
 	}
 
 	/**
@@ -64,19 +66,18 @@ class ThePlatform_API_HTTP {
 	 * @return wp_response Results of the POST request
 	 */
 	static function post( $url, $data, $isJSON = TRUE, $method = 'POST' ) {
-		$escapedUrl = esc_url_raw( $url );
-		$default_data = array(
-			'method' => $method,						
+		$url = esc_url_raw( $url );
+		$args = array(
+			'method' => $method,
+			'body' => $data,
 			'timeout' => 10,
 		);
 
 		if ( $isJSON ) {
-			$default_data['headers'] = array( 'content-type' => 'application/json; charset=UTF-8' );
-		} 
+			$args['headers'] = array( 'Content-Type' => 'application/json; charset=UTF-8' );
+		}
 
-		$args = array_merge( $default_data, $data );				
-		
-		$response = wp_remote_post( $escapedUrl, $args );
+		$response = wp_remote_post( $url, $args );
 
 		return $response;
 	}
@@ -151,16 +152,15 @@ class ThePlatform_API {
 	/**
 	 * Convert a MIME type to an MPX-compliant format identifier
 	 * @param string $mime A MIME-type string
-	 * @param string extension The file extension for fallback
 	 * @return string MPX-compliant format string
 	 */
-	function get_format( $mime, $extension ) {
+	function get_format( $mime ) {
 		$response = ThePlatform_API_HTTP::get( TP_API_FORMATS_XML_URL, null, true );
 		
-		if ( !defined( 'WPCOM_IS_VIP_ENV' )  ) {			
+		if ( FALSE == WPCOM_IS_VIP_ENV ) {
 			$response = wp_remote_retrieve_body( $response );
 		} 
-
+		
 		$xmlString = "<?xml version='1.0'?>" . $response;
 
 		$formats = simplexml_load_string( $xmlString );
@@ -168,29 +168,12 @@ class ThePlatform_API {
 		foreach ( $formats->format as $format ) {
 			foreach ( $format->mimeTypes->mimeType as $mimetype ) {
 				if ( $mimetype == $mime ) {
-					return array ( 
-						'title' => (string) $format->title,
-						'contentType' => (string) $format->defaultContentType
-					);
+					return $format;
 				}
 			}
 		}
 
-		foreach ( $formats->format as $format ) {
-			foreach ( $format->extensions->extension as $ext ) {
-				if ( $extension == $ext ) {
-					return array ( 
-						'title' => (string) $format->title,
-						'contentType' => (string) $format->defaultContentType
-					);
-				}
-			}
-		}
-
-		return array ( 
-			'title' => 'Unknown',
-			'contentType' => 'unknown'
-		);
+		return 'Unknown';
 	}
 
 	/**
@@ -243,8 +226,7 @@ class ThePlatform_API {
 		if ( empty( $fields ) ) {
 			wp_die( 'No fields are set, unable to upload Media' );
 		}
-		
-		// Create the Custom Fields namespace and values arrays
+
 		$custom_field_ns = array();
 		$custom_field_values = array();
 		if ( !empty( $custom_fields ) ) {
@@ -265,13 +247,11 @@ class ThePlatform_API {
 
 		$url = TP_API_MEDIA_ENDPOINT;
 		$url .= '&account=' . $this->get_mpx_account_id();
-		$url .= '&token=' . $token;		
-
-		$data = array( 'body' => json_encode( $payload, JSON_UNESCAPED_SLASHES ) );
-
-		$response = ThePlatform_API_HTTP::post( $url, $data, true );
-		
-		return theplatform_decode_json_from_server( $response, TRUE );		
+		$url .= '&token=' . $token;
+			
+		$response = ThePlatform_API_HTTP::post( $url, json_encode( $payload, JSON_UNESCAPED_SLASHES ), true );
+		$data = theplatform_decode_json_from_server( $response, TRUE );
+		return $data;
 	}
 
 	/**
@@ -328,7 +308,8 @@ class ThePlatform_API {
 			'filesize' => $_POST['filesize'],
 			'filetype' => $_POST['filetype'],
 			'filename' => $_POST['filename'],
-			'fields' => $_POST['fields'],			
+			'fields' => $_POST['fields'],
+			'profile' => $_POST['profile'],
 			'custom_fields' => $_POST['custom_fields'],
 			'server_id' => $_POST['server_id']
 		);
@@ -338,25 +319,19 @@ class ThePlatform_API {
 		if ( $args['filetype'] === "audio/mp3" ) {
 			$args['filetype'] = "audio/mpeg";
 		}
-
-		// Get the file extension as a fallback for format MIME
-		$extensionIndex = strrpos($args['filename'], '.');
-
-		if ( $extensionIndex !== false ) {
-			$extension = strtolower( substr( $args['filename'], $extensionIndex + 1 ) );			
-		} else {
-			$extension = 'unk';
-		}		
 		
-		// Get the Format based on the file MIME type
-		$format = $this->get_format( $args['filetype'], $extension );			
+		$format = $this->get_format( $args['filetype'] );
+		
+		if ( $format === "unknown" ) {
+			$formatTitle = $format;
+		} else {
+			$formatTitle = (string) $format->title;
+		}
 
-		// Get the upload url based on the server id
-		// If no server id is supplied, get the default server for the Format
 		$upload_server_id = $args['server_id'];
 
 		if ( $upload_server_id === 'DEFAULT_SERVER' ) {
-			$upload_server_id = $this->get_default_upload_server( $format['title'] );
+			$upload_server_id = $this->get_default_upload_server( $formatTitle );
 		}				
 		
 		if ( FALSE === $upload_server_id ) {
@@ -367,18 +342,18 @@ class ThePlatform_API {
 
 		if ( is_wp_error( $upload_server_base_url ) ) {
 			wp_send_json_error( $upload_server_base_url );
-		}		
-
-		// Create a placeholder media to store the new file in
+		}
+		
 		$media = $this->create_media_placeholder( $args, $token );
 		$params = array(
 			'token' => $token,
-			'mediaId' => $media['id'],
-			'serverId' => $upload_server_id,			
-			'account' => $this->get_mpx_account_id(FALSE),		
-			'uploadUrl' => $upload_server_base_url,
-			'format' => $format['title'],
-			'contentType' => $format['contentType']
+			'media_id' => $media['id'],
+			'guid' => $media['guid'],
+			'account_id' => $this->get_mpx_account_id(FALSE),
+			'server_id' => $upload_server_id,
+			'upload_base' => $upload_server_base_url,
+			'format' => $formatTitle,
+			'contentType' => (string) $format->defaultContentType			
 		);
 		
 		wp_send_json_success( $params );		
@@ -440,11 +415,11 @@ class ThePlatform_API {
 		$token = $this->mpx_signin();
 
 		$fields = theplatform_get_query_fields( $this->get_metadata_fields() );
-				
-		$url = TP_API_MEDIA_ENDPOINT . '&fields=guid,pid,title' . $fields . '&token=' . $token . '&range=' . $_POST['range'];
+
+		$url = TP_API_MEDIA_ENDPOINT . '&fields=guid,' . $fields . '&token=' . $token . '&range=' . $_POST['range'];
 
 		if ( $_POST['isEmbed'] === "1" ) {
-			$url .= '&byApproved=true&byContent=byReleases=byDelivery%253Dstreaming';
+			$url .= '&byAvailabilityState=available&byApproved=true&byContent=byReleases=byDelivery%253Dstreaming';
 		}
 
 		if ( !empty( $_POST['myContent'] ) && $_POST['myContent'] === 'true' ) {
@@ -460,39 +435,11 @@ class ThePlatform_API {
 		if ( !empty( $_POST['query'] ) ) {
 			$url .= '&' . $_POST['query'];
 		}
-				
+
 		$response = ThePlatform_API_HTTP::get( $url, array( "timeout" => 120 ) );
 		$this->mpx_signout( $token );
 		
-		$decodedResponse = theplatform_decode_json_from_server( $response, true );
-		
-		// Find the userID response and transform it to a human readable value.
-		foreach ( $decodedResponse['entries'] as $entryKey => $entry ) {		
-			$key = $this->preferences['user_id_customfield'];
-			if ( array_key_exists($this->preferences['user_id_customfield'], $entry) ) {
-				$user = get_userdata ( $entry[ $key ] );
-				if ( $user ) {
-					switch ( $this->preferences['transform_user_id_to']) {
-						case 'username':
-							$decodedResponse['entries'][ $entryKey ][ $key ] = $user->user_login;
-							break;
-						case 'nickname':
-							$decodedResponse['entries'][ $entryKey ][ $key ] = $user->nickname;
-							break;
-						case 'email':
-							$decodedResponse['entries'][ $entryKey ][ $key ] = $user->user_email;
-							break;
-						case 'full_name':
-							$decodedResponse['entries'][ $entryKey ][ $key ] = $user->user_firstname . ' ' . $user->user_lastname;
-							break;
-						default:
-							break;
-					}						
-				}	
-			}								
-		}
-		
-		wp_send_json( json_encode( $decodedResponse ) );
+		wp_send_json( wp_remote_retrieve_body( $response ) );
 	}
 
 	/**
@@ -525,11 +472,13 @@ class ThePlatform_API {
 	function get_players( $fields = array() ) {
 		$default_fields = array( 'id', 'title', 'plplayer$pid' );
 
-		$fieldsString = implode( ',' , array_merge( $default_fields, $fields ) );
+		$fields = implode( ',', 
+				array_merge( $default_fields, $fields )
+		);
 
 		$token = $this->mpx_signin();
 
-		$url = TP_API_PLAYER_PLAYER_ENDPOINT . '&sort=title&fields=' . $fieldsString . '&token=' . $token;
+		$url = TP_API_PLAYER_PLAYER_ENDPOINT . '&sort=title&fields=' . $fields . '&token=' . $token;
 
 		if ( $this->get_mpx_account_id() ) {
 			$url .= '&account=' . $this->get_mpx_account_id();
@@ -555,13 +504,19 @@ class ThePlatform_API {
 	function get_metadata_fields( $fields = array() ) {
 		$default_fields = array( 'id', 'title', 'description', 'added', 'allowedValues', 'dataStructure', 'dataType', 'fieldName', 'defaultValue', 'namespace', 'namespacePrefix' );
 		
-		$fieldsString = implode( ',', array_merge( $default_fields, $fields ) );
+		$fields = implode( ',', 
+				array_merge( $default_fields, $fields )
+		);
 
 		$this->get_preferences();
 
 		$token = $this->mpx_signin();
 
-		$url = TP_API_MEDIA_FIELD_ENDPOINT . '&fields=' . $fieldsString . '&token=' . $token;
+		$url = TP_API_MEDIA_FIELD_ENDPOINT . '&fields=' . $fields . '&token=' . $token;
+
+		if ( !empty( $this->preferences['mpx_namespace'] ) ) {
+			$url .= '&byNamespace=' . $this->preferences['mpx_namespace'];
+		}
 
 		if ( $this->get_mpx_account_id() ) {
 			$url .= '&account=' . $this->get_mpx_account_id();
@@ -586,11 +541,13 @@ class ThePlatform_API {
 	function get_servers( $fields = array(), $query = "" ) {
 		$default_fields = array( 'id', 'title', 'description', 'added' );
 
-		$fieldsString = implode( ',', array_merge( $default_fields, $fields ) );
+		$fields = implode( ',', 
+				array_merge( $default_fields, $fields )
+		);
 
 		$token = $this->mpx_signin();
 
-		$url = TP_API_MEDIA_SERVER_ENDPOINT . '&fields=' . $fieldsString . '&token=' . $token;
+		$url = TP_API_MEDIA_SERVER_ENDPOINT . '&fields=' . $fields . '&token=' . $token;
 
 		if ( $this->get_mpx_account_id() ) {
 			$url .= '&account=' . $this->get_mpx_account_id();
@@ -665,9 +622,15 @@ class ThePlatform_API {
 	/**
 	 * Query MPX for subaccounts associated with the configured account
 	 *
+	 * @param array $fields Optional set of fields to request from the data service
 	 * @return array The Media data service response
 	 */
-	function get_subaccounts( ) {
+	function get_subaccounts( $fields = array() ) {
+		$default_fields = array( 'id', 'title', 'description', 'placcount$pid' );
+
+		$fields = implode( ',', 
+				array_merge( $default_fields, $fields )
+		);
 
 		$token = $this->mpx_signin();
 
@@ -691,11 +654,13 @@ class ThePlatform_API {
 	function get_publish_profiles( $fields = array() ) {
 		$default_fields = array( 'id', 'title' );
 
-		$fieldsString = implode( ',', array_merge( $default_fields, $fields ) );
+		$fields = implode( ',', 
+				array_merge( $default_fields, $fields )
+		);
 
 		$token = $this->mpx_signin();
 
-		$url = TP_API_PUBLISH_PROFILE_ENDPOINT . '&fields=' . $fieldsString . '&token=' . $token . '&sort=title';
+		$url = TP_API_PUBLISH_PROFILE_ENDPOINT . '&fields=' . $fields . '&token=' . $token . '&sort=title';
 
 		if ( $this->get_mpx_account_id() ) {
 			$url .= '&account=' . $this->get_mpx_account_id();
@@ -743,7 +708,7 @@ class ThePlatform_API {
 
 	/**
 	 * Verify that the account you've selected is within the region you've selected
-	 * @return bool True if the account is within the same region
+	 * @return bool account is within the same region
 	 */
 	function internal_verify_account_region() {
 		if ( !$this->get_mpx_account_id() ) {
