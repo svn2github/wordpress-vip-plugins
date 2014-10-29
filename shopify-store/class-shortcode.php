@@ -48,6 +48,10 @@ class Shopify_Shortcode
 		$settings = get_option( 'shopify', array() );
 
 		// No need to run a regex if there is nothing to replace
+		if ( empty( $settings['myshopify_domain'] ) ) {
+			return $content;
+		}
+
 		if ( false === strpos( $content, $settings['myshopify_domain'] ) )
 			return $content;
 
