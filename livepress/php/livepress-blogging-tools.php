@@ -112,7 +112,7 @@ final class LivePress_Blogging_Tools {
 	private function lp_get_single_update( $id ){
 		global $wpdb;
 
-		$lp_get_post_cache_key = 'lp__get_post_cache_key_' . $id;
+		$lp_get_post_cache_key = 'lp__get_post_cache_key_' . LP_PLUGIN_VERSION .'_' . $id;
 		if ( false === ( $theresult = get_transient( $lp_get_post_cache_key ) ) ) {
 
 			$query = $wpdb->prepare( "SELECT wp_posts.* FROM wp_posts " .
@@ -132,9 +132,12 @@ final class LivePress_Blogging_Tools {
 		// TODO: make this customizable:
 		$data->type = 'article';
 		$data->title = $this->headline_title($update);
+
+		$content = $this->remove_author_info( $update->post_content );
 		$content = wp_strip_all_tags(
-			preg_replace( "/\[livepress_metainfo.+\]/", '', $update->post_content )
+			preg_replace( "/\[livepress_metainfo.+\]/", '', $content )
 		);
+
 		// Check tweets first since their content is already cached:
 		if ( 1 === preg_match( '/https?:\/\/twitter\.com\S*/', $content, $matches ) ){
 			// Get embedded tweet from WP
@@ -144,35 +147,40 @@ final class LivePress_Blogging_Tools {
 			if ( ! $data->title ){
 				$data->title = wp_trim_words( $data->description, 10, esc_html__( '&hellip;', 'livepress' ) );
 			}
-
 			return $data;
 
 		} elseif( preg_match( '/^(https?:\/\/)\S*/i', $content, $matches ) ) {
 			// oEmbed update:
-			$odata = get_transient( 'lpup_' . $update->ID );
+			$odata = get_transient( 'lpup_' . LP_PLUGIN_VERSION . '_' . $update->ID );
 			if ( false === $odata ){
 				// Get oEmbed data
 				$url = $matches[0];
 				wp_oembed_get( $url );
 				$oembed = _wp_oembed_get_object();
 				$provider_url = $oembed->get_provider( $matches[0] );
+				// Returns false on failure or object (
 				$odata = $oembed->fetch( $provider_url, $url );
-				// Set the cache to expire in one month
-				set_transient( 'lpup_' . $update->ID, $odata, 30 * DAY_IN_SECONDS );
+				if ( false !== $odata) {
+					// Set the cache to expire in one month
+					set_transient( 'lpup_' . LP_PLUGIN_VERSION . '_' . $update->ID, $odata, 30 * DAY_IN_SECONDS );
+				}
 			}
-			if ( ! $data->title ){
-				$data->title = $odata->title;
+			if ( false !== $odata) {
+				if ( ! $data->title ){
+					$data->title = $odata->title;
+				}
+
+				$data->description = $data->title;
+				$data->img = $odata->thumbnail_url;
+
+				return $data;
 			}
-			$data->description = $data->title;
-			$data->img = $odata->thumbnail_url;
-
-			return $data;
-
 		}
+
 		// No oEmbeds:
 		$data->img = $this->og_image( $update );
 		if ( ! $data->title ){
-			$data->title = $this->og_title( $update );
+			$data->title = $this->og_title( $content );
 		}
 		if (count($content) > 0 && $content != '') {
 			$data->description = wp_trim_words( $content, 40, esc_html__( '&hellip;', 'livepress' ) );
@@ -188,7 +196,8 @@ final class LivePress_Blogging_Tools {
 	private function og_image( $update ){
 		global $post;
 		$img = '';
-		preg_match( '/<img.*src=[\'|\"]?(\S+\.{1}[a-z]{3,4})/i', $update->post_content, $matches );
+		$content = $this->remove_author_info( $update->post_content );
+		preg_match( '/<img.*src=[\'|\"]?(\S+\.{1}[a-z]{3,4})/i', $content, $matches );
 		if( 0 < count($matches) ){
 			$img = $matches[1];
 		} elseif( has_post_thumbnail( $post->ID ) ){
@@ -208,16 +217,19 @@ final class LivePress_Blogging_Tools {
 
 	// Use when there's no update header or oembed title. Get the title from
 	// the post content or the original post's title if everything else fails.
-	private function og_title( $update ){
-		$content = preg_replace( '/\[livepress_metainfo.+\]/', '', $update->post_content );
-		$content = wp_strip_all_tags( $content );
-		if ( 0 < count( $content ) && $content != '' ){
-			$title = wp_trim_words( $content, 10, esc_html__( '&hellip;', 'livepress' ) );
+	private function og_title( $post_content ){
+		if ( 0 < count( $post_content ) && $post_content != '' ){
+			$title = wp_trim_words( $post_content, 10, esc_html__( '&hellip;', 'livepress' ) );
 		} else {
 			global $post;
 			$title = $post->post_title;
 		}
 		return $title;
+	}
+
+	// Remove author name and avatar from content:
+	private function remove_author_info( $content ) {
+		return preg_replace( "/\<div\sclass=\"live-update-authors\"\>.+\<\/div\>/", '', $content );
 	}
 
 
