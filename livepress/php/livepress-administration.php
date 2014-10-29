@@ -538,10 +538,11 @@ class LivePress_Administration {
 	public static function lp_get_authors() {
 
 		$lp_author_transient_key = 'lp_author_list_plus_' . LP_PLUGIN_VERSION;
-		if ( false ===( $return = get_transient( $lp_author_transient_key ) ) ) {
+		if ( false === ( $return = get_transient( $lp_author_transient_key ) ) ) {
 			$users     = get_users( array( 'number' => 100 ) );
-			$names     = [];
-			$gravatars = [];
+			$names     = array();
+			$gravatars = array();
+			$links     = array();
 
 			foreach ( $users as $user ) {
 				array_push( $names, array(
@@ -550,16 +551,21 @@ class LivePress_Administration {
 				) );
 				array_push( $gravatars, array(
 					'id'           => $user->ID,
-					'avatar'       => get_avatar( $user->ID ),
+					'avatar'       => apply_filters( 'livepress_get_avatar', get_avatar( $user->ID ), $user )
+				) );
+				array_push( $links, array(
+					'id'           => $user->ID,
+					'link'         => apply_filters( 'livepress_get_avatar_link', get_author_posts_url( $user->ID ), $user )
 				) );
 			}
 			$return = array(
 				'names'     => $names,
 				'gravatars' => $gravatars,
+				'links'     => $links,
 			);
 			set_transient( $lp_author_transient_key, $return, 60 );
 		}
-		return $return;
+		return apply_filters( 'lp_authors_return', $return );
 	}
 
 	/**

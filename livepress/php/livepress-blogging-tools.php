@@ -67,7 +67,8 @@ final class LivePress_Blogging_Tools {
 			echo "<title>" .                                    esc_html( $data->title ) . "</title>\n";
 
 			// Twitter card:
-			echo "<meta name=\"twitter:card\" content=\"summary\" />\n";
+			// TODO: Make this customizable
+			echo "<meta name=\"twitter:card\" content=\"summary_large_image\" />\n";
 			echo '<meta name="twitter:title" content="' .       esc_attr( $data->title )  . "\" />\n";
 			echo '<meta name="twitter:description" content="' . esc_attr( $data->description )  . "\" />\n";
 			echo '<meta name="twitter:image" content="' .       esc_attr( $data->img )  . "\" />\n";
@@ -128,6 +129,7 @@ final class LivePress_Blogging_Tools {
 	private function opengraph_data( $update ){
 		$data = new stdClass();
 		$data->description = '';
+		// TODO: make this customizable:
 		$data->type = 'article';
 		$data->title = $this->headline_title($update);
 		$content = wp_strip_all_tags(

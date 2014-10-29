@@ -1,4 +1,4 @@
-/*! livepress -v1.1.5
+/*! livepress -v1.1.6
  * http://livepress.com/
  * Copyright (c) 2014 LivePress, Inc.
  */

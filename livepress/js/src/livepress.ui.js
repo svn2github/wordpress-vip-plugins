@@ -332,41 +332,55 @@ Livepress.Ui.UpdateBoxView = function (homepage_mode) {
 Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 	var update = {};
 	var $update_ui;
+	var is_sticky = $element.hasClass("pinned-first-live-update");
+
+	var share_url = function () {
+		if( is_sticky ){
+			return LivepressConfig.post_url;
+		} else {
+			return Livepress.getUpdatePermalink(update.id);
+		}
+	};
 
 	var excerpt = function (limit) {
-		var i;
-		var filtered = $element.clone();
-		filtered.find(".livepress-meta").remove();
-		filtered.find(".live-update-authors").remove();
-		filtered.find(".live-update-livetags").remove();
-		var text = filtered.text();
-		text = filtered.text().replace(/\n/g, "");
-		text = text.replace(/\s+/, ' ');
+		if ( is_sticky ){
+			return LivepressConfig.post_title;
+		} else {
+			var i;
+			var filtered = $element.clone();
+			filtered.find(".livepress-meta").remove();
+			filtered.find(".live-update-authors").remove();
+			filtered.find(".live-update-livetags").remove();
+			var text = filtered.text();
+			text = filtered.text().replace(/\n/g, "");
+			text = text.replace(/\s+/, ' ');
 
-		var spaces = []; // Array of indices to space characters
-		spaces.push(0);
-		for (i = 1; i < text.length; i += 1) {
-			if (text.charAt(i) === ' ') {
-				spaces.push(i);
-			}
-		}
-
-		spaces.push(text.length);
-
-		if (text.length > limit) {
-			i = 0;
-			var rbound = limit;
-			// looking for last space index within length limit
-			while ((spaces[i] < limit) && (i < spaces.length - 1)) {
-				rbound = spaces[i];
-				i += 1;
+			var spaces = []; // Array of indices to space characters
+			spaces.push(0);
+			for (i = 1; i < text.length; i += 1) {
+				if (text.charAt(i) === ' ') {
+					spaces.push(i);
+				}
 			}
 
-			text = text.substring(0, rbound) + "\u2026";
+			spaces.push(text.length);
+
+			if (text.length > limit) {
+				i = 0;
+				var rbound = limit;
+				// looking for last space index within length limit
+				while ((spaces[i] < limit) && (i < spaces.length - 1)) {
+					rbound = spaces[i];
+					i += 1;
+				}
+
+				text = text.substring(0, rbound) + "\u2026";
+			}
+
+			return '"' + text + '"';
 		}
 
-		return '"' + text + '"';
-	};
+};
 
 	if ($update_ui === undefined) {
 		var share_container = jQuery("<div>").addClass("lp-share");
@@ -374,31 +388,40 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 		update.element = $element;
 		update.id = $element.attr('id');
 
+		if( $element.hasClass("pinned-first-live-update") ){
+			update.link = LivepressConfig.post_url;
+		} else {
+			update.link = Livepress.getUpdatePermalink(update.id);
+		}
+
+		update.link = share_url();
 
 		var metainfo = '';
 
 		if ( 1 === jQuery( '#' + $element.attr('id') + ' .livepress-update-header').length ) {
-			update.shortExcerpt = jQuery('#' + $element.attr('id') + ' .livepress-update-header').text() + " : ";
+			update.shortExcerpt = jQuery('#' + $element.attr('id') + ' .livepress-update-header').text();
 		} else {
 			update.shortExcerpt = excerpt(100) + " ";
 			update.longExcerpt = excerpt(1000) + " ";
 		}
 
-		if ( 0 < jQuery( '#' + $element.attr('id') + ' .live-update-authors').length ) {
-			var authors = [];
-			jQuery('#' + $element.attr('id') + ' .live-update-authors .live-update-author').each( function(){
-				authors.push( jQuery(this).text() );
-			});
-			metainfo += lp_client_strings.by + ' ' + authors.join(', ');
-		}
+		// TODO: Make this customizable
+		//if ( 0 < jQuery( '#' + $element.attr('id') + ' .live-update-authors').length ) {
+		// var authors = [];
+		// jQuery('#' + $element.attr('id') + ' .live-update-authors .live-update-author .live-author-name').each( function(){
+		// authors.push( jQuery(this).text() );
+		// });
+		//	metainfo += lp_client_strings.by + ' ' + authors.join(', ');
+		//}
 
-		if ( 0 < jQuery( '#' + $element.attr('id') + ' .live-update-livetags').length ) {
-			var tags = [];
-			jQuery('#' + $element.attr('id') + ' .live-update-livetags .live-update-livetag').each( function(){
-				tags.push( '%23' + jQuery(this).text() );
-			});
-			metainfo += ' ' + tags.join(' ');
-		}
+		// TODO: Make this customizable
+		// if ( 0 < jQuery( '#' + $element.attr('id') + ' .live-update-livetags').length ) {
+		//	var tags = [];
+		//	jQuery('#' + $element.attr('id') + ' .live-update-livetags .live-update-livetag').each( function(){
+		//		tags.push( '%23' + jQuery(this).text() );
+		//	});
+		//	metainfo += ' ' + tags.join(' ');
+		// }
 
 		update.shortExcerpt += metainfo;
 		update.longExcerpt += metainfo;
@@ -406,20 +429,20 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 
 	// Get shortened URL for update permalink:
 	var bitly_api_key = "7ea952a9826d091fbda8a4ca220ba634efe61e31",
-	url = Livepress.getUpdatePermalink(update.id),
-	short_url = '',
-	bitly_request_url = "https://api-ssl.bitly.com/v3/shorten?access_token=" +
-		bitly_api_key + "&longUrl=" + encodeURIComponent(url);
-
-	// Set update link to permalink in case bitly fails:
-	update.link = url;
+		link_url = share_url(),
+		short_url = '',
+		bitly_request_url = "https://api-ssl.bitly.com/v3/shorten?access_token=" +
+			bitly_api_key + "&longUrl=" + encodeURIComponent(link_url) + "&domain=bit.ly";
 
 	// Get shortened URL, when done set up the sharing UI
 	jQuery.get(
 		bitly_request_url,
 		function( data ){
 			if( data.status_code === 200 ){
-				update.link = data.data.url;
+				update.short_link = data.data.url;
+			} else {
+				// Set update link to permalink in case bitly fails:
+				update.short_link = link_url;
 			}
 		}
 	).always( function(){
@@ -444,7 +467,13 @@ Livepress.Ui.ReactButton = function (type, update) {
 
 	pub.buttonFor = function (type, update) {
 		var button = {};
-		button.link = update.link;
+		if ( type === "facebook" ){
+			// Set the Facebook link to the actual url since the app has to
+			// be tied to a specific domain:
+			button.link = update.link;
+		} else {
+			button.link = update.short_link;
+		}
 		button.type = type;
 		priv[type + "Button"](button);
 		return button.div;
@@ -460,8 +489,11 @@ Livepress.Ui.ReactButton = function (type, update) {
 	priv.twitterButton = function (button) {
 		button.div = priv.constructButtonMarkup();
 		button.div.click(function () {
-			window.open( 'http://twitter.com/home?status=' + update.shortExcerpt +
-									' ' + encodeURIComponent(button.link), '_blank' );
+			var left = ( screen.width / 2 ) - 300;
+			var top = ( screen.height / 2 ) - 175;
+			var options = "width=600,height=350,location=yes,,status=yes,top=" + top + ", left=" + left;
+			window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt +
+									' ' + encodeURIComponent(button.link), "Twitter", options );
 		});
 	};
 
@@ -500,7 +532,7 @@ Livepress.Ui.ReactButton = function (type, update) {
 			if ( 0 === jQuery("#" + update.id + "-share input.permalink").length ){
 				var d = jQuery('<div/>'),
 						i = jQuery('<input/>'),
-						u = update.link,
+						u = update.short_link,
 						message = jQuery('<span/>');
 
 				// Input to copy the permalink url from:

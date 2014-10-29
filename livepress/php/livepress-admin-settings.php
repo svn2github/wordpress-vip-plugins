@@ -439,6 +439,8 @@ class LivePress_Admin_Settings {
 
 		if ( isset( $input['facebook_app_id'] ) ) {
 			$sanitized_input['facebook_app_id'] = sanitize_text_field( $input['facebook_app_id'] );
+		} else {
+			$sanitized_input['facebook_app_id'] = '';
 		}
 
 		$merged_input = wp_parse_args( $sanitized_input, (array) $this->settings ); // For the settings not exposed

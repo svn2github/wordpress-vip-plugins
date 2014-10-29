@@ -165,19 +165,9 @@ class LivePress_Live_Update {
 		$options       = $this->options;
 		$new_shortcode = "[livepress_metainfo";
 
-		if (isset($this->custom_author_name)) {
-			$authorname = $this->custom_author_name;
-		} else {
-			$authorname = self::get_author_display_name($options);
-		}
-
-		if ($authorname) {
-			$new_shortcode .= ' author="'.$authorname.'"';
-		}
-
-		preg_match('/\[livepress_metainfo show_timestamp="(.*)"\]/s', $content, $show_timestamp );
-		if ( ! empty( $show_timestamp[1] ) ) {
-			$current_time_attr = ' time="'. $this->format_timestamp(current_time('timestamp')) .'" ';
+		preg_match('/\[livepress_metainfo show_timestmp="(.*)"\]/s', $content, $show_timestmp );
+		if ( ! empty( $show_timestmp[1] ) ) {
+			$current_time_attr = ' time="'. $this->format_timestamp( current_time('timestamp') ) .'" ';
 			if ($options['timestamp']) {
 				if (isset($this->custom_timestamp)) {
 					$custom_timestamp = strtotime($this->custom_timestamp);
@@ -188,6 +178,17 @@ class LivePress_Live_Update {
 			}
 			$new_shortcode   .= ' timestamp="'. date( 'c', current_time('timestamp', 1) ) .'"';
 		}
+		if (isset($this->custom_author_name)) {
+			$authorname = $this->custom_author_name;
+		} else {
+			$authorname = self::get_author_display_name($options);
+		}
+
+		if ($authorname) {
+			$new_shortcode .= ' author="'.$authorname.'"';
+		}
+
+
 
 
 		if ($options["include_avatar"]) {
@@ -210,7 +211,7 @@ class LivePress_Live_Update {
 		$content = preg_replace('/\[livepress_metainfo[^\]]*]/s', $new_shortcode, $content);
 
 		// Replace POSTTIME inside livepress_metainfo with current time
-		if ( ! empty( $show_timestamp[1] ) ) {
+		if ( ! empty( $show_timestmp[1] ) ) {
 			return preg_replace('/(\[livepress_metainfo[^\]]*)POSTTIME([^\]]*\])/s', "$1".$current_time_attr."$2", $content);
 		} else {
 			return $content;

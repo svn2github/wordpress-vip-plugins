@@ -465,6 +465,7 @@ class LivePress_Updater {
 				'live_update_tags'             => esc_html__( 'Live tags:', 'livepress' ),
 				'lp_authors'                   => $livepress_authors['names'],
 				'lp_gravatars'                 => $livepress_authors['gravatars'],
+				'lp_avatar_links'              => $livepress_authors['links'],
 				'live_tags_select_placeholder' => esc_html__( 'Live update tag(s)', 'livepress' ),
 				'live_update_header'           => esc_html__( 'Live update header', 'livepress' ),
 				'live_update_byline'           => esc_html__( 'Author(s):', 'livepress' ),
@@ -718,6 +719,8 @@ class LivePress_Updater {
 			$comments_per_page = get_comment_pages_count($post_comments, get_option("comments_per_page") );
 			$GLOBALS['wp_query']->comments = $old_comments;
 			$this->lp_comment->js_config($ljsc, $post, intval(get_query_var( 'cpage' ) ), $comments_per_page);
+			$ljsc->new_value( 'post_url', get_permalink( $post->ID ) );
+			$ljsc->new_value( 'post_title', $post->post_title );
 		}
 		$ljsc->new_value( 'new_post_msg_id', get_option(LP_PLUGIN_NAME."_new_post") );
 
@@ -730,7 +733,6 @@ class LivePress_Updater {
 		$ljsc->new_value( 'oortle_diff_inserted_block', apply_filters( 'livepress_effects_inserted_block', '#ffff66' ) );
 		$ljsc->new_value( 'oortle_diff_removed_block',  apply_filters( 'livepress_effects_removed_block', '#C63F32' ) );
 		$ljsc->new_value( 'oortle_diff_removed',        apply_filters( 'livepress_effects_removed', '#C63F32' ) );
-
 		if ( is_admin() || $is_live ) {
 			if (isset($post->ID)&&$post->ID) {
 				$args = array( 'post_id' => $post->ID );
@@ -792,6 +794,7 @@ class LivePress_Updater {
 				// Set the author name
 				if ($this->options['update_author']) {
 					$use_default_author = apply_filters( 'livepress_use_default_author', true );
+					$ljsc->new_value( 'use_default_author', $use_default_author );
 					$author_display_name = $use_default_author ? LivePress_Live_Update::get_author_display_name( $this->options ) : '';
 					$ljsc->new_value( 'author_display_name', $author_display_name );
 					$user = wp_get_current_user();
@@ -834,6 +837,8 @@ class LivePress_Updater {
 		if ( isset( $settings['sharing_ui'])) {
 			$ljsc->new_value( 'sharing_ui', $settings['sharing_ui']);
 		}
+
+		$ljsc->new_value( 'post_url', get_permalink( $post->ID ) );
 
 		// Localize `LivepressConfig` in admin and on front end live posts
 		if ( is_admin() ) {

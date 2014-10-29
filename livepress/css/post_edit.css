@@ -382,6 +382,7 @@
 	.wp-switch-editor.switch-livepress-html,
 	.wp-switch-editor.switch-livepress.active-html {
 		display: none;
+		float: right;
 	}
 
 	.livepress-active #blogging-tools-link-wrap {

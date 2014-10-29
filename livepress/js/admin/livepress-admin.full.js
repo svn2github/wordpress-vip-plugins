@@ -1,4 +1,4 @@
-/*! livepress -v1.1.5
+/*! livepress -v1.1.6
  * http://livepress.com/
  * Copyright (c) 2014 LivePress, Inc.
  */
@@ -5031,7 +5031,18 @@ jQuery(function () {
 					return gravatars;
 				};
 
-				SELF.gravatars = SELF.getGravatars();
+				SELF.getGravatarLinks = function() {
+					// Set up the gravatar array
+					var links = [];
+					for ( var i = 0, len = lp_strings.lp_avatar_links.length; i < len; i++ ) {
+						links[ lp_strings.lp_avatar_links[ i ].id ] = lp_strings.lp_avatar_links[ i ].link;
+					}
+					return links;
+				};
+
+
+				SELF.gravatars   = SELF.getGravatars();
+				SELF.avatarLinks = SELF.getGravatarLinks();
 
 				/**
 				 * Dispatch a specific action to the server asynchronously.
@@ -5193,7 +5204,7 @@ jQuery(function () {
 
 					// Wrap the inner update
 					if ( -1 === processed.search( 'livepress-update-inner-wrapper' ) ) { /* don't double add */
-						processed = '<div class="livepress-update-inner-wrapper">\n' + processed + '\n</div>';
+						processed = '<div class="livepress-update-inner-wrapper">\n\n' + processed + '\n\n</div>';
 					}
 
 					/**
@@ -5227,6 +5238,14 @@ jQuery(function () {
 					return $activeForm.find( '.liveupdate-byline' ).select2( 'data' );
 				};
 
+				/**
+				 * Wrap the avatar image or name in a link
+				 */
+				SELF.linkToAvatar = function( html, userid ) {
+					if ( 'undefined' !== typeof SELF.avatarLinks[ userid ] && '' !== SELF.avatarLinks[ userid ] ) {
+						return '<a href="' + SELF.avatarLinks[ userid ] + '" target="_blank">' + html + '</a>';
+					}
+				};
 
 				/**
 				 * Get the html for displaying the authors for this live update.
@@ -5251,9 +5270,10 @@ jQuery(function () {
 						this.text.replace(/\s/g, '-').toLowerCase() + '">';
 						toReturn += '<span class="lp-authorID">' + this.id + '</span>';
 						if ( 'undefined' !== typeof SELF.gravatars[ this.id ] && '' !== SELF.gravatars[ this.id ] ) {
-							toReturn += '<span class="live-author-gravatar">' + SELF.gravatars[ this.id ] + '</span>';
+							toReturn += '<span class="live-author-gravatar">' + SELF.linkToAvatar( SELF.gravatars[ this.id ], this.id ) +  '</span>';
 						}
-						toReturn += '<span class="live-author-name">' + this.text + '</span></span>';
+
+						toReturn += '<span class="live-author-name">' + SELF.linkToAvatar( this.text, this.id ) + '</span></span>';
 					} );
 
 					// Close the divs tag
@@ -5306,12 +5326,14 @@ jQuery(function () {
 						server_time;
 
 					// Used stored meta information when editing an existing update
-					var show_timestamp =  $liveUpdateHeader.data( 'show_timestamp' );
-						console.log( 'show_timestamp - ' + show_timestamp );
+					var show_timestmp =  $liveUpdateHeader.data( 'show_timestmp' );
+						console.log( 'show_timestmp - ' + show_timestmp );
 
-					if ( '1' === show_timestamp ) {
+					if ( '1' === show_timestmp ) {
 						var time      = $liveUpdateHeader.data( 'time' ),
 							timestamp = $liveUpdateHeader.data( 'timestamp' );
+
+						metainfo += ' show_timestmp="1"';
 
 						if ( 'undefined' !== typeof time ) {
 							metainfo += ' time="' + time + '"';
@@ -5322,7 +5344,7 @@ jQuery(function () {
 						}
 					} else {
 						if( showTimstamp ) {
-							metainfo += ' show_timestamp="1"';
+							metainfo += ' show_timestmp="1"';
 							d = new Date();
 							utc = d.getTime() + (d.getTimezoneOffset() * 60000); // Minutes to milisec
 							server_time = utc + (3600000 * LivepressConfig.blog_gmt_offset); // Hours to milisec
@@ -5544,6 +5566,10 @@ jQuery(function () {
 						tags:            LivepressConfig.live_update_tags
 					});
 					SELF.$form.find( '.liveupdate-header' ).val( '' );
+					if ( "true" !== LivepressConfig.use_default_author ) {
+						SELF.$form.find( '.liveupdate-byline' ).select2( 'val', '' );
+					}
+
 				},
 
 				/*
@@ -5583,7 +5609,7 @@ jQuery(function () {
 					 */
 					var $domcontent = jQuery( te.dom.getRoot() ),
 						editor      = te.editorContainer.id,
-						$activeForm  = jQuery( '#' + editor ).closest( '.livepress-update-form' ),
+						$activeForm = jQuery( '#' + editor ).closest( '.livepress-update-form' ),
 						content     = $domcontent.html();
 
 					/**
@@ -5611,14 +5637,14 @@ jQuery(function () {
 							$formHeader.val( header );
 						}
 
-						// Extract the show_timestamp setting
-						headerChunks = metaInfo.split( 'show_timestamp="' );
+						// Extract the show_timestmp setting
+						headerChunks = metaInfo.split( 'show_timestmp="' );
 						if ( 'undefined' !== typeof headerChunks[1] ) {
-							var show_timestamp = headerChunks[1].split( '"' )[0];
-							$formHeader.data( 'show_timestamp', show_timestamp );
+							var show_timestmp = headerChunks[1].split( '"' )[0];
+							$formHeader.data( 'show_timestmp', show_timestmp );
 						} else {
 							// default is on
-							$formHeader.data( 'show_timestamp', '1' );
+							$formHeader.data( 'show_timestmp', '1' );
 						}
 
 						// Extract the time setting
@@ -5632,7 +5658,8 @@ jQuery(function () {
 						headerChunks = metaInfo.split( 'timestamp="' );
 						if ( 'undefined' !== typeof headerChunks[1] ) {
 							var timestamp = headerChunks[1].split( '"' )[0];
-							$formHeader.data( 'timestamp', timestamp );
+							console.log( 'storing timestamp ' + timestamp );
+							$formHeader.data( 'timestamp', "" + timestamp );
 						}
 
 					}
@@ -5646,10 +5673,12 @@ jQuery(function () {
 					// If no authors, use whats in the main author field
 					if ( 0 === authors.length ) {
 						var $a = SELF.$form.find( 'input.liveupdate-byline' );
-						theAuthors = [{
-							'id':   $a.data( 'id' ),
-							'text': $a.data( 'name' )
-						}];
+						if ( '' !== $a.data( 'name' )  ) {
+							theAuthors = [{
+								'id':   $a.data( 'id' ),
+								'text': $a.data( 'name' )
+							}];
+						}
 					} else {
 						jQuery( authors ).each( function( i, a ) {
 							var $a = jQuery( a ),
@@ -6565,9 +6594,6 @@ jQuery(function () {
 							// live listeners, bound to canvas (since childs are recreated/added/removed dynamically)
 							// @todo ensure only one editor open at opnce, disable click when one editor active
 							$canvas.on( 'click',  'div.livepress-update', function (ev) {
-								if ( tinyMCE.editors.length >= 3 ) {
-									return;
-								}
 
 								var $target = $j(ev.target);
 								if ($target.is("a,input,button,textarea") || $target.parents("a,input,button,textarea").length > 0) {
