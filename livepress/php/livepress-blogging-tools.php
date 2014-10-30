@@ -112,12 +112,12 @@ final class LivePress_Blogging_Tools {
 	private function lp_get_single_update( $id ){
 		global $wpdb;
 
-		$lp_get_post_cache_key = 'lp__get_post_cache_key_' . LP_PLUGIN_VERSION .'_' . $id;
+		$lp_get_post_cache_key = 'lp_get_post_cache_key_' . LP_PLUGIN_VERSION .'_' . $id;
 		if ( false === ( $theresult = get_transient( $lp_get_post_cache_key ) ) ) {
 
-			$query = $wpdb->prepare( "SELECT wp_posts.* FROM wp_posts " .
-				"WHERE wp_posts.post_name = '%s' " .
-				"AND wp_posts.post_type = 'post' ORDER BY wp_posts.post_date DESC LIMIT 1", 'livepress_update__' . $id );
+			$query = $wpdb->prepare( "SELECT * FROM " . $wpdb->posts . " WHERE ".
+                " post_name = '%s' AND post_type = 'post'" .
+                " ORDER BY ID DESC LIMIT 1", 'livepress_update__' . $id );
 
 			$results = $wpdb->get_results( $query );
 			$theresult = $results[0];
