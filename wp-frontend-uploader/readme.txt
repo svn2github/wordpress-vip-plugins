@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=rinat
 Tags: frontend, image, images, media, uploader, upload, video, audio, photo, photos, picture, pictures, file, user generated content, ugc, frontend upload
 Requires at least: 3.3
 Tested up to: 4.0
-Stable tag: 0.8.1
+Stable tag: 0.9
 License: GPLv2 or later
 
 This plugin allows your visitors to upload User Generated Content (media and posts/custom-post-types with media).
@@ -41,6 +41,7 @@ You can also manage UGC for selected custom post types (Please refer to the plug
 * Vi snakker norsk (Norwegian) (props André Langseth)
 * Wir sprechen Deutsch (German) (props Joshua Trees)
 * We spreken Nederlands (Dutch) (props Jaap van der Veen)
+* ما فارسی صحبت می کنند (Persian) (props mojtabashahi)
 
 [Fork the plugin on Github](https://github.com/rinatkhaziev/wp-frontend-uploader/)
 
@@ -231,6 +232,11 @@ function my_fu_upload_result( $layout, $result ) {
 }`
 
 == Changelog ==
+
+= 0.9 (Oct 22, 2014) =
+* Feature: Akismet integration! Protects your site from spam submissions
+* Added fu_upload_result_query_args filter
+* A bunch of minor bugfixes and code refactoring
 
 = 0.8.1 (Jul 24, 2014) =
 * Bugfix: Don't try to include media script anywhere except "Manage UGC" screen. Otherwise it produces JS errors, potentially breaking some post edit screen features
