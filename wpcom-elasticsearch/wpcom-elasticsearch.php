@@ -322,6 +322,9 @@ class WPCOM_elasticsearch {
 			return '';
 		}
 
+		// Allow filtering of entire result set to modify it or to add / remove results
+		$this->search_result = apply_filters( 'wpcom_elasticsearch_found_posts', $this->search_result );
+
 		// Total number of results for paging purposes
 		$this->found_posts = $this->search_result['results']['total'];
 
@@ -795,7 +798,8 @@ class WPCOM_elasticsearch {
 		if ( 'category_name' == $taxonomy->query_var )
 			$taxonomy->query_var = 'category';
 
-		return $taxonomy->query_var;
+		// Some taxonomies do not have a query_var allow custom filtering
+		return apply_filters( 'wpcom_elasticsearch_taxonomy_query_var', $taxonomy->query_var, $taxonomy_name );
 	}
 }
 
