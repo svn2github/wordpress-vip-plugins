@@ -1,4 +1,4 @@
-/*! livepress -v1.1.6
+/*! livepress -v1.1.7
  * http://livepress.com/
  * Copyright (c) 2014 LivePress, Inc.
  */
@@ -1319,11 +1319,12 @@ Livepress.Ui.ReactButton = function (type, update) {
 					twitterLink
 						.done( function( data ){
 							window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
-									' ' + data.data.shortlink, "Twitter", options );
+									' ' + ( ( 'undefined' !== typeof data.data.shortlink ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) ), "Twitter", options );
 							var re = /livepress-update-([0-9]+)/,
 								update_id = re.exec(update.id)[1];
-
-							Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
+							if ( 'undefined' !== typeof data.data.shortlink ) {
+								Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
+							}
 						})
 						// Fallback to full URL
 						.fail( function() {
@@ -1331,7 +1332,7 @@ Livepress.Ui.ReactButton = function (type, update) {
 									' ' + Livepress.getUpdatePermalink( update.id ), "Twitter", options );
 						});
 				}
-		});
+			});
 	};
 
 	priv.facebookButton = function (button) {

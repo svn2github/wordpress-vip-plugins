@@ -299,9 +299,10 @@ class LivePress_PF_Updates {
 				// We have no content to display. Grab the post's first update and return it instead.
 				$children = get_children(
 					array(
-						'post_type'   => 'post',
-						'post_parent' => $post->ID,
-						'numberposts' => 1
+						'post_type'        => 'post',
+						'post_parent'      => $post->ID,
+						'numberposts'      => 1,
+						'suppress_filters' => false,
 					)
 				);
 
@@ -609,7 +610,13 @@ class LivePress_PF_Updates {
 		$post = get_post( $post_id );
 
 		// If post has no children bail
-		if ( 0 == count( get_children( $post_id ) ) ) {
+		if ( 0 == count( get_children(
+				array(
+					'post_type'        => 'post',
+					'post_parent'      => $post_id,
+					'numberposts'      => 1,
+					'suppress_filters' => false,
+				) ) ) ) {
 			return $post;
 		}
 
@@ -674,8 +681,9 @@ class LivePress_PF_Updates {
 		// Get all children
 		$children = get_children(
 			array(
-				'post_type'   => 'post',
-				'post_parent' => $parent
+				'post_type'        => 'post',
+				'post_parent'      => $parent,
+				'suppress_filters' => false,
 			)
 		);
 
@@ -845,8 +853,9 @@ class LivePress_PF_Updates {
 		// Set up child posts
 		$children = get_children(
 			array(
-				'post_type'   => 'post',
-				'post_parent' => $parent->ID
+				'post_type'        => 'post',
+				'post_parent'      => $parent->ID,
+				'suppress_filters' => false,
 			)
 		);
 		$child_pieces = array();
@@ -864,7 +873,7 @@ class LivePress_PF_Updates {
                     $this->near_uuid = $piece_id.":".$piece_gen;
                 }
 				// Grab and integrate any live update tags
-				$update_tags = wp_get_object_terms( $child->ID, 'livetags' );
+				$update_tags = get_the_terms( $child->ID, 'livetags' );
 				$update_tag_classes = '';
 				if ( ! empty( $update_tags ) ) {
 					foreach( $update_tags as $a_tag ) {
@@ -942,10 +951,11 @@ class LivePress_PF_Updates {
 	 */
 	protected function is_new( $post_id ) {
 		$options = array(
-			'post_parent' => $post_id,
-			'post_type'   => 'revision',
-			'numberposts' => 2,
-			'post_status' => 'any',
+			'post_parent'      => $post_id,
+			'post_type'        => 'revision',
+			'numberposts'      => 2,
+			'post_status'      => 'any',
+			'suppress_filters' => false,
 		);
 
 		$updates = get_children( $options );

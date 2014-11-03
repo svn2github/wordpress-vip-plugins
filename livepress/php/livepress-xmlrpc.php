@@ -198,11 +198,12 @@ class LivePress_XMLRPC {
 		// Set up child posts
 		$children = get_children(
 			array(
-				'post_type'   => 'post',
-				'post_parent' => $parent->ID,
-				'orderby'     => 'ID',
-				'order'       => 'ASC',
-				'numberposts' => 1000
+				'post_type'        => 'post',
+				'post_parent'      => $parent->ID,
+				'orderby'          => 'ID',
+				'order'            => 'ASC',
+				'numberposts'      => 1000,
+				'suppress_filters' => false,
 			)
 		);
 
