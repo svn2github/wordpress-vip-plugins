@@ -472,10 +472,10 @@ Livepress.Ui.ReactButton = function (type, update) {
 					twitterLink
 						.done( function( data ){
 							window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
-									' ' + ( ( 'undefined' !== typeof data.data.shortlink ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) ), "Twitter", options );
+									' ' + ( ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) ), "Twitter", options );
 							var re = /livepress-update-([0-9]+)/,
 								update_id = re.exec(update.id)[1];
-							if ( 'undefined' !== typeof data.data.shortlink ) {
+							if ( 'undefined' !== typeof data.data ) {
 								Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
 							}
 						})
@@ -535,7 +535,7 @@ Livepress.Ui.ReactButton = function (type, update) {
 						.done( function( data ) {
 							console.log( data.data.shortlink );
 							i.show();
-							i.attr( 'value', '' + data.data.shortlink );
+							i.attr( 'value', '' + ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) );
 						})
 						.fail( function() {
 							i.show();

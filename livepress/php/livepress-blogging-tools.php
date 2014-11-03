@@ -1039,11 +1039,17 @@ function lp_admin_body_class( $classes ) {
 
 			$url = $get_shortlink;
 			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
-				$res = vip_safe_wp_remote_get( $url, array( 'reject_unsafe_urls' => false ));
+				$res = vip_safe_wp_remote_get(
+							$url,
+							'',
+							5,
+							1,
+							20,
+							array( 'reject_unsafe_urls' => false )
+						);
 			} else {
 				$res = wp_remote_get( $url, array( 'reject_unsafe_urls' => false ));
 			}
-
 			$response = json_decode( $res['body'], true );
 			$status_code = $response["status_code"];
 
