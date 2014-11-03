@@ -1381,8 +1381,8 @@ jQuery(function () {
 						metainfo += ' has_avatar="1"';
 					}
 
-					if ( 'undefined' !== typeof $liveUpdateHeader && '' !== $liveUpdateHeader.val() ) {
-						metainfo += ' update_header="' + $liveUpdateHeader.val() + '"';
+					if ( 'undefined' !== typeof $liveUpdateHeader.val() && '' !== $liveUpdateHeader.val() ) {
+						metainfo += ' update_header="' + encodeURI( decodeURI( $liveUpdateHeader.val() ) ) + '"';
 					}
 					metainfo += "]";
 
@@ -1561,7 +1561,7 @@ jQuery(function () {
 					'</div>',
 					'<div class="livepress-byline">' + lp_strings.live_update_byline + ' <input type="text" data-name="' + LivepressConfig.author_display_name + '" data-id="' + LivepressConfig.author_id + '" autocomplete="off" style="width: 70%; float: right; margin-left: 5px;" class="liveupdate-byline" name="liveupdate-byline" id="liveupdate-byline" /></div>',
 					'<div class="livepress-timestamp-option"><input type="checkbox" checked="checked" /> ' + lp_strings.include_timestamp + '</div>',
-					'<a href="#" class="livepress-delete" data-action="delete">' + lp_strings.delete_perm + '</a>',
+					'<br /><a href="#" class="livepress-delete" data-action="delete">' + lp_strings.delete_perm + '</a>',
 					'<span class="quick-publish">' + lp_strings.ctrl_enter + '</span>',
 					'<input class="livepress-cancel button button-secondary" type="button" value="' + lp_strings.cancel + '" data-action="cancel" />',
 					'<input class="livepress-update button button-primary" type="submit" value="' + lp_strings.save + '" data-action="update" />',
@@ -1651,7 +1651,7 @@ jQuery(function () {
 						// If a header was found, add it to the editor
 						if ( 'undefined' !== typeof headerChunks[1] ) {
 							var header = headerChunks[1].split( '"' )[0];
-							$formHeader.val( header );
+							$formHeader.val( decodeURI( header ) );
 						}
 
 						// Extract the show_timestmp setting
@@ -2626,6 +2626,15 @@ jQuery(function () {
 									var editor = Sel.enableTiny( style );
 									editor.show();
 									jQuery( tab_markup ).prependTo( Sel.$form );
+									// Clone the media button
+									jQuery( '.wp-media-buttons' )
+										.first()
+										.clone( true )
+										.prependTo( Sel.$form )
+										.css( 'margin-left', '10px' )
+										.find( 'a' )
+										.attr( 'data-editor', editor.id );
+
 									addEditorTabControlListeners( Sel.$form.parent().find( '.livepress-inline-editor-tabs' ), editor.id, '', editor );
 									jQuery( this ).remove();
 								}

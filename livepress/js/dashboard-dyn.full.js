@@ -41,6 +41,30 @@ Livepress.getUpdatePermalink = function (update_id) {
 	lpup += "lpup=";
 	return post_link + lpup + id + "#" + update_id;
 };
+Livepress.updateShortlinksCache = window.LivepressConfig.shortlink || {};
+Livepress.getUpdateShortlink = function (upd) {
+	var re = /livepress-update-([0-9]+)/,
+	update_id = re.exec(upd)[1];
+	if( !( update_id in Livepress.updateShortlinksCache ) ) {
+
+		return jQuery.ajax({
+			url: window.LivepressConfig.ajax_url,
+			type: 'post',
+			async: false,
+			dataType: 'json',
+			data: {
+				'action': 'lp_update_shortlink',
+				'post_id': window.LivepressConfig.post_id,
+				'_ajax_nonce': LivepressConfig.lp_update_shortlink_nonce,
+				'update_id': update_id
+			}
+		}).promise();
+
+
+	} else {
+		return Livepress.updateShortlinksCache[update_id];
+	}
+};
 
 /*
  * Parse strings date representations into a real timestamp.

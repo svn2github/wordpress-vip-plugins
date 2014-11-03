@@ -41,6 +41,30 @@ Livepress.getUpdatePermalink = function (update_id) {
 	lpup += "lpup=";
 	return post_link + lpup + id + "#" + update_id;
 };
+Livepress.updateShortlinksCache = window.LivepressConfig.shortlink || {};
+Livepress.getUpdateShortlink = function (upd) {
+	var re = /livepress-update-([0-9]+)/,
+	update_id = re.exec(upd)[1];
+	if( !( update_id in Livepress.updateShortlinksCache ) ) {
+
+		return jQuery.ajax({
+			url: window.LivepressConfig.ajax_url,
+			type: 'post',
+			async: false,
+			dataType: 'json',
+			data: {
+				'action': 'lp_update_shortlink',
+				'post_id': window.LivepressConfig.post_id,
+				'_ajax_nonce': LivepressConfig.lp_update_shortlink_nonce,
+				'update_id': update_id
+			}
+		}).promise();
+
+
+	} else {
+		return Livepress.updateShortlinksCache[update_id];
+	}
+};
 
 /*
  * Parse strings date representations into a real timestamp.
@@ -1014,7 +1038,7 @@ Livepress.Ui.View = function (disable_comments) {
 			jQuery().scrollTo('#respond, #commentform, #submit', 900);
 		});
 		update_gritter_settings_click();
-		jQuery("abbr.livepress-timestamp").timeago();
+		jQuery("abbr.livepress-timestamp").timeago().attr( 'title', '' );
 	};
 };
 
@@ -1101,7 +1125,7 @@ Livepress.Ui.UpdateBoxView = function (homepage_mode) {
 			$update_box.slideDown(600);
 			$update_box.css('display', 'inline-block');
 		}
-		jQuery('abbr.livepress-timestamp').timeago();
+		jQuery('abbr.livepress-timestamp').timeago().attr( 'title', '' );
 	}
 
 	this.reposition_balloon = function () {
@@ -1157,14 +1181,6 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 	var $update_ui;
 	var is_sticky = $element.hasClass("pinned-first-live-update");
 
-	var share_url = function () {
-		if( is_sticky ){
-			return LivepressConfig.post_url;
-		} else {
-			return Livepress.getUpdatePermalink(update.id);
-		}
-	};
-
 	var excerpt = function (limit) {
 		if ( is_sticky ){
 			return LivepressConfig.post_title;
@@ -1205,26 +1221,17 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 
 };
 
+	var share_container = jQuery("<div>").addClass("lp-share");
 	if ($update_ui === undefined) {
-		var share_container = jQuery("<div>").addClass("lp-share");
-
 		update.element = $element;
 		update.id = $element.attr('id');
-
-		if( $element.hasClass("pinned-first-live-update") ){
-			update.link = LivepressConfig.post_url;
-		} else {
-			update.link = Livepress.getUpdatePermalink(update.id);
-		}
-
-		update.link = share_url();
 
 		var metainfo = '';
 
 		if ( 1 === jQuery( '#' + $element.attr('id') + ' .livepress-update-header').length ) {
 			update.shortExcerpt = jQuery('#' + $element.attr('id') + ' .livepress-update-header').text();
 		} else {
-			update.shortExcerpt = excerpt(100) + " ";
+			update.shortExcerpt = excerpt(100);
 			update.longExcerpt = excerpt(1000) + " ";
 		}
 
@@ -1250,37 +1257,27 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 		update.longExcerpt += metainfo;
 	}
 
-	// Get shortened URL for update permalink:
-	var bitly_api_key = "7ea952a9826d091fbda8a4ca220ba634efe61e31",
-		link_url = share_url(),
-		short_url = '',
-		bitly_request_url = "https://api-ssl.bitly.com/v3/shorten?access_token=" +
-			bitly_api_key + "&longUrl=" + encodeURIComponent(link_url) + "&domain=bit.ly";
+	update.link = function() {
+		if( is_sticky ){
+			return LivepressConfig.post_url;
+		} else {
+			return Livepress.getUpdatePermalink( update.id );
+		}
+	};
+	update.shortLink = function() { return Livepress.getUpdateShortlink( update.id ); };
 
 	// Get shortened URL, when done set up the sharing UI
-	jQuery.get(
-		bitly_request_url,
-		function( data ){
-			if( data.status_code === 200 ){
-				update.short_link = data.data.url;
-			} else {
-				// Set update link to permalink in case bitly fails:
-				update.short_link = link_url;
-			}
-		}
-	).always( function(){
-		var types = ["facebook", "twitter", "hyperlink"],
-			buttons = Livepress.Ui.ReactButtons( update, types );
+    var types = ["facebook", "twitter", "hyperlink"],
+        buttons = Livepress.Ui.ReactButtons( update, types );
 
-		share_container.append( buttons );
-		update.element.append( share_container );
-		$update_ui = $element.find( '.lp-pre-update-ui' );
+    share_container.append( buttons );
+    update.element.append( share_container );
+    $update_ui = $element.find( '.lp-pre-update-ui' );
 
-		if ($element.get( 0 ) === jQuery( '.livepress-update' ).get( 0 ) ) {
-			$update_ui.addClass( 'lp-first-update' );
-		}
-		$element.addClass( 'ui-container' );
-	});
+    if ($element.get( 0 ) === jQuery( '.livepress-update' ).get( 0 ) ) {
+        $update_ui.addClass( 'lp-first-update' );
+    }
+    $element.addClass( 'ui-container' );
 };
 
 Livepress.Ui.ReactButton = function (type, update) {
@@ -1290,14 +1287,9 @@ Livepress.Ui.ReactButton = function (type, update) {
 
 	pub.buttonFor = function (type, update) {
 		var button = {};
-		if ( type === "facebook" ){
-			// Set the Facebook link to the actual url since the app has to
-			// be tied to a specific domain:
-			button.link = update.link;
-		} else {
-			button.link = update.short_link;
-		}
+		button.link = update.link;
 		button.type = type;
+		//button.update_id = update.id;
 		priv[type + "Button"](button);
 		return button.div;
 	};
@@ -1312,18 +1304,42 @@ Livepress.Ui.ReactButton = function (type, update) {
 	priv.twitterButton = function (button) {
 		button.div = priv.constructButtonMarkup();
 		button.div.click(function () {
-			var left = ( screen.width / 2 ) - 300;
-			var top = ( screen.height / 2 ) - 175;
-			var options = "width=600,height=350,location=yes,,status=yes,top=" + top + ", left=" + left;
-			window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt +
-									' ' + encodeURIComponent(button.link), "Twitter", options );
+
+			var left = ( screen.width / 2 ) - 300,
+				top = ( screen.height / 2 ) - 175,
+				options = "width=600,height=350,location=yes,,status=yes,top=" + top + ", left=" + left,
+				twitterLink = update.shortLink();
+				console.log( typeof twitterLink );
+
+				// Did we get the shortened link or only a promise?
+				if ( 'string' === typeof twitterLink ) {
+					window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
+									' ' + twitterLink, "Twitter", options );
+				} else {
+					twitterLink
+						.done( function( data ){
+							window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
+									' ' + data.data.shortlink, "Twitter", options );
+							var re = /livepress-update-([0-9]+)/,
+								update_id = re.exec(update.id)[1];
+
+							Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
+						})
+						// Fallback to full URL
+						.fail( function() {
+							window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
+									' ' + Livepress.getUpdatePermalink( update.id ), "Twitter", options );
+						});
+				}
 		});
 	};
 
 	priv.facebookButton = function (button) {
 		button.div = priv.constructButtonMarkup();
 		button.div.click(function () {
-			var u = update.link;
+			// Set the Facebook link to the actual url since the app has to
+			// be tied to a specific domain:
+			var u = Livepress.getUpdatePermalink(update.id);
 			var height = 436;
 			var width = 626;
 			var left = (screen.width - width) / 2;
@@ -1355,11 +1371,27 @@ Livepress.Ui.ReactButton = function (type, update) {
 			if ( 0 === jQuery("#" + update.id + "-share input.permalink").length ){
 				var d = jQuery('<div/>'),
 						i = jQuery('<input/>'),
-						u = update.short_link,
+						u = update.shortLink(),
 						message = jQuery('<span/>');
 
+				// Did we really get a shortLink? If not, use the full link
+				if ( 'string' !== typeof u ) {
+					i.hide();
+					u
+						.done( function( data ) {
+							console.log( data.data.shortlink );
+							i.show();
+							i.attr( 'value', '' + data.data.shortlink );
+						})
+						.fail( function() {
+							i.show();
+						});
+				} else {
+					i.attr('value', u);
+				}
+
 				// Input to copy the permalink url from:
-				i.attr('value', u);
+
 				i.addClass("permalink");
 				i.click(function(){
 					i.select();
@@ -2653,16 +2685,19 @@ Livepress.Ui.Controller = function (config, hooks) {
 	}
 
 	function handle_page_title_update (data) {
-		// we want to notify about the new post updates and edits. No deletes.
+		// Notify about new post updates by changing the title count. No deletes and edits.
+		// Only if the window is not active
 		if (window.is_active) {
 			return;
 		}
-		var only_deletes = false;
+
+		// Only update the post title when we are inserting a new node
+		var is_ins_node = false;
 		jQuery.each(data, function (k, v) {
 			// it's deletion if only del_node operations are in changes array
-			only_deletes = (v[0] === "del_node");
+			is_ins_node = (v[0] === "ins_node");
 		});
-		if (only_deletes) {
+		if ( ! is_ins_node ) {
 			return;
 		}
 
@@ -2707,6 +2742,15 @@ Livepress.Ui.Controller = function (config, hooks) {
 			abbr       = '<abbr class="livepress-timestamp" title="' + dateString +'"></abbr>';
 
 		console.log("post_update with data = ", data);
+        if ('op' in data && data.op === 'broadcast') {
+            var broadcast = JSON.parse(data.data);
+            if('shortlink' in broadcast) {
+                jQuery.each(broadcast['shortlink'], function(k,v) {
+                    Livepress.updateShortlinksCache[k] = v;
+                });
+            }
+            return;
+        }
 		if ('event' in data && data.event === 'post_title') {
 			return post_title_update(data.data);
 		}
@@ -2735,9 +2779,10 @@ Livepress.Ui.Controller = function (config, hooks) {
 		var timestamp = jQuery('abbr.livepress-timestamp').eq( 1 ),
 			update_id = timestamp.closest('.livepress-update').attr('id');
 		if ( 'timeago' === LivepressConfig.timestamp_format ) {
-			timestamp.timeago();
+			timestamp.timeago().attr( 'title', '' );
 		} else {
 			jQuery('.lp-bar abbr.livepress-timestamp').timeago();
+			jQuery('abbr.livepress-timestamp').attr( 'title', '' );
 		}
 		timestamp.wrap('<a href="' + Livepress.getUpdatePermalink(update_id) + '" ></a>');
 
@@ -3144,9 +3189,10 @@ Livepress.Ready = function () {
 			timestamp.wrap('<a href="' + Livepress.getUpdatePermalink(jQuery(this).attr('id')) + '" ></a>');
 			console.log( LivepressConfig.update_format );
 			if ( 'timeago' === LivepressConfig.timestamp_format ) {
-				jQuery('abbr.livepress-timestamp').timeago();
+				jQuery('abbr.livepress-timestamp').timeago().attr( 'title', '' );
 			} else {
 				jQuery('.lp-bar abbr.livepress-timestamp').timeago();
+				jQuery('abbr.livepress-timestamp').attr( 'title', '' );
 			}
 		}
 	);

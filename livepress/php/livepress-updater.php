@@ -47,6 +47,7 @@ class LivePress_Updater {
 		$this->options['ajax_lp_post_to_twitter'] = wp_create_nonce( 'lp_post_to_twitter_nonce' );
 
 		$this->options['ajax_api_validate_nonce'] = wp_create_nonce( 'livepress_api_validate_nonce' );
+		$this->options['lp_update_shortlink_nonce'] = wp_create_nonce( 'lp_update_shortlink' );
 		$this->options['ajax_check_oauth'] = wp_create_nonce( 'lp_check_oauth_nonce' );
 		$this->options['ajax_lp_collaboration_comments'] = wp_create_nonce( 'lp_collaboration_comments_nonce' );
 		$this->options['ajax_get_live_edition_data'] = wp_create_nonce( 'get_live_edition_data_nonce' );
@@ -636,6 +637,7 @@ class LivePress_Updater {
 		$ljsc->new_value( 'ajax_api_validate_nonce', $this->options['ajax_api_validate_nonce']);
 		$ljsc->new_value( 'ajax_lp_post_to_twitter', $this->options['ajax_lp_post_to_twitter']);
 		$ljsc->new_value( 'ajax_check_oauth', $this->options['ajax_check_oauth']);
+		$ljsc->new_value( 'lp_update_shortlink_nonce', $this->options['lp_update_shortlink_nonce']);
 		$ljsc->new_value( 'ajax_lp_collaboration_comments', $this->options['ajax_lp_collaboration_comments']);
 		$ljsc->new_value( 'ajax_get_live_edition_data', $this->options['ajax_get_live_edition_data']);
 		$ljsc->new_value( 'ajax_lp_im_integration', $this->options['ajax_lp_im_integration']);
@@ -719,6 +721,15 @@ class LivePress_Updater {
 			$comments_per_page = get_comment_pages_count($post_comments, get_option("comments_per_page") );
 			$GLOBALS['wp_query']->comments = $old_comments;
 			$this->lp_comment->js_config($ljsc, $post, intval(get_query_var( 'cpage' ) ), $comments_per_page);
+
+			// Fetch rexisting shortlinks
+			$sl = array();
+			foreach( get_post_meta( $post->ID ) as $k=>$m ) {
+				if( preg_match("/^_livepress_shortlink_([0-9]+)$/", $k, $r ) ) {
+					$sl[ $r[1] ] = $m[0];
+				}
+			}
+			$ljsc->new_value('shortlink', $sl, Livepress_Configuration_Item::$ARRAY );
 			$ljsc->new_value( 'post_url', get_permalink( $post->ID ) );
 			$ljsc->new_value( 'post_title', $post->post_title );
 		}
@@ -837,8 +848,9 @@ class LivePress_Updater {
 		if ( isset( $settings['sharing_ui'])) {
 			$ljsc->new_value( 'sharing_ui', $settings['sharing_ui']);
 		}
-
-		$ljsc->new_value( 'post_url', get_permalink( $post->ID ) );
+		if ( isset( $post->ID ) ) {
+			$ljsc->new_value( 'post_url', get_permalink( $post->ID ) );
+		}
 
 		// Localize `LivepressConfig` in admin and on front end live posts
 		if ( is_admin() ) {

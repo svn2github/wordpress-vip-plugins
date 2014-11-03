@@ -39,8 +39,18 @@ final class LivePress_Blogging_Tools {
 		add_filter( 'admin_body_class',                               array( $this, 'lp_admin_body_class' ) );
 		add_filter( 'body_class',                                     array( $this, 'lp_body_class' ) );
 		add_action( 'wp', array( $this, 'opengraph_request' ) );
+		add_action( 'wp_ajax_lp_update_shortlink', array( $this, 'lp_update_shortlink' ) );
+		add_action( 'wp_ajax_nopriv_lp_update_shortlink', array( $this, 'lp_update_shortlink' ) );
 	}
 
+	/**
+	 * String any shortcodes including caption
+	 */
+	function lp_strip_shortcodes( $content ) {
+		$content = preg_replace('#\s*\[caption[^]]*\].*?\[/caption\]\s*#is', '', $content);
+		$content = preg_replace( "/\[[^]]*/","", $content );
+		return $content;
+	}
   /**
    * Check if the request is from Facebook's Open Graph protocol. If
    * so then just return the basic HTML for embedding. The link to
@@ -69,8 +79,8 @@ final class LivePress_Blogging_Tools {
 			// Twitter card:
 			// TODO: Make this customizable
 			echo "<meta name=\"twitter:card\" content=\"summary_large_image\" />\n";
-			echo '<meta name="twitter:title" content="' .       esc_attr( $data->title )  . "\" />\n";
-			echo '<meta name="twitter:description" content="' . esc_attr( $data->description )  . "\" />\n";
+			echo '<meta name="twitter:title" content="' .       esc_attr( urldecode( $data->title ) )  . "\" />\n";
+			echo '<meta name="twitter:description" content="' . esc_html( $this->lp_strip_shortcodes( urldecode( $data->description ) ) )  . "\" />\n";
 			echo '<meta name="twitter:image" content="' .       esc_attr( $data->img )  . "\" />\n";
 			echo '<meta name="twitter:url" content="' .         esc_url( $canonical_url )  . "\" />\n";
 
@@ -90,13 +100,13 @@ final class LivePress_Blogging_Tools {
 			}
 
 			// Facebook Open Graph:
-			echo '<meta property="og:title" content="' .        esc_attr( $data->title ) . "\" />\n";
+			echo '<meta property="og:title" content="' .        esc_attr( urldecode( $data->title ) ) . "\" />\n";
 			echo "<meta property=\"og:type\" content=\"" .      esc_attr( $data->type ) . "\" />\n";
 			echo '<meta property="og:url" content="' .          esc_url( $canonical_url ) .	"\" />\n";
 			echo '<meta property="og:image" content="' .        esc_attr( $data->img ) . "\" />\n";
-			echo '<meta property="og:image:url" content="' .        esc_attr( $data->img ) . "\" />\n";
+			echo '<meta property="og:image:url" content="' .    esc_attr( $data->img ) . "\" />\n";
 			echo '<meta property="og:site_name" content="' .    esc_attr( get_bloginfo( 'name' ) ) . "\" />\n";
-			echo '<meta property="og:description" content="' .  esc_attr( $data->description ) . "\" />\n";
+			echo '<meta property="og:description" content="' .  esc_html( $this->lp_strip_shortcodes( urldecode( $data->description ) ) ) . "\" />\n";
 
 			$post_url = $post_parent_url  . '#livepress-update-' . $id;
 			echo "<meta http-equiv=\"refresh\" content=\"2;URL=" . $post_url . "\">\n";
@@ -1002,6 +1012,58 @@ function lp_admin_body_class( $classes ) {
 		}
 
 		echo sprintf( '<div title="%s" class="live-status-circle live-status-%s"></div>', esc_attr( $title ), esc_attr( $toggle ) ) ;
+	}
+
+	function lp_update_shortlink() {
+		check_ajax_referer( 'lp_update_shortlink' );
+		$post_id     = isset( $_REQUEST['post_id'] ) ? intval( $_REQUEST['post_id'] ) : null;
+		$update_id   = isset( $_REQUEST['update_id'] ) ? intval( $_REQUEST['update_id'] ) : null;
+		$cache_key   = 'lp_shortlink_aaaa' . LP_PLUGIN_VERSION . '_' . $update_id;
+		$shortlink   = LivePress_WP_Utils::get_from_post( $post_id, $cache_key, true );
+		$status_code = 200;
+		if( ! $shortlink ) {
+			global $post;
+			$post = get_post( $post_id );
+			$post_parent_url = get_permalink( $post );
+			if ( 0 === preg_match('/\/\?/', $post_parent_url ) ) {
+				$post_parent_url .= "?";
+			} else {
+				$post_parent_url .= "&";
+			}
+			$canonical_url = $post_parent_url . 'lpup=' . $update_id . '#livepress-update-' . $update_id;
+
+			//$bitly_api = '7ea952a9826d091fbda8a4ca220ba634efe61e31'; // TODO: Allow to set up from web page
+			$bitly_api = 'a68d0da03159457bff5f6b287d6cdecb88b108dd'; // datacompboy
+			$get_shortlink = 'https://api-ssl.bitly.com/v3/shorten?access_token=' . $bitly_api .
+				'&domain=bit.ly&longUrl=' . urlencode( $canonical_url );
+
+			$url = $get_shortlink;
+			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
+				$res = vip_safe_wp_remote_get( $url, array( 'reject_unsafe_urls' => false ));
+			} else {
+				$res = wp_remote_get( $url, array( 'reject_unsafe_urls' => false ));
+			}
+
+			$response = json_decode( $res['body'], true );
+			$status_code = $response["status_code"];
+
+			if ( is_wp_error( $res ) || $status_code != 200 ) {
+				$shortlink = $canonical_url;
+			} else {
+				if( !$res || !isset($response['data']) || !isset( $response['data']['url'] ) ) {
+					$shortlink = $canonical_url;
+					$status_code = 500;
+				} else {
+					$shortlink = $response['data']['url'];
+					LivePress_WP_Utils::save_on_post( $post_id, $cache_key, $shortlink );
+
+					$options = get_option( LivePress_Administration::$options_name );
+					$livepress_com = new LivePress_Communication( $options['api_key'] );
+					$livepress_com->send_to_livepress_broadcast( $post_id, array( 'shortlink'=>array($update_id=>$shortlink ) ) );
+				}
+			}
+		}
+		wp_send_json_success( array( 'shortlink' => $shortlink, 'code' => $status_code ) );
 	}
 
 }

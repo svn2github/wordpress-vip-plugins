@@ -141,6 +141,18 @@ class LivePress_Communication {
 	}
 
 	/**
+	 * Broadcast any message over post
+	 */
+	public function send_to_livepress_broadcast( $post_id, $data ) {
+		$post_vars = array(
+			'post_id' => $post_id,
+			'data' => json_encode( $data )
+		);
+		$return_data = json_decode( $this->request_content_from_livepress( '/message/broadcast', 'post', $post_vars ) );
+		return $return_data->oortle->jobs->publish;
+	}
+
+	/**
 	 * Incremental api functions
 	 * TODO: write docs
 	 * op == append | prepend | replace | delete

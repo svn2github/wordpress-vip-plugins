@@ -203,16 +203,19 @@ Livepress.Ui.Controller = function (config, hooks) {
 	}
 
 	function handle_page_title_update (data) {
-		// we want to notify about the new post updates and edits. No deletes.
+		// Notify about new post updates by changing the title count. No deletes and edits.
+		// Only if the window is not active
 		if (window.is_active) {
 			return;
 		}
-		var only_deletes = false;
+
+		// Only update the post title when we are inserting a new node
+		var is_ins_node = false;
 		jQuery.each(data, function (k, v) {
 			// it's deletion if only del_node operations are in changes array
-			only_deletes = (v[0] === "del_node");
+			is_ins_node = (v[0] === "ins_node");
 		});
-		if (only_deletes) {
+		if ( ! is_ins_node ) {
 			return;
 		}
 
@@ -257,6 +260,15 @@ Livepress.Ui.Controller = function (config, hooks) {
 			abbr       = '<abbr class="livepress-timestamp" title="' + dateString +'"></abbr>';
 
 		console.log("post_update with data = ", data);
+        if ('op' in data && data.op === 'broadcast') {
+            var broadcast = JSON.parse(data.data);
+            if('shortlink' in broadcast) {
+                jQuery.each(broadcast['shortlink'], function(k,v) {
+                    Livepress.updateShortlinksCache[k] = v;
+                });
+            }
+            return;
+        }
 		if ('event' in data && data.event === 'post_title') {
 			return post_title_update(data.data);
 		}
@@ -285,9 +297,10 @@ Livepress.Ui.Controller = function (config, hooks) {
 		var timestamp = jQuery('abbr.livepress-timestamp').eq( 1 ),
 			update_id = timestamp.closest('.livepress-update').attr('id');
 		if ( 'timeago' === LivepressConfig.timestamp_format ) {
-			timestamp.timeago();
+			timestamp.timeago().attr( 'title', '' );
 		} else {
 			jQuery('.lp-bar abbr.livepress-timestamp').timeago();
+			jQuery('abbr.livepress-timestamp').attr( 'title', '' );
 		}
 		timestamp.wrap('<a href="' + Livepress.getUpdatePermalink(update_id) + '" ></a>');
 

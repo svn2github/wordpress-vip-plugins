@@ -192,6 +192,7 @@ div.livepress-byline {
 div.livepress-byline {
 	width: 50%;
 	text-align: right;
+	margin-bottom: 5px;
 }
 
 div.livepress-live-tags {

@@ -142,7 +142,7 @@ class LivePress_Live_Update {
 		}
 
 		if ($update_header) {
-			$metainfo .= '<span class="livepress-update-header">' . $update_header . "</span> ";
+			$metainfo .= '<span class="livepress-update-header">' . wptexturize( urldecode( $update_header ) ) . "</span> ";
 		}
 
 		if ($metainfo) {
@@ -160,7 +160,6 @@ class LivePress_Live_Update {
 	 * @param string $content Post content.
 	 */
 	public function fill_livepress_shortcodes( $content ) {
-
 		$content       = wp_unslash( $content );
 		$options       = $this->options;
 		$new_shortcode = "[livepress_metainfo";

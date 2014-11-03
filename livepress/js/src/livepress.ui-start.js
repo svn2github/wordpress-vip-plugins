@@ -72,9 +72,10 @@ Livepress.Ready = function () {
 			timestamp.wrap('<a href="' + Livepress.getUpdatePermalink(jQuery(this).attr('id')) + '" ></a>');
 			console.log( LivepressConfig.update_format );
 			if ( 'timeago' === LivepressConfig.timestamp_format ) {
-				jQuery('abbr.livepress-timestamp').timeago();
+				jQuery('abbr.livepress-timestamp').timeago().attr( 'title', '' );
 			} else {
 				jQuery('.lp-bar abbr.livepress-timestamp').timeago();
+				jQuery('abbr.livepress-timestamp').attr( 'title', '' );
 			}
 		}
 	);
