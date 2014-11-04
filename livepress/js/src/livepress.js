@@ -46,6 +46,9 @@ Livepress.getUpdateShortlink = function (upd) {
 
 		return jQuery.ajax({
 			url: window.LivepressConfig.ajax_url,
+			xhrFields: {
+				withCredentials: true
+			},
 			type: 'post',
 			async: false,
 			dataType: 'json',
