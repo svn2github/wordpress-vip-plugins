@@ -1,4 +1,4 @@
-/*! livepress -v1.2.1
+/*! livepress -v1.2.2
  * http://livepress.com/
  * Copyright (c) 2014 LivePress, Inc.
  */
@@ -1231,12 +1231,10 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 
 		var metainfo = '';
 
-		if ( 1 === jQuery( '#' + $element.attr('id') + ' .livepress-update-header').length ) {
-			update.shortExcerpt = LivepressConfig.post_title;
-		} else {
-			update.shortExcerpt = excerpt(100);
-			update.longExcerpt = excerpt(1000) + " ";
-		}
+
+		update.shortExcerpt = excerpt(100);
+		update.longExcerpt = excerpt(1000) + " ";
+
 
 		// TODO: Make this customizable
 		//if ( 0 < jQuery( '#' + $element.attr('id') + ' .live-update-authors').length ) {
@@ -1318,17 +1316,15 @@ Livepress.Ui.ReactButton = function (type, update) {
 				top = ( screen.height / 2 ) - 175,
 				options = "width=600,height=350,location=yes,,status=yes,top=" + top + ", left=" + left,
 				twitterLink = update.shortLink();
-				console.log( typeof twitterLink );
 
+				var description = ( 3 > update.shortExcerpt.length ) ? '' : update.shortExcerpt.replace(/#/g,'%23') + ' ';
 				// Did we get the shortened link or only a promise?
 				if ( 'string' === typeof twitterLink ) {
-					window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
-									' ' + twitterLink, "Twitter", options );
+					window.open( 'https://twitter.com/intent/tweet?text=' + description + twitterLink, "Twitter", options );
 				} else {
 					twitterLink
 						.done( function( data ){
-							window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
-									' ' + ( ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) ), "Twitter", options );
+							window.open( 'https://twitter.com/intent/tweet?text=' + description + ( ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) ), "Twitter", options );
 							var re = /livepress-update-([0-9]+)/,
 								update_id = re.exec(update.id)[1];
 							if ( 'undefined' !== typeof data.data ) {
@@ -1337,8 +1333,7 @@ Livepress.Ui.ReactButton = function (type, update) {
 						})
 						// Fallback to full URL
 						.fail( function() {
-							window.open( 'https://twitter.com/intent/tweet?text=' + update.shortExcerpt.replace(/#/g,'%23') +
-									' ' + Livepress.getUpdatePermalink( update.id ), "Twitter", options );
+							window.open( 'https://twitter.com/intent/tweet?text=' + description + Livepress.getUpdatePermalink( update.id ), "Twitter", options );
 						});
 				}
 			});

@@ -2,7 +2,7 @@
 Requires at least: 3.5
 Tested up to: 4.0.0
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
