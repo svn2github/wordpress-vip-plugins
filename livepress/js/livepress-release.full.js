@@ -1,4 +1,4 @@
-/*! livepress -v1.1.8
+/*! livepress -v1.2.0
  * http://livepress.com/
  * Copyright (c) 2014 LivePress, Inc.
  */
@@ -49,6 +49,9 @@ Livepress.getUpdateShortlink = function (upd) {
 
 		return jQuery.ajax({
 			url: window.LivepressConfig.ajax_url,
+			xhrFields: {
+				withCredentials: true
+			},
 			type: 'post',
 			async: false,
 			dataType: 'json',
@@ -3209,8 +3212,6 @@ Livepress.Ready = function () {
 			$firstUpdate  = $lpcontent.find( '.pinned-first-live-update' );
 			// keep at the top of the list
 			$firstUpdate.detach().prependTo( $lpcontent );
-			// remove meta, tags, author
-			$firstUpdate.find( '.livepress-meta, .live-update-livetags, .live-update-authors' ).hide();
 			$firstUpdateContainer = $lpcontent.parent();
 			$firstUpdate.css( 'marginTop', 0 );
 			$livepressBar = jQuery( '#livepress' );

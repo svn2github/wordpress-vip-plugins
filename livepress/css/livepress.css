@@ -138,6 +138,13 @@
 	background-color: #f5f5f5;
 }
 
+.pinned-first-live-update .livepress-meta,
+.pinned-first-live-update .livepress-meta,
+.pinned-first-live-update .live-update-livetags,
+.pinned-first-live-update .live-update-authors {
+	display: none;
+}
+
 /* Needs #post_content_livepress to be more specialized than #content img */
 .livepress-meta img,
 #post_content_livepress .livepress-meta img,

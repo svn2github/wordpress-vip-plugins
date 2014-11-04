@@ -860,8 +860,11 @@ class LivePress_PF_Updates {
 		);
 		$child_pieces = array();
 		$live_tags    = array();
-		if ( count( $children ) > 0 ) {
+		$update_count = 0;
+		$child_count  = count( $children );
+		if ( $child_count > 0 ) {
 			foreach( $children as $child ) {
+				$update_count++;
 				$post = $child;
                 list($_, $piece_id, $piece_gen) = explode("__", $child->post_title, 3);
 				$this->post_modified_gmt = max($this->post_modified_gmt, $child->post_modified_gmt);
@@ -884,15 +887,19 @@ class LivePress_PF_Updates {
 						}
 					}
 				}
-
-
+				$pin_header = LivePress_Updater::instance()->blogging_tools->is_post_header_enabled( $parent->ID );
 				$piece = array(
 					'id'      => $piece_id,
                     'lpg'     => $piece_gen,
 					'content' => $child->post_content,
 					'proceed' => apply_filters( 'the_content', $child->post_content ),
-					'prefix'  => sprintf( '<div id="livepress-update-%s" data-lpg="%d" class="livepress-update%s">', $piece_id, $piece_gen, $update_tag_classes ),
-					'suffix'  => '</div>'
+					'prefix'  => sprintf(
+							'<div id="livepress-update-%s" data-lpg="%d" class="livepress-update%s %s">',
+								$piece_id,
+								$piece_gen,
+								$update_tag_classes,
+								( $child_count == $update_count && $pin_header ) ? 'pinned-first-live-update' : '' ),
+							'suffix'  => '</div>'
 				);
 
 				$child_pieces[] = $piece;
