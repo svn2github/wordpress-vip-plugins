@@ -1,4 +1,4 @@
-/*! livepress -v1.2.0
+/*! livepress -v1.2.1
  * http://livepress.com/
  * Copyright (c) 2014 LivePress, Inc.
  */
@@ -1232,7 +1232,7 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 		var metainfo = '';
 
 		if ( 1 === jQuery( '#' + $element.attr('id') + ' .livepress-update-header').length ) {
-			update.shortExcerpt = jQuery('#' + $element.attr('id') + ' .livepress-update-header').text();
+			update.shortExcerpt = LivepressConfig.post_title;
 		} else {
 			update.shortExcerpt = excerpt(100);
 			update.longExcerpt = excerpt(1000) + " ";
@@ -1267,7 +1267,13 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 			return Livepress.getUpdatePermalink( update.id );
 		}
 	};
-	update.shortLink = function() { return Livepress.getUpdateShortlink( update.id ); };
+	update.shortLink = function() {
+		if( is_sticky ){
+			return LivepressConfig.post_url;
+		} else {
+			return Livepress.getUpdateShortlink( update.id );
+		}
+	};
 
 	// Get shortened URL, when done set up the sharing UI
     var types = ["facebook", "twitter", "hyperlink"],

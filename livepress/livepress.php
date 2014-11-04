@@ -3,7 +3,7 @@
 Plugin Name: LivePress
 Plugin URI:  http://www.livepress.com
 Description: Richly-featured live blogging for WordPress.
-Version:     1.2.0
+Version:     1.2.1
 Author:      LivePress Inc.
 Author URI:  http://www.livepress.com
 */
@@ -40,7 +40,7 @@ class LivePress_Enabler {
 
 $livepress_enabler = new LivePress_Enabler();
 
-define( 'LP_PLUGIN_VERSION',      '1.2.0' );
+define( 'LP_PLUGIN_VERSION',      '1.2.1' );
 define( 'LP_PLUGIN_NAME',         'livepress' );
 define( 'LP_PLUGIN_SYMLINK',       FALSE ); // Use for local testing when plugin symlinked
 define( 'LP_PLUGIN_THEME_INCLUDE', FALSE ); // Use when plugin included in theme

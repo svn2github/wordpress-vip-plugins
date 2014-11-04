@@ -74,12 +74,12 @@ final class LivePress_Blogging_Tools {
 			echo "<html>\n";
 			echo "<head prefix=\"og: http://ogp.me/ns#\">\n";
 			echo "<link rel=\"canonical\" href=\"" .            esc_url( $canonical_url ) . "\">\n";
-			echo "<title>" .                                    esc_html( $data->title ) . "</title>\n";
+			echo "<title>" .                                    esc_html( $this->lp_strip_shortcodes( $data->title ) ) . "</title>\n";
 
 			// Twitter card:
 			// TODO: Make this customizable
 			echo "<meta name=\"twitter:card\" content=\"summary_large_image\" />\n";
-			echo '<meta name="twitter:title" content="' .       esc_attr( urldecode( $data->title ) )  . "\" />\n";
+			echo '<meta name="twitter:title" content="' .       esc_attr( $this->lp_strip_shortcodes( urldecode( $data->title ) ) ) . "\" />\n";
 			echo '<meta name="twitter:description" content="' . esc_html( $this->lp_strip_shortcodes( urldecode( $data->description ) ) )  . "\" />\n";
 			echo '<meta name="twitter:image" content="' .       esc_attr( $data->img )  . "\" />\n";
 			echo '<meta name="twitter:url" content="' .         esc_url( $canonical_url )  . "\" />\n";
@@ -100,7 +100,7 @@ final class LivePress_Blogging_Tools {
 			}
 
 			// Facebook Open Graph:
-			echo '<meta property="og:title" content="' .        esc_attr( urldecode( $data->title ) ) . "\" />\n";
+			echo '<meta property="og:title" content="' .        esc_attr( $this->lp_strip_shortcodes( urldecode( $data->title ) ) ) . "\" />\n";
 			echo "<meta property=\"og:type\" content=\"" .      esc_attr( $data->type ) . "\" />\n";
 			echo '<meta property="og:url" content="' .          esc_url( $canonical_url ) .	"\" />\n";
 			echo '<meta property="og:image" content="' .        esc_attr( $data->img ) . "\" />\n";

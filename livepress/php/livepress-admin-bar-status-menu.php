@@ -57,6 +57,10 @@ class LivePress_Admin_Bar_Status_Menu {
 	 */
 	function admin_bar_menu( $wp_admin_bar ) {
 
+		if ( ! current_user_can( 'manage_options' ) || ! is_admin() ) {
+			return;
+		}
+
 		$class = 'livepress-status-menu';
 
 		$status = self::get_status();

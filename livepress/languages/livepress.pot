@@ -1,13 +1,13 @@
-#: php/livepress-admin-bar-status-menu.php:66
+#: php/livepress-admin-bar-status-menu.php:70
 #: php/livepress-admin-settings.php:88
 msgid "LivePress"
 msgstr ""
 
-#: php/livepress-admin-bar-status-menu.php:71
+#: php/livepress-admin-bar-status-menu.php:75
 msgid "LivePress connected."
 msgstr ""
 
-#: php/livepress-admin-bar-status-menu.php:72
+#: php/livepress-admin-bar-status-menu.php:76
 msgid "LivePress connection error."
 msgstr ""
 
