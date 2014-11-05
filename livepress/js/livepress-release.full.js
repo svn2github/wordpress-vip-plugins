@@ -1184,6 +1184,10 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 	var $update_ui;
 	var is_sticky = $element.hasClass("pinned-first-live-update");
 
+	var getTitle = function() {
+		return $element.find( '.livepress-update-header' ).text();
+	};
+
 	var excerpt = function (limit) {
 		if ( is_sticky ){
 			return LivepressConfig.post_title;
@@ -1219,7 +1223,7 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 				text = text.substring(0, rbound) + "\u2026";
 			}
 
-			return '"' + text + '"';
+			return text.trim();
 		}
 
 };
@@ -1230,7 +1234,7 @@ Livepress.Ui.UpdateView = function ($element, post_link, disable_comment) {
 		update.id = $element.attr('id');
 
 		var metainfo = '';
-
+		update.title = getTitle();
 
 		update.shortExcerpt = excerpt(100);
 		update.longExcerpt = excerpt(1000) + " ";
@@ -1317,7 +1321,10 @@ Livepress.Ui.ReactButton = function (type, update) {
 				options = "width=600,height=350,location=yes,,status=yes,top=" + top + ", left=" + left,
 				twitterLink = update.shortLink();
 
-				var description = ( 3 > update.shortExcerpt.length ) ? '' : update.shortExcerpt.replace(/#/g,'%23') + ' ';
+				var shortExcerpt = ( 3 > update.shortExcerpt.length ) ? '' : update.shortExcerpt.replace(/#/g,'%23') + ' ',
+					updateTitle = update.title.trim(),
+					description = ( '' === updateTitle ? shortExcerpt :  updateTitle + ' ' );
+
 				// Did we get the shortened link or only a promise?
 				if ( 'string' === typeof twitterLink ) {
 					window.open( 'https://twitter.com/intent/tweet?text=' + description + twitterLink, "Twitter", options );
