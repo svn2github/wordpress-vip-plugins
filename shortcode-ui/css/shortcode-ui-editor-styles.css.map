@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "file": "",
+  "sources": ["sass/shortcode-ui-editor-styles.scss"],
+  "names": [],
+  "mappings": "AAAA;EACC,YAAY;EAEb,YAAY,0BAA0B;IAGnC,SAAS"
+}
