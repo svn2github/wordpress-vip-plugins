@@ -123,20 +123,6 @@ class Fieldmanager_Context_Submenu extends Fieldmanager_Context {
 		}
 	}
 
-	/**
-	 * Get the URL for this context's admin page. Mainly pulled from
-	 * menu_page_url().
-	 *
-	 * @return string
-	 */
-	public function url() {
-		if ( $this->parent_slug && ! isset( $GLOBALS['_parent_pages'][ $this->parent_slug ] ) ) {
-			return admin_url( add_query_arg( 'page', $this->menu_slug, $this->parent_slug ) );
-		} else {
-			return admin_url( 'admin.php?page=' . $this->menu_slug );
-		}
-	}
-
 	public function save_submenu_data() {
 		// Make sure that our nonce field arrived intact
 		if( ! wp_verify_nonce( $_POST['fieldmanager-' . $this->fm->name . '-nonce'], 'fieldmanager-save-' . $this->fm->name ) ) {
@@ -157,5 +143,19 @@ class Fieldmanager_Context_Submenu extends Fieldmanager_Context {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get the URL for this context's admin page. Mainly pulled from
+	 * menu_page_url().
+	 *
+	 * @return string
+	 */
+	public function url() {
+		if ( $this->parent_slug && ! isset( $GLOBALS['_parent_pages'][ $this->parent_slug ] ) ) {
+			return admin_url( add_query_arg( 'page', $this->menu_slug, $this->parent_slug ) );
+		} else {
+			return admin_url( 'admin.php?page=' . $this->menu_slug );
+		}
 	}
 }
