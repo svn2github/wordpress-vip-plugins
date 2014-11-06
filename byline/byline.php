@@ -14,7 +14,7 @@ class Byline {
 	const meta_key = '_byline';
 	const nonce_key = 'byline-nonce';
 
-	function init() {
+	static function init() {
 		add_action( 'add_meta_boxes', array( __CLASS__, 'add_meta_box' ) );
 		add_action( 'save_post', array( __CLASS__, 'save_byline' ), 10, 2 );
 
@@ -22,14 +22,14 @@ class Byline {
 			add_filter( 'the_author', array( __CLASS__, 'filter_the_author' ) );
 	}
 
-	function add_meta_box() {
+	static function add_meta_box() {
 		if ( ! post_type_supports( get_post_type(), 'author' ) )
 			return;
 
 		add_meta_box( 'byline', __( 'Byline', 'byline' ), array( __CLASS__, 'display_meta_box' ), get_post_type() );
 	}
 
-	function display_meta_box( $post, $meta_box_data ) {
+	static function display_meta_box( $post, $meta_box_data ) {
 		$byline = self::get_byline( $post->ID );
 		?>
 		<label for="byline"><?php _e( 'Byline', 'byline' ); ?></label>
@@ -38,7 +38,7 @@ class Byline {
 		wp_nonce_field( __FILE__, self::nonce_key );
 	}
 
-	function save_byline( $post_id, $post ) {
+	static function save_byline( $post_id, $post ) {
 		if ( ! isset( $_POST[ self::nonce_key ] ) || ! wp_verify_nonce( $_POST[ self::nonce_key ], __FILE__ ) )
 			return;
 
@@ -50,11 +50,11 @@ class Byline {
 			delete_post_meta( $post_id, self::meta_key );
 	}
 
-	function get_byline( $post_id ) {
+	static function get_byline( $post_id ) {
 		return sanitize_text_field( get_post_meta( $post_id, self::meta_key, true ) );
 	}
 
-	function filter_the_author( $display_name ) {
+	static function filter_the_author( $display_name ) {
 		global $post;
 		$byline = self::get_byline( $post->ID );
 		return ! empty( $byline ) ? $byline : $display_name;
