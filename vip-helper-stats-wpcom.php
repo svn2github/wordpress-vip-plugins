@@ -37,29 +37,8 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
 		$arr 		= wp_cache_get( $cache_id, 'vip_stats' );
 
 		if ( !$arr ) {
-			$debug_time_start = microtime( true );
-
 			$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', $limit );
-
-			$debug_time_end = microtime( true );
-
-			$debug_time_elapsed = $debug_time_end - $debug_time_start;
-
-			$debug_data = array(
-				'stat_result' 	=> var_export( $stat_result, true ),
-				'num_days' 		=> var_export( $num_days, true ),
-				'limit' 		=> var_export( $limit, true ),
-				'end_date' 		=> var_export( $end_date, true ),
-				'current_user' 	=> var_export( wp_get_current_user()->user_login, true ),
-				'cache_key' 	=> var_export( $cache_id, true ),
-				'stats_elapsed' => var_export( $debug_time_elapsed, true ),
-				'backtrace'		=> var_export( debug_backtrace(), true ),
-			);
-
-			wpcom_vip_debug( '247wallst_yahoo_top_posts', $debug_data );
-
 			$arr = wpcom_vip_stats_csv_print( $stat_result, 'postviews', $limit, true, true );
-
 			wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
 		}
 
