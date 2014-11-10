@@ -107,9 +107,13 @@ class coauthors_plus {
 
 		// Support Jetpack Open Graph Tags
 		add_filter( 'jetpack_open_graph_tags', array( $this, 'filter_jetpack_open_graph_tags' ), 10, 2 );
+		
+		// Filter to send comment moderation notification e-mail to multiple authors
+		add_filter( 'comment_moderation_recipients', 'cap_filter_comment_moderation_email_recipients', 10, 2 );
 
 		// Support infinite scroll for Guest Authors on author pages
 		add_filter( 'infinite_scroll_js_settings', array( $this, 'filter_infinite_scroll_js_settings' ), 10, 2 );
+	
 	}
 
 	function coauthors_plus() {
@@ -625,9 +629,9 @@ class coauthors_plus {
 			$terms = array();
 			$coauthor = $this->get_coauthor_by( 'user_nicename', $author_name );
 
-            if( ! $coauthor ) {
-                $coauthor = $this->get_coauthor_by( 'user_login', $author_name );
-            }
+			if ( ! $coauthor ) {
+				$coauthor = $this->get_coauthor_by( 'user_login', $author_name );
+			}
 
 			if ( $author_term = $this->get_author_term( $coauthor ) )
 				$terms[] = $author_term;
@@ -751,6 +755,7 @@ class coauthors_plus {
 					$this->add_coauthors( $post_id, array( $user->user_login ) );
 			}
 		}
+
 	}
 
 	function has_author_terms( $post_id ) {
@@ -950,19 +955,18 @@ class coauthors_plus {
 			return;
 		}
 
-        $author = $this->get_coauthor_by( 'user_nicename', $author_name );
-        if( ! $author ) {
-            $author = $this->get_coauthor_by( 'linked_account', $author_name );
-        }
+		$author = $this->get_coauthor_by( 'user_nicename', $author_name );
+		if ( ! $author ) {
+			$author = $this->get_coauthor_by( 'linked_account', $author_name );
+		}
+
 		global $wp_query, $authordata;
 
 		if ( is_object( $author ) ) {
 			$authordata = $author;
 			$term = $this->get_author_term( $authordata );
 		}
-		// VIP - stopgap fix for $term-count returning 0 incorrectly
-		// /z 28282, 29703
-		if ( ( is_object( $authordata ) ) 
+		if ( ( is_object( $authordata ) )
 			|| ( ! empty( $term ) && $term->count ) ) {
 			$wp_query->queried_object = $authordata;
 			$wp_query->queried_object_id = $authordata->ID;
@@ -998,7 +1002,6 @@ class coauthors_plus {
 
 		return $settings;
 	}
-	
 
 	/**
 	 * Main function that handles search-as-you-type for adding authors
@@ -1390,7 +1393,7 @@ class coauthors_plus {
 		}
 
 		// Send back the updated Open Graph Tags
-		return $og_tags;
+		return apply_filters( 'coauthors_open_graph_tags', $og_tags );
 	}
 
 }
@@ -1503,90 +1506,25 @@ function wp_notify_postauthor( $comment_id, $comment_type = '' ) {
 }
 endif;
 
-if ( !function_exists('wp_notify_moderator') ) :
 /**
- * Notifies the moderator of the blog about a new comment that is awaiting approval.
- * This is a modified version of the core function in wp-includes/pluggable.php that
- * supports notifs to multiple co-authors. Unfortunately, this is the best way to do it :(
- *
- * @since 2.6.2
- *
- * @param int $comment_id Comment ID
- * @return bool Always returns true
+ * Filter array of moderation notification email addresses
+ * 
+ * @param array $recipients
+ * @param int $comment_id
+ * @return array
  */
-function wp_notify_moderator( $comment_id ) {
-	global $wpdb;
+function cap_filter_comment_moderation_email_recipients( $recipients, $comment_id ) {
+	$comment = get_comment( $comment_id );
+	$post_id = $comment->comment_post_ID;
+	
+	if ( isset($post_id) ) {
+		$coauthors = get_coauthors( $post_id );
+		foreach ( $coauthors as $user ) {
+			if ( !empty($user->user_email) )
+				$extra_recipients[] = $user->user_email;
+		}
 
-	if ( 0 == get_option( 'moderation_notify' ) )
-		return true;
-
-	$comment = get_comment($comment_id);
-	$post = get_post($comment->comment_post_ID);
-	$coauthors = get_coauthors( $post->ID );
-	// Send to the administration and to the co-authors if the co-author can modify the comment.
-	$email_to = array( get_option('admin_email') );
-	foreach( $coauthors as $user ) {
-		if ( user_can($user->ID, 'edit_comment', $comment_id) && !empty($user->user_email) && ( get_option('admin_email') != $user->user_email) )
-			$email_to[] = $user->user_email;
+		return array_unique( array_merge( $recipients, $extra_recipients ) );
 	}
-
-	$comment_author_domain = @gethostbyaddr($comment->comment_author_IP);
-	$comments_waiting = $wpdb->get_var("SELECT count(comment_ID) FROM $wpdb->comments WHERE comment_approved = '0'");
-
-	// The blogname option is escaped with esc_html on the way into the database in sanitize_option
-	// we want to reverse this for the plain text arena of emails.
-	$blogname = wp_specialchars_decode(get_option('blogname'), ENT_QUOTES);
-
-	switch ($comment->comment_type)
-	{
-		case 'trackback':
-			$notify_message  = sprintf( __('A new trackback on the post "%s" is waiting for your approval'), $post->post_title ) . "\r\n";
-			$notify_message .= get_permalink($comment->comment_post_ID) . "\r\n\r\n";
-			$notify_message .= sprintf( __('Website : %1$s (IP: %2$s , %3$s)'), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
-			$notify_message .= sprintf( __('URL    : %s'), $comment->comment_author_url ) . "\r\n";
-			$notify_message .= __('Trackback excerpt: ') . "\r\n" . $comment->comment_content . "\r\n\r\n";
-			break;
-		case 'pingback':
-			$notify_message  = sprintf( __('A new pingback on the post "%s" is waiting for your approval'), $post->post_title ) . "\r\n";
-			$notify_message .= get_permalink($comment->comment_post_ID) . "\r\n\r\n";
-			$notify_message .= sprintf( __('Website : %1$s (IP: %2$s , %3$s)'), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
-			$notify_message .= sprintf( __('URL    : %s'), $comment->comment_author_url ) . "\r\n";
-			$notify_message .= __('Pingback excerpt: ') . "\r\n" . $comment->comment_content . "\r\n\r\n";
-			break;
-		default: //Comments
-			$notify_message  = sprintf( __('A new comment on the post "%s" is waiting for your approval'), $post->post_title ) . "\r\n";
-			$notify_message .= get_permalink($comment->comment_post_ID) . "\r\n\r\n";
-			$notify_message .= sprintf( __('Author : %1$s (IP: %2$s , %3$s)'), $comment->comment_author, $comment->comment_author_IP, $comment_author_domain ) . "\r\n";
-			$notify_message .= sprintf( __('E-mail : %s'), $comment->comment_author_email ) . "\r\n";
-			$notify_message .= sprintf( __('URL    : %s'), $comment->comment_author_url ) . "\r\n";
-			$notify_message .= sprintf( __('Whois  : http://whois.arin.net/rest/ip/%s'), $comment->comment_author_IP ) . "\r\n";
-			$notify_message .= __('Comment: ') . "\r\n" . $comment->comment_content . "\r\n\r\n";
-			break;
-	}
-
-	$notify_message .= sprintf( __('Approve it: %s'),  admin_url("comment.php?action=approve&c=$comment_id") ) . "\r\n";
-	if ( EMPTY_TRASH_DAYS )
-		$notify_message .= sprintf( __('Trash it: %s'), admin_url("comment.php?action=trash&c=$comment_id") ) . "\r\n";
-	else
-		$notify_message .= sprintf( __('Delete it: %s'), admin_url("comment.php?action=delete&c=$comment_id") ) . "\r\n";
-	$notify_message .= sprintf( __('Spam it: %s'), admin_url("comment.php?action=spam&c=$comment_id") ) . "\r\n";
-
-	$notify_message .= sprintf( _n('Currently %s comment is waiting for approval. Please visit the moderation panel:',
- 		'Currently %s comments are waiting for approval. Please visit the moderation panel:', $comments_waiting), number_format_i18n($comments_waiting) ) . "\r\n";
-	$notify_message .= admin_url("edit-comments.php?comment_status=moderated") . "\r\n";
-
-	$subject = sprintf( __('[%1$s] Please moderate: "%2$s"'), $blogname, $post->post_title );
-	$message_headers = '';
-
-	$notify_message = apply_filters('comment_moderation_text', $notify_message, $comment_id);
-	$subject = apply_filters('comment_moderation_subject', $subject, $comment_id);
-	$message_headers = apply_filters('comment_moderation_headers', $message_headers);
-
-	foreach ( $email_to as $email )
-		@wp_mail($email, $subject, $notify_message, $message_headers);
-
-	return true;
+	return $recipients;
 }
-endif;
-
-
