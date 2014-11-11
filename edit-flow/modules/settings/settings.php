@@ -10,7 +10,6 @@ class EF_Settings extends EF_Module {
 	 * Register the module with Edit Flow but don't do anything else
 	 */
 	function __construct() {	
-		global $edit_flow;
 		
 		// Register the module with Edit Flow
 		$this->module_url = $this->get_module_url( __FILE__ );
@@ -53,7 +52,14 @@ class EF_Settings extends EF_Module {
 	function action_admin_menu() {
 		global $edit_flow;
 		
-		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( $this, 'settings_page_controller' ), $this->module->module_url . 'lib/eflogo_s16.png' ) ;
+		// Select Edit Flow icon
+		if ( defined( 'MP6' ) ) :
+			$ef_logo = 'lib/eflogo_s32b.png';
+		else :
+			$ef_logo = 'lib/eflogo_s32.png';
+		endif;
+		
+		add_menu_page( $this->module->title, $this->module->title, 'manage_options', $this->module->settings_slug, array( $this, 'settings_page_controller' ), $this->module->module_url . $ef_logo ) ;
 		
 		foreach ( $edit_flow->modules as $mod_name => $mod_data ) {
 			if ( isset( $mod_data->options->enabled ) && $mod_data->options->enabled == 'on'

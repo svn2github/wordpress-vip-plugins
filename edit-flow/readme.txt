@@ -3,8 +3,8 @@ Contributors: batmoo, danielbachhuber, sbressler, automattic
 Donate link: http://editflow.org/contribute/
 Tags: edit flow, workflow, editorial, newsroom, management, journalism, post status, custom status, notifications, email, comments, editorial comments, usergroups, calendars, editorial calendar, story budget
 Requires at least: 3.4
-Tested up to: 3.5.2
-Stable tag: 0.7.6
+Tested up to: 3.8.1
+Stable tag: 0.8
 
 Redefining your editorial workflow.
 
@@ -31,8 +31,8 @@ The easiest way to install this plugin is to go to Add New in the Plugins sectio
 If the automatic process above fails, follow these simple steps to do a manual install:
 
 1. Extract the contents of the zip file into your `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Write and enjoy the merits of a structured editorial workflow!
+2. Activate the plugin through the 'Plugins' menu in WordPress
+3. Write and enjoy the merits of a structured editorial workflow!
 
 == Frequently Asked Questions ==
 
@@ -92,7 +92,14 @@ New features, including story budget and editorial metadata, a completely rewrit
 
 == Changelog ==
 
-= 0.8 (???? ??, 2013) =
+= 0.8.1 (??? ?? ???) =
+* New German localization thanks to [Circleview](https://github.com/Circleview)
+* New Spanish localization thanks to Andrew Kurtis from [Web Hosting Hub](http://www.webhostinghub.com/).
+* Performance improvements for the calendar, custom statuses, and editorial metadata
+* Bug fix: Show "(no title)" on the calendar when a post doesn't have a title.
+* Bug fix: Persist the future date position of a post on the calendar when a post is updated.
+
+= 0.8 (Dec 19, 2013) =
 * New feature: Dashboard Notepad. Editors and admins can use a notepad widget on the dashboard to leave instructions, important announcements, etc. for every WordPress user.
 * New feature: Double-click to create a new post on the calendar, or edit the details associated with an existing post. Thanks [bbrooks](https://github.com/bbrooks) and [cojennin](https://github.com/cojennin)
 * Post subscriptions are now saved via AJAX, which means you can add or remove subscribers without hitting "Save Post". This is especially useful for editorial comments. Thanks [cojennin](https://github.com/cojennin)
@@ -102,9 +109,25 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Scheduled publication time is now included in relevant email notifications. Props [mattoperry](https://github.com/mattoperry)
 * Calendar and story budget module descriptions link to their respective pages in the admin for usability. Props [rgalindo05](https://github.com/rgalindo05)
 * New Russian localization thanks to [te-st.ru](https://github.com/Teplitsa)
+* Updated Japanese localization thanks to [naokomc](https://github.com/naokomc)
+* Updated Dutch localization thanks to [kardotim](https://github.com/kardotim)
 * Bug fix: User group selection no longer appears in network admin.
 * Improved slug generation when changing title of Drafts thanks to [natebot](https://github.com/natebot)
-* Bug fix: Permalink slugs are now editable after initial save
+* Bug fix: Permalink slugs are now editable after initial save. Props [nickdaugherty](https://github.com/nickdaugherty)
+* Bug fix: Permit calendar filters to be properly reset.
+* Bug fix: Posts, pages, custom post types, etc. can now be previewed correctly.
+* Bug fix: Fix Strict Standards PHP notice with add_caps_to_role(). Props [azizur](https://github.com/azizur)
+* Bug fix: PHP compatability issue. Props [ziz](https://github.com/ziz).
+* Bug fix: Correct calendar encoding. Props [willvanwazer](https://github.com/willvanwazer)
+* Bug fix: Check for $screen in filter_manage_posts_column. Props [styledev](https://github.com/styledev).
+* Bug fix: Correct Edit Flow icon size. Props [Fstop](https://github.com/FStop).
+* Improvement: Add editorial metadata to the Posts screen. Props [drrobotnik](https://github.com/drrobotnik)
+* Improvement: Visual support for MP6. Props [keoshi](https://github.com/keoshi).
+* Bug fix: Catch WP_Error returning with get_terms(). Props [paulgibbs](https://github.com/paulgibbs)
+* Improvement: Better unit testing with PHPUnit thanks to [willvanwazer](https://github.com/willvanwazer) and [mbijon](https://github.com/mbijon)
+* Bug fix: Correctly close out list item in editorial comments. Props [jkovis](https://github.com/jkovis)
+
+The following folks did some tremendous work helping with the release of Edit Flow v0.8: [azizur](https://github.com/azizur), [bbrooks](https://github.com/bbrooks), [danielbachhuber](https://github.com/danielbachhuber), [drrobotnik](https://github.com/drrobotnik), [Fstop](https://github.com/FStop), [jkovis](https://github.com/jkovis), [kardotim](https://github.com/kardotim), [keoshi](https://github.com/keoshi) [mattoperry](https://github.com/mattoperry), [mbijon] (https://github.com/mbijon), [naokomc](https://github.com/naokom, [natebot](https://github.com/natebot), [nickdaugherty](https://github.com/nickdaugherty), [paulgibbs](https://github.com/paulgibbs), [rgalindo05](https://github.com/rgalindo05), [te-st.ru](https://github.com/Teplitsa), [willvanwazer](https://github.com/willvanwazer), [ziz](https://github.com/ziz).
 
 = 0.7.6 (Jan. 30, 2013) =
 * Bug fix for 3.4.2 compatibility.
@@ -234,7 +257,7 @@ New features, including story budget and editorial metadata, a completely rewrit
 * Added tooltips with descriptions to the Status dropdown and Status Filter links. Thanks to [Gil Namur](http://lifeasahuman.com) for the great idea!
 * Fixed the issue where subscribed users/usergroups were not receiving notifications
 
-= 0.3.2 (Jan. 28, 2010)=
+= 0.3.2 (Jan. 28, 2010) =
 * Fixed fatal error if notifications were disabled
 
 = 0.3.1 =

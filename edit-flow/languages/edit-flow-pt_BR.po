@@ -1,43 +1,44 @@
+# Copyright (C) 2013 
+# This file is distributed under the same license as the  package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Edit Flow 0.7.5-working\n"
+"Project-Id-Version: Edit Flow\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/Edit-Flow\n"
 "POT-Creation-Date: 2013-11-02 01:35:45+00:00\n"
-"PO-Revision-Date: 2013-11-02 10:58+0900\n"
-"Last-Translator: Naoko Takano <info@nao-net.com>\n"
-"Language-Team: \n"
-"Language: Japanese\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Poedit 1.5.7\n"
-"X-Poedit-SourceCharset: UTF-8\n"
+"PO-Revision-Date: 2014-08-29 14:29-0300\n"
+"Last-Translator: Douglas Moura <douglas.ademoura@gmail.com>\n"
+"Language-Team: Douglas Araujo de Moura <douglas.ademoura@gmail.com>\n"
+"X-Generator: Poedit 1.6.7\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Language: pt_BR\n"
 
 #: common/php/class-module.php:42
 msgid "Post"
-msgstr "投稿"
+msgstr "Publicação"
 
 #: common/php/class-module.php:43
 msgid "Page"
-msgstr "固定ページ"
+msgstr "Página"
 
 #: common/php/class-module.php:129 common/php/class-module.php:192
 #: modules/custom-status/custom-status.php:148
 msgid "Draft"
-msgstr "下書き"
+msgstr "Projeto"
 
 #: common/php/class-module.php:134 common/php/class-module.php:195
 #: modules/custom-status/custom-status.php:156
 msgid "Pending Review"
-msgstr "レビュー待ち"
+msgstr "Pendente de revisão"
 
 #: common/php/class-module.php:191 modules/calendar/calendar.php:972
 #: modules/calendar/calendar.php:1660
 #: modules/custom-status/custom-status.php:388
 #: modules/story-budget/story-budget.php:742
 msgid "Published"
-msgstr "公開済み"
+msgstr "Publicado"
 
 #: common/php/class-module.php:193 modules/calendar/calendar.php:967
 #: modules/calendar/calendar.php:1658
@@ -45,59 +46,60 @@ msgstr "公開済み"
 #: modules/dashboard/dashboard.php:144
 #: modules/story-budget/story-budget.php:740
 msgid "Scheduled"
-msgstr "投稿予約済み"
+msgstr "Programado"
 
 #: common/php/class-module.php:194
 msgid "Private"
-msgstr "プライベート"
+msgstr "Privado"
 
 #: common/php/class-module.php:196 modules/calendar/calendar.php:906
 #: modules/story-budget/story-budget.php:556
 msgid "Trash"
-msgstr "ゴミ箱"
+msgstr "Lixo"
 
 #: common/php/class-module.php:388
 msgid "Invalid Taxonomy"
-msgstr "無効なタクソノミー"
+msgstr "Taxonomia inválida"
 
 #: common/php/util.php:14
 msgid "(no title)"
-msgstr "(無題)"
+msgstr "(sem título)"
 
 #: edit_flow.php:225 modules/editorial-metadata/editorial-metadata.php:346
 msgid "Configure"
-msgstr "設定"
+msgstr "Configurar"
 
 #: edit_flow.php:228
 msgid "Settings updated."
-msgstr "設定を更新しました。"
+msgstr "Configurações atualizadas."
 
 #: edit_flow.php:229
 msgid "Please correct your form errors below and try again."
-msgstr "以下のフォームエラーを修正してもう一度お試しください。"
+msgstr "Por favor, corrija os erros do seguinte formulário e envie novamente."
 
 #: edit_flow.php:230 modules/settings/settings.php:107
 #: modules/settings/settings.php:362
 msgid "Cheatin&#8217; uh?"
-msgstr "間違えましたか ?"
+msgstr "Trapacendo hein?"
 
 #: edit_flow.php:231
 msgid "You do not have necessary permissions to complete this action."
-msgstr "この操作を完了する権限がありません。"
+msgstr "Você não tem as permissões necessárias para completar esta ação."
 
 #: edit_flow.php:232
 msgid "Post does not exist"
-msgstr "投稿が存在しません。"
+msgstr "Post não existe"
 
 #: modules/calendar/calendar.php:32 modules/calendar/calendar.php:160
 #: modules/calendar/calendar.php:612
 msgid "Calendar"
-msgstr "カレンダー"
+msgstr "Calendário"
 
 #: modules/calendar/calendar.php:33
 msgid "View upcoming content in a <a href=\"%s\">customizable calendar</a>."
 msgstr ""
-"公開予定のコンテンツを<a href=\"%s\">カスタムカレンダー</a>で表示します。"
+"Ver os próximos conteúdos em um <a href=\"%s\"> calendário personalizável </"
+"a>."
 
 #: modules/calendar/calendar.php:34
 msgid ""
@@ -105,37 +107,38 @@ msgid ""
 "Filter by status or click on the post title to see its details. Drag and "
 "drop posts between days to change their publication date date."
 msgstr ""
-"Edit Flow のカレンダーでは、カスタマイズした日付範囲の投稿を表示できます。ス"
-"テータスでフィルターするか、投稿タイトルをクリックして詳細を表示してくださ"
-"い。投稿をドラッグ & ドロップして、公開日を変更することもできます。"
+"O calendário Edit Flow permite ver suas mensagens durante um período de "
+"datas personalizável. Filtre por estado ou clique no título do post para ver "
+"seus detalhes. Arraste e solte posts entre os dias para alterar sua data de "
+"publicação."
 
 #: modules/calendar/calendar.php:50
 msgid "Post date updated."
-msgstr "投稿日を更新しました。"
+msgstr "Data do post atualizada."
 
 #: modules/calendar/calendar.php:51
 msgid "There was an error updating the post. Please try again."
-msgstr "投稿の更新の際にエラーが発生しました。もう一度お試しください。"
+msgstr "Ocorreu um erro ao atualizar o post. Por gavor, tente novamente."
 
 #: modules/calendar/calendar.php:52
 msgid ""
 "Updating the post date dynamically doesn't work for published content. "
 "Please <a href='%s'>edit the post</a>."
 msgstr ""
-"公開済みのコンテンツについては動的な投稿日変更はできません。<a href='%s'>投稿"
-"を編集</a>してください。"
+"Atualizar a data a publicação do post dinamicamente não funciona para "
+"conteúdo publicado. Por favor <a href='%s'>edite o post</a>."
 
 #: modules/calendar/calendar.php:53
 msgid ""
 "iCal secret key regenerated. Please inform all users they will need to "
 "resubscribe."
 msgstr ""
-"iCal シークレットキーを再生成しました。再購読の必要があることをユーザーに告知"
-"してください。"
+"Chave secreta iCal regenerada. Por favor, informar a todos os usuários que "
+"deverão assinar novamente."
 
 #: modules/calendar/calendar.php:56 modules/calendar/calendar.php:88
 msgid "Calendar Options"
-msgstr "カレンダー設定"
+msgstr "Opções do calendário"
 
 #: modules/calendar/calendar.php:59 modules/custom-status/custom-status.php:58
 #: modules/editorial-comments/editorial-comments.php:40
@@ -143,7 +146,7 @@ msgstr "カレンダー設定"
 #: modules/notifications/notifications.php:51
 #: modules/user-groups/user-groups.php:64
 msgid "Overview"
-msgstr "概要"
+msgstr "Visão geral"
 
 #: modules/calendar/calendar.php:60
 msgid ""
@@ -151,9 +154,9 @@ msgid ""
 "your content. Quickly see which stories are on track to being published on "
 "time, and which will need extra effort.</p>"
 msgstr ""
-"<p>カレンダーは、週または月ごとにコンテンツを表示できる便利な機能です。スケ"
-"ジュール通りに進行している記事と、まだ作業が必要な記事をひと目で見渡すことが"
-"できます。</p>"
+"<p>O calendário é uma visualização semana-a-semana ou mês-a-mês conveniente "
+"para seu conteúdo. Veja rapidamente quais histórias estão encaminhadas para "
+"serem publicadas a tempo, e quais precisarão de um esforço extra.</p>"
 
 #: modules/calendar/calendar.php:62
 msgid ""
@@ -162,73 +165,75 @@ msgid ""
 "wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow Forum</a></p><p><a href="
 "\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow on Github</a></p>"
 msgstr ""
-"<p><strong>詳細:</strong></p><p><a href=\"http://editflow.org/features/"
-"calendar/\">カレンダー機能ドキュメンテーション</a></p><p><a href=\"http://"
-"wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow フォーラム</a></p><p><a "
-"href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow on Github</"
-"a></p>"
+"<p><strong> Para mais informações  </strong></p><p><a href=\"http://editflow."
+"org/features/calendar/\">Documentação do Calendário</a></p><p><a href="
+"\"http://wordpress.org/tags/edit-flow?forum_id=10\">Fórum Edit Flow </a></"
+"p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow no "
+"Github</a></p>"
 
 #: modules/calendar/calendar.php:214
 msgid "Number of Weeks: "
-msgstr "週の数:"
+msgstr "Número de Semanas"
 
 #: modules/calendar/calendar.php:221
 msgid "Apply"
-msgstr "適用"
+msgstr "Aplicar"
 
 #: modules/calendar/calendar.php:231
 msgid "Subscribe in iCal or Google Calendar"
-msgstr "iCal または Googleカレンダーで購読"
+msgstr "Assinar no iCal ou Google Calendar"
 
 #: modules/calendar/calendar.php:303
 msgid "Something is wrong with the format for the new date."
-msgstr "新しい日付のフォーマットに問題があるようです。"
+msgstr "Algo está errado com o formato para a nova data."
 
 #: modules/calendar/calendar.php:621
 msgid "Post moved to the trash."
 msgid_plural "%d posts moved to the trash."
-msgstr[0] "%d件の投稿をゴミ箱へ移動しました。"
+msgstr[0] "Post movido para a lixeira."
+msgstr[1] "%d posts movidos para a lixeira."
 
 #: modules/calendar/calendar.php:625 modules/story-budget/story-budget.php:594
 msgid "Undo"
-msgstr "取り消し"
+msgstr "Desfazer"
 
 #: modules/calendar/calendar.php:629
 msgid "Post restored from the Trash."
 msgid_plural "%d posts restored from the Trash."
-msgstr[0] "%s件の投稿をゴミ箱から元に戻しました。"
+msgstr[0] "Post restaurado da lixeira."
+msgstr[1] "%d posts restaurados da lixeira."
 
 #: modules/calendar/calendar.php:739 modules/calendar/calendar.php:1064
 msgid "Today"
-msgstr "今日"
+msgstr "Hoje"
 
 #: modules/calendar/calendar.php:757
 msgid "Show %1$s more "
-msgstr "%1$s件追加表示"
+msgstr "Mostrar %1$s mais "
 
 #: modules/calendar/calendar.php:765
 msgid "Schedule a %s for %s"
-msgstr "%sを%sに予約"
+msgstr "Programe um %s para %s"
 
 #: modules/calendar/calendar.php:766
 msgid "%s Title"
-msgstr "%sのタイトル"
+msgstr "%s Título"
 
 #: modules/calendar/calendar.php:769
 msgid "Create %s"
-msgstr "%sを作成"
+msgstr "Criar %s"
 
 #: modules/calendar/calendar.php:770
 msgid "Edit %s"
-msgstr "%sを編集"
+msgstr "Editar %s"
 
 #: modules/calendar/calendar.php:893
 msgid "None"
-msgstr "なし"
+msgstr "Nenhum"
 
 #: modules/calendar/calendar.php:904
 msgid "Edit this item"
-msgstr "この項目を編集"
+msgstr "Editar este item"
 
 #: modules/calendar/calendar.php:904
 #: modules/custom-status/custom-status.php:1670
@@ -236,61 +241,61 @@ msgstr "この項目を編集"
 #: modules/story-budget/story-budget.php:554
 #: modules/user-groups/user-groups.php:1168
 msgid "Edit"
-msgstr "編集"
+msgstr "Editar"
 
 #: modules/calendar/calendar.php:906
 msgid "Trash this item"
-msgstr "この項目をゴミ箱へ移動"
+msgstr "Enviar para a lixeira"
 
 #: modules/calendar/calendar.php:909
 #: modules/custom-status/custom-status.php:1508
 #: modules/story-budget/story-budget.php:562
 msgid "Preview &#8220;%s&#8221;"
-msgstr "&#8220;%s&#8221; をプレビュー"
+msgstr "Pré-visualizar &#8220; %s&#8221;"
 
 #: modules/calendar/calendar.php:909
 #: modules/custom-status/custom-status.php:1508
 #: modules/story-budget/story-budget.php:562
 msgid "Preview"
-msgstr "プレビュー"
+msgstr "Pré-visualizar"
 
 #: modules/calendar/calendar.php:911 modules/story-budget/story-budget.php:560
 msgid "View &#8220;%s&#8221;"
-msgstr "&#8220;%s&#8221; を表示"
+msgstr "Ver &#8220;%s&#8221;"
 
 #: modules/calendar/calendar.php:911 modules/story-budget/story-budget.php:560
 msgid "View"
-msgstr "表示"
+msgstr "Ver"
 
 #: modules/calendar/calendar.php:914
 msgid "Save &#8220;%s&#8221;"
-msgstr "「%s」を保存"
+msgstr "Salvar &#8220;%s&#8221;"
 
 #: modules/calendar/calendar.php:914
 msgid "Save"
-msgstr "保存"
+msgstr "Salvar"
 
 #: modules/calendar/calendar.php:946 modules/story-budget/story-budget.php:181
 msgid "Author"
-msgstr "投稿者"
+msgstr "Autor"
 
 #: modules/calendar/calendar.php:954
 msgid "Post Type"
-msgstr "投稿タイプ"
+msgstr "Tipo de post"
 
 #: modules/calendar/calendar.php:1040
 #: modules/story-budget/story-budget.php:621
 msgid "Filter"
-msgstr "フィルタ"
+msgstr "Filtro"
 
 #: modules/calendar/calendar.php:1052
 #: modules/story-budget/story-budget.php:633
 msgid "Reset"
-msgstr "リセット"
+msgstr "Reiniciar"
 
 #: modules/calendar/calendar.php:1058
 msgid "Forward 1 week"
-msgstr "1週間後"
+msgstr "Avançar 1 semana"
 
 #: modules/calendar/calendar.php:1058
 msgid "&rsaquo;"
@@ -298,7 +303,7 @@ msgstr "&rsaquo;"
 
 #: modules/calendar/calendar.php:1060
 msgid "Forward %d weeks"
-msgstr "%d週間後"
+msgstr "Avançar %d semanas"
 
 #: modules/calendar/calendar.php:1060
 msgid "&raquo;"
@@ -306,11 +311,11 @@ msgstr "&raquo;"
 
 #: modules/calendar/calendar.php:1064
 msgid "Today is %s"
-msgstr "今日は%s"
+msgstr "Hoje é %s"
 
 #: modules/calendar/calendar.php:1068
 msgid "Back %d weeks"
-msgstr "%d週間戻す"
+msgstr "Voltar %d semanas"
 
 #: modules/calendar/calendar.php:1068
 msgid "&laquo;"
@@ -318,7 +323,7 @@ msgstr "&laquo;"
 
 #: modules/calendar/calendar.php:1070
 msgid "Back 1 week"
-msgstr "1週間戻す"
+msgstr "Voltar 1 semana"
 
 #: modules/calendar/calendar.php:1070
 msgid "&lsaquo;"
@@ -326,30 +331,31 @@ msgstr "&lsaquo;"
 
 #: modules/calendar/calendar.php:1271
 msgid "for %1$s through %2$s"
-msgstr "(%1$sから%2$s)"
+msgstr "para %1$s através %2$s"
 
 #: modules/calendar/calendar.php:1312
 msgid "Number of weeks to show"
-msgstr "表示する週の数"
+msgstr "Número de semanas para exibir"
 
 #: modules/calendar/calendar.php:1313
 msgid "Post types to show"
-msgstr "表示する投稿タイプ"
+msgstr "Tipos de publicação para exibir"
 
 #: modules/calendar/calendar.php:1314
 msgid "Post type to create directly from calendar"
-msgstr "カレンダーから直接作成する投稿タイプ"
+msgstr "Tipo de anúncio para criar diretamente do calendário "
 
 #: modules/calendar/calendar.php:1315
 msgid "Subscription in iCal or Google Calendar"
-msgstr "iCal / Googleカレンダーでの購読"
+msgstr "Assinar no iCal ou Google Calendar"
 
 #: modules/calendar/calendar.php:1352
 msgid ""
 "The number of weeks shown on the calendar can be changed on a user-by-user "
 "basis using the calendar's screen options."
 msgstr ""
-"カレンダーに表示する週の数はユーザーごとの表示オプションで変えられます。"
+"O número de semanas mostradas no calendário pode mudar para cada usuário "
+"usando as opções de visualização do calendário."
 
 #: modules/calendar/calendar.php:1362
 #: modules/custom-status/custom-status.php:1096
@@ -357,7 +363,7 @@ msgstr ""
 #: modules/dashboard/dashboard.php:285
 #: modules/notifications/notifications.php:1080
 msgid "Disabled"
-msgstr "無効化"
+msgstr "Desativado"
 
 #: modules/calendar/calendar.php:1363
 #: modules/custom-status/custom-status.php:1097
@@ -365,11 +371,11 @@ msgstr "無効化"
 #: modules/dashboard/dashboard.php:286
 #: modules/notifications/notifications.php:1081
 msgid "Enabled"
-msgstr "有効化"
+msgstr "Ativado"
 
 #: modules/calendar/calendar.php:1376
 msgid "Regenerate calendar feed secret"
-msgstr "カレンダーフィードのシークレットを再生成"
+msgstr "Regenerar o feed secreto do calendário"
 
 #: modules/calendar/calendar.php:1417
 #: modules/custom-status/custom-status.php:1230
@@ -379,73 +385,75 @@ msgstr "カレンダーフィードのシークレットを再生成"
 #: modules/notifications/notifications.php:1125
 #: modules/user-groups/user-groups.php:627
 msgid "Back to Edit Flow"
-msgstr "Edit Flow へ戻る"
+msgstr "Voltar ao Edit Flow"
 
 #: modules/calendar/calendar.php:1438
 msgid "No date supplied."
-msgstr "日付が指定されていません。"
+msgstr "Nenhuma data informada."
 
 #: modules/calendar/calendar.php:1442
 msgid "Please change Quick Create to use a post type viewable on the calendar."
 msgstr ""
-"「クイック作成」がカレンダーで表示できる投稿タイプを使うよう変更してくださ"
-"い。"
+"Por favor altere o Quick Create para usar um tipo de post visível no "
+"calendário."
 
 #: modules/calendar/calendar.php:1448
 msgid "Untitled"
-msgstr "無題"
+msgstr "Sem título"
 
 #: modules/calendar/calendar.php:1485
 msgid "Post could not be created"
-msgstr "投稿を作成できませんでした"
+msgstr "Post não pôde ser criado"
 
 #: modules/calendar/calendar.php:1537
 msgid "Invalid post metadata type"
-msgstr "無効なメタデータの種類です"
+msgstr "Tipo de metadados do post inválida"
 
 #: modules/calendar/calendar.php:1558
 msgid "Error updating post author."
-msgstr "投稿者更新の際にエラーが発生しました。"
+msgstr "Erro ao alterar  autor do post"
 
 #: modules/calendar/calendar.php:1575
 msgid "Invalid metadata type"
-msgstr "無効なメタデータの種類"
+msgstr "Tipo de metadados inválida"
 
 #: modules/calendar/calendar.php:1588
 msgid "Metadata could not be updated."
-msgstr "メタデータを更新できませんでした。"
+msgstr "Metados não foram atualizados"
 
 #: modules/calendar/calendar.php:1652
 #: modules/story-budget/story-budget.php:735
 msgid "View all statuses"
-msgstr "すべてのステータスを表示"
+msgstr "Vert todos os status"
 
 #: modules/calendar/calendar.php:1659
 #: modules/story-budget/story-budget.php:741
 msgid "Unpublished"
-msgstr "非公開"
+msgstr "Não publicado"
 
 #: modules/calendar/calendar.php:1668
 #: modules/story-budget/story-budget.php:751
 msgid "View all categories"
-msgstr "すべてのカテゴリーを表示"
+msgstr "Ver todas as categorias"
 
 #: modules/calendar/calendar.php:1680
 #: modules/story-budget/story-budget.php:763
 msgid "View all users"
-msgstr "すべてのユーザーを表示"
+msgstr "Ver todos os usuários"
 
 #: modules/calendar/calendar.php:1693
 msgid "View all types"
-msgstr "すべてのタイプを表示"
+msgstr "Ver todos os tipos"
 
 #: modules/custom-status/custom-status.php:29
 msgid "Custom Statuses"
-msgstr "カスタムステータス"
+msgstr "Status personalizados"
 
 #: modules/custom-status/custom-status.php:30
 msgid "Create custom post statuses to define the stages of your workflow."
-msgstr "ワークフローの段階を定義するカスタム投稿ステータスを作成します。"
+msgstr ""
+"Criar status de posts personalizados para definir os estágios do seu fluxo "
+"de trabalho."
 
 #: modules/custom-status/custom-status.php:31
 msgid ""
@@ -453,37 +461,37 @@ msgid ""
 "can change existing or add new ones anytime, and drag and drop to change "
 "their order."
 msgstr ""
-"独自の投稿ステータスを作成し、記事公開ワークフローの体制を整えることができま"
-"す。いつでも既存のステータスの変更や新規追加が可能です。ドラッグ & ドロップで"
-"順序を変更できます。"
+"Crie seus própios status de publicação para agregar a estrutura ao seu fluxo "
+"de trabalho editorial. Você pode modificar os existentes ou adicionar novos "
+"a qualquer momento, e arrastar e soltar para alterar a ordem."
 
 #: modules/custom-status/custom-status.php:46
 msgid "Edit Statuses"
-msgstr "ステータスを編集"
+msgstr "Editar status"
 
 #: modules/custom-status/custom-status.php:48
 msgid "Post status created."
-msgstr "投稿ステータスを作成しました。"
+msgstr "Status de post criado"
 
 #: modules/custom-status/custom-status.php:49
 msgid "Post status doesn't exist."
-msgstr "投稿ステータスが存在しません。"
+msgstr "Status de post não existe."
 
 #: modules/custom-status/custom-status.php:50
 msgid "Default post status has been changed."
-msgstr "デフォルトの投稿ステータスを変更しました。"
+msgstr "Status padrão do post alterado."
 
 #: modules/custom-status/custom-status.php:51
 msgid "Post status updated."
-msgstr "投稿ステータスを更新しました。"
+msgstr "Status do post atualizado."
 
 #: modules/custom-status/custom-status.php:52
 msgid "Post status deleted."
-msgstr "投稿ステータスを削除しました。"
+msgstr "Status do post excluído."
 
 #: modules/custom-status/custom-status.php:53
 msgid "Status order updated."
-msgstr "ステータスの順序を更新しました。"
+msgstr "Status do post atualizado."
 
 #: modules/custom-status/custom-status.php:59
 msgid ""
@@ -498,16 +506,18 @@ msgid ""
 "state. Furthermore, email notifications can be sent to a specific group of "
 "users when a post changes state.</p>"
 msgstr ""
-"<p>Edit Flow のカスタムステータスを使うと、編集ワークフローの重要な段階を定義"
-"できます。デフォルトでは WordPress には「下書き」と「レビュー待ち」の投稿ス"
-"テータスしかありません。カスタムステータスでは例えば「進行中」「提案」「編集"
-"待ち」といったラベルを作成でき、既存のステータスを残すことも槊杖することも可"
-"能です。また、ドラッグ & ドロップでステータスを移動し、ワークフローの順序を好"
-"きなように変えられます。</p><p>カスタムステータスは Edit Flow の他の機能や "
-"WordPress 管理画面とも全面的に連携しています。カレンダーやストーリー割り当て"
-"画面では、表示を投稿ステータスによってフィルターすることもできます。さらに、"
-"投稿ステータスが変更された際に特定のユーザーやユーザーグループへメールで通知"
-"することもできます。</p>"
+"<p>Status personalizados Edit Flow permitem definir as etapas mais "
+"importantes do seu fluxo de trabalho editorial. Fora da caixa, WordPress só "
+"oferece \"Rascunho\" e \"Revisão Pendente\" como status de post. Com status "
+"personalizados, você pode criar seus próprios status, como \"Em andamento\", "
+"\"Em campo\" ou \"Esperando edição\" e conservar ou eliminar os originais. "
+"Também é possível arrastar e soltar os status para estabelecer a melhor "
+"ordem para seu fluxo de trabalho. <p></p> Os status personalizados estão "
+"plenamente integrados com o restante do Edit Flow e a administração do "
+"WordPress. No calendário e no histórico de orçamento, é possível filtrar "
+"apenas os posts de um status específico. Além disso, as notificações de "
+"email poder ser enviada a um grupo específico de usuários quando o post teve "
+"seu status alterado.</p>"
 
 #: modules/custom-status/custom-status.php:61
 msgid ""
@@ -517,43 +527,43 @@ msgid ""
 "a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow "
 "on Github</a></p>"
 msgstr ""
-"<p><strong>詳細:</strong></p><p><a href=\"http://editflow.org/features/"
-"custom-statuses/\">カスタムステータス機能ドキュメンテーション</a></p><p><a "
-"href=\"http://wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow フォーラム"
-"</a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit "
-"Flow on Github</a></p>"
+"<p><strong> Para mais informações </strong></p><p><a href=\"http://editflow."
+"org/features/custom-statuses/\">Documentação do status personalizado</a> </"
+"p><p> <a href=\"http://wordpress.org/tags/edit-flow ? forum_id = 10\"> Fórum "
+"Edit Flow </a> </ p><p> <a href=\"https://github.com/danielbachhuber/Edit-"
+"Flow\"> Editar Flow no Github </a > </p>"
 
 #: modules/custom-status/custom-status.php:124
 msgid "Pitch"
-msgstr "提案"
+msgstr "Passo"
 
 #: modules/custom-status/custom-status.php:127
 msgid "Idea proposed; waiting for acceptance."
-msgstr "提案された承認待ちの案。"
+msgstr "Ideia proposta; esperando aprovação"
 
 #: modules/custom-status/custom-status.php:132
 msgid "Assigned"
-msgstr "担当者決定"
+msgstr "Atribuído"
 
 #: modules/custom-status/custom-status.php:135
 msgid "Post idea assigned to writer."
-msgstr "担当執筆者が決定した投稿案。"
+msgstr "Ideia de publicação atribuída a um escritor."
 
 #: modules/custom-status/custom-status.php:140
 msgid "In Progress"
-msgstr "進行中"
+msgstr "Em progresso"
 
 #: modules/custom-status/custom-status.php:143
 msgid "Writer is working on the post."
-msgstr "執筆者が作業中の投稿。"
+msgstr "O escritor está trabalhando no post."
 
 #: modules/custom-status/custom-status.php:151
 msgid "Post is a draft; not ready for review or publication."
-msgstr "まだレビューまたは公開の準備ができていない下書きの投稿。"
+msgstr "O post é um rascunho; não está pronto para revisão ou publicação."
 
 #: modules/custom-status/custom-status.php:159
 msgid "Post needs to be reviewed by an editor."
-msgstr "編集者のレビューが必要な投稿。"
+msgstr "O post precisa ser revisado por um editor."
 
 #: modules/custom-status/custom-status.php:318
 msgid ""
@@ -561,150 +571,158 @@ msgid ""
 "JavaScript disabled. You will not be able to access or change the post "
 "status."
 msgstr ""
-"<strong>注:</strong> お使いのブラウザでは JavaScript に対応していないか、設定"
-"で無効になっているようです。投稿ステータスへのアクセスや変更を行うことはでき"
-"ません。"
+"<strong>Nota:</strong> Seu navegador não suporta JavaScript ou o JavaScript "
+"está desativado. Você não será capaz de acessar ou alterar o status do post."
 
 #: modules/custom-status/custom-status.php:393
 msgid "Privately Published"
-msgstr "プライベート公開"
+msgstr "Publicado privadamente"
 
 #: modules/custom-status/custom-status.php:420
 msgid "&mdash; No Change &mdash;"
-msgstr "&mdash; 変更なし &mdash;"
+msgstr "&mdash; Sem alterações &mdash;"
 
 #: modules/custom-status/custom-status.php:472
 msgid "Custom status doesn't exist."
-msgstr "カスタムステータスが見つかりません。"
+msgstr "Status personalizado não existe."
 
 #: modules/custom-status/custom-status.php:515
 msgid "Cannot reassign to the status you want to delete"
-msgstr "削除しようとしているステータスを割り当て直しできませんでした。"
+msgstr "Não é possível alterar para o status que você quer excluir."
 
 #: modules/custom-status/custom-status.php:533
 msgid "Restricted status "
-msgstr "制限付きステータス"
+msgstr "Status restrito"
 
 #: modules/custom-status/custom-status.php:676
 #: modules/story-budget/story-budget.php:180
 msgid "Status"
-msgstr "ステータス"
+msgstr "Status"
 
 #: modules/custom-status/custom-status.php:753
 #: modules/custom-status/custom-status.php:820
 msgid "Please enter a name for the status"
-msgstr "ステータスの名称を入力してください。"
+msgstr "Por favor, insira o nome do status"
 
 #: modules/custom-status/custom-status.php:756
 #: modules/custom-status/custom-status.php:823
 #: modules/custom-status/custom-status.php:1016
 msgid "Please enter a valid, non-numeric name for the status."
-msgstr "正しいステータス名を入力してください。数字のみの名称は使えません。"
+msgstr "Por favor insira um nome válido, não númerico para o status."
 
 #: modules/custom-status/custom-status.php:759
 #: modules/custom-status/custom-status.php:826
 #: modules/custom-status/custom-status.php:1022
 msgid "Status name cannot exceed 20 characters. Please try a shorter name."
-msgstr "作成したステータス名が20文字を超えています。短い名称を選んでください。"
+msgstr ""
+"O status não pode ter mais de 20 caracteres. Por favor, tente um nome mais "
+"curto."
 
 #: modules/custom-status/custom-status.php:762
 #: modules/custom-status/custom-status.php:830
 #: modules/custom-status/custom-status.php:1041
 msgid "Status name conflicts with existing term. Please choose another."
-msgstr "既存の項目と競合する名称です。別のものを選んでください。"
+msgstr ""
+"Nome do status está em conflito com um termo já existente. Por favor, "
+"escolha outro."
 
 #: modules/custom-status/custom-status.php:765
 #: modules/custom-status/custom-status.php:837
 msgid "Status name is restricted. Please choose another name."
-msgstr "制限されているステータス名です。他の名称を選んでください。"
+msgstr "Nome do status é restrito. Por favor, escolha outro nome."
 
 #: modules/custom-status/custom-status.php:780
 msgid "Could not add status: "
-msgstr "ステータスを追加できませんでした。"
+msgstr "Não foi possível adicionar o status:"
 
 #: modules/custom-status/custom-status.php:834
 msgid "Status name conflicts with existing status. Please choose another."
-msgstr "既存のステータス名と競合する名称です。別のものを選んでください。"
+msgstr ""
+"Nome do status está em conflito com um status já existente. Por favor, "
+"escolha outro."
 
 #: modules/custom-status/custom-status.php:853
 msgid "Error updating post status."
-msgstr "投稿ステータス更新の際にエラーが発生しました。"
+msgstr "Erro ao atualizar o status do post."
 
 #: modules/custom-status/custom-status.php:875
 #: modules/custom-status/custom-status.php:909
 msgid "Invalid nonce for submission."
-msgstr "送信用の nonce が不正です。"
+msgstr "Nonce inválido para envio."
 
 #: modules/custom-status/custom-status.php:879
 #: modules/custom-status/custom-status.php:913
 msgid "Sorry, you do not have permission to edit custom statuses."
-msgstr "カスタムステータスを編集する権限がありません。"
+msgstr ""
+"Desculpe, mas você não tem permissão para editar os status personalizados."
 
 #: modules/custom-status/custom-status.php:890
 msgid "Status doesn&#39;t exist."
-msgstr "ステータスが存在しません。"
+msgstr "Status não existe."
 
 #: modules/custom-status/custom-status.php:919
 msgid "Status does not exist."
-msgstr "ステータスが存在しません。"
+msgstr "Status não existe."
 
 #: modules/custom-status/custom-status.php:923
 msgid "Cannot delete default status."
-msgstr "デフォルトステータスを削除できません。"
+msgstr "Não é possível excluir um status padrão."
 
 #: modules/custom-status/custom-status.php:927
 msgid "Could not delete the status: "
-msgstr "ステータスを削除できません:"
+msgstr "Não foi possível excluir o status:"
 
 #: modules/custom-status/custom-status.php:974
 #: modules/editorial-metadata/editorial-metadata.php:1269
 msgid "Terms not set."
-msgstr "項目が設定されていません。"
+msgstr "Termos não definidos."
 
 #: modules/custom-status/custom-status.php:1010
 msgid "Please enter a name for the status."
-msgstr "ステータスの名称を入力してください。"
+msgstr "Por favor, insira um nome para o status."
 
 #: modules/custom-status/custom-status.php:1028
 msgid "Status name is restricted. Please chose another name."
-msgstr "制限されているステータス名です。他の名称を選んでください。"
+msgstr "Este nome de status é restrito. Por favor, escolha outro."
 
 #: modules/custom-status/custom-status.php:1034
 msgid "Status already exists. Please choose another name."
-msgstr "既に存在するステータス名です。別の名称を選んでください。"
+msgstr "Este status já existe. Por favor, escolha outro nome."
 
 #: modules/custom-status/custom-status.php:1059
 msgid "Could not update the status: <strong>%s</strong>"
-msgstr "ステータスを更新できませんでした: <strong>%s</strong>"
+msgstr "Não foi possível atualizar o status:  <strong>%s </strong>"
 
 #: modules/custom-status/custom-status.php:1074
 msgid "Use on these post types:"
-msgstr "以下の投稿タイプで使用する:"
+msgstr "Utilizar neste tipo de posts:"
 
 #: modules/custom-status/custom-status.php:1075
 msgid "Always show dropdown:"
-msgstr "ドロップダウンを必ず表示する:"
+msgstr "Sempre mostrar o menu dropdown:"
 
 #: modules/custom-status/custom-status.php:1160
 msgid "Custom Status"
-msgstr "カスタムステータス"
+msgstr "Status personalizado"
 
 #: modules/custom-status/custom-status.php:1162
 #: modules/custom-status/custom-status.php:1221
 msgid "The name is used to identify the status. (Max: 20 characters)"
-msgstr "ステータスを識別するために使われる名称 (上限: 20文字) 。"
+msgstr "O nome é utilizado para identificar o status. (Max.: 20 caracteres)"
 
 #: modules/custom-status/custom-status.php:1166
 #: modules/editorial-metadata/editorial-metadata.php:1417
 #: modules/editorial-metadata/editorial-metadata.php:1489
 msgid "Slug"
-msgstr "スラッグ"
+msgstr "Slug"
 
 #: modules/custom-status/custom-status.php:1169
 msgid ""
 "The slug is the unique ID for the status and is changed when the name is "
 "changed."
-msgstr "スラッグとはステータスの固有 ID で、名称が変更された際に更新されます。"
+msgstr ""
+"O slug é um identificador único para o status e é alterado quando nome é "
+"alterado."
 
 #: modules/custom-status/custom-status.php:1173
 #: modules/custom-status/custom-status.php:1224
@@ -719,7 +737,7 @@ msgstr "スラッグとはステータスの固有 ID で、名称が変更さ�
 #: modules/user-groups/user-groups.php:1138
 #: modules/user-groups/user-groups.php:1233
 msgid "Description"
-msgstr "説明"
+msgstr "Descrição"
 
 #: modules/custom-status/custom-status.php:1176
 #: modules/custom-status/custom-status.php:1226
@@ -727,13 +745,13 @@ msgid ""
 "The description is primarily for administrative use, to give you some "
 "context on what the custom status is to be used for."
 msgstr ""
-"説明は主に、カスタムステータスがどういう目的で使われるかの背景情報を提供する"
-"ために管理者向けに使われます。"
+"A descrição é primariamente para uso administrativo, para lhe dar algum "
+"contexto em o que os status customizados estão sendo usados."
 
 #: modules/custom-status/custom-status.php:1181
 #: modules/custom-status/custom-status.php:1738
 msgid "Update Status"
-msgstr "ステータスを更新"
+msgstr "Atualizar status"
 
 #: modules/custom-status/custom-status.php:1182
 #: modules/custom-status/custom-status.php:1737
@@ -744,34 +762,33 @@ msgstr "ステータスを更新"
 #: modules/user-groups/user-groups.php:584
 #: modules/user-groups/user-groups.php:1238
 msgid "Cancel"
-msgstr "キャンセル"
+msgstr "Cancelar"
 
 #: modules/custom-status/custom-status.php:1192
 msgid ""
 "Are you sure you want to delete the post status? All posts with this status "
 "will be assigned to the default status."
 msgstr ""
-"本当にこの投稿ステータスを削除しますか ? このステータスに設定された投稿は、全"
-"てデフォルトのステータスに変更されます。"
+"Tem certeza que deseja excluir este status de post? Todos os posts com este "
+"status serão atribuídos ao status padrão."
 
 #: modules/custom-status/custom-status.php:1198
 msgid ""
 "Deleting a post status will assign all posts to the default post status."
 msgstr ""
-"投稿ステータスを削除すると、すべての投稿がデフォルト投稿ステータスに割り当て"
-"られます。"
+"Excluir um status de post irá atribuir todos os posts para o status padrão."
 
 #: modules/custom-status/custom-status.php:1205
 #: modules/editorial-metadata/editorial-metadata.php:1468
 #: modules/user-groups/user-groups.php:602
 msgid "Add New"
-msgstr "新規追加"
+msgstr "Adicionar novo"
 
 #: modules/custom-status/custom-status.php:1206
 #: modules/editorial-metadata/editorial-metadata.php:1469
 #: modules/user-groups/user-groups.php:603
 msgid "Options"
-msgstr "設定"
+msgstr "Opções"
 
 #: modules/custom-status/custom-status.php:1219
 #: modules/custom-status/custom-status.php:1587
@@ -785,126 +802,127 @@ msgstr "設定"
 #: modules/user-groups/user-groups.php:1137
 #: modules/user-groups/user-groups.php:1229
 msgid "Name"
-msgstr "名前"
+msgstr "Nome"
 
 #: modules/custom-status/custom-status.php:1230
 msgid "Add New Status"
-msgstr "新しいステータスを追加"
+msgstr "Adicionar novo status"
 
 #: modules/custom-status/custom-status.php:1571
 msgid "No custom statuses found."
-msgstr "カスタムステータスが見つかりません。"
+msgstr "Nenhum status personalizado encontrato"
 
 #: modules/custom-status/custom-status.php:1586
 #: modules/editorial-metadata/editorial-metadata.php:1610
 msgid "Position"
-msgstr "位置"
+msgstr "Posição"
 
 #: modules/custom-status/custom-status.php:1662
 msgid "Default"
-msgstr "デフォルト"
+msgstr "Padrão"
 
 #: modules/custom-status/custom-status.php:1671
 #: modules/editorial-metadata/editorial-metadata.php:1681
 #: modules/user-groups/user-groups.php:1169
 msgid "Quick&nbsp;Edit"
-msgstr "クイック編集"
+msgstr "Quick&nbsp;Edit"
 
 #: modules/custom-status/custom-status.php:1673
 msgid "Make&nbsp;Default"
-msgstr "デフォルトにする"
+msgstr "Tornar&nbsp;padrão"
 
 #: modules/custom-status/custom-status.php:1676
 #: modules/editorial-metadata/editorial-metadata.php:1686
 #: modules/user-groups/user-groups.php:1170
 msgid "Delete"
-msgstr "削除"
+msgstr "Excluir"
 
 #: modules/custom-status/custom-status.php:1726
 #: modules/editorial-metadata/editorial-metadata.php:1708
 #: modules/user-groups/user-groups.php:1227
 msgid "Quick Edit"
-msgstr "クイック編集"
+msgstr "Quick Edit"
 
 #: modules/dashboard/dashboard.php:29
 msgid "Dashboard Widgets"
-msgstr "ダッシュボードウィジェット"
+msgstr "Widgets do Painel"
 
 #: modules/dashboard/dashboard.php:30
 msgid "Track your content from the WordPress dashboard."
-msgstr "WordPress ダッシュボードでコンテンツの状況を把握できます。"
+msgstr "Seguir seu conteúdo desde o painel do WordPress."
 
 #: modules/dashboard/dashboard.php:31
 msgid ""
 "Enable dashboard widgets to quickly get an overview of what state your "
 "content is in."
 msgstr ""
-"ダッシュボードウィジェットを有効化して、コンテンツのステータス概要をすばやく"
-"チェックできます。"
+"Habilitar widgets do painel para ter uma rápida visão geral do estado do seu "
+"conteúdo."
 
 #: modules/dashboard/dashboard.php:43
 msgid "Widget Options"
-msgstr "ウィジェット設定"
+msgstr "Opções de widget"
 
 #: modules/dashboard/dashboard.php:121
 msgid "Unpublished Content"
-msgstr "非公開のコンテンツ"
+msgstr "Conteúdo não publicado"
 
 #: modules/dashboard/dashboard.php:125 modules/dashboard/dashboard.php:226
 msgid "Notepad"
-msgstr "メモ帳"
+msgstr "Bloco de notas"
 
 #: modules/dashboard/dashboard.php:129 modules/dashboard/dashboard.php:225
 msgid "Posts I'm Following"
-msgstr "フォロー中の投稿"
+msgstr "Posts que sigo"
 
 #: modules/dashboard/dashboard.php:154
 msgid "Posts at a Glance"
-msgstr "投稿の概要"
+msgstr "Posts a um relance"
 
 #: modules/dashboard/dashboard.php:179
 msgid "Edit Custom Statuses"
-msgstr "カスタムステータスを編集"
+msgstr "Editar status personalizados"
 
 #: modules/dashboard/dashboard.php:204
 #: modules/story-budget/story-budget.php:554
 msgid "Edit this post"
-msgstr "この投稿を編集"
+msgstr "Editar este post"
 
 #: modules/dashboard/dashboard.php:205
 msgid "This post was last updated on"
-msgstr "この投稿の最終更新日:"
+msgstr "Este post foi atualizado pela última vez em"
 
 #: modules/dashboard/dashboard.php:209
 msgid "Sorry! You're not subscribed to any posts!"
-msgstr "現在投稿を購読していません。"
+msgstr "Desculpe! Você não assinou nenhum post!"
 
 #: modules/dashboard/dashboard.php:224
 msgid "Post Status Widget"
-msgstr "投稿ステータスウィジェット"
+msgstr "Widget de status de post"
 
 #: modules/dashboard/dashboard.php:274
 msgid ""
 "The notifications module will need to be enabled for this widget to display."
 msgstr ""
-"このウィジェットを表示するには通知モジュールを有効化する必要があります。"
+"O módulo de notificações precisará ser ativado para que esta widget seja "
+"exibida."
 
 #: modules/dashboard/widgets/dashboard-notepad.php:82
 msgid "%1$s last updated on %2$s"
-msgstr "%1$sの最終投稿日: %2$s"
+msgstr "%1$s atualizado pela última vez em %2$s"
 
 #: modules/dashboard/widgets/dashboard-notepad.php:96
 msgid "Update Note"
-msgstr "メモを更新"
+msgstr "Atualizar nota"
 
 #: modules/editorial-comments/editorial-comments.php:22
 #: modules/editorial-comments/editorial-comments.php:116
 msgid "Editorial Comments"
-msgstr "編集用コメント"
+msgstr "Comentários editoriais"
 
 #: modules/editorial-comments/editorial-comments.php:23
 msgid "Share internal notes with your team."
-msgstr "チームと内部向けメモを共有できます。"
+msgstr "Compartilhar notas internar com sua equipe"
 
 #: modules/editorial-comments/editorial-comments.php:24
 msgid ""
@@ -912,13 +930,13 @@ msgid ""
 "Communicate directly with your writers or editors about what works and what "
 "needs to be improved for each piece."
 msgstr ""
-"投稿について内部のみでの議論を行いたい場合には編集用コメントを利用できます。"
-"各記事の良い点や改善が必要な部分を執筆者や編集者と直接話し合うことができま"
-"す。"
+"Utilizar comentários editoriais para manter uma discussão sobre o post. "
+"Comunique-se diretamente com seus escritores ou editores sobre o que "
+"funciona e o que precisa ser melhorado para cada peça."
 
 #: modules/editorial-comments/editorial-comments.php:36
 msgid "Choose Post Types"
-msgstr "投稿タイプを選択"
+msgstr "Escolha os tipos de post"
 
 #: modules/editorial-comments/editorial-comments.php:41
 msgid ""
@@ -931,12 +949,14 @@ msgid ""
 "notifications enabled, those following the post will receive an email every "
 "time a comment is left.</p>"
 msgstr ""
-"<p>編集用コメント機能を使えば、メールでのやりとりを増やすことなくコンテンツに"
-"ついての議論に集中できます。ブログ投稿のコメントに似た管理画面でのコメントス"
-"レッド表示により、執筆者と編集者がプライベートにフィードバックを交換し、公開"
-"前に必要な変更について話し合いやすくなります。</p><p>進行中の投稿を表示できる"
-"権限があるユーザーは誰でもコメントを投稿できます。通知機能を有効化していれ"
-"ば、コメントがつく度にメール通知が送信されます。</p>"
+"<p>Comentários editoriais ajudam a reduzir a sobrecarga de email e manter a "
+"conversação acerca do que verdadeiramente importa: seu conteúdo. Comentar no "
+"admin, similar ao que se encontra ao final de um post do blog, permite aos "
+"escritores e editores deixar um feedback privado e discutir o que deve ser "
+"alterado antes da publicação. </p><p> Qualquer pessoa que tenha acceso a ver "
+"a história em progreso também terá a possibilidade de fazer comentários a "
+"respeito. Se você habilitou as notificações, os que seguirem o post "
+"receberão um email cada vez que um comentario é deixado.</p>"
 
 #: modules/editorial-comments/editorial-comments.php:43
 msgid ""
@@ -946,82 +966,85 @@ msgid ""
 "Forum</a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow"
 "\">Edit Flow on Github</a></p>"
 msgstr ""
-"<p><strong>詳細:</strong></p><p><a href=\"http://editflow.org/features/"
-"editorial-comments/\">編集用コメント機能ドキュメンテーション</a></p><p><a "
-"href=\"http://wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow フォーラム"
-"</a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit "
-"Flow on Github</a></p>"
+"<p><strong> Para mais informações</strong> </p><p> <a href=\"http://editflow."
+"org/features/editorial-comments/\"> Documentação dos Comentários Editoriais "
+"</a> </p> <a href = \"http://wordpress.org/tags/edit flujo? forum_id=10\"> "
+"Fórum Edit Flow </a> </p> <p> <a href=\"https://github.com/danielbachhuber/"
+"Edit-Flow\"> Edit Flow no Github </a> </p>"
 
 #: modules/editorial-comments/editorial-comments.php:175
 msgid ""
 "You can add editorial comments to a post once you've saved it for the first "
 "time."
-msgstr "投稿が最初に保存された後に編集用コメントを追加できます。"
+msgstr ""
+"Você pode adicionar comentários editoriais ao post uma verz que você o "
+"salvou pela primeira vez."
 
 #: modules/editorial-comments/editorial-comments.php:192
 msgid "Respond to this post"
-msgstr "この投稿にコメント"
+msgstr "Responder a este post"
 
 #: modules/editorial-comments/editorial-comments.php:192
 msgid "Respond to this Post"
-msgstr "この投稿にコメント"
+msgstr "Responder a este post"
 
 #: modules/editorial-comments/editorial-comments.php:202
 msgid "Submit Response"
-msgstr "送信"
+msgstr "Enviar resposta"
 
 #: modules/editorial-comments/editorial-comments.php:242
 msgid "Reply to this comment"
-msgstr "このコメントに返信"
+msgstr "Responder a este comentário"
 
 #: modules/editorial-comments/editorial-comments.php:242
 msgid "Reply"
-msgstr "返信"
+msgstr "Responder"
 
 #: modules/editorial-comments/editorial-comments.php:264
 msgid ""
 "<span class=\"comment-author\">%1$s</span><span class=\"meta\"> said on %2$s "
 "at %3$s</span>"
 msgstr ""
-"<span class=\"comment-author\">%1$s</span><span class=\"meta\"> の発言 (%2$s"
-"%3$s)</span>"
+"<span class=\"comment-author\">%1$s</span><span class=\"meta\"> disse em "
+"%2$s em %3$s</span>"
 
 #: modules/editorial-comments/editorial-comments.php:286
 msgid ""
 "Nonce check failed. Please ensure you're supposed to be adding editorial "
 "comments."
 msgstr ""
-"Nonce チェックに失敗しました。編集用コメントを追加する権限があるかどうか確認"
-"してください。"
+"Revisão Nonce falhou. Por favor tenha certeza que você pode adicionar "
+"comentários editoriais."
 
 #: modules/editorial-comments/editorial-comments.php:298
 msgid ""
 "Sorry, you don't have the privileges to add editorial comments. Please talk "
 "to your Administrator."
-msgstr "編集用コメントを追加する権限がありません。管理者にご連絡ください。"
+msgstr ""
+"Desculpe, você não tem privilégios para adicionar comentários editoriais. "
+"Por favor, fale com seu administrador."
 
 #: modules/editorial-comments/editorial-comments.php:303
 msgid "Please enter a comment."
-msgstr "コメントを入力して下さい。"
+msgstr "Por favor insira um comentário."
 
 #: modules/editorial-comments/editorial-comments.php:357
 msgid ""
 "There was a problem of some sort. Try again or contact your administrator."
-msgstr ""
-"何か問題が発生したようです。もう一度お試しになるか、管理者にご連絡ください。"
+msgstr "Ocorreu algum problema. Tente novamente ou contate seu administrador."
 
 #: modules/editorial-comments/editorial-comments.php:369
 msgid "Enable for these post types:"
-msgstr "以下の投稿タイプで有効化:"
+msgstr "Habilitar ara estes tipo de posts:"
 
 #: modules/editorial-metadata/editorial-metadata.php:42
 #: modules/editorial-metadata/editorial-metadata.php:342
 msgid "Editorial Metadata"
-msgstr "編集用メタデータ"
+msgstr "Metadados Editoriais"
 
 #: modules/editorial-metadata/editorial-metadata.php:43
 msgid "Track details about your posts in progress."
-msgstr "作業中の投稿の詳細をトラッキングできます。"
+msgstr "Rastrear detalhes sobre seus posts em progresso"
 
 #: modules/editorial-metadata/editorial-metadata.php:44
 msgid ""
@@ -1029,33 +1052,33 @@ msgid ""
 "completely customizable; create fields for everything from due date to "
 "location to contact information to role assignments."
 msgstr ""
-"設定可能な編集用メタデータを使って、担当記事の詳細ログを取ることができます。"
-"完全にカスタマイズ可能で、締切日や位置情報、連絡先、担当割り当てといった任意"
-"の項目を作ることができます。"
+"Registre detalhes para cada atribuição usando metadados editoriais "
+"configuráveis. É completamente customizável; crie campos deste data de "
+"vencimento a local para conseguir informações para atribuições de função."
 
 #: modules/editorial-metadata/editorial-metadata.php:56
 msgid "Metadata term added."
-msgstr "メタデータ項目を追加しました。"
+msgstr "Termo de metadado adicionado."
 
 #: modules/editorial-metadata/editorial-metadata.php:57
 msgid "Metadata term updated."
-msgstr "メタデータ項目を更新しました。"
+msgstr "Termo de metadado atualizado."
 
 #: modules/editorial-metadata/editorial-metadata.php:58
 msgid "Metadata term doesn't exist."
-msgstr "メタデータ項目が見つかりません。"
+msgstr "Termo de metadado não existe."
 
 #: modules/editorial-metadata/editorial-metadata.php:59
 msgid "Metadata term deleted."
-msgstr "メタデータ項目を削除しました。"
+msgstr "Termo de metadado excluído."
 
 #: modules/editorial-metadata/editorial-metadata.php:60
 msgid "Term order updated."
-msgstr "項目の順序を更新しました。"
+msgstr "Ordem do termo atualizada."
 
 #: modules/editorial-metadata/editorial-metadata.php:61
 msgid "Term visibility changed."
-msgstr "項目の表示範囲を変更しました。"
+msgstr "Visibilidade do termo alterada."
 
 #: modules/editorial-metadata/editorial-metadata.php:67
 msgid ""
@@ -1068,12 +1091,15 @@ msgid ""
 "have it appear to the rest of your team. Keep it hidden to restrict the "
 "information between the writer and their editor.</p>"
 msgstr ""
-"<p>編集用メタデータを使ってコンテンツの重要な詳細を把握しましょう。この機能を"
-"使うと、任意の日付・テキスト・数字といったフィールドを上限なく作成でき、連絡"
-"先・必要な文字数・インタビューの場所といった情報を保存できます。</p><p>フィー"
-"ルドを作成すると、編集用メタデータは自動的にカレンダーやストーリー割り当て画"
-"面と連携されます。チームメンバーすべてに編集用メタデータを表示することもでき"
-"ますし、執筆者と編集者のみで情報共有することもできます。</p>"
+"<p>Manter um registro dos detalhes importantes sobre seu contenido com "
+"metadados editoriais. Esta característica lhe permite criar tantos campos de "
+"datas, textos, números, etc. como queiras, e logo utilizá-los para armazenar "
+"informações como dados de contato, número de palavras requerido, o local de "
+"uma entrevista.</p> <p>Uma vez configurados os campos, os metadados "
+"editoriaies se integran tanto com o calendário e o histórico de pagamento. "
+"Faça que um elemento dos metadados editoriais seja visível para o resto da "
+"sua equipe. Mantenha oculto para restringir esta informação entre o escritor "
+"e o seu editor </p>"
 
 #: modules/editorial-metadata/editorial-metadata.php:69
 msgid ""
@@ -1083,168 +1109,169 @@ msgid ""
 "Forum</a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow"
 "\">Edit Flow on Github</a></p>"
 msgstr ""
-"<p><strong>詳細:</strong></p><p><a href=\"http://editflow.org/features/"
-"editorial-metadata/\">編集用メタデータ機能ドキュメンテーション</a></p><p><a "
-"href=\"http://wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow フォーラム"
-"</a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit "
-"Flow on Github</a></p>"
+"<p><strong> Para mais informações </strong></p><p><a href=\"http://editflow."
+"org/features/editorial-metadata/\">Documentação dos Metadados Editoriais</"
+"a></p><p><a href=\"http://wordpress.org/tags/edit-flow?forum_id=10\">Fórum "
+"Edit Flow </a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow"
+"\">Edit Flow no Github</a></p>"
 
 #: modules/editorial-metadata/editorial-metadata.php:131
 msgid "First Draft Date"
-msgstr "下書き締切日"
+msgstr "Primeira data do rascunho"
 
 #: modules/editorial-metadata/editorial-metadata.php:134
 msgid "When the first draft needs to be ready."
-msgstr "最初の下書きの締切日。"
+msgstr "Quando o primeiro rascunho precisa estar pronto."
 
 #: modules/editorial-metadata/editorial-metadata.php:137
 msgid "Assignment"
-msgstr "投稿内容"
+msgstr "Atribuição"
 
 #: modules/editorial-metadata/editorial-metadata.php:140
 msgid "What the post needs to cover."
-msgstr "投稿に含めるべき内容。"
+msgstr "O que o post precisa cobrir."
 
 #: modules/editorial-metadata/editorial-metadata.php:143
 msgid "Needs Photo"
-msgstr "要写真"
+msgstr "Precisa de uma foto"
 
 #: modules/editorial-metadata/editorial-metadata.php:146
 msgid "Checked if this post needs a photo."
-msgstr "写真が必要であればチェックを入れる。"
+msgstr "Marque se esta publicação precisar de uma foto."
 
 #: modules/editorial-metadata/editorial-metadata.php:149
 msgid "Word Count"
-msgstr "文字数"
+msgstr "Quantidade de palavras"
 
 #: modules/editorial-metadata/editorial-metadata.php:152
 msgid "Required post length in words."
-msgstr "必要な文章の長さ。"
+msgstr "Tamanho do post requerido em palavras."
 
 #: modules/editorial-metadata/editorial-metadata.php:217
 msgid "Checkbox"
-msgstr "チェックボックス"
+msgstr "Checkbox"
 
 #: modules/editorial-metadata/editorial-metadata.php:218
 msgid "Date"
-msgstr "日付"
+msgstr "Data"
 
 #: modules/editorial-metadata/editorial-metadata.php:219
 msgid "Location"
-msgstr "場所"
+msgstr "Localização"
 
 #: modules/editorial-metadata/editorial-metadata.php:220
 msgid "Number"
-msgstr "番号"
+msgstr "Número"
 
 #: modules/editorial-metadata/editorial-metadata.php:221
 msgid "Paragraph"
-msgstr "パラグラフ"
+msgstr "Parágrafo"
 
 #: modules/editorial-metadata/editorial-metadata.php:222
 msgid "Text"
-msgstr "テキスト"
+msgstr "Texto"
 
 #: modules/editorial-metadata/editorial-metadata.php:223
 msgid "User"
-msgstr "ユーザー"
+msgstr "Usuário"
 
 #: modules/editorial-metadata/editorial-metadata.php:319
 msgctxt "taxonomy general name"
 msgid "Editorial Metadata"
-msgstr "編集用メタデータ"
+msgstr "Metadados Editoriais"
 
 #: modules/editorial-metadata/editorial-metadata.php:320
 msgctxt "taxonomy singular name"
 msgid "Editorial Metadata"
-msgstr "編集用メタデータ"
+msgstr "Metadado Editorial"
 
 #: modules/editorial-metadata/editorial-metadata.php:321
 msgid "Search Editorial Metadata"
-msgstr "編集用メタデータを検索"
+msgstr "Buscar metadados editoriais"
 
 #: modules/editorial-metadata/editorial-metadata.php:322
 msgid "Popular Editorial Metadata"
-msgstr "よく使われている編集用メタデータ"
+msgstr "Metados editoriais populares"
 
 #: modules/editorial-metadata/editorial-metadata.php:323
 msgid "All Editorial Metadata"
-msgstr "すべての編集用メタデータ"
+msgstr "Todos os metadaddos editoriais"
 
 #: modules/editorial-metadata/editorial-metadata.php:324
 msgid "Edit Editorial Metadata"
-msgstr "編集用メタデータを編集"
+msgstr "Editar metadados editoriais"
 
 #: modules/editorial-metadata/editorial-metadata.php:325
 msgid "Update Editorial Metadata"
-msgstr "編集用メタデータを更新"
+msgstr "Atualizar metadados editoriais"
 
 #: modules/editorial-metadata/editorial-metadata.php:326
 msgid "Add New Editorial Metadata"
-msgstr "編集用メタデータを追加"
+msgstr "Adicionar novo metadado editorial"
 
 #: modules/editorial-metadata/editorial-metadata.php:327
 msgid "New Editorial Metadata"
-msgstr "新規編集用メタデータ"
+msgstr "Novo metadado editorial"
 
 #: modules/editorial-metadata/editorial-metadata.php:367
 msgid "No editorial metadata available."
-msgstr "利用できる編集用メタデータがありません。"
+msgstr "Nenhum metadado editorial disponível."
 
 #: modules/editorial-metadata/editorial-metadata.php:369
 msgid " <a href=\"%s\">Add fields to get started</a>."
-msgstr " <a href=\"%s\">入力欄を追加してスタート</a>。"
+msgstr "<a href=\"%s\"> Adicionar campos para começar </a>."
 
 #: modules/editorial-metadata/editorial-metadata.php:371
 msgid ""
 " Encourage your site administrator to configure your editorial workflow by "
 "adding editorial metadata."
 msgstr ""
-"編集用メタデータを追加して、編集ワークフローを使うようサイト管理者におすすめ"
-"しましょう。"
+"Encorage o administrador do site a configurar seu fluxo de trabalho "
+"editorial adicionando metadados editoriais."
 
 #: modules/editorial-metadata/editorial-metadata.php:402
 msgid "View &#8220;%s&#8221; on Google Maps"
-msgstr "「%s」を Google マップで表示"
+msgstr "Ver &#8220;%s&#8221; no Google Maps"
 
 #: modules/editorial-metadata/editorial-metadata.php:419
 msgid "-- Select a user --"
-msgstr "-- ユーザーを選択 --"
+msgstr "- Selecione um usuário -"
 
 #: modules/editorial-metadata/editorial-metadata.php:431
 msgid "This editorial metadata type is not yet supported."
-msgstr "この編集用メタデータタイプにはまだ対応していません。"
+msgstr "Este tipo de metadado editorial ainda não é suportado."
 
 #: modules/editorial-metadata/editorial-metadata.php:832
 #: modules/notifications/notifications.php:1145
 msgid "%1$s at %2$s"
-msgstr "%1$s%2$s"
+msgstr "%1$s às %2$s"
 
 #: modules/editorial-metadata/editorial-metadata.php:844
 #: modules/editorial-metadata/editorial-metadata.php:1443
 #: modules/editorial-metadata/editorial-metadata.php:1517
 #: modules/editorial-metadata/editorial-metadata.php:1655
 msgid "Yes"
-msgstr "はい"
+msgstr "Sim"
 
 #: modules/editorial-metadata/editorial-metadata.php:846
 #: modules/editorial-metadata/editorial-metadata.php:1442
 #: modules/editorial-metadata/editorial-metadata.php:1516
 #: modules/editorial-metadata/editorial-metadata.php:1657
 msgid "No"
-msgstr "いいえ"
+msgstr "Não"
 
 #: modules/editorial-metadata/editorial-metadata.php:1012
 msgid "Please enter a name for the editorial metadata."
-msgstr "編集用メタデータの名称を入力してください。"
+msgstr "Por favor, insira um nome para os metadados editoriais."
 
 #: modules/editorial-metadata/editorial-metadata.php:1015
 msgid "Please enter a slug for the editorial metadata."
-msgstr "編集用メタデータのスラッグを入力してください。"
+msgstr "Por favor insira o slug para os metadados editoriais."
 
 #: modules/editorial-metadata/editorial-metadata.php:1017
 msgid "Name conflicts with existing term. Please choose another."
-msgstr "既存の項目と競合する名称です。他の名称を選んでください。"
+msgstr ""
+"Nome entra em conflito com o termo existente. Por favor, escolha outro."
 
 #: modules/editorial-metadata/editorial-metadata.php:1020
 #: modules/editorial-metadata/editorial-metadata.php:1103
@@ -1253,88 +1280,92 @@ msgstr "既存の項目と競合する名称です。他の名称を選んでく
 #: modules/user-groups/user-groups.php:369
 #: modules/user-groups/user-groups.php:464
 msgid "Name already in use. Please choose another."
-msgstr "既に使われている名称です。別のものを選んでください。"
+msgstr "Este nome ainda está em uso. Por favor escolha outro."
 
 #: modules/editorial-metadata/editorial-metadata.php:1023
 msgid "Slug already in use. Please choose another."
-msgstr "既に使われているスラッグです。別のものを選んでください。"
+msgstr "Slug já em uso. Por favor, escolha outro."
 
 #: modules/editorial-metadata/editorial-metadata.php:1027
 #: modules/editorial-metadata/editorial-metadata.php:1111
 #: modules/editorial-metadata/editorial-metadata.php:1212
 msgid "Name cannot exceed 200 characters. Please try a shorter name."
-msgstr "名称は200文字以下にする必要があります。短い名称を選んでください。"
+msgstr ""
+"O nome não pode ter mais de 200 caracteres. Por favor, tente um nome mais "
+"curto."
 
 #: modules/editorial-metadata/editorial-metadata.php:1031
 msgid "Please select a valid metadata type."
-msgstr "正しいメタデータの種類を選択してください。"
+msgstr "Selecione um tipo de metadada válido."
 
 #: modules/editorial-metadata/editorial-metadata.php:1053
 msgid "Error adding term."
-msgstr "項目の追加の際にエラーが発生しました。"
+msgstr "Erro ao adicionar o termo."
 
 #: modules/editorial-metadata/editorial-metadata.php:1090
 #: modules/editorial-metadata/editorial-metadata.php:1200
 msgid "Please enter a name for the editorial metadata"
-msgstr "編集用メタデータの名称を入力してください"
+msgstr "Por favor insira um nome para os metadados editoriais."
 
 #: modules/editorial-metadata/editorial-metadata.php:1094
 #: modules/editorial-metadata/editorial-metadata.php:1206
 msgid "Please enter a valid, non-numeric name for the editorial metadata."
 msgstr ""
-"正しい編集用メタデータ名を入力してください。数字のみの名称は使えません。"
+"Por favor insira um nome válido, não-numérico para os metadados editoriais."
 
 #: modules/editorial-metadata/editorial-metadata.php:1098
 #: modules/editorial-metadata/editorial-metadata.php:1219
 msgid "Metadata name conflicts with existing term. Please choose another."
-msgstr "既存の項目と競合するメタデータ名です。他の名称を選んでください。"
+msgstr ""
+"O nome do metadado conflita com um termo existente. Por favor, escolha outro."
 
 #: modules/editorial-metadata/editorial-metadata.php:1107
 msgid ""
 "Name conflicts with slug for another term. Please choose something else."
-msgstr "既存の項目と競合するスラッグです。何か別のものを選んでください。"
+msgstr "O nome conflita com o slug para outro termo. Por favor, escolha outro."
 
 #: modules/editorial-metadata/editorial-metadata.php:1131
 #: modules/editorial-metadata/editorial-metadata.php:1167
 msgid "Error updating term."
-msgstr "項目の更新の際にエラーが発生しました。"
+msgstr "Erro ao atualizar o termo."
 
 #: modules/editorial-metadata/editorial-metadata.php:1232
 #: modules/user-groups/user-groups.php:302
 #: modules/user-groups/user-groups.php:373
 #: modules/user-groups/user-groups.php:470
 msgid "Name conflicts with slug for another term. Please choose again."
-msgstr "既存の項目と競合するスラッグです。もう一度選んでください。"
+msgstr "Nome conflita com o slug de outro termo. Por favor, escolha outro."
 
 #: modules/editorial-metadata/editorial-metadata.php:1249
 msgid "Could not update the term: <strong>%s</strong>"
-msgstr "項目を更新できませんでした: <strong>%s</strong>"
+msgstr "Não foi possível atualizar o termo: <strong>%s</strong>"
 
 #: modules/editorial-metadata/editorial-metadata.php:1302
 msgid "Error deleting term."
-msgstr "項目の削除の際にエラーが発生しました。"
+msgstr "Erro ao excluir o term."
 
 #: modules/editorial-metadata/editorial-metadata.php:1318
 #: modules/user-groups/user-groups.php:502
 msgid "Add to these post types:"
-msgstr "以下の投稿タイプに追加:"
+msgstr "Adicionar a estes tipos de post:"
 
 #: modules/editorial-metadata/editorial-metadata.php:1365
 msgid ""
 "Are you sure you want to delete this term? Any metadata for this term will "
 "remain but will not be visible unless this term is re-added."
 msgstr ""
-"本当にこの項目を削除しますか ? この項目のメタデータは残りますが、項目を再度追"
-"加するまで非表示になります。"
+"Tem certeza que deseja excluir este termo? Qualquer metadado para este termo "
+"irá permanecer, mas não será visível a menos que este termo seja "
+"readicionado."
 
 #: modules/editorial-metadata/editorial-metadata.php:1414
 #: modules/editorial-metadata/editorial-metadata.php:1486
 msgid "The name is for labeling the metadata field."
-msgstr "この名称はメタデータ欄のラベルとして使われます。"
+msgstr "O nome para marcar o campo de metadado."
 
 #: modules/editorial-metadata/editorial-metadata.php:1420
 msgid "The slug cannot be changed once the term has been created."
-msgstr "項目を作成した後にスラッグを変更することはできません。"
+msgstr "O slug não pode ser alterado uma vez que o termo tenha sido criado."
 
 #: modules/editorial-metadata/editorial-metadata.php:1427
 #: modules/editorial-metadata/editorial-metadata.php:1496
@@ -1342,22 +1373,24 @@ msgid ""
 "The description can be used to communicate with your team about what the "
 "metadata is for."
 msgstr ""
-"チームメンバーにメタデータの詳細を知らせるために説明文を使うことができます。"
+"A descrição pode ser usada para comunicação com sua equipe sobre o assunto "
+"do metadado."
 
 #: modules/editorial-metadata/editorial-metadata.php:1431
 #: modules/editorial-metadata/editorial-metadata.php:1499
 msgid "Type"
-msgstr "種類"
+msgstr "Tipo"
 
 #: modules/editorial-metadata/editorial-metadata.php:1434
 msgid "The metadata type cannot be changed once created."
-msgstr "メタデータの種類を作成後に変更することはできません。"
+msgstr ""
+"O tipo de metadado não pode ser alterado uma vez que tenha sido criado."
 
 #: modules/editorial-metadata/editorial-metadata.php:1438
 #: modules/editorial-metadata/editorial-metadata.php:1513
 #: modules/editorial-metadata/editorial-metadata.php:1614
 msgid "Viewable"
-msgstr "表示可能"
+msgstr "Visível"
 
 #: modules/editorial-metadata/editorial-metadata.php:1451
 #: modules/editorial-metadata/editorial-metadata.php:1526
@@ -1366,58 +1399,59 @@ msgid ""
 "When viewable, metadata can be seen on views other than the edit post view "
 "(e.g. calendar, manage posts, story budget, etc.)"
 msgstr ""
-"表示可能にした場合、投稿編集画面以外でメタデータを見られるようになります "
-"(例: カレンダー・投稿管理・ストーリー割り当て画面など)"
+"Quando visível, o metadado pode ser visto em outras visualizações além da "
+"edição do post (por exemplo: calendário, gerenciar posts, histórico de "
+"pagamento, etc)."
 
 #: modules/editorial-metadata/editorial-metadata.php:1457
 #: modules/editorial-metadata/editorial-metadata.php:1720
 msgid "Update Metadata Term"
-msgstr "メタデータ項目を更新"
+msgstr "Atualizar termo do metadado"
 
 #: modules/editorial-metadata/editorial-metadata.php:1491
 msgid ""
 "The \"slug\" is the URL-friendly version of the name. It is usually all "
 "lowercase and contains only letters, numbers, and hyphens."
 msgstr ""
-"「スラッグ」とは、URL に使いやすい形式の名称です。通常、半角英数字の小文字"
-"で、記号以外の文字・数字・ハイフンのみを含みます。"
+"O \"slug\" é uma versão amigável da URL para o nome. É geralmente em caixa "
+"baixa e contém somente letras, números e hífens."
 
 #: modules/editorial-metadata/editorial-metadata.php:1510
 msgid "Indicate the type of editorial metadata."
-msgstr "編集用メタデータの種類を指定します。"
+msgstr "Indica o tipo de metadado editorial."
 
 #: modules/editorial-metadata/editorial-metadata.php:1530
 msgid "Add New Metadata Term"
-msgstr "新規メタデータ項目を追加"
+msgstr "Adicionar novo termo de metadado"
 
 #: modules/editorial-metadata/editorial-metadata.php:1599
 msgid "No editorial metadata found."
-msgstr "編集用メタデータが見つかりません。"
+msgstr "Nenhum metadado editorial encontrado."
 
 #: modules/editorial-metadata/editorial-metadata.php:1612
 msgid "Metadata Type"
-msgstr "メタデータの種類"
+msgstr "Tipo de metadado"
 
 #: modules/editorial-metadata/editorial-metadata.php:1683
 msgid "Hidden metadata can only be viewed on the edit post view."
-msgstr "非公開メタデータは投稿編集画面でのみ表示できます。"
+msgstr "Metadados ocultos podem ser vistos somente na edição do post."
 
 #: modules/editorial-metadata/editorial-metadata.php:1683
 msgid "Make Hidden"
-msgstr "非表示にする"
+msgstr "Ocultar"
 
 #: modules/editorial-metadata/editorial-metadata.php:1685
 msgid "Make Viewable"
-msgstr "表示する"
+msgstr "Tornar visível"
 
 #: modules/notifications/notifications.php:32
 #: modules/notifications/notifications.php:316
 msgid "Notifications"
-msgstr "通知"
+msgstr "Notificações"
 
 #: modules/notifications/notifications.php:33
 msgid "Update your team of important changes to your content."
-msgstr "コンテンツの重要な変更点をチームに通知します。"
+msgstr "Atualize sua equipe de alterações importantes no seu conteúdo."
 
 #: modules/notifications/notifications.php:34
 msgid ""
@@ -1426,10 +1460,11 @@ msgid ""
 "sends out an email notification to users subscribed to a post. User groups "
 "can be used to manage who receives notifications on what."
 msgstr ""
-"メール通知機能を使って、コンテンツに関する最新情報をチームと共有できます。ス"
-"テータスが変更されたり、編集用コメントがつけられたりすると、投稿を購読してい"
-"るユーザーへ通知メールが送られます。ユーザーグループを使ってどの通知を誰に送"
-"るのかを管理することもできます。"
+"Com as notificações por email, você pode manter todos atualizados sobre o "
+"que está acontecendo com determinado conteúdo. Cada alteração de status ou "
+"comentário editorial dispara uma notificação por email para os usuários que "
+"assinaram o post. Grupos de usuários podem ser usados para gerenciar quem "
+"recebe as notificações e sobre o quê."
 
 #: modules/notifications/notifications.php:52
 msgid ""
@@ -1439,10 +1474,12 @@ msgid ""
 "be sent when a post changes status or an editorial comment is left by a "
 "writer or an editor.</p>"
 msgstr ""
-"<p>通知機能で重要なコンテンツの進行を管理しましょう。個別ユーザーやユーザーグ"
-"ループごとに投稿に関する通知を購読できます。</p><p>有効化すると、投稿のステー"
-"タスが変更されたり、執筆者や編集屋が編集用コメントが追加した際にメール通知が"
-"送信されます。</p>"
+"<p>As notificações garantem que você se mantenha atualizado acerca do "
+"progresso do seu conteúdo mais importante. Os usuários podem receber as "
+"notificações de um post sendo marcados um por um ou selecionando um grupo de "
+"usuários. </p> Ao seu ativada, as notificações de email podem ser enviadas "
+"quando um post tem seu status alterado ou quando um editor ou escrito deixa "
+"um comentário editorial.</p>"
 
 #: modules/notifications/notifications.php:54
 msgid ""
@@ -1452,94 +1489,95 @@ msgid ""
 "p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow on "
 "Github</a></p>"
 msgstr ""
-"<p><strong>詳細:</strong></p><p><a href=\"http://editflow.org/features/"
-"notifications/\">通知機能ドキュメンテーション</a></p><p><a href=\"http://"
-"wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow フォーラム</a></p><p><a "
-"href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow on Github</"
-"a></p>"
+"<p><strong>Para mais informações:</strong></p><p><a href=\"http://editflow."
+"org/features/notifications/\">Documentação de Notificações </a></p><p><a "
+"href=\"http://wordpress.org/tags/edit-flow?forum_id=10\">Fórum Edit Flow </"
+"a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow "
+"no Github</a></p>"
 
 #: modules/notifications/notifications.php:288
 msgid "Click to unfollow updates to this post"
-msgstr "クリックしてこの投稿の更新フォローをやめる"
+msgstr "Clique para não seguir mais as atualizações deste post"
 
 #: modules/notifications/notifications.php:289
 msgid "Following"
-msgstr "フォロー中"
+msgstr "Seguindo"
 
 #: modules/notifications/notifications.php:292
 msgid "Follow updates to this post"
-msgstr "この投稿の更新をフォロー"
+msgstr "Seguir as atualizações deste post"
 
 #: modules/notifications/notifications.php:293
 msgid "Follow"
-msgstr "フォロー"
+msgstr "Seguir"
 
 #: modules/notifications/notifications.php:332
 msgid ""
 "Select the users and user groups that should receive notifications when the "
 "status of this post is updated or when an editorial comment is added."
 msgstr ""
-"投稿のステータスが更新された際や、編集用コメントが追加された際に通知を送信す"
-"るユーザーまたはユーザーグループを選択してください。"
+"Selecione os usuários e grupos de usuários que devem receber notificações "
+"quando o status deste post for atualizado ou quando um comentário editorial "
+"é adicionado."
 
 #: modules/notifications/notifications.php:334
 #: modules/user-groups/user-groups.php:556
 msgid "Users"
-msgstr "ユーザー"
+msgstr "Usuários"
 
 #: modules/notifications/notifications.php:345
 #: modules/user-groups/user-groups.php:40
 msgid "User Groups"
-msgstr "ユーザーグループ"
+msgstr "Grupos de Usuários"
 
 #: modules/notifications/notifications.php:367
 msgid ""
 "Nonce check failed. Please ensure you can add users or user groups to a post."
 msgstr ""
-"Nonce チェックに失敗しました。ユーザーまたはユーザーグループを投稿に追加でき"
-"る権限があるかご確認ください。"
+"Verificação Nonce fracassou. Por favor, certifique-se que você pode "
+"adicionar usuários ou grupos de usuários ao post."
 
 #: modules/notifications/notifications.php:508
 msgid "WordPress Scheduler"
-msgstr "WordPress スケジューラ"
+msgstr "WordPress Scheduler"
 
 #. translators: 1: site name, 2: post type, 3. post title
 #: modules/notifications/notifications.php:516
 msgid "[%1$s] New %2$s Created: \"%3$s\""
-msgstr "[%1$s] 新規%2$sが作成されました: \"%3$s\""
+msgstr "[%1$s] Novo %2$s Criado: \"%3$s\""
 
 #. translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user
 #. email
 #: modules/notifications/notifications.php:518
 msgid "A new %1$s (#%2$s \"%3$s\") was created by %4$s %5$s"
-msgstr "%4$s %5$s が新規%1$s (#%2$s \"%3$s\") を作成しました。"
+msgstr "Um novo %1$s (#%2$s \"%3$s\") foi criado por %4$s%5$s"
 
 #. translators: 1: site name, 2: post type, 3. post title
 #: modules/notifications/notifications.php:521
 msgid "[%1$s] %2$s Trashed: \"%3$s\""
-msgstr "[%1$s] %2$sがゴミ箱に移動されました: \"%3$s\""
+msgstr "[%1$s] %2$s Eliminado: \"%3$s\""
 
 #. translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user
 #. email
 #: modules/notifications/notifications.php:523
 msgid "%1$s #%2$s \"%3$s\" was moved to the trash by %4$s %5$s"
-msgstr " %1$s #%2$s \"%3$s\" は %4$s %5$s がゴミ箱へ移動しました。"
+msgstr "%1$s #%2$s \"%3$s\" foi movido para a lixeira por %4$s %5$s"
 
 #. translators: 1: site name, 2: post type, 3. post title
 #: modules/notifications/notifications.php:526
 msgid "[%1$s] %2$s Restored (from Trash): \"%3$s\""
-msgstr "[%1$s] %2$sがゴミ箱から復元されました: \"%3$s\""
+msgstr "[%1$s] %2$s Restauradas (da lixeira): \"%3$s"
 
 #. translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user
 #. email
 #: modules/notifications/notifications.php:528
 msgid "%1$s #%2$s \"%3$s\" was restored from trash by %4$s %5$s"
-msgstr "%4$s %5$s が %1$s #%2$s \"%3$s\" をゴミ箱から元に戻しました。"
+msgstr "%1$s #%2$s \"%3$s\" foi restaurado da lixeira por %4$s %5$s"
 
 #. translators: 1: site name, 2: post type, 3. post title
 #: modules/notifications/notifications.php:531
 msgid "[%1$s] %2$s Scheduled: \"%3$s\""
-msgstr "[%1$s] %2$sが予約投稿されました: \"%3$s\""
+msgstr "[%1$s] %2$s Programado: \"%3$s\""
 
 #. translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user
 #. email 6. scheduled date
@@ -1547,45 +1585,45 @@ msgstr "[%1$s] %2$sが予約投稿されました: \"%3$s\""
 msgid ""
 "%1$s #%2$s \"%3$s\" was scheduled by %4$s %5$s.  It will be published on %6$s"
 msgstr ""
-"%4$s %5$s が %1$s #%2$s「%3$s」を予約投稿しました。%6$sに公開されます。"
+"%1$s #%2$s \"%3$s\" foi programado por %4$s %5$s. Será publicado em %6$s"
 
 #. translators: 1: site name, 2: post type, 3. post title
 #: modules/notifications/notifications.php:536
 msgid "[%1$s] %2$s Published: \"%3$s\""
-msgstr "[%1$s] %2$sが公開されました: \"%3$s\""
+msgstr "[%1$s] %2$s Publicado: \"%3$s\""
 
 #. translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user
 #. email
 #: modules/notifications/notifications.php:538
 msgid "%1$s #%2$s \"%3$s\" was published by %4$s %5$s"
-msgstr "%4$s %5$s が %1$s #%2$s \"%3$s\" を公開しました。"
+msgstr "%1$s #%2$s \"%3$s\" foi publicado por %4$s %5$s"
 
 #. translators: 1: site name, 2: post type, 3. post title
 #: modules/notifications/notifications.php:541
 msgid "[%1$s] %2$s Unpublished: \"%3$s\""
-msgstr "[%1$s] %2$sが非公開になりました: \"%3$s\""
+msgstr "[%1$s] %2$s Despublicado: \"%3$s\""
 
 #. translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user
 #. email
 #: modules/notifications/notifications.php:543
 msgid "%1$s #%2$s \"%3$s\" was unpublished by %4$s %5$s"
-msgstr "%4$s %5$s が %1$s #%2$s \"%3$s\" を非公開にしました。"
+msgstr "%1$s #%2$s \"%3$s\" foi despublicado por %4$s %5$s"
 
 #. translators: 1: site name, 2: post type, 3. post title
 #: modules/notifications/notifications.php:546
 msgid "[%1$s] %2$s Status Changed for \"%3$s\""
-msgstr "[%1$s] %2$sのステータスが変更されました: \"%3$s\""
+msgstr "[%1$s] %2$s status alterado para \"%3$s\""
 
 #. translators: 1: post type, 2: post id, 3. post title, 4. user name, 5. user
 #. email
 #: modules/notifications/notifications.php:548
 msgid "Status was changed for %1$s #%2$s \"%3$s\" by %4$s %5$s"
-msgstr "%4$s %5$s が %1$s #%2$s \"%3$s\" のステータスを変更しました。"
+msgstr "O status foi alterado para %1$s #%2$s \"%3$s\" por %4$s %5$s"
 
 #. translators: 1: date, 2: time, 3: timezone
 #: modules/notifications/notifications.php:552
 msgid "This action was taken on %1$s at %2$s %3$s"
-msgstr "この操作は%1$s (%2$s %3$s) に行われました。"
+msgstr "Esta ação foi tomada em %1$s às %2$s %3$s"
 
 #. translators: 1: old status, 2: new status
 #: modules/notifications/notifications.php:560
@@ -1594,75 +1632,75 @@ msgstr "%1$s => %2$s"
 
 #: modules/notifications/notifications.php:565
 msgid "== %s Details =="
-msgstr "== %s 詳細 =="
+msgstr "== Detalhes s%s =="
 
 #: modules/notifications/notifications.php:566
 msgid "Title: %s"
-msgstr "タイトル: %s"
+msgstr "Título:%s"
 
 #. translators: 1: author name, 2: author email
 #: modules/notifications/notifications.php:568
 msgid "Author: %1$s (%2$s)"
-msgstr "投稿者: %1$s (%2$s)"
+msgstr "Autor: %1$s (%2$s)"
 
 #: modules/notifications/notifications.php:577
 #: modules/notifications/notifications.php:647
 msgid "== Actions =="
-msgstr "== 操作 =="
+msgstr "== Ações =="
 
 #: modules/notifications/notifications.php:578
 #: modules/notifications/notifications.php:649
 msgid "Add editorial comment: %s"
-msgstr "編集用コメントを追加: %s"
+msgstr "Adicionar comentário editorial: %s"
 
 #: modules/notifications/notifications.php:579
 #: modules/notifications/notifications.php:650
 msgid "Edit: %s"
-msgstr "編集: %s"
+msgstr "Editar:%s"
 
 #: modules/notifications/notifications.php:580
 #: modules/notifications/notifications.php:651
 msgid "View: %s"
-msgstr "表示: %s"
+msgstr "Ver:%s"
 
 #. translators: 1: blog name, 2: post title
 #: modules/notifications/notifications.php:626
 msgid "[%1$s] New Editorial Comment: \"%2$s\""
-msgstr "[%1$s] 新規編集用コメント: \"%2$s\""
+msgstr "[%1$s] Novo comentário editorial: \"%2$s\""
 
 #. translators: 1: post id, 2: post title, 3. post type
 #: modules/notifications/notifications.php:629
 msgid "A new editorial comment was added to %3$s #%1$s \"%2$s\""
-msgstr "%3$s #%1$s \"%2$s\" に新しい編集用コメントが追加されました。"
+msgstr "Um novo comentário editorial foi adicionado a %3$s #%1$s \"%2$s\""
 
 #. translators: 1: comment author, 2: author email, 3: date, 4: time
 #: modules/notifications/notifications.php:631
 msgid "%1$s (%2$s) said on %3$s at %4$s:"
-msgstr "%1$s (%2$s) の発言 (%3$s%4$s):"
+msgstr "%1$s (%2$s) disse em %3$s às %4$s:"
 
 #: modules/notifications/notifications.php:648
 msgid "Reply: %s"
-msgstr "返信: %s"
+msgstr "Resposta:%s"
 
 #: modules/notifications/notifications.php:653
 msgid "You can see all editorial comments on this %s here: "
-msgstr "この%sに対するすべての編集用コメントは以下で読むことができます:"
+msgstr "Você pode ver todos os comentário editoriais neste %s aqui:"
 
 #: modules/notifications/notifications.php:664
 msgid "You are receiving this email because you are subscribed to \"%s\"."
-msgstr "「%s」を購読しているため、メール通知をお送りしています。"
+msgstr "Você está recebendo este email porque está inscrito em \"%s\""
 
 #: modules/notifications/notifications.php:666
 msgid "This email was sent %s."
-msgstr "このメールは%sに送信されました。"
+msgstr "Este email foi enviado %s."
 
 #: modules/notifications/notifications.php:1059
 msgid "Post types for notifications:"
-msgstr "通知する投稿タイプ:"
+msgstr "Tipos de posts para notificações:"
 
 #: modules/notifications/notifications.php:1060
 msgid "Always notify blog admin"
-msgstr "ブログ管理者には必ず通知する"
+msgstr "Sempre notificar o administrador do blog"
 
 #: modules/settings/settings.php:18 modules/settings/settings.php:192
 #: modules/settings/settings.php:195
@@ -1671,7 +1709,7 @@ msgstr "Edit Flow"
 
 #: modules/settings/settings.php:19
 msgid "Edit Flow redefines your WordPress publishing workflow."
-msgstr "Edit Flow は WordPress の投稿ワークフローを再定義します。"
+msgstr "Edit Flow redefine o fluxo de trabalho de publicação no WordPress."
 
 #: modules/settings/settings.php:20
 msgid ""
@@ -1679,59 +1717,60 @@ msgid ""
 "statuses, email notifications, editorial comments, and more help you and "
 "your team save time so everyone can focus on what matters most: the content."
 msgstr ""
-"以下の機能を有効化してワークフローをコントロールしましょう。もっとも重要な要"
-"素であるコンテンツにみんなが時間を割けるように、カスタムステータス・メール通"
-"知・編集用コメントなどでチームの作業効率化を図ることができます。"
+"Habilite qualquer uma das características abaixo para ter o controle do seu "
+"fluxo de trabalho. Status customizados, notificações por email, comentários "
+"editoriais e mais, ajudarão você e sua equipe a poupar tempo, assim todos "
+"podem focar no que mais importa: o conteúdo."
 
 #: modules/settings/settings.php:139
 msgid "Not a registered Edit Flow module"
-msgstr "登録済みの Edit Flow モジュールではありません。"
+msgstr "Não é um módulo registrado do Edit Flow"
 
 #: modules/settings/settings.php:145
 msgid ""
 "Module not enabled. Please enable it from the <a href=\"%1$s\">Edit Flow "
 "settings page</a>."
 msgstr ""
-"現在無効なモジュールです。<a href=\"%1$s\">Edit Flow 設定ページ</a>から有効化"
-"してください。"
+"Módulo nã habilitado.  Por favor, ative-o na <a href=\"%1$s\"> Página de "
+"configuração do Edit Flow </a>."
 
 #: modules/settings/settings.php:239
 msgid "There are no Edit Flow modules registered"
-msgstr "登録されている Edit Flow モジュールがありません。"
+msgstr "Não há módulo registrados do Edit Flow"
 
 #: modules/settings/settings.php:273
 msgid "Enable"
-msgstr "有効化"
+msgstr "Ativar"
 
 #: modules/settings/settings.php:276
 msgid "Disable"
-msgstr "無効化"
+msgstr "Desativar"
 
 #: modules/settings/settings.php:316
 msgid "Posts"
-msgstr "投稿"
+msgstr "Posts"
 
 #: modules/settings/settings.php:317
 msgid "Pages"
-msgstr "固定ページ"
+msgstr "Páginas"
 
 #: modules/settings/settings.php:337
 msgid ""
 "Disabled because add_post_type_support( '%1$s', '%2$s' ) is included in a "
 "loaded file."
 msgstr ""
-"add_post_type_support( '%1$s', '%2$s' ) が読込み済みのファイルに含まれている"
-"ため無効化されています。"
+"Desabilitado, pois add_publicación_type_support ('%1$s', '%2$s') está "
+"incluído em um arquivo carregado."
 
 #: modules/story-budget/story-budget.php:40
 #: modules/story-budget/story-budget.php:136
 #: modules/story-budget/story-budget.php:284
 msgid "Story Budget"
-msgstr "ストーリー割り当て"
+msgstr "Histórico de orçamento"
 
 #: modules/story-budget/story-budget.php:41
 msgid "View the status of all your content <a href=\"%s\">at a glance</a>."
-msgstr "コンテンツのステータスを<a href=\"%s\">一覧表示</a>します。"
+msgstr "Ver os status de todo seu conteúdo <a href=\"%s\"> de uma vez </a>."
 
 #: modules/story-budget/story-budget.php:42
 msgid ""
@@ -1739,103 +1778,109 @@ msgid ""
 "by specific categories or date ranges to see details about each post in "
 "progress."
 msgstr ""
-"ストーリー割り当て画面を使ってコンテンツの進行状況をチェックしましょう。特定"
-"のカテゴリーや日付範囲でフィルターして、進行中の投稿の詳細を確認することがで"
-"きます。"
+"Use o histórico de orçamento para ver como o conteúdo do seu site está "
+"progredindo. Filtre por categorias específicas ou intervalos de data para "
+"ver os detalhes do progresso de cada post."
 
 #: modules/story-budget/story-budget.php:75
 msgid "Screen Layout"
-msgstr "画面レイアウト"
+msgstr "Layout da tela"
 
 #: modules/story-budget/story-budget.php:179
 msgid "Title"
-msgstr "タイトル"
+msgstr "Título"
 
 #: modules/story-budget/story-budget.php:182
 msgid "Post Date"
-msgstr "投稿日"
+msgstr "Data da publicação"
 
 #: modules/story-budget/story-budget.php:183
 msgid "Last Modified"
-msgstr "最終更新日"
+msgstr "Última modificação"
 
 #: modules/story-budget/story-budget.php:236
 msgid "Number of Columns: "
-msgstr "カラムの数:"
+msgstr "Número de Columnas"
 
 #: modules/story-budget/story-budget.php:335
 msgid "starting %1$s showing %2$s %3$s"
-msgstr "%1$sから%2$s %3$s"
+msgstr "Iniciando %1$s mostrando %2$s %3$s"
 
 #: modules/story-budget/story-budget.php:335
 msgid "day"
 msgid_plural "days"
-msgstr[0] "日間"
+msgstr[0] "dia"
+msgstr[1] "dias"
 
 #: modules/story-budget/story-budget.php:338
 #: modules/story-budget/story-budget.php:341
 msgid "Change"
-msgstr "変更"
+msgstr "Alterar"
 
 #: modules/story-budget/story-budget.php:441
 msgid "Click to toggle"
-msgstr "クリックで切り替え"
+msgstr "Click para alternar"
 
 #: modules/story-budget/story-budget.php:462
 msgid "There are no posts for this term in the range or filter specified."
-msgstr ""
-"指定した期間またはフィルターでこの項目に一致する投稿がありませんでした。"
+msgstr "Não há posts para este termo no alcance ou filtro especificado."
 
 #: modules/story-budget/story-budget.php:556
 msgid "Move this item to the Trash"
-msgstr "この項目をゴミ箱に移動する"
+msgstr "Mover este item para a lixeira"
 
 #: modules/story-budget/story-budget.php:592
 msgid "Item moved to the trash."
 msgid_plural "%s items moved to the trash."
-msgstr[0] "%s件の項目をゴミ箱に移動しました。"
+msgstr[0] "Item movido para a lixeira."
+msgstr[1] "%s ítens movidos para a lixeira."
 
 #: modules/story-budget/story-budget.php:599
 msgid "Item restored from the Trash."
 msgid_plural "%s items restored from the Trash."
-msgstr[0] "%s件の項目をゴミ箱から元に戻しました。"
+msgstr[0] "Item restaurado da lixeira."
+msgstr[1] "%s itens restaurados da lixeira."
 
 #: modules/story-budget/story-budget.php:638
 msgid "Print"
-msgstr "印刷"
+msgstr "Imprimir"
 
 #: modules/user-groups/user-groups.php:41
 msgid "Organize your users into groups to mimic your organizational structure."
-msgstr "組織構造に基いてユーザーをグループ化できます。"
+msgstr ""
+"Organize seus usuários em grupos para mimetizar sua estrutura organizacional."
 
 #: modules/user-groups/user-groups.php:42
 msgid ""
 "Configure user groups to organize all of the users on your site. Each user "
 "can be in many user groups and you can change them at any time."
 msgstr ""
-"ユーザーグループを設定し、サイトのユーザーを整理しましょう。ユーザーを複数の"
-"グループに所属させることもでき、いつでも変更可能です。"
+"Configure grupos de usuários para organizar todos os usuários do seu site. "
+"Cada usuário pode estar em vários grupos de usuários, que podem ser "
+"alterados a qualquer momento."
 
 #: modules/user-groups/user-groups.php:54
 msgid "User group created. Feel free to add users to the usergroup."
-msgstr "ユーザーグループを作成しました。グループにユーザーを追加してください。"
+msgstr ""
+"Grupo de usuários criado. Sinta-se livre para adicionar usuários a este "
+"grupo."
 
 #: modules/user-groups/user-groups.php:55
 msgid "User group updated."
-msgstr "ユーザーグループを更新しました。"
+msgstr "Gupo de usuários atualizado."
 
 #: modules/user-groups/user-groups.php:56
 #: modules/user-groups/user-groups.php:910
 msgid "User group doesn't exist."
-msgstr "ユーザーグループが存在しません。"
+msgstr "Grupo de usuários não existe."
 
 #: modules/user-groups/user-groups.php:57
 msgid "User group deleted."
-msgstr "ユーザーグループを削除しました。"
+msgstr "Grupo de usuários excluído."
 
 #: modules/user-groups/user-groups.php:60
 msgid "Manage User Groups"
-msgstr "グループを管理"
+msgstr "Gerenciar grupo de usuários"
 
 #: modules/user-groups/user-groups.php:65
 msgid ""
@@ -1844,9 +1889,10 @@ msgid ""
 "primarily used for subscribing a set of users to a post for notifications.</"
 "p>"
 msgstr ""
-"<p>多数のメンバーがサイトの執筆や編集に関わっている場合、ユーザーグループの活"
-"用をおすすめします。</p><p>ユーザーグループ機能は現在、投稿に関する通知を複数"
-"の人に適用するために主に使われています。</p>"
+"<p>Para os que têm muitas pessoas envolvidas no processo de publicação, "
+"grupos de usuários ajudam a manter a organização.</p><p>Atualmente, grupos "
+"de usuários são usados primariamente para atribuir um grupo de usuários para "
+"receber notificações.</p>"
 
 #: modules/user-groups/user-groups.php:67
 msgid ""
@@ -1856,78 +1902,78 @@ msgid ""
 "p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow on "
 "Github</a></p>"
 msgstr ""
-"<p><strong>詳細:</strong></p><p><a href=\"http://editflow.org/features/user-"
-"groups/\">ユーザーグループ機能ドキュメンテーション</a></p><p><a href="
-"\"http://wordpress.org/tags/edit-flow?forum_id=10\">Edit Flow フォーラム</"
-"a></p><p><a href=\"https://github.com/danielbachhuber/Edit-Flow\">Edit Flow "
-"on Github</a></p>"
+"<p><strong> Para mais informações</strong> </p><p> <a href=\"http://editflow."
+"org/features/user-groups/\">Documentação dos Grupos de usuários</a></p><a "
+"href=\"http://wordpress.org / tags / edit-flow? forum_id=10\"> Fórum Edit "
+"Flow </a> </p> <a href=\"https://github.com/danielbachhuber/Edit-Flow\"> "
+"Edit Flow no Github </a> </p>"
 
 #: modules/user-groups/user-groups.php:127
 msgid "Copy Editors"
-msgstr "コピー・エディター"
+msgstr "Editores de cópia"
 
 #: modules/user-groups/user-groups.php:128
 msgid "Making sure the quality is top-notch."
-msgstr "コンテンツが最高水準の品質になるようにします。"
+msgstr "Assegurando-se que a qualidade é de primeira categoria."
 
 #: modules/user-groups/user-groups.php:131
 msgid "Photographers"
-msgstr "写真担当者"
+msgstr "Fotógrafos"
 
 #: modules/user-groups/user-groups.php:132
 msgid "Capturing the story visually."
-msgstr "ストーリーを視覚的に捕らえます。"
+msgstr "Capturando a história visualmente."
 
 #: modules/user-groups/user-groups.php:135
 msgid "Reporters"
-msgstr "レポーター"
+msgstr "Repórteres"
 
 #: modules/user-groups/user-groups.php:136
 msgid "Out in the field, writing stories."
-msgstr "現場でストーリーを追いかけます。"
+msgstr "No campo, escrevendo histórias."
 
 #: modules/user-groups/user-groups.php:139
 msgid "Section Editors"
-msgstr "セクション編集者"
+msgstr "Editores de seção"
 
 #: modules/user-groups/user-groups.php:140
 msgid "Providing feedback and direction."
-msgstr "フィードバックとディレクションを行います。"
+msgstr "Proporcionando feedback e direção."
 
 #: modules/user-groups/user-groups.php:296
 #: modules/user-groups/user-groups.php:365
 #: modules/user-groups/user-groups.php:453
 msgid "Please enter a name for the user group."
-msgstr "ユーザーグループの名称を入力してください。"
+msgstr "Por favor, insira o nome para o grupo de usuários."
 
 #: modules/user-groups/user-groups.php:304
 #: modules/user-groups/user-groups.php:375
 #: modules/user-groups/user-groups.php:458
 msgid "User group name cannot exceed 40 characters. Please try a shorter name."
 msgstr ""
-"ユーザーグループ名は40文字以下にする必要があります。短い名称を選んでくださ"
-"い。"
+"O nome do grupo de usuários não pode exceder 40 caracteres. Por favor, tente "
+"um nome mais curto."
 
 #: modules/user-groups/user-groups.php:318
 msgid "Error adding usergroup."
-msgstr "ユーザーグループの追加の際にエラーが発生しました。"
+msgstr "Erro ao adicionar o grupo de usuários."
 
 #: modules/user-groups/user-groups.php:392
 msgid "Error updating user group."
-msgstr "ユーザーグループの更新の際にエラーが発生しました。"
+msgstr "Erro ao atualizar o grupo de usuários."
 
 #: modules/user-groups/user-groups.php:421
 msgid "Error deleting user group."
-msgstr "ユーザーグループの削除の際にエラーが発生しました。"
+msgstr "Erro ao excluir o grupo de usuários."
 
 #: modules/user-groups/user-groups.php:487
 msgid "Could not update the user group: <strong>%s</strong>"
-msgstr "ユーザーグループを更新できませんでした: <strong>%s</strong>"
+msgstr "Não froi possível atualizar o grupo de usuários: <strong>%s</strong>"
 
 #: modules/user-groups/user-groups.php:575
 #: modules/user-groups/user-groups.php:618
 msgid "The name is used to identify the user group."
-msgstr "このユーザーグループを認識するために使う名称。"
+msgstr "O nome é utilizado para identificar o grupo de usuários."
 
 #: modules/user-groups/user-groups.php:580
 #: modules/user-groups/user-groups.php:623
@@ -1935,58 +1981,58 @@ msgid ""
 "The description is primarily for administrative use, to give you some "
 "context on what the user group is to be used for."
 msgstr ""
-"説明は主に、ユーザーグループがどういう目的で使われるかの背景情報を提供するた"
-"めに管理者向けに使われます。"
+"A descrição é primariamente usada para fins administrativos, provendo algum "
+"contexto acerca do uso do grupo."
 
 #: modules/user-groups/user-groups.php:583
 #: modules/user-groups/user-groups.php:1239
 msgid "Update User Group"
-msgstr "ユーザーグループを更新"
+msgstr "Atualizar grupo de usuários"
 
 #: modules/user-groups/user-groups.php:595
 msgid "Are you sure you want to delete the user group?"
-msgstr "本当にユーザーグループを削除しますか ?"
+msgstr "Tem certeza que deseja excluir este grupo?"
 
 #: modules/user-groups/user-groups.php:627
 msgid "Add New User Group"
-msgstr "新規ユーザーグループを追加"
+msgstr "Adicionar novo grupo"
 
 #: modules/user-groups/user-groups.php:655
 msgid "Usergroups"
-msgstr "ユーザーグループ"
+msgstr "Grupos de usuários"
 
 #: modules/user-groups/user-groups.php:657
 msgid "Select the user groups that you would like to be a part of:"
-msgstr "所属したいユーザーグループを選択してください:"
+msgstr "Selecionar os grupos que você gostaria de participar: "
 
 #: modules/user-groups/user-groups.php:659
 msgid "Select the user groups that this user should be a part of:"
-msgstr "このユーザーを所属させたいユーザーグループを選択してください:"
+msgstr "Selecione os grupos de usuários que este usuário deve fazer parte: "
 
 #: modules/user-groups/user-groups.php:760
 msgid "No user groups were found."
-msgstr "ユーザーグループが見つかりませんでした。"
+msgstr "Nenhum grupo de usuários foi encontrado."
 
 #: modules/user-groups/user-groups.php:760
 msgid "Add a new user group. Opens new window."
-msgstr "新規ユーザーグループを追加。新しいウィンドウが開きます。"
+msgstr "Adicionar novo grupo de usuário. Abre uma nova janela."
 
 #: modules/user-groups/user-groups.php:760
 msgid "Add a User Group"
-msgstr "ユーザーグループを追加"
+msgstr "Adicionar a grupo de usuários"
 
 #: modules/user-groups/user-groups.php:867
 msgid "New user groups must have a name"
-msgstr "新しいユーザーグループには名称が必要です"
+msgstr "Novos grupos de usuários devem conter um nome"
 
 #: modules/user-groups/user-groups.php:954
 msgid "Invalid users variable. Should be array."
-msgstr "不正なユーザー変数です。配列である必要があります。"
+msgstr "Variável de usuários inválida. Precisa ser uma matriz."
 
 #: modules/user-groups/user-groups.php:1126
 msgid "No user groups found."
-msgstr "ユーザーグループがありません。"
+msgstr "Nenhum grupo de usuários encontrado."
 
 #: modules/user-groups/user-groups.php:1139
 msgid "Users in Group"
-msgstr "グループ内のユーザー"
+msgstr "Usuários no grupo"

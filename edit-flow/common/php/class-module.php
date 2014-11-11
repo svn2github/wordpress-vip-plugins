@@ -124,20 +124,33 @@ class EF_Module {
 		if ( $this->module_enabled('custom_status') ) {
 		 	return $edit_flow->custom_status->get_custom_statuses();
 		} else {
-			$post_statuses = array(
+			return $this->get_core_post_statuses();
+		}
+	}
+
+	/**
+	 * Get core's 'draft' and 'pending' post statuses, but include our special attributes
+	 * 
+	 * @since 0.8.1
+	 * 
+	 * @return array
+	 */
+	protected function get_core_post_statuses() {
+		
+		return array(
 				(object)array(
-					'name' => __( 'Draft' ),
-					'description' => '',
-					'slug' => 'draft',
+					'name'         => __( 'Draft' ),
+					'description'  => '',
+					'slug'         => 'draft',
+					'position'     => 1,
 				),
 				(object)array(
-					'name' => __( 'Pending Review' ),
-					'description' => '',
-					'slug' => 'pending',
+					'name'         => __( 'Pending Review' ),
+					'description'  => '',
+					'slug'         => 'pending',
+					'position'     => 2,
 				),				
 			);
-			return $post_statuses;
-		}
 	}
 
 	/**
@@ -221,10 +234,10 @@ class EF_Module {
 
 		// Datepicker is available WordPress 3.3. We have to register it ourselves for previous versions of WordPress
 		wp_enqueue_script( 'jquery-ui-datepicker' );
-		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'common/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );
 
 		//Timepicker needs to come after jquery-ui-datepicker and jquery
 		wp_enqueue_script( 'edit_flow-timepicker', EDIT_FLOW_URL . 'common/js/jquery-ui-timepicker-addon.js', array( 'jquery', 'jquery-ui-datepicker' ), EDIT_FLOW_VERSION, true );		
+		wp_enqueue_script( 'edit_flow-date_picker', EDIT_FLOW_URL . 'common/js/ef_date.js', array( 'jquery', 'jquery-ui-datepicker', 'edit_flow-timepicker' ), EDIT_FLOW_VERSION, true );
 
 		// Now styles
 		wp_enqueue_style( 'jquery-ui-datepicker', EDIT_FLOW_URL . 'common/css/jquery.ui.datepicker.css', array( 'wp-jquery-ui-dialog' ), EDIT_FLOW_VERSION, 'screen' );
@@ -561,7 +574,7 @@ class EF_Module {
 		global $wp_roles;
 		
 		if ( $wp_roles->is_role( $role ) ) {
-			$role =& get_role( $role );
+			$role = &get_role( $role );
 			foreach ( $caps as $cap )
 				$role->add_cap( $cap );
 		}

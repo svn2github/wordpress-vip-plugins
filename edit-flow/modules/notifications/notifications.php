@@ -24,7 +24,6 @@ class EF_Notifications extends EF_Module {
 	 * Register the module with Edit Flow but don't do anything else
 	 */
 	function __construct () {
-		global $edit_flow;
 		
 		// Register the module with Edit Flow
 		$this->module_url = $this->get_module_url( __FILE__ );
@@ -222,7 +221,7 @@ jQuery(document).ready(function($) {
 	/**
 	 * Action to Follow / Unfollow posts on the manage posts screen
 	 */
-	$('#ef-calendar-view').on( 'click', '.ef_follow_link a', function(e){
+	$('.wp-list-table, #ef-calendar-view, #ef-story-budget-wrap').on( 'click', '.ef_follow_link a', function(e){
 
 		e.preventDefault();
 
@@ -395,7 +394,7 @@ jQuery(document).ready(function($) {
 		if ( ! current_user_can( $this->edit_post_subscriptions_cap ) )
 			$this->print_ajax_response( 'error', $this->module->messages['invalid-permissions'] );
 
-		$post = get_post( (int)$_GET['post_id'] );
+		$post = get_post( ( $post_id = $_GET['post_id'] ) );
 
 		if ( ! $post )
 			$this->print_ajax_response( 'error', $this->module->messages['missing-post'] );
@@ -569,8 +568,7 @@ jQuery(document).ready(function($) {
 			
 			$edit_link = htmlspecialchars_decode( get_edit_post_link( $post_id ) );
 			if ( $new_status != 'publish' ) {
-				$preview_nonce = wp_create_nonce( 'post_preview_' . $post_id );
-				$view_link = add_query_arg( array( 'preview' => true, 'preview_id' => $post_id, 'preview_nonce' => $preview_nonce ), get_permalink($post_id) );
+				$view_link = add_query_arg( array( 'preview' => 'true' ), wp_get_shortlink( $post_id ) );
 			} else {
 				$view_link = htmlspecialchars_decode( get_permalink( $post_id ) );
 			}
@@ -884,8 +882,6 @@ jQuery(document).ready(function($) {
 	 *
 	 */
 	function follow_post_usergroups( $post, $usergroups = 0, $append = true ) {
-		global $edit_flow;
-		
 		if ( !$this->module_enabled( 'user_groups' ) )
 			return;
 
@@ -893,13 +889,12 @@ jQuery(document).ready(function($) {
 		if( !is_array($usergroups) )
 			$usergroups = array($usergroups);
 
-		$usergroup_terms = array();
-		
-		foreach( $usergroups as $usergroup ) {
-			// Name and slug of term is the usergroup slug
-			$usergroup_data = $edit_flow->user_groups->get_usergroup_by( 'id', $usergroup ); 
+		// make sure each usergroup id is an integer and not a number stored as a string
+		foreach( $usergroups as $key => $usergroup ) {
+			$usergroups[$key] = intval($usergroup);
 		}
-		$set = wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
+
+		wp_set_object_terms( $post_id, $usergroups, $this->following_usergroups_taxonomy, $append );
 		return;
 	}
 	
