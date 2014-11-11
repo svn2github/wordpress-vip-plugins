@@ -237,6 +237,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'SimpleReach',
 				'description' => 'Content ROI made simple.',
 			),
+			//'skyword'    => array(
+			//	'name'        => 'Skyword',
+			//	'description' => 'Moving Stories. Forward.',
+			//),
 			'socialflow'    => array(
 				'name'        => 'SocialFlow',
 				'description' => 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
