@@ -429,7 +429,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 		}
 
 		if ( $limit > 0 && count( $out ) > $limit + 1 )
-			$out = array_slice( $out, 0, $limit + 1 );
+			$out = array_slice( $out, 0, $limit );
 
 		// Remove date col from summarized data
 		if ( !is_null( $summarize ) ) {
@@ -443,7 +443,7 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 	}
 
 	if ( $limit > 0 && count( $_rows ) > $limit + 1 )
-		$_rows = array_slice( $_rows, 0, $limit + 1 );
+		$_rows = array_slice( $_rows, 0, $limit );
 
 	foreach ( $_rows as $row ) {
 		// Remove date col from summarized data
