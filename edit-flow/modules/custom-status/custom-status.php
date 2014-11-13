@@ -1333,7 +1333,9 @@ class EF_Custom_Status extends EF_Module {
 
 		//If the time isn't set, don't set it.
 		if( empty( $_POST['aa'] ) ) {
-			$data['post_date_gmt'] = '0000-00-00 00:00:00';
+			// VIP Disabled, breaking things
+			// https://viprequests.wordpress.com/2014/11/12/edit-flow-bug-introduced-in-yesterdays/
+			// $data['post_date_gmt'] = '0000-00-00 00:00:00';
 			return $data;
 		}
 
