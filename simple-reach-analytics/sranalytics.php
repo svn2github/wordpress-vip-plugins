@@ -4,7 +4,7 @@
  Plugin URI: http://www.simplereach.com/docs/wordpress-plugin/
  Text Domain: sranalytics
  Description: After installation, you must click '<a href='options-general.php?page=SimpleReach-Analytics'>Settings &rarr; SimpleReach Analytics</a>' to turn on the Analytics.
- Version: 0.1.2
+ Version: 0.1.4
  Author: SimpleReach
  Author URI: https://www.simplereach.com
  */
@@ -26,7 +26,7 @@
 		Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-define( 'SRANALYTICS_PLUGIN_VERSION', '0.1.3' );
+define( 'SRANALYTICS_PLUGIN_VERSION', '0.1.4' );
 
 /**
  * Insert analytics code onto the post page
@@ -102,7 +102,11 @@ function sranalytics_insert_js() {
 		//handle archive-style pages. WordPress has a different pattern for retrieving each one
 		if ( is_tag() ) {
 			$tag_name = single_cat_title( '', false );
-			$tag = wpcom_vip_get_term_by( 'name', $tag_name, 'post_tag' );
+			if ( function_exists( 'wpcom_vip_get_term_by' ) ) {
+				$tag = wpcom_vip_get_term_by( 'name', $tag_name, 'post_tag' );
+			 } else {
+				$tag = get_term_by( 'name', $tag_name, 'post_tag' );
+			}
 			$tag_url = get_tag_link($tag->term_id);
 
 			$title = "Tag: ${tag_name}";
@@ -157,12 +161,12 @@ function sranalytics_insert_js() {
 		'version' => SRANALYTICS_PLUGIN_VERSION,
 		'pid' => esc_js( $sranalytics_pid ),
 		'iframe' => esc_js( $sranalytics_disable_iframe_loading ),
-		'title' => esc_js( $title ),
-		'url' => esc_js( $canonical_url ),
-		'date' => esc_js( $published_date ),
-		'channels' => array_map( 'esc_js', $channels ),
-		'tags' => array_map( 'esc_js', $tags ),
-		'authors' => array_map( 'esc_js',  $authors ),
+		'title' => esc_js( apply_filters( 'sranalytics_title', $title ) ),
+		'url' => esc_js( apply_filters( 'sranalytics_url', $canonical_url ) ),
+		'date' => esc_js( apply_filters( 'sranalytics_date', $published_date ) ),
+		'channels' => array_map( 'esc_js', apply_filters( 'sranalytics_channels', $channels ) ),
+		'tags' => array_map( 'esc_js', apply_filters( 'sranalytics_tags', $tags ) ),
+		'authors' => array_map( 'esc_js', apply_filters( 'sranalytics_authors', $authors ) ),
 	);
 
 	// Get the JS ready to go
