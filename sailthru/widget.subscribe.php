@@ -388,6 +388,9 @@ function sailthru_widget_shortcode( $atts ) {
 			$before_widget = '<div class="sailthru_shortcode">';
 			$after_widget = '</div>';
 		}
+	} else {
+		$before_widget = '<div class="sailthru_shortcode">';
+		$after_widget = '</div>';
 	}
 	$args = array(
 		'before_widget' => $before_widget,

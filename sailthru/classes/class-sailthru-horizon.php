@@ -301,9 +301,9 @@ class Sailthru_Horizon {
 		}
 
 
-
+	 if ( ! is_404() && !is_preview() ) {
 		echo $horizon_js;
-
+	 }
 
 
 	 } // end sailthru_client_horizon

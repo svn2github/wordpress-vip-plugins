@@ -201,7 +201,7 @@ function sailthru_initialize_forms_options() {
 		echo '<p>Delete a field already created by using the form below.</p>';
 	}
 
-	function delete_field ( $args ) {
+	function sailthru_delete_field ( $args ) {
 		$customfields  = get_option( 'sailthru_forms_options' );
 		$collection    = $args[0];
 		$option_name   = $args[1];
