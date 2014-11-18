@@ -198,6 +198,9 @@ function theplatform_decode_json_from_server( $input, $assoc, $die_on_error = TR
 
 	$response = json_decode( wp_remote_retrieve_body( $input ), $assoc );
 
+	// VIP: Don't die if the service is unreachable. This can take down all of wp-admin. 
+	return $response;
+
 	if ( FALSE === $die_on_error ) {
 		return $response;
 	}
