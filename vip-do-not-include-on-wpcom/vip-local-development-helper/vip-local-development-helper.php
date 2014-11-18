@@ -21,7 +21,7 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * @param string $folder Optional. Folder to include from; defaults to "plugins". Useful for when you have multiple themes and your own shared plugins folder.
  * @return bool True if the include was successful
  */
-function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
+function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_release_candidate = false ) {
 
 	// Make sure there's a plugin to load
 	if ( empty($plugin) ) {
@@ -49,7 +49,11 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins' ) {
 
 	// Shared plugins are located at /wp-content/themes/vip/plugins/example-plugin/
 	// You should keep your local copies of the plugins in the same location
-	$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
+	if( true === $load_release_candidate )
+		$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/release-candidates/$plugin/$plugin.php";
+	else
+		$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
+
 	if ( file_exists( $includepath ) ) {
 
 		wpcom_vip_add_loaded_plugin( "$folder/$plugin" );
