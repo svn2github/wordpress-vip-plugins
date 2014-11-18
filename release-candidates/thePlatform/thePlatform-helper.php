@@ -325,6 +325,8 @@ function theplatform_check_plugin_update() {
 	$newPreferences = array_merge( TP_PREFERENCES_OPTIONS_DEFAULTS(), get_option( TP_PREFERENCES_OPTIONS_KEY, array() ) );
 	$newPreferences['plugin_version'] = TP_PLUGIN_VERSION;
 
+	$newPreferences['embed_hook'] = 'tinymce'; // Workaround for VIP, Remove when fixed
+
 	update_option( TP_PREFERENCES_OPTIONS_KEY,  $newPreferences );
 	update_option( TP_ACCOUNT_OPTIONS_KEY,      array_merge( TP_ACCOUNT_OPTIONS_DEFAULTS(),     get_option( TP_ACCOUNT_OPTIONS_KEY,     array() ) ) );
 	update_option( TP_UPLOAD_OPTIONS_KEY,       array_merge( TP_UPLOAD_FIELDS_DEFAULTS(),       get_option( TP_UPLOAD_OPTIONS_KEY,	    array() ) ) );  
