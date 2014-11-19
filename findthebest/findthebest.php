@@ -251,4 +251,4 @@ class FindTheBest_ContentBoost {
 	}
 }
 
-add_action( 'plugins_loaded', array( 'FindTheBest_ContentBoost', 'init' ) );
+FindTheBest_ContentBoost::init();
