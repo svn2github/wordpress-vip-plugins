@@ -18,6 +18,27 @@ add_action( 'syn_after_init_server', function() {
 	// TODO: override schedule_delete_content and schedule_pull_content
 } );
 
+// Failure notifications
+add_action( 'syn_post_push_new_post', 'wpcom_vip_push_syndication_debug', 10, 6 );
+add_action( 'syn_post_push_edit_post', 'wpcom_vip_push_syndication_debug', 10, 6 );
+
+function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_type, $client, $info ) {
+	if ( ! is_wp_error( $result ) ) {
+		return;
+	}
+
+	$debug_output = '';
+
+	$debug_output .= 'Result: ' . var_export( $result, true ) . PHP_EOL . PHP_EOL;
+	$debug_output .= 'Post Id: ' . var_export( $post_id, true ) . PHP_EOL . PHP_EOL;
+	$debug_output .= 'Site: ' . var_export( $site, true ) . PHP_EOL . PHP_EOL;
+	$debug_output .= 'Transport Type: ' . var_export( $transport_type, true ) . PHP_EOL . PHP_EOL;
+	$debug_output .= 'Client: ' . var_export( $client, true ) . PHP_EOL . PHP_EOL;
+	$debug_output .= 'Info: ' . var_export( $info, true ) . PHP_EOL . PHP_EOL;
+
+	wp_mail( 'nick.daugherty@a8c.com', 'Push Syndication Failure Debug', $debug_output );
+}
+
 // === Stats ===
 add_action( 'syn_post_pull_edit_post', function() {
 	wpcom_push_syndication_stats( 'vip-syndication-pull', 'edit' );
