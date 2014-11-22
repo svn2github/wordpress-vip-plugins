@@ -1,10 +1,10 @@
 === PushUp Notifications ===
-Contributors: 10up, carldanley, jakemgold, johnjamesjacoby, houseofgrays, cmmarslender
+Contributors: 10up, carldanley, jakemgold, johnjamesjacoby, houseofgrays, cmmarslender, dsawardekar
 Donate link: https://pushupnotifications.com/
 Tags: push notifications, push notification, notifications, push, news, services
 Requires at least: 3.8
 Tested up to: 3.9.1
-Stable tag: 1.2
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -23,7 +23,7 @@ PushUp currently supports [Safari Push Notifications on OS X Mavericks](https://
 * **Real-time analytics.** Monitor engagement, as it happens. How many eligible visitors accepted or declined notifications? How many subscribers do you have?
 * **Pay as your grow.** Pay for what you need, when you need it, so increased engagement never interrupts your service. No subscribers? No fee. Tightening your belt? Don't click push, don't pay PushUp.
 * **For WordPress, by Makers of WordPress.** Designed, tested, and engineered by [10up](http://10up.com), an agency with 25+ core contributors on staff. You won't find gaudy ads or attention stealing buttons; in fact, we think you'll forget that PushUp wasn't part of WordPress.
-* **Be selective with one-check push requests.** PushUp adds a "Send push notification" checkbox right above your publish button. Respect your readers - and wallet - by pushing your best content. 
+* **Be selective with one-check push requests.** PushUp adds a "Send push notification" checkbox right above your publish button. Respect your readers - and wallet - by pushing your best content.
 * **Impatient writer syndrome protection.** No matter how many times your author mashes that publish button, the same notification will never be sent twice.
 * **Built for scale, battle tested by big names.** Vetted by WordPress.com VIP, and already running like a champ on sites like [9to5mac.com](http://9to5mac.com), the world's most popular Apple news blog,  [Deadline.com](http://deadline.com), and [Edelman.com](http://edelman.com). We've already delivered over 18 million notifications, including more than 500,000 notifications in a single day.
 * **No extra software necessary.** We leverage technology built right into the browser and operating system, beginning with Safari on OS X Mavericks. Your readers simply accept a notification request - that only shows up the first time they visit - and they will start receiving notifications. Even when their browser is closed.
@@ -71,6 +71,13 @@ After the first month, we have a "pay as you grow" model where you pay for the a
 4. Visitors click allow in Safari 7 to receive notifications. That's it.
 
 == Changelog ==
+
+= 1.2.1 =
+
+* Improves error handling when Safari Push Notifications are disabled.
+
+= DEV =
+* Add a filter to the localized API path for testing and potential future scaling.
 
 = 1.2 =
 * Customize when the notification prompt should appear: after a set number of visits, and/or an easily defined custom event like clicking a link

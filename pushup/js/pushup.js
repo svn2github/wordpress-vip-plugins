@@ -72,7 +72,14 @@ window.PushUpNotifications = ( function( window, settings ) {
 				userID : Cache.userID,
 				domain : Cache.domain
 			};
-			window.safari.pushNotification.requestPermission( Cache.webServiceURL, Cache.websitePushID, userInfo, offerNotifications );
+
+			try {
+				window.safari.pushNotification.requestPermission(
+					Cache.webServiceURL, Cache.websitePushID, userInfo, offerNotifications
+				);
+			} catch (err) {
+				Cache.permissionData.permission = 'denied';
+			}
 		}
 	}
 
@@ -137,3 +144,5 @@ window.PushUpNotifications = ( function( window, settings ) {
 	};
 
 } )( window, PushUpNotificationSettings );
+
+window.PushUpNotifications.version = '1.2.1';
