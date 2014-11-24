@@ -31,6 +31,7 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 
 	$debug_output .= 'Result: ' . var_export( $result, true ) . PHP_EOL . PHP_EOL;
 	$debug_output .= 'Post Id: ' . var_export( $post_id, true ) . PHP_EOL . PHP_EOL;
+	$debug_output .= 'Blog Id: ' . var_export( get_current_blog_id(), true ) . PHP_EOL . PHP_EOL;
 	$debug_output .= 'Site: ' . var_export( $site, true ) . PHP_EOL . PHP_EOL;
 	$debug_output .= 'Transport Type: ' . var_export( $transport_type, true ) . PHP_EOL . PHP_EOL;
 	$debug_output .= 'Client: ' . var_export( $client, true ) . PHP_EOL . PHP_EOL;
