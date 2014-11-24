@@ -229,10 +229,6 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Sailthru for WordPress',
 				'description' => 'Sailthru is the leading provider of personalized marketing communications.',
 			),
-			'shoplocket'    => array(
-				'name'        => 'Shoplocket',
-				'description' => 'Everything you need to start selling professionally from WordPress, in minutes.',
-			),
 			'simple-reach-analytics'    => array(
 				'name'        => 'SimpleReach',
 				'description' => 'Content ROI made simple.',
