@@ -3,8 +3,8 @@ Contributors: 10up, carldanley, jakemgold, johnjamesjacoby, houseofgrays, cmmars
 Donate link: https://pushupnotifications.com/
 Tags: push notifications, push notification, notifications, push, news, services
 Requires at least: 3.8
-Tested up to: 3.9.1
-Stable tag: 1.2.1
+Tested up to: 4.0.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -72,11 +72,13 @@ After the first month, we have a "pay as you grow" model where you pay for the a
 
 == Changelog ==
 
+= 1.2.2 =
+
+* Tested up to 4.0.1.
+
 = 1.2.1 =
 
 * Improves error handling when Safari Push Notifications are disabled.
-
-= DEV =
 * Add a filter to the localized API path for testing and potential future scaling.
 
 = 1.2 =
