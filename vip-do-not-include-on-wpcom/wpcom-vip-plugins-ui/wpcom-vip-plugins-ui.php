@@ -197,6 +197,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Janrain',
 				'description' => 'User Registration and Social Integration for WordPress.com VIP.',
 			),
+			'jwplayer' => array(
+				'name'        => 'JW Player',
+				'description' => 'The World’s Most Popular Video Player.',
+			),
 			'livefyre3'      => array(
 				'name'        => 'Livefyre',
 				'description' => 'Replace comments with live conversations connected to the social web.',
