@@ -7,7 +7,7 @@
 (function($) {
 	var media = wp.media;
 	var getty = gettyImages;
-	var l10n = media.view.l10n; 
+	var l10n = media.view.l10n;
 
 	// Turn a number string into a comma-separated triplet human-readable number,
 	// used a few places throughout.
@@ -52,7 +52,7 @@
 		return result;
 	}
 
-	/** 
+	/**
 	 * Extend both top-level media frames with an additional mode for fetching
 	 * and downloading images from Getty Images.
 	 */
@@ -75,17 +75,13 @@
 						selection: new media.model.Selection(null, { multiple: true }),
 						edge: 120,
 						gutter: 8
-					})
+					}),
 				]);
-			}
+			},
 		}
 	};
-	
-	// Make `MediaFrame.Post` and `MediaFrame.Select` extend `GettyImagesFrame`
-	_.each([ 'Post', 'Select' ], function( type ) {
-		var frame = media.view.MediaFrame[type];
-		media.view.MediaFrame[type] = frame.extend(GettyImagesFrame(frame));
-	});
+
+	media.view.MediaFrame.Post = media.view.MediaFrame.Post.extend(GettyImagesFrame(media.view.MediaFrame.Post));
 
 	/**
 	 * The Getty Images Browser view
@@ -118,7 +114,7 @@
 			// Handle changes to refinements list
 			this.refinements.on('add remove', this.updateSearchRefinements, this);
 			this.refinements.on('reset', this.clearSearchRefinements, this);
-			
+
 			// Set various flags whenever the results description model  changes
 			this.collection.results.on('change:searched change:total change:refinements', this.updateFlags, this);
 			this.collection.results.on('change:searching', this.updateSearching, this);
@@ -166,7 +162,7 @@
 			}
 
 			this.collection.propsQueue.set('Refinements', categoryRefinements);
-			
+
 			this.collection.search();
 		},
 
@@ -276,7 +272,8 @@
 		// Create single attachment detail view for sidebar
 		createSingle: function() {
 			var sidebar = this.sidebar,
-				single = this.options.selection.single();
+				single = this.options.selection.single(),
+				s = window.getty_s;
 
 			var attachment = single.id ? media.model.GettyAttachments.all.get(single.id) : false;
 
@@ -296,6 +293,13 @@
 				};
 
 				sidebar.set('display', new media.view.GettyAttachmentDisplaySettings(displayOptions));
+
+				if(s) {
+					s.events = 'event3';
+					s.prop1 = s.eVar1 = s.prop2 = s.eVar2 = '';
+					s.prop3 = s.eVar3 = single.id;
+					getty.tl();
+				}
 			}
 		},
 
@@ -358,7 +362,7 @@
 			this.total = new media.View({
 				tagName: 'span',
 				className: 'search-results-total',
-				priority: -20 
+				priority: -20
 			});
 
 			// Wrap search input in container because IE10 ignores left/right absolute
@@ -402,13 +406,13 @@
 				editorialSortOrderFilter: new media.view.GettyEditorialSortOrderFilter({
 					controller: this.controller,
 					model: this.collection.propsQueue,
-					priority: 35 
+					priority: 35
 				}),
 
 				creativeSortOrderFilter: new media.view.GettyCreativeSortOrderFilter({
 					controller: this.controller,
 					model: this.collection.propsQueue,
-					priority: 35 
+					priority: 35
 				}),
 
 				orientationFilter: new media.view.GettyOrientationFilter({
@@ -453,7 +457,7 @@
 		createAttachments: function() {
 			// No-op the scroll handler, making paging manual.
 			// works better with a slow API.
-			media.view.Attachments.prototype.scroll = function(ev) { 
+			media.view.Attachments.prototype.scroll = function(ev) {
 				// Don't bubble upwards and out of the modal
 				if(ev) {
 					ev.stopPropagation();
@@ -473,7 +477,7 @@
 			});
 
 			this.views.set('.getty-results', this.attachments);
-			
+
 			// Create "More" button, because automatic paging is just too slow with
 			// this API.
 			this.moreButton = new media.view.GettyMore();
@@ -493,7 +497,7 @@
 			// Always keep add more link at the end of the list
 			if(this.attachments) {
 				this.attachments.$el.append(this.moreButton.$el);
-			}	
+			}
 
 			// Update the total
 			var total = this.collection.results.get('total');
@@ -523,13 +527,13 @@
 		addRefiningClass: function() {
 			this.$el.toggleClass('refining', !!this.controller.state().get('refining'));
 		},
-		
+
 		/**
 		 * Show loading state
 		 */
 		updateSearching: function(model) {
 			this.$el.toggleClass('search-loading', model.get('searching'));
-			
+
 			var button = this.controller.toolbar.view.$el.find('.media-button-searchButton');
 			if(model.get('searching')) {
 				button.attr('disabled', 'disabled');
@@ -542,7 +546,7 @@
 				var $el;
 
 				if(this.haveMore()) {
-					opts.color = '#aaa';
+					opts.color = '#ddd';
 					$el = this.moreButton.$el.find('.getty-more-spinner');
 				}
 				else {
@@ -588,31 +592,31 @@
 		 */
 		haveMore: function() {
 			return this.collection.length > 0 && this.collection.length < this.collection.results.get('total');
-		},	
+		},
 
 		/**
 		 * Add .have-more flag to container when there are more results
 		 * to be loaded.
 		 */
 		updateHaveMore: function(model, collection) {
-			this.$el.toggleClass('have-more', this.haveMore());		
-			this.$el.toggleClass('no-more', !this.haveMore());		
+			this.$el.toggleClass('have-more', this.haveMore());
+			this.$el.toggleClass('no-more', !this.haveMore());
 		}
 	});
-	
+
 	/**
 	 * Attachments
 	 */
 	media.view.GettyAttachments = media.view.Attachments.extend({
-    prepare: function() {
-      // Create all of the Attachment views, and replace
-      // the list in a single DOM operation.
-      if (this.collection.length) {
-        this.views.set(this.collection.map(this.createAttachmentView, this));
-      } else {
-        this.views.unset();
-      }
-    },
+		prepare: function() {
+			// Create all of the Attachment views, and replace
+			// the list in a single DOM operation.
+			if (this.collection.length) {
+				this.views.set(this.collection.map(this.createAttachmentView, this));
+			} else {
+				this.views.unset();
+			}
+		},
 	});
 
 	/**
@@ -631,6 +635,7 @@
 		template: media.template('getty-display-settings'),
 
 		initialize: function() {
+			getty.user.on('change:loggedIn', this.render, this);
 			this.model.on('change:sizes', this.render, this);
 			media.view.Settings.prototype.initialize.apply(this, arguments);
 		}
@@ -642,20 +647,19 @@
 	media.view.GettyTitleBar = media.View.extend({
 		template: media.template('getty-title-bar'),
 		className: 'getty-title-bar',
-		
+
 		initialize: function() {
 			if(this.controller.get('unsupported')) {
 				return;
 			}
 
 			// Create user view using the globalized, persistent user model
-			this.user = new media.view.GettyUser({
-				controller: this,
-				model: getty.user
-			});
+			if(gettyImages.isWPcom || this.controller.get('mode') == 'login') {
+				this.updateMode(this.controller, 'login');
+			}
 
-			getty.user.on('change:loggedIn', this.render, this);
-			this.views.set('.getty-user-session', this.user);
+			getty.user.settings.on('change:mode change:omniture-opt-in', this.render, this);
+			getty.user.settings.on('change:mode', this.updateMode, this);
 
 			$(document).off('.getty-user-panel-close');
 			$(document).on('click.getty-user-panel-close', function(ev) {
@@ -667,9 +671,34 @@
 			});
 		},
 
+		updateMode: function(model, mode) {
+			if(!mode) {
+				this.views.unset('.getty-user-session');
+				delete(this.user);
+			}
+			else if(mode == 'login' && !this.user) {
+				this.user = new media.view.GettyUser({
+					controller: this,
+					model: getty.user
+				});
+
+				this.views.set('.getty-user-session', this.user);
+				getty.user.on('change:loggedIn', this.render, this);
+			}
+		},
+
+		prepare: function() {
+			return this.controller.attributes;
+		},
+
 		events: {
 			'click .getty-about-link': 'showAbout',
 			'click .getty-login-toggle': 'toggleUserPanel',
+			'click .getty-mode-change': 'unsetMode'
+		},
+
+		unsetMode: function() {
+			getty.user.settings.unset('mode');
 		},
 
 		toggleUserPanel: function() {
@@ -687,6 +716,23 @@
 	media.view.GettySearch = media.view.Search.extend({
 		initialize: function() {
 			this.model.on('change:search', this.render, this);
+		},
+
+		ready: function() {
+			this.render();
+		},
+
+		render: function() {
+			media.view.Search.prototype.render.apply(this, arguments);
+
+			var term = this.model.get('search');
+
+			if(typeof term != 'string' || term.match(/^\s*$/)) {
+				this.$el.parents('.media-toolbar-primary').find('.media-button-searchButton').attr('disabled', 'disabled');
+			}
+			else {
+				this.$el.parents('.media-toolbar-primary').find('.media-button-searchButton').removeAttr('disabled');
+			}
 		}
 	});
 
@@ -766,11 +812,13 @@
 		className: 'getty-image-details',
 
 		events: {
-			'change .getty-attachment-details input': 'updateModel', // Propagate changes to Getty Form 
+			'change .getty-attachment-details input': 'updateModel', // Propagate changes to Getty Form
 		},
 
 		initialize: function() {
 			media.view.Attachment.Details.prototype.initialize.apply(this, arguments);
+
+			getty.user.on('change:loggedIn', this.render, this);
 
 			this.views.set('.getty-image-thumbnail', new media.view.GettyDetailImage({
 				model: this.model
@@ -837,7 +885,7 @@
 	 */
 	media.view.GettyDetailList = media.View.extend({
 		template: media.template('getty-image-details-list'),
-	
+
 		initialize: function() {
 			// Attach changes to login state to this view
 			this.model.on('change', this.render, this);
@@ -874,6 +922,7 @@
 				this.model.unset('LargestDownloadAuthorizations');
 				this.model.unset('DownloadAuthorizations');
 				this.model.unset('SizesDownloadableImage');
+				this.model.unset('DownloadSizeKey');
 			}
 		},
 
@@ -895,8 +944,10 @@
 
 		initialize: function() {
 			this.model.on('change:attachment change:downloading', this.render, this);
+
+			getty.user.on('change:loggedIn', this.render, this);
 			getty.user.on('change:loggedIn', this.model.fetch, this.model);
-			
+
 			this.model.on('change:attachment change:DownloadAuthorizations change:LargestDownloadAuthorizations change:DownloadSizeKey', this.updateAttachment, this);
 			this.updateAttachment();
 		},
@@ -923,9 +974,9 @@
 			media.View.prototype.render.apply(this, arguments);
 
 			if(this.model.get('downloading')) {
-				new Spinner({ 
-					className: 'getty-spinner', 
-					color: '#888', 
+				new Spinner({
+					className: 'getty-spinner',
+					color: '#888',
 					lines: 7,
 					length: 4,
 					radius: 5,
@@ -979,12 +1030,43 @@
 			'change [name="getty-login-username"]': 'updateUsername',
 			'click .button-primary': 'login',
 			'keyup input': 'loginOnEnter',
+			'keydown input': 'tabSwitch'
+			
 		},
 
 		loginOnEnter: function(ev) {
 			if(ev.keyCode == 13) {
 				ev.preventDefault();
 				this.login();
+			}
+		},
+		
+		tabSwitch: function(ev) {
+			if(ev.keyCode == 9) {
+				if(ev.shiftKey) {  // Backwards
+					if(ev.target.name == 'getty-login-password') {
+						this.$el.find('.getty-login-username input').focus();
+					}
+					else if(ev.target.name == 'getty-login-username') {
+						this.$el.find('.getty-login-button').focus();
+					}
+					else if($(ev.target).hasClass('getty-login-button')) {
+						this.$el.find('.getty-login-password input').focus();
+					}
+				}
+				else {
+					if(ev.target.name == 'getty-login-password') {
+						this.$el.find('.getty-login-button').focus();
+					}
+					else if(ev.target.name == 'getty-login-username') {
+						this.$el.find('.getty-login-password input').focus();
+					}
+					else if($(ev.target).hasClass('getty-login-button')) {
+						this.$el.find('.getty-login-username input').focus();
+					}
+				}
+				
+				ev.preventDefault();
 			}
 		},
 
@@ -1015,9 +1097,9 @@
 			media.View.prototype.render.apply(this, arguments);
 
 			if(this.model.get('loggingIn')) {
-				new Spinner({ 
+				new Spinner({
 					className: 'getty-spinner',
-					width: 2, 
+					width: 2,
 					lines: 7,
 					width: 4,
 					length: 3,
@@ -1040,7 +1122,7 @@
 		className: 'getty-toolbar media-toolbar',
 
 		events: {
-			'click .getty-comp-buttons .button-primary': 'insert',
+			'click .getty-comp-buttons .button-primary': 'insertComp',
 			'click .getty-comp-buttons .getty-cancel-link': 'cancel'
 		},
 
@@ -1072,9 +1154,10 @@
 		},
 
 		insertImage: function() {
-			var image = this.collection.single();
+			var image = this.collection.single(),
+				s = window.getty_s;
 
-			if(!image.get('attachment')) {
+			if(this.controller.state().get('mode') != 'embed' && !image.get('attachment')) {
 				// Show license agreement for inserting comp
 				if(!this.agreement) {
 
@@ -1088,8 +1171,30 @@
 				this.agreement.$el.fadeIn();
 			}
 			else {
+				if(s && image) {
+					s.events = 'event5';
+					s.prop1 = s.eVar1 = s.prop2 = s.eVar2 = '';
+					s.prop3 = s.eVar3 = image.get('id');
+					s.prop5 = s.eVar5 = this.controller.state().get('mode') === 'embed' ? "Embed" : "License";
+					getty.tl();
+				}
+
 				this.insert();
 			}
+		},
+
+		insertComp: function() {
+			var image = this.controller.state().get('selection').single(),
+				s = window.getty_s;
+
+			if(s && image) {
+				s.events = 'event4';
+				s.prop1 = s.eVar1 = s.prop2 = s.eVar2 = '';
+				s.prop3 = s.eVar3 = image.get('id');
+				getty.tl();
+			}
+
+			this.insert();
 		},
 
 		insert: function() {
@@ -1118,11 +1223,16 @@
 
 				var image = this.collection.single();
 
-				if(image.get('attachment')) {
-					this.button.model.set('text', getty.text.insertImage);
+				if(this.controller.state().get('mode') == 'embed') {
+					this.button.model.set('text', getty.text.embedImage);
 				}
 				else {
-					this.button.model.set('text', getty.text.insertComp);
+					if(image.get('attachment')) {
+						this.button.model.set('text', getty.text.insertImage);
+					}
+					else {
+						this.button.model.set('text', getty.text.insertComp);
+					}
 				}
 			}
 		},
@@ -1205,6 +1315,103 @@
 		clear: function( event ) {
 			event.preventDefault();
 			this.collection.reset();
+		}
+	});
+
+	/**
+	 * Welcome screen + opt-in
+	 */
+	media.view.GettyWelcome = media.View.extend({
+		tagName:   'div',
+		className: 'getty-welcome',
+		template:  media.template('getty-welcome'),
+
+		events: {
+			'click .getty-welcome-continue button': 'save',
+		},
+
+		save: function() {
+			var checked = this.$el.find('.getty-welcome-opt-in input').prop('checked');
+
+			if ( ! checked ) {
+				delete window.getty_s;
+			}
+			getty.user.settings.set('omniture-opt-in', checked);
+		},
+
+		prepare: function() {
+			var optIn = getty.user.settings.get('omniture-opt-in');
+
+			if(optIn === undefined) {
+				optIn = true;
+			}
+
+			return {
+				optIn: optIn
+			}
+		},
+	});
+
+	/**
+	 * Mode selection
+	 */
+	media.view.GettyModeSelect = media.View.extend({
+		tagName:   'div',
+		className: 'getty-choose-mode',
+		template:  media.template('getty-choose-mode'),
+
+		events: {
+			'click .getty-embedded-mode': 'chooseEmbeddedMode',
+			'click .getty-login-mode': 'chooseLoginMode'
+		},
+
+		initialize: function() {
+			media.View.prototype.initialize.apply(this, arguments);
+
+			this.model.on('change:mode', this.render, this);
+		},
+
+		ready: function() {
+			this.$el.find('.getty-login-username').focus();
+		},
+
+		render: function() {
+			var self = this;
+
+			if(this.model.get('mode') == 'login') {
+				this.views.set('.getty-login-panel', new media.view.GettyUser({
+					controller: this,
+					model: getty.user
+				}));
+
+				setTimeout(function() {
+					var username = self.$el.find('.getty-login-username input').val();
+
+					if(!username) {
+						self.$el.find('.getty-login-username input').focus();
+					}
+					else {
+						self.$el.find('.getty-login-password input').focus();
+					}
+				}, 20);
+			}
+			else {
+				this.views.unset('.getty-login-panel');
+			}
+
+			media.View.prototype.render.apply(this, arguments);
+		},
+
+		prepare: function() {
+			return this.controller.state().attributes;
+		},
+
+		chooseEmbeddedMode: function() {
+			getty.user.settings.set('mode', 'embed');
+		},
+
+		chooseLoginMode: function() {
+			getty.user.settings.set('mode', 'login');
 		}
 	});
 

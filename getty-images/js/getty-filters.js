@@ -37,7 +37,7 @@
 						if(!option) { // IE8 gives me an extra undefined value here?
 							return;
 						}
-						var $radio = $('<input type="radio" />').attr('name', this.prop).val(option.value); 
+						var $radio = $('<input type="radio" />').attr('name', this.prop).val(option.value);
 						this.$el.append($('<label>')
 							.text(option.text)
 							.prepend($radio));
@@ -61,12 +61,10 @@
 			if(this.model) {
 				this.model.on('change', this.select, this);
 
-				var defaults = {};
-				defaults[this.prop] = this.value;
+        if(!getty.user.settings.get(this.prop))
+          getty.user.settings.set(this.prop, this.value);
 
-				settings = getty.userSettings(defaults);
-
-				this.model.set(this.prop, settings[this.prop]);
+				this.model.set(this.prop, getty.user.settings.get(this.prop));
 				this.select();
 			}
 		},
@@ -94,7 +92,7 @@
 			}
 
 			// Save filter to persist with user
-			getty.updateUserSetting(this.prop, this.model.get(this.prop));
+			getty.user.settings.set(this.prop, this.model.get(this.prop));
 		},
 
 		// Restore filter state from model
@@ -112,7 +110,7 @@
 
 				case 'set':
 					this.$el.find('input').removeAttr('checked');
-	
+
 					for(var i = 0; i < value.length; i++) {
 						this.$el.find('input[value="' + value[i] + '"]').attr('checked', 'checked');
 					}
@@ -137,7 +135,7 @@
 		text: getty.text.imageType,
 		type: 'set',
 		prop: 'GraphicStyles',
-		values: [		
+		values: [
 			{
 				text: getty.text.photography,
 				value: "Photography"
@@ -434,7 +432,7 @@
 					count: view.model.get('count')
 				}
 			}), 'count'), function(o) {
-				$ul.prepend(this._viewsById[o.id].$el);	
+				$ul.prepend(this._viewsById[o.id].$el);
 			}, this);
 		}
 	});
@@ -518,7 +516,7 @@
 		template: wp.template('getty-result-refinement'),
 		tagName: 'li',
 		className: 'getty-refinement-item',
-		
+
 		events: {
 			'click .getty-remove-refinement': 'popRefinement',
 		},
