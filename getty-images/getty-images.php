@@ -300,7 +300,10 @@ class Getty_Images {
 		}
 
 		if( $this->contains_comp( $post->post_content ) ) {
-			echo '<div class="error getty-images-message"><p>' . __( "<strong>WARNING</strong>: You may not publish posts with Getty Images comps. Download the image first in order to include it into your post.", 'getty-images' ) . '</p></div>';
+			// can't use esc_html__ since it would break the HTML tags in the string to be translated.
+			echo '<div class="error getty-images-message"><p>' . wp_kses_post(
+				__( "<strong>WARNING</strong>: You may not publish posts with Getty Images comps. Download the image first in order to include it into your post.", 'getty-images' ) )
+			. '</p></div>';
 		}
 	}
 
