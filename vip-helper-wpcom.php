@@ -909,3 +909,10 @@ function wpcom_vip_disable_hovercards() {
 	// removes associated scripts
 	remove_action( 'wp_footer', 'grofiles_enable_noinit' );
 }
+
+/**
+ * Disables the WordPress.com-specific Customizer and Custom Design
+ */
+function wpcom_vip_disable_custom_customizer() {
+	add_filter( 'enable_custom_customizer', '__return_false' );
+}
