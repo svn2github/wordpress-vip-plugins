@@ -6,5 +6,5 @@
  * we don't want it to have access to admin cookies.
  */
 add_filter( 'getty_images_s_code_js_url', function() {
-	return http() . '://s0.wp.com/wp-content/themes/vip/plugins/getty-images/js/s_code.js';
+	return '//s0.wp.com/wp-content/themes/vip/plugins/getty-images/js/s_code.js';
 } );
