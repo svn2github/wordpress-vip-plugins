@@ -3,7 +3,7 @@
 add_action( 'init', function() {
 
 	/**
-	 * Register your shorcode as you would normally.
+	 * Register your shortcode as you would normally.
 	 * This is a simple example for a pullquote with a citation.
 	 */
 	add_shortcode( 'pullquote', function( $attr, $content = '' ) {
@@ -51,9 +51,10 @@ add_action( 'init', function() {
 					'type'  => 'textarea',
 				),
 				array(
-					'label' => 'Cite',
-					'attr'  => 'source',
-					'type'  => 'text',
+					'label'       => 'Cite',
+					'attr'        => 'source',
+					'type'        => 'text',
+					'placeholder' => 'Firstname Lastname',
 				),
 			),
 		)

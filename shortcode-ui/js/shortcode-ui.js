@@ -15,10 +15,11 @@ var Shortcode_UI;
 	 */
 	sui.models.ShortcodeAttribute = Backbone.Model.extend({
 		defaults: {
-			attr:  '',
-			label: '',
-			type:  '',
-			value: '',
+			attr:        '',
+			label:       '',
+			type:        '',
+			value:       '',
+			placeholder: '',
 		},
 	});
 
@@ -431,7 +432,7 @@ var Shortcode_UI;
 	 * Generic shortcode mce view constructor.
 	 * This is cloned and used by each shortcode when registering a view.
 	 */
-	sui.utils.shorcodeViewConstructor = {
+	sui.utils.shortcodeViewConstructor = {
 
 		View: {
 
@@ -666,7 +667,7 @@ var Shortcode_UI;
 
 			shortcodeString = decodeURIComponent( $(node).attr( 'data-wpview-text' ) );
 
-			var megaRegex = /\[(\S+)([^\]]+)?\]([^\[]*)?(\[\/(\S+?)\])?/;
+			var megaRegex = /\[([^\s\]]+)([^\]]+)?\]([^\[]*)?(\[\/(\S+?)\])?/;
 			var matches = shortcodeString.match( megaRegex );
 
 			if ( ! matches ) {
@@ -681,7 +682,7 @@ var Shortcode_UI;
 
 			currentShortcode = defaultShortcode.clone();
 
-			if ( typeof( matches[2] ) != undefined ) {
+			if ( matches[2] ) {
 
 				attributeMatches = matches[2].match(/(\S+?=".*?")/g ) || [];
 
@@ -729,7 +730,7 @@ var Shortcode_UI;
 			// Note - clone the constructor.
 			wp.mce.views.register(
 				shortcode.get('shortcode_tag'),
-				$.extend( true, {}, sui.utils.shorcodeViewConstructor )
+				$.extend( true, {}, sui.utils.shortcodeViewConstructor )
 			);
 
 		} );
