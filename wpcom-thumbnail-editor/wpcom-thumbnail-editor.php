@@ -495,11 +495,13 @@ class WPcom_Thumbnail_Editor {
 		global $_wp_additional_image_sizes;
 
 		# /wp-content/mu-plugins/wpcom-media.php
-		remove_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
+		$had_filter = remove_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
 
 		$sizes = get_intermediate_image_sizes();
 
-		add_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
+		if ( $had_filter ) {
+			add_filter( 'intermediate_image_sizes', 'wpcom_intermediate_sizes' );
+		}
 
 		if ( $cropped_only ) {
 			$filtered_sizes = array();
