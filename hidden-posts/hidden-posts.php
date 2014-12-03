@@ -63,7 +63,7 @@ class Hidden_Posts {
         $checked = in_array( $post->ID, self::get_posts() );
 
         wp_nonce_field( self::NONCE_KEY, self::NONCE_KEY );
-        printf( '<div id="superawesome-box" class="misc-pub-section"><label><input type="checkbox" name="%s" %s> Hide Post</label></div>', self::META_KEY, checked( $checked, true, false ) );
+        printf( '<div id="superawesome-box" class="misc-pub-section"><label><input type="checkbox" name="%s" %s> %s</label></div>', self::META_KEY, checked( $checked, true, false ), esc_html( apply_filters( 'hidden_posts_checkbox_text', 'Hide Post' ) ) );
     }
 
     /**
