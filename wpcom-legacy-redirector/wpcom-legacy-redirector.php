@@ -69,7 +69,7 @@ class WPCOM_Legacy_Redirector {
  	 */
 	static function insert_legacy_redirect( $from_url, $redirect_to ) {
 
-		$from_url = esc_url_raw( $from_url );
+		$from_url = parse_url( $from_url, PHP_URL_PATH );
 		$from_url_hash = self::get_url_hash( $from_url );
 
 		$args = array(
