@@ -3,6 +3,28 @@
 class WPCOM_Legacy_Redirector_CLI extends WP_CLI_Command {
 
 	/**
+ 	 * Insert a single redirect
+ 	 *
+ 	 * @subcommand insert-redirect
+ 	 * @synopsis <from_url> <to_url>
+ 	 */
+	function insert_redirect( $args, $assoc_args ) {
+		$from_url = esc_url_raw( $args[0] );
+
+		if ( is_numeric( $args[1] ) )
+			$to_url = absint( $args[1] );
+		else
+			$to_url = esc_url_raw( $args[1] );
+
+		$inserted = WPCOM_Legacy_Redirector::insert_legacy_redirect( $from_url, $to_url );
+
+		if ( ! $inserted )
+			WP_CLI::error( sprintf( "Couldn't insert %s -> %s", $from_url, $to_url ) );
+
+		WP_CLI::success( sprintf( "Inserted %s -> %s", $from_url, $to_url ) );
+	}
+
+	/**
  	 * Bulk import redirects from URLs stored as meta values for posts.
  	 *
  	 * @subcommand import-from-meta
