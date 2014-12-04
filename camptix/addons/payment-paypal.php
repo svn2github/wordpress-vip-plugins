@@ -18,6 +18,10 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 	public $description = 'PayPal Express Checkout';
 	public $supported_currencies = array( 'AUD', 'CAD', 'EUR', 'GBP', 'JPY', 'USD', 'NZD', 'CHF', 'HKD', 'SGD', 'SEK', 
 		'DKK', 'PLN', 'NOK', 'HUF', 'CZK', 'ILS', 'MXN', 'BRL', 'MYR', 'PHP', 'TWD', 'THB', 'TRY');
+	public $supported_features = array(
+		'refund-single' => true,
+		'refund-all' => true,
+	);
 
 	/**
 	 * We can have an array to store our options.
@@ -198,14 +202,16 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 		if ( ! isset( $_REQUEST['tix_payment_method'] ) || 'paypal' != $_REQUEST['tix_payment_method'] )
 			return;
 
-		if ( 'payment_cancel' == get_query_var( 'tix_action' ) )
-			$this->payment_cancel();
+		if ( isset( $_GET['tix_action'] ) ) {
+			if ( 'payment_cancel' == $_GET['tix_action'] )
+				$this->payment_cancel();
 
-		if ( 'payment_return' == get_query_var( 'tix_action' ) )
-			$this->payment_return();
+			if ( 'payment_return' == $_GET['tix_action'] )
+				$this->payment_return();
 
-		if ( 'payment_notify' == get_query_var( 'tix_action' ) )
-			$this->payment_notify();
+			if ( 'payment_notify' == $_GET['tix_action'] )
+				$this->payment_notify();
+		}
 	}
 
 	/**
@@ -283,7 +289,7 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 			$transaction_id = $payload['parent_txn_id'];
 
 		if ( empty( $transaction_id ) ) {
-			$this->log( __( 'Received old-style IPN request with an empty transaction id.', 'camptix' ), null, $payload );
+			$this->log( 'Received old-style IPN request with an empty transaction id.', null, $payload );
 			return;
 		}
 
@@ -303,14 +309,14 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 		) );
 
 		if ( ! $attendees ) {
-			$this->log( __( 'Received old-style IPN request. Could not match to attendee by transaction id.', 'camptix' ), null, $payload );
+			$this->log( 'Received old-style IPN request. Could not match to attendee by transaction id.', null, $payload );
 			return;
 		}
 
 		$payment_token = get_post_meta( $attendees[0]->ID, 'tix_payment_token', true );
 
 		if ( ! $payment_token ) {
-			$this->log( __( 'Received old-style IPN request. Could find a payment token by transaction id.', 'camptix' ), null, $payload );
+			$this->log( 'Received old-style IPN request. Could find a payment token by transaction id.', null, $payload );
 			return;
 		}
 
@@ -331,6 +337,8 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 			'Denied' => CampTix_Plugin::PAYMENT_STATUS_FAILED,
 			'Refunded' => CampTix_Plugin::PAYMENT_STATUS_REFUNDED,
 			'Reversed' => CampTix_Plugin::PAYMENT_STATUS_REFUNDED,
+			'Instant' => CampTix_Plugin::PAYMENT_STATUS_REFUNDED,
+			'None' => CampTix_Plugin::PAYMENT_STATUS_REFUND_FAILED,
 		);
 
 		// Return pending for unknows statuses.
@@ -458,6 +466,7 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 
 			$payload = array(
 				'METHOD' => 'DoExpressCheckoutPayment',
+				'PAYMENTREQUEST_0_PAYMENTACTION' => 'Sale',
 				'PAYMENTREQUEST_0_ALLOWEDPAYMENTMETHOD' => 'InstantPaymentOnly', // @todo allow echecks with an option
 				'TOKEN' => $paypal_token,
 				'PAYERID' => $payer_id,
@@ -480,7 +489,7 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 			$request = $this->request( $payload );
 			$txn = wp_parse_args( wp_remote_retrieve_body( $request ) );
 
-			if ( isset( $txn['ACK'], $txn['PAYMENTINFO_0_PAYMENTSTATUS'] ) && $txn['ACK'] == 'Success' ) {
+			if ( isset( $txn['ACK'], $txn['PAYMENTINFO_0_PAYMENTSTATUS'] ) && in_array( $txn['ACK'], array( 'Success', 'SuccessWithWarning' ) ) ) {
 				$txn_id = $txn['PAYMENTINFO_0_TRANSACTIONID'];
 				$payment_status = $txn['PAYMENTINFO_0_PAYMENTSTATUS'];
 
@@ -497,6 +506,10 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 						'raw' => $txn,
 					),
 				);
+
+				if ( isset( $txn['L_ERRORCODE0'] ) && '11607' == $txn['L_ERRORCODE0'] ) {
+					$this->log( 'Duplicate request warning from PayPal.', null, $txn );
+				}
 
 				return $this->payment_result( $payment_token, $this->get_status_from_string( $payment_status ), $payment_data );
 
@@ -528,6 +541,7 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 	 * result back to CampTix immediately.
 	 */
 	function payment_checkout( $payment_token ) {
+		/** @var CampTix_Plugin $camptix */
 		global $camptix;
 
 		if ( ! $payment_token || empty( $payment_token ) )
@@ -559,6 +573,11 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 			'SOLUTIONTYPE' => 'Sole',
 		);
 
+		// See https://developer.paypal.com/webapps/developer/docs/classic/api/merchant/SetExpressCheckout_API_Operation_NVP/
+		$locale_code = _x( 'default', 'PayPal locale code, leave default to guess', 'camptix' );
+		if ( ! empty( $locale_code ) && 'default' != $locale_code )
+			$payload['LOCALECODE'] = $locale_code;
+
 		// Replace creds from a predefined account if any.
 		$options = array_merge( $this->options, $this->get_predefined_account( $this->options['api_predef'] ) );
 
@@ -567,6 +586,12 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 
 		$request = $this->request( $payload );
 		$response = wp_parse_args( wp_remote_retrieve_body( $request ) );
+		$camptix->log(
+			'Requesting PayPal transaction token',
+			null,
+			array( 'camptix_payment_token' => $payment_token, 'request_payload' => $payload, 'response' => $request )
+		);
+
 		if ( isset( $response['ACK'], $response['TOKEN'] ) && 'Success' == $response['ACK'] ) {
 			$token = $response['TOKEN'];
 			$url = $options['sandbox'] ? 'https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_express-checkout' : 'https://www.paypal.com/cgi-bin/webscr?cmd=_express-checkout';
@@ -575,6 +600,11 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 		} else {
 			$this->log( 'Error during SetExpressCheckout.', null, $response );
 			$error_code = isset( $response['L_ERRORCODE0'] ) ? $response['L_ERRORCODE0'] : 0;
+			$error_message = isset( $response['L_LONGMESSAGE0'] ) ? $response['L_LONGMESSAGE0'] : '';
+
+			if ( ! empty( $error_message ) )
+				$camptix->error( sprintf( __( 'PayPal error: %s (%d)', 'camptix' ), $error_message, $error_code ) );
+
 			return $this->payment_result( $payment_token, CampTix_Plugin::PAYMENT_STATUS_FAILED, array(
 				'error_code' => $error_code,
 				'raw' => $request,
@@ -592,11 +622,11 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 
 		$i = 0;
 		foreach ( $order['items'] as $item ) {
-			$payload['L_PAYMENTREQUEST_0_NAME' . $i] = substr( $event_name . ': ' . $item['name'], 0, 127 );
-			$payload['L_PAYMENTREQUEST_0_DESC' . $i] = substr( $item['description'], 0, 127 );
+			$payload['L_PAYMENTREQUEST_0_NAME' . $i]   = substr( strip_tags( $event_name . ': ' . $item['name'] ), 0, 127 );
+			$payload['L_PAYMENTREQUEST_0_DESC' . $i]   = substr( strip_tags( $item['description'] ), 0, 127 );
 			$payload['L_PAYMENTREQUEST_0_NUMBER' . $i] = $item['id'];
-			$payload['L_PAYMENTREQUEST_0_AMT' . $i] = $item['price'];
-			$payload['L_PAYMENTREQUEST_0_QTY' . $i] = $item['quantity'];
+			$payload['L_PAYMENTREQUEST_0_AMT' . $i]    = $item['price'];
+			$payload['L_PAYMENTREQUEST_0_QTY' . $i]    = $item['quantity'];
 			$i++;
 		}
 
@@ -606,6 +636,79 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 		$payload['PAYMENTREQUEST_0_AMT'] = $order['total'];
 		$payload['PAYMENTREQUEST_0_CURRENCYCODE'] = $this->camptix_options['currency'];
 		return $payload;
+	}
+
+	/**
+	 * Submits a single, user-initiated refund request to PayPal and returns the result
+	 */
+	function payment_refund( $payment_token ) {
+		global $camptix;
+
+		$result = $this->send_refund_request( $payment_token );
+
+		if ( CampTix_Plugin::PAYMENT_STATUS_REFUNDED != $result['status'] ) {
+			$error_code = isset( $result['refund_transaction_details']['L_ERRORCODE0'] ) ? $result['refund_transaction_details']['L_ERRORCODE0'] : 0;
+			$error_message = isset( $result['refund_transaction_details']['L_LONGMESSAGE0'] ) ? $result['refund_transaction_details']['L_LONGMESSAGE0'] : '';
+
+			if ( ! empty( $error_message ) )
+				$camptix->error( sprintf( __( 'PayPal error: %s (%d)', 'camptix' ), $error_message, $error_code ) );
+		}
+
+		$refund_data = array(
+			'transaction_id'             => $result['transaction_id'],
+			'refund_transaction_id'      => $result['refund_transaction_id'],
+			'refund_transaction_details' => array(
+				'raw' => $result['refund_transaction_details'],
+			),
+		);
+
+		return $this->payment_result( $payment_token, $result['status'] , $refund_data );
+	}
+
+	/*
+	 * Sends a request to PayPal to refund a transaction
+	 */
+	function send_refund_request( $payment_token ) {
+		global $camptix;
+		$result = array(
+			'token' => $payment_token,
+			'transaction_id' => $camptix->get_post_meta_from_payment_token( $payment_token, 'tix_transaction_id' )
+		);
+
+		// Craft and submit the request
+		$payload = array(
+			'METHOD' => 'RefundTransaction',
+			'TRANSACTIONID' => $result['transaction_id'],
+			'REFUNDTYPE' => 'Full',
+		);
+		$response = $this->request( $payload );
+
+		// Process PayPal's response
+		if ( is_wp_error( $response ) ) {
+			// HTTP request failed, so mimic the response structure to provide a consistent response format
+			$response = array(
+				'ACK' => 'Failure',
+				'L_ERRORCODE0' => 0,
+				'L_LONGMESSAGE0' => __( 'Request did not complete successfully', 'camptix' ),	// don't reveal the raw error message to the user in case it contains sensitive network/server/application-layer data. It will be logged instead later on.
+				'raw' => $response,
+			);
+		} else {
+			$response = wp_parse_args( wp_remote_retrieve_body( $response ) );
+		}
+
+		if ( isset( $response['ACK'], $response['REFUNDTRANSACTIONID'] ) && 'Success' == $response['ACK'] ) {
+			$result['refund_transaction_id'] = $response['REFUNDTRANSACTIONID'];
+			$result['refund_transaction_details'] = $response;
+			$result['status'] = $this->get_status_from_string( $response['REFUNDSTATUS'] );
+		} else {
+			$result['refund_transaction_id'] = false;
+			$result['refund_transaction_details'] = $response;
+			$result['status'] = CampTix_Plugin::PAYMENT_STATUS_REFUND_FAILED;
+
+			$this->log( 'Error during RefundTransaction.', null, $response );
+		}
+
+		return $result;
 	}
 
 	/**
@@ -624,7 +727,14 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 			'VERSION' => '88.0', // https://cms.paypal.com/us/cgi-bin/?cmd=_render-content&content_ID=developer/e_howto_api_nvp_PreviousAPIVersionsNVP
 		), (array) $payload );
 
-		return wp_remote_post( $url, array( 'body' => $payload, 'timeout' => 20 ) );
+		$response = wp_remote_post( $url, array( 'body' => $payload, 'timeout' => apply_filters( 'camptix_paypal_timeout', 20 ), 'httpversion' => '1.1' ) );
+
+		$status = wp_parse_args( wp_remote_retrieve_body( $response ) );
+		if ( isset( $status['ACK'] ) && 'SuccessWithWarning' == $status['ACK'] ) {
+			$this->log( 'Warning during PayPal request', null, $response );
+		}
+
+		return $response;
 	}
 
 	/**
@@ -636,7 +746,7 @@ class CampTix_Payment_Method_PayPal extends CampTix_Payment_Method {
 
 		$url = $options['sandbox'] ? 'https://www.sandbox.paypal.com/cgi-bin/webscr' : 'https://www.paypal.com/cgi-bin/webscr';
 		$payload = 'cmd=_notify-validate&' . http_build_query( $payload );
-		return wp_remote_post( $url, array( 'body' => $payload, 'timeout' => 20 ) );
+		return wp_remote_post( $url, array( 'body' => $payload, 'timeout' => apply_filters( 'camptix_paypal_timeout', 20 ), 'httpversion' => '1.1' ) );
 	}
 }
 

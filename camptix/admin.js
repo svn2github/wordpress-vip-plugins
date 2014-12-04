@@ -186,7 +186,7 @@ window.camptix = window.camptix || { models: {}, views: {} };
 				var value = this.$type.val();
 				var $row = this.$( '.tix-add-question-values-row' );
 
-				if ( value.match( /radio|checkbox|select/ ) )
+				if ( value && value.match( /radio|checkbox|select/ ) )
 					$row.show();
 				else
 					$row.hide();
@@ -332,7 +332,7 @@ window.camptix = window.camptix || { models: {}, views: {} };
 				var items = $( '.tix-ui-sortable .tix-item-sortable' );
 				for ( var i = 0; i < items.length; i++ ) {
 					var cid = $( items[i] ).data( 'tix-cid' );
-					var model = camptix.questions.getByCid( cid );
+					var model = camptix.questions.get( cid );
 					model.set( 'order', i + 1 );
 				}
 			} );
@@ -356,7 +356,7 @@ window.camptix = window.camptix || { models: {}, views: {} };
 			firstDay: 1
 		});
 
-		// Show or hide the refunds date field in Setup > Beta.
+		// Show or hide the refunds date field in Setup > General.
 		$('#tix-refunds-enabled-radios input').change(function() {
 			if ( $(this).val() > 0 )
 				$('#tix-refunds-date').show();
@@ -397,5 +397,46 @@ window.camptix = window.camptix || { models: {}, views: {} };
 			e.preventDefault();
 			return false;
 		});
+
+
+		/*
+		 * Track Attendance addon
+		 */
+
+		// Mark bulk attendance
+		$( '#posts-filter' ).on( 'click', 'a.tix-mark-attended', function( event ) {
+			var cellTemplate,
+				cell       = $( this ).parent(),
+				attendeeID = $( this ).data( 'attendee-id' ),
+				nonce      = $( this ).data( 'nonce' );
+
+			event.preventDefault();
+
+			// Show a spinner until the AJAX call is done
+			cellTemplate = _.template( $( '#tmpl-tix-attendance-spinner' ).html(), null, camptix.template_options );
+			cell.html( cellTemplate( {} ) );
+
+			// Send the request to mark the ticket holder as having actually attended
+			$.post(
+				ajaxurl,
+
+				{
+					action:      'tix_mark_as_attended',
+					attendee_id: attendeeID,
+					nonce:       nonce
+				},
+
+				function( response ) {
+					if ( response.hasOwnProperty( 'success' ) && true === response.success ) {
+						cellTemplate = _.template( $( '#tmpl-tix-attendance-confirmed' ).html(), null, camptix.template_options );
+						cell.html( cellTemplate( {} ) );
+					} else {
+						cellTemplate = _.template( $( '#tmpl-tix-mark-as-attended' ).html(), null, camptix.template_options );
+						cell.html( cellTemplate( { 'attendee_id' : attendeeID, 'nonce': nonce } ) );
+					}
+				}
+			);
+		} );
+
 	});
 }(jQuery));

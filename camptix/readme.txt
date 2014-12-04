@@ -1,11 +1,12 @@
 === CampTix Event Ticketing ===
-Contributors: automattic, kovshenin, andreamiddleton
-Tags: ticketing, event ticketing
+Contributors:      automattic, kovshenin, andreamiddleton, iandunn
+Tags:              ticketing, event ticketing
 Requires at least: 3.5
-Tested up to: 3.5.1
-Stable tag: 1.3.1
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to:      4.1
+Stable tag:        1.4.2
+Donate link:       http://wordpressfoundation.org/donate/
+License:           GPLv2 or later
+License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
 Simple and Flexible ticketing brought to you by WordCamp.org
 
@@ -19,6 +20,7 @@ CampTix is an easy to use and flexible event ticketing plugin created by WordCam
 * Export attendees data into CSV or XML
 * Public attendees list
 * Revenue reports and summaries
+* Refund purchased tickets
 * and much more!
 
 Feel free to post your feature requests, issues and pull requests to [CampTix on GitHub](https://github.com/automattic/camptix "CampTix on GitHub").
@@ -28,7 +30,7 @@ Feel free to post your feature requests, issues and pull requests to [CampTix on
 1. Download and extract CampTix in your `wp-content/plugins` directory
 1. Activate the plugin through the Plugins menu in WordPress
 1. Go to Tickets - Setup to configure your event settings and payment methods
-1. Creat a ticket or two, place the `[camptix]` shortcode on a Page
+1. Create a ticket or two, place the `[camptix]` shortcode on a Page
 1. Start selling!
 
 For more information, visit the [Getting Started](https://github.com/automattic/camptix/wiki "Getting Started") guide on CampTix Wiki.
@@ -45,7 +47,37 @@ For more information, visit the [Getting Started](https://github.com/automattic/
 
 == Changelog ==
 
-= 1.3.1
+= 1.4.2 =
+* Added a nonce check for privacy and attendance toggles for better security
+* Various small i18n fixes and language updates
+* Various new actions and filters for more flexibility
+* New addon that allows admins to track attendance
+* New addon that allows admins to require users to be logged in to purchase a ticket
+* Removed pending attendees from revenue reports
+* [Full changelog](https://github.com/Automattic/camptix/compare/80b2d7997272aea68fa0cfb509d3d72f15cec18a...a9487f954f3013e698e7991c8f12e86ae85234ae)
+
+= 1.4.1 =
+* Updated PayPal module to use HTTP 1.1 now that PayPal requires it. Fixes "A payment error has occurred" errors.
+* Added support for Eastern name ordering.
+* Updated Japanese and French translations.
+* Add Slovak translation.
+* Fixes E_STRICT notices in PHP 5.4.
+* Adds [camptix_stats] shortcode.
+* [Full changelog](https://github.com/Automattic/camptix/compare/6c2ff5413d6294b0fca6abc0ebd9124a6b9399f8...e71760abbfb025f4184e329e4c029c694a4d3a01)
+
+= 1.4 =
+* Attendees can automatically refund their tickets
+* More e-mail templates are customizable
+* Added translations for Swedish (Jonathan De Jong), German (Raphael Michel), Japanese (Naoko Takano), Russian (Konstantin Kovshenin), and Portuguese (Rafael Funchal)
+* New actions and filters for customization
+* Fixed a bug where the [camptix] shortcode would break when used on the homepage
+* Reintroduced the Refund All Tickets feature
+* Handles duplicate requests from PayPal more gracefully, so attendees aren't set to a failed status
+* Added a checkbox to toggle the Attendee privacy feature
+* Added an upgrade command for WP-CLI
+* [Full changelog](https://github.com/Automattic/camptix/compare/826cc2b...a53af6d)
+
+= 1.3.1 =
 * Better escaping and sanitization
 * Better error messages during failed payments
 * Fixed a bug where the shortcode would display in plain text

@@ -11,6 +11,10 @@ class CampTix_Payment_Method extends CampTix_Addon {
 	public $description = false;
 
 	public $supported_currencies = false;
+	public $supported_features = array(
+		'refund-single' => false,
+		'refund-all' => false,
+	);
 
 	function __construct() {
 		global $camptix;
@@ -40,6 +44,10 @@ class CampTix_Payment_Method extends CampTix_Addon {
 		return ( in_array( $currency, $this->supported_currencies ) );
 	}
 
+	function supports_feature( $feature ) {
+		return array_key_exists( $feature, $this->supported_features ) ? $this->supported_features[ $feature ] : false;
+	}
+
 	function _camptix_get_payment_method_by_id( $payment_method, $id ) {
 		if ( $this->id == $id )
 			$payment_method = $this;
@@ -56,8 +64,8 @@ class CampTix_Payment_Method extends CampTix_Addon {
 		if ( in_array( $this->camptix_options['currency'], $this->supported_currencies ) )
 			return $this->field_yesno( $args );
 
+		_e( 'Disabled', 'camptix' );
 		?>
-		Disabled
 		<p class="description"><?php printf( __( '%s is not supported by this payment method.', 'camptix' ), '<code>' . $this->camptix_options['currency'] . '</code>' ); ?></p>
 		<?php
 	}
@@ -82,6 +90,27 @@ class CampTix_Payment_Method extends CampTix_Addon {
 
 	function payment_checkout( $payment_token ) {
 		die( __FUNCTION__ . ' not implemented' );
+	}
+
+	function payment_refund( $payment_token ) {
+		global $camptix;
+		$refund_data = array();
+		$camptix->log( __FUNCTION__ . ' not implemented in payment module.', 0, null, 'refund' );
+
+		return $this->payment_result( $payment_token, CampTix_Plugin::PAYMENT_STATUS_REFUND_FAILED, $refund_data );
+	}
+
+	function send_refund_request( $payment_token ) {
+		global $camptix;
+		$result = array(
+			'token' => $payment_token,
+			'status' => CampTix_Plugin::PAYMENT_STATUS_REFUND_FAILED,
+			'refund_transaction_id' => null,
+			'refund_transaction_details' => array()
+		);
+
+		$camptix->log( __FUNCTION__ . ' not implemented in payment module.', 0, null, 'refund' );
+		return $result;
 	}
 
 	function payment_settings_fields() {
@@ -144,7 +173,16 @@ class CampTix_Payment_Method extends CampTix_Addon {
 		if ( ! $attendees )
 			return array();
 
-		return (array) get_post_meta( $attendees[0]->ID, 'tix_order', true );
+		return $this->get_order_by_attendee_id( $attendees[0]->ID );
+	}
+
+	function get_order_by_attendee_id( $attendee_id ) {
+		$order = (array) get_post_meta( $attendee_id, 'tix_order', true );
+		if ( $order ) {
+			$order['attendee_id'] = $attendee_id;
+		}
+		return $order;
+
 	}
 
 	/**

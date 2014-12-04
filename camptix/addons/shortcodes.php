@@ -17,7 +17,7 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 		add_action( 'save_post', array( $this, 'save_post' ) );
 		add_action( 'shutdown', array( $this, 'shutdown' ) );
 		add_shortcode( 'camptix_attendees', array( $this, 'shortcode_attendees' ) );
-
+		add_shortcode( 'camptix_stats', array( $this, 'shortcode_stats' ) );
 		add_shortcode( 'camptix_private', array( $this, 'shortcode_private' ) );
 		add_action( 'template_redirect', array( $this, 'shortcode_private_template_redirect' ) );
 	}
@@ -60,17 +60,17 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 	/**
 	 * Callback for the [camptix_attendees] shortcode.
 	 */
-	function shortcode_attendees( $atts ) {
+	function shortcode_attendees( $attr ) {
 		global $post, $camptix;
 
-		extract( shortcode_atts( array(
-			'attr' => 'value',
+		$attr = shortcode_atts( array(
 			'order' => 'ASC',
 			'orderby' => 'title',
 			'posts_per_page' => 10000,
 			'tickets' => false,
 			'columns' => 3,
-		), $atts ) );
+			'questions' => '',
+		), $attr, 'camptix_attendees' );
 
 		$camptix_options = $camptix->get_options();
 
@@ -80,7 +80,7 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 		$start = microtime(true);
 
 		// Serve from cache if cached copy is fresh.
-		$transient_key = md5( 'tix-attendees' . print_r( $atts, true ) );
+		$transient_key = md5( 'tix-attendees' . serialize( $attr ) );
 		if ( false !== ( $cached = get_transient( $transient_key ) ) ) {
 			if ( ! is_array( $cached ) )
 				return $cached; // back-compat
@@ -91,27 +91,31 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 		}
 
 		// Cache for a month if archived or less if active.
-		$cache_time = ( $camptix_options['archived'] ) ? 60 * 60 * 24 * 30 : 60 * 60;
+		$cache_time = ( $camptix_options['archived'] ) ? DAY_IN_SECONDS * 30 : HOUR_IN_SECONDS;
 		$query_args = array();
 		ob_start();
 
 		// @todo validate atts here
-		if ( ! in_array( strtolower( $order ), array( 'asc', 'desc' ) ) )
-			$order = 'asc';
+		if ( ! in_array( strtolower( $attr['order'] ), array( 'asc', 'desc' ) ) )
+			$attr['order'] = 'asc';
 
-		if ( ! in_array( strtolower( $orderby ), array( 'title', 'date' ) ) )
-			$orderby = 'title';
+		if ( ! in_array( strtolower( $attr['orderby'] ), array( 'title', 'date' ) ) )
+			$attr['orderby'] = 'title';
 
-		if ( $tickets ) {
-			$tickets = array_map( 'intval', explode( ',', $tickets ) );
-			if ( count( $tickets ) > 0 ) {
+		if ( $attr['tickets'] ) {
+			$attr['tickets'] = array_map( 'intval', explode( ',', $attr['tickets'] ) );
+			if ( count( $attr['tickets'] ) > 0 ) {
 				$query_args['meta_query'] = array( array(
 					'key' => 'tix_ticket_id',
 					'compare' => 'IN',
-					'value' => $tickets,
+					'value' => $attr['tickets'],
 				) );
 			}
 		}
+
+		$attr['posts_per_page'] = absint( $attr['posts_per_page'] );
+
+		$questions = $this->get_questions_from_titles( $attr['questions'] );
 
 		$paged = 0;
 		$printed = 0;
@@ -119,20 +123,24 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 		?>
 
 		<div id="tix-attendees">
-			<ul class="tix-attendee-list tix-columns-<?php echo absint( $columns ); ?>">
+			<ul class="tix-attendee-list tix-columns-<?php echo absint( $attr['columns'] ); ?>">
 				<?php
-					while ( true && $printed < $posts_per_page ) {
+					while ( true && $printed < $attr['posts_per_page'] ) {
 						$paged++;
-						$attendees = get_posts( array_merge( array(
-							'post_type' => 'tix_attendee',
-							'posts_per_page' => 200,
-							'post_status' => array( 'publish', 'pending' ),
-							'paged' => $paged,
-							'order' => $order,
-							'orderby' => $orderby,
-							'fields' => 'ids', // ! no post objects
-							'cache_results' => false,
-						), $query_args ) );
+						$attendee_args = apply_filters( 'camptix_attendees_shortcode_query_args', array_merge(
+							array(
+								'post_type'      => 'tix_attendee',
+								'posts_per_page' => 200,
+								'post_status'    => array( 'publish', 'pending' ),
+								'paged'          => $paged,
+								'order'          => $attr['order'],
+								'orderby'        => $attr['orderby'],
+								'fields'         => 'ids', // ! no post objects
+								'cache_results'  => false,
+							),
+							$query_args
+						), $attr );
+						$attendees = get_posts( $attendee_args );
 
 						if ( ! is_array( $attendees ) || count( $attendees ) < 1 )
 							break; // life saver!
@@ -141,7 +149,8 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 						$camptix->filter_post_meta = $camptix->prepare_metadata_for( $attendees );
 
 						foreach ( $attendees as $attendee_id ) {
-							if ( $printed > $posts_per_page )
+							$attendee_answers = (array) get_post_meta( $attendee_id, 'tix_questions', true );
+							if ( $printed >= $attr['posts_per_page'] )
 								break;
 
 							// Skip attendees marked as private.
@@ -155,7 +164,21 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 							$last = get_post_meta( $attendee_id, 'tix_last_name', true );
 
 							echo get_avatar( get_post_meta( $attendee_id, 'tix_email', true ) );
-							printf( '<div class="tix-field tix-attendee-name"><span class="tix-first">%s</span> <span class="tix-last">%s</span></div>', esc_html( $first ), esc_html( $last ) );
+							?>
+
+							<div class="tix-field tix-attendee-name">
+								<?php echo $GLOBALS['camptix']->format_name_string( '<span class="tix-first">%first%</span> <span class="tix-last">%last%</span>', esc_html( $first ), esc_html( $last ) ); ?>
+							</div>
+
+							<?php foreach ( $questions as $question ) :
+								if ( ! empty ( $attendee_answers[ $question->ID ] ) ) : ?>
+									<div class="tix-field tix-<?php echo esc_attr( $question->post_name ); ?>">
+										<?php echo esc_html( $attendee_answers[ $question->ID ] ); ?>
+									</div>
+								<?php endif; ?>
+							<?php endforeach; ?>
+
+							<?php
 							do_action( 'camptix_attendees_shortcode_item', $attendee_id );
 							echo '</li>';
 
@@ -179,6 +202,45 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 		ob_end_clean();
 		set_transient( $transient_key, array( 'content' => $content, 'time' => time() ), $cache_time );
 		return $content;
+	}
+
+	/**
+	 * Get full `tix_question` posts from their corresponding titles
+	 *
+	 * @param string $titles Pipe-separated list of `tix_question` titles.
+	 *
+	 * @return array Array of question post objects matched to the given titles.
+	 */
+	protected function get_questions_from_titles( $titles ) {
+		/** @var $camptix CampTix_Plugin */
+		global $camptix;
+
+		if ( empty( $titles ) ) {
+			return array();
+		}
+
+		$slugs         = array_map( 'sanitize_title', explode( '|', $titles ) );
+		$all_questions = $camptix->get_all_questions();
+		$questions     = array();
+
+		foreach ( $slugs as $slug ) {
+			$matched = wp_list_filter( $all_questions, array( 'post_name' => $slug ) );
+
+			if ( ! empty( $matched ) ) {
+				$questions = array_merge( $questions, $matched );
+			}
+		}
+
+		return $questions;
+	}
+
+	/**
+	 * Callback for the [camptix_attendees] shortcode.
+	 */
+	function shortcode_stats( $atts ) {
+		global $camptix;
+		
+		return isset( $atts['stat'] ) ? $camptix->get_stats( $atts['stat'] ) : '';
 	}
 
 	/**
@@ -285,7 +347,7 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 		// If we have a view token cookie, we cas use that to search for attendees.
 		if ( isset( $_COOKIE['tix_view_token'] ) && ! empty( $_COOKIE['tix_view_token'] ) ) {
 			$view_token = $_COOKIE['tix_view_token'];
-			$attendees = get_posts( array(
+			$attendees_params = apply_filters( 'camptix_private_attendees_parameters', array(
 				'posts_per_page' => 50, // sane?
 				'post_type' => 'tix_attendee',
 				'post_status' => 'publish',
@@ -296,6 +358,7 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 					),
 				),
 			) );
+			$attendees = get_posts( $attendees_params );
 
 			// Having attendees is one piece of the puzzle.
 			// Making sure they have the right tickets is the other.
@@ -392,8 +455,14 @@ class CampTix_Addon_Shortcodes extends CampTix_Addon {
 		</div>
 		<?php
 
-		if ( isset( $atts['logged_out_message_after'] ) )
-			echo wpautop( $atts['logged_out_message_after'] );
+		if ( isset( $atts['logged_out_message_after'] ) ) {
+			// support calling a callback function, for situations where advanced HTML, scripting, etc is desired
+			if ( $atts['logged_out_message_after'] == 'callback' ) {
+				do_action( 'camptix_logged_out_message_after' );
+			} else {
+				echo wpautop( $atts['logged_out_message_after'] );
+			}
+		}
 
 		$content = ob_get_contents();
 		ob_end_clean();
