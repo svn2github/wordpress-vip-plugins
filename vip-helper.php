@@ -892,3 +892,14 @@ function wpcom_vip_disable_smilies( $smilies_to_disable ) {
 function wpcom_vip_home_template_uri( $path ) {
 	return str_replace( site_url(), home_url(), get_template_directory_uri() . $path );
 }
+
+/**
+ * Use secure URLs in rel_canonical
+ */
+function wpcom_vip_https_canonical_url() {
+	// Note: rel_canonical is not in core yet
+	// https://core.trac.wordpress.org/ticket/30581
+	add_filter( 'rel_canonical', function( $link ) {
+		return str_replace( 'http://', 'https://', $link );
+	}, 99 );
+}
