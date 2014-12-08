@@ -284,13 +284,13 @@ endif;
  */
 function wpcom_vip_set_image_quality( $quality, $strip = false ) {
 	add_filter( 'wp_get_attachment_url', function( $attachment_url ) use ( $quality, $strip ) {
-		return _wpcom_vip_set_image_quality( $attachment_url, $quality, $strip );
+		return wpcom_vip_set_image_quality_for_url( $attachment_url, $quality, $strip );
 	});
 
 	add_filter( 'the_content', function( $content ) use ( $quality, $strip ) {
 		if ( false !== strpos( $content, 'files.wordpress.com' ) ) {
 			$content = preg_replace_callback( '#https?://\w+\.files\.wordpress\.com[^\s"\'>]+#', function( $matches ) use ( $quality, $strip ) {
-				return _wpcom_vip_set_image_quality( $matches[0], $quality, $strip );
+				return wpcom_vip_set_image_quality_for_url( $matches[0], $quality, $strip );
 			}, $content );
 		}
 		return $content;
@@ -305,7 +305,7 @@ function wpcom_vip_set_image_quality( $quality, $strip = false ) {
  * @return string A url with proper quality and strip query parameters
  * @see wpcom_vip_set_image_quality
  */
-function _wpcom_vip_set_image_quality( $attachment_url, $quality = 100, $strip = false ) {
+function wpcom_vip_set_image_quality_for_url( $attachment_url, $quality = 100, $strip = false ) {
 	$url = parse_url( $attachment_url );
 
 	$ext = pathinfo( $url['path'], PATHINFO_EXTENSION );
