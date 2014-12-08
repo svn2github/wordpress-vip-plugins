@@ -148,7 +148,7 @@ class Sailthru_Scout_Widget extends WP_Widget {
 		 * @param array $tags Array of tags.
 		 */
 		$tags = apply_filters( 'sailthru_scout_filter', $tags );
-		$tags = array_map( array( $this, 'trim' ), $tags );
+		$tags = array_map( 'trim', $tags );
 
 		/** This filter is documented in class-sailthru-horizon.php */
 		if ( $scout['sailthru_scout_is_on'] == 1 && apply_filters( 'sailthru_scout_on', true ) ) {
