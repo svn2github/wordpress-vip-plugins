@@ -160,7 +160,7 @@ class LivePress_Live_Update {
 	 * @param string $content Post content.
 	 */
 	public function fill_livepress_shortcodes( $content ) {
-		$content       = wp_unslash( $content );
+	
 		$options       = $this->options;
 		$new_shortcode = "[livepress_metainfo";
 

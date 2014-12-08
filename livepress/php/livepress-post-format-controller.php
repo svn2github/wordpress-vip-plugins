@@ -479,7 +479,9 @@ class LivePress_PF_Updates {
             // Todo: notify about error: post get deleted by another editor
             $region = false;
 		} else {
-            $user_content = wp_kses_post( stripslashes( $_POST['content'] ) );
+			//	need to double unslash here to normalise content
+            $user_content = wp_kses_post( stripslashes( stripslashes(   $_POST['content'] ) ) );
+
             if ( empty($user_content) ) {
                 $region = false;
             } else {

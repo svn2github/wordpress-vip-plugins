@@ -1218,7 +1218,8 @@ jQuery(function () {
 							}
 						});
 					}
-
+					// edge case if you have backslahes
+					processed = processed.replaceAll( '\\', '\\\\' );
 					// Wrap the inner update
 					if ( -1 === processed.search( 'livepress-update-inner-wrapper' ) ) { /* don't double add */
 						processed = '<div class="livepress-update-inner-wrapper">\n\n' + processed + '\n\n</div>';
