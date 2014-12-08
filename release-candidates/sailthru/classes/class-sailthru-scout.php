@@ -164,10 +164,11 @@ class Sailthru_Scout_Widget extends WP_Widget {
 				}
 			}
 			if ( ! empty( $tags ) ) {
+				$tags = array_map( 'esc_js', $tags );
 				if ( 1 === count( $tags ) ) {
-					echo "        filter: {tags:'" . esc_js( implode( "','", $tags ) ) . "'},\n";
+					echo "        filter: {tags:'" . implode( "','", $tags ) . "'},\n";
 				} else {
-					echo "        filter: {tags: ['" . esc_js( implode( "','", $tags ) ) . "']},\n";
+					echo "        filter: {tags: ['" . implode( "','", $tags ) . "']},\n";
 				}
 			}
 			echo "    } );\n";
