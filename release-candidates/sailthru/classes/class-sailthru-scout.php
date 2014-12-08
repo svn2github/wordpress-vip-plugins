@@ -148,14 +148,7 @@ class Sailthru_Scout_Widget extends WP_Widget {
 		 * @param array $tags Array of tags.
 		 */
 		$tags = apply_filters( 'sailthru_scout_filter', $tags );
-		$tags = array_map( array( $this, 'escape_filter_tags' ), $tags );
-		if ( ! empty( $tags ) ) {
-			if ( 1 === count( $tags ) ) {
-				$filter = "        filter: {tags:'" . implode( "','", $tags ) . "'},\n";
-			} else {
-				$filter = "        filter: {tags: ['" . implode( "','", $tags ) . "']},\n";
-			}
-		}
+		$tags = array_map( array( $this, 'trim' ), $tags );
 
 		/** This filter is documented in class-sailthru-horizon.php */
 		if ( $scout['sailthru_scout_is_on'] == 1 && apply_filters( 'sailthru_scout_on', true ) ) {
@@ -170,23 +163,17 @@ class Sailthru_Scout_Widget extends WP_Widget {
 					}
 				}
 			}
-			if ( ! empty( $filter ) ) {
-				echo $filter;
+			if ( ! empty( $tags ) ) {
+				if ( 1 === count( $tags ) ) {
+					echo "        filter: {tags:'" . esc_js( implode( "','", $tags ) ) . "'},\n";
+				} else {
+					echo "        filter: {tags: ['" . esc_js( implode( "','", $tags ) ) . "']},\n";
+				}
 			}
 			echo "    } );\n";
 			echo "</script>\n";
 		}
 
-	}
-
-	/**
-	 * Escape and trim whitespace from tags.
-	 *
-	 * @param string $tag Tag to be escaped and trimmed.
-	 * @return string Escaped and trimmed tag.
-	 */
-	private function escape_filter_tags( $tag ) {
-		return esc_js( trim( $tag ) );
 	}
 
 	/**
