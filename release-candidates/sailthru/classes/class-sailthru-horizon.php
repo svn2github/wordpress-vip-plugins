@@ -268,7 +268,7 @@ class Sailthru_Horizon {
 	 			spider: '" . esc_js( $spider ) . "',
 	 			concierge: {
 	 				from: '" . esc_js( $concierge_from ) . "',
-	 				threshold: '" . esc_js( $concierge_threshold ) . "
+	 				threshold: '" . esc_js( $concierge_threshold ) . "',
 	 				delay: " . esc_js( $concierge_delay ) . ",
 	 				offsetBottom: " . esc_js( $concierge_offset ) . ",
 	 				cssPath: '" . esc_js( $concierge_css ) . "',
