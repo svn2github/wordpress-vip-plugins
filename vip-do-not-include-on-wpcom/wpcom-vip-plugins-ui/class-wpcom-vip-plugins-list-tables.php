@@ -111,7 +111,7 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 
 					$plugin_meta = array();
 
-					$plugin_meta[] = '<a href="' . esc_url( '//vip.wordpress.com/plugins/' . $plugin . '/' ) . '" title="' . esc_attr__( 'Visit our VIP Plugins Directory to learn more' ) . '">' . __( 'Learn More' ) . '</a>';
+					$plugin_meta[] = '<a href="' . esc_url( '//vip.wordpress.com/plugins/' . $plugin . '/' ) . '" title="' . esc_attr__( 'Visit our VIP Plugins Directory to learn more' ) . '" target="_blank">' . __( 'Learn More' ) . '</a>';
 
 					if ( ! empty( $plugin_data['Author'] ) ) {
 						$author = $plugin_data['Author'];
@@ -207,7 +207,7 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 
 		$actions = array();
 		$actions = WPcom_VIP_Plugins_UI()->add_activate_or_deactive_action_link( $actions, $slug );
-		$actions['learnmore'] = '<a href="' . esc_url( $lobby_url ) . '">Learn More</a>';
+		$actions['learnmore'] = '<a href="' . esc_url( $lobby_url ) . '" target="_blank">Learn More</a>';
 
 		ob_start();
 ?>
