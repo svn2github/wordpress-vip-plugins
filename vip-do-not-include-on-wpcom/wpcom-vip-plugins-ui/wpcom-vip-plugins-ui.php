@@ -160,6 +160,7 @@ class WPcom_VIP_Plugins_UI {
 			'zemanta',
 			'pushup',
 			'livepress',
+			'wp-discourse',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
