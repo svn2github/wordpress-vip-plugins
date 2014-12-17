@@ -252,6 +252,10 @@ function _wpcom_vip_cdn_load_media( $cdn_host_media ) {
  * @internal
  */
 function _wpcom_vip_cdn_disable_ssl( $domains ) {
+	add_filter( 'wp_get_attachment_url', function( $url ) {
+		return str_replace( 'https', 'http', $url );
+	}, 1000 );
+
 	add_filter( 'the_content', function( $content ) use ( $domains ) {
 		foreach( $domains as $domain ) {
 			return str_replace( "https://{$domain}", "http://{$domain}", $content );
