@@ -69,7 +69,6 @@ jQuery( document ).ready( function( $ ) {
 				}
 			}
 		} );
-		return false;
 	} );
 
 	$( '.taxonomy-images-modal' ).on( 'click', ' .create-association', function () {
@@ -131,6 +130,5 @@ jQuery( document ).ready( function( $ ) {
 				}
 			}
 		} );
-		return false;
 	} );
 } );
