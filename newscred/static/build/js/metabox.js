@@ -522,9 +522,9 @@ ncApp.ArticlesView = wp.Backbone.View.extend( {
         var tinyMceActive = $( ".tmce-active" ).length;
 
         if ( tinyMceActive ) {
-            var ed = tinyMCE.getInstanceById( 'content' );
-            ed.focus();
-            ed.selection.setContent( caption_html );
+            var ed = tinyMCE.activeEditor.selection;
+            ed.getContent();
+            ed.setContent( caption_html );
             $( "#content-html" ).trigger( "click" );
             $( "#content-tmce" ).trigger( "click" );
 
@@ -974,9 +974,9 @@ ncApp.ImagesView = wp.Backbone.View.extend( {
         var tinyMceActive = $( ".tmce-active" ).length;
 
         if ( tinyMceActive ) {
-            var ed = tinyMCE.getInstanceById( 'content' );
-            ed.focus();
-            ed.selection.setContent( caption_html );
+            var ed = tinyMCE.activeEditor.selection;
+            ed.getContent();
+            ed.setContent( caption_html );
             $( "#content-html" ).trigger( "click" );
             $( "#content-tmce" ).trigger( "click" );
 
