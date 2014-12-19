@@ -186,7 +186,7 @@ function wpcom_vip_url_to_postid( $url ) {
 
 		return 0;
 	}
-	
+
 	// Sanity check; no URLs not from this site
 	if ( parse_url( $url, PHP_URL_HOST ) != wpcom_vip_get_home_host() )
 		return 0;
@@ -202,7 +202,7 @@ function wpcom_vip_url_to_postid( $url ) {
 	return $post_id;
 }
 
-add_action( 'transition_post_status', function( $new, $old, $post ) {
+add_action( 'transition_post_status', function( $new_status, $old_status, $post ) {
 	if ( 'publish' != $new_status && 'publish' != $old_status )
 		return;
 
