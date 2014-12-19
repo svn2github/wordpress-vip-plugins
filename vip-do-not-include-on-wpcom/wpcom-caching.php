@@ -180,7 +180,7 @@ add_action( 'transition_post_status', 'wpcom_vip_flush_get_page_by_path_cache', 
 function wpcom_vip_url_to_postid( $url ) {
 	// Sanity check; no URLs not from this site
 	if ( parse_url( $url, PHP_URL_HOST ) != wpcom_vip_get_home_host() )
-		return false;
+		return 0;
 
 	$cache_key = md5( $url );
 	$post_id = wp_cache_get( $cache_key, 'url_to_postid' );
