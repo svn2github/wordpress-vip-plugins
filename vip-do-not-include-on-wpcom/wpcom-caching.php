@@ -193,6 +193,14 @@ function wpcom_vip_url_to_postid( $url ) {
 	return $post_id;
 }
 
+add_action( 'transition_post_status', function( $new, $old, $post ) {
+	if ( 'publish' != $new_status && 'publish' != $old_status )
+		return;
+
+	$url = get_permalink( $post->ID );
+	wp_cache_delete( md5( $url ), 'url_to_postid' );
+}, 10, 3 );
+
 /**
  * Cached version of wp_old_slug_redirect.
  *
