@@ -32,11 +32,6 @@ if (!class_exists('wp_lightboxplus')) {
     var $lightboxOptionsName = "lightboxplus_options";
     var $lightboxInitName = "lightboxplus_init";
 
-    /*---- PHP 4 Compatible Constructor ----*/
-    function wp_lightboxplus() {
-      $this->__construct();
-    }
-
     /*---- PHP 5 Constructor ----*/
     function __construct() {
       $this->lightboxOptions = $this->getAdminOptions($this->lightboxOptionsName);
