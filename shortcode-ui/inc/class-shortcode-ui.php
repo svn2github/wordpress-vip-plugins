@@ -21,17 +21,12 @@ class Shortcode_UI {
 	function __construct() {
 
 		$this->plugin_version = '0.1';
-		$this->plugin_dir     = plugin_dir_path( dirname(  __FILE__ ) );
+		$this->plugin_dir     = plugin_dir_path( dirname( __FILE__ ) );
 		$this->plugin_url     = plugin_dir_url( dirname( __FILE__ ) );
 
 	}
 
 	private function setup_actions() {
-		add_action( 'admin_init', function() {
-			remove_action( 'media_buttons', 'media_buttons' );
-		} );
-
-		add_action( 'media_buttons',         array( $this, 'action_media_buttons' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'action_admin_enqueue_scripts' ) );
 		add_action( 'print_media_templates', array( $this, 'action_print_media_templates' ) );
 		add_action( 'wp_ajax_do_shortcode',  array( $this, 'handle_ajax_do_shortcode' ) );
@@ -63,43 +58,15 @@ class Shortcode_UI {
 
 	}
 
+	public function get_shortcodes() {
+		return $this->shortcodes;
+	}
+
 	public function get_shortcode( $shortcode_tag ) {
 
 		if ( isset( $this->shortcodes[ $shortcode_tag ] ) ) {
 			return $this->shortcodes[ $shortcode_tag ];
 		}
-
-	}
-
-	/**
-	 * Replace the 'add media' button with a more generic button.
-	 * This is slightly modified version of the core `media_buttons` function.
-	 *
-	 * @param  string $editor_id
-	 * @return null
-	 */
-	public function action_media_buttons( $editor_id = 'content' ) {
-
-		static $instance = 0;
-		$instance++;
-
-		$post = get_post();
-		if ( ! $post && ! empty( $GLOBALS['post_ID'] ) )
-			$post = $GLOBALS['post_ID'];
-
-		wp_enqueue_media( array(
-			'post' => $post,
-		) );
-
-		$img = '<span class="wp-media-buttons-icon"></span> ';
-
-		$id_attribute = $instance === 1 ? ' id="insert-media-button"' : '';
-		printf( '<a href="#"%s class="button insert-media add_media" data-editor="%s" title="%s">%s</a>',
-			$id_attribute,
-			esc_attr( $editor_id ),
-			esc_attr__( 'Add Content', 'shortcode-ui' ),
-			$img . esc_html__( 'Add Content', 'shortcode-ui' )
-		);
 
 	}
 
@@ -111,9 +78,18 @@ class Shortcode_UI {
 			wp_enqueue_style( 'shortcode-ui', $this->plugin_url . 'css/shortcode-ui.css', array(), $this->plugin_version );
 			wp_localize_script( 'shortcode-ui', ' shortcodeUIData', array(
 				'shortcodes' => array_values( $this->shortcodes ),
-				'previewNonce' => wp_create_nonce( 'shortcode-ui-preview' ),
 				'modalOptions' => array(
-    					'media_frame_title' => esc_html__( 'Insert Content Item', 'shortcode-ui' ),
+						'media_frame_title'              => esc_html__( 'Insert Post Element', 'shortcode-ui' ),
+						'media_frame_menu_insert_label'  => esc_html__( 'Insert Post Element', 'shortcode-ui' ),
+						'media_frame_menu_update_label'  => esc_html__( 'Post Element Details', 'shortcode-ui' ),
+						'media_frame_toolbar_insert_label' => esc_html__( 'Insert Element', 'shortcode-ui' ),
+						'media_frame_toolbar_update_label' => esc_html__( 'Update', 'shortcode-ui' ),
+						'edit_tab_label'	             => esc_html__( 'Edit', 'shortcode-ui' ),
+						'preview_tab_label'	             => esc_html__( 'Preview', 'shortcode-ui' )
+				),
+				'nonces' => array(
+					'preview'        => wp_create_nonce( 'shortcode-ui-preview' ),
+					'thumbnailImage' => wp_create_nonce( 'shortcode-ui-get-thumbnail-image' ),
 				)
 			) );
 
@@ -190,12 +166,12 @@ class Shortcode_UI {
 			exit;
 		}
 
-		do_action( 'shortcode_ui_before_do_shortcode' );
 		global $post;
 		$post = get_post( $post_id );
 		setup_postdata( $post );
+		do_action( 'shortcode_ui_before_do_shortcode', $shortcode );
 		echo do_shortcode( $shortcode );
-		do_action( 'shortcode_ui_after_do_shortcode' );
+		do_action( 'shortcode_ui_after_do_shortcode', $shortcode );
 		exit;
 
 	}
