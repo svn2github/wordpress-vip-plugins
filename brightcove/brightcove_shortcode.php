@@ -1,10 +1,10 @@
 <?php
 
-add_action( 'wp_enqueue_scripts', 'brightcove_enqueue_frontend_scripts' );
 add_shortcode('brightcove','brightcove_add');
 
 function brightcove_add($atts) {
 	GLOBAL $bcGlobalVariables;
+	$brightcove_script = is_ssl() ? 'https://sadmin.brightcove.com/js/BrightcoveExperiences.js' : 'http://admin.brightcove.com/js/BrightcoveExperiences.js';
 
 	$defaults = array(
 					'playerid' => '',
@@ -29,7 +29,8 @@ function brightcove_add($atts) {
 	$playlist_height = sanitize_key( $combined_attr['playlist_height'] );	
 	$link_url = sanitize_key( $combined_attr['link_url'] );			
 
-	$html = '<div style="display:none"></div>';
+	$html = '<script type="text/javascript" src="' . $brightcove_script . '"></script>';
+	$html .= '<div style="display:none"></div>';
 	$html = $html . '<object id="' . esc_attr( rand() ) .'" class="BrightcoveExperience">';
   	$html = $html . '<param name="bgcolor" value="#FFFFFF" />';
   	$html = $html . '<param name="wmode" value="transparent" />';
