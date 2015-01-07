@@ -151,7 +151,6 @@ class WPcom_VIP_Plugins_UI {
 			'inform',
 			'share-this-classic-wpcom',
 			'share-this-wpcom',
-			'daylife',
 			'five-min-video-suggest',
 			'stipple',
 			'brightcove',
@@ -164,6 +163,7 @@ class WPcom_VIP_Plugins_UI {
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
+			'daylife', // API doesn't work #36756-z
 			'livefyre', // use livefyre3 instead
 			'feedwordpress', // breaks all the time
 			'wordtwit-1.3-mod', // use publicize
