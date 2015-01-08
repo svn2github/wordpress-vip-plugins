@@ -35,6 +35,10 @@ if ( function_exists( 'Enterprise' ) ) {
  * @return mixed
  */
 function co_author_plus_es_support( $es_wp_query_args, $query ){
+	if (empty( $es_wp_query_args ) ) {
+		$es_wp_query_args = array( 'title', 'content', 'author', 'tag', 'category' );
+	}
+
 	$es_wp_query_args['query_fields'][] = 'taxonomy.author.name';
 	return $es_wp_query_args;
 }
