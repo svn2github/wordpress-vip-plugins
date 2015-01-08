@@ -24,3 +24,19 @@ if ( function_exists( 'Enterprise' ) ) {
 			echo '<div class="error"><p>' . __( "Co-Authors Plus isn't yet integrated with your theme. Please contact support to make it happen." ) . '</p></div>';
 		} );
 }
+
+/**
+ * We want to let Elasticsearch know that it should search the author taxonomy's name as a search field
+ * See: https://elasticsearchp2.wordpress.com/2015/01/08/in-36757-z-vanguard-says-they/
+ *
+ * @param $es_wp_query_args The ElasticSearch Query Parameters
+ * @param $query
+ *
+ * @return mixed
+ */
+function co_author_plus_es_support( $es_wp_query_args, $query ){
+	$es_wp_query_args['query_fields'][] = 'taxonomy.author.name';
+	return $es_wp_query_args;
+}
+add_filter('wpcom_elasticsearch_wp_query_args', 'co_author_plus_es_support', 10, 2 );
+
