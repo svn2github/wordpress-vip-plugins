@@ -261,6 +261,10 @@ function _wpcom_vip_cdn_disable_ssl( $domains ) {
 			return str_replace( "https://{$domain}", "http://{$domain}", $content );
 		}
 	}, 1000 );
+
+	add_filter( 'wpcom_static_domain_url', function( $url ) {
+		return preg_replace( "|^https|", "http", $url );
+	} );
 }
 
 /**
