@@ -3,7 +3,7 @@
 Plugin Name: Frontend Uploader
 Description: Allow your visitors to upload content and moderate it.
 Author: Rinat Khaziev, Daniel Bachhuber
-Version: 0.9.2
+Version: 0.9.3
 Author URI: http://digitallyconscious.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
 // Define consts and bootstrap and dependencies
-define( 'FU_VERSION', '0.9.2' );
+define( 'FU_VERSION', '0.9.3' );
 define( 'FU_ROOT' , dirname( __FILE__ ) );
 define( 'FU_FILE_PATH' , FU_ROOT . '/' . basename( __FILE__ ) );
 define( 'FU_URL' , plugins_url( '/', __FILE__ ) );
@@ -98,6 +98,7 @@ class Frontend_Uploader {
 		// Currently supported shortcodes
 		add_shortcode( 'fu-upload-form', array( $this, 'upload_form' ) );
 		add_shortcode( 'fu-upload-response', array( $this, 'upload_response_shortcode' ) );
+
 		// Since 4.01 we need to explicitly disable texturizing of shortcode's inner content
 		add_filter( 'no_texturize_shortcodes', array( $this, 'filter_no_texturize_shortcodes' ) );
 
@@ -186,6 +187,7 @@ class Frontend_Uploader {
 		update_option( $this->settings_slug, array_merge( $defaults, (array) $existing_settings ) );
 	}
 
+
 	/**
 	 * Since 4.01 shortcode contents is texturized by default,
 	 * avoid the behavior by explicitly whitelisting our shortcode
@@ -194,6 +196,7 @@ class Frontend_Uploader {
 		$shortcodes[] = 'fu-upload-form';
 		return $shortcodes;
 	}
+
 	/**
 	 * Since WP 3.5-beta-1 WP Media interface shows private attachments as well
 	 * We don't want that, so we force WHERE statement to post_status = 'inherit'
@@ -763,7 +766,7 @@ class Frontend_Uploader {
 	 */
 	function _render_checkboxes( $atts ) {
 		extract( $atts );
-		$atts = array( 'values' => $values );
+
 		$values = explode( ',', $values );
 		$options = '';
 
@@ -801,8 +804,10 @@ class Frontend_Uploader {
 			$caption = isset( $kv[1] ) ? $kv[1] : $kv[0];
 			$options .= $this->html->_radio( $name, isset( $kv[1] ) ? $kv[1] : $kv[0], $kv[0], $atts, array() );
 		}
+
 		//Render
 		$element = $this->html->element( 'label', $description . $options, array( 'for' => $id ), false );
+
 		return $this->html->element( 'div', $element, array( 'class' => 'ugc-input-wrapper ' . $class ), false );
 	}
 
@@ -814,7 +819,6 @@ class Frontend_Uploader {
 	 */
 	function _render_select( $atts ) {
 		extract( $atts );
-		$atts = array( 'values' => $values );
 		$values = explode( ',', $values );
 		$options = '';
 		//Build options for the list
@@ -1099,7 +1103,8 @@ class Frontend_Uploader {
 	function _notice_html( $message, $class ) {
 		if ( empty( $message ) || empty( $class ) )
 			return;
-		return sprintf( '<p class="ugc-notice %1$s">%2$s</p>', $class, $message );
+
+		return sprintf( '<p class="ugc-notice %1$s">%2$s</p>', esc_attr( $class ), esc_html( $message ) );
 	}
 
 	/**
