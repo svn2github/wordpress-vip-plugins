@@ -303,6 +303,13 @@ function wpcom_vip_set_image_quality( $quality, $strip = false ) {
 		}
 		return $content;
 	});
+
+	// Photon
+	add_filter('jetpack_photon_pre_args', function( $args ) use ( $quality, $strip ) {
+		$args['quality'] = $quality;
+		$args['strip'] = $strip;
+		return $args;
+	});
 }
 
 /**
