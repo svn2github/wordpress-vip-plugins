@@ -234,6 +234,12 @@ class WP_Codebird extends \Codebird\Codebird {
 	 * @return array|object The parsed reply
 	 */
 	protected function _parseApiReply( $method, $reply ) {
+
+		$need_array = $this->_return_format == CODEBIRD_RETURNFORMAT_ARRAY;
+		if ( is_wp_error( $reply ) ) {
+			return $need_array ? array() : new stdClass;
+		}
+
 		// split headers and body
 		$http_response = $reply;
 		$headers       = $http_response['headers'];
@@ -243,7 +249,6 @@ class WP_Codebird extends \Codebird\Codebird {
 			$reply = $http_response['body'];
 		}
 
-		$need_array = $this->_return_format == CODEBIRD_RETURNFORMAT_ARRAY;
 		if ( $reply == '[]' ) {
 			return $need_array ? array() : new stdClass;
 		}
