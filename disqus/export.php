@@ -84,7 +84,7 @@ function wxr_site_url() {
 
 	// mu: the base url
 	if ( isset($current_site->domain) ) {
-		return 'http://'.$current_site->domain.$current_site->path;
+		return '//'.$current_site->domain.$current_site->path;
 	}
 	// wp: the blog url
 	else {

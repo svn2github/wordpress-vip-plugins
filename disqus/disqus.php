@@ -10,11 +10,11 @@ Author URI: http://disqus.com/
 
 require_once( dirname(__FILE__). '/lib/wpapi.php');
 
-define('DISQUS_URL',			'http://disqus.com/');
-define('DISQUS_API_URL',		DISQUS_URL . 'api/');
+define('DISQUS_URL',			'//disqus.com/');
+define('DISQUS_API_URL',		'http://disqus.com/api/');
 define('DISQUS_DOMAIN',			'disqus.com');
 define('DISQUS_IMPORTER_URL',	'http://import.disqus.net/');
-define('DISQUS_MEDIA_URL',		'http://disqus.com/media/');
+define('DISQUS_MEDIA_URL',		'//disqus.com/media/');
 define('DISQUS_RSS_PATH',		'/latest.rss');
 define('DISQUS_CAN_EXPORT',		is_file(dirname(__FILE__) . '/export.php'));
 
@@ -413,7 +413,7 @@ function dsq_comments_number($comment_text) {
 
 function dsq_bloginfo_url($url) {
 	if ( get_feed_link('comments_rss2') == $url ) {
-		return 'http://' . strtolower(get_option('disqus_forum_url')) . '.' . DISQUS_DOMAIN . DISQUS_RSS_PATH;
+		return '//' . strtolower(get_option('disqus_forum_url')) . '.' . DISQUS_DOMAIN . DISQUS_RSS_PATH;
 	} else {
 		return $url;
 	}
@@ -692,7 +692,7 @@ function dsq_output_loop_comment_js($post_ids = null) {
 			}
 			var s = document.createElement('script'); s.async = true;
 			s.type = 'text/javascript';
-			s.src = 'http://' + disqus_domain + '/forums/' + disqus_shortname + '/count.js';
+			s.src = '//' + disqus_domain + '/forums/' + disqus_shortname + '/count.js';
 			(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
 		}());
 	//]]>
@@ -721,7 +721,7 @@ function dsq_output_footer_comment_js() {
 			}
 			var s = document.createElement('script'); s.async = true;
 			s.type = 'text/javascript';
-			s.src = 'http://' + disqus_domain + '/forums/' + disqus_shortname + '/count.js';
+			s.src = '//' + disqus_domain + '/forums/' + disqus_shortname + '/count.js';
 			(document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
 		}());
 	//]]>
@@ -882,7 +882,7 @@ function dsq_sso() {
 	$hmac = dsq_hmacsha1($user_data.' '.$time, $partner_key);
 
 	$payload = $user_data.' '.$hmac.' '.$time;
-	echo '<script type="text/javascript" src="http://'.$dsq_api->short_name.'.disqus.com/remote_auth.js?remote_auth_s2='.urlencode($payload).'"></script>';
+	echo '<script type="text/javascript" src="//'.$dsq_api->short_name.'.disqus.com/remote_auth.js?remote_auth_s2='.urlencode($payload).'"></script>';
 }
 // WPCOM: disable discus v2 SSO as it is no longer supported and causes JS errors. /z 28343
 // add_action('wp_head', 'dsq_sso');
