@@ -3,11 +3,11 @@
 	Plugin Name: Kapost Social Publishing Byline
 	Plugin URI: http://www.kapost.com/
 	Description: Kapost Social Publishing Byline
-	Version: 1.9.0
+	Version: 1.9.2
 	Author: Kapost
 	Author URI: http://www.kapost.com
 */
-define('KAPOST_BYLINE_VERSION', '1.9.0-WIP');
+define('KAPOST_BYLINE_VERSION', '1.9.2-WIP');
 define('KAPOST_BYLINE_ANALYTICS_URL', 'http://analytics.kapost.com');
 
 function kapost_byline_custom_fields($raw_custom_fields)
@@ -71,12 +71,38 @@ function kapost_byline_protected_custom_fields($custom_fields)
 	return $pcf;
 }
 
+function kapost_byline_update_array_custom_fields($id, $custom_fields)
+{
+	$prefix = '_kapost_array_';
+	foreach($custom_fields as $k => $v)
+	{
+		if(strpos($k, $prefix) === 0)
+		{
+			$meta_key = str_replace($prefix, '', $k);
+			delete_post_meta($id, $meta_key);
+
+			if(empty($v))
+				continue;
+			
+			$meta_values = @json_decode(@base64_decode($v), true);
+			if(!is_array($meta_values))
+				continue;
+
+			foreach($meta_values as $meta_value)
+				add_post_meta($id, $meta_key, $meta_value);
+		}
+	}
+}
+
 function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=false)
 {
 	$post = get_post($id);
 	if(!is_object($post)) return false;
 
 	$post_needs_update = false;
+
+	// set any "array" custom fields
+	kapost_byline_update_array_custom_fields($id, $custom_fields);
 
 	// if this is a draft then clear the 'publish date' or set our own
 	if($post->post_status == 'draft')
@@ -124,7 +150,7 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 	}
 
 	// store our protected custom field required by our analytics
-	if(isset($custom_fields['_kapost_analytics_url']))
+	if(isset($custom_fields['_kapost_analytics_post_id']))
 	{
 		// join them into one for performance and speed
 		$kapost_analytics = array();
@@ -158,7 +184,10 @@ function kapost_byline_update_post($id, $custom_fields, $uid=false, $blog_id=fal
 		foreach($custom_fields as $k => $v)
 		{																										
 			if(in_array($k, $taxonomies))
+			{
 				wp_set_object_terms($id, explode(',', $v), $k);
+				delete_post_meta($id, $k);		
+			}
 		}
 	}
 
@@ -437,5 +466,3 @@ function kapost_byline_xmlrpc($methods)
 	return $methods;
 }
 add_filter('xmlrpc_methods', 'kapost_byline_xmlrpc');
-
-?>
