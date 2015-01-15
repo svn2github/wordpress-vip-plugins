@@ -49,10 +49,12 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_rele
 
 	// Shared plugins are located at /wp-content/themes/vip/plugins/example-plugin/
 	// You should keep your local copies of the plugins in the same location
-	if( true === $load_release_candidate ) {
-		$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/release-candidates/$plugin/$plugin.php";
-	} else {
-		$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
+
+	$includepath 					= WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
+	$release_candidate_includepath 	= WP_CONTENT_DIR . "/themes/vip/$folder/release-candidates/$plugin/$plugin.php";
+
+	if( true === $load_release_candidate && file_exists( $release_candidate_includepath ) ) {
+		$includepath = $release_candidate_includepath;
 	}
 
 	if ( file_exists( $includepath ) ) {
