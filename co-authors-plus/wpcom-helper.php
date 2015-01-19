@@ -39,7 +39,14 @@ function co_author_plus_es_support( $es_wp_query_args, $query ){
 		$es_wp_query_args['query_fields'] = array( 'title', 'content', 'author', 'tag', 'category' );
 	}
 
+	// Search CAP author names
 	$es_wp_query_args['query_fields'][] = 'taxonomy.author.name';
+
+	// Filter based on CAP names
+	if ( !empty( $query->query['author'] ) ) {
+		$es_wp_query_args['terms']['author'] = 'cap-' . $query->query['author'];
+	}
+
 	return $es_wp_query_args;
 }
 add_filter('wpcom_elasticsearch_wp_query_args', 'co_author_plus_es_support', 10, 2 );
