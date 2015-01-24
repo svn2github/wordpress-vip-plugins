@@ -5,6 +5,7 @@
  */
 $wpcom_coauthors_plus_auto_apply_themes = array(
 		'premium/portfolio',
+		'pub/editor',
 	);
 if ( in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes ) )
 	add_filter( 'coauthors_auto_apply_template_tags', '__return_true' );
