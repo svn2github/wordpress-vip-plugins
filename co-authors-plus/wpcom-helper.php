@@ -5,6 +5,7 @@
  */
 $wpcom_coauthors_plus_auto_apply_themes = array(
 		'premium/portfolio',
+		'premium/zuki',
 		'pub/editor',
 	);
 if ( in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes ) )
