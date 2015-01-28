@@ -21,14 +21,14 @@
 			CreateSession: 'https://connect.gettyimages.com/v1/session/CreateSession',
 			CreateApplicationSession: 'https://connect.gettyimages.com/v1/session/CreateApplicationSession',
 			RenewSession: 'https://connect.gettyimages.com/v1/session/RenewSession',
-			GetActiveProductOfferings: 'http://connect.gettyimages.com/v1/data/GetActiveProductOfferings',
-			GetAllProductOfferings: 'http://connect.gettyimages.com/v1/data/GetAllProductOfferings',
-			SearchForImages: 'http://connect.gettyimages.com/v2/search/SearchForImages',
-			GetImageDetails: 'http://connect.gettyimages.com/v1/search/GetImageDetails',
-			GetLargestImageDownloadAuthorizations: 'http://connect.gettyimages.com/v1/download/GetLargestImageDownloadAuthorizations',
-			GetImageDownloadAuthorizations: 'http://connect.gettyimages.com/v1/download/GetImageDownloadAuthorizations',
+			GetActiveProductOfferings: '//connect.gettyimages.com/v1/data/GetActiveProductOfferings',
+			GetAllProductOfferings: '//connect.gettyimages.com/v1/data/GetAllProductOfferings',
+			SearchForImages: '//connect.gettyimages.com/v2/search/SearchForImages',
+			GetImageDetails: '//connect.gettyimages.com/v1/search/GetImageDetails',
+			GetLargestImageDownloadAuthorizations: '//connect.gettyimages.com/v1/download/GetLargestImageDownloadAuthorizations',
+			GetImageDownloadAuthorizations: '//connect.gettyimages.com/v1/download/GetImageDownloadAuthorizations',
 			CreateDownloadRequest: 'https://connect.gettyimages.com/v1/download/CreateDownloadRequest',
-			GetEventDetails: 'http://connect.gettyimages.com/v1/search/GetEventDetails'
+			GetEventDetails: '//connect.gettyimages.com/v1/search/GetEventDetails'
 		},
 
 		// Make an API request, return a promise for the request
@@ -113,7 +113,7 @@
 				});
 
 			// Try unauthenticated credentials for requests with no session or https
-			if(!session && url.match(/^http:/)) {
+			if(!session && !url.match(/^https:/)) {
 				getty.user.createApplicationSession()
 					.done(defer.resolve)
 					.fail(defer.reject);
