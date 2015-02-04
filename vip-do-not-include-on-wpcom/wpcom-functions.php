@@ -215,7 +215,19 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 			if ( is_wp_error( $request ) )
 				return false;
 
-			return json_decode( wp_remote_retrieve_body( $request ), true );
+			$response = json_decode( wp_remote_retrieve_body( $request ), true );
+
+			// Rewrite blog id from remote to local id
+			if ( isset( $response['results'] ) && isset( $response['results']['hits'] ) ) {
+				$local_blog_id = get_current_blog_id();
+				foreach ( $response['results']['hits'] as $key => $hit ) {
+					if ( isset( $hit['fields']['blog_id'] ) && $hit['fields']['blog_id'] == $jetpack_blog_id ) {
+						$response['results']['hits'][$key]['fields']['blog_id'] = $local_blog_id;
+					}
+				}
+			}
+
+			return $response;
 		}
 	endif; // function_exists( 'es_api_search_index' )
 
