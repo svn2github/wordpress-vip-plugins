@@ -321,14 +321,15 @@ function wpcom_vip_set_image_quality( $quality, $strip = false ) {
  * @see wpcom_vip_set_image_quality
  */
 function wpcom_vip_set_image_quality_for_url( $attachment_url, $quality = 100, $strip = false ) {
+	$query = array();
 	$url = parse_url( $attachment_url );
-
 	$ext = pathinfo( $url['path'], PATHINFO_EXTENSION );
 
 	if ( ! in_array( $ext, array( 'jpg', 'jpeg' ) ) )
 		return $attachment_url;
 
-	$query = parse_str( $url['query'] );
+	if ( isset( $url['query'] ) )
+		$query = parse_str( $url['query'] );
 
 	$query['quality'] = absint( $quality );
 
