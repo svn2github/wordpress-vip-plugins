@@ -96,8 +96,8 @@ class ThePlatform_Plugin {
 
 		// Only enqueue on a post page	
 		if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
-		//	wp_enqueue_script( 'jquery-ui-dialog' );
-		//	wp_enqueue_style( 'wp-jquery-ui-dialog' );
+			wp_enqueue_script( 'jquery-ui-dialog' );
+			wp_enqueue_style( 'wp-jquery-ui-dialog' );
 	    }		
 	}
 
@@ -113,7 +113,7 @@ class ThePlatform_Plugin {
 		wp_register_script( 'tp_infiniscroll_js', plugins_url( '/js/jquery.infinitescroll.min.js', __FILE__ ), array( 'jquery' ) );
 		wp_register_script( 'tp_mpxhelper_js', plugins_url( '/js/mpxHelper.js', __FILE__ ), array( 'jquery' ) );
 		wp_register_script( 'tp_uploader_js', plugins_url( '/js/theplatform-uploader.js', __FILE__ ), array( 'jquery', 'tp_theplatform_js' ) );
-		//wp_register_script( 'tp_mediaview_js', plugins_url( '/js/mediaview.js', __FILE__ ), array( 'jquery', 'jquery-ui-dialog', 'tp_handlebars_js', 'tp_holder_js', 'tp_mpxhelper_js', 'tp_theplatform_js', 'tp_pdk_js', 'tp_infiniscroll_js', 'tp_bootstrap_js' ) );
+		wp_register_script( 'tp_mediaview_js', plugins_url( '/js/mediaview.js', __FILE__ ), array( 'jquery', 'jquery-ui-dialog', 'tp_handlebars_js', 'tp_holder_js', 'tp_mpxhelper_js', 'tp_theplatform_js', 'tp_pdk_js', 'tp_infiniscroll_js', 'tp_bootstrap_js' ) );
 		wp_register_script( 'tp_field_views_js', plugins_url( '/js/fieldViews.js', __FILE__ ), array( 'jquery' ) );
 		wp_register_script( 'tp_nprogress_js', plugins_url( '/js/nprogress.js', __FILE__ ) );
 
@@ -545,7 +545,6 @@ class ThePlatform_Plugin {
 		}
 
 		$tp_embedder_cap = apply_filters( TP_EMBEDDER_CAP, TP_EMBEDDER_DEFAULT_CAP );
-		var_dump( $this->preferences );
 		if ( current_user_can( $tp_embedder_cap ) && $this->preferences['embed_hook'] != 'tinymce' ) {
 			$image_url = plugins_url('/images/embed_button.png', __FILE__);
 			wp_enqueue_script( 'jquery-ui-dialog' );
