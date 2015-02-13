@@ -327,7 +327,7 @@ class WPcom_VIP_Plugins_UI {
 		}
 		$this->hook_suffix = add_submenu_page( $this->parent_menu_slug, $page_title, $menu_label, $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 
-		add_action( 'admin_print_styles-' . $this->hook_suffix, array( 'WPcom_VIP_Plugins_UI', 'menu_page_css' ) );
+		wp_enqueue_style( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . '/css/wpcom-vip-plugins-ui.css' );
 
 		// This is required because WPcom_VIP_Plugins_UI_List_Table() is defined inside of a function
 		add_filter( 'manage_' . $this->hook_suffix . '_columns', array( 'WPcom_VIP_Plugins_UI', 'community_plugins_menu_columns' ) );
@@ -418,47 +418,6 @@ class WPcom_VIP_Plugins_UI {
 		$columns['description'] = '';
 
 		return $columns;
-	}
-
-	/**
-	 * Outputs some CSS used on the menu page.
-	 */
-	public static function menu_page_css() {
-?>
-<style type="text/css">
-	table.featuredplugins td {
-		padding: 5px 10px 10px 10px;
-	}
-	table.featuredplugins td.left {
-		border-right: 1px solid #dfdfdf;
-	}
-	table.featuredplugins h3 {
-		margin: 0.5em 0;
-	}
-	table.featuredplugins td img {
-		-webkit-border-radius: 3px;
-		-moz-border-radius: 3px;
-		border-radius: 3px;
-		display: block;
-		float: left;
-		margin-right: 16px;
-		margin-bottom: 20px;
-		margin-top: 6px;
-	}
-	table.featuredplugins td div.description {
-		float: left;
-		max-width: 80%;
-	}
-	div.tablenav {
-		height: 10px;
-	}
-
-	.row-actions-visible .deactivate-manually span {
-		cursor: help;
-		color: gray;
-	}
-</style>
-<?php
 	}
 
 	/** Helper Functions ******************************************************/

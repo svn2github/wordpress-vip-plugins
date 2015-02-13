@@ -1,0 +1,31 @@
+table.featuredplugins td {
+	padding: 5px 10px 10px 10px;
+}
+table.featuredplugins td.left {
+	border-right: 1px solid #dfdfdf;
+}
+table.featuredplugins h3 {
+	margin: 0.5em 0;
+}
+table.featuredplugins td img {
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	display: block;
+	float: left;
+	margin-right: 16px;
+	margin-bottom: 20px;
+	margin-top: 6px;
+}
+table.featuredplugins td div.description {
+	float: left;
+	max-width: 80%;
+}
+div.tablenav {
+	height: 10px;
+}
+
+.row-actions-visible .deactivate-manually span {
+	cursor: help;
+	color: gray;
+}
