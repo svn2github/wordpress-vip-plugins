@@ -93,11 +93,14 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 				wp_set_post_terms( $single_post->ID, array( $author_term->slug ), $coauthors_plus->coauthor_taxonomy );
 				WP_CLI::line( "{$count}/{$posts->found_posts}) Added - Post #{$single_post->ID} '{$single_post->post_title}' now has an author term for: " . $author->user_nicename );
 				$affected++;
-				if ( $affected && $affected % 10 == 0 )
+				if ( $affected && $affected % 500 == 0 ){
+					$this->stop_the_insanity();
 					sleep( 3 );
+				}
+
 			}
 
-			$this->stop_the_insanity();
+
 
 			$this->args['paged']++;
 			$posts = new WP_Query( $this->args );
