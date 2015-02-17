@@ -915,7 +915,7 @@ function wpcom_vip_disable_hovercards() {
  */
 function wpcom_vip_disable_global_terms() {
 	add_filter( 'wpcom_is_globalized_taxonomy', '__return_false' );
-    add_filter( 'global_terms_enabled', '__return_false' );
+	add_filter( 'global_terms_enabled', '__return_false' );
 }
 
 /**
