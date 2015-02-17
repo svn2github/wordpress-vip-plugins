@@ -911,6 +911,14 @@ function wpcom_vip_disable_hovercards() {
 }
 
 /**
+ * Allow VIP themes to disable global terms on WordPress.com.
+ */
+function wpcom_vip_disable_global_terms() {
+	add_filter( 'wpcom_is_globalized_taxonomy', '__return_false' );
+    add_filter( 'global_terms_enabled', '__return_false' );
+}
+
+/**
  * Disables the WordPress.com-specific Customizer and Custom Design
  */
 function wpcom_vip_disable_custom_customizer() {
