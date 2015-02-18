@@ -224,9 +224,13 @@ function wpcom_vip_themes_root() {
 }
 
 /**
- * Returns the non-CDN uri to the VIP themes dir.
+ * Returns the non-CDN URI to the VIP themes dir.
  *
- * @return string
+ * Sometimes enqueuing/inserting resources can trigger cross-domain errors when
+ * using the CDN, so this function allows bypassing the CDN to eradicate those
+ * unwanted errors.
+ *
+ * @return string The URI
  */
 function wpcom_vip_themes_root_uri() {
 	if ( ! is_admin() ) {
