@@ -16,6 +16,19 @@ add_action( 'syn_after_init_server', function() {
 	}, 10, 2 );
 
 	// TODO: override schedule_delete_content and schedule_pull_content
+	$allowed_testing_sites = array(
+		15797879, //viptest
+		16567234, //vipmoretesting
+	);
+
+	if( in_array( get_current_blog_id(), $allowed_testing_sites ) ) {
+		add_filter( 'wpcom_vip_passthrough_cron_to_jobs', function ( $whitelist ) {
+			$whitelist[] = 'syn_pull_content';
+
+			return $whitelist;
+		}, - 9999 );
+	}
+
 } );
 
 // Failure notifications
