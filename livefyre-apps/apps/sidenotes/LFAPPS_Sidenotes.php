@@ -49,7 +49,7 @@ if ( ! class_exists( 'LFAPPS_Sidenotes' ) ) {
          * Add assets required by Livefyre Sidenotes
          */
         public static function load_resources() {
-            wp_register_script('Livefyre.js', 'http://cdn.livefyre.com/Livefyre.js');
+            wp_register_script('Livefyre.js', '//cdn.livefyre.com/Livefyre.js');
             wp_enqueue_script('Livefyre.js');
         }
         
