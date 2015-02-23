@@ -15,16 +15,19 @@ add_action( 'syn_after_init_server', function() {
 		xmpp_message( 'batmoo@im.wordpress.com', '[syn_schedule_push_content] job id for pushing post #' . $post_id . ' ('. home_url() .'): ' . $job_id );
 	}, 10, 2 );
 
-	/**
-	 * Override the default wp-cron based pull handling and use the WP.com jobs instead by adding
-	 * syn_pull_content to the jobs whitelist.
-	 * @see https://keepingtheirblogsgoing.wordpress.com/2015/02/20/converting-a-regular-cronjob-to-a-job/
-	 */
-	add_filter( 'wpcom_vip_passthrough_cron_to_jobs', function ( $whitelist ) {
-		$whitelist[] = 'syn_pull_content';
+	// TODO: override schedule_delete_content and schedule_pull_content
+	$allowed_testing_sites = array(
+		15797879, //viptest
+		16567234, //vipmoretesting
+	);
 
-		return $whitelist;
-	}, - 9999 );
+	if( in_array( get_current_blog_id(), $allowed_testing_sites ) ) {
+		add_filter( 'wpcom_vip_passthrough_cron_to_jobs', function ( $whitelist ) {
+			$whitelist[] = 'syn_pull_content';
+
+			return $whitelist;
+		}, - 9999 );
+	}
 
 } );
 
