@@ -22,14 +22,18 @@ $conv_config = array(
     'network'=>$network_name,
     'selectors'=>get_option('livefyre_apps-livefyre_sidenotes_selectors'),
 );
-
+$strings = apply_filters( 'livefyre_custom_sidenotes_strings', '' );
 $conv_config_str = json_encode($conv_config);
 ?>
 <script type="text/javascript">
-
 Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('sidenotes'); ?>'], function (Sidenotes) {
     load_livefyre_auth();
     var convConfigSidenotes = <?php echo $conv_config_str; ?>;
+    convConfigSidenotes['network'] = "<?php echo esc_js($network_name); ?>";
+    var sidenotesStrings = <?php echo json_encode($strings); ?>;
+    if (sidenotesStrings != '') {
+        convConfigSidenotes['strings'] = sidenotesStrings;
+    }
     if(typeof(livefyreSidenotesConfig) !== 'undefined') {
         convConfigSidenotes = lf_extend(convConfigSidenotes, livefyreSidenotesConfig);
     }

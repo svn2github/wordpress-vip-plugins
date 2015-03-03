@@ -81,12 +81,7 @@ class LFAPPS_Comments_Display {
             
             $collectionMetaToken = $site->buildCollectionMetaToken($title, $articleId, $url, array("tags"=>$tags, "type"=>"livecomments"));
             $checksum = $site->buildChecksum($title, $url, $tags);
-            
-            $strings = null;
-            if ( get_option('livefyre_apps-livefyre_language', 'English') != 'English' ) {
-                $strings = 'customStrings';
-            }
-            
+            $strings = apply_filters( 'livefyre_custom_comments_strings', '' );
             $livefyre_element = 'livefyre-comments';
             $display_template = false;
             LFAPPS_View::render_partial('script', 
@@ -231,12 +226,7 @@ class LFAPPS_Comments_Display {
 
         $collectionMetaToken = $site->buildCollectionMetaToken($title, $articleId, $url, array("tags"=>$tags, "type"=>"livecomments"));
         $checksum = $site->buildChecksum($title, $url, $tags);
-
-        $strings = null;
-        if ( get_option('livefyre_apps-livefyre_language', 'English') != 'English' ) {
-            $strings = 'customStrings';
-        }
-
+        $strings = apply_filters( 'livefyre_custom_comments_strings', '' );
         $livefyre_element = 'livefyre-comments-'.$articleId;
         $display_template = true;
         return LFAPPS_View::render_partial('script', 

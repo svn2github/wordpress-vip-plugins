@@ -1,8 +1,12 @@
 <div id="<?php echo esc_attr($livefyre_element); ?>"></div>
 <script type="text/javascript">
-    var networkConfig = {
-        network: "<?php echo esc_js($network->getName()); ?>"<?php echo $strings !== null ? ', strings: ' . esc_js($strings) : ''; ?>
+    var networkConfigBlog = {
+        network: "<?php echo esc_js($network->getName()); ?>"    
     };
+    var blogStrings = <?php echo json_encode($strings); ?>;
+    if (blogStrings != '') {
+        networkConfigBlog['strings'] = blogStrings;
+    }
     var convConfigBlog<?php echo esc_js($articleId); ?> = {
         siteId: "<?php echo esc_js($siteId); ?>",
         articleId: "<?php echo esc_js($articleId); ?>",
@@ -17,7 +21,7 @@
 
     Livefyre.require(['<?php echo Livefyre_Apps::get_package_reference('fyre.conv'); ?>'], function(ConvBlog) {
         load_livefyre_auth();
-        new ConvBlog(networkConfig, [convConfigBlog<?php echo esc_js($articleId); ?>], function(blogWidget) {            
+        new ConvBlog(networkConfigBlog, [convConfigBlog<?php echo esc_js($articleId); ?>], function(blogWidget) {            
         }());
     });
 </script>
