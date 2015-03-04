@@ -924,3 +924,8 @@ function wpcom_vip_disable_global_terms() {
 function wpcom_vip_disable_custom_customizer() {
 	add_filter( 'enable_custom_customizer', '__return_false' );
 }
+
+function wpcom_vip_remove_opensearch(){
+	global $opensearch;
+	remove_action( 'wp_head', array( $opensearch,'insertAutodiscovery' ) );
+}
