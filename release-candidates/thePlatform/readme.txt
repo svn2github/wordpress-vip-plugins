@@ -1,15 +1,15 @@
 === thePlatform Video Manager ===
-Developed By: thePlatform for Media, Inc.
+Developed By: thePlatform LLC
 Tags: embedding, video, embed, portal, theplatform, shortcode
 Requires at least: 3.7
-Tested up to: 4.1
-Stable tag: 1.3.4
+Tested up to: 4.2
+Stable tag: 1.4.0
 Contributors: thePlatform
 
 Manage your content hosted by thePlatform and embed media in WordPress posts.
 
 == Description ==
-View your content hosted by thePlatform for Media and easily embed videos from your library in WordPress posts, modify media metadata, and upload new media.
+View your content hosted by thePlatform and easily embed videos from your library in WordPress posts, modify media metadata, and upload new media.
 
 == Installation ==
 Copy the folder "thePlatform-video-manager" with all included files into the "wp-content/plugins" folder of WordPress. Activate the plugin and set your MPX credentials in the plugin settings interface.
@@ -23,14 +23,13 @@ Upload media to your MPX account
 
 == Changelog ==
 
-= 1.4.4 = 
-Clear BOMs from UTF8 strings as needed
-Add placeholders on form text fields
-Hide mediabutton if jQueryUI.dialog is not avaialble
-
-= 1.3.3 =
-Set default media embed type to release
-Add a tpEmbed class to our embed dialogs
+= 1.4.0 = 
+Added the ability to Publish, Revoke and Add Files to existing Media via the Edit dialog
+Added Thumbnailing functionality
+Support sorting search results
+Updating media no longer requires to refresh the entire media browser
+Added a button to reset plugin settings in the About page
+Uploads have been greatly sped up
 
 = 1.3.2 =
 Fixed uploads in Firefox
@@ -162,7 +161,8 @@ User ID Custom Field - Name of the Custom Field to store the WordPress User ID, 
 Show User ID as - If the User ID Custom Field is visible to editors, we will substitute it by either the user Full Name, Email, Nickname or Username
 Plugin Embed button type - Determine if thePlatform button should appear as a media_button, a TinyMCE button or both
 MPX Upload Server - Default MPX server to upload new media to, Default Server will attempt to intelligently pick a server
-Default Publish Profile - If set, uploaded media will automatically publish to the selected profile. 
+Default Publish Profile - If set, uploaded media will automatically publish to the selected profile
+Thumbnail Encoding Profile - The Encoding Profile to use when generating new thumbnails via the plugin
 
 = Filters =
 tp_base_embed_url - Just the player URL
