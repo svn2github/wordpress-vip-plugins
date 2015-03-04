@@ -1,6 +1,6 @@
 <?php
 /* thePlatform Video Manager Wordpress Plugin
-  Copyright (C) 2013-2015 thePlatform, LLC
+  Copyright (C) 2013-2014  thePlatform for Media Inc.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -19,46 +19,54 @@
 /*
  * Load scripts and styles 
  */
-add_action( 'wp_enqueue_scripts', 'theplatform_upload_clear_styles_and_scripts', 100912 );
+add_action('wp_enqueue_scripts', 'theplatform_upload_clear_styles_and_scripts', 100912);
 function theplatform_upload_clear_styles_and_scripts() {
-	global $wp_styles;
-	foreach ( $wp_styles->queue as $handle ) {
-		wp_dequeue_style( $handle );
-	}
+    global $wp_styles; 
+    foreach( $wp_styles->queue as $handle ) {   
+        wp_dequeue_style( $handle );
+    }    
 
-	global $wp_scripts;
-	foreach ( $wp_scripts->queue as $handle ) {
-		wp_dequeue_script( $handle );
-	}
+    global $wp_scripts; 
+    foreach( $wp_scripts->queue as $handle ) {   
+        wp_dequeue_script( $handle );
+    }   
 
-	wp_enqueue_script( 'tp_file_uploader_js' );
-	wp_enqueue_style( 'tp_file_uploader_css' );
+    wp_enqueue_script( 'tp_uploader_js' );
+    wp_enqueue_script( 'tp_nprogress_js' );
+    wp_enqueue_style( 'tp_nprogress_css' );
+    wp_enqueue_style( 'tp_bootstrap_css' );
+    wp_enqueue_style( 'tp_theplatform_css' );    
 }
 
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
-<head>
-	<meta charset="<?php bloginfo( 'charset' ); ?>"/>
+    <head>
+		<meta charset="<?php bloginfo( 'charset' ); ?>" />
+  
+		<title>thePlatform Video Library</title>        
+    <style type="text/css">
+      #wpstats {
+        display: none;
+      }
+    </style>
+		<?php wp_head(); ?>		
+    </head>
+  
+    <body class="tp">			    
+    <?php wp_footer(); ?> 
+    
+    <script type="text/javascript">     
 
-	<title>thePlatform Video Library</title>
-
-	<?php wp_head(); ?>
-</head>
-
-<body>
-<?php wp_footer(); ?>
-
-<script type="text/javascript">
-
-	window.opener.postMessage('theplatform_uploader_ready', '*');
-
-	window.onmessage = function (e) {
-		if (e.data.source == 'theplatform_upload_data') {
-			var uploaderData = e.data;
-			var theplatformUploader = new TheplatformUploader(uploaderData.files, uploaderData.params, uploaderData.custom_params, uploaderData.profile, uploaderData.server);
-		}
-	};
-</script>
-</body>
+            window.opener.postMessage('theplatform_uploader_ready', '*');
+              
+            window.onmessage = function(e) {
+              if (e.data.source == 'theplatform_upload_data') {
+                var uploaderData = e.data;
+                var theplatformUploader = new TheplatformUploader( uploaderData.files, uploaderData.params, uploaderData.custom_params, uploaderData.profile, uploaderData.server );    
+              }            
+                
+            };        
+        </script>
+    </body>    
 </html>

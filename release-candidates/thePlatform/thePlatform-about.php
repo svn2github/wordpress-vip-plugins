@@ -1,7 +1,7 @@
 <?php
 
 /* thePlatform Video Manager Wordpress Plugin
-  Copyright (C) 2013-2015 thePlatform LLC.
+  Copyright (C) 2013-2014  thePlatform for Media Inc.
 
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
@@ -18,76 +18,33 @@
   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. */
 
 ?>
-<div class="wrap">
+<style>
+	
+</style>
+<p> thePlatform Video Manager Wordpress Plugin version <?php echo TP_PLUGIN_VERSION; ?><br>
+	Copyright (C) 2013-<?php echo date("Y"); ?> thePlatform for Media Inc.<br>
+</p>
 
-	<h2>thePlatform Video Manager</h2>
-	<?php
-	$tp_admin_cap = apply_filters( TP_ADMIN_CAP, TP_ADMIN_DEFAULT_CAP );
+<p>The latest version of the plugin can be found at our GitHub repository:
+	<a href="https://github.com/thePlatform/thePlatform-video-manager">thePlatform-video-manager</a>
+</p>
 
-	if ( current_user_can( $tp_admin_cap ) ) {
+<p>The following libraries are used under their respective licenses:<br>
+	Holder - 2.3.1 - client side image placeholders<br>
+	(c) 2012-2014 <a href="http://imsky.co">Ivan Malopinsky</a>
+</p>
 
-		if ( isset( $_POST['delete'] ) ) {
-			check_admin_referer( 'theplatform_delete_settings_nonce' );
+<p>
+	Bootstrap<br>
+	Copyright (c) 2011-2014 <a href="http://getbootstrap.com/">Twitter, Inc</a>
+</p>
 
-			delete_option( TP_ACCOUNT_OPTIONS_KEY );
-			delete_option( TP_PREFERENCES_OPTIONS_KEY );
-			delete_option( TP_CUSTOM_METADATA_OPTIONS_KEY );
-			delete_option( TP_BASIC_METADATA_OPTIONS_KEY );
-			delete_option( TP_TOKEN_OPTIONS_KEY );
+<p>
+	jQuery infiniteScroll<br>
+	Copyright (c) 2010 <a href="https://github.com/denniscalazans/jquery-infinitescroll">DIY Co</a>
+</p>
 
-			echo '<div id="message" class="updated"><p>All plugin settings have been reset</p></div>';
-		}
-	}
-	?>
-	<p>Version <?php echo TP_PLUGIN_VERSION; ?><br>
-		Copyright (C) 2013-<?php echo date( "Y" ); ?> thePlatform LLC.<br>
-	</p>
-
-	<p>The latest version of the plugin can be found at our GitHub repository:
-		<a href="https://github.com/thePlatform/thePlatform-video-manager">thePlatform-video-manager</a>
-	</p>
-
-	<p>The following libraries are used under their respective licenses:<br>
-		Holder - 2.3.1 - client side image placeholders<br>
-		(c) 2012-2014 <a href="http://imsky.co">Ivan Malopinsky</a>
-	</p>
-
-	<p>
-		Bootstrap<br>
-		Copyright (c) 2011-2014 <a href="http://getbootstrap.com/">Twitter, Inc</a>
-	</p>
-
-	<p>
-		jQuery infiniteScroll<br>
-		Copyright (c) 2010 <a href="https://github.com/denniscalazans/jquery-infinitescroll">DIY Co</a>
-	</p>
-
-	<p>
-		NProgress<br>
-		Copyright (c) 2013-2015 <a href="http://ricostacruz.com/nprogress/">Rico Sta. Cruz</a>
-	</p>
-
-	<?php
-
-	// Administrators only should be able to delete all of the plugin settings
-	if ( current_user_can( $tp_admin_cap ) ) {
-		echo '<form name="delete_settings" action="' . esc_attr( admin_url( "admin.php?page=theplatform-about" ) ) . '" method="post"><input type="hidden" name="delete" value="delete">';
-		wp_nonce_field( 'theplatform_delete_settings_nonce' );
-		submit_button( 'Reset Plugin Settings' );
-		echo '</form>';
-	}
-	?>
-
-	<script type="text/javascript">
-		var clicked = false;
-		jQuery('#submit').click(function (e) {
-			if (!clicked) {
-				e.preventDefault();
-				clicked = true;
-				jQuery(this).val('Click Again to Confirm');
-			} else {
-
-			}
-		})
-	</script>
-</div>
+<p>
+  NProgress<br>
+  Copyright (c) 2013-2014 <a href="http://ricostacruz.com/nprogress/">Rico Sta. Cruz</a>
+</p>
