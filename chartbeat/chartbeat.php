@@ -277,6 +277,12 @@ function add_chartbeat_footer() {
 		<?php
 		$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
+		$title  = apply_filters( 'chartbeat_config_title', false );
+		if( $title ) {
+			?>
+			_sf_async_config.title = '<?php echo esc_js( $title ); ?>';
+			<?php
+		}
 		if ($enable_newsbeat) { ?>
 			_sf_async_config.domain = '<?php echo esc_js( $domain ); ?>';
 			<?php 
