@@ -233,19 +233,23 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	// Okay, it wasn't successful. Perhaps we have a backup result from earlier.
 	elseif ( $content = wp_cache_get( $backup_key, $cache_group ) ) {
 		// If a remote request failed, log why it did
-		if ( $response && ! is_wp_error( $response ) ) {
-			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
-		} elseif ( $response ) { // is WP_Error object
-			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
+			if ( $response && ! is_wp_error( $response ) ) {
+				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
+			} elseif ( $response ) { // is WP_Error object
+				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+			}
 		}
 	}
 	// Legacy
 	elseif ( $content = wp_cache_get( $old_backup_key, $cache_group ) ) {
 		// If a remote request failed, log why it did
-		if ( $response && ! is_wp_error( $response ) ) {
-			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
-		} elseif ( $response ) { // is WP_Error object
-			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
+			if ( $response && ! is_wp_error( $response ) ) {
+				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
+			} elseif ( $response ) { // is WP_Error object
+				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+			}
 		}
 	}
 	// We were unable to fetch any content, so don't try again for another 60 seconds
@@ -253,10 +257,12 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 		wp_cache_set( $disable_get_key, 1, $cache_group, 60 );
 
 		// If a remote request failed, log why it did
-		if ( $response && ! is_wp_error( $response ) ) {
-			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
-		} elseif ( $response ) { // is WP_Error object
-			error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
+			if ( $response && ! is_wp_error( $response ) ) {
+				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response['headers'] ) . ' ' . maybe_serialize( $response['response'] ) );
+			} elseif ( $response ) { // is WP_Error object
+				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . maybe_serialize( $response ) );
+			}
 		}
 		// So we can hook in other places and do stuff
 		do_action( 'wpcom_vip_remote_request_error', $url, $response );
@@ -645,7 +651,9 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 
 	if ( is_wp_error( $response ) ) {
 		// Log errors for internal WP.com debugging
-		error_log( "vip_safe_wp_remote_get: Blog ID {$blog_id}: Fetching $url with a timeout of $timeout failed. Result: " . maybe_serialize( $response ) );
+		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
+			error_log( "vip_safe_wp_remote_get: Blog ID {$blog_id}: Fetching $url with a timeout of $timeout failed. Result: " . maybe_serialize( $response ) );
+		}
 		do_action( 'wpcom_vip_remote_request_error', $url, $response );
 
 		return ( $fallback_value ) ? $fallback_value : $response;
