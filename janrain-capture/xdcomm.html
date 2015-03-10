@@ -33,6 +33,15 @@ document.write(unescape("%3Cscript src='" + rpxJsHost + "rpxnow.com/js/lib/xdcom
 
             logout = function(uri) {
                 refresh();
+
+                var destination = document.createElement( 'a' );
+                destination.href = uri;
+
+                // Only allow setting href for urls on same protocol/domain/port
+                if ( destination.origin !== WIN.document.location.origin ) {
+                    return;
+                }
+                
                 WIN.document.location.href = uri;
             }
 
