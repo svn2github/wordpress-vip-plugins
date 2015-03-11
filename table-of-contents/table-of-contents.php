@@ -15,7 +15,7 @@ class Table_Of_Contents {
 	}
 
 	function load_filters() {
-		if ( is_singular() || is_page() || is_singular() ) {
+		if ( is_singular() ) {
 			add_filter( 'the_content', array( __CLASS__, 'add_overview_h3' ) );
 			add_filter( 'the_content', array( __CLASS__, 'add_toc' ) );
 		}
