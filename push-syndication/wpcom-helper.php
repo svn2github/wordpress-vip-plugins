@@ -40,6 +40,9 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 		return;
 	}
 
+    // Temp disable
+    return;
+
 	$debug_output = '';
 
 	$debug_output .= 'Result: ' . var_export( $result, true ) . PHP_EOL . PHP_EOL;
