@@ -1,7 +1,7 @@
 <?php
 if ( get_option( 'tm_coschedule_token' ) ) {
     if ( current_user_can( 'edit_posts' ) ) {
-        $url = "https://dgp49e2avkx9v.cloudfront.net/#/authenticate?blogID=" . esc_attr( get_option( 'tm_coschedule_id' ) );
+        $url = "https://app.coschedule.com/calendar/#/authenticate?blogID=" . urlencode( get_option( 'tm_coschedule_id' ) );
         $url .= "&redirect=dashboard&build=" . $this->build;
         $url .= "&userID=" . $this->current_user_id;
 ?>

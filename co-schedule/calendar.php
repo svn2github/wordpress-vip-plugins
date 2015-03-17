@@ -1,6 +1,6 @@
 <?php
 
-$url = 'https://dgp49e2avkx9v.cloudfront.net/#/authenticate?blogID=' . esc_attr( get_option( 'tm_coschedule_id' ) );
+$url = 'https://app.coschedule.com/calendar/#/authenticate?blogID=' . urlencode( get_option( 'tm_coschedule_id' ) );
 $url .= '&build=' . $this->build;
 $url .= "&userID=" . $this->current_user_id;
 $render_calendar = true;
@@ -8,7 +8,7 @@ $render_calendar = true;
 // Check permissions
 if ( get_option( 'tm_coschedule_token' ) ) {
     if ( current_user_can( 'edit_posts' ) && isset( $_GET['tm_cos_user_token'] ) && ! empty( $_GET['tm_cos_user_token'] ) ) {
-        $url .= '&userToken=' . esc_attr( $_GET['tm_cos_user_token'] ) . '&redirect=schedule';
+        $url .= '&userToken=' . urlencode( $_GET['tm_cos_user_token'] ) . '&redirect=schedule';
     } else if ( current_user_can( 'edit_posts' ) ) {
         $url .= '&redirect=schedule';
     } else {

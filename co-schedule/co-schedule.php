@@ -2,7 +2,7 @@
 /*
 Plugin Name: CoSchedule by Todaymade
 Description: Schedule social media messages alongside your blog posts in WordPress, and then view them on a Google Calendar interface. <a href="http://app.coschedule.com" target="_blank">Account Settings</a>
-Version: 2.2.4
+Version: 2.3.1
 Author: Todaymade
 Author URI: http://todaymade.com/
 Plugin URI: http://coschedule.com/
@@ -22,15 +22,15 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
     class TM_CoSchedule  {
         private $api = "https://api.coschedule.com";
         private $app = "https://app.coschedule.com";
-        private $app_metabox = "https://d1aok0dvhg3mh7.cloudfront.net";
-        private $plugin_remote = "https://d27i93e1y9m4f5.cloudfront.net";
+        private $app_metabox = "https://app.coschedule.com/metabox";
         private $assets = "https://d2lbmhk9kvi6z5.cloudfront.net";
-        private $version = "2.2.4";
-        private $build = 42;
+        private $version = "2.3.1";
+        private $build = 49;
         private $connected = false;
         private $token = false;
         private $blog_id = false;
         private $current_user_id = false;
+        private $is_wp_vip = false;
 
         /**
          * Class constructor: initializes class variables and adds actions and filters.
@@ -46,8 +46,8 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             // Load variables
             $this->token = get_option( 'tm_coschedule_token' );
             $this->blog_id = get_option( 'tm_coschedule_id' );
-            $this->current_user_id = get_current_user_id();
             $this->synced_build = get_option( 'tm_coschedule_synced_build' );
+            $this->is_wp_vip = ( defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV === true );
 
             // Check if connected to api
             if ( ! empty( $this->token ) && ! empty( $this->blog_id ) ) {
@@ -94,7 +94,10 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             if ( get_option( 'tm_coschedule_activation_redirect', false ) ) {
                 // Redirect to settings page
                 if ( delete_option( 'tm_coschedule_activation_redirect' ) ) {
+                    // NOTE: call to exit after wp_redirect is per WP Codex doc:
+                    //       http://codex.wordpress.org/Function_Reference/wp_redirect#Usage
                     wp_redirect( 'admin.php?page=tm_coschedule_calendar' );
+                    exit;
                 }
             }
         }
@@ -159,6 +162,12 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             add_action( 'load-post.php', array( $this, "meta_box_action" ) );
             add_action( 'load-post-new.php', array( $this, "meta_box_action" ) );
 
+            if ( $this->is_wp_vip !== true ) {
+                // Ajax: Trigger cron - only available in non-WP-VIP environments
+                add_action( 'wp_ajax_tm_aj_trigger_cron', array( $this, 'tm_aj_trigger_cron' ) );
+                add_action( 'wp_ajax_nopriv_tm_aj_trigger_cron', array( $this, 'tm_aj_trigger_cron' ) );
+            }
+
             // Ajax: Get blog info
             add_action( 'wp_ajax_tm_aj_get_bloginfo', array( $this, 'tm_aj_get_bloginfo' ) );
             add_action( 'wp_ajax_nopriv_tm_aj_get_bloginfo', array( $this, 'tm_aj_get_bloginfo' ) );
@@ -216,6 +225,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
         public function add_submenu() {
             if ( true == $this->connected ) {
                 add_submenu_page( 'tm_coschedule_calendar', 'My Activity', 'My Activity', 'edit_posts', 'tm_coschedule_activity', array( $this, 'plugin_activity_page' ) );
+                add_submenu_page( 'tm_coschedule_calendar', 'Top Posts', 'Top Posts', 'edit_posts', 'tm_coschedule_top_posts', array( $this, 'plugin_top_posts_page' ) );
                 add_submenu_page( 'tm_coschedule_calendar', 'My Team', 'My Team', 'edit_posts', 'tm_coschedule_team', array( $this, 'plugin_team_page' ) );
                 add_submenu_page( 'tm_coschedule_calendar', 'Settings', 'Settings', 'edit_posts', 'tm_coschedule_settings', array( $this, 'plugin_settings_page' ) );
                 add_submenu_page( 'tm_coschedule_calendar', 'Need Help?', 'Need Help?', 'edit_posts', 'tm_coschedule_help', array( $this, 'plugin_help_page' ) );
@@ -229,7 +239,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             global $submenu;
 
             if ( true == $this->connected ) {
-                $url = $this->app . '/#/blog/' . $this->blog_id . '/schedule';
+                $url = $this->app . '/#/calendar/' . $this->blog_id . '/schedule';
                 $submenu['tm_coschedule_calendar'][500] = array( '<span class="cos-submenu-new-window">Open In Web App</span>', 'edit_posts', esc_url( $url ) );
             }
         }
@@ -238,9 +248,9 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
          * Enqueue script for opening submenu links in new window
          */
         public function admin_submenu_new_window_items_jquery() {
-            $cache_bust = $this->get_cache_bust();
+            $cache_bust = urlencode( $this->get_cache_bust() );
             $url = $this->assets . '/plugin/js/cos-plugin-new-window.js?cb=' . $cache_bust;
-            wp_enqueue_script( 'cos_js_plugin_new_window', esc_url( $url ), false, null, true );
+            wp_enqueue_script( 'cos_js_plugin_new_window', $url, false, null, true );
         }
 
         /**
@@ -258,20 +268,19 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
         * Settings page styles
         */
         public function plugin_iframe_styles() {
-            $cache_bust = $this->get_cache_bust();
+            $cache_bust = urlencode( $this->get_cache_bust() );
             $url = $this->assets . '/plugin/css/cos-iframe-fix.css?cb=' . $cache_bust;
-            wp_enqueue_style( 'cos_css', esc_url( $url ) );
+            wp_enqueue_style( 'cos_css', $url );
         }
 
         /**
         * Settings page scripts
         */
         public function plugin_settings_scripts() {
-            $cache_bust = $this->get_cache_bust();
-
-            wp_enqueue_style( 'cos_css', esc_url( $this->assets . '/plugin/css/cos-plugin-setup.css?cb=' . $cache_bust ) );
-            wp_enqueue_script( 'cos_js_config', esc_url( $this->assets . '/config.js?cb=' . $cache_bust ), false, null, true );
-            wp_enqueue_script( 'cos_js_plugin', esc_url( $this->assets . '/plugin/js/cos-plugin-setup.js?cb=' . $cache_bust ), false, null, true );
+            $cache_bust = urlencode( $this->get_cache_bust() );
+            wp_enqueue_style( 'cos_css', $this->assets . '/plugin/css/cos-plugin-setup.css?cb=' . $cache_bust );
+            wp_enqueue_script( 'cos_js_config', $this->assets . '/config.js?cb=' . $cache_bust, false, null, true );
+            wp_enqueue_script( 'cos_js_plugin', $this->assets . '/plugin/js/cos-plugin-setup.js?cb=' . $cache_bust, false, null, true );
         }
 
         /**
@@ -285,10 +294,10 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             // Check if connected
             if ( true == $this->connected ) {
                 $this->plugin_iframe_styles();
-                include __DIR__ . '/calendar.php';
+                include( sprintf( "%s/calendar.php", dirname( __FILE__ ) ) );
             } else {
                 $this->plugin_settings_scripts();
-                include __DIR__ . '/plugin_setup.php';
+                include( sprintf( "%s/plugin_setup.php", dirname( __FILE__ ) ) );
             }
         }
 
@@ -307,7 +316,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
                 $this->plugin_settings_scripts();
             }
 
-            include __DIR__ . '/team.php';
+            include( sprintf( "%s/team.php", dirname( __FILE__ ) ) );
         }
 
         /**
@@ -321,7 +330,21 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             // Setup styles
             $this->plugin_iframe_styles();
 
-            include __DIR__ . '/activity.php';
+            include( sprintf( "%s/activity.php", dirname( __FILE__ ) ) );
+        }
+
+        /**
+         * Top Posts page menu callback
+         */
+        public function plugin_top_posts_page() {
+            if( ! current_user_can( 'edit_posts' ) ) {
+                wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
+            }
+
+            // Setup styles
+            $this->plugin_iframe_styles();
+
+            include( sprintf( "%s/top_posts.php", dirname( __FILE__ ) ) );
         }
 
         /**
@@ -339,7 +362,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
                 $this->plugin_settings_scripts();
             }
 
-            include __DIR__ . '/settings.php';
+            include( sprintf( "%s/settings.php", dirname( __FILE__ ) ) );
         }
 
         /**
@@ -353,7 +376,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             // Setup styles
             $this->plugin_iframe_styles();
 
-            include __DIR__ . '/help.php';
+            include( sprintf( "%s/help.php", dirname( __FILE__ ) ) );
         }
 
         /**
@@ -428,22 +451,20 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
         * Metabox iframe styles
         */
         public function metabox_iframe_styles() {
-            $cache_bust = $this->get_cache_bust();
+            $cache_bust = urlencode( $this->get_cache_bust() );
             $url = $this->assets . '/plugin/css/cos-metabox.css?cb=' . $cache_bust;
-
-            wp_enqueue_style( 'cos_metabox_css', esc_url( url ) );
+            wp_enqueue_style( 'cos_metabox_css', $url );
         }
 
         /**
         * Metabox iframe scripts
         */
         public function metabox_iframe_scripts() {
-            $cache_bust = $this->get_cache_bust();
+            $cache_bust = urlencode( $this->get_cache_bust() );
             $resizer_url = $this->assets . '/plugin/js/cos-iframe-resizer.js?cb=' . $cache_bust;
             $resizer_exec_url = $this->assets . '/plugin/js/cos-iframe-resizer-exec.js?cb=' . $cache_bust;
-
-            wp_enqueue_script( 'cos_js_iframe_resizer', esc_url( $resizer_url ), false, null, true );
-            wp_enqueue_script( 'cos_js_iframe_resizer_exec', esc_url( $resizer_exec_url ), false, null, true );
+            wp_enqueue_script( 'cos_js_iframe_resizer', $resizer_url, false, null, true );
+            wp_enqueue_script( 'cos_js_iframe_resizer_exec', $resizer_exec_url, false, null, true );
         }
 
         /*
@@ -452,11 +473,16 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
          * Inserts the meta box
          */
         public function meta_box_insert( $post ) {
-            $url = esc_attr( $this->app_metabox );
-            $url .= "/#/authenticate?blogID=" . esc_attr( get_option( 'tm_coschedule_id' ) );
-            $url .= "&postID=" . esc_attr( $post->ID );
-            $url .= "&build=" . esc_attr( $this->build );
-            $url .= "&userID=" . esc_attr( $this->current_user_id );
+            $blog_id = get_option( 'tm_coschedule_id' );
+            $query_params = array(
+                "blogID" => urlencode( $blog_id ),
+                "postID" => urlencode( $post->ID ),
+                "build"  => urlencode( $this->build ),
+                "userID" => urlencode( $this->current_user_id )
+            );
+            $url = untrailingslashit( $this->app_metabox ) . "/#/authenticate";
+            // NOTE: calling add_query_arg(...) with empty string to avoid it relocating the hash location of above $url
+            $url .= add_query_arg( $query_params, '' );
         ?>
             <iframe id="CoSmetabox" frameborder="0" border="0" scrolling="no" src="<?php echo esc_url( $url ); ?>" width="100%"></iframe>
         <?php
@@ -494,6 +520,65 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
         }
 
         /**
+         * Ajax: "Near Realtime Assist"
+         * Triggers internal cron at the scheduled time of publication for a particular post
+         */
+        public function tm_aj_trigger_cron( $data_args ) {
+            $response = array();
+            header( 'Content-Type: application/json' );
+
+            try {
+                if ( isset( $_GET['token'] ) ) {
+                    $token = $_GET['token'];
+                } else {
+                    $token = $data_args['token'];
+                }
+                $this->sanitize_param( $token );
+
+                // only proceed if valid token
+                if ( true == $this->valid_token( $token ) ) {
+
+                    if ( is_array( $_GET ) && array_key_exists( 'post_id', $_GET ) ) {
+                        $post_id = $_GET['post_id'];
+                    } else if ( is_array( $data_args ) && array_key_exists( 'post_id', $data_args ) ) {
+                        $post_id = $data_args['post_id'];
+                    }
+                    $this->sanitize_param( $post_id );
+
+                    // purge any post caches
+                    $cache_flush_result = $this->cache_flush( $post_id );
+
+                    if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
+                        // wp_cron is disabled
+                        $wp_cron_response = 'disabled';
+                    } else {
+                        // wp_cron can be executed, do it
+                        $wp_cron_response = ( ( wp_cron() !== null ) ? true : false );
+                    }
+
+                    // if indication is wp_cron not run or disabled, force the issue //
+                    if ( $wp_cron_response == false || $wp_cron_response == 'disabled' ) {
+                        $publish_missed_schedule_posts_result = $this->publish_missed_schedule_posts( $post_id );
+                    }
+
+                    // report the findings
+                    $response['wp_cron_was_run'] = $wp_cron_response;
+                    $response['cache_flush_result'] = $cache_flush_result;
+                    $response['publish_missed_schedule_posts_result'] = $publish_missed_schedule_posts_result;
+                    $response['server_time'] = time();
+                    $response['server_date'] = date( 'c' );
+                    $response['gmt_offset'] = get_option('gmt_offset');
+                    $response['tz_abbrev'] = date( 'T' );
+                }
+            } catch ( Exception $e ) {
+                $response['error'] = $e->getMessage();
+            }
+
+            echo json_encode( $this->array_decode_entities( $response ) );
+            die();
+        }
+
+        /**
          * Ajax: Return blog info
          */
         public function tm_aj_get_bloginfo( $data_args ) {
@@ -511,7 +596,8 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
                     "timezone_string" =>  get_option( "timezone_string" ),
                     "gmt_offset"      =>  get_option( "gmt_offset" ),
                     "plugin_version"  =>  $this->version,
-                    "plugin_build"    =>  $this->build
+                    "plugin_build"    =>  $this->build,
+                    "is_wp_vip"       =>  $this->is_wp_vip
                 );
 
                 if ( isset( $_GET['tm_debug'] ) || isset( $data_args['tm_debug'] ) ) {
@@ -777,7 +863,8 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
                 $defer_token_check = array(
                     'tm_aj_deactivation',
                     'tm_aj_check_token',
-                    'tm_aj_get_bloginfo'
+                    'tm_aj_get_bloginfo',
+                    'tm_aj_trigger_cron'
                 );
 
                 // Functions in the WP environment
@@ -796,8 +883,15 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
                     'tm_aj_get_full_post',
                     'tm_aj_check_token',
                     'tm_aj_set_custom_post_types',
-                    'tm_aj_deactivation'
+                    'tm_aj_deactivation',
+                    'tm_aj_trigger_cron'
                 );
+
+                // do not allow some functions when in WP-VIP environments
+                if ( $this->is_wp_vip === true ) {
+                    unset( $defer_token_check[ array_search( 'tm_aj_trigger_cron', $defer_token_check ) ] );
+                    unset( $private_functions[ array_search( 'tm_aj_trigger_cron', $private_functions ) ] );
+                }
 
                 // Allowed functions
                 $allowed = array_merge( $wp_functions, $private_functions );
@@ -976,9 +1070,8 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             $site_url = get_site_url();
 
             // remove trailing slash from site url
-            if( substr( $site_url, -1 ) == '/' ) {
-                $site_url = substr( $site_url, 0, -1 );
-            }
+            // Codex Reference: http://codex.wordpress.org/Function_Reference/untrailingslashit
+            $site_url = untrailingslashit( $site_url );
 
             // Only include valid URL
             if ( is_string( $post_thumbnail_url ) && strlen( $post_thumbnail_url ) > 0 ) {
@@ -1001,9 +1094,8 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
             $site_url = get_site_url();
 
             // remove trailing slash from site url
-            if( substr( $site_url, -1 ) == '/' ) {
-                $site_url = substr( $site_url, 0, -1 );
-            }
+            // Codex Reference: http://codex.wordpress.org/Function_Reference/untrailingslashit
+            $site_url = untrailingslashit( $site_url );
 
             preg_match_all( '/<img[^>]+>/i', $content, $images );
 
@@ -1056,7 +1148,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
         }
 
         /**
-         * Callback for when a post is opened for editting
+         * Callback for when a post is opened for editing
          */
         public function edit_post_callback() {
              if ( isset( $_GET['post'] ) ) {
@@ -1070,8 +1162,12 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
          * Callback for when a post is created or updated
          */
         public function save_post_callback( $post_id ) {
+            // allow external plugins to hook CoSchedule's post save hook in order to ignore certain post updates //
+            // useful for plugins that do highly custom things with WordPress posts                               //
+            // filter with caution as incorrect filtering could leave CoSchedule with stale data                  //
+            $filter_result = apply_filters( 'tm_coschedule_save_post_callback_filter', true , $post_id );
             // Verify post is not a revision
-            if ( true == $this->connected && ! wp_is_post_revision( $post_id ) ) {
+            if ( true == $this->connected && ! wp_is_post_revision( $post_id ) && $filter_result ) {
                 // Load post
                 $post = $this->get_full_post( $post_id );
 
@@ -1084,8 +1180,12 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
          * Callback for when a post is deleted
          */
         public function delete_post_callback( $post_id ) {
+            // allow external plugins to hook CoSchedule's post delete hook in order to ignore certain post deletes //
+            // useful for plugins that do highly custom things with WordPress posts                                 //
+            // filter with caution as incorrect filtering could leave CoSchedule with stale data                    //
+            $filter_result = apply_filters( 'tm_coschedule_delete_post_callback_filter', true , $post_id );
             // Verify post is not a revision
-            if ( true == $this->connected && ! wp_is_post_revision( $post_id ) ){
+            if ( true == $this->connected && ! wp_is_post_revision( $post_id ) && $filter_result ){
                 // Send to API
                 $this->api_post( '/hook/wordpress_posts/delete?_wordpress_key=' . $this->token, array( 'post_id' => $post_id ) );
             }
@@ -1179,7 +1279,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
                 'method' => 'POST',
                 'body'   => $this->array_decode_entities( $body )
             );
-            return $http->request( esc_url( $this->api . $url ), $params );
+            return $http->request( $this->api . $url, $params );
         }
 
         /**
@@ -1188,8 +1288,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
          */
         public function api_get( $url ) {
             $http = new WP_Http;
-            $url = $this->api . $url;
-            return $http->request( esc_url( $url ) );
+            return $http->request( $this->api . $url );
         }
 
         /**
@@ -1199,7 +1298,7 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
         public function get_cache_bust() {
             $location = $this->assets . '/plugin/cache_bust.txt';
             $response = '';
-            $result;
+            $result = null;
 
             // Check if VIP functions exist, which will cache response
             // for fifteen minutes, with a timeout of three seconds
@@ -1312,8 +1411,91 @@ if ( ! class_exists( 'tm_coschedule' ) ) {
                 $param = esc_html( $param );
             }
         }
-    } // End tm_coschedule class
 
-    // Init Class
-    new TM_CoSchedule();
+        public function cache_flush( $post_id ) {
+            $cache_flush_response = array();
+
+            try {
+                // generic WP cache flush scoped to a post ID.
+                // well behaved caching plugins listen for this action.
+                // WPEngine (which caches outside of WP) also listens for this action.
+                $cache_flush_response['clean_post_cache'] = null;
+                if ( is_numeric( $post_id ) ) {
+                    clean_post_cache( $post_id );
+                    $cache_flush_response['clean_post_cache'] = true;
+                }
+            } catch ( Exception $e ) {
+                $cache_flush_response['exception'] = $e->getMessage();
+            }
+
+            return $cache_flush_response;
+        }
+
+        /**
+         * Function definition is based on core of https://wordpress.org/plugins/wp-missed-schedule/
+         */
+        public function publish_missed_schedule_posts( $post_id ) {
+            global $wpdb;
+            $publish_missed_schedule_posts_response = array();
+
+            try {
+                $post_date = current_time( 'mysql', 0 );
+                $publish_missed_schedule_posts_response['post_date'] = $post_date;
+
+                if ( is_numeric( $post_id ) ) {
+                    $qry = "SELECT ID FROM {$wpdb->posts} WHERE ID = %d AND ( ( post_date > 0 && post_date <= %s ) ) AND post_status = 'future' LIMIT 1";
+                    $sql = $wpdb->prepare( $qry, $post_id, $post_date );
+                } else {
+                    $qry = "SELECT ID FROM {$wpdb->posts} WHERE ( ( post_date > 0 && post_date <= %s ) ) AND post_status = 'future' LIMIT 0,10";
+                    $sql = $wpdb->prepare( $qry, $post_date );
+                }
+                //log('SQL: ' . $sql);
+                $post_ids = $wpdb->get_col( $sql );
+
+                $count_missed_schedule = count( $post_ids );
+                $publish_missed_schedule_posts_response['count_missed_schedule'] = $count_missed_schedule;
+
+                if ( $count_missed_schedule > 0 ) {
+                    $publish_missed_schedule_posts_response['missed_schedule_post_ids'] = $post_ids;
+                    foreach ( $post_ids as $post_id ) {
+                        if ( !$post_id ) {
+                            continue;
+                        }
+                        // !!! LET THE MAGIC HAPPEN !!! //
+                        wp_publish_post( $post_id );
+                    }
+                }
+            } catch ( Exception $e ) {
+                $publish_missed_schedule_posts_response['exception'] = $e->getMessage();
+            }
+
+            return $publish_missed_schedule_posts_response;
+        }
+
+    } // End TM_CoSchedule class
+
+    global $wp_version;
+    $coschedule_min_wp_version = '3.5';
+
+    // Version guard to avoid blowing up in unsupported versions
+    if ( version_compare( $wp_version, $coschedule_min_wp_version, '<' ) ) {
+        if ( isset( $_REQUEST['action'] ) && ( $_REQUEST['action'] == 'error_scrape' ) ) {
+
+            $plugin_data = get_plugin_data( __FILE__, false );
+
+            $activation_error = '<div class="error">';
+            $activation_error .= '<strong>' . esc_html( $plugin_data['Name'] ) . '</strong> requires <strong>WordPress ' . $coschedule_min_wp_version . '</strong> or higher, and has been deactivated!<br/><br/>'.
+                                    'Please upgrade WordPress and try again.';
+            $activation_error .= '</div>';
+
+            die( $activation_error );  // die() to stop execution
+        } else {
+            trigger_error( $message, E_USER_ERROR ); // throw an error, execution flow returns
+        }
+        // note, no need for return here as error or die will return execution to caller
+    }
+
+    // Passed version check
+    return new TM_CoSchedule();
+
 }

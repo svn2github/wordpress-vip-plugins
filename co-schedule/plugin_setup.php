@@ -76,7 +76,7 @@
                                         <input class="input-jumbo input-block-level" type="text" name="tm_coschedule_email" id="tm_coschedule_email" placeholder="Email Address"><br>
                                         <label class="form-label ie-only text-left">Password</label>
                                         <input class="input-jumbo input-block-level" type="password" name="tm_coschedule_password" id="tm_coschedule_password" placeholder="Password"><br>
-                                        <button type="submit" class="btn btn-blue btn-jumbo btn-block" id="tm_activate_button">Sign In</button>
+                                        <button type="submit" class="btn btn-blue btn-jumbo btn-block default" id="tm_activate_button">Sign In</button>
                                         <div class="text-center grey brandon-regular marg-t pad-t" style="margin-bottom: -20px;">
                                             Don't have a CoSchedule account yet? <a href="#" class="tm_form_mode_register">Register now</a>.
                                         </div>
@@ -104,7 +104,7 @@
                                                 Almost ready <br/> don't stop now!
                                             </div>
                                         </div>
-                                        <button type="submit" class="btn btn-blue btn-jumbo btn-block" id="tm_activate_button_register">Start your 14 day free trial <span aria-hidden="true" class="icon-arrow"></span></button>
+                                        <button type="submit" class="btn btn-blue btn-jumbo btn-block default" id="tm_activate_button_register">Start your 14 day free trial <span aria-hidden="true" class="icon-arrow"></span></button>
                                         <div class="text-center grey brandon-regular marg-t pad-t" style="margin-bottom: -20px;">
                                             Already have a CoSchedule account? <a href="#" class="tm_form_mode_login">Sign in now</a>.
                                         </div>
@@ -139,6 +139,16 @@
             resize();
             $(window).resize(function() {
                 resize();
+            });
+
+            // add enter key trigger submit action //
+            $('input[type=text],input[type=password]').keypress(function (e) {
+                var result = true;
+                if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {
+                    $(e.target).parents('#tm_form_login, #tm_form_register').find('button[type=submit].default').click();
+                    result = false;
+                }
+                return result;
             });
         });
     </script>
