@@ -181,6 +181,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Chartbeat',
 				'description' => 'Get a free trial to see your site\'s real-time data.',
 			),
+			'co-schedule'     => array(
+				'name'        => 'CoSchedule',
+				'description' => 'Plan awesome content. Save a bunch of time.',
+			),
 			'facebook'       => array(
 				'name'        => 'Facebook',
 				'description' => 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
