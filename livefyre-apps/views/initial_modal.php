@@ -5,7 +5,7 @@
         <div class='lfapps-env-box lfapps-community'>            
             <label for="lfapps-community-env-radio">                
                 <h4><input type="radio" id="lfapps-community-env-radio" name="lfapps-env" value="community" <?php echo get_option('livefyre_apps-package_type') === 'community' ? 'checked' : ''; ?>> <?php esc_html_e('Community', 'lfapps'); ?></h4>
-                <p><?php esc_html_e('Our free community comment and sidenote products that are ideal for bloggers. Learn more > ', 'lfapps'); ?> <a href='http://web.livefyre.com/'>LiveComments</a></br></p>
+                <p><?php esc_html_e('Our free community comment and sidenote products that are ideal for bloggers. Learn more > ', 'lfapps'); ?> <a href='http://web.livefyre.com/'>Comments</a></br></p>
             </label>            
         </div>
         <div class='lfapps-env-box lfapps-enterprise'>

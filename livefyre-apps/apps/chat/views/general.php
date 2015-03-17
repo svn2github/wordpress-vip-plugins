@@ -14,14 +14,14 @@
         <div id="normal-sortables" class="meta-box-sortables ui-sortable">
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
-                <h3 class="hndle"><span><?php esc_html_e('LiveChat Settings', 'lfapps-chat'); ?></span></h3>
+                <h3 class="hndle"><span><?php esc_html_e('Chat Settings', 'lfapps-chat'); ?></span></h3>
                 <form name="livefyre_chat_general" id="livefyre_chat_general" action="options.php" method="POST">
                     <?php settings_fields('livefyre_apps_settings_chat'); ?>
                     <div class='inside'>
                         <table cellspacing="0" class="lfapps-form-table">
                             <tr>
                                 <th align="left" scope="row">
-                                    <?php esc_html_e('Enable LiveChat on', 'lfapps-chat'); ?>
+                                    <?php esc_html_e('Enable Chat on', 'lfapps-chat'); ?>
                                 </th>
                                 <td align="left" valign="top">
                                     <?php
@@ -43,7 +43,7 @@
                                         }
                                         ?>
                                         <input <?php echo $disabled ? 'disabled' : ''; ?> type="checkbox" id="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" name="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" value="true" <?php echo $checked; ?>/>
-                                        <label for="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-chat'); ?><?php echo $disabled ? ' <small><em>(LiveComments enabled.)</em></small>' : ''; ?></label><br/>
+                                        <label for="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-chat'); ?><?php echo $disabled ? ' <small><em>(Comments enabled.)</em></small>' : ''; ?></label><br/>
                                         <?php
                                     }
                                     ?>
@@ -51,20 +51,23 @@
                             </tr>
                             <tr>
                                 <td colspan='2'>
-                                    <?php esc_html_e('(Select the types of posts on which you wish to enable LiveChat. Note: Only LiveChat or LiveComments may be enabled for each of these options.)', 'lfapps-chat'); ?>
+                                    <?php esc_html_e('(Select the types of posts on which you wish to enable Chat. Note: Only Chat or Comments may be enabled for each of these options.)', 'lfapps-chat'); ?>
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan='2' class="info">
-                                    <strong>Note:</strong>
-                                    <p>There multiple other configuration options available for LiveChat and you can specify them by
+                                <td colspan='2'>
+                                    <br />
+                                    <strong>Comments Configuration Options:</strong>
+                                    <p>There multiple other configuration options available for Chat and you can specify them by
                                     declaring "liveChatConfig" variable in your theme header. For example:</p>
                                     <blockquote class="code">
                                     <?php echo esc_html("<script>
                                          var liveChatConfig = { disableAvatars: true; }
                                          </script>"); ?>                                            
                                     </blockquote>
-                                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/chat/#convConfigObject">Click here</a> for a full explanation of LiveChat options.</p>
+                                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/chat/#convConfigObject">Click here</a> for a full explanation of Chat options.</p>
+                                    <strong>Chat String Customizations:</strong>
+                                    <p>String customizations are possible as well through applying WordPress filters. Information on how to implement this is <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
                                 </td>
                             </tr>
                         </table>
@@ -84,7 +87,7 @@
         <div id="normal-sortables" class="meta-box-sortables ui-sortable">
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
-                <h3 class="hndle"><span><?php esc_html_e('LiveChat Status', 'lfapps-chat'); ?></span></h3>
+                <h3 class="hndle"><span><?php esc_html_e('Chat Status', 'lfapps-chat'); ?></span></h3>
                 <div class="inside">
                     <div class='lfcomments-status-row clearfix'>
                         <div class='lfcomments-status-box'>
@@ -110,7 +113,7 @@
                             <h4><?php esc_html_e('Allow Comments/Chat Status', 'lfapps-chat'); ?> (<?php echo esc_html($count_posts_with_closed_comments); ?>)</h4>
                             <?php if($count_posts_with_closed_comments > 0): ?>
                                 <p class="info">We've automagically found that you do not have the "Allow Comments" box in WordPress checked on the posts and pages listed below, which means that the Livefyre widget will not be present on them. 
-                                To be sure that the LiveChat widget is visible on these posts or pages, simply click on the "enable" button next to each.</p>
+                                To be sure that the Chat widget is visible on these posts or pages, simply click on the "enable" button next to each.</p>
                                 <p class="info">If you'd like to simply close commenting on any post or page with the Livefyre widget still present, you can do so from your Livefyre admin panel by clicking the "Livefyre Admin" link to the right, 
                                 clicking "Conversations", and then clicking "Stream Settings."</p>
                                 <?php if(count($posts_with_closed_comments) > 0): ?>
@@ -144,13 +147,13 @@
         <div id="normal-sortables" class="meta-box-sortables ui-sortable">
             <div id="referrers" class="postbox ">
                 <div class="handlediv" title="Click to toggle"><br></div>
-                <h3 class="hndle"><span><?php esc_html_e('LiveChat Shortcode', 'lfapps-chat'); ?></span></h3>
+                <h3 class="hndle"><span><?php esc_html_e('Chat Shortcode', 'lfapps-chat'); ?></span></h3>
                 <div class='inside'>
-                    <p>LiveChat can also be activated by placing a shortcode inside your content.</p>
-                    <p>The shortcode usage is pretty simple. Let's say we wish to generate a LiveChat stream inside post content. We could enter something like this
+                    <p>Chat can also be activated by placing a shortcode inside your content.</p>
+                    <p>The shortcode usage is pretty simple. Let's say we wish to generate a Chat stream inside post content. We could enter something like this
                         inside the content editor:</p>
                     <p class='code'>[livefyre_livechat]</p>
-                    <p>LiveChat streams are separated by the "Article ID" and if not specified it will use the current post ID. You can define the "Article ID"
+                    <p>Chat streams are separated by the "Article ID" and if not specified it will use the current post ID. You can define the "Article ID"
                         manually like this:</p>
                     <p class='code'>[livefyre_livechat article_id="123"]</p>
                 </div> 

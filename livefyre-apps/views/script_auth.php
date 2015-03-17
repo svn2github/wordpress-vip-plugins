@@ -20,7 +20,7 @@
                     auth.delegate({
                         //Called when "sign in" on the widget is clicked. Should sign in to WP
                         login: function(cb) {
-                            href = "<?php echo site_url() . '/wp-login.php'; ?>";
+                            href = "<?php echo wp_login_url( get_permalink() ); ?>";
                             window.location = href;
                         },
                         //Called when "sign out" on the widget is clicked. Should sign out of WP

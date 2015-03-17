@@ -20,12 +20,9 @@ if($display_template) {
 ?>
 <script type="text/javascript">
     var networkConfigComments = {
+        <?php echo isset( $strings ) ? 'strings: ' . json_encode($strings) . ',' : ''; ?>
         network: "<?php echo esc_js($network->getName()); ?>"
     };
-    var commentsStrings = <?php echo json_encode($strings); ?>;
-    if (commentsStrings != '') {
-        networkConfigComments['strings'] = commentsStrings;
-    }
     var convConfigComments<?php echo esc_js($articleId); ?> = {
         siteId: "<?php echo esc_js($siteId); ?>",
         articleId: "<?php echo esc_js($articleId); ?>",

@@ -29,7 +29,7 @@ if (!class_exists('LFAPPS_Chat_Admin')) {
          * Initialise admin menu items
          */
         public static function init_admin_menu() {
-            add_submenu_page('livefyre_apps', 'LiveChat', 'LiveChat', "manage_options", 'livefyre_apps_chat', array('LFAPPS_Chat_Admin', 'menu_chat'));
+            add_submenu_page('livefyre_apps', 'Chat', 'Chat', "manage_options", 'livefyre_apps_chat', array('LFAPPS_Chat_Admin', 'menu_chat'));
         }
         
         /**

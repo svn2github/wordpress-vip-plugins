@@ -116,7 +116,7 @@
                                     <div class="lfapps-appmgt-controls">
                                         <input id="lfapps_comments_enable" name="livefyre_apps-apps[]" type="checkbox" value="comments" <?php echo Livefyre_Apps::is_app_enabled('comments') ? 'checked' : ''; ?>>
                                         <label for='lfapps_comments_enable'>
-                                            <span><?php esc_html_e('LiveComments™', 'lfapps'); ?></span>
+                                            <span><?php esc_html_e('Comments™', 'lfapps'); ?></span>
                                         </label>
                                         <p><a target="_blank" href="http://web.livefyre.com/comments/">Click here</a> for more information.</p>
                                     </div>
@@ -146,7 +146,7 @@
                                     <div class="lfapps-appmgt-controls">
                                         <input id="lfapps_blog_enable" name="livefyre_apps-apps[]" type="checkbox" value="blog" <?php echo Livefyre_Apps::is_app_enabled('blog') ? 'checked' : ''; ?>>
                                         <label for='lfapps_blog_enable'>
-                                            <span><?php esc_html_e('LiveBlog™', 'lfapps'); ?></span>
+                                            <span><?php esc_html_e('Live Blog™', 'lfapps'); ?></span>
                                         </label>
                                         <p><a target="_blank" href="http://web.livefyre.com/streamhub/#liveBlog">Click here</a> for more information.</p>
                                     </div>
@@ -161,7 +161,7 @@
                                     <div class="lfapps-appmgt-controls">
                                         <input id="lfapps_chat_enable" name="livefyre_apps-apps[]" type="checkbox" value="chat" <?php echo Livefyre_Apps::is_app_enabled('chat') ? 'checked' : ''; ?>>
                                         <label for='lfapps_chat_enable'>
-                                            <span><?php esc_html_e('LiveChat™', 'lfapps'); ?></span>
+                                            <span><?php esc_html_e('Chat™', 'lfapps'); ?></span>
                                         </label>
                                         <p><a target="_blank" href="http://web.livefyre.com/streamhub/#liveChat">Click here</a> for more information.</p>
                                     </div>

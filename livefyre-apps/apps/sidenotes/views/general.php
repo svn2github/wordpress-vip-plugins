@@ -55,8 +55,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan='2' class="info">
-                                    <strong>Note:</strong>
+                                <td colspan='2'>
+                                    <strong>Sidenotes Configuration Options:</strong>
                                     <p>There multiple other configuration options available for Livefyre Sidenotes and you can specify them by
                                     declaring "livefyreSidenotesConfig" variable in your theme header. For example:</p>
                                     <blockquote class="code">
@@ -65,6 +65,8 @@
                                          </script>"); ?>                                            
                                     </blockquote>
                                     <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/sidenotes/">Click here</a> for a full explanation of Livefyre Sidenotes options.</p>
+                                    <strong>Sidenotes String Customizations:</strong>
+                                    <p>String customizations are possible as well through applying WordPress filters. Information on how to implement this is <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
                                 </td>
                             </tr>
                             <?php endif; ?>                            

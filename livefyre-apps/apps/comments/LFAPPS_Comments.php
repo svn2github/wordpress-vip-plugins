@@ -50,11 +50,12 @@ if ( ! class_exists( 'LFAPPS_Comments' ) ) {
          */
         private static function set_default_options() {
             if(!get_option('livefyre_apps-livefyre_comments_options_imported')) {
+                //set default display options
+                self::set_display_options();
                 self::import_options();
             }
             
-            //set default display options
-            //self::set_display_options();
+            
             
             if(get_option('livefyre_apps-livefyre_import_status', '') === '') {
                 update_option('livefyre_apps-livefyre_import_status', 'uninitialized');

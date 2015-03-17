@@ -5,12 +5,9 @@ if($display_template) {
 ?>
 <script type="text/javascript">
     var networkConfigChat = {
+        <?php echo isset( $strings ) ? 'strings: ' . json_encode($strings) . ',' : ''; ?>
         network: "<?php echo esc_js($network->getName()); ?>"
     };
-    var chatStrings = <?php echo json_encode($strings); ?>;
-    if (chatStrings != '') {
-        networkConfigChat['strings'] = chatStrings;
-    }
     var convConfigChat<?php echo esc_js($articleId); ?> = {
         siteId: "<?php echo esc_js($siteId); ?>",
         articleId: "<?php echo esc_js($articleId); ?>",

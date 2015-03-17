@@ -97,7 +97,7 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             wp_register_script('lfapps.js', LFAPPS__PLUGIN_URL . 'assets/js/lfapps.js', array(), LFAPPS__VERSION, false);
             wp_enqueue_script('lfapps.js');
             
-            wp_register_script('Livefyre.js', '//cdn.livefyre.com/Livefyre.js', array(), LFAPPS__VERSION, false);
+            wp_register_script('Livefyre.js', LFAPPS__PROTOCOL . '://cdn.livefyre.com/Livefyre.js', array(), LFAPPS__VERSION, false);
             wp_enqueue_script('Livefyre.js');
         }
         

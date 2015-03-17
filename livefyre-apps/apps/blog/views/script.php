@@ -1,12 +1,9 @@
 <div id="<?php echo esc_attr($livefyre_element); ?>"></div>
 <script type="text/javascript">
     var networkConfigBlog = {
+        <?php echo isset( $strings ) ? 'strings: ' . json_encode($strings) . ',' : ''; ?>
         network: "<?php echo esc_js($network->getName()); ?>"    
     };
-    var blogStrings = <?php echo json_encode($strings); ?>;
-    if (blogStrings != '') {
-        networkConfigBlog['strings'] = blogStrings;
-    }
     var convConfigBlog<?php echo esc_js($articleId); ?> = {
         siteId: "<?php echo esc_js($siteId); ?>",
         articleId: "<?php echo esc_js($articleId); ?>",

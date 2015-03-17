@@ -29,7 +29,7 @@ if (!class_exists('LFAPPS_Comments_Admin')) {
          * Initialise admin menu items
          */
         public static function init_admin_menu() {
-            add_submenu_page('livefyre_apps', 'LiveComments', 'LiveComments', "manage_options", 'livefyre_apps_comments', array('LFAPPS_Comments_Admin', 'menu_comments'));
+            add_submenu_page('livefyre_apps', 'Comments', 'Comments', "manage_options", 'livefyre_apps_comments', array('LFAPPS_Comments_Admin', 'menu_comments'));
         }
 
         /**
