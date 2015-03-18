@@ -58,7 +58,7 @@
                                             <input id="wp_auth_type_wordpress" name="livefyre_apps-auth_type" type="radio" value="wordpress" <?php echo get_option('livefyre_apps-auth_type') === 'wordpress' ? 'checked' : ''; ?>>
                                             <label for='wp_auth_type_wordpress'><?php esc_html_e('Native Wordpress', 'lfapps'); ?></label>
                                             <input id="wp_auth_type_custom" name="livefyre_apps-auth_type" type="radio" value="custom" <?php echo get_option('livefyre_apps-auth_type') === 'custom' ? 'checked' : ''; ?>>
-                                            <label for='wp_auth_type_custom'><?php esc_html_e('Custom', 'lfapps'); ?></label>
+                                            <label for='wp_auth_type_custom'><?php esc_html_e('Custom/LFEP', 'lfapps'); ?></label>
                                             <input id="wp_auth_type_delegate" name="livefyre_apps-auth_type" type="radio" value="auth_delegate" <?php echo get_option('livefyre_apps-auth_type') === 'auth_delegate' ? 'checked' : ''; ?>>
                                             <label for='wp_auth_type_delegate'><?php esc_html_e('Legacy Delegate', 'lfapps'); ?></label>
                                         </td>
@@ -78,6 +78,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            <p><i>Hooking in LFEP is documented <a href="http://docs.livefyre.com/developers/identity-integration/enterprise-profiles/">here.</a></i></p>
                             <?php if(get_option('livefyre_apps-package_type') === 'community'): ?>
                             <div class="lfapps-community-signup">
                                 <p><?php esc_html_e('New to Livefyre or forgotten your Site ID/Key?', 'lfapps'); ?><br/>

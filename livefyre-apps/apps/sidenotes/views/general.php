@@ -57,7 +57,7 @@
                             <tr>
                                 <td colspan='2'>
                                     <strong>Sidenotes Configuration Options:</strong>
-                                    <p>There multiple other configuration options available for Livefyre Sidenotes and you can specify them by
+                                    <p>There are multiple other configuration options available for Livefyre Sidenotes and you can specify them by
                                     declaring "livefyreSidenotesConfig" variable in your theme header. For example:</p>
                                     <blockquote class="code">
                                     <?php echo esc_html("<script>

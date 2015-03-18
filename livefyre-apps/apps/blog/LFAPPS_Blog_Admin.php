@@ -28,7 +28,7 @@ if (!class_exists('LFAPPS_Blog_Admin')) {
          * Initialise admin menu items
          */
         public static function init_admin_menu() {
-            add_submenu_page('livefyre_apps', 'LiveBlog', 'LiveBlog', "manage_options", 'livefyre_apps_blog', array('LFAPPS_Blog_Admin', 'menu_blog'));
+            add_submenu_page('livefyre_apps', 'Live Blog', 'Live Blog', "manage_options", 'livefyre_apps_blog', array('LFAPPS_Blog_Admin', 'menu_blog'));
         }
 
         /**

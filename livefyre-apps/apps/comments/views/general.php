@@ -58,7 +58,7 @@
                                 <td colspan='2'>
                                     <br />
                                     <strong>Comments Configuration Options:</strong>
-                                    <p>There multiple other configuration options available for Comments and you can specify them by
+                                    <p>There are multiple other configuration options available for Comments and you can specify them by
                                     declaring "liveCommentsConfig" variable in your theme header. For example:</p>
                                     <blockquote class="code">
                                     <?php echo esc_html("<script>

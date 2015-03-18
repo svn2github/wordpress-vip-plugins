@@ -17,14 +17,14 @@
                 <h3 class="hndle"><span><?php esc_html_e('Live Blog Settings', 'lfapps-blog'); ?></span></h3>
                 <div class='inside'>
                     <strong>Comments Configuration Options:</strong>
-                    <p>There multiple configuration options available for Live Blog and you can specify them by
+                    <p>There are multiple configuration options available for Live Blog and you can specify them by
                         declaring "liveBlogConfig" variable in your theme header. For example:</p>
                     <p class="code">
                         <?php echo esc_html("<script>
                                      var liveBlogConfig = { readOnly: true; }
                                      </script>"); ?>                                            
                     </p>
-                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/liveblog/#convConfigObject">Click here</a> for a full explanation of Live Blog options.</p>
+                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/live-blog/#convConfigObject">Click here</a> for a full explanation of Live Blog options.</p>
                     <strong>Live Blog String Customizations:</strong>
                     <p>String customizations are possible as well through applying WordPress filters. Information on how to implement this is <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
                 </div> 
