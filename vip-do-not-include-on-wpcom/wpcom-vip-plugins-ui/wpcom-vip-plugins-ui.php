@@ -170,6 +170,7 @@ class WPcom_VIP_Plugins_UI {
 			'uppsite', // Retired from FPP but a couple VIPs still using it
 			'wpcom-related-posts', // Now part of JP / WP.com
 			'scrollkit-wp', // Scroll Kit shut down but still a few people with it activated
+			'google-calendar-events', // https://viprequests.wordpress.com/2015/01/06/update-google-calendar-events-shared-plugin/
 		);
 
 		$this->fpp_plugins = array(
