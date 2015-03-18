@@ -81,11 +81,25 @@
 		padding: 10px;
 		border-top: 1px solid #ddd;
 	}
+	
+	a.wp-color-result {
+		border-bottom: 1px solid #ccc;
+	}
+	
+	.media-toolbar {
+		position: relative;
+		height: auto;
+	}
 }
 
 .edit-shortcode-form {
 
 	padding: 5px 20px;
+
+	label {
+		display: block;
+		clear: both;
+	}
 
 	input,
 	textarea {
@@ -106,12 +120,12 @@
 		min-height: 100px;
 	}
 
-
 	.edit-shortcode-form-fields {
 		> div { margin-bottom: 10px; }
 	}
 
 	.field-block {
+		padding: 1em 0;
 		label {
 			display: block;
 			margin-bottom: 10px;
@@ -127,3 +141,4 @@
 
 }
 
+@import 'field-image';

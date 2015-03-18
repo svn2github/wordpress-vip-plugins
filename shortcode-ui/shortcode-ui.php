@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Shortcode UI
- * Version: v0.1.0
+ * Version: v0.2.1
  * Description: User Interface for adding shortcodes.
  * Author: Fusion Engineering and community
  * Author URI: http://next.fusion.net/tag/shortcode-ui/
@@ -21,19 +21,28 @@
 
 require_once dirname( __FILE__ ) . '/inc/class-shortcode-ui.php';
 require_once dirname( __FILE__ ) . '/inc/fields/class-shortcode-ui-fields.php';
+require_once dirname( __FILE__ ) . '/inc/fields/class-field-attachment.php';
+require_once dirname( __FILE__ ) . '/inc/fields/class-field-color.php';
+
+add_action( 'init', 'shortcode_ui_load_textdomain' );
 
 add_action( 'init', function() {
 
-	$shortcode_ui = Shortcode_UI::get_instance();
-	$fields       = Shortcode_UI_Fields::get_instance();
-
-	// Add fieldmanager fields if plugin is available.
-	if ( class_exists( 'Fieldmanager_Field' ) ) {
-		require_once dirname( __FILE__ ) . '/inc/fields/class-shortcode-ui-fields-fieldmanager.php';
-		$fieldmanager = Shortcode_UI_Fields_Fieldmanager::get_instance();
-	}
+	$shortcode_ui     = Shortcode_UI::get_instance();
+	$fields           = Shortcode_UI_Fields::get_instance();
+	$attachment_field = Shortcake_Field_Attachment::get_instance();
+	$color_field      = Shortcake_Field_Color::get_instance();
 
 }, 5 );
+
+/**
+ * Load translations
+ *
+ * @return null
+ */
+function shortcode_ui_load_textdomain() {
+	load_plugin_textdomain( 'shortcode-ui', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+}
 
 /**
  * Register UI for Shortcode
@@ -55,4 +64,11 @@ function shortcode_ui_register_for_shortcode( $shortcode_tag, $args = array() ) 
  */
 function shortcode_ui_get_register_shortcode( $shortcode_tag, $args = array() ) {
 	return Shortcode_UI::get_instance()->get_shortcode( $shortcode_tag );
+}
+
+/**
+ * Queue the shortcode UI scripts & templates manually
+ */
+function shortcode_ui_enqueue_assets() {
+	Shortcode_UI::get_instance()->enqueue();
 }
