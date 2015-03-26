@@ -58,6 +58,9 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 add_action( 'edit_terms', 'wp_flush_get_term_by_cache', 10, 2 );
 function wp_flush_get_term_by_cache( $term_id, $taxonomy ){
 	$term = get_term_by( 'id', $term_id, $taxonomy );
+	if ( ! $term ) {
+		return;
+	}
 	foreach( array( 'name', 'slug' ) as $field ) {
 		$cache_key = $field . '|' . $taxonomy . '|' . md5( $term->$field );
 		$cache_group = 'get_term_by';
