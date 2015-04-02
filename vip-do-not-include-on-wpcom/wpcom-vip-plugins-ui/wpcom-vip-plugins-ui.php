@@ -207,7 +207,7 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'JW Player',
 				'description' => 'The World’s Most Popular Video Player.',
 			),
-			'livefyre3'      => array(
+			'livefyre-apps'   => array(
 				'name'        => 'Livefyre',
 				'description' => 'Replace comments with live conversations connected to the social web.',
 			),
@@ -285,7 +285,7 @@ class WPcom_VIP_Plugins_UI {
 	/** Public Hook Callback Methods ******************************************/
 
 	/**
-	 * Now that we've given the theme time to register its own filters, 
+	 * Now that we've given the theme time to register its own filters,
 	 * set up the rest of the plugin's hooks and run some filters.
 	 *
 	 * @uses add_action() To add various actions
