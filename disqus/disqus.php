@@ -369,14 +369,6 @@ function dsq_update_permalink($post) {
  *  Filters/Actions
  */
 
-function dsq_get_style() {
-	$forum_url = get_option( 'disqus_forum_url' );
-	if ( ! empty( $forum_url ) )
-		echo "<link rel=\"stylesheet\" href=\"" . esc_url( DISQUS_URL ."stylesheets/" .  untrailingslashit( strtolower( $forum_url ) ) . "/disqus.css?v=2.0" ) . "\" type=\"text/css\" media=\"screen\" />";
-}
-
-add_action('wp_head','dsq_get_style');
-
 function dsq_comments_template($value) {
 	global $post;
 	global $comments;
