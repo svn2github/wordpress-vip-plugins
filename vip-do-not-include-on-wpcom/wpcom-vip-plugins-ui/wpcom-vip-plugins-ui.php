@@ -171,6 +171,7 @@ class WPcom_VIP_Plugins_UI {
 			'wpcom-related-posts', // Now part of JP / WP.com
 			'scrollkit-wp', // Scroll Kit shut down but still a few people with it activated
 			'google-calendar-events', // https://viprequests.wordpress.com/2015/01/06/update-google-calendar-events-shared-plugin/
+			'ice', // Crazy out-of-date, doesn't work with MCE 4+, still in use by a handful for some reason			
 		);
 
 		$this->fpp_plugins = array(
