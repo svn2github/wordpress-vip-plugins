@@ -541,6 +541,8 @@ function jwplayer_media_menu( $tabs ) {
 	if ( get_option( 'jwplayer_login' ) ) {
 		$newtab = array( 'jwplayer' => 'JW Platform' );
 		return array_merge( $tabs, $newtab );
+	} else {
+		return $tabs;
 	}
 }
 
