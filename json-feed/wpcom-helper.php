@@ -93,7 +93,7 @@ function json_feed_rewrite_rules( $rules ) {
 			=> 'index.php?attachment=$matches[1]&feed=$matches[2]&jsonp=$matches[4]&date_format=$matches[6]&remove_uncategorized=$matches[8]',
 		
 		'(.+?)/feed/(json)(/jsonp/([^/]+))?(/date_format/([^/]+))?(/remove_uncategorized/([^/]+))?/?$' 
-			=> 'index.php?pagename=$matches[1]&feed=$matches[2&jsonp=$matches[4]&date_format=$matches[6]&remove_uncategorized=$matches[8]]',
+			=> 'index.php?pagename=$matches[1]&feed=$matches[2]&jsonp=$matches[4]&date_format=$matches[6]&remove_uncategorized=$matches[8]',
 		
 		'(.+?)/(json)(/jsonp/([^/]+))?(/date_format/([^/]+))?(/remove_uncategorized/([^/]+))?/?$' 
 			=> 'index.php?pagename=$matches[1]&feed=$matches[2]&jsonp=$matches[4]&date_format=$matches[6]&remove_uncategorized=$matches[8]',
