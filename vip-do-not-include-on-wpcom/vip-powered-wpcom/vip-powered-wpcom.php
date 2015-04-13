@@ -164,5 +164,5 @@ function vip_powered_wpcom( $display = 'text', $before_text = 'Powered by ' ) {
  * @return string
  */
 function vip_powered_wpcom_url() {
-	return 'http://vip.wordpress.com/';
+	return 'https://vip.wordpress.com/';
 }
