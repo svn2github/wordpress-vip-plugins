@@ -90,7 +90,11 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
     }
 
     function check_import() {
-        if ($this->detect_default_comment() && get_option('livefyre_apps-livefyre_import_status', 'uninitialized') == 'uninitialized') {
+        // Make sure we don't check import on every page load as it may be pretty resource demanding
+		if ( !isset($_GET['page']) || $_GET['page'] != 'livefyre_apps_comments' ) {
+            return;
+        }
+		if ( get_option('livefyre_apps-livefyre_import_status', 'uninitialized') == 'uninitialized' && $this->detect_default_comment() ) {
             update_option('livefyre_apps-livefyre_import_status', 'complete');
             $this->ext->delete_option('livefyre_v3_notify_installed');
             return;
