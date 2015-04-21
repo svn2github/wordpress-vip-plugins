@@ -430,7 +430,7 @@ class coauthors_plus {
 					);
 				if ( 'post' != $post->post_type )
 					$args['post_type'] = $post->post_type;
-				$author_filter_url = add_query_arg( $args, admin_url( 'edit.php' ) );
+				$author_filter_url = add_query_arg( array_map( 'rawurlencode', $args ), admin_url( 'edit.php' ) );
 				?>
 				<a href="<?php echo esc_url( $author_filter_url ); ?>"
 				data-user_nicename="<?php echo esc_attr( $author->user_nicename ) ?>"
@@ -1157,7 +1157,7 @@ class coauthors_plus {
 			$class = ' class="current"';
 		else
 			$class = '';
-		$views['mine'] = $view_mine = '<a' . $class . ' href="' . add_query_arg( $mine_args, admin_url( 'edit.php' ) ) . '">' . __( 'Mine', 'co-authors-plus' ) . '</a>';
+		$views['mine'] = $view_mine = '<a' . $class . ' href="' . add_query_arg( array_map( 'rawurlencode', $mine_args ), admin_url( 'edit.php' ) ) . '">' . __( 'Mine', 'co-authors-plus' ) . '</a>';
 
 		$views['all'] = str_replace( $class, '', $all_view );
 		$views = array_reverse( $views );
@@ -1178,7 +1178,7 @@ class coauthors_plus {
 				var coAuthorsPlus_ajax_suggest_link = '<?php echo add_query_arg(
 					array(
 						'action' => 'coauthors_ajax_suggest',
-						'post_type' => get_post_type(),
+						'post_type' => rawurlencode( get_post_type() ),
 					),
 					wp_nonce_url( 'admin-ajax.php', 'coauthors-search' )
 				); ?>';
