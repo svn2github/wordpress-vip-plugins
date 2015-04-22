@@ -1,10 +1,10 @@
 === Taxonomy List Widget ===
 Contributors: ethitter
-Donate link: http://www.ethitter.com/plugins/taxonomy-list-widget/
+Donate link: https://ethitter.com/plugins/taxonomy-list-widget/
 Tags: tag, tags, taxonomy, sidebar, widget, widgets, list
 Requires at least: 2.8
-Tested up to: 3.5
-Stable tag: 1.1.2
+Tested up to: 4.2
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -17,6 +17,8 @@ Creates lists of non-hierarchical taxonomies (such as `post tags`) as an alterna
 Numerous formatting options are provided, including maximum numbers of terms, term order, truncating of term names, and more. List styles are fully customizable, with built-in support for bulleted lists and numbered lists.
 
 Using the `taxonomy_list_widget` function, users can generate lists for use outside of the included widget.
+
+**Only use version 1.2 or higher with WordPress 4.2 and later releases.** WordPress 4.2 changed how taxonomy information is stored in the database, which directly impacts this plugin's include/exclude term functionality.
 
 This plugin was formerly known as the `Tag List Widget`. It was completely rewritten for version 1.0.
 
@@ -78,6 +80,9 @@ To make targeting a specific filter reference possible should you use multiple i
 
 == Changelog ==
 
+= 1.2 =
+* Update for WordPress 4.2 to handle term splitting in the plugin's include/exclude functionality. Details at https://make.wordpress.org/core/2015/02/16/taxonomy-term-splitting-in-4-2-a-developer-guide/.
+
 = 1.1.2 =
 * Correct problem in WordPress 3.3 and higher that resulted in an empty taxonomy dropdown.
 * Remove all uses of PHP short tags.
@@ -115,6 +120,9 @@ To make targeting a specific filter reference possible should you use multiple i
 * Added function `TLW_direct`
 
 == Upgrade Notice ==
+
+= 1.2 =
+Updated for WordPress 4.2. Only version 2.2 or higher should be used with WordPress 4.2 or higher, otherwise included/excluded terms may reappear in dropdowns. This is due to WordPress splitting shared terms, as detailed at https://make.wordpress.org/core/2015/02/16/taxonomy-term-splitting-in-4-2-a-developer-guide/.
 
 = 1.1.2 =
 Corrects a problem in WordPress 3.3 and higher that resulted in an empty taxonomy dropdown. Also removes all uses of PHP short tags.
