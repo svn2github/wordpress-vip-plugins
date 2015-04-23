@@ -13,11 +13,11 @@ function showshortenersettings() {
 <div class="wrap" id="wordtwit">
       <div class="plugin-section">
          <div id="top-logo-area">
-            <a href="http://www.bravenewcode.com" target="_blank" ><img src="<?php bloginfo('home'); ?>/wp-content/themes/vip/plugins/wordtwit/images/logo.png"alt="WordTwit" /></a>
+            <a href="http://www.bravenewcode.com" target="_blank" ><img src="<?php echo esc_url( home_url() ); ?>/wp-content/themes/vip/plugins/wordtwit/images/logo.png"alt="WordTwit" /></a>
          </div>
          <div id="version">
             <?php global $wordtwit_version; ?>
-            <?php echo __('Version') . ' ' . $wordtwit_version; ?>
+            <?php echo esc_html( __('Version') . ' ' . $wordtwit_version ); ?>
          </div>
       </div>
       
@@ -52,15 +52,15 @@ function showshortenersettings() {
          </div>
          
          <div class="editable-area">         
-            <form method="post" action="<?php echo esc_attr( $_SERVER['REQUEST_URI'] ); ?>">
+            <form method="post" action="<?php echo esc_url( $_SERVER['REQUEST_URI'] ); ?>">
                <table class="form-table" cols="2">
                	<tr>
                		<th>Authorization</th>
-               		<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo $twitter_status; ?></label></td>
+               		<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo esc_html( $twitter_status ); ?></label></td>
                	</tr>
                	<tr>
                      <th>Message</th>
-                     <td><input type="text" name="message" value="<?php echo(htmlentities($message)); ?>" size="70" /></td>
+                     <td><input type="text" name="message" value="<?php echo esc_attr( $message ); ?>" size="70" /></td>
                 </tr>
                 <tr>
                      <th>User override</th>
@@ -72,7 +72,7 @@ function showshortenersettings() {
                 </tr>
                 <tr>
                      <th>Age threshold in hours</th>
-                     <td><label for="max_age"><input name="max_age" type="text" id="max_age" value="<?php echo isset($max_age) ? $max_age : '24'; ?>"  /> For older no tweets will be send. 0 = no age limit.</label></td>
+                     <td><label for="max_age"><input name="max_age" type="text" id="max_age" value="<?php echo isset($max_age) ? esc_attr( $max_age ) : '24'; ?>"  /> For older no tweets will be send. 0 = no age limit.</label></td>
                 </tr>
                 
                 <tr>
@@ -89,8 +89,8 @@ function showshortenersettings() {
 				<tr id="shortcode-data-bitly" <?php if( 'bitly' != $wordtwit_url_type ): ?> style="display:none"<?php endif; ?>>
 					<th>Bit.ly Settings</th>
 					<td>
-						<label for="bitly_user_name"><input type="text" name="bitly_user_name" id="bitly_user_name" class="long" value="<?php if ( isset( $bitly_user_name ) ) echo $bitly_user_name; ?>" /> Your bit.ly username</label><br/>
-						<label for="bitly_api_key"><input type="text" name="bitly_api_key" id="bitly_api_key" class="long" value="<?php if ( isset( $bitly_api_key ) ) echo $bitly_api_key; ?>" /> Your bit.ly API key</label>
+						<label for="bitly_user_name"><input type="text" name="bitly_user_name" id="bitly_user_name" class="long" value="<?php if ( isset( $bitly_user_name ) ) echo esc_attr( $bitly_user_name ); ?>" /> Your bit.ly username</label><br/>
+						<label for="bitly_api_key"><input type="text" name="bitly_api_key" id="bitly_api_key" class="long" value="<?php if ( isset( $bitly_api_key ) ) echo esc_attr( $bitly_api_key ); ?>" /> Your bit.ly API key</label>
 					</td>
 				
 				</tr>

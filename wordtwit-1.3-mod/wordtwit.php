@@ -200,11 +200,11 @@ function twit_show_user_profile( $user ) {
 	<table class="form-table">
 		<tr>
 			<th>Authorization</th>
-			<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo $twitter_status; ?></label></td>
+			<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo esc_attr( $twitter_status ); ?></label></td>
 		</tr>
 		<tr>
 			<th><label for="twitter_message">Twitter Message</label></th>
-			<td><input type="text" name="twitter_message" id="twitter_message" value="<?php echo htmlentities($twitter_message) ?>" class="regular-text" /></td>
+			<td><input type="text" name="twitter_message" id="twitter_message" value="<?php echo esc_attr($twitter_message) ?>" class="regular-text" /></td>
 		</tr>
 	</table>											   
 	<?php
@@ -402,12 +402,12 @@ function post_now_published( $post_id ) {
 
 function wordtwit_admin_css() {
 	$url = get_bloginfo('wpurl');
-	echo '<link rel="stylesheet" type="text/css" href="' . get_bloginfo('wpurl') . '/wp-content/themes/vip/plugins/wordtwit-1.3-mod/css/admin.css" />';
+	echo '<link rel="stylesheet" type="text/css" href="' . esc_url( get_bloginfo('wpurl') ) . '/wp-content/themes/vip/plugins/wordtwit-1.3-mod/css/admin.css" />';
 }
 
 function wordtwit_plugin_url( $str = '' ) {
 	$dir_name = '/wp-content/themes/vip/plugins/wordtwit-1.3-mod';
-	echo($dir_name . $str);
+	echo esc_url($dir_name . $str);
 }
 
 function bnc_stripslashes_deep( $value ) {
