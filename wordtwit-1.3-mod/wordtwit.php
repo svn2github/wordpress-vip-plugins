@@ -200,7 +200,7 @@ function twit_show_user_profile( $user ) {
 	<table class="form-table">
 		<tr>
 			<th>Authorization</th>
-			<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo esc_attr( $twitter_status ); ?></label></td>
+			<td><label for="reauthorize"><input type="submit" name="reauthorize" value="Connect to Twitter account" /> current status: <?php echo esc_html( $twitter_status ); ?></label></td>
 		</tr>
 		<tr>
 			<th><label for="twitter_message">Twitter Message</label></th>
