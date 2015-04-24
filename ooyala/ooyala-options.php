@@ -94,8 +94,8 @@ class Ooyala_Options {
 		if ( ! isset( $options['video_status'] ) )
 			$options['video_status'] = 'pending';
 		?><select id="ooyala-video-status" name="ooyala[video_status]">
-				<option value="pending" <?php selected( $options['video_status'], 'pending' ); ?>><?php _e( 'Pending', 'ooyalavideo' ); ?></option>
-				<option value="live" <?php selected( $options['video_status'], 'live' ); ?>><?php _e( 'Live', 'ooyalavideo' ); ?></option>
+				<option value="pending" <?php selected( $options['video_status'], 'pending' ); ?>><?php esc_html_e( 'Pending', 'ooyalavideo' ); ?></option>
+				<option value="live" <?php selected( $options['video_status'], 'live' ); ?>><?php esc_html_e( 'Live', 'ooyalavideo' ); ?></option>
 		</select><?php
 	}
 
@@ -160,13 +160,13 @@ class Ooyala_Options {
 		?>
 		<style type="text/css" media="screen">
 			#icon-ooyala {
-				background: transparent url(<?php echo plugins_url( 'img/ooyala-icon.png', __FILE__ ); ?>) no-repeat;
+				background: transparent url(<?php echo esc_url( plugins_url( 'img/ooyala-icon.png', __FILE__ ) ); ?>) no-repeat;
 			}
 		</style>
 
 		<div class="wrap">
 			<?php screen_icon( 'ooyala' ); ?>
-			<h2><?php _e( 'Ooyala Settings', 'ooyalavideo' ); ?></h2>
+			<h2><?php esc_html_e( 'Ooyala Settings', 'ooyalavideo' ); ?></h2>
 			<form method="post" action="options.php">
 				<?php
 					settings_fields( 'ooyala_settings' );

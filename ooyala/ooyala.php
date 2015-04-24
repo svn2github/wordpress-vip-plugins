@@ -269,10 +269,10 @@ var myPlayer = OO.Player.create("playerContainer-' . esc_attr( $sanitized_embed 
 		global $post_ID, $temp_ID;
 		$iframe_post_id = (int) ( 0 == $post_ID ? $temp_ID : $post_ID );
 
-		$title = esc_attr__( 'Embed Ooyala Video', 'ooyalavideo' );
-		$plugin_url = esc_url( $this->plugin_url );
+		$title = __( 'Embed Ooyala Video', 'ooyalavideo' );
+		$plugin_url = $this->plugin_url;
 		$site_url = admin_url( "/admin-ajax.php?post_id=$iframe_post_id&amp;ooyala=popup&amp;action=ooyala_popup&amp;TB_iframe=true&amp;width=768" );
-		echo '<a href="' . $site_url . '&id=add_form" class="thickbox" title="' . $title . '"><img src="' . $plugin_url . 'img/ooyalavideo-button.png" alt="' . $title . '" width="13" height="12" /></a>';
+		echo '<a href="' . esc_url( $site_url ) . '&id=add_form" class="thickbox" title="' . esc_attr( $title ) . '"><img src="' . esc_url( $plugin_url ) . 'img/ooyalavideo-button.png" alt="' . esc_attr( $title ) . '" width="13" height="12" /></a>';
 	}
 
 

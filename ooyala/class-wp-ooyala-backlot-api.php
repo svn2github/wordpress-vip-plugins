@@ -100,14 +100,14 @@ class WP_Ooyala_Backlot {
 		$videos = json_decode( $response );
 
 		if ( empty( $videos->items ) ) {
-			_e( 'No videos found.', 'ooyalavideo' );
+			esc_html_e( 'No videos found.', 'ooyalavideo' );
 			return;
 		}
 
 		$output = $page_token = $next = '';
 		if ( !empty( $videos->next_page ) ) {
 			parse_str( urldecode( $videos->next_page ) );
-			$next = '<a href="#' . $page_token . '" class="next page-numbers ooyala-paging">Next &raquo;</a>';
+			$next = '<a href="' . esc_url( '#' . $page_token ) . '" class="next page-numbers ooyala-paging">Next &raquo;</a>';
 		}
 
 		$ids = isset( $_REQUEST['ooyala_ids'] ) ? $_REQUEST['ooyala_ids'] : '';
@@ -131,7 +131,7 @@ class WP_Ooyala_Backlot {
 		if ( $next || $prev_token != -1 ) {
 			$output .= '<div class="tablenav"><div class="tablenav-pages">';
 			if ( $prev_token != -1 )
-				$output .= '<a href="#' . $prev_token . '" class="prev page-numbers ooyala-paging">&laquo; Prev</a>';
+				$output .= '<a href="#' . esc_url( '#' . $prev_token ) . '" class="prev page-numbers ooyala-paging">&laquo; Prev</a>';
 
 			if ( $next )
 				$output .= $next;

@@ -93,8 +93,8 @@ class OoyalaBacklotAPI  {
 		$total = (int) $results->attributes()->totalResults;
 		$previous_page_id = max( 0, (int) $page_id - (int) $limit);
 		
-		$prev_link =  $previous_page_id != $page_id ? '<a href="#' . $previous_page_id . '" class="prev page-numbers ooyala-paging">&laquo; Previous</a>' : '';
-		$next_link = $next_page_id > 0 ? '<a href="#' . $next_page_id . '" class="next page-numbers ooyala-paging">Next &raquo;</a>' : '';
+		$prev_link =  $previous_page_id != $page_id ? '<a href="' . esc_url( '#' . $previous_page_id ) . '" class="prev page-numbers ooyala-paging">&laquo; Previous</a>' : '';
+		$next_link = $next_page_id > 0 ? '<a href="' . esc_url( '#' . $next_page_id ) . '" class="next page-numbers ooyala-paging">Next &raquo;</a>' : '';
 		
 		//prev-next block
 		if ( !empty( $prev_link) || !empty( $next_link ) )
