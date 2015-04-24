@@ -357,13 +357,11 @@ function jwplayer_login() {
 	}
 
 	// Check the nonce (counter XSRF)
-	if ( isset( $_POST['_wpnonce'] ) ){
-		$nonce = sanitize_text_field( $_POST['_wpnonce'] );//input var okay
-		if ( ! wp_verify_nonce( $nonce, 'jwplayer-login-nonce' ) ) {
-			jwplayer_print_error( 'Could not verify the form data.' );
-			jwplayer_login_form();
-			return;
-		}
+	$nonce = sanitize_text_field( $_POST['_wpnonce'] );//input var okay
+	if ( ! wp_verify_nonce( $nonce, 'jwplayer-login-nonce' ) ) {
+		jwplayer_print_error( 'Could not verify the form data.' );
+		jwplayer_login_form();
+		return;
 	}
 
 	if ( isset($_POST['username']) ){
@@ -463,13 +461,11 @@ function jwplayer_logout() {
 	}
 
 	// Check the nonce (counter XSRF)
-	if ( isset( $_POST['_wpnonce'] ) ) {
-		$nonce = sanitize_text_field( $_POST['_wpnonce'] );//input var okay
-		if ( ! wp_verify_nonce( $nonce, 'jwplayer-logout-nonce' ) ) {
-			jwplayer_print_error( 'Could not verify the form data.' );
-			jwplayer_logout_form();
-			return;
-		}
+	$nonce = sanitize_text_field( $_POST['_wpnonce'] );//input var okay
+	if ( ! wp_verify_nonce( $nonce, 'jwplayer-logout-nonce' ) ) {
+		jwplayer_print_error( 'Could not verify the form data.' );
+		jwplayer_logout_form();
+		return;
 	}
 
 	// Perform the logout.
