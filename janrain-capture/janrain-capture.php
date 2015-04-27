@@ -73,14 +73,14 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 			$r = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url();
 			$r = wp_validate_redirect( $r, home_url() );
 
-            // Escaping - applied early due to heredoc
-            if ( function_exists( 'wp_json_encode' ) ) {
-                $r = wp_json_encode( $r );
-            } elseif( function_exists( 'json_encode') ) {
-                $r = json_encode( $r );
-            } else {
-                $r = '"' . esc_url( $r ) . '"';
-            }
+			// Escaping - applied early due to heredoc
+			if ( function_exists( 'wp_json_encode' ) ) {
+				$r = wp_json_encode( $r );
+			} elseif( function_exists( 'json_encode') ) {
+				$r = json_encode( $r );
+			} else {
+				$r = '"' . esc_url( $r ) . '"';
+			}
 
 			echo <<<REDIRECT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -172,14 +172,14 @@ SCREEN2;
 			$r = isset( $_GET['source'] ) ? $_GET['source'] : home_url();
 			$r = wp_validate_redirect( $r, home_url() );
 
-            // Escaping - applied early due to heredoc
-            if ( function_exists( 'wp_json_encode' ) ) {
-                $r = wp_json_encode( $r );
-            } elseif( function_exists( 'json_encode') ) {
-                $r = json_encode( $r );
-            } else {
-                $r = '"' . esc_url( $r ) . '"';
-            }
+			// Escaping - applied early due to heredoc
+			if ( function_exists( 'wp_json_encode' ) ) {
+				$r = wp_json_encode( $r );
+			} elseif( function_exists( 'json_encode') ) {
+				$r = json_encode( $r );
+			} else {
+				$r = '"' . esc_url( $r ) . '"';
+ 			}
 
 			echo <<<LOGOUT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
