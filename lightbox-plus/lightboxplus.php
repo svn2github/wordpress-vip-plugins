@@ -15,10 +15,10 @@ load_plugin_textdomain( 'lightboxplus', false, false, dirname( __FILE__ ) . '/la
 
 if (!function_exists("lightboxPlusReload")) {
 	function lightboxPlusReload($update) {
-		$location = get_option('siteurl').'/wp-admin/themes.php?page=lightboxplus';
+		$location = home_url() . '/wp-admin/themes.php?page=lightboxplus';
 		echo '<script>'."\r\n";
 		echo '<!--'."\r\n";
-  	echo 'window.location="'.$location.'&updated='.$update.'"'."\r\n";
+  	echo 'window.location="'. esc_url_raw( add_query_arg( 'updated', rawurlencode( $update ), $location ) ) . '"'."\r\n";
   	echo '//-->'."\r\n";
   	echo '</script>'."\r\n";
   	}
@@ -158,12 +158,12 @@ if (!class_exists('wp_lightboxplus')) {
     
 		echo $lightboxPlusJavaScript;
 
-		$lightboxPlusStyleSheet = '<link rel="stylesheet" type="text/css" href="'.$g_lightbox_plus_url.'/css/'.$themeStyle.'/colorbox.css" media="screen" />'.$this->endLine();
+		$lightboxPlusStyleSheet = '<link rel="stylesheet" type="text/css" href="' . esc_url( $g_lightbox_plus_url .'/css/' . $themeStyle . '/colorbox.css' ) . '" media="screen" />'.$this->endLine();
 		$currentStylePath = get_option('lightboxplus_style_path');
 		$filename = $currentStylePath.'/'.$themeStyle.'/colorbox-ie.css';
 		if (file_exists($filename)) {
 			$lightboxPlusStyleSheet .= '<!--[if IE]>'.$this->endLine();
-			$lightboxPlusStyleSheet .= '     <link type="text/css" media="screen" rel="stylesheet" href="'.$g_lightbox_plus_url.'/css/'.$themeStyle.'/colorbox-ie.css" title="IE fixes" />'.$this->endLine();
+			$lightboxPlusStyleSheet .= '     <link type="text/css" media="screen" rel="stylesheet" href="'.esc_url( $g_lightbox_plus_url.'/css/'.$themeStyle.'/colorbox-ie.css' ) . '" title="IE fixes" />'.$this->endLine();
 			$lightboxPlusStyleSheet .= '<![endif]-->'.$this->endLine();
 		}
 
@@ -192,28 +192,28 @@ if (!class_exists('wp_lightboxplus')) {
 
 			add_option('lightboxplus_init', true);
 			
-			$themeStyle            = $_POST[lightboxplus_style];
-			$transition            = $_POST[transition];
-			$speed                 = $_POST[speed];
-			$maxWidth              = $_POST[max_width];
-			$maxHeight             = $_POST[max_height];
-			$resize                = $_POST[resize];
-			$opacity               = $_POST[opacity];
-			$preloading            = $_POST[preloading];
-			$labelImage            = $_POST[label_image];
-			$labelOf               = $_POST[label_of];
-			$previous              = $_POST[previous];
-			$next                  = $_POST[next];
-			$close                 = $_POST[close];
-			$overlayClose          = $_POST[overlay_close];
-			$slideshow             = $_POST[slideshow];
-			$slideshowAuto         = $_POST[slideshow_auto];
-			$slideshowSpeed        = $_POST[slideshow_speed];
-			$slideshowStart        = $_POST[slideshow_start];
-			$slideshowStop         = $_POST[slideshow_stop];
-			$displayTitle          = $_POST[display_title];
-			$autoLightbox          = $_POST[auto_lightbox];
-			$classMethod           = $_POST[class_method];
+			$themeStyle            = sanitize_text_field( $_POST[lightboxplus_style] );
+			$transition            = sanitize_text_field( $_POST[transition] );
+			$speed                 = sanitize_text_field( $_POST[speed] );
+			$maxWidth              = sanitize_text_field( $_POST[max_width] );
+			$maxHeight             = sanitize_text_field( $_POST[max_height] );
+			$resize                = sanitize_text_field( $_POST[resize] );
+			$opacity               = sanitize_text_field( $_POST[opacity] );
+			$preloading            = sanitize_text_field( $_POST[preloading] );
+			$labelImage            = sanitize_text_field( $_POST[label_image] );
+			$labelOf               = sanitize_text_field( $_POST[label_of] );
+			$previous              = sanitize_text_field( $_POST[previous] );
+			$next                  = sanitize_text_field( $_POST[next] );
+			$close                 = sanitize_text_field( $_POST[close] );
+			$overlayClose          = sanitize_text_field( $_POST[overlay_close] );
+			$slideshow             = sanitize_text_field( $_POST[slideshow] );
+			$slideshowAuto         = sanitize_text_field( $_POST[slideshow_auto] );
+			$slideshowSpeed        = sanitize_text_field( $_POST[slideshow_speed] );
+			$slideshowStart        = sanitize_text_field( $_POST[slideshow_start] );
+			$slideshowStop         = sanitize_text_field( $_POST[slideshow_stop] );
+			$displayTitle          = sanitize_text_field( $_POST[display_title] );
+			$autoLightbox          = sanitize_text_field( $_POST[auto_lightbox] );
+			$classMethod           = sanitize_text_field( $_POST[class_method] );
 			
 			$lightboxPlusOptions = array(
 				"lightboxplus_style"       => 'shadowed',
@@ -255,28 +255,28 @@ if (!class_exists('wp_lightboxplus')) {
       /*---- check form submission and update setting ----*/
       if ( ! empty( $_POST['action'] ) ) {
         if ($_POST['sub'] == 'settings') {
-			$themeStyle            = $_POST['lightboxplus_style'];
-			$transition            = $_POST['transition'];
-			$speed                 = $_POST['speed'];
-			$maxWidth              = $_POST['max_width'];
-			$maxHeight             = $_POST['max_height'];
-			$resize                = $_POST['resize'];
-			$opacity               = $_POST['opacity'];
-			$preloading            = $_POST['preloading'];
-			$labelImage            = $_POST['label_image'];
-			$labelOf               = $_POST['label_of'];
-			$previous              = $_POST['previous'];
-			$next                  = $_POST['next'];
-			$close                 = $_POST['close'];
-			$overlayClose          = $_POST['overlay_close'];
-			$slideshow             = $_POST['slideshow'];
-			$slideshowAuto         = $_POST['slideshow_auto'];
-			$slideshowSpeed        = $_POST['slideshow_speed'];
-			$slideshowStart        = $_POST['slideshow_start'];
-			$slideshowStop         = $_POST['slideshow_stop'];
-			$displayTitle          = $_POST['display_title'];
-			$autoLightbox          = $_POST['auto_lightbox'];
-			$classMethod           = $_POST['class_method'];
+			$themeStyle            = sanitize_text_field( $_POST['lightboxplus_style'] );
+			$transition            = sanitize_text_field( $_POST['transition'] );
+			$speed                 = sanitize_text_field( $_POST['speed'] );
+			$maxWidth              = sanitize_text_field( $_POST['max_width'] );
+			$maxHeight             = sanitize_text_field( $_POST['max_height'] );
+			$resize                = sanitize_text_field( $_POST['resize'] );
+			$opacity               = sanitize_text_field( $_POST['opacity'] );
+			$preloading            = sanitize_text_field( $_POST['preloading'] );
+			$labelImage            = sanitize_text_field( $_POST['label_image'] );
+			$labelOf               = sanitize_text_field( $_POST['label_of'] );
+			$previous              = sanitize_text_field( $_POST['previous'] );
+			$next                  = sanitize_text_field( $_POST['next'] );
+			$close                 = sanitize_text_field( $_POST['close'] );
+			$overlayClose          = sanitize_text_field( $_POST['overlay_close'] );
+			$slideshow             = sanitize_text_field( $_POST['slideshow'] );
+			$slideshowAuto         = sanitize_text_field( $_POST['slideshow_auto'] );
+			$slideshowSpeed        = sanitize_text_field( $_POST['slideshow_speed'] );
+			$slideshowStart        = sanitize_text_field( $_POST['slideshow_start'] );
+			$slideshowStop         = sanitize_text_field( $_POST['slideshow_stop'] );
+			$displayTitle          = sanitize_text_field( $_POST['display_title'] );
+			$autoLightbox          = sanitize_text_field( $_POST['auto_lightbox'] );
+			$classMethod           = sanitize_text_field( $_POST['class_method'] );
 			$lightboxPlusOptions = array(
 				"lightboxplus_style"       => $themeStyle,
 				"transition"               => $transition,
@@ -313,24 +313,24 @@ if (!class_exists('wp_lightboxplus')) {
 				
 				$pluginPath = (dirname(__FILE__));
 				if (file_exists($pluginPath."/images")) {
-				echo "Deleting: ".$pluginPath."/images"."<br />";
+				echo esc_html( "Deleting: ".$pluginPath."/images" ) ."<br />";
 				$this->delete_directory($pluginPath."/images/");
 			} else {
-				echo $pluginPath."/images"." already removed<br />";
+				echo esc_html( $pluginPath."/images"." already removed" ) . "<br />";
             }
 
 			if (file_exists($pluginPath."/js/"."lightbox.js")) {
-				echo "Deleting: ".$pluginPath."/js/"."lightbox.js"."<br />";
+				echo esc_html( "Deleting: ".$pluginPath."/js/"."lightbox.js" ) ."<br />";
 				$this->delete_file($pluginPath."/js", "lightbox.js");
             } else {
-            	echo $pluginPath."/js/"."lightbox.js"." already removed<br />";
+            	echo esc_html( $pluginPath."/js/"."lightbox.js" ) ." already removed<br />";
             }
 
 			$oldStyles = $this->dirList($pluginPath."/css/");
 			if (!empty($oldStyles)) {
 				foreach ($oldStyles as $value) {
 					if (file_exists($pluginPath."/css/".$value)) {
-						echo "Deleting: ".$pluginPath."/css/".$value."<br />";
+						echo esc_html( "Deleting: ".$pluginPath."/css/".$value ) ."<br />";
 						$this->delete_file($pluginPath."/css", $value);
 					}
 				}
@@ -402,35 +402,35 @@ if (!class_exists('wp_lightboxplus')) {
 			  <h2><?php _e('Lightbox Plus Options', 'lightboxplus')?></h2>
 			  <?php _e('Lightbox Plus implements ColorBox as a lightbox image overlay tool for WordPress.  ColorBox was created by Jack Moore of <a href="http://colorpowered.com/colorbox/">Color Powered</a> and is licensed under the MIT License. Lightbox Plus allows you to easily integrate and customize a powerful and light-weight lightbox plugin for jQuery into your WordPress site.  You can easily create additional styles by adding a new folder to the css directory under <code>wp-content/plugins/lighbox-plus/css/</code> by duplicating and modifying any of the existing themes or using them as examples to create your own.  See the <a href="http://www.23systems.net/plugins/lightbox-plus/">changelog</a> for important details on this upgrade.',"lightboxplus"); ?>
 			  
-	      	<h3><?php _e('Reset/Re-initialize Lightbox Plus',"lightboxplus"); ?>: </h3>
-				<form action="<?php echo $location?>&amp;updated=true" method="post" id="lightboxplus_reset" name="lightboxplus_reset">
+	      	<h3><?php esc_html_e('Reset/Re-initialize Lightbox Plus',"lightboxplus"); ?>: </h3>
+				<form action="<?php echo esc_url( add_query_arg( 'updated', 'true', $location ) ); ?> method="post" id="lightboxplus_reset" name="lightboxplus_reset">
 				<table>
 				<tr>
 	            <td valign="top"><?php _e('This will immediately remove all existing settings and any files for versions of Lightbox Plus prior to version 1.5 and will also re-initialize the plugin with the new default options. Be absolutely certain you want to do this. <br /><strong><em>If you are upgrading from a version prior to 1.4 it is <strong><em>highly</em></strong> recommended that you reinitialize Lightbox Plus</em></strong>',"lightboxplus"); ?></td>
 				</tr>
 				<tr>
-    	        <td valign="top"><p class="submit"><input type="hidden" name="reinit_lightboxplus" value="1" /><input type="submit" class="btn" name="save" style="padding:5px 30px 5px 30px;" value="<?php _e('Reset/Re-initialize Lightbox Plus',"lightboxplus"); ?>" /></p>
+    	        <td valign="top"><p class="submit"><input type="hidden" name="reinit_lightboxplus" value="1" /><input type="submit" class="btn" name="save" style="padding:5px 30px 5px 30px;" value="<?php esc_attr_e('Reset/Re-initialize Lightbox Plus',"lightboxplus"); ?>" /></p>
 					<input type="hidden" name="action" value="action" /><input type="hidden" name="sub" value="reset" /></td>
 				</tr>
 				</table>
         		</form>
 				  
-			<h3><?php _e('Lightbox Plus Settings',"lightboxplus"); ?>: </h3>
+			<h3><?php esc_html_e('Lightbox Plus Settings',"lightboxplus"); ?>: </h3>
 				  
-				<form name="lightboxplus_settings" method="post" action="<?php echo $location?>&amp;updated=true">
+				<form name="lightboxplus_settings" method="post" action="<?php echo esc_url( add_query_arg( 'updated', 'true', $location ) ); ?>">
 				<input type="hidden" name="action" value="action" /><input type="hidden" name="sub" value="settings" />
 				<table class="form-table">
 				<tr valign="top">
-				<th scope="row"><?php _e('Lightbox Plus Style', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Lightbox Plus Style', 'lightboxplus')?>: </th>
 				<td>
       			<select name="lightboxplus_style">
 <?php
       foreach ($styles as $key => $value) {
         if ($themeStyle == urlencode($key)) {
-          echo("<option value=\"".urlencode($key)."\" selected=\"selected\">".$this->setProperName($key)."</option>\n");
+          echo("<option value=\"".esc_attr($key)."\" selected=\"selected\">".esc_html( $this->setProperName($key) )."</option>\n");
         }
         else {
-          echo("<option value=\"".urlencode($key)."\">".$this->setProperName($key)."</option>\n");
+          echo("<option value=\"".esc_attr($key)."\">".esc_html($this->setProperName($key))."</option>\n");
         }
       }
 ?>
@@ -438,7 +438,7 @@ if (!class_exists('wp_lightboxplus')) {
 			    </td>
 				</tr>
 				<tr>
-				<th scope="row"><?php _e('Transition Type', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Transition Type', 'lightboxplus')?>: </th>
 				<td>
 						<select name="transition" id="transition">
 						  <option value="elastic"<?php if ($transition=='elastic') echo ' selected="selected"'?>>Elastic</option>
@@ -448,7 +448,7 @@ if (!class_exists('wp_lightboxplus')) {
 				</td>
 				</tr>
 				<tr>
-				<th scope="row"><?php _e('Resize Speed', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Resize Speed', 'lightboxplus')?>: </th>
 				<td>
 						<select name="speed" id="speed">
 						  <option value="0"<?php if ($speed=='0') echo ' selected="selected"'?>>0</option>
@@ -487,22 +487,22 @@ if (!class_exists('wp_lightboxplus')) {
 				</tr>
 
 				<tr>
-				<th scope="row"><?php _e('Maximum Width', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="max_width" id="max_width" value="<?php if (!empty($maxWidth)) { echo $maxWidth;} else { echo ''; } ?>" /><br /><?php _e('Set a maximum width for loaded content.  Example: "75%", "500px", 500, or false for no maximum width.  <strong><em>Default: false</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Maximum Width', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="max_width" id="max_width" value="<?php if (!empty($maxWidth)) { echo esc_attr( $maxWidth );} else { echo ''; } ?>" /><br /><?php _e('Set a maximum width for loaded content.  Example: "75%", "500px", 500, or false for no maximum width.  <strong><em>Default: false</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Maximum Height', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="max_height" id="max_height" value="<?php if (!empty($maxHeight)) { echo $maxHeight;} else { echo ''; } ?>" /><br /><?php _e('Set a maximum height for loaded content.  Example: "75%", "500px",, 500, or false for no maximum height. <strong><em>Default: false</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Maximum Height', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="max_height" id="max_height" value="<?php if (!empty($maxHeight)) { echo esc_attr( $maxHeight );} else { echo ''; } ?>" /><br /><?php _e('Set a maximum height for loaded content.  Example: "75%", "500px",, 500, or false for no maximum height. <strong><em>Default: false</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Resize', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Resize', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="resize"id="resize" value="1"<?php if ($resize) echo ' checked="checked"';?> /><br /><?php _e('If checked and if Maximum Width or Maximum Height have been defined, Lightbx Plus will resize photos to fit within the those values.<br /><strong><em>Default: Checked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Overlay Opacity', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Overlay Opacity', 'lightboxplus')?>: </th>
 				<td>
 				<select name="opacity">
 					<option value="0"<?php if ($opacity=='0') echo ' selected="selected"'?>>0%</option>
@@ -531,51 +531,51 @@ if (!class_exists('wp_lightboxplus')) {
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Pre-load images', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Pre-load images', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="preloading" value="1"<?php if ($preloading) echo ' checked="checked"';?> /><br /><?php _e('Allows for preloading of "Next" and "Previous" content in a shared relation group (same values for the "rel" attribute), after the current content has finished loading. Uncheck to disable.<br /><strong><em>Default: Checked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Grouping Labels', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="label_image" id="label_image" value="<?php if (empty($labelImage)) { echo 'Image'; } else {echo $labelImage;}?>" /> # <input type="text" size="15" name="label_of" id="label_of" value="<?php if (empty($labelOf)) { echo 'of'; } else {echo $labelOf;}?>" /> #<br /><?php _e('Text format for the content group / gallery count. {current} and {total} are detected and replaced with actual numbers while ColorBox runs.<strong><em>Default: Image {current} of {total}</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Grouping Labels', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="label_image" id="label_image" value="<?php if (empty($labelImage)) { echo 'Image'; } else {echo esc_attr( $labelImage );}?>" /> # <input type="text" size="15" name="label_of" id="label_of" value="<?php if (empty($labelOf)) { echo 'of'; } else {echo esc_attr( $labelOf );}?>" /> #<br /><?php _e('Text format for the content group / gallery count. {current} and {total} are detected and replaced with actual numbers while ColorBox runs.<strong><em>Default: Image {current} of {total}</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Previous image text', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="previous" id="previous" value="<?php if (!empty($previous)) { echo $previous;} else { echo 'previous'; } ?>" /><br /><?php _e('Text for the previous button in a shared relation group (same values for "rel" attribute). <strong><em>Default: previous</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Previous image text', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="previous" id="previous" value="<?php if (!empty($previous)) { echo esc_attr( $previous );} else { echo 'previous'; } ?>" /><br /><?php _e('Text for the previous button in a shared relation group (same values for "rel" attribute). <strong><em>Default: previous</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Next image text', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="next" id="next" value="<?php if (!empty($next)) { echo $next;} else { echo 'next'; } ?>" /><br /><?php _e('Text for the next button in a shared relation group (same values for "rel" attribute).  <strong><em>Default: next</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Next image text', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="next" id="next" value="<?php if (!empty($next)) { echo esc_attr( $next );} else { echo 'next'; } ?>" /><br /><?php _e('Text for the next button in a shared relation group (same values for "rel" attribute).  <strong><em>Default: next</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Close image text', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="close" id="close" value="<?php if (!empty($close)) { echo $close;} else { echo 'close'; } ?>" /><br /><?php _e('Text for the close button. The "Esc" key will also close Lightbox Plus. <strong><em>Default: close</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Close image text', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="close" id="close" value="<?php if (!empty($close)) { echo esc_attr( $close );} else { echo 'close'; } ?>" /><br /><?php _e('Text for the close button. The "Esc" key will also close Lightbox Plus. <strong><em>Default: close</em></strong>', 'lightboxplus')?></td>
 				</tr>            
 				
 				<tr>
-				<th scope="row"><?php _e('Overlay Close', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Overlay Close', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="overlay_close" id="overlay_close" value="1"<?php if ($overlayClose) echo ' checked="checked"';?> /><br /><?php _e('If checked, enables closing Lightbox Plus by clicking on the background overlay.<br /><strong><em>Default: Checked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row" colspan="2"><h3><?php _e('Slideshow Settings', 'lightboxplus')?></h3></th>
+				<th scope="row" colspan="2"><h3><?php esc_html_e('Slideshow Settings', 'lightboxplus')?></h3></th>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Slideshow', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Slideshow', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="slideshow" id="slideshow" value="1"<?php if ($slideshow) echo ' checked="checked"';?> /><br /><?php _e('If checked, adds slideshow capablity to a content group / gallery. <br /><strong><em>Default: Unchecked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Auto-Start Slideshow', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Auto-Start Slideshow', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="slideshow_auto" id="slideshow_auto" value="1"<?php if ($slideshowAuto) echo ' checked="checked"';?> /><br /><?php _e('If checked, the slideshows will automatically start to play when content grou opened. <br /><strong><em>Default: Checked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Slideshow Speed', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Slideshow Speed', 'lightboxplus')?>: </th>
 				<td>
 				<select name="slideshow_speed" id="slideshow_speed">
 					<option value="500"<?php if ($slideshowSpeed=='500') echo ' selected="selected"'?>>500</option>
@@ -609,38 +609,38 @@ if (!class_exists('wp_lightboxplus')) {
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Slideshow start text', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="slideshow_start" id="slideshow_start" value="<?php if (!empty($slideshowStart)) { echo $slideshowStart;} else { echo 'start'; } ?>" /><br /><?php _e('Text for the slideshow start button. <strong><em>Default: start</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Slideshow start text', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="slideshow_start" id="slideshow_start" value="<?php if (!empty($slideshowStart)) { echo esc_attr( $slideshowStart );} else { echo 'start'; } ?>" /><br /><?php _e('Text for the slideshow start button. <strong><em>Default: start</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Slideshow stop text', 'lightboxplus')?>: </th>
-				<td><input type="text" size="15" name="slideshow_stop" id="slideshow_stop" value="<?php if (!empty($slideshowStop)) { echo $slideshowStop;} else { echo 'stop'; } ?>" /><br /><?php _e('Text for the slideshow stop button.  <strong><em>Default: stop</em></strong>', 'lightboxplus')?></td>
+				<th scope="row"><?php esc_html_e('Slideshow stop text', 'lightboxplus')?>: </th>
+				<td><input type="text" size="15" name="slideshow_stop" id="slideshow_stop" value="<?php if (!empty($slideshowStop)) { echo esc_attr( $slideshowStop);} else { echo 'stop'; } ?>" /><br /><?php _e('Text for the slideshow stop button.  <strong><em>Default: stop</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row" colspan="2"><h3><?php _e('Other Settings', 'lightboxplus')?></h3></th>
+				<th scope="row" colspan="2"><h3><?php esc_html_e('Other Settings', 'lightboxplus')?></h3></th>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('Use Class Method', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('Use Class Method', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="class_method" id="class_method" value="1"<?php if ($classMethod) echo ' checked="checked"';?> /><br /><?php _e('If checked, Lightbox Plus will only lightbox images via <code>class: cpModal</code> attribute.  Using this method you can manually control which images are affected by Lightbox Plus by adding the cpModal class to the Advanced Link Settings in the WordPress Edit Image tool or by adding it to the image link URL and checking the <strong>Do Not Auto-Lightbox Images</strong> option.<br /><strong><em>Default: Unchecked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('<strong>Do Not</strong> Auto-Lightbox Images', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('<strong>Do Not</strong> Auto-Lightbox Images', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="auto_lightbox" id="auto_lightbox" value="1"<?php if ($autoLightbox) echo ' checked="checked"';?> /><br /><?php _e('If checked, Lightbox Plus <em>will not</em> automatically add appropriate attibutes (either <code>rel="lightbox[postID]"</code> or <code>class: cpModal</code>) to Image URL.  You will need to manually add the appropriate attribute for Lightbox Plus to work.<br /><strong><em>Default: Unchecked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				<tr>
-				<th scope="row"><?php _e('<strong>Do Not</strong> Display Image Title', 'lightboxplus')?>: </th>
+				<th scope="row"><?php esc_html_e('<strong>Do Not</strong> Display Image Title', 'lightboxplus')?>: </th>
 				<td><input type="checkbox" name="display_title" id="display_title" value="1"<?php if ($displayTitle) echo ' checked="checked"';?> /><br /><?php _e('If checked, Lightbox Plus <em>will not</em> display image titles automatically.  This has no effect if the <strong>Do Not Auto-Lightbox Images</strong> option is checked.<br /><strong><em>Default: Unchecked</em></strong>', 'lightboxplus')?></td>
 				</tr>
 				
 				
 				</table>
 				<p class="submit">
-				<input type="submit" style="padding:5px 30px 5px 30px;" name="Submit" value="<?php _e('Save settings', 'lightboxplus')?> &raquo;" />
+				<input type="submit" style="padding:5px 30px 5px 30px;" name="Submit" value="<?php esc_html_e('Save settings', 'lightboxplus')?> &raquo;" />
 				</p>
 				</form>
 
@@ -648,7 +648,7 @@ if (!class_exists('wp_lightboxplus')) {
 			<div class="inside">
 				<form action="https://www.paypal.com/cgi-bin/webscr" method="post" style="float:right;"> <input name="cmd" type="hidden" value="_donations" /> <input name="business" type="hidden" value="dzappone@gmail.com" /> <input name="item_name" type="hidden" value="Dan Zappone" /> <input name="item_number" type="hidden" value="23SDONWP" /> <input name="no_shipping" type="hidden" value="0" /> <input name="no_note" type="hidden" value="1" /> <input name="currency_code" type="hidden" value="EUR" /> <input name="tax" type="hidden" value="0" /> <input name="lc" type="hidden" value="US" /> <input name="bn" type="hidden" value="PP-DonationsBF" /> <input alt="PayPal - The safer, easier way to pay online!" name="submit" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" type="image" /> <img src="https://www.paypal.com/en_US/i/scr/pixel.gif" border="0" alt="" width="1" height="1" />
 				</form>
-				<h4><?php _e('Thank you for downloading and installing Lightbox Plus for WordPress',"lightboxplus"); ?></h4>
+				<h4><?php esc_html_e('Thank you for downloading and installing Lightbox Plus for WordPress',"lightboxplus"); ?></h4>
 				<?php _e('Like many developers I spend a lot of my spare time working on WordPress plugins and themes and any donation to the cause is appreciated.  I know a lot of other developers do the same and I try to donate to them whenever I can.  As a developer I greatly appreciate any donation you can make to help support further development of quality plugins and themes for WordPress.  In keeping with the name of my site <a href="http://www.23systems.net">23Systems</a> a minimum donation of &euro;2.30 is encouraged but I\'ll gladly accept whatever you feel comfortable with. <em>You have my sincere thanks and appreciation</em>.',"lightboxplus"); ?>
 			</div>
 		</div>
