@@ -246,7 +246,7 @@ if (!class_exists('wp_lightboxplus')) {
     function lightboxPlusAdminPanel() {
       global $g_lightbox_plus_url;
       load_plugin_textdomain('lightboxplus', false, dirname( __FILE__ ) . '/languages/' );
-      $location = get_option('siteurl').'/wp-admin/admin.php?page=lightboxplus';
+      $location = home_url() . '/wp-admin/admin.php?page=lightboxplus';
 
       /*---- Where the styles reside ----*/
       $stylePath = (dirname(__FILE__)."/css");
