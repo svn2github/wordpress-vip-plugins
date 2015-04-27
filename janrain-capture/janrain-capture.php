@@ -225,7 +225,7 @@ LOGOUT;
 						 if(localStorage && localStorage.getItem("janrainCaptureToken")) {
 						 var authLink = document.getElementById("janrain_auth");
 						 authLink.innerHTML = "Log out";
-						 authLink.setAttribute("href", "'. esc_url( admin_url() ) .'admin-ajax.php?action=janrain_capture_logout&source='.esc_js( JanrainCaptureUi::current_page_url() ).'");
+						 authLink.setAttribute("href", "'. esc_url( admin_url() .'admin-ajax.php?action=janrain_capture_logout&source=' . rawurlencode( JanrainCaptureUi::current_page_url() ) ) . '");
 						 authLink.setAttribute("onclick", "janrain.capture.ui.endCaptureSession()");
 						 authLink.setAttribute("class","");
 						 }
@@ -309,8 +309,7 @@ LOGOUT;
 			if ( is_array( $social_providers ) ) {
 				$rpx_social_icons = '';
 				foreach ( $social_providers as $val ) {
-					$val = esc_js( $val );
-					$rpx_social_icons .= '<span class="janrain-provider-icon-16 janrain-provider-icon-'.$val.'" rel="'.$val.'" onclick="'.$onclick.'"></span>';
+					$rpx_social_icons .= '<span class="janrain-provider-icon-16 janrain-provider-icon-' . esc_attr( $val ) . '" rel="' . esc_attr( $val ) . '" onclick="' . esc_js( $onclick ) . '"></span>';
 				}
 				$buttons = '<span class="rpx_social_icons">' . $rpx_social_icons . '</span>';
 				return $buttons;
