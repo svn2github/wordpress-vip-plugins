@@ -70,8 +70,18 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 			}
 
 			// check our redirect
-			$r = isset( $_SERVER['HTTP_REFERER'] ) ? esc_url_raw( $_SERVER['HTTP_REFERER'] ) : home_url();
+			$r = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url();
 			$r = wp_validate_redirect( $r, home_url() );
+
+            // Escaping - applied early due to heredoc
+            if ( function_exists( 'wp_json_encode' ) ) {
+                $r = wp_json_encode( $r );
+            } elseif( function_exists( 'json_encode') ) {
+                $r = json_encode( $r );
+            } else {
+                $r = '"' . esc_url( $r ) . '"';
+            }
+
 			echo <<<REDIRECT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -81,7 +91,7 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 	</head>
 	<body>
 	<script type="text/javascript">
-		window.location.href = '$r';
+		window.location.href = $r;
 	</script>
 	</body>
 </html>
@@ -159,8 +169,18 @@ SCREEN2;
 		function logout() {
 			$s = isset( $_SERVER['HTTPS'] ) ? '; secure' : '';
 			$n = self::$name;
-			$r = isset( $_GET['source'] ) ? esc_url_raw( $_GET['source'] ) : home_url();
+			$r = isset( $_GET['source'] ) ? $_GET['source'] : home_url();
 			$r = wp_validate_redirect( $r, home_url() );
+
+            // Escaping - applied early due to heredoc
+            if ( function_exists( 'wp_json_encode' ) ) {
+                $r = wp_json_encode( $r );
+            } elseif( function_exists( 'json_encode') ) {
+                $r = json_encode( $r );
+            } else {
+                $r = '"' . esc_url( $r ) . '"';
+            }
+
 			echo <<<LOGOUT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
 	 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -171,7 +191,7 @@ SCREEN2;
 	<body>
 	<script type="text/javascript">
 		document.cookie = 'backplane-channel=; expires=Thu, 01-Jan-70 00:00:01 GMT; path=/$s';
-		window.location.href = '$r';
+		window.location.href = $r;
 	</script>
 	</body>
 </html>
