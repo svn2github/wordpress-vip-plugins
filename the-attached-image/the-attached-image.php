@@ -59,18 +59,18 @@ function att_options_page() {
     // If they did, this hidden field will be set to 'Y'
     if(isset($_POST[ $hidden_field_name ]) && $_POST[ $hidden_field_name ] == 'Y' ) {
         // Read their posted value
-        $opt_val = array('img_size' => $_POST[ $opt_name['img_size'] ],
-						 'css_class' => $_POST[ $opt_name['css_class'] ],
-						 'img_width' => $_POST[ $opt_name['img_width'] ],
-						 'img_height' => $_POST[ $opt_name['img_height'] ],
-						 'default_img' => $_POST[ $opt_name['default_img'] ],
-						 'href' => $_POST[ $opt_name['href'] ],
-						 'alt' => $_POST[ $opt_name['alt'] ],
-						 'link_title' => $_POST[ $opt_name['link_title'] ],
-						 'img_tag' => $_POST[ $opt_name['img_tag'] ],
-						 'echo' => $_POST[ $opt_name['echo'] ],
-						 'href_rel' => $_POST[ $opt_name['href_rel'] ],
-						 'img_order' => $_POST[ $opt_name['img_order'] ]);
+        $opt_val = array('img_size'    => sanitize_text_field( $_POST[ $opt_name['img_size'] ] ),
+						 'css_class'   => sanitize_text_field( $_POST[ $opt_name['css_class'] ] ),
+						 'img_width'   => sanitize_text_field( $_POST[ $opt_name['img_width'] ] ),
+						 'img_height'  => sanitize_text_field( $_POST[ $opt_name['img_height'] ] ),
+						 'default_img' => sanitize_text_field( $_POST[ $opt_name['default_img'] ] ),
+						 'href'        => sanitize_text_field( $_POST[ $opt_name['href'] ] ),
+						 'alt'         => sanitize_text_field( $_POST[ $opt_name['alt'] ] ),
+						 'link_title'  => sanitize_text_field( $_POST[ $opt_name['link_title'] ] ),
+						 'img_tag'     => sanitize_text_field( $_POST[ $opt_name['img_tag'] ] ),
+						 'echo'        => sanitize_text_field( $_POST[ $opt_name['echo'] ] ),
+						 'href_rel'    => sanitize_text_field( $_POST[ $opt_name['href_rel'] ] ),
+						 'img_order'   => sanitize_text_field( $_POST[ $opt_name['img_order'] ] ));
 
         // Save the posted value in the database
         update_option( $opt_name['img_size'], $opt_val['img_size'] );
@@ -92,7 +92,7 @@ function att_options_page() {
 
 <div id="message" class="updated fade">
   <p><strong>
-    <?php _e('Options saved.', 'att_trans_domain' ); ?>
+    <?php esc_html_e('Options saved.', 'att_trans_domain' ); ?>
     </strong></p>
 </div>
 
@@ -100,7 +100,7 @@ function att_options_page() {
 	}
 ?>
 <div class="wrap">
-<h2><?php _e( 'The Attached Image', 'att_trans_domain' ); ?></h2>
+<h2><?php esc_html_e( 'The Attached Image', 'att_trans_domain' ); ?></h2>
 <?php
 if(isset($_GET['wpatt-page']) && $_GET['wpatt-page'] == 'docs') {
 	require_once('att_docs.php'); //select the documentation.
@@ -291,18 +291,18 @@ function the_attached_image($args='') {
 			return false;
 		}
 		
-		$image = '<img src="'.get_bloginfo('url').$default.'" class="'.$css_class.'" ';
+		$image = '<img src="' . esc_url( get_bloginfo('url') . $default ) . '" class="' . esc_attr( $css_class ) . '" ';
 		
 		//get the alt text
 		$alt_text = get_alt($alt);
 		if(!empty($alt_text)) {
-			$image .= 'alt="'.$alt_text.'" ' ;
+			$image .= 'alt="' . esc_attr( $alt_text ) . '" ' ;
 		}
 				
 		if(stristr($link, 'post') === false && stristr($link, 'custom') === false) {
 			//get the title text
 			$img_title_text = get_title($link_title);
-			$image .= 'title="'.$img_title_text.'" ';
+			$image .= 'title="' . esc_attr( $img_title_text ) . '" ';
 		}
 		
 		if($height === false && $width === false) { //Sort out the height & width depending on what has been supplied by the user.
@@ -311,22 +311,22 @@ function the_attached_image($args='') {
 			$image .= !empty($default_info[3]) ? $default_info[3].' />' : ' />'; 
 		} else {
 			if(!$width === false && !$height === false) {
-				$image .= 'width="'.$width.'" height="'.$height.'" />'; 
+				$image .= 'width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" />';
 			} elseif(!$width === false) {
-				$image .= 'width="'.$width.'" />';
+				$image .= 'width="' . esc_attr( $width ) . '" />';
 			} elseif(!$height === false) {
-				$image .= 'height="'.$height.'" />';
+				$image .= 'height="' . esc_attr( $height ) . '" />';
 			}
 		}
 		
 		if($href === true || $href == 'true') { //Do you want a href & where should it point.
 			switch ($link) {
 				case 'post' :
-					$a_href = '<a href="'.get_permalink($post->ID).'" title="'.$post->post_title.'">%%%</a>';
+					$a_href = '<a href="' . esc_url( get_permalink($post->ID) ) . '" title="' . esc_attr( $post->post_title ) . '">%%%</a>';
 				break;
 				case 'custom' :
 					$link_meta = get_post_meta($post->ID, 'att_custom_link', true); //no need to check since it wouldn't be here if it were empty.
-					$a_href = '<a href="'.$link_meta.'">%%%</a>';
+					$a_href = '<a href="' . esc_url( $link_meta ) . '">%%%</a>';
 				break;
 			}
 		}
@@ -377,24 +377,24 @@ function the_attached_image($args='') {
 		} 
 
 		if($img_tag === true || $img_tag == 'true') { //Do they want an image tag along with setting the height & width.
-			$image = '<img src="'.$img_url.'" class="'.$css_class.'"';
+			$image = '<img src="' . esc_url( $img_url ) . '" class="' . esc_attr( $css_class ) . '"';
 
 			$alt_text = get_alt($alt); //Get alt text
 			if(!empty($alt_text)) {
-				$image .= ' alt="'.$alt_text.'"';
+				$image .= ' alt="' . esc_attr( $alt_text ) . '"';
 			}
 
 			if(stristr($link, 'none')) {
 				$title_text = get_title($link_title);
-				$image .= ' title="'.$title_text.'"';
+				$image .= ' title="' . esc_attr( $title_text ) . '"';
 			}
 
 			if(!$width === false && !$height === false) {
-				$image .= ' width="'.$width.'" height="'.$height.'" />';
+				$image .= ' width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" />';
 			} elseif(!$width === false) {
-				$image .= ' width="'.$width.'" />';
+				$image .= ' width="' . esc_attr( $width ) . '" />';
 			} elseif(!$height === false) {
-				$image .= ' height="'.$height.'" />';
+				$image .= ' height="' . esc_attr( $height ) . '" />';
 			} else {
 				$image .= ' />';
 			}
@@ -409,20 +409,20 @@ function the_attached_image($args='') {
 			
 			switch ($link) {
 				case 'post' :
-					$a_href = '<a href="'.get_permalink($post->ID).'" title="'.$a_title_text.'">%%%</a>';
+					$a_href = '<a href="' . esc_url( get_permalink($post->ID) ) . '" title="' . esc_attr( $a_title_text ) . '">%%%</a>';
 				break;
 				case 'attachment' :
-					$a_href = '<a href="'.get_attachment_link($attachment->ID).'" title="'.$a_title_text.'">%%%</a>';
+					$a_href = '<a href="' . esc_url( get_attachment_link($attachment->ID) ) . '" title="' . esc_attr( $a_title_text ) . '">%%%</a>';
 				break;
 				case 'custom' :
 					$link_meta = get_post_meta($post->ID, 'att_custom_link', true); //no need to check since it wouldn't be here if it were empty.
-					$a_href = '<a href="'.$link_meta.'" title="'.$a_title_text.'">%%%</a>';
+					$a_href = '<a href="' . esc_url( $link_meta ) . '" title="' . esc_attr( $a_title_text ) . '">%%%</a>';
 				break;
 				default :
 					if(!$rel === false) {
-						$a_href = '<a href="'.wp_get_attachment_url($attachment->ID).'" rel="'.$rel.'" title="'.$a_title_text.'">%%%</a>';
+						$a_href = '<a href="' . esc_url( wp_get_attachment_url($attachment->ID) ) . '" rel="' . esc_attr( $rel ) . '" title="' . esc_attr( $a_title_text ) . '">%%%</a>';
 					} else {
-						$a_href = '<a href="'.wp_get_attachment_url($attachment->ID).'" title="'.$a_title_text.'">%%%</a>';
+						$a_href = '<a href="' . esc_url( wp_get_attachment_url($attachment->ID) ) . '" title="' . esc_attr( $a_title_text ) . '">%%%</a>';
 					}
 				break;
 			}
