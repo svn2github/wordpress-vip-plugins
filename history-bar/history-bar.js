@@ -34,7 +34,11 @@ function AddPost_ID( id ) {
 	if( old_cookie.indexOf("|"+ id + "|") > -1 ) {
 		old_cookie = old_cookie.replace( "|"+ id + "|", "" );
 	} 
-	old_cookie += "|" +id + "|";	
+	old_cookie += "|" +id + "|";
+	//limit the number of visited posts to 10 as that's what the backend usually fetches by default
+	if ( old_cookie.match( /\|\d+\|/g ).length > 10 ) {
+		old_cookie = old_cookie.match( /\|\d+\|/g ).slice(-10).join("");
+	}
 	history_createCookie( cookie_name, old_cookie );
 }
 function fill_history_box(  ) {
