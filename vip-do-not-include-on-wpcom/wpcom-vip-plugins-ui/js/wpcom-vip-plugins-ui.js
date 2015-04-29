@@ -46,7 +46,7 @@
 	function activatePlugin( button, plugin ) {
 		plugin.addClass('activating'),
 		plugin.find('.fp-button').removeClass('visible'),
-		plugin.find('.text').addClass('visible');
+		plugin.find('.fp-text').addClass('visible');
 		setTimeout(function() {
 			window.location.href = button.attr('href');
 		}, 850);
