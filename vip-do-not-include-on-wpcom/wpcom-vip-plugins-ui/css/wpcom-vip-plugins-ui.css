@@ -8,26 +8,22 @@ div.tablenav {
 article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section, summary {
 	display: block;
 }
-.wrap {
-	position: relative;
-	margin: 90px 32px 0 182px
-}
-#menu {
+#plugins-fp #menu {
 	margin: 0 0 2em
 }
-#showcase {
+#plugins-fp #showcase {
 	margin-right: 330px;
 	box-sizing: border-box;
 }
-#active {
+#plugins-fp #active {
 	float: right;
 	width: 300px;
 	box-sizing: border-box;
 }
-#active h3 {
+#plugins-fp #active h3 {
 	margin-top: 0;
 }
-.plugin {
+#plugins-fp .plugin {
 	position: relative;
 	float: left;
 	width: 300px;
@@ -40,19 +36,19 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
 	box-sizing: border-box;
 }
-	.plugin.hovered .fp-icon,
-	.plugin.activating .fp-icon,
-	.plugin.hovered .fp-content,
-	.plugin.activating .fp-content {
+	#plugins-fp .plugin.hovered .fp-icon,
+	#plugins-fp .plugin.activating .fp-icon,
+	#plugins-fp .plugin.hovered .fp-content,
+	#plugins-fp .plugin.activating .fp-content {
 		-webkit-filter: blur(3px);
 		filter: blur(3px)
 	}
-	.plugin.active {
+	#plugins-fp .plugin.active {
 		float: none;
 		background: #f2fbff;
 		padding: 16px;
 	}
-		.plugin.active:before {
+		#plugins-fp .plugin.active:before {
 			content: "";
 			position: absolute;
 			top: 0;
@@ -62,43 +58,43 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 			border-top: 4px solid #2ea2cc
 		}
 		
-	.plugin.activating .interstitial {
+	#plugins-fp .plugin.activating .interstitial {
 		display: block;
 		top: 0;
 		bottom: auto;
 		height: 100%
 	}
-	.plugin.hovered .interstitial {
+	#plugins-fp .plugin.hovered .interstitial {
 		display: block;
 		-moz-animation: expand 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		-webkit-animation: expand 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		animation: expand 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards
 	}
-	.plugin.hovered .interstitial-inner,
-	.plugin.activating .interstitial-inner {
+	#plugins-fp .plugin.hovered .interstitial-inner,
+	#plugins-fp .plugin.activating .interstitial-inner {
 		-moz-animation: slideUp 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		-webkit-animation: slideUp 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		animation: slideUp 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards
 	}
 	
-.fp-icon {
+#plugins-fp .fp-icon {
 	float: left;
 	width: 48px;
 	height: 48px;
 	border-radius: 3px
 }
-.fp-content {
+#plugins-fp .fp-content {
 	margin-left: 64px
 }
-.fp-title {
+#plugins-fp .fp-title {
 	font-size: 20px;
 	font-weight: 600;
 	margin: 0 0 .3em
 }
-.fp-description {
+#plugins-fp .fp-description {
 	margin: 0
 }
-.interstitial {
+#plugins-fp .interstitial {
 	display: none;
 	position: absolute;
 	bottom: 0;
@@ -111,19 +107,19 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 	background: rgba(46, 162, 204, 0.92);
 	text-align: center
 }
-	.interstitial .fp-title {
+	#plugins-fp .interstitial .fp-title {
 		margin: 0 0 .825em;
 		color: #fff
 	}
 	
-.interstitial-inner {
+#plugins-fp .interstitial-inner {
 	position: absolute;
 	top: 45%;
 	left: 0;
 	right: 0;
 	width: 100%
 }
-.fp-button {
+#plugins-fp .fp-button {
 	opacity: 0;
 	padding: 5px 12px;
 	font-size: 14px;
@@ -139,7 +135,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 	-webkit-transform: scale(0.9);
 	transform: scale(0.9)
 }
-	.fp-button:hover {
+	#plugins-fp .fp-button:hover {
 		color: #fff;
 		background: #0074a2;
 		-moz-box-shadow: 0px 1px 0px 0px rgba(173, 173, 173, 0.4), inset 0px 1px 0px 0px #0074A2;
@@ -147,7 +143,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 		box-shadow: 0px 1px 0px 0px rgba(173, 173, 173, 0.4), inset 0px 1px 0px 0px #0074A2;
 		text-decoration: none
 	}
-	.fp-button.visible {
+	#plugins-fp .fp-button.visible {
 		opacity: 1;
 		-moz-transform: scale(1);
 		-ms-transform: scale(1);
@@ -155,22 +151,22 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 		transform: scale(1)
 	}
 
-.text {
+#plugins-fp .fp-text {
 	display: none;
 	height: 0;
 	font-weight: bold;
 	color: #fff
 }
-	.text.visible {
+	#plugins-fp .text.visible {
 		display: block;
 		-webkit-animation: reveal .3s ease 0s 1 forwards;
 		animation: reveal .3s ease 0s 1 forwards
 	}
 	
-.more-info a {
+#plugins-fp .more-info a {
 	color: rgba(255, 255, 255, 0.5)
 }
-	.more-info a:hover {
+	#plugins-fp .more-info a:hover {
 		color: #fff;
 		-moz-transform: scale(1.1);
 		-ms-transform: scale(1.1);
@@ -178,12 +174,12 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 		transform: scale(1.1)
 	}
 	
-.more-info .icon {
+#plugins-fp .more-info .icon {
 	position: absolute;
 	top: 8px;
 	right: 8px
 }
-	.more-info .icon:before {
+	#plugins-fp .more-info .icon:before {
 		content: '\f455';
 		display: inline-block;
 		-webkit-font-smoothing: antialiased;
@@ -284,26 +280,26 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 		transform: translateY(-50%)
 	}
 }
-.fp-icon,
-.fp-content,
-.fp-button,
-.more-info a:hover {
+#plugins-fp .fp-icon,
+#plugins-fp .fp-content,
+#plugins-fp .fp-button,
+#plugins-fp .more-info a:hover {
 	-moz-transition:	all 0.15s ease;
 	-o-transition:		all 0.15s ease;
 	-webkit-transition:	all 0.15s ease;
 	transition:			all 0.15s ease
 }
 @media screen and (max-width: 52.5em) {
-	#active {
+	#plugins-fp #active {
 		float: none;
 		width: 100%
 	}
-	#showcase {
+	#plugins-fp #showcase {
 		margin-right: 0px
 	}
 }
 @media screen and (max-width: 37.5em) {
-	.plugin {
+	#plugins-fp .plugin {
 		float: none;
 		width: 100%
 	}
