@@ -309,6 +309,8 @@ class WPcom_VIP_Plugins_UI {
 
 		add_action( 'admin_post_' . self::ACTION_PLUGIN_ACTIVATE, array( $this, 'action_admin_post_plugin_activate' ) );
 		add_action( 'admin_post_' . self::ACTION_PLUGIN_DEACTIVATE, array( $this, 'action_admin_post_plugin_deactivate' ) );
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'action_enqueue_scripts' ) );
 	}
 
 	/**
@@ -334,11 +336,23 @@ class WPcom_VIP_Plugins_UI {
 		}
 		$this->hook_suffix = add_submenu_page( $this->parent_menu_slug, $page_title, $menu_label, $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 
-		wp_enqueue_style( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . '/css/wpcom-vip-plugins-ui.css' );
-		wp_enqueue_script( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . '/js/wpcom-vip-plugins-ui.js' );
-
 		// This is required because WPcom_VIP_Plugins_UI_List_Table() is defined inside of a function
 		add_filter( 'manage_' . $this->hook_suffix . '_columns', array( 'WPcom_VIP_Plugins_UI', 'community_plugins_menu_columns' ) );
+	}
+
+	/**
+	 * Load the assets for this plugin on the correct screen only
+	 *
+	 * @param  string $hook
+	 * @return void
+	 */
+	public function action_enqueue_scripts( $hook ) {
+
+		if( $hook != $this->hook_suffix )
+			return;
+
+		wp_enqueue_style( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . 'css/wpcom-vip-plugins-ui.css' );
+		wp_enqueue_script( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . 'js/wpcom-vip-plugins-ui.js' );
 	}
 
 	/**
