@@ -335,6 +335,7 @@ class WPcom_VIP_Plugins_UI {
 		$this->hook_suffix = add_submenu_page( $this->parent_menu_slug, $page_title, $menu_label, $this->capability, self::MENU_SLUG, array( $this, 'display_menu_page' ) );
 
 		wp_enqueue_style( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . '/css/wpcom-vip-plugins-ui.css' );
+		wp_enqueue_script( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . '/js/wpcom-vip-plugins-ui.js' );
 
 		// This is required because WPcom_VIP_Plugins_UI_List_Table() is defined inside of a function
 		add_filter( 'manage_' . $this->hook_suffix . '_columns', array( 'WPcom_VIP_Plugins_UI', 'community_plugins_menu_columns' ) );
@@ -407,9 +408,14 @@ class WPcom_VIP_Plugins_UI {
 
 	<?php settings_errors( 'wpcom-vip-plugins-ui' ); ?>
 
-	<?php $fpp_table->display(); ?>
+	<main id="plugins" role="main">
 
-	<?php $wp_list_table->display(); ?>
+		<?php $fpp_table->display(); ?>
+
+		<?php $wp_list_table->display(); ?>
+
+	</main>
+
 </div>
 <?php
 	}

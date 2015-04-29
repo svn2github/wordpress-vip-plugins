@@ -19,7 +19,7 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 	public function prepare_items() {
 		$active = $inactive = array();
 
-		// The path has to be 
+		// The path has to be
 		foreach ( get_plugins( '/../themes/vip/plugins' ) as $plugin_file => $plugin_data ) {
 
 			$plugin_folder = basename( dirname( $plugin_file ) );
@@ -142,7 +142,15 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 	 *
 	 * Setting this variable won't run the filter at all
 	 */
-	public $_column_headers = array( array( 'left' => '', 'right' => '' ), array(), array() );
+	public $_column_headers = array( array( 'plugin' => '' ), array(), array() );
+
+	/**
+	 * Filter the featured plugin list?
+	 * Used to separate new layout
+	 *
+	 * @var string
+	 */
+	public $filter = 'inactive';
 
 	/**
 	 * Constructor. Sets up the list table.
@@ -157,30 +165,14 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 	 * Fetch the list of VIP featured plugins to display in the list table.
 	 */
 	public function prepare_items() {
-		$counter = 0;
-		$per_row = 2;
-
-		$row = array(); // Temporary row-building container
 
 		foreach ( WPcom_VIP_Plugins_UI()->fpp_plugins as $slug => $plugin ) {
 
 			if ( ! WPcom_VIP_Plugins_UI()->is_plugin_active( $slug ) && in_array( $slug, WPcom_VIP_Plugins_UI()->hidden_plugins ) )
 				continue;
 
-			$counter++;
-
-			$row[] = $slug;
-
-			// If we have enough items per row, add $row to the items and start over
-			if ( 0 == $counter % $per_row ) {
-				$this->items[] = $row;
-				$row = array();
-			}
+			$this->items[] = $slug;
 		}
-
-		// Add any remainders
-		if ( ! empty( $row ) )
-			$this->items[] = $row;
 	}
 
 	/**
@@ -190,46 +182,106 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 	 * @param string $column_name Name of the table column
 	 * @return string
 	 */
-	public function column_default( $item, $column_name ) {
-		if ( 'left' == $column_name && isset( $item[0] ) )
-			$slug = $item[0];
-		elseif ( 'right' == $column_name && isset( $item[1] ) )
-			$slug = $item[1];
-		else
+	public function column_default( $slug, $column_name ) {
+
+		if ( ! isset( $slug ) )
 			return;
 
 		if ( ! isset( WPcom_VIP_Plugins_UI()->fpp_plugins[$slug] ) )
 			return;
 
-		$image_src = plugins_url( 'images/featured-plugins/' . $slug . '-1x.png', __FILE__ );
+		// only show inactive
+		if ( WPcom_VIP_Plugins_UI()->is_plugin_active( $slug ) && $this->filter == 'inactive' )
+			return;
+
+		// only show active
+		if ( ! WPcom_VIP_Plugins_UI()->is_plugin_active( $slug ) && $this->filter == 'active' )
+			return;
+
+		$image_src = plugins_url( 'images/featured-plugins/' . $slug . '-2x.png', __FILE__ );
 
 		$lobby_url = '//vip.wordpress.com/plugins/' . $slug . '/';
 
-		$actions = array();
-		$actions = WPcom_VIP_Plugins_UI()->add_activate_or_deactive_action_link( $actions, $slug );
-		$actions['learnmore'] = '<a href="' . esc_url( $lobby_url ) . '" target="_blank">Learn More</a>';
+		$is_active = WPcom_VIP_Plugins_UI()->is_plugin_active( $slug );
 
 		ob_start();
 ?>
-		<a href="<?php echo esc_url( $lobby_url ); ?>"><img src="<?php echo esc_url( $image_src ); ?>" width="48" height="48" /></a>
-		<div class="description">
-			<h3><a href="<?php echo esc_url( $lobby_url ); ?>"><?php echo WPcom_VIP_Plugins_UI()->fpp_plugins[$slug]['name']; ?></a></h3>
-			<p><?php echo WPcom_VIP_Plugins_UI()->fpp_plugins[$slug]['description']; ?></p>
-			<?php echo $this->row_actions( $actions, true ); ?>
+		<div class="plugin <?php if ( $is_active ) { ?>active<?php } ?>">
+			<img src="<?php echo esc_url( $image_src ); ?>" width="48" height="48" class="fp-icon" />
+			<div class="fp-content">
+				<h3 class="fp-title"><?php echo WPcom_VIP_Plugins_UI()->fpp_plugins[$slug]['name']; ?></h3>
+				<p class="fp-description"><?php echo WPcom_VIP_Plugins_UI()->fpp_plugins[$slug]['description']; ?></p>
+			</div>
+			<div class="interstitial">
+				<div class="interstitial-inner">
+					<h3 class="fp-title"><?php echo WPcom_VIP_Plugins_UI()->fpp_plugins[$slug]['name']; ?></h3>
+					<?php
+					if ( $is_active ) {
+						if ( 'option' == $is_active ) {
+							echo '<a href="' . esc_url( WPcom_VIP_Plugins_UI()->get_plugin_deactivation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Deactivate this plugin' ) . '">' . __( 'Deactivate Plugin' ) . '</a>';
+						} elseif ( 'manual' == $is_active ) {
+							echo '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file">' . __( "Enabled via your theme's code" ) . '</span>';
+						}
+					} elseif ( ! $this->activation_disabled ) {
+						echo '<a href="' . esc_url( WPcom_VIP_Plugins_UI()->get_plugin_activation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Activate this plugin' ) . '" class="edit">' . __( 'Activate Plugin' ) . '</a>';
+					}
+					?>
+				</div>
+				<div class="more-info">
+					<a href="<?php echo esc_url( $lobby_url ); ?>" target="_blank" title="Learn More">
+						<div class="icon"></div>
+					</a>
+				</div>
+			</div>
 		</div>
-<?php
+		<?php
 		return ob_get_clean();
 	}
 
 	/**
-	 * Output the column headings for the list table
+	 * Output custom display for featured plugins
 	 *
-	 * @param bool $with_id Optional; if true, print the "Featured Partners" heading.
+	 * @return void
 	 */
-	public function print_column_headers( $with_id = true ) {
-		if ( $with_id ) {
-			echo '<th colspan="2">Featured Partners</th>';
-		}
+	public function display() {
+		$singular = $this->_args['singular'];
+
+
+		$this->display_tablenav( 'top' );
+
+	?>
+	<main id="plugins" role="main">
+
+		<section id="plugins-fp" class="<?php echo implode( ' ', $this->get_table_classes() ); ?>">
+
+			<nav id="menu">
+				<input id="search" type="search" value="" placeholder="<?php _e( 'Filter Plugins' ); ?>">
+			</nav>
+
+			<section id="active">
+
+				<h3><?php _e( 'Active Plugins' ); ?></h3>
+
+				<?php $this->filter = 'active'; ?>
+				<?php $this->display_rows_or_placeholder(); ?>
+
+			</section>
+
+			<section id="showcase">
+
+				<h3><?php _e( 'VIP Featured Plugins' ); ?></h3>
+
+				<?php $this->filter = 'inactive'; ?>
+				<?php $this->display_rows_or_placeholder(); ?>
+
+			</section>
+
+		</section>
+
+	</main>
+
+	<?php
+		$this->display_tablenav( 'bottom' );
 	}
 }
 
