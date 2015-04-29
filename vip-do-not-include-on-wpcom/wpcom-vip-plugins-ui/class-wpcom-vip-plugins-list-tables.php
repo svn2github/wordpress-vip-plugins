@@ -219,11 +219,14 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 					if ( $is_active ) {
 						if ( 'option' == $is_active ) {
 							echo '<a href="' . esc_url( WPcom_VIP_Plugins_UI()->get_plugin_deactivation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Deactivate this plugin' ) . '">' . __( 'Deactivate Plugin' ) . '</a>';
+							echo '<span class="fp-text">'. __( 'Deactivating Plugin') .'</span>';
 						} elseif ( 'manual' == $is_active ) {
-							echo '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file">' . __( "Enabled via your theme's code" ) . '</span>';
+							echo '<span title="To deactivate this particular plugin, edit your theme\'s functions.php file" class="fp-text">' . __( "Enabled via your theme's code" ) . '</span>';
 						}
 					} elseif ( ! $this->activation_disabled ) {
 						echo '<a href="' . esc_url( WPcom_VIP_Plugins_UI()->get_plugin_activation_link( $slug ) ) . '" class="fp-button" title="' . esc_attr__( 'Activate this plugin' ) . '" class="edit">' . __( 'Activate Plugin' ) . '</a>';
+						echo '<span class="fp-text">'. __( 'Activating Plugin') .'</span>';
+
 					}
 					?>
 				</div>
