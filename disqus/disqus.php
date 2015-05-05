@@ -669,8 +669,8 @@ function dsq_output_loop_comment_js($post_ids = null) {
 ?>
 	<script type="text/javascript">
 	// <![CDATA[
-		var disqus_shortname = '<?php echo strtolower(get_option('disqus_forum_url')); ?>';
-		var disqus_domain = '<?php echo DISQUS_DOMAIN; ?>';
+		var disqus_shortname = <?php echo wp_json_encode( strtolower(get_option('disqus_forum_url'))); ?>;
+		var disqus_domain = <?php echo wp_json_encode( DISQUS_DOMAIN ); ?>;
 		(function () {
 			var nodes = document.getElementsByTagName('span');
 			for (var i = 0, url; i < nodes.length; i++) {
@@ -698,8 +698,8 @@ function dsq_output_footer_comment_js() {
 ?>
 	<script type="text/javascript">
 	// <![CDATA[
-		var disqus_shortname = '<?php echo strtolower(get_option('disqus_forum_url')); ?>';
-		var disqus_domain = '<?php echo DISQUS_DOMAIN; ?>';
+		var disqus_shortname = <?php echo wp_json_encode( strtolower(get_option('disqus_forum_url'))) ?>;
+		var disqus_domain = <?php echo wp_json_encode( DISQUS_DOMAIN ); ?>;
 		(function () {
 			var nodes = document.getElementsByTagName('span');
 			for (var i = 0, url; i < nodes.length; i++) {

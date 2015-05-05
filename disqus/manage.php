@@ -121,8 +121,8 @@ case 2:
 <?php
 foreach ( $dsq_sites as $counter => $dsq_site ):
 ?>
-						<input name="dsq_forum" type="radio" id="dsq-site-<?php echo $counter; ?>" value="<?php echo $dsq_site->id; ?>:<?php echo $dsq_site->shortname; ?>" />
-						<label for="dsq-site-<?php echo $counter; ?>"><strong><?php echo htmlspecialchars($dsq_site->name); ?></strong> (<u><?php echo $dsq_site->shortname; ?>.disqus.com</u>)</label>
+						<input name="dsq_forum" type="radio" id="dsq-site-<?php echo esc_attr( $counter ); ?>" value="<?php echo esc_attr( $dsq_site->id ); ?>:<?php echo esc_attr( $dsq_site->shortname ); ?>" />
+						<label for="dsq-site-<?php echo esc_attr( $counter ); ?>"><strong><?php echo esc_html( $dsq_site->name ); ?></strong> (<u><?php echo esc_html( $dsq_site->shortname ); ?>.disqus.com</u>)</label>
 						<br />
 <?php
 endforeach;
@@ -134,7 +134,7 @@ endforeach;
 			</table>
 
 			<p class="submit" style="text-align: left">
-				<input type="hidden" name="dsq_user_api_key" value="<?php echo htmlspecialchars($dsq_user_api_key); ?>"/>
+				<input type="hidden" name="dsq_user_api_key" value="<?php echo esc_attr( $dsq_user_api_key ); ?>"/>
 				<input name="submit" type="submit" value="Next &raquo;" />
 			</p>
 			</form>
@@ -179,7 +179,7 @@ case 0:
 ?>
 		<div class="dsq-main">
 			<h2><?php echo dsq_i('Comments'); ?></h2>
-			<iframe src="<?php echo DISQUS_URL; ?>comments/moderate/<?php if ($url) echo $url . '/'; ?>?template=wordpress" style="width: 100%; height: 800px"></iframe>
+			<iframe src="<?php echo esc_url( DISQUS_URL . 'comments/moderate/' . $url . '/' ); ?>?template=wordpress" style="width: 100%; height: 800px"></iframe>
 		</div>
 <?php } ?>
 	</div>
@@ -202,7 +202,7 @@ case 0:
 			<tr>
 				<th scope="row" valign="top"><?php echo dsq_i('Disqus short name'); ?></th>
 				<td>
-					<input name="disqus_forum_url" value="<?php echo esc_attr($dsq_forum_url); ?>" tabindex="1" type="text" />
+					<input name="disqus_forum_url" value="<?php echo esc_url( $dsq_forum_url ); ?>" tabindex="1" type="text" />
 					<br />
 					<?php echo dsq_i('This is the unique identifier for your website on Disqus Comments.'); ?>
 				</td>
@@ -289,12 +289,12 @@ case 0:
 		<h3><?php echo dsq_i('Debug Information'); ?></h3>
 		<p><?php echo dsq_i('Having problems with the plugin? <a href="%s">Drop us a line</a> and include the following details and we\'ll do what we can.', 'mailto:help+wp@disqus.com'); ?></p>
 		<textarea style="width:90%; height:200px;">URL: <?php echo get_option('siteurl'); ?> 
-Version: <?php echo $wp_version; ?> 
+Version: <?php echo esc_html( $wp_version ); ?>
 
-Plugin Version: <?php echo $dsq_version; ?> 
-Forum Shortname: <?php echo get_option('disqus_forum_url'); ?> 
+Plugin Version: <?php echo esc_html( $dsq_version ); ?>
+Forum Shortname: <?php echo esc_html( get_option('disqus_forum_url') ); ?>
 
-Active Theme: <?php $theme = get_theme(get_current_theme()); echo $theme['Name'].' '.$theme['Version']; ?> 
+Active Theme: <?php $theme = get_theme(get_current_theme()); echo esc_html( $theme['Name'].' '.$theme['Version'] ); ?>
 
 </textarea><br/>
 	</div>
