@@ -321,71 +321,71 @@ if (!class_exists('AdvancedExcerpt')):
 
         <table class="form-table">
             <tr valign="top">
-                <th scope="row"><label for="<?php echo $this->name; ?>_length">
-                <?php _e("Excerpt Length:", $this->text_domain); ?></label></th>
+                <th scope="row"><label for="<?php echo esc_attr( $this->name ); ?>_length">
+                <?php esc_html_e("Excerpt Length:", $this->text_domain); ?></label></th>
                 <td>
-                    <input name="<?php echo $this->name; ?>_length" type="text"
-                           id="<?php echo $this->name; ?>_length"
-                           value="<?php echo $length; ?>" size="2"/>
-                    <input name="<?php echo $this->name; ?>_use_words" type="checkbox"
-                           id="<?php echo $this->name; ?>_use_words" value="on"<?php
+                    <input name="<?php echo esc_attr( $this->name ); ?>_length" type="text"
+                           id="<?php echo esc_attr( $this->name ); ?>_length"
+                           value="<?php echo esc_attr( $length ); ?>" size="2"/>
+                    <input name="<?php echo esc_attr( $this->name ); ?>_use_words" type="checkbox"
+                           id="<?php echo esc_attr( $this->name ); ?>_use_words" value="on"<?php
                            echo (1 == $use_words) ? ' checked="checked"' : ''; ?>/>
-                           <?php _e("Use words?", $this->text_domain); ?>
+                           <?php esc_html_e("Use words?", $this->text_domain); ?>
                 </td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="<?php echo $this->name; ?>_ellipsis">
-                <?php _e("Ellipsis:", $this->text_domain); ?></label></th>
+                <th scope="row"><label for="<?php echo esc_attr( $this->name ); ?>_ellipsis">
+                <?php esc_html_e("Ellipsis:", $this->text_domain); ?></label></th>
                 <td>
-                    <input name="<?php echo $this->name; ?>_ellipsis" type="text"
-                           id="<?php echo $this->name; ?>_ellipsis"
-                           value="<?php echo $ellipsis; ?>" size="5"/>
+                    <input name="<?php echo esc_attr( $this->name ); ?>_ellipsis" type="text"
+                           id="<?php echo esc_attr( $this->name ); ?>_ellipsis"
+                           value="<?php echo esc_attr( $ellipsis ); ?>" size="5"/>
                     <?php _e('(use <a href="http://www.w3schools.com/tags/ref_entities.asp">HTML entities</a>)', $this->text_domain); ?>
                     <br />
-                    <?php _e("Will substitute the part of the post that is omitted in the excerpt.", $this->text_domain); ?>
+                    <?php esc_html_e("Will substitute the part of the post that is omitted in the excerpt.", $this->text_domain); ?>
                 </td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="<?php echo $this->name; ?>_read_more">
-                <?php  _e("&lsquo;Read-more&rsquo; Text:", $this->text_domain); ?></label></th>
+                <th scope="row"><label for="<?php echo esc_attr( $this->name ); ?>_read_more">
+                <?php  esc_html_e("&lsquo;Read-more&rsquo; Text:", $this->text_domain); ?></label></th>
                 <td>
-                    <input name="<?php echo $this->name; ?>_read_more" type="text"
-                           id="<?php echo $this->name; ?>_read_more" value="<?php echo $read_more; ?>" />
+                    <input name="<?php echo esc_attr( $this->name ); ?>_read_more" type="text"
+                           id="<?php echo esc_attr( $this->name ); ?>_read_more" value="<?php echo esc_attr( $read_more ); ?>" />
                     <input name="<?php echo $this->name; ?>_add_link" type="checkbox"
-                           id="<?php echo $this->name; ?>_add_link" value="on" <?php
+                           id="<?php echo esc_attr( $this->name ); ?>_add_link" value="on" <?php
                            echo (1 == $add_link) ? 'checked="checked" ' : ''; ?>/>
-                           <?php _e("Add link to all excerpts", $this->text_domain); ?>
+                           <?php esc_html_e("Add link to all excerpts", $this->text_domain); ?>
                 </td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="<?php echo $this->name; ?>_no_custom">
-                <?php _e("No Custom Excerpts:", $this->text_domain); ?></label></th>
+                <th scope="row"><label for="<?php echo esc_attr( $this->name ); ?>_no_custom">
+                <?php esc_html_e("No Custom Excerpts:", $this->text_domain); ?></label></th>
                 <td>
-                    <input name="<?php echo $this->name; ?>_no_custom" type="checkbox"
+                    <input name="<?php echo esc_attr( $this->name ); ?>_no_custom" type="checkbox"
                            id="<?php echo $this->name; ?>_no_custom" value="on" <?php
                            echo (1 == $no_custom) ? 'checked="checked" ' : ''; ?>/>
-                           <?php _e("Generate excerpts even if a post has a custom excerpt attached.", $this->text_domain); ?>
+                           <?php esc_html_e("Generate excerpts even if a post has a custom excerpt attached.", $this->text_domain); ?>
                 </td>
             </tr>
             <tr valign="top">
-                <th scope="row"><label for="<?php echo $this->name; ?>_no_shortcode">
-                <?php _e("Strip Shortcodes:", $this->text_domain); ?></label></th>
+                <th scope="row"><label for="<?php echo esc_attr( $this->name ); ?>_no_shortcode">
+                <?php esc_html_e("Strip Shortcodes:", $this->text_domain); ?></label></th>
                 <td>
-                    <input name="<?php echo $this->name; ?>_no_shortcode" type="checkbox"
-                           id="<?php echo $this->name; ?>_no_shortcode" value="on" <?php
+                    <input name="<?php echo esc_attr( $this->name ); ?>_no_shortcode" type="checkbox"
+                           id="<?php echo esc_attr( $this->name ); ?>_no_shortcode" value="on" <?php
                            echo (1 == $no_shortcode) ? 'checked="checked" ' : ''; ?>/>
                            <?php _e("Remove shortcodes from the excerpt. <em>(recommended)</em>", $this->text_domain); ?>
                 </td>
             </tr>
             <tr valign="top">
-                <th scope="row"><?php _e("Keep Markup:", $this->text_domain); ?></th>
+                <th scope="row"><?php esc_html_e("Keep Markup:", $this->text_domain); ?></th>
                 <td>
-                    <table id="<?php echo $this->name; ?>_tags_table">
+                    <table id="<?php echo esc_attr( $this->name ); ?>_tags_table">
                         <tr>
-                            <td colspan="<?php echo $tag_cols; ?>">
-    <input name="<?php echo $this->name; ?>_allowed_tags[]" type="checkbox"
+                            <td colspan="<?php echo esc_attr( $tag_cols ); ?>">
+    <input name="<?php echo esc_attr( $this->name ); ?>_allowed_tags[]" type="checkbox"
            value="_all" <?php echo (in_array('_all', $allowed_tags)) ? 'checked="checked" ' : ''; ?>/>
-           <?php _e("Don't remove any markup", $this->text_domain); ?>
+           <?php esc_html_e("Don't remove any markup", $this->text_domain); ?>
                             </td>
                         </tr>
 <?php
@@ -401,10 +401,10 @@ if (!class_exists('AdvancedExcerpt')):
         $i++;
 ?>
                             <td>
-    <input name="<?php echo $this->name; ?>_allowed_tags[]" type="checkbox"
-           value="<?php echo $tag; ?>" <?php
+    <input name="<?php echo esc_attr( $this->name ); ?>_allowed_tags[]" type="checkbox"
+           value="<?php echo esc_attr( $tag ); ?>" <?php
            echo (in_array($tag, $allowed_tags)) ? 'checked="checked" ' : ''; ?>/>
-    <code><?php echo $tag; ?></code>
+    <code><?php echo esc_html( $tag ); ?></code>
                             </td>
 <?php
         if (0 == $i % $tag_cols):
@@ -420,24 +420,24 @@ if (!class_exists('AdvancedExcerpt')):
       endif;
 ?>
                     </table>
-                    <a href="" id="<?php echo $this->name; ?>_select_all">Select all</a>
-                    / <a href="" id="<?php echo $this->name; ?>_select_none">Select none</a><br />
+                    <a href="" id="<?php echo esc_attr( $this->name ); ?>_select_all">Select all</a>
+                    / <a href="" id="<?php echo esc_attr( $this->name ); ?>_select_none">Select none</a><br />
                     More tags:
-                    <select name="<?php echo $this->name; ?>_more_tags" id="<?php echo $this->name; ?>_more_tags">
+                    <select name="<?php echo esc_attr( $this->name ); ?>_more_tags" id="<?php echo esc_attr( $this->name ); ?>_more_tags">
 <?php
       foreach ($this->options_body_tags as $tag):
 ?>
-                        <option value="<?php echo $tag; ?>"><?php echo $tag; ?></option>
+                        <option value="<?php echo esc_attr( $tag ); ?>"><?php echo esc_html( $tag ); ?></option>
 <?php
       endforeach;
 ?>
                     </select>
-                    <input type="button" name="<?php echo $this->name; ?>_add_tag" id="<?php echo $this->name; ?>_add_tag" class="button" value="Add tag" />
+                    <input type="button" name="<?php echo esc_attr( $this->name ); ?>_add_tag" id="<?php echo esc_attr( $this->name ); ?>_add_tag" class="button" value="Add tag" />
                 </td>
             </tr>
         </table>
         <p class="submit"><input type="submit" name="Submit" class="button-primary"
-                                 value="<?php _e("Save Changes", $this->text_domain); ?>" /></p>
+                                 value="<?php esc_html_e("Save Changes", $this->text_domain); ?>" /></p>
     </form>
 </div>
 <?php
