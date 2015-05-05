@@ -73,7 +73,7 @@ class WPCOM_elasticsearch {
 		if ( ! function_exists( 'es_api_search_index' ) )
 			return;
 
-		if ( function_exists( 'es_api_get_index' ) && is_admin() && ! es_api_get_index( parse_url( site_url(), PHP_URL_HOST ), get_current_blog_id() ) ) {
+		if ( function_exists( 'es_api_is_blog_indexed' ) && is_admin() && ! es_api_is_blog_indexed(  get_current_blog_id() ) ) {
 			add_action( 'admin_notices', array( $this, 'admin_notice_no_index' ) );
 			return;
 		}
