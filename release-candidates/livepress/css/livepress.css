@@ -195,6 +195,12 @@ body#tinymce .livepress-meta img {
 .livepress-update-show-header .livepress-update-header{
 	display: inline;
 }
+
+.livepress-newform  .livepress-update-header{
+    position: relative;
+    left: inherit;
+}
+
 .livepress-update-show-author .livepress-byline,
 .livepress-update-show-time .livepress-timestamp-option,
 .livepress-update-show-tags .livepress-live-tags{

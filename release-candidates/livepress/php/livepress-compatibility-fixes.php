@@ -36,7 +36,7 @@ class LivePress_Compatibility_Fixes {
 	private function __construct() {
 		global $wp_version;
 		if ($wp_version < "4.0"){
-		add_filter( 'embed_oembed_html', array( $this, 'lp_embed_oembed_html' ), 1000, 4 );
+			add_filter( 'embed_oembed_html', array( $this, 'lp_embed_oembed_html' ), 1000, 4 );
 		}
 		add_filter( 'the_content', array( $this, 'lp_inject_twitter_script' ), 1000 );
 
@@ -104,6 +104,7 @@ class LivePress_Compatibility_Fixes {
 	 */
 	static function tm_coschedule_save_post_callback_filter( $state, $post_id ){
 		$parent_id = wp_get_post_parent_id( abs( $post_id ) );
+
 		if( LivePress_Updater::instance()->blogging_tools->get_post_live_status( $parent_id ) ){
 			$state = false;
 		}

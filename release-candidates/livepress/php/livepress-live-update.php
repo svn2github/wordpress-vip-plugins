@@ -223,6 +223,7 @@ class LivePress_Live_Update {
 
 		$header = '';
 		if ( $update_header ) {
+			$metainfo = str_replace( 'livepress-update-header-timestamp', 'livepress-update-header-timestamp livepress-title-shown', $metainfo );
 			$metainfo .= '<span class="livepress-update-header">' . wptexturize( urldecode( $update_header ) ) . "</span> ";
 		}
 

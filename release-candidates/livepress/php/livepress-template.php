@@ -87,7 +87,6 @@ add_action( 'livepress_widget', 'livepress_template' );
 
 /**
  * LivePress update box output.
- * TODO: remove after chaeck it not needed
  */
 function livepress_update_box() {
 	static $called = 0;

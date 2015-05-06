@@ -134,7 +134,8 @@ body#tinymce .livepress-update p {
 }
 
 .livepress-form-actions .livepress-delete {
-    float: left;
+    position: absolute;
+    left: 16px;
 	color: red;
     text-decoration: none;
 }
@@ -311,7 +312,7 @@ body.livepress-active #post-body-content .editorcontainerend{
 		border-top: 1px solid #ccc;
 		background: white;
 		padding-top: 10px;
-		padding-bottom: 36px;
+		padding-bottom: 55px;
 	}
 
 	form.livepress-update-form textarea {

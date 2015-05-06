@@ -103,8 +103,9 @@ class LivePress_Updater {
 
 		}
 
+		$api_key = isset( $this->options['api_key'] ) ? $this->options['api_key'] : false;
 		$this->livepress_config        = LivePress_Config::get_instance();
-		$this->livepress_communication = new LivePress_Communication($this->options['api_key']);
+		$this->livepress_communication = new LivePress_Communication( $api_key );
 
 		// Moved these values from config file for increased VIP compatibility
 		$this->title_css_selectors = array(
@@ -283,10 +284,12 @@ class LivePress_Updater {
 	 * @return bool
 	 */
 	public function has_livepress_enabled() {
+		$enabled_to = isset( $this->options['enabled_to'] ) ? $this->options['enabled_to'] : false;
+
 		return  current_user_can( 'manage_options' )      // the user is admin
-				&&  $this->options['enabled_to'] != 'none'    // and not blocked for everyone
-			||  $this->options['enabled_to'] == 'all'   // everybody is allowed
-			||      $this->options['enabled_to'] == 'registered'
+				&&  $enabled_to !== 'none'    // and not blocked for everyone
+				||  $enabled_to === 'all'   // everybody is allowed
+				||  $enabled_to === 'registered'
 				&&  current_user_can( 'edit_posts' ) // the user is registered
 		;
 	}
@@ -318,8 +321,10 @@ class LivePress_Updater {
 	 * Embed constants in the page output.
 	 */
 	function embed_constants() {
+		$api_key = isset( $this->options['api_key'] ) ? $this->options['api_key'] : false;
+
 		echo "<script>\n";
-		echo "var LIVEPRESS_API_KEY    = '" . esc_attr( $this->options["api_key"] ) . "';\n";
+		echo "var LIVEPRESS_API_KEY    = '" . esc_attr( $api_key ) . "';\n";
 		echo "var WP_PLUGIN_URL        = '" . esc_url( WP_PLUGIN_URL ) . "';\n";
 		echo "var OORTLE_STATIC_SERVER = '" . esc_url( $this->livepress_config->static_host() ) . "';\n";
 		echo "</script>\n";
@@ -759,9 +764,10 @@ class LivePress_Updater {
 		}
 		$ljsc->new_value( 'new_post_msg_id', get_option(LP_PLUGIN_NAME."_new_post") );
 
-		$ljsc->new_value( 'sounds_default', in_array("audio", $this->options['notifications']), Livepress_Configuration_Item::$BOOLEAN);
-		$ljsc->new_value( 'autoscroll', in_array("scroll", $this->options['notifications']), Livepress_Configuration_Item::$BOOLEAN);
-		$ljsc->new_value( 'effects', in_array( 'effects', $this->options['notifications']), Livepress_Configuration_Item::$BOOLEAN );
+		$notifications = isset( $this->options['notifications'] ) ? $this->options['notifications'] : array();
+		$ljsc->new_value( 'sounds_default', in_array( 'audio', $notifications ), Livepress_Configuration_Item::$BOOLEAN );
+		$ljsc->new_value( 'autoscroll', in_array( 'scroll', $notifications ), Livepress_Configuration_Item::$BOOLEAN );
+		$ljsc->new_value( 'effects', in_array( 'effects', $notifications ), Livepress_Configuration_Item::$BOOLEAN );
 
 		// colors used to highlight changes
 		$ljsc->new_value( 'oortle_diff_inserted',       apply_filters( 'livepress_effects_inserted', '#55C64D' ) );
@@ -853,6 +859,12 @@ class LivePress_Updater {
 		$ljsc->new_value("site_url", site_url() );
 		$ljsc->new_value("ajax_url", site_url()."/wp-admin/admin-ajax.php");
 		$ljsc->new_value("locale", get_locale());
+
+		if( function_exists( 'wpcom_vip_noncdn_uri' )){
+			$ljsc->new_value("noncdn_url", wpcom_vip_noncdn_uri( dirname( dirname( __FILE__ ) ) ) );
+		}else{
+			$ljsc->new_value( 'noncdn_url', LP_PLUGIN_URL);
+		}
 
 		// Check if we have the Facebook embed plugin so we have to load
 		// the FB js on livepress.admin.js:

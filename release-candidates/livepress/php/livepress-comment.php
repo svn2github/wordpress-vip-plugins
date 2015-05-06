@@ -42,8 +42,9 @@ class LivePress_Comment {
 	 * @param $options
 	 */
 	function __construct( $options ) {
+		$api_key = isset( $this->options['api_key'] ) ? $this->options['api_key'] : false;
 		$this->options = $options;
-		$this->lp_com  = new LivePress_Communication( $this->options['api_key'] );
+		$this->lp_com  = new LivePress_Communication( $api_key );
 	}
 
 	/**
@@ -113,10 +114,11 @@ class LivePress_Comment {
 		$comment_order = $config->get_host_option( 'comment_order' );
 		$ljsc->new_value( 'comment_order', $comment_order, Livepress_Configuration_Item::$STRING );
 
-		$ljsc->new_value( 'disable_comments',
-				$this->options['disable_comments'], Livepress_Configuration_Item::$BOOLEAN );
-		$ljsc->new_value( 'comment_live_updates_default',
-				$this->options['comment_live_updates_default'], Livepress_Configuration_Item::$BOOLEAN );
+		$disable_comments = isset( $this->options['disable_comments'] ) ? $this->options['disable_comments'] : false;
+		$ljsc->new_value( 'disable_comments', $disable_comments, Livepress_Configuration_Item::$BOOLEAN );
+
+		$comment_live_updates_default = isset( $this->options['comment_live_updates_default'] ) ? $this->options['comment_live_updates_default'] : false;
+		$ljsc->new_value( 'comment_live_updates_default', $comment_live_updates_default, Livepress_Configuration_Item::$BOOLEAN );
 
 		if ( isset( $post->ID ) && $post->ID ) {
 			$comment_msg_id = LivePress_WP_Utils::get_from_post( $post->ID, "comment_update", true );
