@@ -1447,8 +1447,8 @@ Livepress.Ui.ReactButton = function (type, update) {
 
 
 				// Did we get the shortened link or only a promise?
-
-                var twitter_popup = window.open( 'about:blank' , "Twitter", options );
+                var fail_url = 'https://twitter.com/intent/tweet?text=' + description + Livepress.getUpdatePermalink( update.id );
+                var twitter_popup = window.open( fail_url, "Twitter", options );
 				if ( 'string' === typeof twitterLink ) {
                     twitter_popup.location = 'https://twitter.com/intent/tweet?text=' + description + twitterLink;
 				} else {
@@ -1460,11 +1460,6 @@ Livepress.Ui.ReactButton = function (type, update) {
 							if ( 'undefined' !== typeof data.data ) {
 								Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
 							}
-						})
-						// Fallback to full URL
-						.fail( function() {
-                            twitter_popup.location = 'https://twitter.com/intent/tweet?text=' + description + Livepress.getUpdatePermalink( update.id );
-
 						});
 				}
                 twitter_popup.focus();

@@ -265,7 +265,7 @@ function lp_body_class( $classes ) {
 	array_push( $classes, 'livepress-live' );
 
 	// Add the livepress update format class
-	$settings      = get_option( 'livepress' );
+	$settings      = get_option( 'livepress', array() );
 	$update_format = isset( $settings['update_format'] ) ? $settings['update_format'] : 'default';
 	array_push( $classes, 'livepress-update-format-' . $update_format );
 

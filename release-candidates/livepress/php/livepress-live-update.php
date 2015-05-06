@@ -40,7 +40,7 @@ class LivePress_Live_Update {
 	 * @access private
 	 */
 	private function __construct() {
-		$this->options = get_option( LivePress_Administration::$options_name );
+		$this->options = get_option( LivePress_Administration::$options_name, array() );
 		global $current_user;
 		$this->user_options = get_user_option( LivePress_Administration::$options_name, $current_user->ID, false );
 
