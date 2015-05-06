@@ -3,12 +3,12 @@
 Plugin Name: Zone Manager (Zoninator)
 Description: Curation made easy! Create "zones" then add and order your content!
 Author: Mohammad Jangda, Automattic
-Version: 0.5
+Version: 0.6
 Author URI: http://vip.wordpress.com
 Text Domain: zoninator
 Domain Path: /language/
 
-Copyright 2010-2012 Mohammad Jangda, Automattic
+Copyright 2010-2015 Mohammad Jangda, Automattic
 
 This plugin was built by Mohammad Jangda in conjunction with William Davis and the Bangor Daily News.
 
@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 if( ! class_exists( 'Zoninator' ) ) :
 
-define( 'ZONINATOR_VERSION', '0.5' );
+define( 'ZONINATOR_VERSION', '0.6' );
 define( 'ZONINATOR_PATH', dirname( __FILE__ ) );
 define( 'ZONINATOR_URL', trailingslashit( plugins_url( '', __FILE__ ) ) );
 
@@ -67,6 +67,8 @@ class Zoninator
 		add_action( 'init', array( $this, 'add_zone_feed' ) );
 
 		add_action( 'template_redirect', array( $this, 'do_zoninator_feeds' ) );
+
+		add_action( 'split_shared_term', array( $this, 'split_shared_term' ), 10, 4 );
 		
 		$this->default_post_types = array( 'post' );
 	}
@@ -1438,6 +1440,22 @@ class Zoninator
 		$meta_key = $this->get_zone_meta_key( $zone );
 		$cache_key = $this->get_zone_cache_key( $zone, $args );
 		wp_cache_set( $cache_key, $posts, $meta_key );
+	}
+
+	// Handle 4.2 term-splitting
+	function split_shared_term( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
+		if ( $this->zone_taxonomy === $taxonomy ) {
+			do_action( 'zoninator_split_shared_term', $old_term_id, $new_term_id, $term_taxonomy_id );
+
+			// Quick, easy switcheroo; add posts to new zone id and remove from the old one.
+			$posts = $this->get_zone_posts( $old_term_id );
+			if ( ! empty( $posts ) ) {
+				$this->add_zone_posts( $new_term_id, $posts );
+				$this->remove_zone_posts( $old_term_id );
+			}
+
+			do_action( 'zoninator_did_split_shared_term', $old_term_id, $new_term_id, $term_taxonomy_id );
+		}
 	}
 	
 	function _empty_zone_posts_cache( $meta_key ) {
