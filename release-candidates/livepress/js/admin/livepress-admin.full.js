@@ -4016,7 +4016,6 @@ ImIntegration.send_test_message = function (source, protocol) {
  * @type {Object}
  */
 var OORTLE = OORTLE || {};
-
 /**
  * Container for Livepress administration functionality.
  *
@@ -5868,14 +5867,16 @@ jQuery(function () {
 
 					// Clear the tags and authors from the content
 					// if we have content in the short code get otherwise look for the div
-
 					if( 0 < content.indexOf( '[/livepress_metainfo' ) ){
 						var bits = content.split('[/');
                         content = bits[0].replace(/<div.*hidden">/g, '');
 					}else{
-						content = $domcontent.find( '.livepress-update-inner-wrapper' ).html();
-					}
 
+                        var regexp = /<div class="live-update-authors">.*<\/div>/;
+                        content = content.replace('</div>', '</p>').replace('[/livepress_metainfo', '</div>').replace('<p><br></p>','').replace('<div class="livepress-update-inner-wrapper lp_avatar_hidden">','<p>');
+                        content = content.replace( regexp,'' );
+						//content = $domcontent.find( '.livepress-update-inner-wrapper' ).html();
+					}
                     if( undefined !== content ){
                         // Reset the editor with the cleaned content
                         $domcontent.html( content );
@@ -6761,7 +6762,7 @@ jQuery(function () {
 									var editor = Sel.enableTiny( style );
 									editor.show();
                                     // hack just reload the content to make WP embed hooks in tinyMCE  refesh content to render emeb's
-                                    tinyMCE.get(editor.id).setContent(tinyMCE.get(editor.id).getContent());
+                                    tinyMCE.get(editor.id).setContent( tinyMCE.get(editor.id).getContent() );
 
 									var tab_markup = '<div class="livepress-inline-editor-tabs wp-editor-tabs '+editor.id+'"><a id="content-livepress-html" data-editor="'+editor.id+'" class="hide-if-no-js wp-switch-editor switch-livepress-html"><span class="icon-livepress-logo"></span> ' + lp_strings.text_editor + '</a><a id="content-livepress"  data-editor="'+editor.id+'" class="hide-if-no-js wp-switch-editor switch-livepress active"><span class="icon-livepress-logo"></span> ' + lp_strings.visual_text_editor + '</a></div>';
 									jQuery( tab_markup ).prependTo( Sel.$form );
