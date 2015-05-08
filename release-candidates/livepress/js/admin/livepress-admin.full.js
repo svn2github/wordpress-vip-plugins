@@ -5872,9 +5872,9 @@ jQuery(function () {
                         content = bits[0].replace(/<div.*hidden">/g, '');
 					}else{
 
-                        var regexp = /<div class="live-update-authors">.*<\/div>/;
-                        content = content.replace('</div>', '</p>').replace('[/livepress_metainfo', '</div>').replace('<p><br></p>','').replace('<div class="livepress-update-inner-wrapper lp_avatar_hidden">','<p>');
-                        content = content.replace( regexp,'' );
+                        var regexp = /<div class="live-update-authors">.*lp_avatar_shown">/;
+                        content = content.replace('</div>', '</p>').replace('[/livepress_metainfo', '</div>').replace('<p><br></p>','');
+                        content = content.replace( regexp,'<p>' );
 						//content = $domcontent.find( '.livepress-update-inner-wrapper' ).html();
 					}
                     if( undefined !== content ){
