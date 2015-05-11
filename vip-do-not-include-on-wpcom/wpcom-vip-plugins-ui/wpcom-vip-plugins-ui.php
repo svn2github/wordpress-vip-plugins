@@ -348,9 +348,6 @@ class WPcom_VIP_Plugins_UI {
 	 */
 	public function action_enqueue_scripts( $hook ) {
 
-		if( $hook != $this->hook_suffix )
-			return;
-
 		wp_enqueue_style( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . 'css/wpcom-vip-plugins-ui.css' );
 		wp_enqueue_script( 'wpcom-vip-plugins-ui', plugin_dir_url( __FILE__ ) . 'js/wpcom-vip-plugins-ui.js' );
 	}
