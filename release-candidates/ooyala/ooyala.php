@@ -353,7 +353,7 @@ class Ooyala {
 		}
 		?>
 		<div class="update-nag">
-			<?php printf( esc_html__( 'Your Ooyala API credentials are not configured in <a href="%s">Media Settings</a>.', 'ooyala' ), esc_url( $url ) ); ?>
+			<?php echo wp_kses_post( sprintf( __( 'Your Ooyala API credentials are not configured in <a href="%s">Media Settings</a>.', 'ooyala' ), esc_url( $url ) ) ); ?>
 		</div>
 		<?php
 	}
