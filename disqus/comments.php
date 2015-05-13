@@ -5,18 +5,18 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 	function dsq_render_single_comment( $comment, $args, $depth ) {
 		$GLOBALS['comment'] = $comment;
 		?>
-		<li id="dsq-comment-<?php echo comment_ID(); ?>">
-			<div id="dsq-comment-header-<?php echo comment_ID(); ?>" class="dsq-comment-header">
-				<cite id="dsq-cite-<?php echo comment_ID(); ?>">
+		<li id="dsq-comment-<?php echo (int) get_comment_ID(); ?>">
+			<div id="dsq-comment-header-<?php echo (int) get_comment_ID(); ?>" class="dsq-comment-header">
+				<cite id="dsq-cite-<?php echo (int) get_comment_ID(); ?>">
 					<?php if(comment_author_url()) : ?>
-						<a id="dsq-author-user-<?php echo comment_ID(); ?>" href="<?php echo comment_author_url(); ?>" target="_blank" rel="nofollow"><?php echo comment_author(); ?></a>
+						<a id="dsq-author-user-<?php echo (int) get_comment_ID(); ?>" href="<?php echo esc_url( get_comment_author_url() ); ?>" target="_blank" rel="nofollow"><?php echo esc_html( get_comment_author() ); ?></a>
 					<?php else : ?>
-						<span id="dsq-author-user-<?php echo comment_ID(); ?>"><?php echo comment_author(); ?></span>
+						<span id="dsq-author-user-<?php echo (int) get_comment_ID(); ?>"><?php echo esc_html( get_comment_author() ); ?></span>
 					<?php endif; ?>
 				</cite>
 			</div>
-			<div id="dsq-comment-body-<?php echo comment_ID(); ?>" class="dsq-comment-body">
-				<div id="dsq-comment-message-<?php echo comment_ID(); ?>" class="dsq-comment-message"><?php wp_filter_kses(comment_text()); ?></div>
+			<div id="dsq-comment-body-<?php echo (int) get_comment_ID(); ?>" class="dsq-comment-body">
+				<div id="dsq-comment-message-<?php echo (int) get_comment_ID(); ?>" class="dsq-comment-message"><?php wp_filter_kses(comment_text()); ?></div>
 			</div>
 		</li>
 		<?php
@@ -41,11 +41,11 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 <a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
 
 <script type="text/javascript" charset="utf-8">
-	var disqus_url = '<?php echo get_permalink(); ?>';
-	var disqus_identifier = '<?php echo dsq_identifier_for_post($post); ?>';
+	var disqus_url = <?php echo wp_json_encode( get_permalink() ); ?>;
+	var disqus_identifier = <?php echo wp_json_encode( dsq_identifier_for_post($post) ); ?>;
 	var disqus_container_id = 'disqus_thread';
-	var disqus_domain = '<?php echo DISQUS_DOMAIN; ?>';
-	var disqus_shortname = '<?php echo strtolower(get_option('disqus_forum_url')); ?>';
+	var disqus_domain = <?php echo wp_json_encode( DISQUS_DOMAIN ); ?>;
+	var disqus_shortname = <?php echo wp_json_encode( strtolower(get_option('disqus_forum_url'))); ?>;
 	<?php if (false && get_option('disqus_developer')): ?>
 		var disqus_developer = 1;
 	<?php endif; ?>
@@ -69,7 +69,7 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 /*
 			// sync comments in the background so we don't block the page
 			var req = new XMLHttpRequest();
-			req.open('GET', '?cf_action=sync_comments&post_id=<?php echo $post->ID; ?>', true);
+			req.open('GET', '?cf_action=sync_comments&post_id=<?php echo (int) $post->ID; ?>', true);
 			req.send(null);
 */
 		});
@@ -77,7 +77,7 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 		<?php do_action('disqus_config_js'); // call action for custom Disqus config js ?>
 	};
 	
-	var facebookXdReceiverPath = '<?php echo DSQ_PLUGIN_URL . '/xd_receiver.htm' ?>';
+	var facebookXdReceiverPath = <?php echo wp_json_encode( DSQ_PLUGIN_URL . '/xd_receiver.htm' ); ?>;
 </script>
 
 <script type="text/javascript" charset="utf-8">
@@ -91,11 +91,11 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 			if( $count ) { echo ','; }
 ?>
 			{
-				'author_name':	'<?php echo htmlspecialchars(get_comment_author(), ENT_QUOTES); ?>',
-				'author_url':	'<?php echo htmlspecialchars(get_comment_author_url(), ENT_QUOTES); ?>',
-				'date':			'<?php comment_date('m/d/Y h:i A'); ?>',
-				'excerpt':		'<?php echo str_replace(array("\r\n", "\n", "\r"), '<br />', htmlspecialchars(get_comment_excerpt(), ENT_QUOTES)); ?>',
-				'type':			'<?php echo $comment_type; ?>'
+				'author_name':	<?php echo wp_json_encode(get_comment_author() ); ?>,
+				'author_url':	<?php echo wp_json_encode(get_comment_author_url() ); ?>,
+				'date':			<?php echo wp_json_encode( comment_date('m/d/Y h:i A') ); ?>,
+				'excerpt':		<?php echo wp_json_encode( str_replace(array("\r\n", "\n", "\r"), '<br />', get_comment_excerpt() ) ); ?>,
+				'type':			<?php echo wp_json_encode( $comment_type ); ?>
 			}
 <?php
 			$count++;
@@ -103,7 +103,7 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 	}
 ?>
 		],
-		'trackback_url': '<?php trackback_url(); ?>'
+		'trackback_url': <?php echo wp_json_encode( get_trackback_url() ); ?>
 	};
 </script>
 
@@ -111,7 +111,7 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 (function() {
 	var dsq = document.createElement('script'); dsq.type = 'text/javascript';
 	dsq.async = true;
-	dsq.src = '//' + disqus_shortname + '.' + disqus_domain + '/embed.js?pname=wordpress&pver=<?php echo $dsq_version; ?>';
+	dsq.src = '//' + disqus_shortname + '.' + disqus_domain + '/embed.js?pname=wordpress&pver=<?php echo rawurlencode( $dsq_version ); ?>';
 	(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 })();
 </script>
