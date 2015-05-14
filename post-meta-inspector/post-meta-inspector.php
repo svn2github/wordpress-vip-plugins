@@ -4,11 +4,11 @@
  * Plugin URI: http://wordpress.org/extend/plugins/post-meta-inspector/
  * Description: Peer inside your post meta. Admins can view post meta for any post from a simple meta box.
  * Author: Daniel Bachhuber, Automattic
- * Version: 1.1
+ * Version: 1.1.1
  * Author URI: http://automattic.com/
  */
 
-define( 'POST_META_INSPECTOR_VERSION', '1.1' );
+define( 'POST_META_INSPECTOR_VERSION', '1.1.1' );
 
 class Post_Meta_Inspector
 {
@@ -101,7 +101,7 @@ class Post_Meta_Inspector
 		?>
 			<?php foreach( $values as $value ) : ?>
 			<?php
-				$value = var_export( maybe_unserialize( $value ), true );
+				$value = apply_filter( 'pmi_modify_post_meta_value', var_export( maybe_unserialize( $value ), true ), $key, $value );
 				$toggled = $toggle_length && strlen($value) > $toggle_length;
 			?>
 			<tr>
