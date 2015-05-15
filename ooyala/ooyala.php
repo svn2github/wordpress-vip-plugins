@@ -291,6 +291,8 @@ var myPlayer = OO.Player.create("playerContainer-' . esc_attr( $sanitized_embed 
 	 * @return filename with added jpg extension
 	 */
 	function add_extension( $filename ) {
+		//beginning in 4.2, check for .tmp file extension and remove it.  Otherwise, unable to assign an image as a featured image
+		$filename = str_replace('.tmp', '', $filename);
 	    $info = pathinfo($filename);
 	    $ext  = empty($info['extension']) ? '.jpg' : '.' . $info['extension'];
 	    $name = basename($filename, $ext);
