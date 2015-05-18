@@ -160,6 +160,7 @@ class WPcom_VIP_Plugins_UI {
 			'pushup',
 			'livepress',
 			'wp-discourse',
+			'simplechart',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
