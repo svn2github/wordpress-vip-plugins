@@ -161,6 +161,7 @@ class WPcom_VIP_Plugins_UI {
 			'livepress',
 			'wp-discourse',
 			'simplechart',
+			'facebook-simple-translation',
 
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
