@@ -79,9 +79,13 @@ class Simplechart {
 	 */
 	private function _set_plugin_dir_url(){
 
-		// if running as plugin
+		// if running as regular plugin (i.e. inside wp-content/plugins/)
 		if ( 0 === strpos( $this->_plugin_dir_path, WP_PLUGIN_DIR ) ){
 			return plugin_dir_url( __FILE__ );
+		}
+		// if running as VIP plugin
+		elseif ( function_exists( 'wpcom_vip_get_loaded_plugins' ) && in_array( 'plugins/simplechart', wpcom_vip_get_loaded_plugins() ) ) {
+			return plugins_url( '', __FILE__ );
 		}
 		// assume running inside theme
 		else {

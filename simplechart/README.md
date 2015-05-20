@@ -8,16 +8,17 @@ The plugin sets up a custom post type for Charts and launches the Simplechart ap
 
 When the post is rendered on the front end, this same data is used to bootstrap redrawing the same chart.
 
-### Installation on WordPress.com VIP
+### Installation for WordPress.com VIP themes
 
-1. Place the plugin in a directory inside your theme, e.g.  `mytheme/inc/wordpress-simplechart`
-1. Add this line to your theme's `functions.php` to "activate" the plugin:
+1. Install and activate [Media Explorer](https://github.com/Automattic/media-explorer) in your development environment. It is loaded automatically as part of the platform on WordPress.com.
+1. Make sure that your VIP plugins repo is up to date. You can probably do this like `$ svn up` from `broadway/themes/vip/plugins`
+1. Add this line in your theme's `functions.php`:
 
 ````
-require_once( get_template_directory() . '/inc/wordpress-simplechart/simplechart.php' );
+wpcom_vip_load_plugin( 'simplechart' );
 ````
 
-### Installation on non-VIP sites
+### Installation for non-VIP themes
 
 1. Install and activate [Media Explorer](https://github.com/Automattic/media-explorer)
 1. Install and activate the Simplechart plugin
@@ -32,7 +33,7 @@ require_once( get_template_directory() . '/inc/wordpress-simplechart/simplechart
 
 ### Update script for Simplechart web app
 
-Next, you'll need to download the Simplechart web app to your local copy of the WordPress plugin. Do this from the root of the `wordpress-simplechart` plugin directory, either in your theme or in `wp-plugins`:
+In the unlikely event that you need to update the version of the app that lives in the plugin, do this from the root of the `wordpress-simplechart` plugin directory, either in your theme or in `wp-plugins`:
 
 ````
 $ npm install
