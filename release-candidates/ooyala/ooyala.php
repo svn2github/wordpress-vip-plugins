@@ -51,11 +51,17 @@ class Ooyala {
 	// defaults for player display options
 	// some of these field names differ from the player API bc WP lowercases shortcode params, they are mapped below
 	public $playerDefaults = array(
-		'platform' => '', //if none is supplied, this defaults to flash
+		'code' => '',
+		'player_id' => '',
+		'platform' => 'html5-fallback',
 		'width' => '600', //if none are provided by the asset's streams
 		'height' => '400',
 		'enable_channels' => false,
+		'wmode' => 'opaque',
 		'initial_time' => '0',
+		'autoplay' => '',
+		'wrapper_class' => 'ooyala-video-wrapper',
+		'callback' => 'recieveOoyalaEvent',
 		'locale' => '', //equivalent to "User Default" aka providing no locale
 		'additional_params' => '', //these will come through as the shortcode content, if supplied
 	);
@@ -66,9 +72,14 @@ class Ooyala {
 		'initial_time' => 'initialTime',
 	);
 
+	public $allowed_values = array(
+		'wmode' => array( 'window', 'transparent', 'opaque', 'gpu', 'direct' ),
+		'platform' => array( 'flash', 'flash-only', 'html5-fallback', 'html5-priority' ),
+	);
+
 	var $settings_default = array(
-		'key' => '',
-		'secret' => ''
+		'api_key' => '',
+		'api_secret' => ''
 	);
 
 	/**
@@ -126,11 +137,11 @@ class Ooyala {
 		<table class="form-table" id="ooyala">
 			<tr>
 				<th scope="row"><label for="ooyala-apikey"><?php esc_html_e( "API Key", 'ooyala' ); ?></label></th>
-				<td scope="row"><input type="text" name="ooyala[key]" class="widefat" id="ooyala-apikey" value="<?php echo esc_attr( $option['key'] ); ?>" /></td>
+				<td scope="row"><input type="text" name="ooyala[api_key]" class="widefat" id="ooyala-apikey" value="<?php echo esc_attr( $option['api_key'] ); ?>" /></td>
 			</tr>
 			<tr>
 				<th scope="row"><label for="ooyala-apisecret"><?php esc_html_e( "API Secret", 'ooyala' ); ?></label></th>
-				<td scope="row"><input type="text" name="ooyala[secret]" class="widefat" id="ooyala-apisecret" value="<?php echo esc_attr( $option['secret'] ); ?>" /></td>
+				<td scope="row"><input type="text" name="ooyala[api_secret]" class="widefat" id="ooyala-apisecret" value="<?php echo esc_attr( $option['api_secret'] ); ?>" /></td>
 			</tr>
 			<tr>
 				<td colspan="2">
@@ -147,12 +158,12 @@ class Ooyala {
 	function validate_settings( $settings ) {
 		$validated = $this->settings_default;
 
-		if( isset( $settings['key'] ) && is_string( $settings['key'] ) ) {
-			$validated['key'] = sanitize_text_field( $settings['key'] );
+		if( isset( $settings['api_key'] ) && is_string( $settings['api_key'] ) ) {
+			$validated['api_key'] = sanitize_text_field( $settings['api_key'] );
 		}
 
-		if( isset( $settings['secret'] ) && is_string( $settings['secret'] ) ) {
-			$validated['secret'] = sanitize_text_field( $settings['secret'] );
+		if( isset( $settings['api_secret'] ) && is_string( $settings['api_secret'] ) ) {
+			$validated['api_secret'] = sanitize_text_field( $settings['api_secret'] );
 		}
 
 		return $validated;
@@ -186,10 +197,10 @@ class Ooyala {
 			'params' => array()
 		) );
 
-		$request['params']['api_key'] = $settings['key'];
+		$request['params']['api_key'] = $settings['api_key'];
 		$request['params']['expires'] = time() + 300;
 
-		$to_sign = $settings['secret'] . $request['method'] . $request['path'];
+		$to_sign = $settings['api_secret'] . $request['method'] . $request['path'];
 
 		$param_sorted = array_keys( $request['params'] );
 		sort( $param_sorted );
@@ -338,7 +349,7 @@ class Ooyala {
 	function configured() {
 		$settings = get_option( self::settings_key, $this->settings_default );
 
-		return !empty( $settings['key'] ) && !empty( $settings['secret'] );
+		return !empty( $settings['api_key'] ) && !empty( $settings['api_secret'] );
 	}
 
 	/**
@@ -373,75 +384,115 @@ class Ooyala {
 	 */
 	function shortcode( $atts, $content = null ) {
 		static $num;
-		if ( !$atts['code'] || !$atts['player_id'] ) {
+		// do not display markup in feeds
+		if ( is_feed() ) {
 			return;
 		}
+		// handle the 'legacy' shortcode format: [ooyala code12345]
+		if ( empty( $atts['code'] ) ) {
+			if ( isset( $atts[0] ) ) {
+				$atts['code'] = $atts[0];
+			} else {
+				// we need a code!
+				return;
+			}
+		}
 		$num++;
+		// fill in player defaults
+		$atts = shortcode_atts( apply_filters( 'ooyala_default_query_args', $this->playerDefaults ), $atts );
 		//coerce string true and false to their respective boolean counterparts
 		$atts = array_map( function($value) { if ($value==='true') return true; elseif ($value==='false') return false; else return $value; }, $atts );
 
-		// fill in default width / height vals
-		$atts['width'] = isset( $atts['width'] ) ? $atts['width'] : $this->playerDefaults['width'];
-		$atts['height'] = isset( $atts['height'] ) ? $atts['height'] : $this->playerDefaults['height'];
-
-		// player query string parameters
-		$query_params = array(
-			'namespace' => 'OoyalaPlayer' . $num // each player has its own namespace to avoid collisions
-		);
-
-		// JS parameters - start with passed json, if any
-		if ( $content
-			&& ( $json = json_decode( $content, true ) )
-			&& is_array( $json )
-			&& count( array_filter( array_keys( $json ), 'is_string' ) ) //only if assoc array
-		) {
-			$js_params = $json;
-		} else {
-			$js_params = array();
+		// match against allowed values
+		foreach ( array( 'wmode', 'platform' ) as $att ) {
+			$atts[ $att ] = in_array( $atts[ $att ], $this->allowed_values[ $att ] ) ? $atts[ $att ] : $this->playerDefaults[ $att ];
 		}
 
-		// pick out all other params
-		foreach ( $atts as $key => $value ) {
-			switch ( $key ) {
-				// no-op bc these have special placement in the embed code
-				case 'width':
-				case 'height':
-				case 'code':
-				case 'player_id':
-					break;
-
-				// these are query params and are appended to the player script URL
-				case 'platform':
-					if ( !$this->is_default( $key, $value ) ) {
-						$query_params[$key] = $value;
-					}
-					break;
-
-				// all other params become JS parameters
-				// these will override values of the same name supplied from the JSON content block
-				default:
-					if ( !$this->is_default( $key, $value ) ) {
-						$js_params[ isset( $this->paramMapping[ $key ] ) ? $this->paramMapping[ $key ] : $key ] = $value;
-					}
-				break;
-			}
-		}
 		ob_start();
-		?>
-		<script src="<?php echo esc_url( '//player.ooyala.com/v3/' . $atts['player_id'] . '?' . http_build_query( $query_params ) ); ?>"></script>
-		<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="ooyala-player" style="width:<?php echo (int) $atts['width']; ?>px;height:<?php echo (int) $atts['height']; ?>px"></div>
-		<script>
-			<?php
-			$player = 'OoyalaPlayer' . $num;
-			$params = array( "ooyalaplayer-$num", $atts['code'] );
-			if ( count( $js_params ) ) {
-				$params[] = $js_params;
+		if ( !empty( $atts['player_id'] ) ) {
+			// player query string parameters
+			$query_params = array(
+				'namespace' => 'OoyalaPlayer' . $num // each player has its own namespace to avoid collisions
+			);
+			// JS parameters - start with passed json, if any
+			if ( $content
+				&& ( $json = json_decode( $content, true ) )
+				&& is_array( $json )
+				&& count( array_filter( array_keys( $json ), 'is_string' ) ) //only if assoc array
+			) {
+				$js_params = $json;
+			} else {
+				$js_params = array();
 			}
-			echo esc_js( $player ) . '.ready(function() { ' . esc_js( $player ) . '.Player.create.apply(this, ' . json_encode( $params ) .'); });';
-			?>
-		</script>
-		<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>
+
+			// pick out all other params
+			foreach ( $atts as $key => $value ) {
+				switch ( $key ) {
+					// no-op bc these have special placement in the embed code
+					case 'width':
+					case 'height':
+					case 'code':
+					case 'player_id':
+						break;
+
+					// these are query params and are appended to the player script URL
+					case 'platform':
+						$query_params[$key] = $value;
+						break;
+
+					// all other params become JS parameters
+					// these will override values of the same name supplied from the JSON content block
+					default:
+						if ( !$this->is_default( $key, $value ) ) {
+							$js_params[ isset( $this->paramMapping[ $key ] ) ? $this->paramMapping[ $key ] : $key ] = $value;
+						}
+					break;
+				}
+			}
+		?>
+			<script src="<?php echo esc_url( '//player.ooyala.com/v3/' . $atts['player_id'] . '?' . http_build_query( $query_params ) ); ?>"></script>
+			<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="<?php echo esc_attr( $atts['wrapper_class'] ); ?>" style="width:<?php echo (int) $atts['width']; ?>px;height:<?php echo (int) $atts['height']; ?>px"></div>
+			<script>
+				<?php
+				$player = 'OoyalaPlayer' . $num;
+				$params = array( "ooyalaplayer-$num", $atts['code'] );
+				if ( count( $js_params ) ) {
+					$params[] = $js_params;
+				}
+				echo esc_js( $player ) . '.ready(function() { ' . esc_js( $player ) . '.Player.create.apply(this, ' . json_encode( $params ) .'); });';
+				?>
+			</script>
+			<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>
 		<?php
+		// no player id, use the v2 player
+		} else {
+			$script_url = add_query_arg( array(
+				'width' => $atts['width'],
+				'height' => $atts['height'],
+				'embedCode' => $atts['code'],
+				'autoplay' => $atts['autoplay'] ? '1' : '0',
+				'callback' => $atts['callback'],
+				'wmode' => $atts['wmode'],
+				'version' => 2,
+			), 'http://player.ooyala.com/player.js' );
+			?>
+			<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="<?php echo esc_attr( $atts['wrapper_class'] ); ?>">
+				<script src="<?php echo esc_url( $script_url ); ?>"></script>
+				<noscript>
+					<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="<?php echo (int) $atts['width']; ?>" height="<?php echo (int) $atts['height']; ?>" codebase="http://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
+						<param name="movie" value="<?php echo esc_url( 'http://player.ooyala.com/player.swf?embedCode=' . $atts['code'] . '&version=2' ); ?>">
+						<param name="bgcolor" value="#000000">
+						<param name="allowScriptAccess" value="always">
+						<param name="allowFullScreen" value="true">
+						<param name="wmode" value="<?php echo esc_attr( $atts['wmode'] ); ?>">
+						<param name="flashvars" value="embedType=noscriptObjectTag&amp;embedCode=###VID###">
+						<embed src="<?php echo esc_url( 'http://player.ooyala.com/player.swf?embedCode=' . $atts['code'] . '&version=2' ); ?>" bgcolor="#000000" width="<?php echo (int) $atts['width']; ?>" height="<?php echo (int) $atts['height']; ?>" align="middle" play="true" loop="false" allowscriptaccess="always" allowfullscreen="true" type="application/x-shockwave-flash" flashvars="&amp;embedCode=<?php echo esc_attr( $atts['code'] ); ?>" pluginspage="http://www.adobe.com/go/getflashplayer">
+						</embed>
+					</object>
+				</noscript>
+			</div>
+			<?php
+		}
 		return ob_get_clean();
 	}
 }
