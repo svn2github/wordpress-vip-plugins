@@ -15,14 +15,12 @@ In order to set up this plugin for translation, do the following:
 In functions.php, call the following methods in order to configure your translation:
 
 FacebookSimpleTranslation::set_site_uri('http://vip.local/');
-FacebookSimpleTranslation::set_desired_locales(array('en-us', 'fr-fr', 'de-de', 'ar-ar'));
-FacebookSimpleTranslation::set_default_locale('de-de');  [OPTIONAL]
+FacebookSimpleTranslation::set_desired_locales(array('en-us', 'fr', 'de', 'ar'));
 FacebookSimpleTranslation::set_text_domain('facebook-simple-translation'); 
 FacebookSimpleTranslation::initialize_translation();
 
-set_site_url takes a string which is your site. 
-set_desired_locales takes an array of strings which are locale codes, representing different translated versions of your site. These locale codes need to match the locale codes in get_locale_list, ie 'en-us' or 'de-de' or 'ar-ar'.
-set_default_locale is optional, and must be one of the locales in set_desired_locales, and will be the default locale that is served when someone view the site withotu setting a language preference. English is the default default. 
+set_site_uri takes a string which is your site. 
+set_desired_locales takes an array of strings which are locale codes, representing different translated versions of your site. These locale codes need to match the locale codes in get_locale_list, ie 'en-us' or 'de' or 'ar'.
 set_text_domain should be a string that is text domain name that you use in your string function calls, like _e( 'String to Display', 'the-text-domain' ); See the i18n for developers link below for more info. 
 
 After you have called the three required functions (set_site_uri, set_desired_locales, and set_default_locale) in your functions.php file, call FacebookSimpleTranslation::initialize_translation()

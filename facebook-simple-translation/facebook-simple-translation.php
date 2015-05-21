@@ -16,7 +16,6 @@ class FacebookSimpleTranslation {
 	private static $site_uri;
 	private static $desired_locales;
 	private static $text_domain;
-	private static $default_locale;
 
 	public static function set_site_uri( $uri ) {
 		self::$site_uri = $uri;
@@ -28,10 +27,6 @@ class FacebookSimpleTranslation {
 
 	public static function set_text_domain( $text_domain ) {
 		self::$text_domain = $text_domain;
-	}
-
-	public static function set_default_locale( $default_locale ) {
-		self::$default_locale = strtolower( $default_locale );
 	}
 
 	public static function initialize_translation () {
@@ -58,37 +53,28 @@ class FacebookSimpleTranslation {
 
 	public static function get_current_locale() {
 		$locales = self::get_locale_list();
-		$requested_locale = strtolower($_POST['locale']);
-		$locale_from_cookie = $_COOKIE['locale'];
-
-		// if locale was part of the payload, and it is a valid locale, set the locale cookie
-		if (array_key_exists($requested_locale, $locales) && $locale_from_cookie != $requested_locale) {
-			// set locale cookie with the locale and a one week expiration.
-			setcookie('locale', $requested_locale, time() + 604800, '/');
-			// redirect to the main page. This will make it so
-			// the user will not see a form resubmission notice when they refresh the page. 
-			wp_redirect( esc_url_raw( self::$site_uri ), 303 );
-			return $requested_locale;
-			// if the locale cookie is set, respond with that. 
-		} else if (array_key_exists($locale_from_cookie, $locales)) {
-			return $locale_from_cookie;
-			// if a default locale is set, return that. 
-		} else if (self::$default_locale !== null && array_key_exists(self::$default_locale, $locales)) {
-			return self::$default_locale;
+		$request_subdomain = explode('.', $_SERVER['HTTP_HOST'])[0];
+		$site_uri_subdomain = explode('.', self::$site_uri)[0];
+		if ($request_subdomain !== $site_uri_subdomain && array_key_exists($request_subdomain, $locales)) {
+			return $request_subdomain;
 		}
-		// else the default is english. 
 		return 'en-us';
 	}
 
 	public static function language_picker() {
 		$url = self::$site_uri;
-		$onchange = "var form=document.createElement(\"form\");form.action=\"" . esc_attr( $url ) . "\";form.method=\"post\";var input=document.createElement(\"input\");input.name=\"locale\";input.value=document.getElementById(\"locale_picker\").value;form.appendChild(input);form.submit();";
+		$onchange = "window.location=\"http://\" + document.getElementById(\"locale_picker\").value + \"" . self::$site_uri . "\";";
 		$dropdown = '<select id="locale_picker" onchange="' . esc_js( $onchange ) . '">';
 
 		foreach(self::get_locale_list() as $locale => $locale_info) {
 			$selected_string = '';
 			if ($locale == self::get_current_locale()) {
 				$selected_string = 'selected';
+			}
+			if ($locale == 'en-us') {
+				$locale = '';
+			} else {
+				$locale .= '.';
 			}
 			$dropdown .= '<option value="' . esc_attr($locale) . '" ' . esc_attr($selected_string) . '>' . esc_html($locale_info['name']) . ' (' . esc_html($locale_info['native_name']) . ')' . '</option>';
 		}
@@ -114,7 +100,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Amharic',
 		    'native_name' => 'አማርኛ'
 		  ),
-		  'ar-ar' => array(
+		  'ar' => array(
 		    'name' => 'Arabic',
 		    'native_name' => 'العربية'
 		  ),
@@ -206,7 +192,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Dhivehi',
 		    'native_name' => 'ދިވެހި'
 		  ),
-		  'nl-nl' => array(
+		  'nl' => array(
 		    'name' => 'Dutch',
 		    'native_name' => 'Nederlands'
 		  ),
@@ -250,7 +236,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'French (Belgium)',
 		    'native_name' => 'Français de Belgique'
 		  ),
-		  'fr-fr' => array(
+		  'fr' => array(
 		    'name' => 'French (France)',
 		    'native_name' => 'Français'
 		  ),
@@ -270,7 +256,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Georgian',
 		    'native_name' => 'ქართული'
 		  ),
-		  'de-de' => array(
+		  'de' => array(
 		    'name' => 'German',
 		    'native_name' => 'Deutsch'
 		  ),
@@ -306,11 +292,11 @@ class FacebookSimpleTranslation {
 		    'name' => 'Hindi',
 		    'native_name' => 'हिन्दी'
 		  ),
-		  'hu-hu' => array(
+		  'hu' => array(
 		    'name' => 'Hungarian',
 		    'native_name' => 'Magyar'
 		  ),
-		  'is-is' => array(
+		  'is' => array(
 		    'name' => 'Icelandic',
 		    'native_name' => 'Íslenska'
 		  ),
@@ -318,7 +304,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Ido',
 		    'native_name' => 'Ido'
 		  ),
-		  'id-id' => array(
+		  'id' => array(
 		    'name' => 'Indonesian',
 		    'native_name' => 'Bahasa Indonesia'
 		  ),
@@ -326,7 +312,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Irish',
 		    'native_name' => 'Gaelige'
 		  ),
-		  'it-it' => array(
+		  'it' => array(
 		    'name' => 'Italian',
 		    'native_name' => 'Italiano'
 		  ),
@@ -354,7 +340,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Kinyarwanda',
 		    'native_name' => 'Ikinyarwanda'
 		  ),
-		  'ky-ky' => array(
+		  'ky' => array(
 		    'name' => 'Kirghiz',
 		    'native_name' => 'кыргыз тили'
 		  ),
@@ -382,7 +368,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Lingala',
 		    'native_name' => 'Ngala'
 		  ),
-		  'lt-lt' => array(
+		  'lt' => array(
 		    'name' => 'Lithuanian',
 		    'native_name' => 'Lietuvių kalba'
 		  ),
@@ -390,11 +376,11 @@ class FacebookSimpleTranslation {
 		    'name' => 'Luxembourgish',
 		    'native_name' => 'Lëtzebuergesch'
 		  ),
-		  'mk-mk' => array(
+		  'mk' => array(
 		    'name' => 'Macedonian',
 		    'native_name' => 'Македонски јазик'
 		  ),
-		  'mg-mg' => array(
+		  'mg' => array(
 		    'name' => 'Malagasy',
 		    'native_name' => 'Malagasy'
 		  ),
@@ -418,7 +404,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Mongolian',
 		    'native_name' => 'Монгол'
 		  ),
-		  'me-me' => array(
+		  'me' => array(
 		    'name' => 'Montenegrin',
 		    'native_name' => 'Crnogorski jezik'
 		  ),
@@ -454,7 +440,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Persian (Afghanistan)',
 		    'native_name' => '(فارسی (افغانستان'
 		  ),
-		  'pl-pl' => array(
+		  'pl' => array(
 		    'name' => 'Polish',
 		    'native_name' => 'Polski'
 		  ),
@@ -462,7 +448,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Portuguese (Brazil)',
 		    'native_name' => 'Português do Brasil'
 		  ),
-		  'pt-pt' => array(
+		  'pt' => array(
 		    'name' => 'Portuguese (Portugal)',
 		    'native_name' => 'Português'
 		  ),
@@ -474,11 +460,11 @@ class FacebookSimpleTranslation {
 		    'name' => 'Rohingya',
 		    'native_name' => 'Ruáinga'
 		  ),
-		  'ro-ro' => array(
+		  'ro' => array(
 		    'name' => 'Romanian',
 		    'native_name' => 'Română'
 		  ),
-		  'ru-ru' => array(
+		  'ru' => array(
 		    'name' => 'Russian',
 		    'native_name' => 'Русский'
 		  ),
@@ -518,7 +504,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Sinhala',
 		    'native_name' => 'සිංහල'
 		  ),
-		  'sk-sk' => array(
+		  'sk' => array(
 		    'name' => 'Slovak',
 		    'native_name' => 'Slovenčina'
 		  ),
@@ -526,7 +512,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Slovenian',
 		    'native_name' => 'Slovenščina'
 		  ),
-		  'so-so' => array(
+		  'so' => array(
 		    'name' => 'Somali',
 		    'native_name' => 'Afsoomaali'
 		  ),
@@ -558,7 +544,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Spanish (Puerto Rico)',
 		    'native_name' => 'Español de Puerto Rico'
 		  ),
-		  'es-es' => array(
+		  'es' => array(
 		    'name' => 'Spanish (Spain)',
 		    'native_name' => 'Español'
 		  ),
@@ -622,7 +608,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Tigrinya',
 		    'native_name' => 'ትግርኛ'
 		  ),
-		  'tr-tr' => array(
+		  'tr' => array(
 		    'name' => 'Turkish',
 		    'native_name' => 'Türkçe'
 		  ),
@@ -642,7 +628,7 @@ class FacebookSimpleTranslation {
 		    'name' => 'Urdu',
 		    'native_name' => 'اردو'
 		  ),
-		  'uz-UZ' => array(
+		  'uz' => array(
 		    'name' => 'Uzbek',
 		    'native_name' => 'O‘zbekcha'
 		  ),
