@@ -923,6 +923,9 @@ function wpcom_vip_disable_global_terms() {
  */
 function wpcom_vip_disable_custom_customizer() {
 	add_filter( 'enable_custom_customizer', '__return_false' );
+	if ( method_exists( 'Jetpack_Custom_CSS', 'disable' ) ) {
+		add_action( 'init', array( 'Jetpack_Custom_CSS', 'disable' ), 11 );
+	}
 }
 
 function wpcom_vip_remove_opensearch(){
