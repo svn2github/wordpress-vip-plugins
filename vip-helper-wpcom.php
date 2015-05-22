@@ -620,6 +620,9 @@ function wpcom_vip_enable_sharing_resources() {
  */
 function wpcom_vip_disable_likes() {
 	add_filter( 'wpl_is_likes_visible', '__return_false', 999 );
+	add_action( 'wp_enqueue_scripts', function() {
+		wp_dequeue_style( 'jetpack_likes' );
+	},11 );
 }
 
 /**
