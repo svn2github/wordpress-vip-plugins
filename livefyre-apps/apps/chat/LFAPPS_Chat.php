@@ -83,7 +83,7 @@ if (!class_exists('LFAPPS_Chat')) {
                 $site = $network->getSite($siteId, $siteKey);
 
                 $collectionMetaToken = $site->buildCollectionMetaToken($title, $articleId, $url, array("tags" => $tags, "type" => "livechat"));
-                $checksum = $site->buildChecksum($title, $url, $tags);
+                $checksum = $site->buildChecksum($title, $url, $tags, 'livechat');
                 $strings = apply_filters( 'livefyre_custom_chat_strings', null );
 
                 $livefyre_element = 'livefyre-chat';
@@ -135,7 +135,7 @@ if (!class_exists('LFAPPS_Chat')) {
             $site = $network->getSite($siteId, $siteKey);
 
             $collectionMetaToken = $site->buildCollectionMetaToken($title, $articleId, $url, array("tags" => $tags, "type" => "livechat"));
-            $checksum = $site->buildChecksum($title, $url, $tags);
+            $checksum = $site->buildChecksum($title, $url, $tags, 'livechat');
             $strings = apply_filters( 'livefyre_custom_chat_strings', null );
 
             $livefyre_element = 'livefyre-chat-' . $articleId;
@@ -217,14 +217,17 @@ if (!class_exists('LFAPPS_Chat')) {
             /* Are comments open on this post/page? */
             $comments_open = ( $post->comment_status == 'open' );
 
-            $display = $display_posts || $display_pages || Livefyre_Apps::is_app_enabled('chat');
+            $display = $display_posts || $display_pages;
             $post_type = get_post_type();
             if ($post_type != 'post' && $post_type != 'page') {
 
                 $post_type_name = 'livefyre_chat_display_' . $post_type;
                 $display = ( get_option('livefyre_apps-'.$post_type_name, 'true') == 'true' );
             }
-            return $display && !is_preview() && $comments_open;
+            return $display 
+                && Livefyre_Apps::is_app_enabled('chat')
+                && !is_preview()
+                && $comments_open;
         }
 
         /*

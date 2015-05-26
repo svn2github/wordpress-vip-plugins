@@ -3,7 +3,7 @@
 Plugin Name: Livefyre Apps
 Plugin URI: http://www.livefyre.com/
 Description: Livefyre Apps combines social media functionality with your Wordpress site in real-time.  
-Version: 0.1
+Version: 1.0
 Author: Livefyre, Inc.
 Author URI: http://www.livefyre.com/
  */
@@ -13,7 +13,7 @@ Author URI: http://www.livefyre.com/
  */
 define('LFAPPS__PLUGIN_PATH', dirname( __FILE__ ) . DIRECTORY_SEPARATOR);
 define('LFAPPS__PLUGIN_URL', plugin_dir_url( __FILE__ ));
-define('LFAPPS__VERSION', '0.1');
+define('LFAPPS__VERSION', '1.0');
 define('LFAPPS__PROTOCOL', isset($_SERVER['HTTPS']) && !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' ? 'https' : 'http');
 /**
  * Load Main Class

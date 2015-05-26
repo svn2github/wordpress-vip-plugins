@@ -4,8 +4,8 @@ Donate link: http://livefyre.com/
 Tags: comments, widget, plugin, community, social, profile,
 moderation, engagement, twitter, facebook, conversation
 Requires at least: 3.9
-Tested up to: 4.0
-Stable tag: 0.1
+Tested up to: 4.1
+Stable tag: 1.0
 
 From Community to Enterprise, the Livefyre Apps Plugin infuses your website with real-time social content to increase engagement and drive traffic.
 
@@ -72,8 +72,20 @@ support@livefyre.com.
 
 == Changelog ==
 
-= 1.0 =
+= 0.1 =
 * Official release!
+= 1.0 =
+* VIP certified! The Apps plugin is now officially supprted by WordPress VIP. Most code changes made to hammer those details out.
+* Added support for customized widget strings.
+* Added support for overriding article meta data.
+* Change some Livefyre Nomenclature.
+* Fixed WP logout bug.
+* Fixed https bug.
+* Fixed app selection bug.
+* Fixed broken link.
+= 1.1 =
+* Patch an issue with Chat colliding with Comments.
+* Patch issue with collections not updating when changed in Livefyre Settings
 
 == Upgrade Notice ==
 

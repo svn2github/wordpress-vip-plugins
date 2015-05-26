@@ -25,6 +25,7 @@
                         },
                         //Called when "sign out" on the widget is clicked. Should sign out of WP
                         logout: function(cb) {
+                            cb(null);
                             href = "<?php echo urldecode(html_entity_decode(wp_logout_url(site_url()))); ?>";
                             window.location = href;
                         },

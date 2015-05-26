@@ -72,7 +72,7 @@ if ( ! class_exists( 'LFAPPS_Blog' ) ) {
             $site = $network->getSite($siteId, $siteKey);
 
             $collectionMetaToken = $site->buildCollectionMetaToken($title, $articleId, $url, array("tags"=>$tags, "type"=>"liveblog"));
-            $checksum = $site->buildChecksum($title, $url, $tags);
+            $checksum = $site->buildChecksum($title, $url, $tags, 'liveblog');
             $strings = apply_filters( 'livefyre_custom_blog_strings', null );
             $livefyre_element = 'livefyre-blog-'.$articleId;
             return LFAPPS_View::render_partial('script', 

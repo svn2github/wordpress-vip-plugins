@@ -79,7 +79,7 @@ class LFAPPS_Comments_Display {
             $site = $network->getSite($siteId, $siteKey);
             
             $collectionMetaToken = $site->buildCollectionMetaToken($title, $articleId, $url, array("tags"=>$tags, "type"=>"livecomments"));
-            $checksum = $site->buildChecksum($title, $url, $tags);
+            $checksum = $site->buildChecksum($title, $url, $tags, 'livecomments');
             $strings = apply_filters( 'livefyre_custom_comments_strings', null );
             
             $livefyre_element = 'livefyre-comments';
@@ -147,15 +147,16 @@ class LFAPPS_Comments_Display {
         /* Are comments open on this post/page? */
         $comments_open = ( $post->comment_status == 'open' );
 
-        $display = $display_posts || $display_pages || Livefyre_Apps::is_app_enabled('comments');
+        $display = $display_posts || $display_pages;
         $post_type = get_post_type();
         if ( $post_type != 'post' && $post_type != 'page' ) {
             
-            $post_type_name = 'livefyre_display_' .$post_type;            
+            $post_type_name = 'livefyre_display_' .$post_type;
             $display = ( get_option('livefyre_apps-'. $post_type_name, 'true' ) == 'true' );
         }
 
         return $display
+            && Livefyre_Apps::is_app_enabled('comments')
             && !is_preview()
             && $comments_open;
 
@@ -212,7 +213,7 @@ class LFAPPS_Comments_Display {
         $site = $network->getSite($siteId, $siteKey);
 
         $collectionMetaToken = $site->buildCollectionMetaToken($title, $articleId, $url, array("tags"=>$tags, "type"=>"livecomments"));
-        $checksum = $site->buildChecksum($title, $url, $tags);
+        $checksum = $site->buildChecksum($title, $url, $tags, 'livecomments');
         $strings = apply_filters( 'livefyre_custom_comments_strings', null );
 
         $livefyre_element = 'livefyre-comments-'.$articleId;
