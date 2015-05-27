@@ -4,8 +4,8 @@
 Plugin Name: Expiring Posts
 Plugin URI: http://www.10up.com
 Description: Add new status for expired posts.
-Author: Tanner Moushey (10up LLC)
-Version: 1.0
+Author: Tanner Moushey, Ivan Kruchkoff (10up LLC)
+Version: 1.1
 Author URI: http://www.10up.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -71,12 +71,36 @@ class EXP_Expiring_Posts {
 		add_action( 'exp_expire_post_event', array( $this, 'check_and_expire_scheduled_post' ) );
 
 		// Save expired posts meta
-		add_action( 'save_post', array( $this, 'save_expiration_date' ) );
+        add_action( 'save_post', array( $this, 'save_expiration_date' ) );
 
-	}
+        // Update all posts view to show expired status
+        add_action( 'display_post_states' , array( $this, 'add_expiry_post_states' ) );
+
+    }
+
+    /**
+     * Display expired/expiring status in All Posts view
+     *
+     * @param $states
+     */
+    function add_expiry_post_states( $states ) {
+        global $post;
+
+        $is_expired = get_post_status( $post->ID ) === "expired";
+        $is_expiring = get_post_meta( $post->ID, 'exp_pending_expiration', true );
+        $expiry_time = implode( get_post_meta( $post->ID, 'exp_expiration_date' ) );
+        // Check if expired or pending expiry
+        // Post can have an expiry time, but not be expired (if they check the never box)
+        if ( $is_expired || ( $is_expiring && strlen( $expiry_time ) ) ) {
+            $expiry_message = $is_expired ? "Expired" : "Expiring: $expiry_time";
+            $states[] = __( '<span class="expiry">' . $expiry_message . '</span>' );
+        }
+
+        return $states;
+    }
 
 	/**
-	 * Save date fore expiring posts
+	 * Save date for expiring posts
 	 * Called from save_post
 	 *
 	 * @param $post_id
