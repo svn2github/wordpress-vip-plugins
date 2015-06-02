@@ -32,14 +32,14 @@ class LivePress_Admin_Bar_Status_Menu {
 			return;
 		}
 
-		if ($this->livepress_config->script_debug()) {
+		if ( $this->livepress_config->script_debug() ) {
 			wp_enqueue_script( 'livepress-toolbar', LP_PLUGIN_URL . 'js/livepress-admin-bar.full.js', array( 'jquery' ) );
 		} else {
 			wp_enqueue_script( 'livepress-toolbar', LP_PLUGIN_URL . 'js/livepress-admin-bar.min.js', array( 'jquery' ) );
 		}
 
 		wp_enqueue_style( 'livepress_main_sheets', LP_PLUGIN_URL . 'css/livepress.css' );
-		wp_enqueue_style('wp-jquery-ui-dialog');
+		wp_enqueue_style( 'wp-jquery-ui-dialog' );
 
 	}
 
@@ -93,13 +93,13 @@ class LivePress_Admin_Bar_Status_Menu {
 	private function get_status() {
 
 		$status  = 'disconnected';
-		if( false == $this->options || ! array_key_exists( 'api_key', $this->options )){
+		if ( false == $this->options || ! array_key_exists( 'api_key', $this->options ) ){
 			return $status;
 		}
 		$api_key = $this->options['api_key'];
 
-			if ( ! class_exists( 'WP_Http' ) )
-				include_once( ABSPATH . WPINC. '/class-http.php' );
+		if ( ! class_exists( 'WP_Http' ) ) {
+			include_once( ABSPATH . WPINC. '/class-http.php' ); }
 
 			$post_vars = array(
 				'address' => get_bloginfo( 'url' ),
@@ -111,11 +111,11 @@ class LivePress_Admin_Bar_Status_Menu {
 				array( 'reject_unsafe_urls' => false, 'body' => $post_vars )
 			);
 
-			if ( !  is_wp_error( $response ) && $response['response']['code'] < 300 ) {
+			if ( ! is_wp_error( $response ) && $response['response']['code'] < 300 ) {
 				$status = 'connected';
-		}
+			}
 
-		return $status;
+			return $status;
 	}
 
 }

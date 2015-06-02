@@ -10,7 +10,7 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-if ( class_exists( "WP_CLI_Command" ) ) {
+if ( class_exists( 'WP_CLI_Command' ) ) {
 
 	$blogging_tools;
 
@@ -40,12 +40,12 @@ if ( class_exists( "WP_CLI_Command" ) ) {
 			if ( ! isset( $args[0] ) ) {
 				WP_CLI::error( 'Post ID Missing' );
 				return;
-			}else{
+			}else {
 				$current_post_id = $args[0];
 			}
 			$blogging_tools = $this->get_blogging_tools();
 
-			if( true === $blogging_tools->get_post_live_status( $current_post_id ) ) {
+			if ( true === $blogging_tools->get_post_live_status( $current_post_id ) ) {
 				WP_CLI::error( 'Post  with ID: ' . $current_post_id . ' is already a live blog post' );
 				return;
 			}
@@ -72,13 +72,13 @@ if ( class_exists( "WP_CLI_Command" ) ) {
 			if ( ! isset( $args[0] ) ) {
 				WP_CLI::error( 'Post ID Missing' );
 				return;
-			}else{
+			}else {
 				$current_post_id = $args[0];
 			}
 
 			$blogging_tools = $this->get_blogging_tools();
 
-			if( false === $blogging_tools->get_post_live_status( $current_post_id ) ) {
+			if ( false === $blogging_tools->get_post_live_status( $current_post_id ) ) {
 				WP_CLI::error( 'Post  with ID: ' . $current_post_id . ' is not a live blog post' );
 				return;
 			}
@@ -112,7 +112,7 @@ if ( class_exists( "WP_CLI_Command" ) ) {
 			$blogging_tools = $this->get_blogging_tools();
 			$live_posts = $blogging_tools->get_all_live_posts();
 
-			foreach( $live_posts as $posts){
+			foreach ( $live_posts as $posts ){
 				$this->remove( array( $posts ) );
 			}
 
@@ -120,7 +120,7 @@ if ( class_exists( "WP_CLI_Command" ) ) {
 
 
 		private function get_blogging_tools(){
-			if( null === $this->blogging_tools ){
+			if ( null === $this->blogging_tools ){
 				$this->blogging_tools = new LivePress_blogging_tools();
 			}
 			return $this->blogging_tools;

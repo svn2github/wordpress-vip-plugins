@@ -27,7 +27,7 @@ class LivePress_Feed {
 	 * @static
 	 */
 	public static function initialize() {
-		new LivePress_Feed('push-rss');
+		new LivePress_Feed( 'push-rss' );
 	}
 
 	/**

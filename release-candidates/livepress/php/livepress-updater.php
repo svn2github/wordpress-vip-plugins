@@ -37,8 +37,8 @@ class LivePress_Updater {
 
 		$this->blogging_tools = new LivePress_Blogging_Tools();
 
-		$this->options = get_option(LivePress_Administration::$options_name);
-		$this->options['ajax_nonce'] = wp_create_nonce(self::LIVEPRESS_ONCE);
+		$this->options = get_option( LivePress_Administration::$options_name );
+		$this->options['ajax_nonce'] = wp_create_nonce( self::LIVEPRESS_ONCE );
 		$this->options['ajax_comment_nonce'] = wp_create_nonce( 'post_comment' );
 		$this->options['ajax_status_nonce'] = wp_create_nonce( 'lp_status' );
 		$this->options['lp_add_live_update_tags_nonce'] = wp_create_nonce( 'lp_add_live_update_tags_nonce' );
@@ -57,9 +57,8 @@ class LivePress_Updater {
 		$this->options['ajax_new_im_follower'] = wp_create_nonce( 'new_im_follower_nonce' );
 		$this->options['ajax_start_editor'] = wp_create_nonce( 'start_editor_nonce' );
 
-
-		$this->user_options = get_user_option(LivePress_Administration::$options_name, $current_user->ID, false);
-		$this->lp_comment = new LivePress_Comment($this->options);
+		$this->user_options = get_user_option( LivePress_Administration::$options_name, $current_user->ID, false );
+		$this->lp_comment = new LivePress_Comment( $this->options );
 
 		add_action( 'before_delete_post',              array( $this, 'remove_related_post_data' ) );
 		add_action( 'transition_post_status',          array( $this, 'send_to_livepress_new_post' ), 10, 3 );
@@ -72,34 +71,41 @@ class LivePress_Updater {
 		add_filter( 'update_post_metadata', array( $this, 'livepress_filter_post_locks' ), 10, 5 );
 		add_filter( 'add_post_metadata',    array( $this, 'livepress_filter_post_locks' ), 10, 5 );
 
-		$this->lp_comment->do_wp_binds( isset($_POST["livepress_update"]) );
-		if ( !isset($_POST["livepress_update"]) ) {
+		$this->lp_comment->do_wp_binds( isset($_POST['livepress_update']) );
+
+
+		if ( ! isset( $_POST['livepress_update'] ) ) {
 			$livepress_enabled = $this->has_livepress_enabled();
-			if ($livepress_enabled) {
+			if ( $livepress_enabled ) {
 				add_action( 'admin_head', array( &$this, 'embed_constants' ) );
 
 				add_action( 'admin_enqueue_scripts', array( &$this, 'add_js_config' ), 11 );
-				add_action( 'wp_enqueue_scripts', array( &$this, 'add_js_config' ), 11 );
 
 				add_action( 'admin_enqueue_scripts', array( &$this, 'add_css_and_js_on_header' ), 10 );
-				add_action( 'wp_enqueue_scripts', array( &$this, 'add_css_and_js_on_header' ), 10 );
 
 				add_action( 'admin_head', array( $this, 'remove_auto_save' ), 10 );
 
-
 				// Adds the modified tinyMCE
 				if ( get_user_option( 'rich_editing' ) == 'true' ) {
-					add_filter("mce_external_plugins", array( &$this, 'add_modified_tinymce' ) );
+					add_filter( 'mce_external_plugins', array( &$this, 'add_modified_tinymce' ) );
 				}
 			}
-
-			add_action( 'pre_post_update',  array( &$this, 'save_old_post' ),  999 );
-			add_filter( 'edit_post', array( &$this, 'maybe_merge_post' ), 10 );
-			add_filter( 'save_post', array( &$this, 'save_lp_post_options' ), 10 );
-
 			// Ensuring that the post is divided into micro-post livepress chunks
 			$live_update = $this->init_live_update();
-			add_filter( 'content_save_pre', array( $live_update, 'fill_livepress_shortcodes' ), 5);
+
+				add_action( 'wp_enqueue_scripts', array( &$this, 'add_js_config' ), 11 );
+				add_action( 'wp_enqueue_scripts', array( &$this, 'add_css_and_js_on_header' ), 10 );
+			add_filter( 'edit_post', array( &$this, 'maybe_merge_post' ), 10 );
+
+			global $post;
+			$is_live = isset( $post ) ? LivePress_Updater::instance()->blogging_tools->get_post_live_status( $post->ID ) : false;
+			if( $is_live ){
+
+				add_action( 'pre_post_update',  array( &$this, 'save_old_post' ),  999 );
+				add_filter( 'save_post', array( &$this, 'save_lp_post_options' ), 10 );
+				add_filter( 'content_save_pre', array( $live_update, 'fill_livepress_shortcodes' ), 5 );
+			}
+
 
 		}
 
@@ -137,9 +143,9 @@ class LivePress_Updater {
 	 */
 	function remove_auto_save(){
 		global $post;
-		if( null !== $post ){
+		if ( null !== $post ){
 			$autosave = wp_get_post_autosave( $post->ID );
-			if( false !== $autosave ){
+			if ( false !== $autosave ){
 				wp_delete_post_revision( $autosave->ID );
 			}
 		}
@@ -161,12 +167,12 @@ class LivePress_Updater {
 		check_ajax_referer( 'lp_add_live_update_tags_nonce' );
 		// Capabilities check
 		$post_id = isset( $_POST['post_id'] ) ? $_POST['post_id'] : null;
-		if ( !current_user_can( 'edit_post', $post_id ) ) {
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			die;
 		}
 
 		// Grab the new tags
-		$new_tags =  json_decode( stripslashes( $_POST['new_tags'] ) );
+		$new_tags = json_decode( stripslashes( $_POST['new_tags'] ) );
 
 		// Add them to the taxonomy
 		foreach ( $new_tags as $a_new_tag ) {
@@ -191,15 +197,15 @@ class LivePress_Updater {
 	 */
 	public function twitter_search_callback() {
 		global $current_user;
-		$action = $_POST["action_type"];
-		$term   = $_POST["term"];
-		$postId = $_POST["post_id"];
+		$action = $_POST['action_type'];
+		$term   = $_POST['term'];
+		$postId = $_POST['post_id'];
 
 		check_ajax_referer( 'twitter_search_term' );
-		if(Collaboration::twitter_search($action, $postId, $current_user->ID, $term) ) {
-			echo "{\"success\":\"OK\"}";
+		if ( Collaboration::twitter_search( $action, $postId, $current_user->ID, $term ) ) {
+			echo '{"success":"OK"}';
 		} else {
-			echo "{\"errors\":\"FAIL\"}";
+			echo '{"errors":"FAIL"}';
 		}
 		die;
 	}
@@ -210,18 +216,18 @@ class LivePress_Updater {
 	public function twitter_follow_callback() {
 		global $current_user;
 		$login  = $current_user->user_login;
-		$action = $_POST["action_type"];
-		$term   = $_POST["username"];
-		$postId = $_POST["post_id"];
+		$action = $_POST['action_type'];
+		$term   = $_POST['username'];
+		$postId = $_POST['post_id'];
 
 		check_ajax_referer( 'twitter_follow' );
-		$ret = $this->livepress_communication->send_to_livepress_handle_twitter_follow($action, $term, $postId, $login);
+		$ret = $this->livepress_communication->send_to_livepress_handle_twitter_follow( $action, $term, $postId, $login );
 
-		if ($ret == '{"errors":{"username":"[not_exists]"}}' ) {
-		$la = new LivePress_Administration();
-		if ($la->enable_remote_post($current_user->ID) ) {
-			$ret = $this->livepress_communication->send_to_livepress_handle_twitter_follow($action, $term, $postId, $login);
-		}
+		if ( $ret == '{"errors":{"username":"[not_exists]"}}' ) {
+			$la = new LivePress_Administration();
+			if ( $la->enable_remote_post( $current_user->ID ) ) {
+				$ret = $this->livepress_communication->send_to_livepress_handle_twitter_follow( $action, $term, $postId, $login );
+			}
 		}
 		echo wp_kses_post( $ret );
 		die;
@@ -233,19 +239,19 @@ class LivePress_Updater {
 	public function lp_status() {
 		check_ajax_referer( 'lp_status' );
 		$post_id = isset( $_GET['post_id'] ) ? $_GET['post_id'] : null;
-		if ( !current_user_can( 'edit_post', $post_id ) ) {
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			die;
 		}
-		$uuid    = LivePress_WP_Utils::get_from_post($post_id, 'status_uuid', true);
-		if ($uuid) {
+		$uuid    = LivePress_WP_Utils::get_from_post( $post_id, 'status_uuid', true );
+		if ( $uuid ) {
 			try {
-				$status = $this->livepress_communication->get_job_status($uuid);
-				if ($status == "completed" || $status == "failed") {
-					$this->delete_from_post($post_id, 'status_uuid' );
+				$status = $this->livepress_communication->get_job_status( $uuid );
+				if ( $status == 'completed' || $status == 'failed' ) {
+					$this->delete_from_post( $post_id, 'status_uuid' );
 				}
 				wp_die( $status );
 			} catch (LivePress_Communication_Exception $e) {
-				$this->delete_from_post($post_id, 'status_uuid' );
+				$this->delete_from_post( $post_id, 'status_uuid' );
 				wp_die( 'lp_failed' );
 			}
 		} else {
@@ -264,7 +270,7 @@ class LivePress_Updater {
 	public function remove_related_post_data( $postId ) {
 		global $current_user;
 		$login = $current_user->user_login;
-		$this->livepress_communication->send_to_livepress_handle_twitter_follow("clear", "", $postId, $login); // TODO: Handle error
+		$this->livepress_communication->send_to_livepress_handle_twitter_follow( 'clear', '', $postId, $login ); // TODO: Handle error
 		Collaboration::clear_searches( $postId, $login ); //clear all term searches for this post/user
 
 	}
@@ -275,7 +281,7 @@ class LivePress_Updater {
 	 * @return bool
 	 */
 	public function is_comments_enabled() {
-		return !isset($this->options['disable_comments'])||!$this->options['disable_comments'];
+		return ! isset($this->options['disable_comments'])|| ! $this->options['disable_comments'];
 	}
 
 	/**
@@ -310,8 +316,8 @@ class LivePress_Updater {
 	 *
 	 * @return LivePress_Updater
 	 */
-	static function instance() {
-		if (self::$updater == null) {
+	 public static function instance() {
+		if ( self::$updater == null ) {
 			self::$updater = new LivePress_Updater();
 		}
 		return self::$updater;
@@ -336,10 +342,10 @@ class LivePress_Updater {
 	 * @return bool
 	 */
 	function is_livepress_page() {
-		if (isset($_GET) && isset($_GET['page']) && ($_GET['page'] == 'livepress' || $_GET['page'] == 'livepress_author' ) ) {
-		return true;
+		if ( isset($_GET) && isset($_GET['page']) && ($_GET['page'] == 'livepress' || $_GET['page'] == 'livepress_author' ) ) {
+			return true;
 		} else {
-		return false;
+			return false;
 		}
 	}
 
@@ -353,8 +359,8 @@ class LivePress_Updater {
 			return;
 		}
 
-		if ( $hook != null && $hook != 'post-new.php' && $hook != 'post.php' && $hook != 'settings_page_livepress-settings' )
-			return;
+		if ( $hook != null && $hook != 'post-new.php' && $hook != 'post.php' && $hook != 'settings_page_livepress-settings' ) {
+			return; }
 
 		wp_register_style( 'livepress_main_sheets', LP_PLUGIN_URL . 'css/livepress.css' );
 		wp_enqueue_style( 'livepress_main_sheets' );
@@ -377,7 +383,6 @@ class LivePress_Updater {
 			}
 		}
 
-
 		wp_enqueue_style( 'wp-mediaelement' );
 		wp_enqueue_script( 'wp-mediaelement' );
 
@@ -390,10 +395,10 @@ class LivePress_Updater {
 		// on the next versions
 		$static_host = $this->livepress_config->static_host();
 
-		if ($this->livepress_config->script_debug() ) {
-			$mode = "full";
+		if ( $this->livepress_config->script_debug() ) {
+			$mode = 'full';
 		} else {
-			$mode = "min";
+			$mode = 'min';
 		}
 
 		if ( is_page() || is_single() || is_home() ) {
@@ -426,22 +431,21 @@ class LivePress_Updater {
 			);
 
 			$options  = $this->options;
-			if( array_key_exists( "show", $options ) && null !== $options['show'] ){
+			if ( array_key_exists( 'show', $options ) && null !== $options['show'] ){
 				$lp_client_settings['show'] = $options['show'];
 			}
-
 
 			wp_localize_script( 'livepress-plugin-loader', 'lp_client_strings', $lp_client_settings );
 
 			wp_enqueue_style( 'livepress_ui' );
 
-			wp_enqueue_script("jquery-effects-core");
-			wp_enqueue_script("jquery-effects-bounce");
+			wp_enqueue_script( 'jquery-effects-core' );
+			wp_enqueue_script( 'jquery-effects-bounce' );
 
 		} elseif ( is_admin() ) {
 
 			// Add select2 for live tags
-			wp_enqueue_style( 'select2', LP_PLUGIN_URL . 'js/vendor/select2/select2.css', array(), LP_PLUGIN_VERSION );
+			wp_enqueue_style( 'select2', LP_PLUGIN_URL . 'css/select2.css', array(), LP_PLUGIN_VERSION );
 
 			wp_register_style( 'lp_admin', LP_PLUGIN_URL . 'css/post_edit.css' );
 			wp_enqueue_style( 'lp_admin' );
@@ -554,8 +558,8 @@ class LivePress_Updater {
 				'test_msg_failure'             => esc_html__( 'Failure sending test message', 'livepress' ),
 				'send_again'                   => esc_html__( 'Send test message again', 'livepress' ),
 				'live_post_header'             => esc_html__( 'Pinned Live Post Header', 'livepress' ),
-				'visual_text_editor'           => esc_html__( 'Visual', 'livepress'),
-				'text_editor'                  => esc_html__( 'Text', 'livepress'),
+				'visual_text_editor'           => esc_html__( 'Visual', 'livepress' ),
+				'text_editor'                  => esc_html__( 'Text', 'livepress' ),
 			);
 
 			wp_localize_script( 'lp-admin', 'lp_strings', $lp_strings );
@@ -564,13 +568,44 @@ class LivePress_Updater {
 		}
 
 		$lan = explode( '_', get_locale() );
-		if( 'en' !== $lan[0] ){
-			wp_enqueue_script('jquery.timeago.'.$lan[0], LP_PLUGIN_URL . "js/locales/jquery.timeago.$lan[0].js", array('jquery.timeago') );
+		if ( 'en' !== $lan[0] ){
+			$timeago_lan = $lan[0];
+			switch( strtolower( get_locale() ) ){
+				case 'pt_br':
+					$timeago_lan = 'pt-br';
+					break;
+				case 'zh_cn':
+					$timeago_lan = 'zh-CN';
+					break;
+				case 'zh_tw':
+					$timeago_lan = 'zh-TW';
+					break;
+			}
+
+			wp_enqueue_script( 'jquery.timeago.'.$lan[0], LP_PLUGIN_URL . "js/locales/jquery.timeago.$timeago_lan.js", array('jquery.timeago') );
+			$select2_lan = $lan[0];
+			switch( strtolower( get_locale() ) ){
+				case 'pt_br':
+					$select2_lan = 'pt-BR';
+					break;
+				case 'pt_pt':
+					$select2_lan = 'pt-PT';
+					break;
+				case 'ug_cn':
+					$select2_lan = 'ug-CN';
+					break;
+				case 'zh_cn':
+					$select2_lan = 'zh-CN';
+					break;
+				case 'zh_tw':
+					$select2_lan = 'zh-TW';
+					break;
+			}
+			wp_enqueue_script( 'select2_locale.'.$lan[0], LP_PLUGIN_URL . "js/locales/select2_locale_$select2_lan.js", array('lp-admin') );
 		}
 
-
 		$current_theme = str_replace( ' ', '-', strtolower( wp_get_theme()->Name ) );
-		if ( file_exists( LP_PLUGIN_PATH . 'css/themes/' . $current_theme . ".css" ) ) {
+		if ( file_exists( LP_PLUGIN_PATH . 'css/themes/' . $current_theme . '.css' ) ) {
 			wp_register_style( 'livepress_theme_hacks', LP_PLUGIN_URL . 'css/themes/' . $current_theme . '.css' );
 			wp_enqueue_style( 'livepress_theme_hacks' );
 		}
@@ -587,7 +622,7 @@ class LivePress_Updater {
 	function livepress_filter_post_locks() {
 		$args = func_get_args();
 
-		if( is_admin() && isset( $args[1] ) && isset( $args[2] ) && $args[2] == '_edit_lock' ) {
+		if ( is_admin() && isset( $args[1] ) && isset( $args[2] ) && $args[2] == '_edit_lock' ) {
 			$is_live = $this->blogging_tools->get_post_live_status( $args[1] );
 			return ( $is_live ? false : null );
 		} else {
@@ -606,7 +641,7 @@ class LivePress_Updater {
 			return false;
 		}
 
-		if ( 'merge_children' !== $_GET['merge_action'] );
+		if ( 'merge_children' !== $_GET['merge_action'] ) {}
 
 		$nonce = $_GET['merge_noonce'];
 
@@ -654,115 +689,114 @@ class LivePress_Updater {
 
 		$ljsc = new LivePress_JavaScript_Config();
 
-		if ($this->livepress_config->debug() ) {
-			$ljsc->new_value( 'debug', true, Livepress_Configuration_Item::$BOOLEAN);
+		if ( $this->livepress_config->debug() || $this->livepress_config->script_debug() ) {
+			$ljsc->new_value( 'debug', true, Livepress_Configuration_Item::$BOOLEAN );
 		}
-		$ljsc->new_value( 'ajax_nonce', $this->options['ajax_nonce']);
-		$ljsc->new_value( 'ajax_comment_nonce', $this->options['ajax_comment_nonce']);
-		$ljsc->new_value( 'ajax_status_nonce', $this->options['ajax_status_nonce']);
-		$ljsc->new_value( 'lp_add_live_update_tags_nonce', $this->options['lp_add_live_update_tags_nonce']);
-		$ljsc->new_value( 'ajax_twitter_search_nonce', $this->options['ajax_twitter_search_nonce']);
-		$ljsc->new_value( 'ajax_twitter_follow_nonce', $this->options['ajax_twitter_follow_nonce']);
-		$ljsc->new_value( 'ajax_api_validate_nonce', $this->options['ajax_api_validate_nonce']);
-		$ljsc->new_value( 'ajax_lp_post_to_twitter', $this->options['ajax_lp_post_to_twitter']);
-		$ljsc->new_value( 'ajax_check_oauth', $this->options['ajax_check_oauth']);
-		$ljsc->new_value( 'lp_update_shortlink_nonce', $this->options['lp_update_shortlink_nonce']);
-		$ljsc->new_value( 'ajax_lp_collaboration_comments', $this->options['ajax_lp_collaboration_comments']);
-		$ljsc->new_value( 'ajax_get_live_edition_data', $this->options['ajax_get_live_edition_data']);
-		$ljsc->new_value( 'ajax_lp_im_integration', $this->options['ajax_lp_im_integration']);
-		$ljsc->new_value( 'ajax_render_tabs', $this->options['ajax_render_tabs']);
-		$ljsc->new_value( 'ajax_update_live_comments', $this->options['ajax_update_live_comments']);
-		$ljsc->new_value( 'ajax_new_im_follower', $this->options['ajax_new_im_follower']);
-		$ljsc->new_value( 'ajax_start_editor', $this->options['ajax_start_editor']);
+		$ljsc->new_value( 'ajax_nonce', $this->options['ajax_nonce'] );
+		$ljsc->new_value( 'ajax_comment_nonce', $this->options['ajax_comment_nonce'] );
+		$ljsc->new_value( 'ajax_status_nonce', $this->options['ajax_status_nonce'] );
+		$ljsc->new_value( 'lp_add_live_update_tags_nonce', $this->options['lp_add_live_update_tags_nonce'] );
+		$ljsc->new_value( 'ajax_twitter_search_nonce', $this->options['ajax_twitter_search_nonce'] );
+		$ljsc->new_value( 'ajax_twitter_follow_nonce', $this->options['ajax_twitter_follow_nonce'] );
+		$ljsc->new_value( 'ajax_api_validate_nonce', $this->options['ajax_api_validate_nonce'] );
+		$ljsc->new_value( 'ajax_lp_post_to_twitter', $this->options['ajax_lp_post_to_twitter'] );
+		$ljsc->new_value( 'ajax_check_oauth', $this->options['ajax_check_oauth'] );
+		$ljsc->new_value( 'lp_update_shortlink_nonce', $this->options['lp_update_shortlink_nonce'] );
+		$ljsc->new_value( 'ajax_lp_collaboration_comments', $this->options['ajax_lp_collaboration_comments'] );
+		$ljsc->new_value( 'ajax_get_live_edition_data', $this->options['ajax_get_live_edition_data'] );
+		$ljsc->new_value( 'ajax_lp_im_integration', $this->options['ajax_lp_im_integration'] );
+		$ljsc->new_value( 'ajax_render_tabs', $this->options['ajax_render_tabs'] );
+		$ljsc->new_value( 'ajax_update_live_comments', $this->options['ajax_update_live_comments'] );
+		$ljsc->new_value( 'ajax_new_im_follower', $this->options['ajax_new_im_follower'] );
+		$ljsc->new_value( 'ajax_start_editor', $this->options['ajax_start_editor'] );
 
-
-		$ljsc->new_value( 'ver', LP_PLUGIN_VERSION);
-		$ljsc->new_value( 'oover', $this->livepress_config->lp_ver(), Livepress_Configuration_Item::$ARRAY);
+		$ljsc->new_value( 'ver', LP_PLUGIN_VERSION );
+		$ljsc->new_value( 'oover', $this->livepress_config->lp_ver(), Livepress_Configuration_Item::$ARRAY );
 		{
 			global $wp_scripts;
-			if ($wp_scripts === null) {
-				$wp_scripts = new WP_Scripts();
-				wp_default_scripts($wp_scripts);
+		if ( $wp_scripts === null ) {
+			$wp_scripts = new WP_Scripts();
+			wp_default_scripts( $wp_scripts );
+		}
+		if ( is_a( $wp_scripts, 'WP_Scripts' ) ) {
+			$src = $wp_scripts->query( 'jquery' );
+			$src = $src->src;
+			if ( ! preg_match( '|^https?://|', $src ) && ! ( $wp_scripts->content_url && 0 === strpos( $src, $wp_scripts->content_url ) ) ) {
+				$src = $wp_scripts->base_url . $src;
 			}
-			if ( is_a($wp_scripts, 'WP_Scripts' ) ) {
-				$src = $wp_scripts->query( 'jquery' );
-				$src = $src->src;
-				if ( !preg_match( '|^https?://|', $src) && ! ( $wp_scripts->content_url && 0 === strpos($src, $wp_scripts->content_url) ) ) {
-					$src = $wp_scripts->base_url . $src;
-				}
-				$ljsc->new_value( 'jquery_url', $src."?");
-			}
+			$ljsc->new_value( 'jquery_url', $src.'?' );
+		}
 		}
 
 		if ( function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
 			if ( is_a( $screen, 'WP_Screen' ) ) {
 				$ljsc->new_value( 'current_screen', array(
-					"base" => $screen->base,
-					"id"   => $screen->id
+					'base' => $screen->base,
+					'id'   => $screen->id
 				), Livepress_Configuration_Item::$ARRAY );
 			}
 		}
 
-		$ljsc->new_value( 'wpstatic_url', LP_PLUGIN_URL);
+		$ljsc->new_value( 'wpstatic_url', LP_PLUGIN_URL );
 		$ljsc->new_value( 'static_url', $this->livepress_config->static_host() );
-		$ljsc->new_value( 'lp_plugin_url', LP_PLUGIN_URL);
+		$ljsc->new_value( 'lp_plugin_url', LP_PLUGIN_URL );
 
 		$ljsc->new_value( 'blog_gmt_offset', get_option( 'gmt_offset' ),
-				Livepress_Configuration_Item::$LITERAL);
+		Livepress_Configuration_Item::$LITERAL);
 
-		$theme_name = strtolower( wp_get_theme()->Name);
-		$ljsc->new_value( 'theme_name', $theme_name);
+		$theme_name = strtolower( wp_get_theme()->Name );
+		$ljsc->new_value( 'theme_name', $theme_name );
 		try {
 			if ( isset($this->title_css_selectors[ $theme_name ] ) ){
 				$title_css_selector = $this->title_css_selectors[$theme_name];
-				$title_css_selector = apply_filters( 'livepress_title_css_selector', $title_css_selector, $theme_name);
-				$ljsc->new_value( 'custom_title_css_selector', $title_css_selector);
+				$title_css_selector = apply_filters( 'livepress_title_css_selector', $title_css_selector, $theme_name );
+				$ljsc->new_value( 'custom_title_css_selector', $title_css_selector );
 			}
 		} catch (livepress_invalid_option_exception $e) {}
 		try {
 			if ( isset($this->background_colors[ $theme_name ] ) ){
 				$background_color = $this->background_colors[ $theme_name ];
-				$background_color = apply_filters( 'livepress_background_color', $background_color, $theme_name);
-				$ljsc->new_value( 'custom_background_color', $background_color);
+				$background_color = apply_filters( 'livepress_background_color', $background_color, $theme_name );
+				$ljsc->new_value( 'custom_background_color', $background_color );
 			}
 		} catch (livepress_invalid_option_exception $e) {}
 
-		if (is_home() ) {
+		if ( is_home() ) {
 			$page_type = 'home';
-		} elseif (is_page() ) {
+		} elseif ( is_page() ) {
 			$page_type = 'page';
-		} elseif (is_single() ) {
+		} elseif ( is_single() ) {
 			$page_type = 'single';
-		} elseif (is_admin() ) {
+		} elseif ( is_admin() ) {
 			$page_type = 'admin';
 		} else {
 			$page_type = 'undefined';
 		}
-		$ljsc->new_value( 'page_type', $page_type);
+		$ljsc->new_value( 'page_type', $page_type );
 
 		// Comments
-		if( isset( $post->ID ) ) {
+		if ( isset( $post->ID ) ) {
 			$args = array( 'post_id' => ( isset( $post->ID ) ? $post->ID : null ) );
-			$post_comments = get_comments($args);
+			$post_comments = get_comments( $args );
 			$old_comments = isset( $GLOBALS['wp_query']->comments ) ? $GLOBALS['wp_query']->comments : null;
 			$GLOBALS['wp_query']->comments = $post_comments;
-			$comments_per_page = get_comment_pages_count($post_comments, get_option("comments_per_page") );
+			$comments_per_page = get_comment_pages_count( $post_comments, get_option( 'comments_per_page' ) );
 			$GLOBALS['wp_query']->comments = $old_comments;
-			$this->lp_comment->js_config($ljsc, $post, intval(get_query_var( 'cpage' ) ), $comments_per_page);
+			$this->lp_comment->js_config( $ljsc, $post, intval( get_query_var( 'cpage' ) ), $comments_per_page );
 
 			// Fetch rexisting shortlinks
 			$sl = array();
-			foreach( get_post_meta( $post->ID ) as $k=>$m ) {
-				if( preg_match("/^_livepress_shortlink_([0-9]+)$/", $k, $r ) ) {
+			foreach ( get_post_meta( $post->ID ) as $k => $m ) {
+				if ( preg_match( '/^_livepress_shortlink_([0-9]+)$/', $k, $r ) ) {
 					$sl[ $r[1] ] = $m[0];
 				}
 			}
-			$ljsc->new_value('shortlink', $sl, Livepress_Configuration_Item::$ARRAY );
+			$ljsc->new_value( 'shortlink', $sl, Livepress_Configuration_Item::$ARRAY );
 			$ljsc->new_value( 'post_url', get_permalink( $post->ID ) );
 			$ljsc->new_value( 'post_title', $post->post_title );
 		}
-		$ljsc->new_value( 'new_post_msg_id', get_option(LP_PLUGIN_NAME."_new_post") );
+		$ljsc->new_value( 'new_post_msg_id', get_option( LP_PLUGIN_NAME.'_new_post' ) );
 
 		$notifications = isset( $this->options['notifications'] ) ? $this->options['notifications'] : array();
 		$ljsc->new_value( 'sounds_default', in_array( 'audio', $notifications ), Livepress_Configuration_Item::$BOOLEAN );
@@ -776,33 +810,33 @@ class LivePress_Updater {
 		$ljsc->new_value( 'oortle_diff_removed_block',  apply_filters( 'livepress_effects_removed_block', '#C63F32' ) );
 		$ljsc->new_value( 'oortle_diff_removed',        apply_filters( 'livepress_effects_removed', '#C63F32' ) );
 		if ( is_admin() || $is_live ) {
-			if (isset($post->ID)&&$post->ID) {
+			if ( isset($post->ID)&&$post->ID ) {
 				$args = array( 'post_id' => $post->ID );
-				$post_comments = get_comments($args);
-				if(!empty($post_comments) ) {
+				$post_comments = get_comments( $args );
+				if ( ! empty($post_comments) ) {
 					$ljsc->new_value( 'comment_pages_count',
-							get_comment_pages_count($post_comments, get_option("comments_per_page") ),
-							Livepress_Configuration_Item::$LITERAL);
+						get_comment_pages_count( $post_comments, get_option( 'comments_per_page' ) ),
+					Livepress_Configuration_Item::$LITERAL);
 				}
 
 				$feed_link = $this->get_current_post_feed_link();
-				if(sizeof($feed_link) ) {
-					$ljsc->new_value( 'feed_sub_link', $feed_link[0]);
+				if ( sizeof( $feed_link ) ) {
+					$ljsc->new_value( 'feed_sub_link', $feed_link[0] );
 					$ljsc->new_value( 'feed_title', LivePress_Feed::feed_title() );
 				}
 
-				$ljsc->new_value( 'post_id', $post->ID);
+				$ljsc->new_value( 'post_id', $post->ID );
 
-                $ljsc->new_value( 'post_id', $post->ID);
-                $ljsc->new_value( 'post_live_status', $is_live );
-                $pf = LivePress_PF_Updates::get_instance();
-                if(!$pf->near_uuid) {
-                    $pf->cache_pieces( $post );
-                }
-                $ljsc->new_value( 'post_update_msg_id', $pf->near_uuid);
+				$ljsc->new_value( 'post_id', $post->ID );
+				$ljsc->new_value( 'post_live_status', $is_live );
+				$pf = LivePress_PF_Updates::get_instance();
+				if ( ! $pf->near_uuid ) {
+					$pf->cache_pieces( $post );
+				}
+				$ljsc->new_value( 'post_update_msg_id', $pf->near_uuid );
 			}
 
-			$author = "";
+			$author = '';
 			$user   = wp_get_current_user();
 			if ( $user->ID ) {
 				if ( empty( $user->display_name ) ) {
@@ -812,29 +846,31 @@ class LivePress_Updater {
 				}
 			}
 
-			$ljsc->new_value( 'current_user', $author);
+			$ljsc->new_value( 'current_user', $author );
 
-			if (is_admin() ) {
+			if ( is_admin() ) {
 				// Is post_from turned on
-				if($this->user_options['remote_post']) {
-					$ljsc->new_value( 'remote_post', true, Livepress_Configuration_Item::$BOOLEAN);
+				if ( $this->user_options['remote_post'] ) {
+					$ljsc->new_value( 'remote_post', true, Livepress_Configuration_Item::$BOOLEAN );
 				} else {
-					$ljsc->new_value( 'remote_post', false, Livepress_Configuration_Item::$BOOLEAN);
+					$ljsc->new_value( 'remote_post', false, Livepress_Configuration_Item::$BOOLEAN );
 				}
 
-				$ljsc->new_value("PostMetainfo", "", Livepress_Configuration_Item::$BLOCK);
+				$ljsc->new_value( 'PostMetainfo', '', Livepress_Configuration_Item::$BLOCK );
 				// Set if the live updates should display the timestamp
-				if ($this->options['timestamp']) {
+				$timestamp = isset( $this->options['timestamp'] ) ? $this->options['timestamp'] : false;
+				if ( $timestamp ) {
 					$template = LivePress_Live_Update::timestamp_template();
-					$ljsc->new_value( 'timestamp_template', $template);
+					$ljsc->new_value( 'timestamp_template', $template );
 				}
 
 				// Set url for the avatar
-				$ljsc->new_value( 'has_avatar', $this->options['include_avatar'],
-						Livepress_Configuration_Item::$BOOLEAN);
+				$include_avatar = isset( $this->options['include_avatar'] ) ? $this->options['include_avatar'] : false;
+				$ljsc->new_value( 'has_avatar', $include_avatar, Livepress_Configuration_Item::$BOOLEAN );
 
 				// Set the author name
-				if ( $this->options['update_author'] ) {
+				$update_author = isset( $this->options['update_author'] ) ? $this->options['update_author'] : false;
+				if ( $update_author ) {
 					$use_default_author = apply_filters( 'livepress_use_default_author', true );
 					$ljsc->new_value( 'use_default_author', $use_default_author );
 					$author_display_name = $use_default_author ? LivePress_Live_Update::get_author_display_name( $this->options ) : '';
@@ -845,35 +881,36 @@ class LivePress_Updater {
 				}
 				// The last attribute shouldn't have a comma
 				// Set where the live updates should be inserted (top|bottom)
-				$ljsc->new_value( 'placement_of_updates', $this->options['feed_order']);
+				$feed_order = isset( $this->options['feed_order'] ) ? $this->options['feed_order'] : false;
+				$ljsc->new_value( 'placement_of_updates', $feed_order );
 				$ljsc->new_value( "PostMetainfo", "", Livepress_Configuration_Item::$ENDBLOCK );
 
-				$ljsc->new_value( "allowed_chars_on_post_update_id",
-						implode( LivePress_Post::$ALLOWED_CHARS_ON_ID ) );
-				$ljsc->new_value( "num_chars_on_post_update_id",
-						LivePress_Post::$NUM_CHARS_ID,
-						Livepress_Configuration_Item::$LITERAL );
+				$ljsc->new_value( 'allowed_chars_on_post_update_id',
+				implode( LivePress_Post::$ALLOWED_CHARS_ON_ID ) );
+				$ljsc->new_value( 'num_chars_on_post_update_id',
+					LivePress_Post::$NUM_CHARS_ID,
+				Livepress_Configuration_Item::$LITERAL );
 			}
 		}
 
-		$ljsc->new_value("site_url", site_url() );
-		$ljsc->new_value("ajax_url", site_url()."/wp-admin/admin-ajax.php");
-		$ljsc->new_value("locale", get_locale());
+		$ljsc->new_value( 'site_url', site_url() );
+		$ljsc->new_value( 'ajax_url', site_url().'/wp-admin/admin-ajax.php' );
+		$ljsc->new_value( 'locale', get_locale() );
 
-		if( function_exists( 'wpcom_vip_noncdn_uri' )){
-			$ljsc->new_value("noncdn_url", wpcom_vip_noncdn_uri( dirname( dirname( __FILE__ ) ) ) );
-		}else{
-			$ljsc->new_value( 'noncdn_url', LP_PLUGIN_URL);
+		if ( function_exists( 'wpcom_vip_noncdn_uri' ) ){
+			$ljsc->new_value( 'noncdn_url', wpcom_vip_noncdn_uri( dirname( dirname( __FILE__ ) ) ) );
+		}else {
+			$ljsc->new_value( 'noncdn_url', LP_PLUGIN_URL );
 		}
 
 		// Check if we have the Facebook embed plugin so we have to load
 		// the FB js on livepress.admin.js:
-		if ( class_exists('Facebook_Loader') ){
-			$ljsc->new_value("facebook", 'yes');
+		if ( class_exists( 'Facebook_Loader' ) ){
+			$ljsc->new_value( 'facebook', 'yes' );
 		}
 
 		$settings = get_option( 'livepress' );
-		if( isset( $settings['update_format'] ) ){
+		if ( isset( $settings['update_format'] ) ){
 			$ljsc->new_value( 'timestamp_format', $settings['timestamp_format'] );
 		}
 
@@ -882,8 +919,8 @@ class LivePress_Updater {
 			$ljsc->new_value( 'facebook_app_id', $settings['facebook_app_id'] );
 		}
 
-		if ( isset( $settings['sharing_ui'])) {
-			$ljsc->new_value( 'sharing_ui', $settings['sharing_ui']);
+		if ( isset( $settings['sharing_ui']) ) {
+			$ljsc->new_value( 'sharing_ui', $settings['sharing_ui'] );
 		}
 		if ( isset( $post->ID ) ) {
 			$ljsc->new_value( 'post_url', get_permalink( $post->ID ) );
@@ -892,13 +929,12 @@ class LivePress_Updater {
 		// Localize `LivepressConfig` in admin and on front end live posts
 		if ( is_admin() ) {
 			// Add the update_formatting
-			if( isset( $settings['update_format'] ) ){
+			if ( isset( $settings['update_format'] ) ){
 				$ljsc->new_value( 'update_format', $settings['update_format'] );
 			}
-			if( isset( $settings['show'] ) ){
+			if ( isset( $settings['show'] ) ){
 				$ljsc->new_value( 'show', $settings['show'] );
 			}
-
 
 			// Add existing livetags
 			$live_update_tags = get_terms(
@@ -949,13 +985,13 @@ class LivePress_Updater {
 	function init_live_update() {
 		$live_update = LivePress_Live_Update::instance();
 		if ( isset( $this->custom_author_name ) ) {
-			$live_update->use_custom_author_name($this->custom_author_name);
+			$live_update->use_custom_author_name( $this->custom_author_name );
 		}
-		if (isset($this->custom_timestamp) ) {
-			$live_update->use_custom_timestamp($this->custom_timestamp);
+		if ( isset($this->custom_timestamp) ) {
+			$live_update->use_custom_timestamp( $this->custom_timestamp );
 		}
-		if (isset($this->custom_avatar_url) ) {
-			$live_update->use_custom_avatar_url($this->custom_avatar_url);
+		if ( isset($this->custom_avatar_url) ) {
+			$live_update->use_custom_avatar_url( $this->custom_avatar_url );
 		}
 		return $live_update;
 	}
@@ -982,7 +1018,7 @@ class LivePress_Updater {
 		global $post;
 		$div_id = null;
 		if ( is_page() || is_single() ) {
-			$div_id = "post_content_livepress";
+			$div_id = 'post_content_livepress';
 		}
 
 		if ( is_home() ) {
@@ -992,30 +1028,28 @@ class LivePress_Updater {
 		// Add the live tag data to the div
 		$live_tag_data = '';
 		if ( ! empty( $livetags ) ) {
-			foreach( $livetags as $a_tag ) {
-				$live_tag_data .=  $a_tag . ',';
+			foreach ( $livetags as $a_tag ) {
+				$live_tag_data .= $a_tag . ',';
 			}
 		}
 
 		if ( $div_id ) {
-			$content = '<div id="' . esc_attr( $div_id  ) . '" class="livepress_content"  data-livetags="' . trim( $live_tag_data, ',' ) . '">'.$content.'</div>';
+			$content = '<div id="' . esc_attr( $div_id ) . '" class="livepress_content"  data-livetags="' . trim( $live_tag_data, ',' ) . '">'.$content.'</div>';
 		}
 
-
-
 		if ( $this->inject ) {
-			if($post_modified_gmt===null) {
+			if ( $post_modified_gmt === null ) {
 				$post_modified_gmt = $post->post_modified_gmt;
 			}
 
 			$modified = new DateTime( $post_modified_gmt, new DateTimeZone( 'UTC' ) );
 
-			if ( true &&  method_exists($modified, 'diff' ) ){
+			if ( true &&  method_exists( $modified, 'diff' ) ){
 				$since    = $modified->diff( new DateTime() );
 
 				// If an update is more than an hour old, we don't care how old it is ... it's out-of-date.
 				// Calculate number of seconds that have elapsed
-				$last_update  = $since->days*24*60*60; // Days in seconds
+				$last_update  = $since->days * 24 * 60 * 60; // Days in seconds
 				$last_update += $since->h * 60 * 60;   // Hours in seconds
 				$last_update += $since->i * 60;        // Minutes in seconds
 				$last_update += $since->s;             // Seconds
@@ -1024,7 +1058,7 @@ class LivePress_Updater {
 
 				$modified = new DateTime( $post_modified_gmt, new DateTimeZone( 'UTC' ) );;
 				$now      = new DateTime();
-				$since    = abs( $modified->format('U') - $now->format('U') ) ;
+				$since    = abs( $modified->format( 'U' ) - $now->format( 'U' ) );
 
 				// If an update is more than an hour old, we don't care how old it is ... it's out-of-date.
 				$last_update = $since;
@@ -1093,10 +1127,10 @@ class LivePress_Updater {
 			return;
 		}
 
-		$then = strtotime($post->post_date_gmt . ' +0000' );
+		$then = strtotime( $post->post_date_gmt . ' +0000' );
 
 		// check if post has been posted less than 10 seconds ago. If so, let's send the warn
-		if (time() - $then < 10) {
+		if ( time() - $then < 10 ) {
 			$this->livepress_publish_post( $post );
 
 			update_post_meta( $post->ID, 'livepress_alert_sent', 'yes' );
@@ -1110,7 +1144,7 @@ class LivePress_Updater {
 	 */
 	public function get_current_post_feed_link() {
 		global $post;
-		return LivePress_WP_Utils::get_from_post($post->ID, "feed_link");
+		return LivePress_WP_Utils::get_from_post( $post->ID, 'feed_link' );
 	}
 
 	/**
@@ -1120,7 +1154,7 @@ class LivePress_Updater {
 	 */
 	public function current_post_updates_count() {
 		global $post;
-		$lp_post = new LivePress_Post($post->post_content, $post->ID);
+		$lp_post = new LivePress_Post( $post->post_content, $post->ID );
 		return $lp_post->get_updates_count();
 	}
 
@@ -1140,27 +1174,27 @@ class LivePress_Updater {
 	 * @param WP_Post $post WP_Post object.
 	 */
 	public function livepress_publish_post( $post ) {
-		$permalink = get_permalink($post->ID);
+		$permalink = get_permalink( $post->ID );
 		$data_to_js = array(
 			'title'       => $post->post_title,
-			'author'      => get_the_author_meta("login", $post->post_author),
-			'updated_at_gmt' => $post->post_modified_gmt . "Z", //Z stands for utc/gmt
+			'author'      => get_the_author_meta( 'login', $post->post_author ),
+			'updated_at_gmt' => $post->post_modified_gmt . 'Z', //Z stands for utc/gmt
 			'link'        => $permalink,
 		);
 		$params = array(
 			'post_id'     => $post->ID,
 			'post_title'  => $post->post_title,
 			'post_link'   => $permalink,
-			'data'        => JSON_encode($data_to_js),
+			'data'        => JSON_encode( $data_to_js ),
 			'blog_public' => get_option( 'blog_public' ),
 		);
 
 		try {
-			$return = $this->livepress_communication->send_to_livepress_new_post($params);
-			update_option(LP_PLUGIN_NAME."_new_post", $return['oortle_msg']);
-			LivePress_WP_Utils::save_on_post($post->ID, "feed_link", $return['feed_link']);
+			$return = $this->livepress_communication->send_to_livepress_new_post( $params );
+			update_option( LP_PLUGIN_NAME.'_new_post', $return['oortle_msg'] );
+			LivePress_WP_Utils::save_on_post( $post->ID, 'feed_link', $return['feed_link'] );
 		} catch (LivePress_Communication_Exception $e) {
-			$e->log("new post");
+			$e->log( 'new post' );
 		}
 	}
 
@@ -1178,7 +1212,7 @@ class LivePress_Updater {
 	 * @return string The value.
 	 */
 	private function delete_from_post($post_id, $key, $value = null) {
-		return delete_post_meta($post_id, "_".LP_PLUGIN_NAME."_". $key, $value);
+		return delete_post_meta( $post_id, '_'.LP_PLUGIN_NAME.'_'. $key, $value );
 	}
 
 }

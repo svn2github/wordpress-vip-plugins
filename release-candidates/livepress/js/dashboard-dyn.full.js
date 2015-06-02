@@ -1,4 +1,4 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -111,6 +111,15 @@ if ( 'undefined' === typeof window.twttr ) {
 					}(document, "script", "twitter-wjs"));
 }
 
+// Hack for when a user loads a post from a permalink to an update and
+// twitter embeds manipulate the DOM and generate a "jump"
+if( window.location.hash ){
+    twttr.ready( function ( twttr ) {
+        twttr.events.bind( 'loaded', function (event) {
+            jQuery.scrollTo( jQuery(window.location.hash) );
+        });
+    });
+}
 jQuery.fn.getBg = function () {
 	var $this = jQuery(this),
 		actual_bg, newBackground, color;

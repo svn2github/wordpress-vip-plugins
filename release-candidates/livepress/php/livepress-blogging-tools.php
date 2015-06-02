@@ -47,34 +47,34 @@ final class LivePress_Blogging_Tools {
 	 * String any shortcodes including caption
 	 */
 	function lp_strip_shortcodes( $content ) {
-		$content = preg_replace('#\s*\[caption[^]]*\].*?\[/caption\]\s*#is', '', $content);
-		$content = preg_replace( "/\[[^]]*/","", $content );
+		$content = preg_replace( '#\s*\[caption[^]]*\].*?\[/caption\]\s*#is', '', $content );
+		$content = preg_replace( '/\[[^]]*/','', $content );
 		return $content;
 	}
-  /**
-   * Check if the request is from Facebook's Open Graph protocol. If
-   * so then just return the basic HTML for embedding. The link to
-   * share on Facebook should be:
-   * http://host/permalink?lpup=[livepress_update_id]
-   */
+	/**
+	* Check if the request is from Facebook's Open Graph protocol. If
+	* so then just return the basic HTML for embedding. The link to
+	* share on Facebook should be:
+	* http://host/permalink?lpup=[livepress_update_id]
+	*/
 	function opengraph_request(){
 		if ( isset( $_GET['lpup'] ) ){
 			$id = absint( $_GET['lpup'] );
 			$update = $this->lp_get_single_update( $id );
 			$data = $this->opengraph_data( $update );
 			$post_parent_url = get_permalink( $update->post_parent );
-			if ( 0 === preg_match('/\/\?/', $post_parent_url ) ) {
-				$post_parent_url .= "?";
+			if ( 0 === preg_match( '/\/\?/', $post_parent_url ) ) {
+				$post_parent_url .= '?';
 			} else {
-				$post_parent_url .= "&";
+				$post_parent_url .= '&';
 			}
 			$canonical_url = $post_parent_url . 'lpup=' . $id . '#livepress-update-' . $id;
 
 			echo "<!DOCTYPE HTML>\n";
 			echo "<html>\n";
 			echo "<head prefix=\"og: http://ogp.me/ns#\">\n";
-			echo "<link rel=\"canonical\" href=\"" .            esc_url( $canonical_url ) . "\">\n";
-			echo "<title>" .                                    esc_html( $this->lp_strip_shortcodes( $data->title ) ) . "</title>\n";
+			echo '<link rel="canonical" href="' .            esc_url( $canonical_url ) . "\">\n";
+			echo '<title>' .                                    esc_html( $this->lp_strip_shortcodes( $data->title ) ) . "</title>\n";
 
 			// Twitter card:
 			// TODO: Make this customizable
@@ -86,20 +86,20 @@ final class LivePress_Blogging_Tools {
 
 			// Check if the update should be attributed to a Twitter user:
 			$lp_twitter_user = get_user_meta( $update->post_author, 'lp_twitter', true );
-			if ( !empty( $lp_twitter_user ) ){
+			if ( ! empty( $lp_twitter_user ) ){
 				echo '<meta name="twitter:site:id" content="' .   esc_attr( $lp_twitter_user ) . "\" />\n";
 			}
 
 			// Check if we're posting updates to a Twitter account and use
 			// it for twitter site handle:
 			$options = get_option( LivePress_Administration::$options_name );
-			if ( $options['post_to_twitter'] == TRUE && !empty( $options['oauth_authorized_user'] ) ){
+			if ( $options['post_to_twitter'] == true && ! empty( $options['oauth_authorized_user'] ) ){
 				echo '<meta name="twitter:site" content='  .      esc_attr( $options['oauth_authorized_user'] ) . "\" />\n";
 			}
 
 			// Facebook Open Graph:
 			echo '<meta property="og:title" content="' .        esc_attr( $this->lp_strip_shortcodes( urldecode( $data->title ) ) ) . "\" />\n";
-			echo "<meta property=\"og:type\" content=\"" .      esc_attr( $data->type ) . "\" />\n";
+			echo '<meta property="og:type" content="' .      esc_attr( $data->type ) . "\" />\n";
 			echo '<meta property="og:url" content="' .          esc_url( $canonical_url ) .	"\" />\n";
 			echo '<meta property="og:image" content="' .        esc_attr( $data->img ) . "\" />\n";
 			echo '<meta property="og:image:url" content="' .    esc_attr( $data->img ) . "\" />\n";
@@ -107,7 +107,7 @@ final class LivePress_Blogging_Tools {
 			echo '<meta property="og:description" content="' .  esc_html( $this->lp_strip_shortcodes( urldecode( $data->description ) ) ) . "\" />\n";
 
 			$post_url = $post_parent_url  . '#livepress-update-' . $id;
-			echo "<meta http-equiv=\"refresh\" content=\"2;URL=" . $post_url . "\">\n";
+			echo '<meta http-equiv="refresh" content="2;URL=' . $post_url . "\">\n";
 			echo "<script type=\"text/javascript\">window.location.replace('" . $post_url . "');</script>\n";
 			echo "</head>\n";
 			echo "<body>\n";
@@ -123,9 +123,9 @@ final class LivePress_Blogging_Tools {
 		$lp_get_post_cache_key = 'lp_get_post_cache_key_' . LP_PLUGIN_VERSION .'_' . $id;
 		if ( false === ( $theresult = get_transient( $lp_get_post_cache_key ) ) ) {
 
-			$query = $wpdb->prepare( "SELECT * FROM " . $wpdb->posts . " WHERE ".
-                " post_name = '%s' AND post_type = 'post'" .
-                " ORDER BY ID DESC LIMIT 1", 'livepress_update__' . $id );
+			$query = $wpdb->prepare( 'SELECT * FROM ' . $wpdb->posts . ' WHERE '.
+				" post_name = '%s' AND post_type = 'post'" .
+			' ORDER BY ID DESC LIMIT 1', 'livepress_update__' . $id );
 
 			$results = $wpdb->get_results( $query );
 			$theresult = $results[0];
@@ -139,11 +139,11 @@ final class LivePress_Blogging_Tools {
 		$data->description = '';
 		// TODO: make this customizable:
 		$data->type = 'article';
-		$data->title = $this->headline_title($update);
+		$data->title = $this->headline_title( $update );
 
 		$content = $this->remove_author_info( $update->post_content );
 		$content = wp_strip_all_tags(
-			preg_replace( "/\[livepress_metainfo.+\]/", '', $content )
+			preg_replace( '/\[livepress_metainfo.+\]/', '', $content )
 		);
 
 		// Check tweets first since their content is already cached:
@@ -157,7 +157,7 @@ final class LivePress_Blogging_Tools {
 			}
 			return $data;
 
-		} elseif( preg_match( '/^(https?:\/\/)\S*/i', $content, $matches ) ) {
+		} elseif ( preg_match( '/^(https?:\/\/)\S*/i', $content, $matches ) ) {
 			// oEmbed update:
 			$odata = get_transient( 'lpup_' . LP_PLUGIN_VERSION . '_' . $update->ID );
 			if ( false === $odata ){
@@ -168,12 +168,12 @@ final class LivePress_Blogging_Tools {
 				$provider_url = $oembed->get_provider( $matches[0] );
 				// Returns false on failure or object (
 				$odata = $oembed->fetch( $provider_url, $url );
-				if ( false !== $odata) {
+				if ( false !== $odata ) {
 					// Set the cache to expire in one month
 					set_transient( 'lpup_' . LP_PLUGIN_VERSION . '_' . $update->ID, $odata, 30 * DAY_IN_SECONDS );
 				}
 			}
-			if ( false !== $odata) {
+			if ( false !== $odata ) {
 				if ( ! $data->title ){
 					$data->title = $odata->title;
 				}
@@ -190,7 +190,7 @@ final class LivePress_Blogging_Tools {
 		if ( ! $data->title ){
 			$data->title = $this->og_title( $content );
 		}
-		if (count($content) > 0 && $content != '') {
+		if ( count( $content ) > 0 && $content != '' ) {
 			$data->description = wp_trim_words( $content, 40, esc_html__( '&hellip;', 'livepress' ) );
 		} else {
 			$data->description = $data->title;
@@ -206,9 +206,9 @@ final class LivePress_Blogging_Tools {
 		$img = '';
 		$content = $this->remove_author_info( $update->post_content );
 		preg_match( '/<img.*src=[\'|\"]?(\S+\.{1}[a-z]{3,4})/i', $content, $matches );
-		if( 0 < count($matches) ){
+		if ( 0 < count( $matches ) ){
 			$img = $matches[1];
-		} elseif( has_post_thumbnail( $post->ID ) ){
+		} elseif ( has_post_thumbnail( $post->ID ) ){
 			$img = wp_get_attachment_url( get_post_thumbnail_id( $post->ID ) );
 		}
 		return $img;
@@ -216,7 +216,7 @@ final class LivePress_Blogging_Tools {
 
 	// Get the title from the update header
 	private function headline_title( $update ){
-		if ( preg_match('/\[livepress_metainfo.+update_header=\"(.+)\".*\]/', $update->post_content, $matches) ) {
+		if ( preg_match( '/\[livepress_metainfo.+update_header=\"(.+)\".*\]/', $update->post_content, $matches ) ) {
 			return $matches[1];
 		} else {
 			return false;
@@ -237,88 +237,88 @@ final class LivePress_Blogging_Tools {
 
 	// Remove author name and avatar from content:
 	private function remove_author_info( $content ) {
-		return preg_replace( "/\<div\sclass=\"live-update-authors\"\>.+\<\/div\>/", '', $content );
+		return preg_replace( '/\<div\sclass="live-update-authors"\>.+\<\/div\>/', '', $content );
 	}
 
 
-/**
+	/**
  * Add the livepress classes to the page when a post is live.
  * @param  Array $classes Array of classes.
  * @return Array          Updated array of classes.
  *
  * @since 1.1.5
  */
-function lp_body_class( $classes ) {
-	global $post;
+	function lp_body_class( $classes ) {
+		global $post;
 
-	// Only add once!
-	if ( in_array( 'livepress-live', $classes ) ) {
-		return $classes;
-	}
-
-	// Only apply to live posts
-	if ( ! is_object( $post ) || ! $this->get_post_live_status( $post->ID ) ) {
-		return $classes;
-	}
-
-	// Add the livepress-live class
-	array_push( $classes, 'livepress-live' );
-
-	// Add the livepress update format class
-	$settings      = get_option( 'livepress', array() );
-	$update_format = isset( $settings['update_format'] ) ? $settings['update_format'] : 'default';
-	array_push( $classes, 'livepress-update-format-' . $update_format );
-
-	if( array_key_exists( "show", $settings ) && null !== $settings['show'] ){
-		foreach( $settings['show'] as $show ){
-			// "###AVATAR### ###AUTHOR###  ###TIME### 	###HEADER###";
-			array_push( $classes, 'livepress-update-show-' . strtolower( $show ) );
+		// Only add once!
+		if ( in_array( 'livepress-live', $classes ) ) {
+			return $classes;
 		}
+
+		// Only apply to live posts
+		if ( ! is_object( $post ) || ! $this->get_post_live_status( $post->ID ) ) {
+			return $classes;
+		}
+
+		// Add the livepress-live class
+		array_push( $classes, 'livepress-live' );
+
+		// Add the livepress update format class
+		$settings      = get_option( 'livepress', array() );
+		$update_format = isset( $settings['update_format'] ) ? $settings['update_format'] : 'default';
+		array_push( $classes, 'livepress-update-format-' . $update_format );
+
+		if ( array_key_exists( 'show', $settings ) && null !== $settings['show'] ){
+			foreach ( $settings['show'] as $show ){
+				// "###AVATAR### ###AUTHOR###  ###TIME### 	###HEADER###";
+				array_push( $classes, 'livepress-update-show-' . strtolower( $show ) );
+			}
+		}
+
+		return $classes;
 	}
 
-	return $classes;
-}
-
-/**
+	/**
  * Add the livepress classes to the edit post page when a post is live.
  * @param  String $classes String list of classes.
  * @return String          Updated list of classes.
  *
  * @since 1.1.1
  */
-function lp_admin_body_class( $classes ) {
-	global $post;
-	$screen = get_current_screen();
-	// In admin, only add on supported post types
-	if ( is_admin() && ! in_array( $screen->id, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
-		return $classes;
-	}
-
-	// Only apply to live posts
-	if ( ! $this->get_post_live_status( $post->ID ) ) {
-		return $classes;
-	}
-	// Only add once!
-	if ( false !== strstr( $classes, 'livepress-live') ) {
-		return $classes;
-	}
-
-	// Add the livepress-live class
-	$classes .= ' livepress-live';
-
-	// Add the livepress update format class
-	$settings      = get_option( 'livepress' );
-	$update_format = isset( $settings['update_format'] ) ? $settings['update_format'] : 'default';
-	$classes .= ' livepress-update-format-' . $update_format;
-	if( array_key_exists( "show", $settings ) && null !== $settings['show'] ){
-		foreach( $settings['show'] as $show ){
-			// "###AVATAR### ###AUTHOR###  ###TIME### 	###HEADER###";
-			$classes .= ' livepress-update-show-' . strtolower( $show );
+	function lp_admin_body_class( $classes ) {
+		global $post;
+		$screen = get_current_screen();
+		// In admin, only add on supported post types
+		if ( is_admin() && ! in_array( $screen->id, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
+			return $classes;
 		}
-	}
 
-	return $classes;
-}
+		// Only apply to live posts
+		if ( ! $this->get_post_live_status( $post->ID ) ) {
+			return $classes;
+		}
+		// Only add once!
+		if ( false !== strstr( $classes, 'livepress-live' ) ) {
+			return $classes;
+		}
+
+		// Add the livepress-live class
+		$classes .= ' livepress-live';
+
+		// Add the livepress update format class
+		$settings      = get_option( 'livepress' );
+		$update_format = isset( $settings['update_format'] ) ? $settings['update_format'] : 'default';
+		$classes .= ' livepress-update-format-' . $update_format;
+		if ( array_key_exists( 'show', $settings ) && null !== $settings['show'] ){
+			foreach ( $settings['show'] as $show ){
+				// "###AVATAR### ###AUTHOR###  ###TIME### 	###HEADER###";
+				$classes .= ' livepress-update-show-' . strtolower( $show );
+			}
+		}
+
+		return $classes;
+	}
 
 	/**
 	 * Check if a post has the Live Post Header feature enabled.
@@ -367,14 +367,14 @@ function lp_admin_body_class( $classes ) {
 	 */
 	public function set_have_user_pass( $user_id, $status = false ){
 		$users_with_passwords = get_option( 'livepress_users_with_passwords', array() );
-			if ( $status && ! in_array( $user_id, $users_with_passwords ) ){
-				array_push( $users_with_passwords, $user_id );
-			} else {
-				// Remove post id if setting status not live
-				if ( ! $status && in_array( $user_id, $users_with_passwords ) ){
-					$users_with_passwords = array_diff( $users_with_passwords, array( $user_id ) );
-				}
+		if ( $status && ! in_array( $user_id, $users_with_passwords ) ){
+			array_push( $users_with_passwords, $user_id );
+		} else {
+			// Remove post id if setting status not live
+			if ( ! $status && in_array( $user_id, $users_with_passwords ) ){
+				$users_with_passwords = array_diff( $users_with_passwords, array( $user_id ) );
 			}
+		}
 		update_option( 'livepress_users_with_passwords', $users_with_passwords );
 	}
 
@@ -412,13 +412,13 @@ function lp_admin_body_class( $classes ) {
 	public function set_post_live_status( $post_id, $status ){
 		$live_posts = get_option( 'livepress_live_posts', array() );
 			// Add post id if setting status live
-			if ( $status ){
-				if ( ! in_array( $post_id, $live_posts ) ){
-					array_push( $live_posts, $post_id );
-				}
-			} else {
-				$live_posts = array_diff( $live_posts, array( $post_id ) );
+		if ( $status ){
+			if ( ! in_array( $post_id, $live_posts ) ){
+				array_push( $live_posts, $post_id );
 			}
+		} else {
+			$live_posts = array_diff( $live_posts, array( $post_id ) );
+		}
 		update_option( 'livepress_live_posts', $live_posts );
 	}
 
@@ -449,7 +449,7 @@ function lp_admin_body_class( $classes ) {
 	 */
 	function upgrade_live_status_system() {
 		$all_posts = get_posts( array( 'suppress_filters' => false ) );
-		foreach( $all_posts as $post ){
+		foreach ( $all_posts as $post ){
 			$status = $this->get_option( 'live_status', $post->ID );
 			if ( ( isset( $status['live'] ) ) && 1 === (int) $status['live'] ) {
 				$this->set_post_live_status( $post->ID, true );
@@ -467,7 +467,7 @@ function lp_admin_body_class( $classes ) {
 		$remove = 'fullscreen';
 		$is_live = $this->get_post_live_status( $post->ID );
 
-		if ( $is_live && false !==( $key = array_search( $remove, $buttons ) ) ) {
+		if ( $is_live && false !== ( $key = array_search( $remove, $buttons ) ) ) {
 			//Find the array key and then unset
 			unset($buttons[$key]);
 		}
@@ -497,14 +497,14 @@ function lp_admin_body_class( $classes ) {
 			$toggle = 'not-live';
 		}
 
-		if( ! in_array( $toggle, $classes ) ) {
+		if ( ! in_array( $toggle, $classes ) ) {
 			array_push( $classes, $toggle );
 		}
 
 		$pin_header = $this->is_post_header_enabled( $post->ID );
 		if ( $pin_header ){
 			$toggle = 'pinned-header';
-			if( ! in_array( $toggle, $classes ) ) {
+			if ( ! in_array( $toggle, $classes ) ) {
 				array_push( $classes, $toggle );
 			}
 		}
@@ -523,9 +523,9 @@ function lp_admin_body_class( $classes ) {
 		echo '<div id="lp-pub-status-bar" class="major-publishing-actions">';
 		echo '<div class="info">';
 		echo '<span class="first-line">';
-		echo "<span class=\"lp-on\">" . sprintf( '%s <strong>%s</strong>', esc_html__( 'This Post is', 'livepress' ), esc_html__( 'LIVE' ) ) . '</span>';
-		echo "<span class=\"lp-off\">" . sprintf( '%s <strong>%s</strong>', esc_html__( 'This Post is', 'livepress' ), esc_html__( 'NOT LIVE' ) ) . '</span>';
-		echo "<span class=\"disabled\">" . esc_html__( 'LivePress is Disabled', 'livepress' ) . '</span>';
+		echo '<span class="lp-on">' . sprintf( '%s <strong>%s</strong>', esc_html__( 'This Post is', 'livepress' ), esc_html__( 'LIVE' ) ) . '</span>';
+		echo '<span class="lp-off">' . sprintf( '%s <strong>%s</strong>', esc_html__( 'This Post is', 'livepress' ), esc_html__( 'NOT LIVE' ) ) . '</span>';
+		echo '<span class="disabled">' . esc_html__( 'LivePress is Disabled', 'livepress' ) . '</span>';
 		echo sprintf( ' <a class="toggle-live button turnoff">%s</a>', esc_html__( 'Turn off live', 'livepress' ) );
 		echo sprintf( ' <a class="toggle-live button turnon">%s</a>', esc_html__( 'Turn on live', 'livepress' ) );
 		echo '</span>';
@@ -534,9 +534,9 @@ function lp_admin_body_class( $classes ) {
 		echo '<div class="pinned-first-option">';
 		echo '<label class="pinnit"><input id="pinfirst" type="checkbox" ' . ( $pin_header ? 'checked="checked" ' : '' ) . ' name="pinfirst" value="1">';
 		//echo ;
-		echo esc_html__('First update sticky', 'livepress' );
+		echo esc_html__( 'First update sticky', 'livepress' );
 		echo '</label></div>';
-		}
+	}
 
 	/**
 	 * Add the LivePress meta box above the Post Publish meta box.
@@ -545,7 +545,7 @@ function lp_admin_body_class( $classes ) {
 		global $post;
 
 		// Only show on post_type == 'post'
-		if(  ! in_array( $post->post_type, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
+		if ( ! in_array( $post->post_type, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
 			return;
 		}
 		if ( LP_LIVE_REQUIRES_ADMIN ) {
@@ -583,8 +583,8 @@ function lp_admin_body_class( $classes ) {
 	 * @return array Tab arguments
 	 */
 	public function get_tab( $id ) {
-		if ( ! isset( $this->_tabs[ $id ] ) )
-			return null;
+		if ( ! isset( $this->_tabs[ $id ] ) ) {
+			return null; }
 
 		return $this->_tabs[ $id ];
 	}
@@ -613,8 +613,8 @@ function lp_admin_body_class( $classes ) {
 		$args['id'] = sanitize_html_class( $args['id'] );
 
 		// Ensure we have a title and ID
-		if ( ! $args['id'] || ! $args['title'] )
-			return;
+		if ( ! $args['id'] || ! $args['title'] ) {
+			return; }
 
 		// Allows for overriding an existing tab with that id.
 		$this->_tabs[ $args['id'] ] = $args;
@@ -668,8 +668,8 @@ function lp_admin_body_class( $classes ) {
 			$to_return = get_post_meta( $post, '_livepress_' . $option_name, true );
 			if ( '' == $to_return ){
 				$to_return = $default_return;
-		}
-		} else{
+			}
+		} else {
 			$to_return = get_option( 'livepress_' . $option_name );
 		}
 		return $to_return;
@@ -700,8 +700,8 @@ function lp_admin_body_class( $classes ) {
 		$sidebar = $this->get_sidebar();
 
 		$section_class = 'hidden';
-		if ( ! $sidebar )
-			$section_class .= ' no-sidebar';
+		if ( ! $sidebar ) {
+			$section_class .= ' no-sidebar'; }
 
 		// Render the section
 		?>
@@ -744,8 +744,8 @@ function lp_admin_body_class( $classes ) {
 						<?php
 						echo wp_kses_post( $tab['content'] );
 
-						if ( ! empty( $tab['callback'] ) )
-							call_user_func_array( $tab['callback'], array( $this, $tab ) );
+						if ( ! empty( $tab['callback'] ) ) {
+							call_user_func_array( $tab['callback'], array( $this, $tab ) ); }
 						?>
 					</div>
 					<?php
@@ -771,7 +771,7 @@ function lp_admin_body_class( $classes ) {
 			$current_post_id = null;
 		}
 
-		if (! current_user_can( 'edit_post', $current_post_id ) ) {
+		if ( ! current_user_can( 'edit_post', $current_post_id ) ) {
 			die();
 		}
 
@@ -848,8 +848,8 @@ function lp_admin_body_class( $classes ) {
 		$content = wp_kses_post( $_POST['content'] );
 		$nonce   = $_POST['ajax_nonce'];
 
-		if ( ! wp_verify_nonce( $nonce, 'livepress-update_live-notes-' . $post_id ) )
-			die();
+		if ( ! wp_verify_nonce( $nonce, 'livepress-update_live-notes-' . $post_id ) ) {
+			die(); }
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ){
 			die();
@@ -941,7 +941,7 @@ function lp_admin_body_class( $classes ) {
 				<div id="termadderror" class="lp-message lp-error"><?php esc_html_e( 'Author error: ', 'livepress' ); ?><span id="errmsg"></span></div>
 				<div class="clean lp-tweet-cleaner">
 					<p><?php esc_html_e( 'Done live blogging on this post?', 'livepress' ); ?></p>
-					<input class="button-secondary cleaner" value="<?php esc_html_e( 'Remove All', 'livepress'); ?>" type="submit" />
+					<input class="button-secondary cleaner" value="<?php esc_html_e( 'Remove All', 'livepress' ); ?>" type="submit" />
 				</div>
 			</div>
             <ul id="lp-account-list"></ul>
@@ -956,8 +956,8 @@ function lp_admin_body_class( $classes ) {
 		$post_id = (int) $_POST['post_id'];
 		$nonce   = $_POST['ajax_nonce'];
 
-		if ( ! wp_verify_nonce( $nonce, 'livepress-update_live-status-' . $post_id ) )
-			die();
+		if ( ! wp_verify_nonce( $nonce, 'livepress-update_live-status-' . $post_id ) ) {
+			die(); }
 
 		if ( ! current_user_can( 'edit_post', $post_id ) ){
 			die();
@@ -1021,7 +1021,7 @@ function lp_admin_body_class( $classes ) {
 			$title  = esc_html__( 'This Post is NOT LIVE', 'livepress' );
 		}
 
-		echo sprintf( '<div title="%s" class="live-status-circle live-status-%s"></div>', esc_attr( $title ), esc_attr( $toggle ) ) ;
+		echo sprintf( '<div title="%s" class="live-status-circle live-status-%s"></div>', esc_attr( $title ), esc_attr( $toggle ) );
 	}
 
 	function lp_update_shortlink() {
@@ -1031,14 +1031,14 @@ function lp_admin_body_class( $classes ) {
 		$cache_key   = 'lp_shortlink_aaaa' . LP_PLUGIN_VERSION . '_' . $update_id;
 		$shortlink   = LivePress_WP_Utils::get_from_post( $post_id, $cache_key, true );
 		$status_code = 200;
-		if( ! $shortlink ) {
+		if ( ! $shortlink ) {
 			global $post;
 			$post = get_post( $post_id );
 			$post_parent_url = get_permalink( $post );
-			if ( 0 === preg_match('/\/\?/', $post_parent_url ) ) {
-				$post_parent_url .= "?";
+			if ( 0 === preg_match( '/\/\?/', $post_parent_url ) ) {
+				$post_parent_url .= '?';
 			} else {
-				$post_parent_url .= "&";
+				$post_parent_url .= '&';
 			}
 			$canonical_url = $post_parent_url . 'lpup=' . $update_id . '#livepress-update-' . $update_id;
 
@@ -1050,23 +1050,23 @@ function lp_admin_body_class( $classes ) {
 			$url = $get_shortlink;
 			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 				$res = vip_safe_wp_remote_get(
-							$url,
-							'',    /* fallback value */
-							5,     /* threshold */
-							10,     /* timeout */
-							20,    /* retry */
-							array( 'reject_unsafe_urls' => false )
-						);
+					$url,
+					'',    /* fallback value */
+					5,     /* threshold */
+					10,     /* timeout */
+					20,    /* retry */
+					array( 'reject_unsafe_urls' => false )
+				);
 			} else {
-				$res = wp_remote_get( $url, array( 'reject_unsafe_urls' => false ));
+				$res = wp_remote_get( $url, array( 'reject_unsafe_urls' => false ) );
 			}
 			$response = json_decode( $res['body'], true );
-			$status_code = $response["status_code"];
+			$status_code = $response['status_code'];
 
 			if ( is_wp_error( $res ) || $status_code != 200 ) {
 				$shortlink = $canonical_url;
 			} else {
-				if( !$res || !isset($response['data']) || !isset( $response['data']['url'] ) ) {
+				if ( ! $res || ! isset($response['data']) || ! isset( $response['data']['url'] ) ) {
 					$shortlink = $canonical_url;
 					$status_code = 500;
 				} else {
@@ -1075,7 +1075,7 @@ function lp_admin_body_class( $classes ) {
 
 					$options = get_option( LivePress_Administration::$options_name );
 					$livepress_com = new LivePress_Communication( $options['api_key'] );
-					$livepress_com->send_to_livepress_broadcast( $post_id, array( 'shortlink'=>array($update_id=>$shortlink ) ) );
+					$livepress_com->send_to_livepress_broadcast( $post_id, array( 'shortlink' => array($update_id => $shortlink ) ) );
 				}
 			}
 		}

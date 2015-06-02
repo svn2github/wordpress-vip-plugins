@@ -13,7 +13,7 @@ class LivePress_Compatibility_Fixes {
 	 * @access private
 	 * @var null
 	 */
-	private static $instance = NULL;
+	private static $instance = null;
 
 	/**
 	 * Instance.
@@ -24,7 +24,7 @@ class LivePress_Compatibility_Fixes {
 	 * @return LivePress_Compatibility_Fixes|null
 	 */
 	public static function instance() {
-		if (self::$instance == NULL) {
+		if ( self::$instance == null ) {
 			self::$instance = new LivePress_Compatibility_Fixes();
 		}
 		return self::$instance;
@@ -35,7 +35,7 @@ class LivePress_Compatibility_Fixes {
 	 */
 	private function __construct() {
 		global $wp_version;
-		if ($wp_version < "4.0"){
+		if ( $wp_version < '4.0' ){
 			add_filter( 'embed_oembed_html', array( $this, 'lp_embed_oembed_html' ), 1000, 4 );
 		}
 		add_filter( 'the_content', array( $this, 'lp_inject_twitter_script' ), 1000 );
@@ -53,7 +53,7 @@ class LivePress_Compatibility_Fixes {
 	 * @return mixed
 	 */
 	static function lp_embed_oembed_html($content, $url, $attr, $post_id) {
-		return preg_replace('!<script[^>]*twitter[^>]*></script>!i', '', $content);
+		return preg_replace( '!<script[^>]*twitter[^>]*></script>!i', '', $content );
 		return $content;
 	}
 
@@ -66,7 +66,7 @@ class LivePress_Compatibility_Fixes {
 	 * @return mixed
 	 */
 	static function esc_amp_html($html) {
-		return preg_replace("/&(?![a-z]+;|#[0-9]+;)/", "&amp;", $html);
+		return preg_replace( '/&(?![a-z]+;|#[0-9]+;)/', '&amp;', $html );
 	}
 
 	/**
@@ -79,14 +79,14 @@ class LivePress_Compatibility_Fixes {
 	 * @return mixed
 	 */
 	static function patch_tweet_details( $tweet_details, $options = array()) {
-		$tweet_details['tweet_text'] = self::esc_amp_html($tweet_details['tweet_text']);
+		$tweet_details['tweet_text'] = self::esc_amp_html( $tweet_details['tweet_text'] );
 		return $tweet_details;
 	}
 
 	// Enqueue the Twitter platform script when update contains tweet
 	static function lp_inject_twitter_script( $content ) {
-		if (preg_match('/class="twitter-tweet"/i', $content)) {
-			wp_enqueue_script( 'platform-twitter', "//platform.twitter.com/widgets.js", array() );
+		if ( preg_match( '/class="twitter-tweet"/i', $content ) ) {
+			wp_enqueue_script( 'platform-twitter', '//platform.twitter.com/widgets.js', array() );
 		}
 		return $content;
 	}
@@ -105,7 +105,7 @@ class LivePress_Compatibility_Fixes {
 	static function tm_coschedule_save_post_callback_filter( $state, $post_id ){
 		$parent_id = wp_get_post_parent_id( abs( $post_id ) );
 
-		if( LivePress_Updater::instance()->blogging_tools->get_post_live_status( $parent_id ) ){
+		if ( LivePress_Updater::instance()->blogging_tools->get_post_live_status( $parent_id ) ){
 			$state = false;
 		}
 		// really make sure that we return a bool

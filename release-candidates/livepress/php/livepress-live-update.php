@@ -19,7 +19,7 @@ class LivePress_Live_Update {
 	 * @access private
 	 * @var null
 	 */
-	private static $instance = NULL;
+	private static $instance = null;
 
 	/**
 	 * Instance.
@@ -28,7 +28,7 @@ class LivePress_Live_Update {
 	 * @return LivePress_Live_Update
 	 */
 	public static function instance() {
-		if (self::$instance == NULL) {
+		if ( self::$instance == null ) {
 			self::$instance = new LivePress_Live_Update();
 		}
 		return self::$instance;
@@ -58,11 +58,11 @@ class LivePress_Live_Update {
 	 */
 	private function add_editor_button() {
 		// Don't bother doing this stuff if the current user lacks permissions
-		if ( ! current_user_can('edit_posts') && ! current_user_can('edit_pages') )
-			return;
+		if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) ) {
+			return; }
 
 		// Add only in Rich Editor mode
-		if ( get_user_option('rich_editing') == 'true' ) {
+		if ( get_user_option( 'rich_editing' ) == 'true' ) {
 			add_filter( 'teeny_mce_buttons', array( &$this, 'register_tinymce_button' ) );
 			add_filter( 'mce_buttons', array( &$this, 'register_tinymce_button' ) );
 		}
@@ -89,18 +89,17 @@ class LivePress_Live_Update {
 	public function shortcode( $atts,  $content = null  ) {
 		// Extract the attributes
 		$atts = shortcode_atts( array(
-			'authors'       => "",
-			'author'        => "",
-			'time'          => "",
-			'avatar_url'    => NULL,
-			'has_avatar'    => FALSE,
-			'timestamp'     => "",
-			'update_header' => "",
-			'avatar_block'  => ""
-		), $atts ) ;
+			'authors'       => '',
+			'author'        => '',
+			'time'          => '',
+			'avatar_url'    => null,
+			'has_avatar'    => false,
+			'timestamp'     => '',
+			'update_header' => '',
+			'avatar_block'  => ''
+		), $atts );
 
-
-		$authors        = esc_attr( $atts['authors'] . $atts['author']);
+		$authors        = esc_attr( $atts['authors'] . $atts['author'] );
 		$time           = esc_attr( $atts['time'] );
 		$avatar_url     = esc_url( $atts['avatar_url'] );
 		$has_avatar     = ( true == $atts['has_avatar'] )?true:false;
@@ -110,19 +109,17 @@ class LivePress_Live_Update {
 
 		$options  = $this->options;
 
-
 		$template_elements = '';
-		if( array_key_exists( "show", $options ) && null !== $options['show'] ){
-			foreach( $options['show'] as $show ){
+		if ( array_key_exists( 'show', $options ) && null !== $options['show'] ){
+			foreach ( $options['show'] as $show ){
 				// "###AVATAR### ###AUTHOR###  ###TIME### 	###HEADER### ###TAGS###";
-				if( 'TAGS' !== $show ){
+				if ( 'TAGS' !== $show ){
 					$template_elements .= ' ###' . $show . '###';
 				}
 			}
-		}else{
+		}else {
 			$template_elements = '###AVATAR### ###AUTHOR###  ###TIME### ###HEADER###';
 		}
-
 
 		/**
 		 * Filter Allows you to change the order of the elements and add to the meta info html.
@@ -132,7 +129,7 @@ class LivePress_Live_Update {
 		 * @param string  $order_template a set of ###replace### target.
 		 *
 		 */
-		$metainfo = apply_filters('livepress_meta_info_template_order',$template_elements  );
+		$metainfo = apply_filters( 'livepress_meta_info_template_order',$template_elements );
 
 		$avatar = '';
 		if ( $has_avatar || $avatar_url ) {
@@ -152,22 +149,21 @@ class LivePress_Live_Update {
 		 * @param bool   $has_avatar  does this user have a local avatar.
 		 *
 		 */
-		$metainfo = str_replace( '###AVATAR###', apply_filters('livepress_meta_info_template_author', $avatar, $avatar_url, $has_avatar), $metainfo );
+		$metainfo = str_replace( '###AVATAR###', apply_filters( 'livepress_meta_info_template_author', $avatar, $avatar_url, $has_avatar ), $metainfo );
 
 		$settings      = get_option( 'livepress' );
 
 		$update_format = 'default';
-		if( isset( $settings['update_format'] ) ){
+		if ( isset( $settings['update_format'] ) ){
 			$update_format = $settings['update_format'];
 		}
-
 
 		$author_info = '';
 		if ( ! $avatar_block ) {
 			if ( $authors ) {
 				$author_info .= $this->format_author( $authors ) . ' ';
 				if ( $time ) {
-					$author_info .= " <strong>|</strong> ";
+					$author_info .= ' <strong>|</strong> ';
 				}
 			}
 		}
@@ -180,7 +176,7 @@ class LivePress_Live_Update {
 		 * @param string $author  Name of Author.
 		 *
 		 */
-		$metainfo = str_replace( '###AUTHOR###', apply_filters('livepress_meta_info_template_author', $author_info, $authors ), $metainfo );
+		$metainfo = str_replace( '###AUTHOR###', apply_filters( 'livepress_meta_info_template_author', $author_info, $authors ), $metainfo );
 
 		/**
 		 * Filter Allows you to change date format use in a livepress post meta.
@@ -190,21 +186,21 @@ class LivePress_Live_Update {
 		 * @param string $date_foramt_the date format in use
 		 *
 		 */
-		$timestring = date( apply_filters( 'livepress_timestamp_time_format', 'g:i A' ), strtotime( $atts['timestamp'] ) + ( get_option('gmt_offset') * 3600 ) );
+		$timestring = date( apply_filters( 'livepress_timestamp_time_format', 'g:i A' ), strtotime( $atts['timestamp'] ) + ( get_option( 'gmt_offset' ) * 3600 ) );
 
 		$time_info  = '';
-		if ($time) {
+		if ( $time ) {
 
 			if ( isset( $options['timestamp_format'] ) && 'timeof' === $options['timestamp_format'] ) {
 
 				$time_info .= '<span class="livepress-update-header-timestamp">';
-				$time_info .= str_replace( '###TIME###', $timestring, self::timestamp_html_template())." ";
+				$time_info .= str_replace( '###TIME###', $timestring, self::timestamp_html_template() ).' ';
 				$time_info  = str_replace( '###TIMESTAMP###', $timestamp, $time_info );
 				$time_info .= '</span>';
 			} else {
 
 				$time_info .= '<span class="livepress-update-header-timestamp">';
-				$time_info .= str_replace('###TIME###', $time, self::timestamp_html_template())." ";
+				$time_info .= str_replace( '###TIME###', $time, self::timestamp_html_template() ).' ';
 				$time_info  = str_replace( '###TIMESTAMP###', $timestamp, $time_info );
 				$time_info .= '</span>';
 			}
@@ -219,14 +215,13 @@ class LivePress_Live_Update {
 		 * @param string $timestring  timestring pass to date.
 		 *
 		 */
-		$metainfo = str_replace( '###TIME###', apply_filters('livepress_meta_info_template_time', $time_info, $timestring ), $metainfo );
+		$metainfo = str_replace( '###TIME###', apply_filters( 'livepress_meta_info_template_time', $time_info, $timestring ), $metainfo );
 
 		$header = '';
 		if ( $update_header ) {
 			$metainfo = str_replace( 'livepress-update-header-timestamp', 'livepress-update-header-timestamp livepress-title-shown', $metainfo );
-			$metainfo .= '<span class="livepress-update-header">' . wptexturize( urldecode( $update_header ) ) . "</span> ";
+			$metainfo .= '<span class="livepress-update-header">' . wptexturize( urldecode( $update_header ) ) . '</span> ';
 		}
-
 
 		/**
 		 * Filter Allows you to change the order of the elements and add to teh meta info html.
@@ -237,7 +232,7 @@ class LivePress_Live_Update {
 		 * @param string $update_header  header content.
 		 *
 		 */
-		$metainfo = str_replace( '###HEADER###', apply_filters('livepress_meta_info_template_header', $header, $update_header ), $metainfo );
+		$metainfo = str_replace( '###HEADER###', apply_filters( 'livepress_meta_info_template_header', $header, $update_header ), $metainfo );
 
 		if ( $metainfo ) {
 			/**
@@ -249,12 +244,12 @@ class LivePress_Live_Update {
 			 * @param string $update_header  header content.
 			 *
 			 */
-			$div_class = apply_filters('livepress_meta_info_template_header', array( self::$metainfo_class ) );
-			if( null != $content ){
+			$div_class = apply_filters( 'livepress_meta_info_template_header', array( self::$metainfo_class ) );
+			if ( null != $content ){
 				$metainfo = $metainfo . PHP_EOL . $content . PHP_EOL ;
 			}
 
-			$metainfo = '<'. self::$metainfo_tag .' class="'. implode(', ', $div_class) .'">'
+			$metainfo = '<'. self::$metainfo_tag .' class="'. implode( ', ', $div_class ) .'">'
 				. $metainfo
 				. '</'. self::$metainfo_tag .'>';
 		}
@@ -269,15 +264,15 @@ class LivePress_Live_Update {
 	 */
 	public function fill_livepress_shortcodes( $content ) {
 
-		$content = str_replace( '\\', '', $content );
+
 		$options       = $this->options;
 
-		$new_shortcode = "[livepress_metainfo";
+		$new_shortcode = PHP_EOL . PHP_EOL . '[livepress_metainfo';
 		// do we have a short code
 
 		$has_shortcode = ( false === strpos( $content, '[livepress_metainfo' ) ) ? false : true;
 
-		preg_match('/\[livepress_metainfo show_timestmp="(.)".*\]/s', $content, $show_timestmp );
+		preg_match( '/\[livepress_metainfo show_timestmp="(.)".*\]/s', $content, $show_timestmp );
 
 		if ( ! empty( $show_timestmp[1] ) || ! $has_shortcode ) {
 			$current_time_attr = ' time="'. $this->format_timestamp( current_time( 'timestamp' ) ) .'" ';
@@ -285,14 +280,13 @@ class LivePress_Live_Update {
 				if ( isset( $this->custom_timestamp ) ) {
 					$custom_timestamp = strtotime( $this->custom_timestamp );
 					$new_shortcode   .= ' time="'. $this->format_timestamp( $custom_timestamp ) .'"';
+					$new_shortcode   .= ' timestamp="'. date( 'c', $custom_timestamp ) .'"';
 				} else {
 					$new_shortcode .= $current_time_attr;
+					$new_shortcode   .= ' timestamp="'. date( 'c', current_time( 'timestamp', 1 ) ) .'"';
 				}
 			}
-			$new_shortcode   .= ' timestamp="'. date( 'c', current_time( 'timestamp', 1 ) ) .'"';
 		}
-
-
 
 		preg_match( '/\[livepress_metainfo.*authors="(.*)"\]/s', $content, $author_block );
 
@@ -304,49 +298,48 @@ class LivePress_Live_Update {
 				$custom_author_names .= $separator . $author['text'];
 				$separator = ' - ';
 			}
-		}else{
+		}else {
 			$custom_author_names = $author_block[1];
 		}
 
 		if ( '' !== trim( $custom_author_names ) ) {
 			$authorname = $custom_author_names;
 		} else {
-			$authorname = self::get_author_display_name($options);
+			$authorname = self::get_author_display_name( $options );
 		}
 
 		// look to see if we have an avatar and hide the author name if we have
-		preg_match('/\[livepress_metainfo.*avatar_block="shown".*\]/s', $content, $avatar_block );
+		preg_match( '/\[livepress_metainfo.*avatar_block="shown".*\]/s', $content, $avatar_block );
 		if ( empty( $avatar_block ) ) {
 			if ( $authorname ) {
 				$new_shortcode .= ' authors="' . $authorname . '"';
 			}
 		}
 
-		if ($options["include_avatar"]) {
+		if ( $options['include_avatar'] ) {
 			$new_shortcode .= ' has_avatar="1"';
-			if (isset($this->custom_avatar_url)) {
+			if ( isset($this->custom_avatar_url) ) {
 				$new_shortcode .= ' avatar_url="'.$this->custom_avatar_url.'"';
 			}
 		}
 
 		// Pass the update header thru to processed shortcode
-		preg_match('/.*update_header="(.*)"\]/s', $content, $update_header);
+		preg_match( '/.*update_header="(.*)"\]/s', $content, $update_header );
 
 		if ( isset( $update_header[1] ) && 'undefined' !== $update_header[1] ) {
 			$new_shortcode .= ' update_header="' . $update_header[1] . '"';
 		}
 
-
-		$new_shortcode .= "]";
+		$new_shortcode .= ']' . PHP_EOL . PHP_EOL;
 		// Replace empty livepress_metainfo with calculated one
-		$content = preg_replace('/\[livepress_metainfo[^\]]*]/s', $new_shortcode,  $content . PHP_EOL);
+		$content = preg_replace( '/\[livepress_metainfo[^\]]*]/s', $new_shortcode,  $content . PHP_EOL );
 
 		//unload the filter so it does run again
-		remove_filter('content_save_pre', array( $this, 'fill_livepress_shortcodes' ), 5);
+		remove_filter( 'content_save_pre', array( $this, 'fill_livepress_shortcodes' ), 5 );
 
 		// Replace POSTTIME inside livepress_metainfo with current time
 		if ( ! empty( $show_timestmp[1] ) ) {
-			return preg_replace('/(\[livepress_metainfo[^\]]*)POSTTIME([^\]]*\])/s', "$1".$current_time_attr."$2", $content);
+			return preg_replace( '/(\[livepress_metainfo[^\]]*)POSTTIME([^\]]*\])/s', '$1'.$current_time_attr.'$2', $content );
 		} else {
 			return $content;
 		}
@@ -403,7 +396,7 @@ class LivePress_Live_Update {
 	public static function get_avatar_img_tag( $from ) {
 
 		global $user;
-		$avatar_img_tag = get_avatar( $user->ID, 30);
+		$avatar_img_tag = get_avatar( $user->ID, 30 );
 		if ( $from === 'twitter' && LivePress_Administration::twitter_avatar_url() ) {
 			$avatar_img_tag = self::avatar_img_tag( LivePress_Administration::twitter_avatar_url() );
 		}
@@ -432,8 +425,8 @@ class LivePress_Live_Update {
 	 * @return string The name to be displayed or FALSE if something goes wrong.
 	 */
 	public static function get_author_display_name( $options ) {
-		$author = FALSE;
-		if ($options['author_display'] == 'custom') {
+		$author = false;
+		if ( $options['author_display'] == 'custom' ) {
 			$author = $options['author_display_custom_name'];
 		} else {
 			// TODO: decouple
@@ -458,7 +451,7 @@ class LivePress_Live_Update {
 	 *
 	 * @return string HTML formatted timestamp.
 	 */
-	private function format_timestamp( $timestamp = NULL ) {
+	private function format_timestamp( $timestamp = null ) {
 		$config = LivePress_Config::get_instance();
 		return date( $config->get_option( 'timestamp_template' ), $timestamp );
 	}
@@ -472,7 +465,7 @@ class LivePress_Live_Update {
 	 */
 	public static function timestamp_html_template() {
 		$config = LivePress_Config::get_instance();
-		return $config->get_option('timestamp_html_template');
+		return $config->get_option( 'timestamp_html_template' );
 	}
 
 	/**
@@ -484,7 +477,7 @@ class LivePress_Live_Update {
 	 */
 	public static function timestamp_template() {
 		$config = LivePress_Config::get_instance();
-		return $config->get_option('timestamp_template');
+		return $config->get_option( 'timestamp_template' );
 	}
 
 	/**
@@ -496,6 +489,6 @@ class LivePress_Live_Update {
 	 */
 	public static function author_template() {
 		$config = LivePress_Config::get_instance();
-		return $config->get_option('author_template');
+		return $config->get_option( 'author_template' );
 	}
 }

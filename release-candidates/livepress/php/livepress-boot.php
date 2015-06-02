@@ -116,14 +116,14 @@ function add_content_css( $init ) {
 	$init['content_css'] .= ',' . $css . ',' . $css_for_tinymce;
 	return $init;
 }
-	add_filter( "tiny_mce_before_init", "add_content_css" );
+	add_filter( 'tiny_mce_before_init', 'add_content_css' );
 
 /**
  * Render LivePress Real-time Tools.
  */
 function livepress_render_dashboard() {
 	global $post_type;
-	if( ! in_array( $post_type, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
+	if ( ! in_array( $post_type, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
 		return;
 	}
 	add_meta_box(

@@ -19,23 +19,23 @@ function livepress_template( $auto = false, $seconds_since_last = 0 ) {
 	$lp_status  = $is_live    ? 'lp-on' : 'lp-off';
 	$pin_class  = $pin_header ? 'livepress-pinned-header' : '';
 	// Don't show the LivePress bar on front end if the post isn't live or LivePress disabled
-	if ( ! $is_live || ! LivePress_Updater::instance()->has_livepress_enabled() )
-		return;
+	if ( ! $is_live || ! LivePress_Updater::instance()->has_livepress_enabled() ) {
+		return; }
 
 	$live            = esc_html__( 'LIVE', 'livepress' );
 	$about           = wp_kses_post( __( 'Receive live updates to<br />this and other posts on<br />this site.', 'livepress' ) );
 	$notifications   = esc_html__( 'Notifications', 'livepress' );
 	$updates         = esc_html__( 'Live Updates', 'livepress' );
-	$powered_by      = wp_kses_post ( __( 'powered by <a href="http://livepress.com">LivePress</a>', 'livepress' ) );
+	$powered_by      = wp_kses_post( __( 'powered by <a href="http://livepress.com">LivePress</a>', 'livepress' ) );
 	$date            = new DateTime();
 	$interval_string = 'P0Y0M0DT0H' . floor( $seconds_since_last / 60 ) .'M' . $seconds_since_last % 60 . 'S';
 
 	// Generate an ISO-8601 formatted timestamp for timeago.js
 	$date->sub( new DateInterval( $interval_string ) );
-	$date8601 = $date->format('c');
+	$date8601 = $date->format( 'c' );
 
 	static $called = 0;
-	if ( $called++ ) return;
+	if ( $called++ ) { return; }
 	$htmlTemplate = <<<HTML
 		<div id="livepress">
 			<div class="lp-bar">
@@ -49,35 +49,34 @@ function livepress_template( $auto = false, $seconds_since_last = 0 ) {
 		</div>
 HTML;
 
+	$image_url    = LP_PLUGIN_URL . 'img/spin.gif';
+	$htmlTemplate = str_replace( 'SPIN_IMAGE', $image_url, $htmlTemplate );
 
-	$image_url    = LP_PLUGIN_URL . "img/spin.gif";
-	$htmlTemplate = str_replace("SPIN_IMAGE", $image_url, $htmlTemplate);
+	$image_url    = LP_PLUGIN_URL . 'img/lp-bar-logo.png';
+	$htmlTemplate = str_replace( 'LOGO_IMAGE', $image_url, $htmlTemplate );
 
-	$image_url    = LP_PLUGIN_URL . "img/lp-bar-logo.png";
-	$htmlTemplate = str_replace("LOGO_IMAGE", $image_url, $htmlTemplate);
+	$image_url    = LP_PLUGIN_URL . 'img/lp-settings-close.gif';
+	$htmlTemplate = str_replace( 'CLOSE_SETTINGS_IMAGE', $image_url, $htmlTemplate );
 
-	$image_url    = LP_PLUGIN_URL . "img/lp-settings-close.gif";
-	$htmlTemplate = str_replace("CLOSE_SETTINGS_IMAGE", $image_url, $htmlTemplate);
-
-	$image_url    = LP_PLUGIN_URL . "img/lp-bar-cogwheel.png";
-	$htmlTemplate = str_replace("BAR_COG_IMAGE", $image_url, $htmlTemplate);
+	$image_url    = LP_PLUGIN_URL . 'img/lp-bar-cogwheel.png';
+	$htmlTemplate = str_replace( 'BAR_COG_IMAGE', $image_url, $htmlTemplate );
 
 	$lp_update    = LivePress_Updater::instance();
-	$htmlTemplate = str_replace("<!--UPDATES_NUM-->",
-			$lp_update->current_post_updates_count(), $htmlTemplate);
+	$htmlTemplate = str_replace('<!--UPDATES_NUM-->',
+	$lp_update->current_post_updates_count(), $htmlTemplate);
 
-	if($auto)
-		$htmlTemplate = str_replace('id="livepress"', 'id="livepress" class="auto"', $htmlTemplate);
+	if ( $auto ) {
+		$htmlTemplate = str_replace( 'id="livepress"', 'id="livepress" class="auto"', $htmlTemplate ); }
 
-	if (LivePress_Updater::instance()->is_comments_enabled()) {
-		$htmlTemplate = str_replace(array( "<!--COMMENTS-->", "<!--/COMMENTS-->" ), "", $htmlTemplate );
-		$htmlTemplate = str_replace("<!--COMMENTS_NUM-->",
-				$lp_update->current_post_comments_count(), $htmlTemplate);
+	if ( LivePress_Updater::instance()->is_comments_enabled() ) {
+		$htmlTemplate = str_replace( array( '<!--COMMENTS-->', '<!--/COMMENTS-->' ), '', $htmlTemplate );
+		$htmlTemplate = str_replace('<!--COMMENTS_NUM-->',
+		$lp_update->current_post_comments_count(), $htmlTemplate);
 	} else {
-		$htmlTemplate = preg_replace("#<!--COMMENTS-->.*?<!--/COMMENTS-->#s", "", $htmlTemplate);
+		$htmlTemplate = preg_replace( '#<!--COMMENTS-->.*?<!--/COMMENTS-->#s', '', $htmlTemplate );
 	}
 
-	if ($auto) {
+	if ( $auto ) {
 		return $htmlTemplate;
 	} else {
 		echo wp_kses_post( $htmlTemplate );
@@ -90,12 +89,12 @@ add_action( 'livepress_widget', 'livepress_template' );
  */
 function livepress_update_box() {
 	static $called = 0;
-	if($called++) return;
-	if (LivePress_Updater::instance()->has_livepress_enabled()) {
+	if ( $called++ ) { return; }
+	if ( LivePress_Updater::instance()->has_livepress_enabled() ) {
 		echo '<div id="lp-update-box"></div>';
 	}
 }
-add_action('livepress_update_box', 'livepress_update_box');
+add_action( 'livepress_update_box', 'livepress_update_box' );
 
 /**
  * LivePress dashboard template output.
@@ -103,7 +102,7 @@ add_action('livepress_update_box', 'livepress_update_box');
 function livepress_dashboard_template() {
 	echo '<div id="lp-switch-panel" class="editor-hidden">';
 	echo '<a id="live-switcher" class="off preview button-secondary disconnected" style="display: none" title="' .
-			esc_html__('Show or Hide the Real-Time Editor', 'livepress' ) .'">' .
+			esc_html__( 'Show or Hide the Real-Time Editor', 'livepress' ) .'">' .
 			esc_html__( 'Show', 'livepress' ) .
 		'</a>';
 	echo '<h3>' .

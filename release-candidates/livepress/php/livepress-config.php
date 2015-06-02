@@ -20,13 +20,13 @@ class LivePress_Config {
 		'LIVEPRESS_SERVICE_HOST'    => 'https://api.livepress.com',
 		'OORTLE_VERSION'            => '1.5',
 		'LIVEPRESS_CLUSTER'         => 'livepress.com',
-		'LIVEPRESS_VERSION'         => '1.1.4',
+		'LIVEPRESS_VERSION'         => '1.3',
 		'TIMESTAMP_HTML_TEMPLATE'   => '<abbr title="###TIMESTAMP###" class="livepress-timestamp">###TIME###</abbr>',
 		'TIMESTAMP_TEMPLATE'        => 'G:i',
 		'AUTHOR_TEMPLATE'           => '<span class="livepress-update-author">###AUTHOR###</span>',
-		'DEBUG'                     => FALSE,
-		'SCRIPT_DEBUG'              => FALSE,
-		'PLUGIN_SYMLINK'            => FALSE,
+		'DEBUG'                     => false,
+		'SCRIPT_DEBUG'              => false,
+		'PLUGIN_SYMLINK'            => false,
 		'LP_PLUGIN_NAME'            => 'livepress',
 	);
 
@@ -45,7 +45,7 @@ class LivePress_Config {
 	 * @return LivePress_Config|null
 	 */
 	public static function get_instance() {
-		if(!isset(self::$singleton_instance)) {
+		if ( ! isset(self::$singleton_instance) ) {
 			self::$singleton_instance = new self;
 		}
 		return self::$singleton_instance;
@@ -64,7 +64,7 @@ class LivePress_Config {
 		 * @param string  $order_template a set of ###replace### target.
 		 *
 		 */
-		$this->configurable_options['TIMESTAMP_HTML_TEMPLATE'] = apply_filters('livepress_global_time_template', $this->configurable_options['TIMESTAMP_HTML_TEMPLATE'] );
+		$this->configurable_options['TIMESTAMP_HTML_TEMPLATE'] = apply_filters( 'livepress_global_time_template', $this->configurable_options['TIMESTAMP_HTML_TEMPLATE'] );
 		/**
 		 * Filter Allows you to change the order of the elements and add to teh meta info html.
 		 *
@@ -73,7 +73,7 @@ class LivePress_Config {
 		 * @param string  $order_template a set of ###replace### target.
 		 *
 		 */
-		$this->configurable_options['AUTHOR_TEMPLATE'] = apply_filters('livepress_global_author_template', $this->configurable_options['AUTHOR_TEMPLATE'] );
+		$this->configurable_options['AUTHOR_TEMPLATE'] = apply_filters( 'livepress_global_author_template', $this->configurable_options['AUTHOR_TEMPLATE'] );
 	}
 
 	/**
@@ -122,7 +122,7 @@ class LivePress_Config {
 	 * @return bool
 	 */
 	public function script_debug() {
-		return $this->configurable_options['SCRIPT_DEBUG'] || (defined('SCRIPT_DEBUG') && SCRIPT_DEBUG === true);
+		return $this->configurable_options['SCRIPT_DEBUG'] || (defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG === true);
 	}
 
 	/**
@@ -142,7 +142,7 @@ class LivePress_Config {
 	 * @throws Exception
 	 */
 	public function get_option($option_name) {
-		$option_name = strtoupper($option_name);
+		$option_name = strtoupper( $option_name );
 
 		if ( ! isset( $this->configurable_options[ $option_name ] ) ) {
 			_doing_it_wrong( 'LivePress_Config::get_option', 'Invalid livepress option.', 1 );
@@ -201,7 +201,7 @@ class LivePress_Config {
 		}
 		$plugins = get_plugins();
 		// add the MU plugin details if any
-		$plugins['mu_plugins'] = get_mu_plugins ();
+		$plugins['mu_plugins'] = get_mu_plugins();
 		return $plugins;
 	}
 
@@ -210,10 +210,10 @@ class LivePress_Config {
 	 * @return array
 	 */
 	private function get_installed_themes(){
-		$installed_themes =  wp_get_themes(  array( 'errors' => false , 'allowed' => null ) );
+		$installed_themes = wp_get_themes( array( 'errors' => false , 'allowed' => null ) );
 		$themes = array();
-		foreach( $installed_themes as $key => $theme ){
-//			var_dump($theme);
+		foreach ( $installed_themes as $key => $theme ){
+			//          var_dump($theme);
 			$themes[$key] = array(
 				'Name'    => $theme->name,
 				'Version' => $theme->version

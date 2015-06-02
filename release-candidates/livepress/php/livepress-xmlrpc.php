@@ -118,7 +118,6 @@ class LivePress_XMLRPC {
 			'post_title' => ''
 		);
 
-
 		$unparsed_data = wp_parse_args( $content_struct, $defaults );
 
 		// If this isn't an update, exit early so we don't walk all over ourselves.
@@ -155,58 +154,51 @@ class LivePress_XMLRPC {
 			// Add timestamp to update - this is optional on the editor, but
 			// we're adding it here and can be customized later on in case
 			// it is requested:
-			$new_posts['new']['content'] = str_replace('[livepress_metainfo', '[livepress_metainfo show_timestmp="1"', $new_posts['new']['content']);
+			$new_posts['new']['content'] = str_replace( '[livepress_metainfo', '[livepress_metainfo show_timestmp="1"', $new_posts['new']['content'] );
 
 			// get the author to pass to avatar function
 			preg_match( '/authors="(.*)"/s', $new_posts['new']['content'], $author );
 
 			$avater_class = ( in_array( 'AVATAR', $options['show'] ) ) ? 'lp_avatar_shown' : 'lp_avatar_hidden';
-			$avater_class ='lp_avatar_hidden'; // TODO: until we have the avatar code working
+			$avater_class = 'lp_avatar_hidden'; // TODO: until we have the avatar code working
 
 			// default is the inline version
-			if('default' === $options['update_format'] ){
+			if ( 'default' === $options['update_format'] ){
 
-
-				if( 'lp_avatar_shown' == $avater_class ){
-					$new_posts['new']['content'] =  $this->avatar_html( $author[1] ). $new_posts['new']['content'];
+				if ( 'lp_avatar_shown' == $avater_class ){
+					$new_posts['new']['content'] = $this->avatar_html( $author[1] ). $new_posts['new']['content'];
 				}
 
-				$new_posts['new']['content'] = $new_posts['new']['content'] . ' [/livepress_metainfo]';
+				$new_posts['new']['content'] = $new_posts['new']['content'] . PHP_EOL . ' [/livepress_metainfo]'. PHP_EOL;
 
-
-				if( false === strpos( $new_posts['new']['content'], 'livepress-update-outer-wrapper' ) ){
-					$new_posts['new']['content'] = '<div class="livepress-update-outer-wrapper ' . $avater_class . '">' . $new_posts['new']['content'] . '<\/div>';
+				if ( false === strpos( $new_posts['new']['content'], 'livepress-update-outer-wrapper' ) ){
+					$new_posts['new']['content'] = '<div class="livepress-update-outer-wrapper ' . $avater_class . '">' . PHP_EOL . PHP_EOL . $new_posts['new']['content'] . PHP_EOL . PHP_EOL . '<\/div>';
 				}
-			}else{
+			}else {
 
 				$bits = explode( ']', $new_posts['new']['content'] );
 
-				if( false === strpos( $new_posts['new']['content'], 'livepress-update-inner-wrapper' ) ){
-					$new_posts['new']['content'] = '<div class="livepress-update-inner-wrapper ' . $avater_class . '">'.PHP_EOL .  $bits[1] . PHP_EOL .'<\/div>';
+				if ( false === strpos( $new_posts['new']['content'], 'livepress-update-inner-wrapper' ) ){
+					$new_posts['new']['content'] = '<div class="livepress-update-inner-wrapper ' . $avater_class . '">'. PHP_EOL . PHP_EOL .  $bits[1] . PHP_EOL . PHP_EOL . '<\/div>';
 				}
 
-				if( 'lp_avatar_shown' == $avater_class ){
+				if ( 'lp_avatar_shown' == $avater_class ){
 					$new_posts['new']['content'] = $this->avatar_html( $author[1] ) . $new_posts['new']['content'];
 				}
 
 				$new_posts['new']['content'] = $bits[0] . ']' . $new_posts['new']['content'];
 			}
 
-
-
-
 			 $new_posts['new']['content']  = $live_update->fill_livepress_shortcodes( $new_posts['new']['content'] );
 			$update_id = LivePress_PF_Updates::get_instance()->add_update( $post, $new_posts['new']['content'], array() );
-
 
 			// Remove the new post from the array so we don't double-process by mistake.
 			unset( $new_posts['new'] );
 		}
 
-
 		// Second, update the content of any posts that have been changed.
 		// You cannot *delete* an update via XMLRPC.  For that, you need to actually use the WordPress UI.
-		foreach( $original_posts as $original_id => $original_post ) {
+		foreach ( $original_posts as $original_id => $original_post ) {
 			// Skip the parent post
 			if ( $post_id === $original_id ) {
 				continue;
@@ -247,8 +239,8 @@ class LivePress_XMLRPC {
 
 		$lp_authors = LivePress_Administration::lp_get_authors();
 
-		error_log("lp_authors - " . implode( ' - ', $lp_authors['names'][0] )  );
-		error_log("author - " .$author );
+		error_log( 'lp_authors - ' . implode( ' - ', $lp_authors['names'][0] ) );
+		error_log( 'author - ' .$author );
 		$output = '';
 
 		return '<div class="live-update-authors"><span class="live-update-author live-update-author-superadmin"><span class="lp-authorID">1</span><span class="live-author-gravatar"><a href="http://ms.bearne.ca/blog/author/superadmin/" target="_blank"><img alt="" src="http://0.gravatar.com/avatar/6eca4708c14b4aae041335e251dd3b12?s=96&amp;d=http%3A%2F%2F0.gravatar.com%2Favatar%2Fad516503a11cd5ca435acc9bb6523536%3Fs%3D96&amp;r=G" class="avatar avatar-96 photo" height="96" width="96" /></a></span><span class="live-author-name"><a href="http://ms.bearne.ca/blog/author/superadmin/" target="_blank">superAdmin</a></span></span></div>';
@@ -278,7 +270,7 @@ class LivePress_XMLRPC {
 			)
 		);
 
-		foreach( $children as $child ) {
+		foreach ( $children as $child ) {
 			$updates[ $child->ID ] = $child;
 		}
 
@@ -302,7 +294,7 @@ class LivePress_XMLRPC {
 
 		$split = preg_split( '/\<\!--livepress(.+)--\>/', $string, -1, PREG_SPLIT_DELIM_CAPTURE );
 
-		for( $i = 0; $i < count( $split ); $i++ ) {
+		for ( $i = 0; $i < count( $split ); $i++ ) {
 			$part = $split[ $i ];
 
 			if ( '' === trim( $part ) ) {
@@ -388,7 +380,6 @@ function _livepress_authenticate( $username, $password ) {
 		} else {
 			return false;
 		}
-
 	}
 }
 
@@ -451,7 +442,7 @@ function livepress_append_to_post( $args ) {
 	$plugin_options = get_option( LivePress_Administration::$options_name );
 
 	// Adds metainfo shortcode
-	$content_struct['description'] = "[livepress_metainfo] " . $content_struct['description'];
+	$content_struct['description'] = '[livepress_metainfo] ' . $content_struct['description'];
 
 	$content_struct['ID'] = $args[0];
 	$content_struct['post_content'] = $content_struct['description'];
@@ -639,16 +630,16 @@ function _livepress_get_post_data( $post_ID ) {
 	$categories = array();
 	$catids = wp_get_post_categories( $post_ID );
 
-	foreach( $catids as $catid ) {
+	foreach ( $catids as $catid ) {
 		$categories[] = get_cat_name( $catid );
 	}
 
 	$tagnames = array();
 	$tags = wp_get_post_tags( $post_ID );
 
-	if ( !empty( $tags ) ) {
-		foreach ( $tags as $tag )
-			$tagnames[] = $tag->name;
+	if ( ! empty( $tags ) ) {
+		foreach ( $tags as $tag ) {
+			$tagnames[] = $tag->name; }
 		$tagnames = implode( ', ', $tagnames );
 	} else {
 		$tagnames = '';
@@ -664,8 +655,8 @@ function _livepress_get_post_data( $post_ID ) {
 	$allow_pings = ( 'open' == $postdata['ping_status'] ) ? 1 : 0;
 
 	// Consider future posts as published
-	if ( $postdata['post_status'] === 'future' )
-		$postdata['post_status'] = 'publish';
+	if ( $postdata['post_status'] === 'future' ) {
+		$postdata['post_status'] = 'publish'; }
 
 	// Get post format
 	$post_format = get_post_format( $post_ID );
@@ -714,14 +705,14 @@ function _livepress_get_post_data( $post_ID ) {
 		'wp_author_display_name' => $author->display_name,
 		'date_created_gmt'       => $post_date_gmt,
 		'post_status'            => $postdata['post_status'],
-		'custom_fields'          => $wp_xmlrpc_server->get_custom_fields($post_ID),
+		'custom_fields'          => $wp_xmlrpc_server->get_custom_fields( $post_ID ),
 		'wp_post_format'         => $post_format,
 		'sticky'                 => $sticky,
 		'date_modified'          => $post_modified,
 		'date_modified_gmt'      => $post_modified_gmt,
 	);
 
-	if ( ! empty( $enclosure ) ) $resp['enclosure'] = $enclosure;
+	if ( ! empty( $enclosure ) ) { $resp['enclosure'] = $enclosure; }
 
 	$resp['wp_post_thumbnail'] = get_post_thumbnail_id( $postdata['ID'] );
 
@@ -776,8 +767,8 @@ function livepress_get_recent_posts( $args ) {
 	}
 
 	$recent_posts = array();
-	for ( $j=0; $j<count($struct); $j++ ) {
-		array_push($recent_posts, $struct[$j]);
+	for ( $j = 0; $j < count( $struct ); $j++ ) {
+		array_push( $recent_posts, $struct[$j] );
 	}
 
 	return $recent_posts;
@@ -815,24 +806,24 @@ function livepress_new_comment($args) {
 
 	if ( ! $user ) {
 		$logged_in = false;
-		if ( $allow_anon && get_option('comment_registration') )
-			return new IXR_Error( 403, __( 'You must be registered to comment' ) );
-		else if ( !$allow_anon )
-			return $this->error;
+		if ( $allow_anon && get_option( 'comment_registration' ) ) {
+			return new IXR_Error( 403, __( 'You must be registered to comment' ) ); }
+		else if ( ! $allow_anon ) {
+			return $this->error; }
 	} else {
 		$logged_in = true;
 	}
 
-	if ( is_numeric($post) )
-		$post_id = absint($post);
-	else
-		$post_id = url_to_postid($post);
+	if ( is_numeric( $post ) ) {
+		$post_id = absint( $post ); }
+	else {
+		$post_id = url_to_postid( $post ); }
 
-	if ( ! $post_id )
-		return new IXR_Error( 404, __( 'Invalid post ID.' ) );
+	if ( ! $post_id ) {
+		return new IXR_Error( 404, __( 'Invalid post ID.' ) ); }
 
-	if ( ! get_post($post_id) )
-		return new IXR_Error( 404, __( 'Invalid post ID.' ) );
+	if ( ! get_post( $post_id ) ) {
+		return new IXR_Error( 404, __( 'Invalid post ID.' ) ); }
 
 	$comment['comment_post_ID'] = $post_id;
 
@@ -843,30 +834,30 @@ function livepress_new_comment($args) {
 		$comment['user_ID']              = $user->ID;
 	} else {
 		$comment['comment_author'] = '';
-		if ( isset($content_struct['author']) )
-			$comment['comment_author'] = $content_struct['author'];
+		if ( isset($content_struct['author']) ) {
+			$comment['comment_author'] = $content_struct['author']; }
 
 		$comment['comment_author_email'] = '';
-		if ( isset($content_struct['author_email']) )
-			$comment['comment_author_email'] = $content_struct['author_email'];
+		if ( isset($content_struct['author_email']) ) {
+			$comment['comment_author_email'] = $content_struct['author_email']; }
 
 		$comment['comment_author_url'] = '';
-		if ( isset($content_struct['author_url']) )
-			$comment['comment_author_url'] = $content_struct['author_url'];
+		if ( isset($content_struct['author_url']) ) {
+			$comment['comment_author_url'] = $content_struct['author_url']; }
 
 		$comment['user_ID'] = 0;
 
-		if ( get_option('require_name_email') ) {
-			if ( 6 > strlen($comment['comment_author_email']) || '' == $comment['comment_author'] )
-				return new IXR_Error( 403, __( 'Comment author name and email are required' ) );
-			elseif ( !is_email($comment['comment_author_email']) )
+		if ( get_option( 'require_name_email' ) ) {
+			if ( 6 > strlen( $comment['comment_author_email'] ) || '' == $comment['comment_author'] ) {
+				return new IXR_Error( 403, __( 'Comment author name and email are required' ) ); }
+			elseif ( ! is_email( $comment['comment_author_email'] ) )
 				return new IXR_Error( 403, __( 'A valid email address is required' ) );
 		}
 	}
 
-	$comment['comment_parent'] = isset($content_struct['comment_parent']) ? absint($content_struct['comment_parent']) : 0;
+	$comment['comment_parent'] = isset($content_struct['comment_parent']) ? absint( $content_struct['comment_parent'] ) : 0;
 
-	$comment['comment_content'] =  isset($content_struct['content']) ? $content_struct['content'] : null;
+	$comment['comment_content'] = isset($content_struct['content']) ? $content_struct['content'] : null;
 
 	$comment_ID = wp_new_comment( $comment );
 
@@ -922,7 +913,7 @@ function livepress_upload_file( $args ){
 		return false;
 	}
 
-	if ( !empty($data['overwrite']) && ($data['overwrite'] == true) ) {
+	if ( ! empty($data['overwrite']) && ($data['overwrite'] == true) ) {
 		// Get postmeta info on the object.
 		$old_file = $wpdb->get_row("
 				SELECT ID
@@ -932,17 +923,17 @@ function livepress_upload_file( $args ){
 			");
 
 		// Delete previous file.
-		wp_delete_attachment($old_file->ID);
+		wp_delete_attachment( $old_file->ID );
 
 		// Make sure the new name is different by pre-pending the
 		// previous post id.
-		$filename = preg_replace('/^wpid\d+-/', '', $name);
+		$filename = preg_replace( '/^wpid\d+-/', '', $name );
 		$name = "wpid{$old_file->ID}-{$filename}";
 	}
 
-	$upload = wp_upload_bits($name, null, $bits);
+	$upload = wp_upload_bits( $name, null, $bits );
 	if ( ! empty($upload['error']) ) {
-		$errorString = sprintf(__('Could not write file %1$s (%2$s)'), $name, $upload['error']);
+		$errorString = sprintf( __( 'Could not write file %1$s (%2$s)' ), $name, $upload['error'] );
 		return false;
 	}
 	// Construct the attachment array
@@ -950,8 +941,8 @@ function livepress_upload_file( $args ){
 	if ( ! empty( $data['post_id'] ) ) {
 		$post_id = (int) $data['post_id'];
 
-		if ( ! current_user_can( 'edit_post', $post_id ) )
-			return false;
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return false; }
 	}
 	$attachment = array(
 		'post_title' => $name,

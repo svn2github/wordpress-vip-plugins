@@ -30,15 +30,15 @@ class Livepress_Configuration_Item {
 	 */
 	function render($options) {
 		$value     = $this->value;
-		$separator = ",";
+		$separator = ',';
 
-		if (array_key_exists('disable_comma', $options)) {
-			$separator = "";
+		if ( array_key_exists( 'disable_comma', $options ) ) {
+			$separator = '';
 		}
 
-		switch ($this->type) {
+		switch ( $this->type ) {
 			case self::$STRING:
-				$value   = esc_js($value);
+				$value   = esc_js( $value );
 				$element = "{$this->name}: '$value'";
 				break;
 
@@ -47,7 +47,7 @@ class Livepress_Configuration_Item {
 				break;
 
 			case self::$BOOLEAN:
-				if ($value) {
+				if ( $value ) {
 					$element = "{$this->name}: true";
 				} else {
 					$element = "{$this->name}: false";
@@ -59,16 +59,16 @@ class Livepress_Configuration_Item {
 				break;
 
 			case self::$ENDBLOCK:
-				$element = "}";
+				$element = '}';
 				break;
 
 			case self::$ARRAY:
 				$element = $this->name.': [';
-				$first   = TRUE;
-				foreach($value as $v) {
+				$first   = true;
+				foreach ( $value as $v ) {
 					$element .= $first ? '' : ',';
-					$element .= "'".esc_js($v)."'";
-					$first    = FALSE;
+					$element .= "'".esc_js( $v )."'";
+					$first    = false;
 				}
 				$element .= ']';
 				break;
@@ -77,7 +77,7 @@ class Livepress_Configuration_Item {
 				$element = '';
 		}
 
-		if ($this->type != self::$BLOCK) {
+		if ( $this->type != self::$BLOCK ) {
 			$element .= $separator;
 		}
 
@@ -103,11 +103,11 @@ class LivePress_JavaScript_Config {
 	 * @param      $value
 	 * @param null $type
 	 */
-	function new_value($name, $value, $type = NULL ) {
-		if ($type == NULL) {
+	function new_value($name, $value, $type = null ) {
+		if ( $type == null ) {
 			$type = Livepress_Configuration_Item::$STRING;
 		}
-		$this->values[] = new Livepress_Configuration_Item($name, $value, $type);
+		$this->values[] = new Livepress_Configuration_Item( $name, $value, $type );
 		$this->all_values[ $name ] = $value;
 	}
 

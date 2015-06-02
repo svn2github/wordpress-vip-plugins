@@ -182,6 +182,12 @@ body#tinymce .livepress-meta img {
 	float: left;
 	margin-right: 5px;
 }
+.livepress-meta .wp-caption img,
+#post_content_livepress .livepress-meta .wp-caption img,
+body#tinymce .livepress-meta .wp-caption img {
+    width: auto;
+    height: auto;
+}
 
 .livepress-update-header,
 .livepress-byline,
@@ -193,7 +199,7 @@ body#tinymce .livepress-meta img {
 }
 
 .livepress-update-show-header .livepress-update-header{
-	display: inline;
+	display: block;
 }
 
 .livepress-newform  .livepress-update-header{

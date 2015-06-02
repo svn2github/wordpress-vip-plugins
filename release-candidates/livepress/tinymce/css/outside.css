@@ -369,9 +369,7 @@ div.livepress-update.livepress-update-stub{
 }
 
 
-.livepress-update-header{
-	position: absolute;
-	left: 112px;
-	margin-top: -35px;
-	width: 50%;
+.livepress-meta .livepress-update-header{
+	display: inline-block;
+
 }

@@ -1,4 +1,4 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -77,7 +77,7 @@
 		 * Gets the metainfo shortcode
 		 */
 		this.newMetainfoShortcode = function () {
-			var metainfo = "[livepress_metainfo";
+			var metainfo = "\n[livepress_metainfo";
 
 			if (config.author_display_name) {
 				metainfo += ' authors="' + config.author_display_name + '"';
@@ -100,7 +100,7 @@
 				metainfo += ' has_avatar="1"';
 			}
 
-			return metainfo + "]";
+			return metainfo + "]\n\n";
 		};
 
 		/*

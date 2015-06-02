@@ -1,8 +1,8 @@
 === LivePress ===
 Requires at least: 3.5
-Tested up to: 4.2.1
+Tested up to: 4.2.2
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.2.4.1
+Stable tag: 1.3
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
@@ -118,6 +118,20 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 2. New update sent -- it appears for all readers of this post at the same time.
 
 == Changelog ==
+
+= 1.3 =
+* sync with WordPress VIP Version
+* code tidy and various undefined vars props: Paul Schreiber from FiveThirtyEight.com
+* fix to handle '%' in titles and message body
+* fix to handle sounds URL on WordPress VIP
+* fix to handle popup blocking for Twitter share links
+* fix to share links on pinned post
+* optimized all images
+* added language support for select2
+* fix to stop getting undefined authors when editing an update
+* fix to ensure that editing an update does not update its timestamp
+* fix to ensure an update edited in the plain text editor saves correctly
+* fix to ensure that all of the paragraphs of a multi-paragraph update are shown in the editor
 
 = 1.2.4 =
 * Added the ability to have drafts for updates

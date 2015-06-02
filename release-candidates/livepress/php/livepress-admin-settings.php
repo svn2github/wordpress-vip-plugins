@@ -78,10 +78,9 @@ class LivePress_Admin_Settings {
 
 		if ( $this->livepress_config->script_debug() ) {
 			wp_enqueue_script( 'livepress_admin_ui_js', LP_PLUGIN_URL . 'js/admin_ui.full.js', array( 'jquery' ) );
-		}else{
+		}else {
 			wp_enqueue_script( 'livepress_admin_ui_js', LP_PLUGIN_URL . 'js/admin_ui.min.js', array( 'jquery' ) );
 		}
-
 
 		wp_enqueue_style( 'livepress_admin', LP_PLUGIN_URL . 'css/wp-admin.css' );
 		return $hook;
@@ -202,7 +201,7 @@ class LivePress_Admin_Settings {
 
 		$options = get_option( 'livepress', array() );
 		$api_key = isset( $options['api_key'] ) ? $options['api_key'] : '';
-		$authenticated = $api_key && !$options['error_api_key'];
+		$authenticated = $api_key && ! $options['error_api_key'];
 
 		if ( $api_key && $options['error_api_key'] ) {
 			$api_key_status_class = 'invalid_api_key';
@@ -398,22 +397,22 @@ class LivePress_Admin_Settings {
 			$api_key = sanitize_text_field( $input['api_key'] );
 
 			if ( ! empty( $input['api_key'] ) ) {
-					$livepress_com = new LivePress_Communication($api_key);
+					$livepress_com = new LivePress_Communication( $api_key );
 
 					// Note: site_url is the admin url on VIP
 					$validation = $livepress_com->validate_on_livepress( site_url() );
 					$sanitized_input['api_key'] = $api_key;
 					$sanitized_input['error_api_key'] = ($validation != 1);
-					if ( $validation == 1 ) {
-						// We pass validation, update blog parameters from LP side
-						$blog = $livepress_com->get_blog();
+				if ( $validation == 1 ) {
+					// We pass validation, update blog parameters from LP side
+					$blog = $livepress_com->get_blog();
 
-						$sanitized_input['blog_shortname'] = isset( $blog->shortname ) ? $blog->shortname : '';
-						$sanitized_input['post_from_twitter_username'] = isset( $blog->twitter_username ) ? $blog->twitter_username : '';
-						$sanitized_input['api_key'] = $api_key;
-					} else {
-						add_settings_error('api_key', 'invalid', esc_html__( "Key is not valid", 'livepress' ) );
-					}
+					$sanitized_input['blog_shortname'] = isset( $blog->shortname ) ? $blog->shortname : '';
+					$sanitized_input['post_from_twitter_username'] = isset( $blog->twitter_username ) ? $blog->twitter_username : '';
+					$sanitized_input['api_key'] = $api_key;
+				} else {
+					add_settings_error( 'api_key', 'invalid', esc_html__( 'Key is not valid', 'livepress' ) );
+				}
 			} else {
 					$sanitized_input['api_key'] = $api_key;
 			}
@@ -448,7 +447,6 @@ class LivePress_Admin_Settings {
 		} else {
 			$sanitized_input['notifications'] = array();
 		}
-
 
 		if ( isset( $input['allow_remote_twitter'] ) ) {
 			$sanitized_input['allow_remote_twitter'] = 'allow';
@@ -498,32 +496,32 @@ class LivePress_Admin_Settings {
 		<?php
 			$this->options = get_option( LivePress_Administration::$options_name );
 			// If the API key is blank and the show=enetr-api-key toggle is not passed, prompt the user to register
-			if ( ( ! ( isset( $_GET['show'] ) && 'enter-api-key' ==  $_GET['show'] ) ) && empty( $this->options['api_key'] ) && ! isset( $_POST[ 'submit' ] ) ) {
-				echo '<div class="updated" style="padding: 0; margin: 0; border: none; background: none;">
+		if ( ( ! ( isset( $_GET['show'] ) && 'enter-api-key' == $_GET['show'] ) ) && empty( $this->options['api_key'] ) && ! isset( $_POST[ 'submit' ] ) ) {
+			echo '<div class="updated" style="padding: 0; margin: 0; border: none; background: none;">
 							<div class="livepress_admin_warning">
 								<div class="aa_button_container" onclick="window.open(\'http://www.livepress.com/wordpress\', \'_blank\' );">
 									<div class="aa_button_border">
-										<div class="aa_button">'. esc_html__('Sign up for LivePress').'</div>
+										<div class="aa_button">'. esc_html__( 'Sign up for LivePress' ).'</div>
 									</div>
 								</div>
 								<div class="aa_description">
 									<a href = "' . esc_url( add_query_arg( array( 'page' => 'livepress-settings' ), admin_url( 'options-general.php' ) ) ) .
-									'&show=enter-api-key">' .
-									esc_html__('I have already activated my LivePress account', 'livepress' ).'</a></div>
+								'&show=enter-api-key">' .
+								esc_html__( 'I have already activated my LivePress account', 'livepress' ).'</a></div>
 							</div>
 					</div>
 				';
-			} else {
-				// Otherwise, display the settings page as usual
+		} else {
+			// Otherwise, display the settings page as usual
 		?>
-				<?php settings_fields( 'livepress' ); ?>
-				<?php do_settings_sections( 'livepress-settings' ); ?>
-				<?php wp_nonce_field( 'activate_license', '_lp_nonce' ); ?>
-				<?php submit_button(); ?>
-			</form>
+			<?php settings_fields( 'livepress' ); ?>
+			<?php do_settings_sections( 'livepress-settings' ); ?>
+			<?php wp_nonce_field( 'activate_license', '_lp_nonce' ); ?>
+			<?php submit_button(); ?>
+		</form>
 		</div>
 		<?php
-			}
+		}
 	}
 
 }

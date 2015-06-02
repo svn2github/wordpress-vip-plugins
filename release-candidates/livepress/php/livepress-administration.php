@@ -26,15 +26,15 @@ class LivePress_Administration {
 	 * @var array $bool_options Array of boolean options.
 	 */
 	var $bool_options = array(
-		'timestamp'                    => TRUE,
-		'timestamp_24'                 => TRUE,
-		'update_author'                => TRUE,
-		'include_avatar'               => FALSE,
-		'post_to_twitter'              => FALSE,
-		'error_api_key'                => TRUE,
-		'comment_live_updates_default' => TRUE,
-		'sounds_default'               => TRUE,
-		'disable_comments'             => FALSE,
+		'timestamp'                    => true,
+		'timestamp_24'                 => true,
+		'update_author'                => true,
+		'include_avatar'               => false,
+		'post_to_twitter'              => false,
+		'error_api_key'                => true,
+		'comment_live_updates_default' => true,
+		'sounds_default'               => true,
+		'disable_comments'             => false,
 	);
 
 	/**
@@ -128,7 +128,7 @@ class LivePress_Administration {
 	 * @access private
 	 * @var string $admin_link_name Admin link name.
 	 */
-	private static $admin_link_name = "livepress";
+	private static $admin_link_name = 'livepress';
 
 	/**
 	 * Constructor.
@@ -174,7 +174,7 @@ class LivePress_Administration {
 							<div class="livepress_admin_warning">
 								<div class="aa_button_container" onclick="document.livepress_admin_warning.submit();">
 									<div class="aa_button_border">
-										<div class="aa_button">'. esc_html__('Activate your LivePress account').'</div>
+										<div class="aa_button">'. esc_html__( 'Activate your LivePress account' ).'</div>
 									</div>
 								</div>
 								<div class="aa_description">'. esc_html__( 'Almost done - activate your account to go live with LivePress', 'livepress' ) . '</div>
@@ -186,7 +186,7 @@ class LivePress_Administration {
 			}
 
 			// Hook into the admin_notices section to display the notice
-			add_action('admin_notices', 'livepress_api_key_missing_warning');
+			add_action( 'admin_notices', 'livepress_api_key_missing_warning' );
 			return;
 		}
 	}
@@ -217,9 +217,9 @@ class LivePress_Administration {
 	 * @return bool                    Whether to enable remote posting.
 	 */
 	public function enable_remote_post($user_id, $lp_user_password = '' ) {
-		$user          = get_userdata($user_id);
+		$user          = get_userdata( $user_id );
 		$this->options = get_option( self::$options_name );
-		$livepress_com = new LivePress_Communication($this->options['api_key']);
+		$livepress_com = new LivePress_Communication( $this->options['api_key'] );
 		// Use token for non VIP
 		if ( ! defined( 'WPCOM_IS_VIP_ENV' ) || false === WPCOM_IS_VIP_ENV ) {
 			$user_pass     = wp_generate_password( 20, false );
@@ -292,7 +292,7 @@ class LivePress_Administration {
 		$live_posts = $blogging_tools->get_all_live_posts();
 		// Go thru each live post
 		// code used in livepress_cli.php
-		foreach( $live_posts as $the_post ){
+		foreach ( $live_posts as $the_post ){
 			// Merge children posts
 			$lp_updater->merge_children( $the_post );
 			// Turn off live
@@ -313,16 +313,14 @@ class LivePress_Administration {
 
 		// set default value of sharingUI if not set
 		$livepress = get_option( self::$options_name );
-		if( !array_key_exists( 'sharing_ui', $livepress ) ){
+		if ( ! array_key_exists( 'sharing_ui', $livepress ) ){
 			$livepress['sharing_ui'] = 'display';
 			update_option( self::$options_name, $livepress );
 		}
-		if( !array_key_exists( 'show', $livepress ) ){
+		if ( ! array_key_exists( 'show', $livepress ) ){
 			$livepress['show'] = array( 'AUTHOR', 'TIME', 'HEADER' );
 			update_option( self::$options_name, $livepress );
 		}
-
-
 
 	}
 
@@ -335,11 +333,11 @@ class LivePress_Administration {
 	 */
 	static function install_or_upgrade() {
 		$options = get_option( self::$options_name );
-		if ( get_option( self::$options_name . "_version" ) != LP_PLUGIN_VERSION ) {
+		if ( get_option( self::$options_name . '_version' ) != LP_PLUGIN_VERSION ) {
 			Collaboration::install();
 			$postUpdater = new LivePress_Administration();
 			$postUpdater->merge_default_values();
-			update_option( self::$options_name . "_version", LP_PLUGIN_VERSION );
+			update_option( self::$options_name . '_version', LP_PLUGIN_VERSION );
 		}
 	}
 
@@ -370,18 +368,18 @@ class LivePress_Administration {
 	private function livepress_updates( $author_view ) {
 		global $current_user;
 		// Call the livepress API to add/del/enable/disable twitter, IM users.
-		$livepress_com = new LivePress_Communication($this->options['api_key']);
+		$livepress_com = new LivePress_Communication( $this->options['api_key'] );
 
 		if ( $this->has_changed( 'api_key' ) ) {
-            $domains = array();
-            // Add domain mapping primary domain
-            if ( function_exists( 'domain_mapping_siteurl' ) ) {
-                $domain_mapping_siteurl = domain_mapping_siteurl();
-                $domains[ 'alias[]' ] = $domain_mapping_siteurl;
-            }
+			$domains = array();
+			// Add domain mapping primary domain
+			if ( function_exists( 'domain_mapping_siteurl' ) ) {
+				$domain_mapping_siteurl = domain_mapping_siteurl();
+				$domains[ 'alias[]' ] = $domain_mapping_siteurl;
+			}
 
-            $home_url = get_home_url(); // Mapped domain on VIP
-            $domains[ 'alias[]' ] = $home_url;
+			$home_url = get_home_url(); // Mapped domain on VIP
+			$domains[ 'alias[]' ] = $home_url;
 
 			$validation = $livepress_com->validate_on_livepress( $domains );
 			$api_key = $this->options['api_key'];
@@ -397,15 +395,15 @@ class LivePress_Administration {
 			return; // If only api_key changed, no more changes possible -- that are separate forms in html
 		}
 
-		if ( $this->has_changed( 'twitter_avatar_username', TRUE ) ) {
+		if ( $this->has_changed( 'twitter_avatar_username', true ) ) {
 			if ( empty($this->user_options['twitter_avatar_username']) ) {
-				$this->user_options['twitter_avatar_url'] = "";
+				$this->user_options['twitter_avatar_url'] = '';
 			} else {
 				$url = $livepress_com->get_twitter_avatar( $this->user_options['twitter_avatar_username'] );
 				if ( empty($url) ) {
 					$error_message  = esc_html__( 'Failed to get avatar for ', 'livepress' );
 					$error_message .= $this->user_options['twitter_avatar_username'];
-					$error_message .= ".";
+					$error_message .= '.';
 					$this->add_error( $error_message );
 					$this->user_options['twitter_avatar_username'] = $this->old_user_options['twitter_avatar_username'];
 				} else {
@@ -415,7 +413,7 @@ class LivePress_Administration {
 		}
 
 		$this->update_im_bots( $livepress_com );
-		if ( !$author_view ) {
+		if ( ! $author_view ) {
 			$this->update_post_to_twitter( $livepress_com );
 		}
 
@@ -439,15 +437,15 @@ class LivePress_Administration {
 
 		$api_key   = esc_html( stripslashes( $_GET['api_key'] ) );
 
-        $domains = array();
+		$domains = array();
 		// Add domain mapping primary domain
 		if ( function_exists( 'domain_mapping_siteurl' ) ) {
 			$domain_mapping_siteurl = domain_mapping_siteurl();
 			$domains[ 'alias[]' ] = $domain_mapping_siteurl;
-        }
+		}
 
-        $home_url = get_home_url(); // Mapped domain on VIP
-        $domains[ 'alias[]' ] = $home_url;
+		$home_url = get_home_url(); // Mapped domain on VIP
+		$domains[ 'alias[]' ] = $home_url;
 
 		// Validate with the LivePress webservice
 		$livepress_communication = new LivePress_Communication( $api_key );
@@ -471,15 +469,15 @@ class LivePress_Administration {
 				'license'    => $api_key,
 				'item_name'  => urlencode( LP_ITEM_NAME )
 			);
-			if( function_exists( 'vip_safe_wp_remote_get' ) ) {
+			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 				$response = vip_safe_wp_remote_get(
-						add_query_arg( $api_params, LP_STORE_URL ),
-						'',    /* fallback value */
-						5,     /* threshold */
-						10,     /* timeout */
-						20,    /* retry */
-						array( 'reject_unsafe_urls' => false )
-					);
+					add_query_arg( $api_params, LP_STORE_URL ),
+					'',    /* fallback value */
+					5,     /* threshold */
+					10,     /* timeout */
+					20,    /* retry */
+					array( 'reject_unsafe_urls' => false )
+				);
 			} else {
 				$response = wp_remote_get( add_query_arg( $api_params, LP_STORE_URL ), array( 'reject_unsafe_urls' => false ) );
 			}
@@ -525,16 +523,16 @@ class LivePress_Administration {
 		check_ajax_referer( 'lp_post_to_twitter_nonce' );
 		$options = get_option( self::$options_name );
 
-		if ( !isset($_POST['change_oauth_user'])
+		if ( ! isset($_POST['change_oauth_user'])
 			&& (isset($_POST['enable']) && $options['post_to_twitter']
-				|| !isset($_POST['enable']) && !$options['post_to_twitter'])
+				|| ! isset($_POST['enable']) && ! $options['post_to_twitter'])
 		) {
 			// Requesting to enable when it's already enabled and vice-versa
 			header( 'HTTP/1.1 409 Conflict' );
 			die();
 		}
 
-		$livepress_com = new LivePress_Communication($options['api_key']);
+		$livepress_com = new LivePress_Communication( $options['api_key'] );
 
 		if ( isset($_POST['enable']) ) {
 			if ( isset($_POST['change_oauth_user']) ) {
@@ -543,7 +541,7 @@ class LivePress_Administration {
 			}
 			try {
 				$url = $livepress_com->get_oauth_authorization_url();
-				$options['post_to_twitter'] = TRUE;
+				$options['post_to_twitter'] = true;
 			} catch ( LivePress_Communication_Exception $e ) {
 				header( 'HTTP/1.1 502 Bad Gateway' );
 				echo esc_html( $e->get_code() );
@@ -551,7 +549,7 @@ class LivePress_Administration {
 			}
 		} else {
 			$livepress_com->destroy_authorized_twitter_user();
-			$options['post_to_twitter'] = FALSE;
+			$options['post_to_twitter'] = false;
 			$options['oauth_authorized_user'] = '';
 		}
 
@@ -605,15 +603,15 @@ class LivePress_Administration {
 		check_ajax_referer( 'lp_check_oauth_nonce' );
 		$options = get_option( self::$options_name );
 
-		$livepress_com = new LivePress_Communication($options['api_key']);
+		$livepress_com = new LivePress_Communication( $options['api_key'] );
 		$status = $livepress_com->is_authorized_oauth();
 
-		if ( $status->status == "authorized" ) {
-			$options['post_to_twitter'] = TRUE;
+		if ( $status->status == 'authorized' ) {
+			$options['post_to_twitter'] = true;
 			$options['oauth_authorized_user'] = $status->username;
 			update_option( self::$options_name, $options );
-		} else if ( $status->status == "unauthorized" ) {
-			$options['post_to_twitter'] = FALSE;
+		} else if ( $status->status == 'unauthorized' ) {
+			$options['post_to_twitter'] = false;
 			$options['oauth_authorized_user'] = '';
 			update_option( self::$options_name, $options );
 		}
@@ -630,7 +628,7 @@ class LivePress_Administration {
 	 * @access private
 	 */
 	private static function die_if_not_allowed() {
-		if ( !current_user_can( 'manage_options' ) ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			die();
 		}
 	}
@@ -726,10 +724,10 @@ class LivePress_Administration {
 	 */
 	private function has_turned_on( $option, $user = false ) {
 		if ( $user ) {
-			return !$this->old_user_options[$option]
+			return ! $this->old_user_options[$option]
 				&& $this->user_options[$option];
 		} else {
-			return !$this->old_options[$option] && $this->options[$option];
+			return ! $this->old_options[$option] && $this->options[$option];
 		}
 	}
 
@@ -745,9 +743,9 @@ class LivePress_Administration {
 	private function has_turned_off( $option, $user = false ) {
 		if ( $user ) {
 			return $this->old_user_options[$option]
-				&& !$this->user_options[$option];
+				&& ! $this->user_options[$option];
 		} else {
-			return $this->old_options[$option] && !$this->options[$option];
+			return $this->old_options[$option] && ! $this->options[$option];
 		}
 	}
 

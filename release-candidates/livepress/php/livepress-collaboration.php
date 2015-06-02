@@ -5,8 +5,8 @@
  * @todo Remove/deprecate where necessary.
  */
 
-if( ! defined( 'LP_PLUGIN_PATH' ) ){
-	define( 'LP_PLUGIN_PATH' , ( plugin_dir_path( dirname(__FILE__) ) ) );
+if ( ! defined( 'LP_PLUGIN_PATH' ) ){
+	define( 'LP_PLUGIN_PATH' , ( plugin_dir_path( dirname( __FILE__ ) ) ) );
 }
 
 require_once ( LP_PLUGIN_PATH . 'php/livepress-config.php' );
@@ -45,7 +45,7 @@ class Collaboration {
 
 		$cached_terms = array();
 		$cache_key = 'livepress_terms_' . $post_id;
-		if ( is_array ( get_transient( $cache_key ) ) ) {
+		if ( is_array( get_transient( $cache_key ) ) ) {
 			$cached_terms = get_transient( $cache_key );
 		}
 
@@ -62,7 +62,7 @@ class Collaboration {
 	 * @return array        An array of matching/found terms, or an empty array if none found
 	 */
 	static function get_searches($post_id, $user_id, $terms) {
-		$dbterms = self::termlist($post_id, $user_id);
+		$dbterms = self::termlist( $post_id, $user_id );
 
 		// Grab the results from the cache if availavle
 		$result = ( isset( $terms ) && isset( $dbterms[ $user_id ] ) ) ? $dbterms[ $user_id ] : array();
@@ -71,7 +71,7 @@ class Collaboration {
 		if ( isset( $terms ) && isset( $result ) ){
 			$result = array_intersect( $result, $terms );
 		}
- 		return isset( $result ) ? $result : array();
+			return isset( $result ) ? $result : array();
 
 	}
 
@@ -92,9 +92,9 @@ class Collaboration {
 			set_transient( $cache_key, $cached_terms );
 
 			// Add the term to the LivePress service
-			$options = get_option(LivePress_Administration::$options_name);
-			$livepress_com = new LivePress_Communication($options['api_key']);
-			$res = json_decode($livepress_com->send_to_livepress_handle_twitter_search('add', $term));
+			$options = get_option( LivePress_Administration::$options_name );
+			$livepress_com = new LivePress_Communication( $options['api_key'] );
+			$res = json_decode( $livepress_com->send_to_livepress_handle_twitter_search( 'add', $term ) );
 			return $res != null && ($res->success || $res->errors == '');
 		} else {
 			return false;
@@ -120,9 +120,9 @@ class Collaboration {
 			unset( $cached_terms[ $user_id ][ $key ] );
 			set_transient( $cache_key, $cached_terms );
 			// Remove the term from theLivePress service
-			$options = get_option(LivePress_Administration::$options_name);
-			$livepress_com = new LivePress_Communication($options['api_key']);
-			$livepress_com->send_to_livepress_handle_twitter_search('remove', $term);// TODO: handle error somehow
+			$options = get_option( LivePress_Administration::$options_name );
+			$livepress_com = new LivePress_Communication( $options['api_key'] );
+			$livepress_com->send_to_livepress_handle_twitter_search( 'remove', $term );// TODO: handle error somehow
 		}
 
 		return true;
@@ -138,16 +138,16 @@ class Collaboration {
 	static function clear_searches($post_id, $user_id) {
 
 		$cache_key = 'livepress_terms_' . $post_id;
-		$cached_terms =  array();
+		$cached_terms = array();
 		if ( is_array( get_transient( $cache_key ) ) ) {
 			$cached_terms = get_transient( $cache_key );
 		}
 
 		if ( isset( $cached_terms[ $user_id ] ) ) {
-			foreach( $cached_terms as $term ){
-				$options = get_option(LivePress_Administration::$options_name);
-				$livepress_com = new LivePress_Communication($options['api_key']);
-				$livepress_com->send_to_livepress_handle_twitter_search('remove', $term);// TODO: handle errors
+			foreach ( $cached_terms as $term ){
+				$options = get_option( LivePress_Administration::$options_name );
+				$livepress_com = new LivePress_Communication( $options['api_key'] );
+				$livepress_com->send_to_livepress_handle_twitter_search( 'remove', $term );// TODO: handle errors
 			}
 
 			// Remove this user from the cache
@@ -160,21 +160,21 @@ class Collaboration {
 	}
 
 	static function twitter_search($action, $post_id, $user_id, $term) {
-		switch($action) {
-		case 'add':
-			return self::add_search($post_id, $user_id, $term);
-		case 'remove':
-			return self::del_search($post_id, $user_id, $term);
-		case 'clear':
-			return self::clear_searches($post_id, $user_id);
+		switch ( $action ) {
+			case 'add':
+			return self::add_search( $post_id, $user_id, $term );
+			case 'remove':
+			return self::del_search( $post_id, $user_id, $term );
+			case 'clear':
+			return self::clear_searches( $post_id, $user_id );
 		}
 		return false;
 	}
 
 	static function comments_number() {
 		check_ajax_referer( 'lp_collaboration_comments_nonce' );
-		$post = get_post(intval($_POST['post_id']));
-		if ( ! current_user_can(  'edit_post', $post_id ) ){
+		$post = get_post( intval( $_POST['post_id'] ) );
+		if ( ! current_user_can( 'edit_post', $post_id ) ){
 			die;
 		}
 		echo esc_html( $post->comment_count );
@@ -187,14 +187,14 @@ class Collaboration {
 		$response['guest_bloggers'] = array();
 
 		$taf = self::tracked_and_followed();
-		if ( isset( $taf['guest_bloggers'] ) )
-			$response['guest_bloggers'] = $taf['guest_bloggers'];
+		if ( isset( $taf['guest_bloggers'] ) ) {
+			$response['guest_bloggers'] = $taf['guest_bloggers']; }
 		$response['terms'] = $taf['terms'];
 		return $response;
 	}
 	static function get_live_edition_data() {
 		$response = self::return_live_edition_data();
-		echo json_encode($response);
+		echo json_encode( $response );
 		die;
 	}
 
@@ -210,12 +210,12 @@ class Collaboration {
 
 	private static function tracked_and_followed() {
 		global $current_user;
-		$options = get_option(LivePress_Administration::$options_name);
-		$communication = new LivePress_Communication($options['api_key']);
+		$options = get_option( LivePress_Administration::$options_name );
+		$communication = new LivePress_Communication( $options['api_key'] );
 
-		$params = array( 'post_id' => $_REQUEST['post_id'], "format" => "json" );
-		$result = json_decode($communication->followed_tracked_twitter_accounts($params), true); // TODO: Handle errors
-		$result['terms'] = self::get_searches($_REQUEST['post_id'], $current_user->ID, $result['terms']);
+		$params = array( 'post_id' => $_REQUEST['post_id'], 'format' => 'json' );
+		$result = json_decode( $communication->followed_tracked_twitter_accounts( $params ), true ); // TODO: Handle errors
+		$result['terms'] = self::get_searches( $_REQUEST['post_id'], $current_user->ID, $result['terms'] );
 		return $result;
 	}
 
@@ -223,13 +223,13 @@ class Collaboration {
 		$post_id = absint( $_REQUEST['post_id'] );
 
 		$args = 'post_id=' . $post_id;
-		$post_comments = get_comments($args);
+		$post_comments = get_comments( $args );
 
 		$comments = array();
-		$comment_msg_id = get_post_meta($post_id, "_".LP_PLUGIN_NAME."_comment_update", true);
+		$comment_msg_id = get_post_meta( $post_id, '_'.LP_PLUGIN_NAME.'_comment_update', true );
 
-		foreach ($post_comments as $c) {
-			$avatar = get_avatar($c->comment_author_email, 30);
+		foreach ( $post_comments as $c ) {
+			$avatar = get_avatar( $c->comment_author_email, 30 );
 			$commentId = $c->comment_ID;
 			$comment = array(
 				'_ajax_nonce' => wp_create_nonce( 'approve-comment_' . $commentId ),
@@ -237,15 +237,15 @@ class Collaboration {
 				'avatar_url'  => $avatar,
 				'author_url'  => $c->comment_author_url,
 				'author'      => $c->comment_author,
-				'status'      => wp_get_comment_status($commentId),
+				'status'      => wp_get_comment_status( $commentId ),
 				'content'     => $c->comment_content,
 				'comment_gmt' => $c->comment_date_gmt,
-				'comment_url' => get_comment_link($c)
+				'comment_url' => get_comment_link( $c )
 			);
 			$comments[] = $comment;
 		}
-		$comments = array_reverse($comments);
-		$env = array( "comment_msg_id" => $comment_msg_id, "comments" => $comments );
+		$comments = array_reverse( $comments );
+		$env = array( 'comment_msg_id' => $comment_msg_id, 'comments' => $comments );
 		return $env;
 	}
 }

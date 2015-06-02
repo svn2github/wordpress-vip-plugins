@@ -1,4 +1,4 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -111,6 +111,15 @@ if ( 'undefined' === typeof window.twttr ) {
 					}(document, "script", "twitter-wjs"));
 }
 
+// Hack for when a user loads a post from a permalink to an update and
+// twitter embeds manipulate the DOM and generate a "jump"
+if( window.location.hash ){
+    twttr.ready( function ( twttr ) {
+        twttr.events.bind( 'loaded', function (event) {
+            jQuery.scrollTo( jQuery(window.location.hash) );
+        });
+    });
+}
 jQuery.fn.getBg = function () {
 	var $this = jQuery(this),
 		actual_bg, newBackground, color;
@@ -3976,7 +3985,7 @@ this.createjs=this.createjs||{},function(){var a=createjs.SoundJS=createjs.Sound
 }this.tag.preload="auto",this.tag.load()},b.preloadTick=function(){var a=this.tag.buffered,b=this.tag.duration;a.length>0&&a.end(0)>=b-1&&this.handleTagLoaded()},b.handleTagLoaded=function(){clearInterval(this.preloadTimer)},b.sendLoadedEvent=function(){this.tag.removeEventListener&&this.tag.removeEventListener("canplaythrough",this.loadedHandler),this.tag.onreadystatechange=null,createjs.Sound._sendFileLoadEvent(this.src)},b.toString=function(){return"[HTMLAudioPlugin Loader]"},createjs.HTMLAudioPlugin.Loader=a}(),function(){"use strict";function a(a){this._init(a)}var b=a;b.tags={},b.get=function(c){var d=b.tags[c];return null==d&&(d=b.tags[c]=new a(c)),d},b.remove=function(a){var c=b.tags[a];return null==c?!1:(c.removeAll(),delete b.tags[a],!0)},b.removeAll=function(){for(var a in b.tags)b.tags[a].removeAll();b.tags={}},b.getInstance=function(a){var c=b.tags[a];return null==c?null:c.get()},b.setInstance=function(a,c){var d=b.tags[a];return null==d?null:d.set(c)},b.checkSrc=function(a){var c=b.tags[a];return null==c?null:(c.checkSrcChange(),void 0)};var c=a.prototype;c.src=null,c.length=0,c.available=0,c.tags=null,c._init=function(a){this.src=a,this.tags=[]},c.add=function(a){this.tags.push(a),this.length++,this.available++},c.removeAll=function(){for(;this.length--;)delete this.tags[this.length];this.src=null,this.tags.length=0},c.get=function(){if(0==this.tags.length)return null;this.available=this.tags.length;var a=this.tags.pop();return null==a.parentNode&&document.body.appendChild(a),a},c.set=function(a){var b=createjs.indexOf(this.tags,a);-1==b&&this.tags.push(a),this.available=this.tags.length},c.checkSrcChange=function(){for(var a=this.tags.length-1,b=this.tags[a].src;a--;)this.tags[a].src=b},c.toString=function(){return"[HTMLAudioPlugin TagPool]"},createjs.HTMLAudioPlugin.TagPool=a}();
 /*global LivepressConfig, Livepress, soundManager, console */
 Livepress.sounds = (function () {
-	var soundsBasePath = LivepressConfig.noncdn_url + "sounds/";
+	var soundsBasePath = LivepressConfig.noncdn_url + "/sounds/";
 	var soundOn         = ( 1 == LivepressConfig.sounds_default );
 	var sounds          = {};
     var soundsLoaded    = false;

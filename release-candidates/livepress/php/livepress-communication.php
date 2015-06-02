@@ -59,13 +59,13 @@ class LivePress_Communication {
 	 *                        the livepress service.
 	 */
 	public function __construct( $api_key = '' ) {
-		if ( '' == $api_key) {}
+		if ( '' == $api_key ) {}
 
 		$this->livepress_config = LivePress_Config::get_instance();
 		$this->api_key          = $api_key;
 		// Note: site_url is the admin url on VIP
 		$this->address          = site_url(); // WP API
-		$this->last_error       = "";
+		$this->last_error       = '';
 		$this->last_response    = null;
 	}
 
@@ -90,7 +90,7 @@ class LivePress_Communication {
 	 * Reset all the blogs configuration on LP! service.
 	 */
 	public function reset_blog() {
-		$this->request_to_livepress('/blog/reset', 'post');
+		$this->request_to_livepress( '/blog/reset', 'post' );
 	}
 
 	/**
@@ -100,7 +100,7 @@ class LivePress_Communication {
 	 */
 	public function get_last_error_message() {
 		$msg = $this->last_error;
-		$this->last_error = "";
+		$this->last_error = '';
 		return $msg;
 	}
 
@@ -136,7 +136,7 @@ class LivePress_Communication {
 	 * @throws LivePress_Communication_Exception If the request don't return the http code 200.
 	 */
 	public function send_to_livepress_post_update($post_vars) {
-		$return_data = json_decode($this->request_content_from_livepress('/message/post_update', 'post', $post_vars));
+		$return_data = json_decode( $this->request_content_from_livepress( '/message/post_update', 'post', $post_vars ) );
 		return $return_data->oortle->jobs->reader;
 	}
 
@@ -158,7 +158,7 @@ class LivePress_Communication {
 	 * op == append | prepend | replace | delete
 	 */
 	public function send_to_livepress_incremental_post_update($op, $post_vars) {
-		$return_data = json_decode($this->request_content_from_livepress('/message/'.$op.'_update', 'post', $post_vars));
+		$return_data = json_decode( $this->request_content_from_livepress( '/message/'.$op.'_update', 'post', $post_vars ) );
 		return $return_data->oortle->jobs->reader;
 	}
 
@@ -170,7 +170,7 @@ class LivePress_Communication {
 	 */
 	public function get_job_status($uuid) {
 		$params['uuid'] = $uuid;
-		return $this->request_content_from_livepress("/message/job_status", "GET", $params);
+		return $this->request_content_from_livepress( '/message/job_status', 'GET', $params );
 	}
 
 	/**
@@ -192,7 +192,7 @@ class LivePress_Communication {
 		$params['data'] = JSON_encode( array( $old_title, $new_title ) );
 		$params['post_title'] = $new_title;
 
-		$this->request_content_from_livepress('/message/post_title_update', 'post', $params);
+		$this->request_content_from_livepress( '/message/post_title_update', 'post', $params );
 	}
 
 	/**
@@ -211,9 +211,9 @@ class LivePress_Communication {
 	 */
 	public function send_to_livepress_new_post($params) {
 		$params['uuid'] = $this->new_uuid();
-		$params['previous_uuid'] = get_option(LP_PLUGIN_NAME."_new_post");
+		$params['previous_uuid'] = get_option( LP_PLUGIN_NAME.'_new_post' );
 		$params['debug'] = $this->livepress_config->get_debug_data();
-		$return_data = json_decode($this->request_content_from_livepress('/message/new_post', 'post', $params));
+		$return_data = json_decode( $this->request_content_from_livepress( '/message/new_post', 'post', $params ) );
 		return array(
 			'oortle_msg' => $params['uuid'],
 			'feed_link'  => isset( $return_data ) ? $return_data->feed_link : '',
@@ -227,7 +227,7 @@ class LivePress_Communication {
 	 * @return int
 	 */
 	public function send_to_livepress_test_message_request( $post_vars ) {
-		return $this->request_to_livepress('/im_bot/test_message/', 'post', $post_vars);
+		return $this->request_to_livepress( '/im_bot/test_message/', 'post', $post_vars );
 	}
 
 	/**
@@ -265,7 +265,7 @@ class LivePress_Communication {
 	 * @throws LivePress_Communication_Exception If the request don't return the http code 200.
 	 */
 	public function send_to_livepress_approved_comment( $params ) {
-		$this->request_content_from_livepress('/message/approved_comment', 'post', $params);
+		$this->request_content_from_livepress( '/message/approved_comment', 'post', $params );
 	}
 
 	/**
@@ -294,7 +294,7 @@ class LivePress_Communication {
 	 */
 	public function send_to_livepress_new_created_comment( $params ) {
 		$params['uuid'] = $this->new_uuid();
-		$this->request_content_from_livepress('/message/new_comment', 'post', $params);
+		$this->request_content_from_livepress( '/message/new_comment', 'post', $params );
 		return $params['uuid'];
 	}
 
@@ -308,18 +308,18 @@ class LivePress_Communication {
 	public function send_to_livepress_handle_twitter_search( $action, $term ) {
 		$params = array();
 		$params['term'] = $term;
-		switch ($action) {
-		case 'clear':
-			$ws_action = 'clear_twitter_search_terms';
+		switch ( $action ) {
+			case 'clear':
+				$ws_action = 'clear_twitter_search_terms';
 			break;
-		case 'add':
-			$ws_action = 'add_twitter_search_term';
+			case 'add':
+				$ws_action = 'add_twitter_search_term';
 			break;
-		case 'remove':
-			$ws_action = 'remove_twitter_search_term';
+			case 'remove':
+				$ws_action = 'remove_twitter_search_term';
 			break;
 		}
-		$params["format"] = "json";
+		$params['format'] = 'json';
 		return wp_remote_retrieve_body( ( $this->do_post_to_livepress( "/blog/$ws_action", $params ) ) );
 	}
 
@@ -335,21 +335,21 @@ class LivePress_Communication {
 	public function send_to_livepress_handle_twitter_follow( $action, $username, $postId, $login ) {
 		$params = array();
 		$params['username'] = $username;
-		switch ($action) {
-		case 'clear':
-			$ws_action = 'clear_guest_blogger';
+		switch ( $action ) {
+			case 'clear':
+				$ws_action = 'clear_guest_blogger';
 			break;
-		case 'add':
-			$ws_action = 'add_guest_blogger';
+			case 'add':
+				$ws_action = 'add_guest_blogger';
 			break;
-		case 'remove':
-			$ws_action = 'remove_guest_blogger';
+			case 'remove':
+				$ws_action = 'remove_guest_blogger';
 			break;
 		}
 		$params['post_id'] = $postId;
 		$params['login']   = $login;
-		$params["format"]  = "json";
-		return wp_remote_retrieve_body( ( $this->do_post_to_livepress("/blog/$ws_action", $params ) ) );
+		$params['format']  = 'json';
+		return wp_remote_retrieve_body( ( $this->do_post_to_livepress( "/blog/$ws_action", $params ) ) );
 	}
 
 	/**
@@ -389,13 +389,13 @@ class LivePress_Communication {
 		$params['username'] = $username;
 		$params['password'] = $password;
 		$params['blog_rpc'] = $blog_id;
-		$action = "create";
+		$action = 'create';
 
-		$code = $this->request_to_livepress('/blog_user/' . $action, 'post', $params);
+		$code = $this->request_to_livepress( '/blog_user/' . $action, 'post', $params );
 
-		if ($code == 403) {
+		if ( $code == 403 ) {
 			$params['blog_user_updates[password]'] = $password;
-			$code = $this->request_to_livepress('/blog_user/update', 'post', $params);
+			$code = $this->request_to_livepress( '/blog_user/update', 'post', $params );
 		}
 		return $code;
 	}
@@ -412,7 +412,7 @@ class LivePress_Communication {
 	public function manage_remote_post_from_twitter($screen_name, $username) {
 		$params['username'] = $username;
 		$params['blog_user_updates[twitter_username]'] = $screen_name;
-		return $this->request_content_from_livepress('/blog_user/manage_remote_post_from_twitter', 'post', $params);
+		return $this->request_content_from_livepress( '/blog_user/manage_remote_post_from_twitter', 'post', $params );
 	}
 
 
@@ -428,7 +428,7 @@ class LivePress_Communication {
 	public function set_phone_number( $phone_number, $username ) {
 		$params['username'] = $username;
 		$params['blog_user_updates[phone_number]'] = $phone_number;
-		return $this->request_content_from_livepress('/blog_user/set_phone_number', 'post', $params);
+		return $this->request_content_from_livepress( '/blog_user/set_phone_number', 'post', $params );
 	}
 
 	/**
@@ -439,26 +439,26 @@ class LivePress_Communication {
 	 */
 	public function get_twitter_avatar( $username ) {
 		$cachekey = md5( 'twitteravatar' . $username ); // Cache key
-		if( $profile_image = get_transient( $cachekey ) ){
+		if ( $profile_image = get_transient( $cachekey ) ){
 			return $profile_image;
 		} else {
-			$url  = "http://api.twitter.com/1/users/show.json?screen_name=";
-			$url .= urlencode($username);
+			$url  = 'http://api.twitter.com/1/users/show.json?screen_name=';
+			$url .= urlencode( $username );
 			if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 				$res = vip_safe_wp_remote_get(
-						$url,
-						'',    /* fallback value */
-						5,     /* threshold */
-						10,     /* timeout */
-						20,    /* retry */
-						array( 'reject_unsafe_urls' => false ) );
+					$url,
+					'',    /* fallback value */
+					5,     /* threshold */
+					10,     /* timeout */
+					20,    /* retry */
+				array( 'reject_unsafe_urls' => false ) );
 			} else {
 				$res = wp_remote_get( $url, array( 'reject_unsafe_urls' => false ) );
 			}
-			if (is_wp_error($res) || wp_remote_retrieve_response_code($res)!==200) {
-				return "";
+			if ( is_wp_error( $res ) || wp_remote_retrieve_response_code( $res ) !== 200 ) {
+				return '';
 			} else {
-				$decoded = json_decode(wp_remote_retrieve_body($res));
+				$decoded = json_decode( wp_remote_retrieve_body( $res ) );
 				set_transient( $cachekey, $decoded->profile_image_url, DAY_IN_SECONDS ); // Cache twitter avatars for 1 day
 					return $decoded->profile_image_url;
 			}
@@ -473,7 +473,7 @@ class LivePress_Communication {
 	 */
 	public function set_blog_shortname( $shortname ) {
 		$params['shortname'] = $shortname;
-		$code = $this->request_to_livepress('/blog/set_shortname', 'post', $params);
+		$code = $this->request_to_livepress( '/blog/set_shortname', 'post', $params );
 		return $code;
 	}
 
@@ -487,13 +487,13 @@ class LivePress_Communication {
 		// It's not getting an OK response in the first time, so do 3 attemps
 		// before declare as failed.
 		$attemps_left = 3;
-		while($attemps_left) {
+		while ( $attemps_left ) {
 			try {
 				return $this->request_content_from_livepress(
 					'/twitter_oauth/get_authorization_url'
 				);
 			} catch ( LivePress_Communication_Exception $e ) {
-				if ($attemps_left--) {
+				if ( $attemps_left-- ) {
 					throw $e;
 				}
 			}
@@ -508,7 +508,7 @@ class LivePress_Communication {
 	 */
 	public function is_authorized_oauth() {
 		return json_decode(
-			$this->request_content_from_livepress('/twitter_oauth/status')
+			$this->request_content_from_livepress( '/twitter_oauth/status' )
 		);
 	}
 
@@ -519,7 +519,7 @@ class LivePress_Communication {
 	 * @return string
 	 */
 	public function followed_tracked_twitter_accounts( $params ) {
-		return wp_remote_retrieve_body( ( $this->do_post_to_livepress( '/blog/followed_tracked_twitter_accounts', $params) ) );
+		return wp_remote_retrieve_body( ( $this->do_post_to_livepress( '/blog/followed_tracked_twitter_accounts', $params ) ) );
 	}
 
 	/**
@@ -530,10 +530,10 @@ class LivePress_Communication {
 	 */
 	public function get_authorized_user() {
 		try {
-			return $this->request_content_from_livepress('/twitter_oauth/is_authorized');
+			return $this->request_content_from_livepress( '/twitter_oauth/is_authorized' );
 		} catch ( LivePress_Communication_Exception $e ) {
-			if ($e->get_code() == 403) {
-				return "";
+			if ( $e->get_code() == 403 ) {
+				return '';
 			} else {
 				throw $e;
 			}
@@ -545,7 +545,7 @@ class LivePress_Communication {
 	 *
 	 */
 	public function destroy_authorized_twitter_user() {
-		$this->request_to_livepress('/twitter_oauth/destroy', 'post');
+		$this->request_to_livepress( '/twitter_oauth/destroy', 'post' );
 	}
 
 	/**
@@ -592,10 +592,10 @@ class LivePress_Communication {
 
 	private function add_vars_to_URL( $get_vars ){
 		$url = '';
-		foreach ($get_vars as $key => $value) {
+		foreach ( $get_vars as $key => $value ) {
 			$url .= $key;
 			$url .= '=';
-			$url .= ( is_array( $value ) ) ? $this->add_vars_to_URL( $value ) : urlencode($value) ;
+			$url .= ( is_array( $value ) ) ? $this->add_vars_to_URL( $value ) : urlencode( $value );
 			$url .= '&';
 
 		}
@@ -615,10 +615,10 @@ class LivePress_Communication {
 		$url .= $this->add_vars_to_URL( $get_vars );
 
 		$url .= 'address=';
-		$url .= urlencode($this->address);
+		$url .= urlencode( $this->address );
 		$url .= '&';
 		$url .= 'api_key=';
-		$url .= urlencode($this->api_key);
+		$url .= urlencode( $this->api_key );
 
 		if ( function_exists( 'vip_safe_wp_remote_get' ) ) {
 			return vip_safe_wp_remote_get(
@@ -651,30 +651,30 @@ class LivePress_Communication {
 	 * @return int Server HTTP return code.
 	 */
 	private function request_to_livepress($action, $method = 'get', $vars = array()) {
-		$method = strtolower($method);
-		if ($method == 'post') {
-			$res = $this->do_post_to_livepress($action, $vars);
+		$method = strtolower( $method );
+		if ( $method == 'post' ) {
+			$res = $this->do_post_to_livepress( $action, $vars );
 		}
 		else {
-			$res = $this->do_get_to_livepress($action, $vars);
+			$res = $this->do_get_to_livepress( $action, $vars );
 		}
 
-		if( is_wp_error($res) ) {
+		if ( is_wp_error( $res ) ) {
 			$this->last_error    = $res->get_error_message();
 			$this->last_response = null;
 		}
-		elseif (wp_remote_retrieve_response_code($res) == 111) {
+		elseif ( wp_remote_retrieve_response_code( $res ) == 111 ) {
 			$this->last_error    = esc_html__( 'Connection refused.', 'livepress' );
 			$this->last_response = null;
 		}
-		elseif (wp_remote_retrieve_response_code($res) != 200) {
-			$this->last_error    = wp_remote_retrieve_response_message($res);
-			$this->last_response = wp_remote_retrieve_body($res);
+		elseif ( wp_remote_retrieve_response_code( $res ) != 200 ) {
+			$this->last_error    = wp_remote_retrieve_response_message( $res );
+			$this->last_response = wp_remote_retrieve_body( $res );
 		} else {
-			$this->last_response = wp_remote_retrieve_body($res);
+			$this->last_response = wp_remote_retrieve_body( $res );
 		}
 
-		return wp_remote_retrieve_response_code($res);
+		return wp_remote_retrieve_response_code( $res );
 	}
 
 	/**
@@ -688,22 +688,22 @@ class LivePress_Communication {
 	 * @throws LivePress_Communication_Exception If the request don't return the http code 200.
 	 */
 	private function request_content_from_livepress($action, $method = 'get', $vars = array()) {
-		$method = strtolower($method);
-		if ($method == 'post') {
-			$res = $this->do_post_to_livepress($action, $vars);
+		$method = strtolower( $method );
+		if ( $method == 'post' ) {
+			$res = $this->do_post_to_livepress( $action, $vars );
 		}
 		else {
-			$res = $this->do_get_to_livepress($action, $vars);
+			$res = $this->do_get_to_livepress( $action, $vars );
 		}
 
 		if ( is_wp_error( $res ) ) {
 			throw new LivePress_Communication_Exception( $res->get_error_message(), -1 );
 		}
-		elseif ( wp_remote_retrieve_response_code( $res ) != 200) {
+		elseif ( wp_remote_retrieve_response_code( $res ) != 200 ) {
 			throw new LivePress_Communication_Exception( wp_remote_retrieve_body( $res ), wp_remote_retrieve_response_code( $res ) );
 		}
 
-		return wp_remote_retrieve_body($res);
+		return wp_remote_retrieve_body( $res );
 	}
 }
 
