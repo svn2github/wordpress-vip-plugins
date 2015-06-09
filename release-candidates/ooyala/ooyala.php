@@ -2,13 +2,13 @@
 /*
 Plugin name: Ooyala
 Plugin URI: http://www.oomphinc.com/work/ooyala-wordpress-plugin/
-Description: Integrate your site with Ooyala
-Author: bendoh
+Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in media settings.
+Author: ooyala
 Author URI: http://oomphinc.com/
-Version: 0.0.1
+Version: 2.0.1
 */
 
-/*  Copyright 2014  Ooyala
+/*  Copyright 2015  Ooyala
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License, version 2, as
@@ -54,7 +54,7 @@ class Ooyala {
 		'code' => '',
 		'player_id' => '',
 		'platform' => 'html5-fallback',
-		'width' => '600', //if none are provided by the asset's streams
+		'width' => '500', //if none are provided by the asset's streams
 		'height' => '400',
 		'enable_channels' => false,
 		'wmode' => 'opaque',
@@ -79,7 +79,9 @@ class Ooyala {
 
 	var $settings_default = array(
 		'api_key' => '',
-		'api_secret' => ''
+		'api_secret' => '',
+		'video_width' => '',
+		'player_id' => '', //default player ID
 	);
 
 	/**
@@ -133,7 +135,7 @@ class Ooyala {
 	 * Emit settings fields
 	 */
 	function settings_fields() {
-		$option = get_option( self::settings_key, $this->settings_default ); ?>
+		$option = $this->get_settings(); ?>
 		<table class="form-table" id="ooyala">
 			<tr>
 				<th scope="row"><label for="ooyala-apikey"><?php esc_html_e( "API Key", 'ooyala' ); ?></label></th>
@@ -148,6 +150,14 @@ class Ooyala {
 					<p class="description"><?php esc_html_e( "You can obtain these values in the Ooyala Backlot administration area under 'Account > Settings'", 'ooyala' ); ?></p>
 				</td>
 			</tr>
+			<tr>
+				<th scope="row"><label for="ooyala-playerid"><?php esc_html_e( 'Default Player ID', 'ooyala' ); ?></label></th>
+				<td scope="row"><input type="text" name="ooyala[player_id]" class="widefat" id="ooyala-playerid" value="<?php echo esc_attr( $option['player_id'] ); ?>" /></td>
+			</tr>
+			<tr>
+				<th scope="row"><label for="ooyala-videowidth"><?php esc_html_e( 'Default Video Width', 'ooyala' ); ?></label></th>
+				<td scope="row"><input type="text" name="ooyala[video_width]" id="ooyala-videowidth" value="<?php echo esc_attr( $option['video_width'] ); ?>" />px</td>
+			</tr>
 		</table>
 	<?php
 	}
@@ -158,15 +168,21 @@ class Ooyala {
 	function validate_settings( $settings ) {
 		$validated = $this->settings_default;
 
-		if( isset( $settings['api_key'] ) && is_string( $settings['api_key'] ) ) {
-			$validated['api_key'] = sanitize_text_field( $settings['api_key'] );
-		}
-
-		if( isset( $settings['api_secret'] ) && is_string( $settings['api_secret'] ) ) {
-			$validated['api_secret'] = sanitize_text_field( $settings['api_secret'] );
+		foreach ( $this->settings_default as $key => $value ) {
+			if( isset( $settings[ $key ] ) && is_string( $settings[ $key ] ) ) {
+				$validated[ $key ] = sanitize_text_field( $settings[ $key ] );
+			}
 		}
 
 		return $validated;
+	}
+
+	/**
+	 * Get the user's saved settings for this plugin, filled in with default values.
+	 * @return array settings or defaults
+	 */
+	function get_settings() {
+		return get_option( self::settings_key, $this->settings_default );
 	}
 
 	/**
@@ -175,7 +191,7 @@ class Ooyala {
 	 * @action wp_ajax_ooyala_sign_request
 	 */
 	function ajax_sign_request() {
-		$settings = get_option( self::settings_key, $this->settings_default );
+		$settings = $this->get_settings();
 
 		if( !$this->configured() ) {
 			$this->ajax_error( __( "Plugin not configured", 'ooyala' ) );
@@ -289,7 +305,7 @@ class Ooyala {
 			array(
 				'model' => array(), // Backbone models
 				'view' => array(), // Backbone views
-				'api' => get_option( self::settings_key, $this->settings_default ),
+				'api' => $this->get_settings(),
 				'sign' => admin_url( 'admin-ajax.php?action=ooyala_sign_request&nonce=' . wp_create_nonce( 'ooyala' ) ),
 				'playerDefaults' => $this->playerDefaults,
 				'tag' => self::shortcode,
@@ -347,7 +363,7 @@ class Ooyala {
 	 * @return bool
 	 */
 	function configured() {
-		$settings = get_option( self::settings_key, $this->settings_default );
+		$settings = $this->get_settings();
 
 		return !empty( $settings['api_key'] ) && !empty( $settings['api_secret'] );
 	}
@@ -398,7 +414,20 @@ class Ooyala {
 			}
 		}
 		$num++;
-		// fill in player defaults
+		$settings = $this->get_settings();
+		// fill in defaults saved in user settings
+		if ( empty( $atts['player_id'] ) && !empty( $settings['player_id'] ) ) {
+			$atts['player_id'] = $settings['player_id'];
+		}
+		// set a width from some defaults
+		if ( empty( $atts['width'] ) ) {
+			if ( !empty( $settings['video_width'] ) ) {
+				$atts['width'] = $settings['video_width'];
+			} elseif ( !empty( $GLOBALS['content_width'] ) ) {
+				$atts['width'] = $GLOBALS['content_width'];
+			}
+		}
+		// fill in remaining player defaults
 		$atts = shortcode_atts( apply_filters( 'ooyala_default_query_args', $this->playerDefaults ), $atts );
 		//coerce string true and false to their respective boolean counterparts
 		$atts = array_map( function($value) { if ($value==='true') return true; elseif ($value==='false') return false; else return $value; }, $atts );
