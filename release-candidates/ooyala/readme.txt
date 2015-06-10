@@ -2,8 +2,8 @@
 Contributors: ooyala, thinkoomph, balbuf
 Tags: video, media, ooyala
 Requires at least: 3.9
-Tested up to: 4.1.1
-Stable tag: 2.0.1
+Tested up to: 4.2.2
+Stable tag: 2.0.2
 License: GPLv2 or later
 
 Connect your Ooyala account to embed and upload assets directly from WordPress.
@@ -41,6 +41,9 @@ Using the plugin once installed
 
 
 == Changelog ==
+
+= 2.0.2 =
+* Use HTTPS for JavaScripts to fix security compatibility for sites served via HTTPS.
 
 = 2.0.1 =
 * Backwards compatibility fixes to honor existing settings, including default player_id, video_width, and previously entered API key and secret.

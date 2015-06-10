@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/ooyala-wordpress-plugin/
 Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in media settings.
 Author: ooyala
 Author URI: http://oomphinc.com/
-Version: 2.0.1
+Version: 2.0.2
 */
 
 /*  Copyright 2015  Ooyala
@@ -479,7 +479,7 @@ class Ooyala {
 				}
 			}
 		?>
-			<script src="<?php echo esc_url( '//player.ooyala.com/v3/' . $atts['player_id'] . '?' . http_build_query( $query_params ) ); ?>"></script>
+			<script src="<?php echo esc_url( 'https://player.ooyala.com/v3/' . $atts['player_id'] . '?' . http_build_query( $query_params ) ); ?>"></script>
 			<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="<?php echo esc_attr( $atts['wrapper_class'] ); ?>" style="width:<?php echo (int) $atts['width']; ?>px;height:<?php echo (int) $atts['height']; ?>px"></div>
 			<script>
 				<?php
@@ -503,7 +503,7 @@ class Ooyala {
 				'callback' => $atts['callback'],
 				'wmode' => $atts['wmode'],
 				'version' => 2,
-			), 'http://player.ooyala.com/player.js' );
+			), 'https://player.ooyala.com/player.js' );
 			?>
 			<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="<?php echo esc_attr( $atts['wrapper_class'] ); ?>">
 				<script src="<?php echo esc_url( $script_url ); ?>"></script>
