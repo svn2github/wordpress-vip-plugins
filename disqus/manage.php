@@ -202,7 +202,7 @@ case 0:
 			<tr>
 				<th scope="row" valign="top"><?php echo dsq_i('Disqus short name'); ?></th>
 				<td>
-					<input name="disqus_forum_url" value="<?php echo esc_url( $dsq_forum_url ); ?>" tabindex="1" type="text" />
+					<input name="disqus_forum_url" value="<?php echo esc_attr( $dsq_forum_url ); ?>" tabindex="1" type="text" />
 					<br />
 					<?php echo dsq_i('This is the unique identifier for your website on Disqus Comments.'); ?>
 				</td>
