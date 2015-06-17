@@ -457,9 +457,13 @@ class Ooyala {
 			// pick out all other params
 			foreach ( $atts as $key => $value ) {
 				switch ( $key ) {
-					// no-op bc these have special placement in the embed code
+					//force width and height to be ints
 					case 'width':
 					case 'height':
+						$js_params[$key] = (int) $value;
+						break;
+
+					// no-op bc these have special placement in the embed code
 					case 'code':
 					case 'player_id':
 						break;
@@ -480,7 +484,7 @@ class Ooyala {
 			}
 		?>
 			<script src="<?php echo esc_url( 'https://player.ooyala.com/v3/' . $atts['player_id'] . '?' . http_build_query( $query_params ) ); ?>"></script>
-			<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="<?php echo esc_attr( $atts['wrapper_class'] ); ?>" style="width:<?php echo (int) $atts['width']; ?>px;height:<?php echo (int) $atts['height']; ?>px"></div>
+			<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="<?php echo esc_attr( $atts['wrapper_class'] ); ?>"></div>
 			<script>
 				<?php
 				$player = 'OoyalaPlayer' . $num;
