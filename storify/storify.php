@@ -3,9 +3,9 @@
 Plugin Name: Storify
 Plugin URI: https://storify.com
 Description: Brings the power of Storify, the popular social media storytelling platform to your WordPress site
-Version: 1.0.5
+Version: 1.0.7
 Author: Storify
-Author URI: http://storify.com
+Author URI: https://storify.com
 
 Modified for WPCOM VIP by Rinat Khaziev <rinat@doejo.com>
 
@@ -21,7 +21,7 @@ License: GPL2
  */
 class WP_Storify {
 
-	public $version             = '1.0.5'; //plugin version
+	public $version             = '1.0.7'; //plugin version
 	public $version_option      = 'storify_version'; //option key to store current version
 	public $login_meta          = '_storify_login'; //key used to store storify login within usermeta
 	public $description_meta    = 'storify_description_added'; //postmeta to store if description has been added
@@ -986,7 +986,7 @@ class WP_Storify {
 		if ( !current_user_can('edit_posts') && !current_user_can('edit_pages') )
 			return;
 		
-		if ( get_user_attribute( get_current_user_id(), 'rich_editing' ) == 'true') {
+		if ( get_user_attribute( get_current_user_id(), 'rich_editing' ) == 'true' && user_can_richedit()) {
 			add_filter( 'mce_external_plugins', array( &$this, 'add_tinymce_plugin' ) );
 			add_filter( 'mce_buttons', array( &$this, 'add_tinymce_button' ) );
 		}
