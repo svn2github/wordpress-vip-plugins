@@ -1,27 +1,27 @@
 <?php
 /**
- * Plugin Name: Content Boost by FindTheBest
- * Description: The FindTheBest plugin allows you to embed widgets from FindTheBest into your WordPress site's blog posts.
- * Version: 2.2.1
+ * Plugin Name: FindTheBest Visual Search
+ * Description: Discover and embed interactive data visualizations on people, organizations, products, and more.
+ * Version: 3.0.4
  * Author: FindTheBest
  * Author URI: http://findthebest.com
+ * Text Domain: findthebest
  * License: GPLv2
  */
 
-define( 'FTB_SETTINGS_PREFS', 'ftb_widget_designer_prefs' );
-define( 'FTB_REMOTE_ROOT', '//www.findthebest.com' );
+define( 'FTB_WP_DEFAULT_KEY', 'cd3d6c2a036146d0e3b242c510ebc855' );
 
-class FindTheBest_ContentBoost {
+class FindTheBest_VisualSearch {
 
 	/**
 	 * Singleton
 	 */
-	static function init() {
+	public static function init() {
 		static $instance = false;
 
 		if ( !$instance ) {
 			load_plugin_textdomain( 'findthebest', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-			$instance = new FindTheBest_ContentBoost;
+			$instance = new FindTheBest_VisualSearch;
 		}
 
 		return $instance;
@@ -31,104 +31,143 @@ class FindTheBest_ContentBoost {
 	/**
 	 * Constructor
 	 */
-	function __construct() {
+	public function __construct() {
 
-		add_action( 'add_meta_boxes',         array( &$this, 'add_meta_box') );
-		add_action( 'admin_enqueue_scripts',  array( &$this, 'admin_menu'  ) );
-		add_action( 'wp_ajax_ftb_save_prefs', array( &$this, 'save_prefs'  ) );
+		if ( is_admin() ) {
+			add_action( 'add_meta_boxes',         array( &$this, 'add_meta_box'          ) );
+			add_action( 'media_buttons',          array( &$this, 'add_media_button'      ), 2000 );
+			add_action( 'admin_enqueue_scripts',  array( &$this, 'admin_menu'            ) );
+			add_action( 'admin_menu',             array( &$this, 'options_page_add_menu' ) );
+			add_action( 'admin_init',             array( &$this, 'options_page_init'     ) );
+			add_action( 'print_media_templates',  array( &$this, 'print_media_templates' ) );
+		}
 
-		add_shortcode( 'findthebest', array(&$this, 'shortcode_handler') );
+		add_shortcode( 'findthebest', array( &$this, 'shortcode_handler' ) );
 	}
 
-	function FindTheBest_ContentBoost() {
+	public function FindTheBest_VisualSearch() {
 		$this->__construct();
 	}
 
+	function add_media_button() {
+		if( $this->post_type_supported() ) {
+			echo $this->render( 'media-button', array(
+				'title' => __( 'Add Visuals', 'findthebest' )
+			) );
+		}
+	}
+
 	function add_meta_box() {
-		// Add optional support for custom post types. Always add to post_type post.
-		if( post_type_supports( get_post_type(), 'findthebest' ) || get_post_type() == 'post' ) {
+		if( $this->post_type_supported() ) {
 			add_meta_box(
 				'ftb',
-				__( 'FindTheBest Suggestions' ),
+				__( 'FindTheBest Visual Search', 'findthebest' ),
 				array( &$this, 'meta_box_shim' ),
 				get_post_type(),
-				'side',
-				'high'
+				'side'
 			);
 		}
 	}
 
+	private function post_type_supported() {
+		// Add optional support for custom post types. Always add to post_type 'post'.
+		$post_type = get_post_type();
+		return post_type_supports( $post_type, 'findthebest' ) || $post_type == 'post' || $post_type == 'page';
+	}
+
 	function admin_menu( $hook ) {
-		if ( 'post.php' != $hook && 'post-new.php' != $hook ) {
-			return;
+		if ( 'post.php' == $hook || 'post-new.php' == $hook ) {
+			$this->post_page_init();
 		}
+	}
 
+	function post_page_init() {
 		wp_enqueue_script(
-			'ftb_box',
-			$this->file_path( '/js/box.js' ),
-			array( 'jquery' )
-		);
-
-		wp_enqueue_script(
-			'textarea_helper',
-			$this->file_path( '/js/jquery.textarea-helper.js' ),
-			array( 'jquery' )
-		);
-
-		wp_enqueue_script(
-			'postmessage',
-			$this->file_path( '/js/jquery.ba-postmessage.min.js' ),
-			array( 'jquery' )
-		);
-
-		$dependencies = array(
-			'jquery',
-			'ftb_box',
-			'textarea_helper',
-			'postmessage'
+			'ftb_cms_plugin',
+			$this->file_path( '/js/cms-plugin.js' )
 		);
 
 		wp_enqueue_script(
 			'ftb_script',
 			$this->file_path( '/js/ftb.js' ),
-			$dependencies
+			array( 'jquery', 'ftb_cms_plugin' )
 		);
 
-		$preferences = get_option( FTB_SETTINGS_PREFS, null );
-		if (null === $preferences) {
-			$preferences = '{}';
-		} else {
-			$preferences = json_encode( $preferences );
-		}
+		global $wp_version;
+		$user = wp_get_current_user();
+		$api_key = $this->get_option( 'findthebest_option_api_key' );
 
-		$no_content_search_message =  __(
-			'Sorry, we did not find any content matching your article.',
-			'findthebest'
-		);
+		wp_localize_script( 'ftb_script', 'ftbData', array(
+			'apiKey' => $api_key ? $api_key : FTB_WP_DEFAULT_KEY,
+			'userID' => $user->user_login ? $user->user_login : $user->ID,
+			'userEmail' => $user->user_email,
+			'wpVersion' => floatval($wp_version),
+			'locale' => get_locale()
+		) );
 
-		$variables = array(
-			'ajaxPath' => admin_url( 'admin-ajax.php' ),
-			'editWidgetMessage' => __( 'Edit Widget: ', 'findthebest' ),
-			'loadingImagePath' => plugins_url( 'images/', __FILE__ ) . 'load.gif',
-			'loadingMessage' => __( 'Loading widget designer', 'findthebest' ),
-			'noContentSearchMessage' => $no_content_search_message,
-			'remoteRoot' => FTB_REMOTE_ROOT,
-			'widgetDesignerPrefs' => $preferences
-		);
-
-		wp_localize_script( 'ftb_script', 'ftbData', $variables );
-
-		wp_enqueue_style( 'box_style', $this->file_path( '/css/box.css' ) );
 		wp_enqueue_style( 'ftb_style', $this->file_path( '/css/ftb.css' ) );
-
-		wp_enqueue_script(
-			'ftb_wordpress_analytics_js',
-			FTB_REMOTE_ROOT . '/ajax_get_core_script?type=js&name=wordpress_analytics',
-			array( 'ftb_script' )
-		);
 
 		add_filter( 'tiny_mce_before_init', array( &$this, 'tiny_mce_init' ) );
 		add_filter( 'mce_external_plugins', array( &$this, 'tiny_mce_plugin' ) );
+	}
+
+	function options_page_add_menu() {
+		add_options_page(
+			__( 'FindTheBest Options', 'findthebest' ), // Page title
+			__( 'FindTheBest', 'findthebest' ),         // Menu title
+			'manage_options',                           // Capability
+			'findthebest-options',                      // Menu slug
+			array( &$this, 'options_page_render' )      // Render callback
+		);
+	}
+
+	function options_page_init() {
+		register_setting(
+			'findthebest_options',                   // Option group
+			'findthebest_options',                   // Option name
+			array( &$this, 'options_page_validate' ) // Sanitize
+		);
+
+		add_settings_section(
+			'findthebest_options_plugin', // ID
+			null,                         // Title
+			null,                         // Callback
+			'findthebest-options'         // Page
+		);
+
+		add_settings_field(
+			'findthebest_option_api_key',        // ID
+			__( 'Your API Key', 'findthebest' ), // Title
+			array( &$this, 'options_api_key' ),  // Callback
+			'findthebest-options',               // Page
+			'findthebest_options_plugin'         // Section
+		);
+	}
+
+	function options_api_key() {
+		echo $this->render( 'options-input-text', array(
+			'option' => $this->get_option( 'findthebest_option_api_key' ),
+			'field' => 'findthebest_option_api_key'
+		) );
+	}
+
+	protected function get_option( $name ) {
+		$options = get_option('findthebest_options');
+		return isset($options[$name]) ? $options[$name] : null;
+	}
+
+	function options_page_validate( $input ) {
+		$validated_input = array();
+
+		if( isset( $input['findthebest_option_api_key'] ) ) {
+			$validated_input['findthebest_option_api_key'] = sanitize_key($input['findthebest_option_api_key']);
+		}
+
+		return $validated_input;
+	}
+
+	function options_page_render() {
+		echo $this->render( 'options' );
 	}
 
 	function file_path( $path, $relativity = 'remote' ) {
@@ -151,44 +190,17 @@ class FindTheBest_ContentBoost {
 	 * The HTML generated from rendering a plugin view with the specified arguments.
 	 *
 	 * @param string $view The PHP file name without the extension.
-	 * @param array $arguments An associative array of variables made available.
+	 * @param array $vars An associative array of variables made available.
 	 * @return string The generated HTML.
 	 */
-	function render( $view, $arguments = array() ) {
+	function render( $view, $vars = array() ) {
 		$path = $this->file_path( "/views/{$view}.php", 'local' );
-		$arguments[ 'image_dir' ] = plugins_url( 'images/', __FILE__ );
+		$vars[ 'image_dir' ] = plugins_url( 'images/', __FILE__ );
 
 		ob_start();
 		require $path;
 
 		return ob_get_clean();
-	}
-
-	/**
-	 * Called from AJAX to update plugin preferences. These preferences are passed
-	 * in as a JSON string.
-	 */
-	function save_prefs() {
-		$preferences = sanitize_text_field( $_POST[ 'prefs' ] );
-		if ( ! is_string( $preferences ) ) {
-			die;
-		}
-
-		$preferences = strip_slashes( $preferences );
-
-		// Disallow abnormally large JSON input.
-		if ( strlen( $preferences ) >= 0x100000  ) {
-			die;
-		}
-
-		$preferences = json_decode( $preferences );
-		if ( null === $preferences ) {
-			die;
-		}
-
-		update_option( FTB_SETTINGS_PREFS, $preferences );
-
-		die;
 	}
 
 	/**
@@ -203,18 +215,19 @@ class FindTheBest_ContentBoost {
 		}
 
 		$defaults = array(
-			'height' => '',
-			'id' => '',
-			'link' => '',
-			'name' => '',
-			'url' => '',
-			'width' => ''
+			'id'        => '',
+			'url'       => '',
+			'title'     => '',
+			'width'     => '',
+			'height'    => '',
+			'link'      => '',
+			'link_text' => ''
 		);
 
 		$arguments = wp_parse_args( $attributes, $defaults );
 
 		if ( empty( $arguments['id'] ) || empty( $arguments['link'] ) ||
-			empty( $arguments['name'] ) || empty( $arguments['url'] ) ) {
+			empty( $arguments['title'] ) || empty( $arguments['url'] ) ) {
 			return null;
 		}
 
@@ -225,16 +238,22 @@ class FindTheBest_ContentBoost {
 			return null;
 		}
 
-		$arguments = array(
-			'height' => $arguments['height'],
-			'id' => $arguments['id'],
-			'link' => $arguments['link'],
-			'name' => $arguments['name'],
-			'url' => $arguments['url'],
-			'width' => $arguments['width'],
-		);
-
 		return $this->render( 'embed-code', $arguments );
+	}
+
+	function get_shortcode_strategy() {
+		global $wp_version;
+
+		return version_compare($wp_version, '3.9', '>=') ? 'view' : 'plugin';
+	}
+
+	function print_media_templates() {
+		if ( ! isset( get_current_screen()->id ) || get_current_screen()->base != 'post' ) {
+			return;
+		}
+		if ( $this->get_shortcode_strategy() == 'view' ) {
+			echo $this->render( 'tiny-mce-view' );
+		}
 	}
 
 	function tiny_mce_init( $init_options ) {
@@ -245,10 +264,15 @@ class FindTheBest_ContentBoost {
 	}
 
 	function tiny_mce_plugin( $plugins ) {
-		$plugins[ 'findthebest' ] = plugins_url( 'js/tiny-mce-plugin.js', __FILE__ );
+		if ( $this->get_shortcode_strategy() === 'view' ) {
+			$plugins[ 'findthebest' ] = plugins_url( 'js/tiny-mce-view.js', __FILE__ );
+		} else {
+			$plugins[ 'findthebest' ] = plugins_url( 'js/tiny-mce-plugin.js', __FILE__ );
+		}
 
 		return $plugins;
 	}
+
 }
 
-FindTheBest_ContentBoost::init();
+add_action( 'plugins_loaded', array( 'FindTheBest_VisualSearch', 'init' ) );

@@ -1,4 +1,5 @@
 ( function( $ ) {
+
 	tinyMCE.PluginManager.add( 'findthebest', function( editor, url ) {
 		var getAttribute = function( s, n ) {
 			n = new RegExp( n + '=\"([^\"]+)\"', 'g' ).exec( s );
@@ -7,22 +8,28 @@
 
 		var replaceShortcode = function( co ) {
 			var replaceCallback = function( match, options ) {
-				var name = getAttribute( options, 'name' );
+				var title = getAttribute( options, 'title' );
 				var id = getAttribute( options, 'id' );
 				var width = getAttribute( options, 'width' );
 				var height = getAttribute( options, 'height' );
-				var style = '';
+				var style = {};
 
 				if ( width.length > 0 && height.length > 0 ) {
-					style = 'width: ' + width + 'px; height: ' + height + 'px;';
+					style = {width: width, height: height};
 				}
 
-				var title = ftbData.editWidgetMessage + name;
+				var img = $( '<img/>' )
+					.addClass( 'ftb-tiny-mce-widget mceItem' )
+					.attr( {
+						'data-code': 'findthebest' + options,
+						'data-id': id ,
+						'data-title': title ,
+						'data-mce-resize': 'false' ,
+						'data-mce-placeholder': '1'
+					} )
+					.css( style );
 
-				return '<img class="ftb-tiny-mce-widget mceItem" ' +
-					'data-code="findthebest' + tinyMCE.DOM.encode( options ) +
-					'" data-id="' + id + '" data-title="' + name +
-					'" title="' + title + '" style="' + style + '">';
+				return img[0].outerHTML;
 			};
 
 			return co.replace( /\[findthebest([^\]]*)\]/g, replaceCallback );
@@ -46,41 +53,11 @@
 			o.content = replaceShortcode( o.content );
 		} );
 
-		editor.onChange.add( function() {
-			FTBWP.inputChanged = true;
-		} );
-
-		editor.onDblClick.add( function( editor, event ) {
-			var $node = $( event.target );
-			if ( ! $node.hasClass( 'ftb-tiny-mce-widget' ) ) {
-				return;
-			}
-
-			FTBWP.startEdit( $node.attr( 'data-id' ) );
-		} );
-
 		editor.onExecCommand.add( function( editor, command ) {
 			if ( 'mceInsertContent' === command ) {
-				FTBWP.hideEditButton();
 				var content = tinyMCE.activeEditor.getContent();
 				tinyMCE.activeEditor.setContent( replaceShortcode( content ) );
 			}
-		} );
-
-		editor.onNodeChange.add( function( editor, command, node ) {
-			FTBWP.hideEditButton();
-
-			var $node = $( node );
-			if ( ! $node.hasClass( 'ftb-tiny-mce-widget' ) ) {
-				return;
-			}
-
-			FTBWP.showEditButton( $node.attr( 'data-id' ) );
-			FTBWP.prePendingWidgetTinyMCENode = node;
-
-			editor.dom.bind( node, 'DOMNodeRemoved', function() {
-				FTBWP.hideEditButton();
-			} );
 		} );
 
 		editor.onPostProcess.add( function( editor, o ) {
@@ -88,5 +65,7 @@
 				o.content = emplaceShortcode( o.content );
 			}
 		} );
+
 	} );
+
 } )( jQuery );
