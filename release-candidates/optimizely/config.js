@@ -59,7 +59,7 @@
 		
 		optimizelyConfigPage();
 
-		$( 'input[name="optimizely_activation_mode"' ).click(function(){
+		$( 'input[name="optimizely_activation_mode"]' ).click(function(){
 			if( $( this ).val() == 'conditional' ){
 				$( '#optimizely_conditional_activation_code_block' ).show();
 			}else{
