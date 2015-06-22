@@ -40,7 +40,7 @@ if ( ! class_exists( 'SubHeading' ) ) {
 		 */
 		function SubHeading()
 		{
-			$this->options = $this->get_options();
+			$this->options = apply_filters('subheading_options', $this->get_options() );
 			$this->meta_key = '_' . $this->tag;
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( &$this, 'meta' ) );
