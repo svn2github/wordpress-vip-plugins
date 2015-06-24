@@ -145,8 +145,6 @@ class SocialFlow_Post {
 	function display_compose_form( $post, $accounts ) {
 		global $socialflow;
 
-		// var_dump($accounts);
-
 		// get active accounts and group by type
 		$grouped_accounts = $socialflow->accounts->group_by( 'global_type', $accounts, true );
 
@@ -264,20 +262,16 @@ class SocialFlow_Post {
 		// Prevent action duplication
 		remove_action( 'transition_post_status', array( $this, 'transition_post_status'), 1, 3 );
 
-		$post_id = $post->ID;
-
 		// no need to save post meta inside schedule scenario
 		if ( ! ( 'future' == $previous_status && 'publish' == $post_status ) ) {
-
-			// Save socialflow meta data 
-			$this->save_meta( $post_id );
+			$this->save_meta( $post->ID );
 		}
 
 		// Compose to socialflow 
 		// Check if send now is checked
-		if ( get_post_meta( $post_id, 'sf_compose_now', true ) && 'publish' == $post_status ) {
+		if ( get_post_meta( $post->ID, 'sf_compose_now', true ) && 'publish' == $post_status ) {
 
-			$result = $this->compose( $post_id );
+			$result = $this->compose( $post->ID );
 
 			// If message compose fails and post was inteded to be published
 			// set post status as draft
@@ -288,7 +282,7 @@ class SocialFlow_Post {
 				wp_update_post( $post );
 
 				// Redirect user to approptiate message
-				$location = add_query_arg( 'message', 20, get_edit_post_link( $post_id, 'url' ) );
+				$location = add_query_arg( 'message', 20, get_edit_post_link( $post->ID, 'url' ) );
 				wp_redirect( $location );
 				exit;
 			}
@@ -580,10 +574,6 @@ class SocialFlow_Post {
 	function post_attachments( $post_id, $post_content = '' ) {
 		$post = get_post( $post_id );
 
-		// if ( 'attachment' == $post->post_type ) {
-		// 	$post_content .= ' ' . $this->get_attachment_image( $post->ID );
-		// }
-
 		$thumbnail = get_the_post_thumbnail( $post_id, 'full' );
 		if ( $thumbnail )
 			echo '<div class="slide">'. $thumbnail .'</div>';
@@ -614,7 +604,7 @@ class SocialFlow_Post {
 			return '';
 		}
 
-		return '<img src="'. $media['medium_thumbnail_url'] .'" alt="">';
+		return '<img src="'. esc_url( $media['medium_thumbnail_url'] ) .'" alt="">';
 	}
 
 	/**
@@ -903,7 +893,7 @@ class SocialFlow_Post {
 			'post' => $post->ID,
 			'width' => '740'
 		), admin_url( '/admin-ajax.php' ) );
-		$actions['sf-compose-action'] = '<a class="thickbox" href="' .  esc_url( $url ) . '" title="' . esc_attr__( 'Send to SocialFlow', 'socialflow' ) . '">' . __( 'Send to SocialFlow', 'socialflow' ) . '</a>';
+		$actions['sf-compose-action'] = '<a class="thickbox" href="' .  esc_url( $url ) . '" title="' . esc_attr__( 'Send to SocialFlow', 'socialflow' ) . '">' . esc_attr__( 'Send to SocialFlow', 'socialflow' ) . '</a>';
 
 		return $actions;
 	}

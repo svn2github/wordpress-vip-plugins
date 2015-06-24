@@ -19,7 +19,7 @@
 			nav_next     = ( options.nav_next instanceof jQuery ) ? options.nav_next : $(options.nav_next),
 			nav_prev     = ( options.nav_prev instanceof jQuery ) ? options.nav_prev : $(options.nav_prev);
 
-		console.log(nav_next);
+		// console.log(nav_next);
 
 		// Hide all slides
 		slides.hide().eq( visible_item ).show().trigger('slide');

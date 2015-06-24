@@ -43,7 +43,7 @@ jQuery(function($){
 				// Retrieve content either from tinyMCE or from passed selector
 				if (is_ajax) {
 					text = sf_post[ input.attr( 'data-content-selector' ) ];
-					console.log(sf_post);
+					// console.log(sf_post);
 				} else {
 					if ( '#content' == input.attr( 'data-content-selector' ) && tinyMCE.activeEditor && contentWrap.className.indexOf('tmce-active') > -1 ) {
 						text = tinyMCE.activeEditor.getContent();
@@ -234,7 +234,9 @@ jQuery(function($){
 				dataType: 'html',
 				data: { action: 'sf_attachments', ID: id, content:content },
 				success: function(slides){
-					updater.parents('.sf-attachments').find('.sf-attachment-slider').html(slides);
+					var container = updater.parents('.sf-attachments');
+					container.find('.sf-attachment-slider').html(slides);
+					container.find('.sf-current-attachment').val('');
 					init_slides()
 				}
 			})

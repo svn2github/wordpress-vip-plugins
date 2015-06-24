@@ -115,12 +115,22 @@
 				if ( !settings.twitterText || typeof twttr === 'undefined' )
 					return message.length;
 
-				settings.maxCharacters = 116;
+				var homeUrl = ( 'undefined' != typeof socialFlowData ) ? socialFlowData.homeUrl : 'https://socialflow.com/';
+
+				var mediaUrl;
+
+				var MAX_LENGTH = 140;
+				var spaceLength = 1;
+
+				// Post url inserted to message, so should add 1 space
+				settings.maxCharacters = MAX_LENGTH - twttr.txt.getTweetLength( homeUrl ) - spaceLength;
 
 				// message will contain image link
 				if ( $('#socialflow-compose').hasClass('sf-compose-attachment') ) {
-					// message += ' https://mediaimage.com';
-					settings.maxCharacters = 94;
+					// Media url always has https://
+					// It's sent to the individual attr,
+					// so there doesn't needed a space-divider
+					settings.maxCharacters -= twttr.txt.getTweetLength( 'https://mediaimage.com' );
 				}
 
 				return twttr.txt.getTweetLength(message);

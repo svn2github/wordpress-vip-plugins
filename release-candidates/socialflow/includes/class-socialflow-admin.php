@@ -26,6 +26,9 @@ class SocialFlow_Admin {
 		// Include scripts
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_settings_page' ) );
 
+		// Add footer text
+		add_filter( 'admin_footer_text', array( $this, 'add_footer_text' ) );
+
 		register_activation_hook( SF_ABSPATH . '/socialflow.php', array( 'SocialFlow_Admin', 'install' ) );
 		register_uninstall_hook( SF_ABSPATH . '/socialflow.php', array( 'SocialFlow_Admin', 'uninstall' ) );
 	}
@@ -107,6 +110,10 @@ class SocialFlow_Admin {
 			wp_enqueue_script( 'socialflow-categories', plugins_url( 'assets/js/sf-categories.js', SF_FILE ), array( 'jquery'), '2.0', true );
 			wp_enqueue_script( 'twitter-text', plugins_url( 'assets/js/twitter-text.js', SF_FILE ), array( 'jquery'), '1.0', true );
 
+			wp_localize_script( 'socialflow-admin', 'socialFlowData', array( 
+				'homeUrl' => home_url(),
+			));
+
 			// Enqeue styles
 			wp_enqueue_style( 'socialflow-admin', plugins_url( 'assets/css/socialflow.css', SF_FILE ) );
 			wp_enqueue_style( 'jquery-ui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/smoothness/jquery-ui.css', false, '1.8.1', false);
@@ -116,6 +123,7 @@ class SocialFlow_Admin {
 			// Thickbox scripts for compose now post action
 			wp_enqueue_script( 'thickbox' );
 			wp_enqueue_style( 'thickbox' );
+
 		}
 	}
 
@@ -203,6 +211,19 @@ class SocialFlow_Admin {
 		$settings = isset( $_POST['socialflow'] ) ? apply_filters( 'sf_save_settings', $settings ) : $settings;
 
 		return $settings;
+	}
+
+	/**
+	 * Add footer text
+	 * 
+	 * @since 2.5
+	 * @access public
+	 */
+	function add_footer_text( $text ) {
+		if ( !function_exists( 'vip_powered_wpcom' ) )
+			return $text;
+
+		return '<i>'. vip_powered_wpcom() .' | </i>'. $text;
 	}
 
 	/**

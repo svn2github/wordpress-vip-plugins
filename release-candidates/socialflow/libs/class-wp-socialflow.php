@@ -108,12 +108,15 @@ class WP_SocialFlow {
 		$args = array( 
 			'sslverify' => false, 
 			'headers' => array( 'Authorization' => 'Basic ' . base64_encode( 'sf_partner' . ':' . 'our partners' ) ),
-			'timeout' => 60
+			'timeout' => 20
 		);
 		$parameters = array_merge( $request->get_parameters(), $args );
 
-		if ( 'GET' == $method )
-			return wp_remote_get( $request->to_url(), $parameters );
+		if ( 'GET' == $method ) {
+			// Wordpress.com Vip recommend to use vip_safe_wp_remote_get() - cached version of wp_remote_get()
+			$func = function_exists( 'vip_safe_wp_remote_get' ) ? 'vip_safe_wp_remote_get' : 'wp_remote_get';
+			return call_user_func( $func, $request->to_url(), $parameters );
+		}
 		else
 			return wp_remote_post( $request->to_url(), $parameters );
 	  }
@@ -394,7 +397,10 @@ class WP_SocialFlow {
 		if ( !$consumer_key )
 			return false;
 
-		$response = wp_remote_get( "{$this->host}/account/links/?consumer_key={$consumer_key}", array( 'headers' => array( 'Authorization' => 'Basic ' . base64_encode( 'sf_partner' . ':' . 'our partners' ) ), 'sslverify' => false ) );
+		// Wordpress.com Vip recommend to use vip_safe_wp_remote_get() - cached version of wp_remote_get()
+		$func = function_exists( 'vip_safe_wp_remote_get' ) ? 'vip_safe_wp_remote_get' : 'wp_remote_get';
+
+		$response = call_user_func( $func, "{$this->host}/account/links/?consumer_key={$consumer_key}", array( 'headers' => array( 'Authorization' => 'Basic ' . base64_encode( 'sf_partner' . ':' . 'our partners' ) ), 'sslverify' => false ) );
 
 		if ( 200 == wp_remote_retrieve_response_code( $response ) ) {
 			$response = json_decode( wp_remote_retrieve_body( $response ) );

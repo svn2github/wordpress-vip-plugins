@@ -10,6 +10,10 @@
  *
  * @since 2.0
  */
+
+$post = $data['post'];
+$SocialFlow_Post = $data['SocialFlow_Post'];
+
 ?>
 <form id="sf-compose-form" action="options.php">
 	<?php $SocialFlow_Post->meta_box( $post ); ?>
