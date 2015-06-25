@@ -75,6 +75,7 @@ function optimizely_title_variations_render( $post ) {
 	<input type="hidden" id="optimizely_token" value="<?php echo esc_attr( get_option( 'optimizely_token' ) )?>" />
 	<input type="hidden" id="optimizely_project_id" value="<?php echo esc_attr( get_option('optimizely_project_id') ) ?>" />
 	<input type="hidden" id="optimizely_experiment_id" name="optimizely_experiment_id" value="<?php echo esc_attr( get_post_meta( $post->ID, 'optimizely_experiment_id', true ) ) ?>" />
+	<?php wp_nonce_field( OPTIMIZELY_NONCE, 'optimizely_experiment_nonce' ); ?>
 	<input type="hidden" id="optimizely_experiment_status" name="optimizely_experiment_status" value="<?php echo esc_attr( get_post_meta( $post->ID, 'optimizely_experiment_status', true ) ) ?>" />
 	<textarea id="optimizely_variation_template" style="display: none"><?php echo esc_attr( get_option( 'optimizely_variation_template' ) ) ?></textarea>
 	<?php
@@ -113,6 +114,15 @@ add_action( 'save_post', 'optimizely_title_variations_save' );
  * @param int $post_id
  */
 function optimizely_update_experiment_meta() {
+
+	// Make sure this is a valid request.
+	check_ajax_referer( OPTIMIZELY_NONCE, 'optimizely_experiment_nonce' );
+
+	// See if the current user has permissions to edit posts.
+	if ( ! current_user_can( 'edit_post', absint( $_POST['post_id'] ) ) ) {
+		die( 'You do not have permission to edit posts.' );
+	}
+
 	if ( isset( $_POST['post_id'] ) ) {
 		optimizely_title_variations_save( absint( $_POST['post_id'] ) );
 	}

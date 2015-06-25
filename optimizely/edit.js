@@ -56,6 +56,7 @@
 			var data = {
 				action: 'update_experiment_meta',
 				post_id: $( '#post_ID' ).val(),
+				optimizely_experiment_nonce: $( '#optimizely_experiment_nonce' ).val(),
 				optimizely_experiment_id: experiment.id,
 				optimizely_experiment_status: experiment.status
 			};
