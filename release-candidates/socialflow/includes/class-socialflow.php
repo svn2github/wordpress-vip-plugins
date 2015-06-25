@@ -71,7 +71,7 @@ class SocialFlow extends SocialFlow_Methods {
 		$this->init_options();
 
 		// Load sub classes
-		add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ) );
+		add_action( 'init', array( $this, 'init' ) );
 	}
 
 	/**
@@ -80,7 +80,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @since 2.0
 	 * @access public
 	 */
-	function plugins_loaded() {
+	function init() {
 
 		// Initialize admin only objects
 		if ( is_admin() ) {
