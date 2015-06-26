@@ -614,7 +614,12 @@ abstract class ES_WP_Query_Wrapper extends WP_Query {
 
 		// Author/user stuff
 		if ( ! empty( $q['author'] ) && $q['author'] != '0' ) {
-			$q['author'] = addslashes_gpc( '' . urldecode( $q['author'] ) );
+			if ( is_array( $q['author'] ) ){
+				$q['author'] = array_map( 'urldecode', $q['author'] );
+				$q['author'] = array_map( 'addslashes_gpc', $q['author'] );
+			} else {
+				$q['author'] = addslashes_gpc( '' . urldecode( $q['author'] ) );
+			}
 			$authors = array_unique( array_map( 'intval', preg_split( '/[,\s]+/', $q['author'] ) ) );
 			foreach ( $authors as $author ) {
 				$key = $author > 0 ? 'author__in' : 'author__not_in';
@@ -685,8 +690,14 @@ abstract class ES_WP_Query_Wrapper extends WP_Query {
 				$allowed_keys[] = 'meta_value';
 				$allowed_keys[] = 'meta_value_num';
 			}
-			$q['orderby'] = urldecode( $q['orderby'] );
-			$q['orderby'] = addslashes_gpc( $q['orderby'] );
+			if ( is_array( $q['orderby'] ) ){
+				$q['orderby'] = array_map( 'urldecode', $q['orderby'] );
+				$q['orderby'] = array_map( 'addslashes_gpc', $q['orderby'] );
+				$q['orderby'] = implode( ' ', $q['orderby'] );
+			} else {
+				$q['orderby'] = urldecode( $q['orderby'] );
+				$q['orderby'] = addslashes_gpc( $q['orderby'] );
+			}
 
 			foreach ( explode( ' ', $q['orderby'] ) as $i => $orderby ) {
 				// Only allow certain values for safety
