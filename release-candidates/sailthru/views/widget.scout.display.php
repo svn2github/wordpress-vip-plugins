@@ -5,7 +5,8 @@
      */
     $scout = get_option( 'sailthru_scout_options' );
 
-    if( ! isset( $scout['sailthru_scout_is_on'] ) ||  ! $scout['sailthru_scout_is_on'] ) {
+    /** This filter is documented in class-sailthru-scout.php */
+    if ( ! isset( $scout['sailthru_scout_is_on'] ) ||  ! $scout['sailthru_scout_is_on'] || ! apply_filters( 'sailthru_scout_on', true ) ) {
 
         // do nothing, get outta here
         return;
