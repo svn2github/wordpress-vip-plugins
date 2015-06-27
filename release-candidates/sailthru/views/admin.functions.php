@@ -526,8 +526,7 @@ function sailthru_intialize_concierge_options() {
 		 */
 		$concierge = get_option( 'sailthru_concierge_options' );
 
-	/** This filter is documented in class-sailthru-horizon.php */
-	if ( isset( $concierge['sailthru_concierge_is_on'] ) && $concierge['sailthru_concierge_is_on'] && apply_filters( 'sailthru_concierge_on', true ) ) {
+		if ( isset( $concierge['sailthru_concierge_is_on'] ) && $concierge['sailthru_concierge_is_on'] ) {
 
 			add_settings_field(
 				'sailthru_concierge_from',
@@ -665,8 +664,7 @@ function sailthru_intialize_scout_options() {
 		 */
 		$scout = get_option( 'sailthru_scout_options' );
 
-	/** This filter is documented in class-sailthru-scout.php */
-	if ( isset( $scout['sailthru_scout_is_on'] ) &&  $scout['sailthru_scout_is_on'] && apply_filters( 'sailthru_scout_on', true ) ) {
+		if ( isset( $scout['sailthru_scout_is_on'] ) &&  $scout['sailthru_scout_is_on'] ) {
 
 			add_settings_field(
 				'sailthru_scout_numVisible',
@@ -695,20 +693,6 @@ function sailthru_intialize_scout_options() {
 					'sailthru_scout_includeConsumed'
 				)
 			);
-
-		add_settings_field(
-			'sailthru_scout_filter',
-			__( 'The tags to filter content by, pass comma separated tags', 'sailthru-for-wordpress' ),
-			'sailthru_scout_filter_callback',
-			'sailthru_scout_options',
-			'sailthru_scout_settings_section',
-			array(
-				'sailthru_scout_options',
-				'sailthru_scout_filter',
-				'10',
-				'sailthru_scout_filter',
-			)
-		);
 
 			add_settings_field(
 				'sailthru_scout_renderItem',
@@ -857,19 +841,6 @@ function sailthru_scout_includeConsumed_callback( $args ) {
 
 }
 
-/**
- * Creates a text field for the filter options.
- */
-function sailthru_scout_filter_callback( $args ) {
-
-	$scout = get_option( 'sailthru_scout_options' );
-	$saved_value = isset( $scout['sailthru_scout_filter'] )  ? $scout['sailthru_scout_filter'] : '' ;
-
-	$html = '<input name="sailthru_scout_options[sailthru_scout_filter]" value="' . esc_attr( $saved_value ) . '">';
-
-	echo $html;
-
-}
 
 /**
  * Just a textbox, but not a general function because we don't (oddly) strip

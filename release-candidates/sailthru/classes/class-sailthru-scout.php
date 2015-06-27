@@ -59,12 +59,8 @@ class Sailthru_Scout_Widget extends WP_Widget {
 
 		$params = get_option('sailthru_scout_options');
 
-	 	 /**
-		 * Filter the Sailthru Scout status.
-		 *
-		 * @param bool $status True if Scout is turned on.
-		 */
-		if ( isset( $params['sailthru_scout_is_on'] ) && $params['sailthru_scout_is_on'] && apply_filters( 'sailthru_scout_on', true ) ) {
+		// is scout turned on?
+		if( isset($params['sailthru_scout_is_on']) &&  $params['sailthru_scout_is_on']) {
 
 			// Check first, otherwise js could throw errors
 			if( get_option('sailthru_setup_complete') ) {
@@ -76,8 +72,7 @@ class Sailthru_Scout_Widget extends WP_Widget {
 				// if conceirge is on, we want noPageView to be set to true
 				// see
 				$conceirge = get_option('sailthru_concierge_options');
-					/** This filter is documented in class-sailthru-horizon.php */
-					if ( isset( $conceirge['sailthru_concierge_is_on'] ) && $conceirge['sailthru_concierge_is_on'] && apply_filters( 'sailthru_concierge_on', true ) ) {
+					if( isset($conceirge['sailthru_convierge_is_on'] ) && $conceirge['sailthru_convierge_is_on'] ) {
 						$params['sailthru_scout_noPageview'] = 'true';
 					}
 
@@ -105,77 +100,48 @@ class Sailthru_Scout_Widget extends WP_Widget {
 	 	$options = get_option('sailthru_setup_options');
 		$horizon_domain = $options['sailthru_horizon_domain'];
 		$scout = get_option('sailthru_scout_options');
-		$concierge      = get_option( 'sailthru_concierge_options' );
 		$scout_params = array();
 
 		// inlcudeConsumed?
-		if ( isset( $scout['sailthru_scout_includeConsumed'] ) && strlen( $scout['sailthru_scout_includeConsumed'] ) > 0 ) {
-			$scout_params[] = "includeConsumed: " . (bool) $scout['sailthru_scout_includeConsumed'];
+		if( isset($scout['sailthru_scout_includeConsumed']) ) {
+			$scout_params[] = strlen( $scout['sailthru_scout_includeConsumed'] ) > 0 ?  'includeConsumed: '. (bool) $scout['sailthru_scout_includeConsumed'].'' : '';
+		} else {
+			$scout['sailthru_scout_includeConsumed'] = '';
 		}
 
 		// renderItem?
-		if ( isset( $scout['sailthru_scout_renderItem'] ) && strlen( $scout['sailthru_scout_renderItem'] ) > 0 ) {
-			$scout_params[] = "renderItem: " . (bool) $scout['sailthru_scout_renderItem'];
+		if( isset( $scout['sailthru_scout_renderItem']) ) {
+			$scout_params[] = strlen($scout['sailthru_scout_renderItem']) > 0 ?  "renderItem: ". (bool) $scout['sailthru_scout_renderItem']."": '';
+		} else {
+			$scout['sailthru_scout_renderItem'] = '';
 		}
 
-		// numVisible?
-		$num_visible = 10;
-		if ( isset( $scout['sailthru_scout_numVisible'] ) ) {
-			$num_visible = $scout['sailthru_scout_numVisible'];
-		}
-		/**
-		 * Filter the Sailthru Scout number of visible articles.
-		 *
-		 * @param string|int $num_visible Number of visible articles.
-		 */
-		$scout_params[] = "numVisible: " . (int) apply_filters( 'sailthru_scout_num_visible', $num_visible );
-
-		// pageView?
-		/** This filter is documented in class-sailthru-horizon.php */
-		if ( isset( $concierge['sailthru_concierge_is_on'] ) && $concierge['sailthru_concierge_is_on'] && apply_filters( 'sailthru_concierge_on', true ) && apply_filters( 'sailthru_horizon_on', true ) ) {
-			$scout_params[] = "noPageview: true";
+		if( isset( $scout['scout_num_visible']) ) {
+			$scout_params[] = strlen($scout['scout_num_visible']) > 0 ?  "numVisible:'". esc_js( $scout['sailthru_scout_number'] )."' ": '';
+		} else {
+			$scout['scout_num_visible'] = '';
 		}
 
-		// Tags.
-		$tags   = array();
-		$filter = '';
-		if ( ! empty( $scout['sailthru_scout_filter'] ) ) {
-			$tags = explode( ",", $scout['sailthru_scout_filter'] );
-		}
-		/**
-		 * Filter the Sailthru Scout content filter tags.
-		 *
-		 * @param array $tags Array of tags.
-		 */
-		$tags = apply_filters( 'sailthru_scout_filter', $tags );
-		$tags = array_map( 'trim', $tags );
 
-		/** This filter is documented in class-sailthru-horizon.php */
-		if ( $scout['sailthru_scout_is_on'] == 1 && apply_filters( 'sailthru_scout_on', true ) ) {
+		if ($scout['sailthru_scout_is_on'] == 1) {
 			echo "<script type=\"text/javascript\" src=\"//ak.sail-horizon.com/scout/v1.js\"></script>";
-			echo "<script type=\"text/javascript\">\n";
-			echo "    SailthruScout.setup( {\n";
-			echo "        domain: '" . esc_js( $options['sailthru_horizon_domain'] ) . "',\n";
-			if ( is_array( $scout_params ) ) {
-				foreach ( $scout_params as $key => $val ) {
-					if ( strlen( $val ) > 0 )  {
-						echo "        " . esc_js( $val ) . ",\n";
+		 	echo "<script type=\"text/javascript\">\n";
+	           echo "SailthruScout.setup({\n";
+	           echo "domain: '". esc_js($options['sailthru_horizon_domain'])."',\n";
+				if( is_array($scout_params) ) {
+					foreach ($scout_params as $key => $val) {
+						if (strlen($val) >0)  {
+							echo esc_js($val).",\n";
+						}
 					}
 				}
-			}
-			if ( ! empty( $tags ) ) {
-				$tags = array_map( 'esc_js', $tags );
-				if ( 1 === count( $tags ) ) {
-					echo "        filter: {tags:'" . implode( "','", $tags ) . "'},\n";
-				} else {
-					echo "        filter: {tags: ['" . implode( "','", $tags ) . "']},\n";
-				}
-			}
-			echo "    } );\n";
-			echo "</script>\n";
+	           echo "});\n";
+
+		     echo " if(SailthruScout.allContent.length == 0) { jQuery('#sailthru-scout').hide() }";
+		     echo "</script>\n";
 		}
 
-	}
+	 }
 
 	/**
 	 * A function used to programmatically create a page needed for Scout. The slug, author ID, and title
@@ -292,16 +258,3 @@ class Sailthru_Scout_Widget extends WP_Widget {
 
 } // end class
 add_action( 'widgets_init', create_function( '', 'register_widget("Sailthru_Scout_Widget");' ) );
-
-/**
- * Template tag for manual placement of Scout
- *
- * @return string Scout element
- */
-function sailthru_show_scout() {
-	$scout = get_option( 'sailthru_scout_options' );
-	/** This filter is documented in class-sailthru-scout.php */
-	if ( isset( $scout['sailthru_scout_is_on'] ) && $scout['sailthru_scout_is_on'] && apply_filters( 'sailthru_scout_on', true ) ) {
-		echo '<div id="sailthru-scout"><div class="loading">' . esc_html( __( 'Loading, please wait...', 'sailthru-for-wordpress' ) ) . '</div></div>';
-	}
-}
