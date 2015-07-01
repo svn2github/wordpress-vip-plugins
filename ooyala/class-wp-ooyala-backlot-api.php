@@ -1,39 +1,4 @@
 <?php
-
-//Backward compat class for new Ooyala plugin
-
-class Ooyala_Video extends Ooyala {
-
-	private static $instance;
-
-	var $plugin_url;
-
-	protected function __construct() {
-		$this->plugin_url = plugin_dir_url( __FILE__ );
-	}
-
-    public static function init() {
-		
-		//init new Ooyala class just in case it was not initialized yet
-		$ooyala = Ooyala::instance();
-
-		if (null === static::$instance) {
-            static::$instance = new static();
-        }
-		
-		return static::$instance;
-	}
-
-	public function media_button() {
-		$ooyala = Ooyala::instance();
-		return $ooyala->media_buttons();
-	}
-
-	private function __clone() {}
-
-	private function __wakeup() {}
-}
-
 /**
  * WordPress Class for interfacing with the Ooyola Backlot API v2
  *
