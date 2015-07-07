@@ -185,4 +185,4 @@ add_filter( 'wpcom_subscriber_text_email_author', function( $author, $post_id ) 
 	}
 
 	return $author_text;
-});
+}, 10, 2);
