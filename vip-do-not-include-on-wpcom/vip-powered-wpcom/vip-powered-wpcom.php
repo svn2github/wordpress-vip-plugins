@@ -19,11 +19,11 @@ class WPCOM_Widget_VIP_Powered extends WP_Widget {
 	/**
 	 * Constructor. Sets up widget options.
 	 */
-	function WPCOM_Widget_VIP_Powered() {
+	function __construct() {
 		$widget_ops = array('classname' => 'widget_vip_powered_wpcom', 'description' => __( "Powered by WordPress.com VIP") );
                 $control_ops = array( 'width' => 295 );
 
-		$this->WP_Widget('vip-powered', __('VIP Powered'), $widget_ops, $control_ops );
+		parent::__construct('vip-powered', __('VIP Powered'), $widget_ops, $control_ops );
 	}
 
 	/**
