@@ -219,10 +219,6 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'MediaPass Subscriptions',
 				'description' => 'Monetize your content with recurring subscriptions made easy.',
 			),
-			'playbuzz'     => array(
-				'name'        => 'Playbuzz',
-				'description' => 'Make your own quiz, list, or poll.',
-			),
 			'postrelease-vip'        => array(
 				'name'        => 'Nativo',
 				'description' => 'Unlock a premium revenue stream with native ads.',
