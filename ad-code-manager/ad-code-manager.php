@@ -4,7 +4,7 @@ Plugin Name: Ad Code Manager
 Plugin URI: http://automattic.com
 Description: Easy ad code management
 Author: Rinat Khaziev, Jeremy Felt, Daniel Bachhuber, Automattic, doejo
-Version: 0.5-alpha
+Version: 0.4.3-alpha
 Author URI: http://automattic.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -24,7 +24,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
-define( 'AD_CODE_MANAGER_VERSION', '0.5-alpha' );
+define( 'AD_CODE_MANAGER_VERSION', '0.4.3-alpha' );
 define( 'AD_CODE_MANAGER_ROOT' , dirname( __FILE__ ) );
 define( 'AD_CODE_MANAGER_FILE_PATH' , AD_CODE_MANAGER_ROOT . '/' . basename( __FILE__ ) );
 define( 'AD_CODE_MANAGER_URL' , plugins_url( '/', __FILE__ ) );
@@ -904,6 +904,18 @@ class Ad_Code_Manager {
 		if ( false !== $ad_code = wp_cache_get( $cache_key, 'acm' ) )
 			return $ad_code;
 
+		/**
+		 * Prevent $post polution if ad code is getting rendered inside a loop:
+		 *
+		 * Most of conditionals are getting checked against global $post,
+		 * Getting matched ad code inside the loop might result in wrong ad code matched.
+		 *
+		 * Filter is for back compat since not thoroughly tested
+		 */
+		if ( apply_filters( 'acm_reset_postdata_before_match', false ) ) {
+			wp_reset_postdata();
+		}
+
 		// Run our ad codes through all of the conditionals to make sure we should
 		// be displaying it
 		$display_codes = array();
@@ -952,7 +964,7 @@ class Ad_Code_Manager {
 
 				// Don't run the conditional if the conditional function doesn't exist or
 				// isn't in our whitelist
-				if ( !function_exists( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
+				if ( !is_callable( $cond_func ) || !in_array( $cond_func, $this->whitelisted_conditionals ) )
 					continue;
 
 				// Run our conditional and use any arguments that were passed
@@ -1004,7 +1016,7 @@ class Ad_Code_Manager {
 		ksort( $prioritized_display_codes, SORT_NUMERIC );
 
 		$shifted_prioritized_display_codes = array_shift( $prioritized_display_codes );
-		
+
 		$code_to_display = array_shift( $shifted_prioritized_display_codes );
 
 		wp_cache_add( $cache_key, $code_to_display, 'acm', 600 );
