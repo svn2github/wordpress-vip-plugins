@@ -3,7 +3,7 @@
 Plugin Name: LivePress
 Plugin URI:  http://www.livepress.com
 Description: Richly-featured live blogging for WordPress.
-Version:     1.3
+Version:     1.3.1
 Author:      LivePress Inc.
 Author URI:  http://www.livepress.com
 Text Domain: livepress

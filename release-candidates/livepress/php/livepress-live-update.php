@@ -257,6 +257,8 @@ class LivePress_Live_Update {
 		return $metainfo . PHP_EOL;
 	}
 
+
+
 	/**
 	 * Add user options to shortcode.
 	 *
@@ -264,6 +266,11 @@ class LivePress_Live_Update {
 	 */
 	public function fill_livepress_shortcodes( $content ) {
 
+		global $post;
+		$is_live = isset( $post ) ? LivePress_Updater::instance()->blogging_tools->get_post_live_status( $post->ID ) : false;
+		if( ! $is_live ){
+			return $content;
+		}
 
 		$options       = $this->options;
 
@@ -272,23 +279,25 @@ class LivePress_Live_Update {
 
 		$has_shortcode = ( false === strpos( $content, '[livepress_metainfo' ) ) ? false : true;
 
-		preg_match( '/\[livepress_metainfo show_timestmp="(.)".*\]/s', $content, $show_timestmp );
+		preg_match( '/\[livepress_metainfo show_timestmp=.?"(.).?".*\]/s', $content, $show_timestmp );
 
 		if ( ! empty( $show_timestmp[1] ) || ! $has_shortcode ) {
 			$current_time_attr = ' time="'. $this->format_timestamp( current_time( 'timestamp' ) ) .'" ';
+
 			if ( $options['timestamp'] ) {
-				if ( isset( $this->custom_timestamp ) ) {
+				$new_shortcode   .= ' show_timestmp="1" ';
+				if ( isset(  $this->custom_timestamp  ) ){
 					$custom_timestamp = strtotime( $this->custom_timestamp );
 					$new_shortcode   .= ' time="'. $this->format_timestamp( $custom_timestamp ) .'"';
 					$new_shortcode   .= ' timestamp="'. date( 'c', $custom_timestamp ) .'"';
 				} else {
-					$new_shortcode .= $current_time_attr;
+					$new_shortcode   .= $current_time_attr;
 					$new_shortcode   .= ' timestamp="'. date( 'c', current_time( 'timestamp', 1 ) ) .'"';
 				}
 			}
 		}
 
-		preg_match( '/\[livepress_metainfo.*authors="(.*)"\]/s', $content, $author_block );
+		preg_match( '/\[livepress_metainfo.*authors=.?"(.*).?".?\]/', $content, $author_block );
 
 		if ( empty($author_block) || 0 == strlen( $author_block[1] ) ) {
 			$current_authors     = isset( $_POST['authors'] ) ? $_POST['authors'] : array();
@@ -302,18 +311,21 @@ class LivePress_Live_Update {
 			$custom_author_names = $author_block[1];
 		}
 
-		if ( '' !== trim( $custom_author_names ) ) {
-			$authorname = $custom_author_names;
+		$custom_names =  explode('\"',$custom_author_names); // remove any trailing \"
+		if ( '' !== trim( $custom_names[0] ) ) {
+			$authorname = $custom_names[0];
 		} else {
 			$authorname = self::get_author_display_name( $options );
 		}
 
+		if ( $authorname ) {
+			$new_shortcode .= ' authors="' . $authorname . '"';
+		}
+
 		// look to see if we have an avatar and hide the author name if we have
-		preg_match( '/\[livepress_metainfo.*avatar_block="shown".*\]/s', $content, $avatar_block );
-		if ( empty( $avatar_block ) ) {
-			if ( $authorname ) {
-				$new_shortcode .= ' authors="' . $authorname . '"';
-			}
+		preg_match( '/\[livepress_metainfo.*avatar_block=.?"shown.?".*\]/', $content, $avatar_block );
+		if ( ! empty( $avatar_block ) ) {
+			$new_shortcode .= ' avatar_block="shown" ';
 		}
 
 		if ( $options['include_avatar'] ) {
@@ -324,25 +336,26 @@ class LivePress_Live_Update {
 		}
 
 		// Pass the update header thru to processed shortcode
-		preg_match( '/.*update_header="(.*)"\]/s', $content, $update_header );
+		preg_match( '/.*update_header=.?"(.*).?".?\]/', $content, $update_header );
 
 		if ( isset( $update_header[1] ) && 'undefined' !== $update_header[1] ) {
 			$new_shortcode .= ' update_header="' . $update_header[1] . '"';
 		}
 
 		$new_shortcode .= ']' . PHP_EOL . PHP_EOL;
+
 		// Replace empty livepress_metainfo with calculated one
-		$content = preg_replace( '/\[livepress_metainfo[^\]]*]/s', $new_shortcode,  $content . PHP_EOL );
+		$content = preg_replace( '/\[livepress_metainfo[^\]]*]/', $new_shortcode,  $content . PHP_EOL );
 
 		//unload the filter so it does run again
 		remove_filter( 'content_save_pre', array( $this, 'fill_livepress_shortcodes' ), 5 );
 
 		// Replace POSTTIME inside livepress_metainfo with current time
 		if ( ! empty( $show_timestmp[1] ) ) {
-			return preg_replace( '/(\[livepress_metainfo[^\]]*)POSTTIME([^\]]*\])/s', '$1'.$current_time_attr.'$2', $content );
-		} else {
-			return $content;
+			$content = preg_replace( '/(\[livepress_metainfo[^\]]*)POSTTIME([^\]]*\])/s', '$1'.$current_time_attr.'$2', $content );
 		}
+
+		return $content;
 	}
 
 	/**
@@ -394,6 +407,9 @@ class LivePress_Live_Update {
 	 * @return string HTML image tag.
 	 */
 	public static function get_avatar_img_tag( $from ) {
+		if( null === $from ){
+			return;
+		}
 
 		global $user;
 		$avatar_img_tag = get_avatar( $user->ID, 30 );

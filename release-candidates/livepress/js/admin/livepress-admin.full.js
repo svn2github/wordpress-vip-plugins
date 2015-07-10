@@ -5628,7 +5628,8 @@ jQuery(function () {
 					SELF.$form.find('input.button.save').remove();
 					SELF.$form.find('a.livepress-delete').remove();
 					SELF.$form.addClass(namespace + '-newform');
-					if ($j('#post input[name=original_post_status]').val() !== 'publish') {
+                    var post_state = $j('#post input[name=original_post_status]').val();
+					if ( post_state !== 'publish' && post_state !== 'private' && post_state !== 'auto-draft' ) {
 						SELF.$form.find('input.published').remove();
 						SELF.$form.find('.quick-publish').remove();
 					} else {
@@ -5828,10 +5829,8 @@ jQuery(function () {
 							var returnAuthors = [];
 							metaAuthors = jQuery( stuff ).each( function( index, name ) {
 									returnAuthors[index] = name;
-
 							});
 							$formHeader.data('authors', "" + metaAuthors);
-
 						}
 					}
 
@@ -6103,8 +6102,14 @@ jQuery(function () {
 				 */
 				onFormAction:   function (e) {
 					var val = e.target.getAttribute("data-action");
+
 					if (val === 'cancel') {
+                        e.preventDefault();
 						this.onCancel();
+                        // make sure if daft is stays draft
+                        if( this.draft ){
+                            jQuery( '#'+this.originalUpdateId ).addClass( 'livepress-draft' );
+                        }
 						return false;
 					} else if (val === 'delete') {
 						e.preventDefault();
@@ -6113,9 +6118,14 @@ jQuery(function () {
 					} else if (val === 'draft') {
                         e.preventDefault();
                         this.onDraft();
+                        // reset the main form if saving as draft
+                        if( true !== this.draft ){
+                            this.resetFormFieldStates(this);
+                        }
+
                         return false;
                     }
-					else if (val === 'publish-draft') {
+					else if ( val === 'publish-draft' ) {
 						e.preventDefault();
 						this.onPublishDraft();
 						return false;
@@ -6169,7 +6179,7 @@ jQuery(function () {
 				 * function: onSave
 				 * Modifies livepress-tiny.
 				 */
-				onSave:         function ( isDraft ) {
+				onSave: function ( isDraft ) {
 					// First, we need to be sure we're toggling the update indicator if they're disabled
 					var $bar = jQuery('#lp-pub-status-bar');
 

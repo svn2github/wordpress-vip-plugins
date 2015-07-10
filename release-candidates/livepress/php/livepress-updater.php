@@ -22,6 +22,7 @@ class LivePress_Updater {
 	private $livepress_config;
 	private $livepress_communication;
 	private $lp_comment;
+	private $custom_timestamp;
 
 	private $old_post;
 
@@ -35,6 +36,7 @@ class LivePress_Updater {
 	function __construct() {
 		global $current_user;
 
+		$this->custom_timestamp = null;
 		$this->blogging_tools = new LivePress_Blogging_Tools();
 
 		$this->options = get_option( LivePress_Administration::$options_name );
@@ -93,19 +95,15 @@ class LivePress_Updater {
 			// Ensuring that the post is divided into micro-post livepress chunks
 			$live_update = $this->init_live_update();
 
-				add_action( 'wp_enqueue_scripts', array( &$this, 'add_js_config' ), 11 );
-				add_action( 'wp_enqueue_scripts', array( &$this, 'add_css_and_js_on_header' ), 10 );
+			add_action( 'wp_enqueue_scripts', array( &$this, 'add_js_config' ), 11 );
+			add_action( 'wp_enqueue_scripts', array( &$this, 'add_css_and_js_on_header' ), 10 );
 			add_filter( 'edit_post', array( &$this, 'maybe_merge_post' ), 10 );
 
-			global $post;
-			$is_live = isset( $post ) ? LivePress_Updater::instance()->blogging_tools->get_post_live_status( $post->ID ) : false;
-			if( $is_live ){
+			add_action( 'pre_post_update',  array( &$this, 'save_old_post' ),  999 );
 
-				add_action( 'pre_post_update',  array( &$this, 'save_old_post' ),  999 );
-				add_filter( 'save_post', array( &$this, 'save_lp_post_options' ), 10 );
-				add_filter( 'content_save_pre', array( $live_update, 'fill_livepress_shortcodes' ), 5 );
-			}
+			add_filter( 'pre_post_update', array( &$this, 'save_lp_post_options' ), 10 );
 
+			add_filter( 'content_save_pre', array( $live_update, 'fill_livepress_shortcodes' ), 5 );
 
 		}
 
@@ -871,8 +869,9 @@ class LivePress_Updater {
 				// Set the author name
 				$update_author = isset( $this->options['update_author'] ) ? $this->options['update_author'] : false;
 				if ( $update_author ) {
-					$use_default_author = apply_filters( 'livepress_use_default_author', true );
-					$ljsc->new_value( 'use_default_author', $use_default_author );
+					$use_default_author = ( true === apply_filters( 'livepress_use_default_author', true ) ) ? true : false ;
+
+					$ljsc->new_value( 'use_default_author', $use_default_author, Livepress_Configuration_Item::$BOOLEAN );
 					$author_display_name = $use_default_author ? LivePress_Live_Update::get_author_display_name( $this->options ) : '';
 					$ljsc->new_value( 'author_display_name', $author_display_name );
 					$user = wp_get_current_user();

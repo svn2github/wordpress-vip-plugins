@@ -157,10 +157,19 @@ class LivePress_PF_Updates {
 			return $content;
 		}
 
+		if ( ! in_the_loop() ) {
+			return $content;
+		}
+
+		if ( apply_filters( 'livepress_the_content_filter_disabled', false ) ) {
+			return $content;
+		}
+
 		if ( isset( $post->no_update_tag ) || is_single() || is_admin() ||
 			(defined( 'XMLRPC_REQUEST' ) && constant( 'XMLRPC_REQUEST' )) ) {
 			return $content;
 		}
+
 
 		// First, make sure the content is non-empty
 		$content = $this->hide_empty_update( $content );
@@ -267,6 +276,7 @@ class LivePress_PF_Updates {
 		if ( ! is_singular( apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
 			return $content;
 		}
+
 		if ( ! LivePress_Updater::instance()->blogging_tools->get_post_live_status( get_the_ID() ) ) {
 			return $content;
 		}
@@ -408,7 +418,7 @@ class LivePress_PF_Updates {
 		global $post;
 
 		// Set up the $post object
-		$post_id = (int)$_POST['post_id'];
+		$post_id = absint( $_POST['post_id'] );
 		$post = get_post( $post_id );
 		$post->no_update_tag = true;
 
@@ -422,13 +432,37 @@ class LivePress_PF_Updates {
 
 		// If the post content is not empty, and there are no child posts, the post has
 		// just been made live.  Insert the content as a live update
+
 		if ( 0 == count( $this->pieces ) ) {
 			if ( '' !== $user_content ) {
 				// Add a live update with the current content
-				$this->add_update( $post, $user_content, '' );
+				if ( array_key_exists( 'update_meta', $_POST ) ){
+					$update_meta = $_POST['update_meta'];
+				}
+				$update_meta['draft'] = false; // TODO: set to match the post state
+
+				$title = get_the_title( $post_id );
+				$update_header= ( ! empty( $title ) && 'Auto Draft' !== $title ) ? 'update_header="' . $title . '"' : '';
+
+				$user = wp_get_current_user();
+				$user_text = ' authors="'.$user->display_name .'" ' . $update_header;
+
+				$user_content = str_replace( 'authors=""', $user_text, $user_content );
+
+				$admin_settings = new LivePress_Admin_Settings();
+				$settings = $admin_settings->get_settings();
+
+				if( in_array( 'AUTHOR', $settings->show ) ){
+					$avartar_html = $this->avatar_html( $post ). '<div class="livepress-update-inner-wrapper lp_avatar_shown">';
+
+					$user_content = str_replace( '<div class="livepress-update-inner-wrapper lp_avatar_hidden">', $avartar_html, $user_content );
+				}
+				$this->add_update( $post, $user_content, '', $update_meta );
+
 				$this->assemble_pieces( $post );
 			}
 		}
+
 
 		$original = $this->pieces;
 
@@ -450,6 +484,37 @@ class LivePress_PF_Updates {
 		echo json_encode( $ans );
 		die;
 	}
+
+	/**
+	 * Create the HTML for avatar.
+	 *
+	 */
+	private function avatar_html( $current_post ){
+		$user_id = $current_post->post_author;
+		$author_url = ( '' !== get_the_author_meta( 'user_url', $user_id ) ) ? get_the_author_meta( 'user_url', $user_id ) : get_author_posts_url( $user_id );
+
+		return sprintf( '<div class="live-update-authors"><span class="live-update-author live-update-author-%s">
+<span class="lp-authorID">%d</span><span class="live-author-gravatar"><a href="%s" target="_blank">%s</a>
+</span><span class="live-author-name"><a href="%s" target="_blank">%s</a></span></span></div>',
+			esc_attr( get_the_author_meta( 'user_login', $user_id ) ),
+			absint( $user_id ),
+			esc_url( $author_url),
+			get_avatar( $user_id ),
+			esc_url( $author_url ),
+			esc_html( get_the_author_meta( 'display_name', $user_id ) )
+
+		);
+	}
+
+//              jQuery.each( authors, function(){
+//	            toReturn += '<span class="live-update-author live-update-author-' +
+//	            this.text.replace(/\s/g, '-').toLowerCase() + '">';
+//						toReturn += '<span class="lp-authorID">' + this.id + '</span>';
+//						if ( 'undefined' !== typeof SELF.gravatars[ this.id ] && '' !== SELF.gravatars[ this.id ] ) {
+//		         toReturn += '<span class="live-author-gravatar">' + SELF.linkToAvatar( SELF.gravatars[ this.id ], this.id ) +  '</span>';
+//						}
+//						toReturn += '<span class="live-author-name">' + SELF.linkToAvatar( this.text, this.id ) + '</span></span>';
+//					} );
 
 	/**
 	 * Insert a new child post to the current post via AJAX.
@@ -599,6 +664,7 @@ class LivePress_PF_Updates {
 	 * @uses wp_insert_post() Uses the WordPress API to create a new child post.
 	 */
 	public function add_update( $parent, $content, $livetags, $update_meta ) {
+
 		global $current_user, $post;
 		get_currentuserinfo();
 

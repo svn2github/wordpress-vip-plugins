@@ -39,7 +39,7 @@ function livepress_template( $auto = false, $seconds_since_last = 0 ) {
 	$htmlTemplate = <<<HTML
 		<div id="livepress">
 			<div class="lp-bar">
-				<div class="lp-status $lp_status $pin_class "><span class="status-title">$live</span></div>
+				<div class="lp-status $lp_status $pin_class "><span class="lp-status-title">$live</span></div>
 				<div class="lp-updated">
 					<span class="lp-updated-counter" data-min="$seconds_since_last">
 						<abbr class="livepress-timestamp" title="$date8601"></abbr>

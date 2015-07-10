@@ -2,7 +2,7 @@
 Requires at least: 3.5
 Tested up to: 4.2.2
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.3
+Stable tag: 1.3.1
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
@@ -119,6 +119,17 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 
 == Changelog ==
 
+= 1.3.1 =
+
+* Fixed left margin in pinned post
+* Fixed draft and private posts not working as LivePress posts
+* Fixes to make sure the stored short code is correctly formatted
+* Added check to make sure LivePress dosen't load on non-live posts or outside the post loop
+* Added code to generate avatar and shortcode for the existing content when converting to a live post
+* Renamed CSS class "status-title" to "lp-status-title" to avoided CSS override
+* Fixed a problem with converting to a live post by changing which filter we use
+* Fixed the CSS to show draft LivePress updates in green in the main listing
+
 = 1.3 =
 * sync with WordPress VIP Version
 * code tidy and various undefined vars props: Paul Schreiber from FiveThirtyEight.com
@@ -127,11 +138,15 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 * fix to handle popup blocking for Twitter share links
 * fix to share links on pinned post
 * optimized all images
-* added language support for select2
+* added language support for select2.js
 * fix to stop getting undefined authors when editing an update
 * fix to ensure that editing an update does not update its timestamp
 * fix to ensure an update edited in the plain text editor saves correctly
 * fix to ensure that all of the paragraphs of a multi-paragraph update are shown in the editor
+* Stopped the some of the JS loading when not needed
+* Fix to allow \ in the content
+* Added a scrollTO to keep the page fixed when loading embeded tweets
+* changed css class from "status-title" to "lp-status-title" on live status span
 
 = 1.2.4 =
 * Added the ability to have drafts for updates

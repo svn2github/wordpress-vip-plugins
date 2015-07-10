@@ -105,7 +105,7 @@ body#tinymce .livepress-update p {
 	padding: 4px;
 }
 
-.livepress-update-format-default #livepress-canvas div.livepress-update.livepress-draft,
+#livepress-canvas div.livepress-update.livepress-draft,
 #livepress-canvas form.livepress-update-form.livepress-draft{
     background: #dbfae1;
 }

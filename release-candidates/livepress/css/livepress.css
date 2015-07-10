@@ -171,6 +171,9 @@
 .livepress-update.pinned-first-live-update .live-update-authors {
 	display: none;
 }
+.livepress-update.pinned-first-live-update div.livepress-update-inner-wrapper.lp_avatar_shown{
+    margin-left: auto;
+}
 
 /* Needs #post_content_livepress to be more specialized than #content img */
 .livepress-meta img,
@@ -199,7 +202,7 @@ body#tinymce .livepress-meta .wp-caption img {
 }
 
 .livepress-update-show-header .livepress-update-header{
-	display: block;
+	display: inline;
 }
 
 .livepress-newform  .livepress-update-header{
