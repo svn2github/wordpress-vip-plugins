@@ -454,7 +454,7 @@ function sailthru_initialize_forms_options() {
 		add_settings_field(
 				'sailthru_customfield_delete',				// ID used to identify the field throughout the theme
 				__( 'Choose one', 'sailthru-for-wordpress' ),// The label to the left of the option interface element
-				'delete_field',								// The name of the function responsible for rendering the option interface
+				'sailthru_delete_field',								// The name of the function responsible for rendering the option interface
 				'sailthru_forms_options',					// The page on which this option will be displayed
 				'sailthru_delete_section',					// The name of the section to which this field belongs
 				array(										// The array of arguments to pass to the callback. In this case, just a description.
