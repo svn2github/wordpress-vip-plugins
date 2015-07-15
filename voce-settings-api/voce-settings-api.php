@@ -2,7 +2,7 @@
 /**
  * A simplification of the settings API
  * @author Michael Pretty (prettyboymp)
- * @version 0.2
+ * @version 0.5.3
  */
 
 if(!class_exists('Voce_Settings_API')) {
@@ -13,8 +13,8 @@ class Voce_Settings_API {
 	private static $instance;
 
 	private $settings_pages;
-	
-	CONST VERSION = 0.2;
+
+	CONST VERSION = '0.5.3';
 
 	/**
 	 * Returns singleton instance of api
@@ -40,7 +40,7 @@ class Voce_Settings_API {
 		}
 		return $default;
 	}
-	
+
 	public function set_setting($setting_key, $group_key, $value) {
 		$new_values = get_option($group_key, array());
 		$new_values[$setting_key] = $value;
@@ -145,10 +145,16 @@ class Voce_Settings_Page {
 		if(current_user_can($this->capability)) {
 			//only add the page if groups exist
 			if($this->parent_page) {
-				add_submenu_page($this->parent_page, $this->title, $this->menu_title, $this->capability, $this->page_key, array($this, 'display'));
+				$page_hook = add_submenu_page($this->parent_page, $this->title, $this->menu_title, $this->capability, $this->page_key, array($this, 'display'));
 			} else {
-				add_menu_page($this->title, $this->menu_title, $this->capability, $this->page_key, array($this, 'display'));
+				$page_hook = add_menu_page($this->title, $this->menu_title, $this->capability, $this->page_key, array($this, 'display'));
 			}
+
+			$page = $this;
+
+			add_action( 'load-' . $page_hook, function() use ($page){
+				do_action( 'vs_admin_enqueue_scripts', $page );
+			} );
 		}
 	}
 
@@ -175,9 +181,9 @@ class Voce_Settings_Page {
 		if(current_user_can($this->capability)) {
 			?>
 			<div class="wrap">
-				<h2><?php echo $this->title ?></h2>
-				<?php settings_errors($this->page_key); ?>
-				<?php if($this->description) echo "<p>{$this->description}</p>"; ?>
+				<h2><?php echo wp_kses_post( $this->title); ?></h2>
+				<?php settings_errors($this->page_key, false, true); ?>
+				<?php if($this->description) { echo sprintf('<p>%s</p>', wp_kses_post( $this->description ) ); } ?>
 				<form action="options.php" method="POST">
 					<?php settings_fields($this->page_key); ?>
 					<?php do_settings_sections($this->page_key); ?>
@@ -227,12 +233,11 @@ class Voce_Settings_Group {
 	}
 
 	/**
-	 * Adds a group to the group
+	 * Adds a setting to the group
 	 *
 	 * @param string $title
-	 * @param string $group_key
-	 * @param string $capability
-	 * @param string $description
+	 * @param string $setting_key
+	 * @param array $args
 	 * @return Voce_Setting
 	 */
 	public function add_setting($title, $setting_key, $args = array()) {
@@ -245,7 +250,7 @@ class Voce_Settings_Group {
 
 	public function display() {
 		if(current_user_can($this->capability)) {
-			if($this->description) echo "<p>{$this->description}</p>";
+			if ( $this->description ) { echo sprintf( '<p>%s</p>', wp_kses_post( $this->description ) ); }
 		}
 	}
 
@@ -309,9 +314,9 @@ class Voce_Setting {
 		$this->group->add_error($this->setting_key, $message, $type);
 	}
 
-
 	public function admin_init() {
-		add_settings_field($this->setting_key, $this->title, array($this, 'display'), $this->group->page->page_key, $this->group->group_key);
+		$field_id = implode('-', array($this->group->page->page_key, $this->group->group_key, $this->setting_key));
+		add_settings_field($this->setting_key, sprintf('<label for="%s">%s</label>', esc_attr( $field_id ), wp_kses_post( $this->title ) ), array($this, 'display'), $this->group->page->page_key, $this->group->group_key);
 	}
 
 	public function get_field_name() {
@@ -327,12 +332,8 @@ class Voce_Setting {
 		if(!empty($this->args['display_callback'])) {
 			call_user_func_array($this->args['display_callback'], array($value, $this, $this->args));
 		} else {
-			?>
-			<input name="<?php echo $this->get_field_name() ?>" id="<?php echo $this->get_field_id() ?>" value="<?php echo esc_attr($value) ?>" class="regular-text" type="text">
-			<?php if(!empty($this->args['description'])) : ?>
-				<span class="description"><?php echo $this->args['description'] ?></span>
-			<?php endif; ?>
-			<?php
+			// default to text field
+			vs_display_text_field($value, $this, $this->args);
 		}
 	}
 
