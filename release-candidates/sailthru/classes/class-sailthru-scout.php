@@ -109,8 +109,8 @@ class Sailthru_Scout_Widget extends WP_Widget {
 		$scout_params = array();
 
 		// inlcudeConsumed?
-		if ( isset( $scout['sailthru_scout_includeConsumed'] ) && strlen( $scout['sailthru_scout_includeConsumed'] ) > 0 ) {
-			$scout_params[] = "includeConsumed: " . (bool) $scout['sailthru_scout_includeConsumed'];
+		if ( isset( $scout['sailthru_scout_includeConsumed'] ) && "true" == $scout['sailthru_scout_includeConsumed'] ) {
+			$scout_params[] = "includeConsumed: 1";
 		}
 
 		// renderItem?
