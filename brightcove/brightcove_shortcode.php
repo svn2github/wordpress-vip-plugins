@@ -27,7 +27,7 @@ function brightcove_add($atts) {
 	$playlistid = sanitize_key( $combined_attr['playlistid'] );
 	$playlist_width = sanitize_key( $combined_attr['playlist_width'] );	
 	$playlist_height = sanitize_key( $combined_attr['playlist_height'] );	
-	$link_url = sanitize_key( $combined_attr['link_url'] );			
+	$link_url = esc_url_raw( $combined_attr['link_url'] );			
 
 	$html = '<div style="display:none"></div>';
 	$html = $html . '<object id="' . esc_attr( rand() ) .'" class="BrightcoveExperience">';
