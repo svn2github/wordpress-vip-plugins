@@ -166,15 +166,16 @@ class WPcom_VIP_Plugins_UI {
 			// deprecated
 			'breadcrumb-navxt', // use the newer version instead
 			'daylife', // API doesn't work #36756-z
-			'livefyre', // use livefyre3 instead
 			'feedwordpress', // breaks all the time
-			'wordtwit-1.3-mod', // use publicize
-			'uppsite', // Retired from FPP but a couple VIPs still using it
-			'wpcom-related-posts', // Now part of JP / WP.com
-			'scrollkit-wp', // Scroll Kit shut down but still a few people with it activated
 			'google-calendar-events', // https://viprequests.wordpress.com/2015/01/06/update-google-calendar-events-shared-plugin/
 			'ice', // Crazy out-of-date, doesn't work with MCE 4+, still in use by a handful for some reason
+			'livefyre', // use livefyre3 instead
+			'scrollkit-wp', // Scroll Kit shut down but still a few people with it activated
+			'search-excerpt', // out-of-date and not widely used
 			'the-attached-image', // Badness - was missing ton of escaping, not using the settings api
+			'uppsite', // Retired from FPP but a couple VIPs still using it
+			'wordtwit-1.3-mod', // use publicize
+			'wpcom-related-posts', // Now part of JP / WP.com
 		);
 
 		$this->fpp_plugins = array(
