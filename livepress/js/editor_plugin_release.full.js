@@ -1,6 +1,6 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
- * Copyright (c) 2014 LivePress, Inc.
+ * Copyright (c) 2015 LivePress, Inc.
  */
 (function () {
 	var path = LivepressConfig.lp_plugin_url + 'tinymce/',
@@ -77,10 +77,10 @@
 		 * Gets the metainfo shortcode
 		 */
 		this.newMetainfoShortcode = function () {
-			var metainfo = "[livepress_metainfo";
+			var metainfo = "\n[livepress_metainfo";
 
 			if (config.author_display_name) {
-				metainfo += ' author="' + config.author_display_name + '"';
+				metainfo += ' authors="' + config.author_display_name + '"';
 			}
 
 			var d, utc, server_time;
@@ -100,7 +100,7 @@
 				metainfo += ' has_avatar="1"';
 			}
 
-			return metainfo + "]";
+			return metainfo + "]\n\n";
 		};
 
 		/*

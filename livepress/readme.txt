@@ -1,8 +1,8 @@
 === LivePress ===
 Requires at least: 3.5
-Tested up to: 4.0.0
+Tested up to: 4.2.2
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.2.2
+Stable tag: 1.3.1
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
@@ -118,6 +118,67 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 2. New update sent -- it appears for all readers of this post at the same time.
 
 == Changelog ==
+
+= 1.3.1 =
+
+* Fixed left margin in pinned post
+* Fixed draft and private posts not working as LivePress posts
+* Fixes to make sure the stored short code is correctly formatted
+* Added check to make sure LivePress dosen't load on non-live posts or outside the post loop
+* Added code to generate avatar and shortcode for the existing content when converting to a live post
+* Renamed CSS class "status-title" to "lp-status-title" to avoided CSS override
+* Fixed a problem with converting to a live post by changing which filter we use
+* Fixed the CSS to show draft LivePress updates in green in the main listing
+
+= 1.3 =
+* sync with WordPress VIP Version
+* code tidy and various undefined vars props: Paul Schreiber from FiveThirtyEight.com
+* fix to handle '%' in titles and message body
+* fix to handle sounds URL on WordPress VIP
+* fix to handle popup blocking for Twitter share links
+* fix to share links on pinned post
+* optimized all images
+* added language support for select2.js
+* fix to stop getting undefined authors when editing an update
+* fix to ensure that editing an update does not update its timestamp
+* fix to ensure an update edited in the plain text editor saves correctly
+* fix to ensure that all of the paragraphs of a multi-paragraph update are shown in the editor
+* Stopped the some of the JS loading when not needed
+* Fix to allow \ in the content
+* Added a scrollTO to keep the page fixed when loading embeded tweets
+* changed css class from "status-title" to "lp-status-title" on live status span
+
+= 1.2.4 =
+* Added the ability to have drafts for updates
+* Added filter to suppress live updates from showing in the CoSchedule by Todaymade plugin needs Version 2.3.0 of the CoSchedule plugin
+* moved the pinned update about the status bar
+* bug fixes around linefeeds being stripped when changing editor modes
+
+= 1.2.3 =
+* removed comment block that was creating and install error
+* Added text domain detail to plugin Comment block
+
+= 1.2.2 =
+* WP CLI commands to manage posts
+* removed JS console.log calls
+* Increased the timeout for vip_safe_wp_remote_get calls from 1 to 10
+* Did some work to allow the twitter popup to still work if the calling Ajax call is slow
+* Other small bug fixes
+* test on WordPress 4.1
+
+= 1.2.1 =
+* removed src files from plugin
+* Issue with raw code being displayed after converting post to "non-live" fixed
+* other bug fixes
+
+= 1.2.0 =
+* Back port of the code changes from the WordPress VIP version of livepress
+* Fixed: remote authors and posting from Twitter
+* Added sharing links for individual updates
+* Added Headlines for individual updates (edited)
+* Added Tags for individual updates
+* Added Avatars for individual
+* General bug squashing and cleanup
 
 = 1.1.5 =
 * Adds filter to disable LivePress's 'the_content' filter. See more in [Other notes](https://wordpress.org/plugins/livepress/other_notes/)

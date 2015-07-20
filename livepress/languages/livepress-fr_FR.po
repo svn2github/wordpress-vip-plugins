@@ -421,9 +421,6 @@ msgstr ""
 msgid "Error: [USERNAME] isn't a valid Google Talk account"
 msgstr ""
 
-#: php/livepress-updater.php:312
-msgid "Error: [USERNAME] wasn't find in jabber client bot roster"
-msgstr ""
 
 #: php/livepress-updater.php:313 php/livepress-updater.php:314
 msgid "[USERNAME] has been authorized"
@@ -603,10 +600,6 @@ msgstr ""
 msgid "Comment"
 msgstr ""
 
-#: php/livepress-updater.php:378
-msgid "include timestamp and author information"
-msgstr ""
-
 #: php/livepress-updater.php:379
 msgid "Delete Permanently"
 msgstr ""
@@ -679,10 +672,6 @@ msgstr ""
 
 #: php/livepress-updater.php:397
 msgid "Can't get upate status from blog server."
-msgstr ""
-
-#: php/livepress-updater.php:398
-msgid "Checking authorization status..."
 msgstr ""
 
 #: php/livepress-updater.php:400
@@ -887,12 +876,6 @@ msgstr ""
 msgid "...and much more, for a complete list text <code>#help</code> to"
 msgstr ""
 
-#: php/livepress-xmlrpc.php:116
-#, php-format
-msgid ""
-"XML-RPC services are disabled on this site. An admin user can enable them at "
-"%s"
-msgstr ""
 
 #: php/special_comments.php:20
 msgid "Name"

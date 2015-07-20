@@ -42,8 +42,9 @@ class LivePress_Comment {
 	 * @param $options
 	 */
 	function __construct( $options ) {
+		$api_key = isset( $this->options['api_key'] ) ? $this->options['api_key'] : false;
 		$this->options = $options;
-		$this->lp_com  = new LivePress_Communication( $this->options['api_key'] );
+		$this->lp_com  = new LivePress_Communication( $api_key );
 	}
 
 	/**
@@ -75,7 +76,7 @@ class LivePress_Comment {
 
 		$id = isset( $_POST['id'] ) ? (int) $_POST['id'] : 0;
 		if ( $comment = get_comment( $id ) ) {
-			check_ajax_referer( "post_comment" );
+			check_ajax_referer( 'post_comment' );
 			$nonce = array(
 				'approve_comment_nonce' => wp_create_nonce( 'approve-comment_' . $id ),
 				'delete_comment_nonce'  => wp_create_nonce( 'delete-comment_' . $id )
@@ -105,7 +106,7 @@ class LivePress_Comment {
 			$ljsc->new_value( 'comment_count', 0, Livepress_Configuration_Item::$LITERAL );
 		}
 
-		$pagination_on = ( $config->get_host_option( "page_comments" ) == "1" );
+		$pagination_on = ( $config->get_host_option( 'page_comments' ) == '1' );
 		$ljsc->new_value( 'comment_pagination_is_on', $pagination_on, Livepress_Configuration_Item::$BOOLEAN );
 		$ljsc->new_value( 'comment_page_number', $page_active, Livepress_Configuration_Item::$LITERAL );
 		$ljsc->new_value( 'comment_pages_count', $comments_per_page, Livepress_Configuration_Item::$LITERAL );
@@ -113,16 +114,17 @@ class LivePress_Comment {
 		$comment_order = $config->get_host_option( 'comment_order' );
 		$ljsc->new_value( 'comment_order', $comment_order, Livepress_Configuration_Item::$STRING );
 
-		$ljsc->new_value( 'disable_comments',
-				$this->options['disable_comments'], Livepress_Configuration_Item::$BOOLEAN );
-		$ljsc->new_value( 'comment_live_updates_default',
-				$this->options['comment_live_updates_default'], Livepress_Configuration_Item::$BOOLEAN );
+		$disable_comments = isset( $this->options['disable_comments'] ) ? $this->options['disable_comments'] : false;
+		$ljsc->new_value( 'disable_comments', $disable_comments, Livepress_Configuration_Item::$BOOLEAN );
+
+		$comment_live_updates_default = isset( $this->options['comment_live_updates_default'] ) ? $this->options['comment_live_updates_default'] : false;
+		$ljsc->new_value( 'comment_live_updates_default', $comment_live_updates_default, Livepress_Configuration_Item::$BOOLEAN );
 
 		if ( isset( $post->ID ) && $post->ID ) {
-			$comment_msg_id = LivePress_WP_Utils::get_from_post( $post->ID, "comment_update", true );
+			$comment_msg_id = LivePress_WP_Utils::get_from_post( $post->ID, 'comment_update', true );
 			$ljsc->new_value( 'comment_msg_id', $comment_msg_id );
 			$ljsc->new_value( 'can_edit_comments', current_user_can( 'edit_post', $post->ID ),
-							Livepress_Configuration_Item::$BOOLEAN );
+			Livepress_Configuration_Item::$BOOLEAN );
 		}
 	}
 
@@ -162,7 +164,7 @@ class LivePress_Comment {
 			$comment    = $comment_id;
 			$comment_id = $comment->comment_ID;
 		}
-		if ( !$comment_status ) {
+		if ( ! $comment_status ) {
 			$comment_status = wp_get_comment_status( $comment_id );
 		}
 
@@ -188,19 +190,19 @@ class LivePress_Comment {
 				) );
 				$this->lp_com->send_to_livepress_new_created_comment( $params );
 			} catch ( LivePress_Communication_Exception $e ) {
-				$e->log( "new comment" );
+				$e->log( 'new comment' );
 			}
 		} else {
-			$old_uuid = LivePress_WP_Utils::get_from_post( $comment->comment_post_ID, 'comment_update', TRUE );
+			$old_uuid = LivePress_WP_Utils::get_from_post( $comment->comment_post_ID, 'comment_update', true );
 			$new_uuid = $this->lp_com->new_uuid();
 			LivePress_WP_Utils::save_on_post( $comment->comment_post_ID, 'comment_update', $new_uuid );
 
 			// Used to fake if the user is logged or not
 			global $user_ID;
 			$global_user_ID = $user_ID;
-			$user_ID = NULL;
-			if (current_user_can( 'edit_post', $post->ID ) ) {
-				wp_set_current_user( NULL );
+			$user_ID = null;
+			if ( current_user_can( 'edit_post', $post->ID ) ) {
+				wp_set_current_user( null );
 			}
 
 			$comment_template_non_logged       = $this->get_comment_list_templated( $comment );
@@ -211,8 +213,8 @@ class LivePress_Comment {
 			$wp_query->rewind_comments();
 
 			$user_ID = $post->post_author;
-			if ( !current_user_can( 'edit_post', $post->ID ) ) {
-				wp_set_current_user( $post->post_author);
+			if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+				wp_set_current_user( $post->post_author );
 			}
 
 			$comment_template = $this->get_comment_list_templated( $comment );
@@ -221,7 +223,7 @@ class LivePress_Comment {
 
 			try {
 				$params = array_merge( $params, array(
-					'post_author'                  => get_the_author_meta( 'login', $post->post_author),
+					'post_author'                  => get_the_author_meta( 'login', $post->post_author ),
 					'old_template'                 => $comment_template_non_logged['old'],
 					'new_template'                 => $comment_template_non_logged['new'],
 					'comment_parent'               => $comment->comment_parent,
@@ -266,7 +268,7 @@ class LivePress_Comment {
 
 		$selected     = array_reverse( $selected );
 		$view         = $this->get_comments_list_template( $selected, $post );
-		$comment_node = $this->extract_comment_by_element_id( $view, "comment-" . $comment->comment_ID );
+		$comment_node = $this->extract_comment_by_element_id( $view, 'comment-' . $comment->comment_ID );
 
 		return $comment_node;
 	}
@@ -281,7 +283,7 @@ class LivePress_Comment {
 	 * @return mixed
 	 */
 	private function retrieve_parent_comment( $parent_id, $comments ) {
-		foreach ( $comments as $c) {
+		foreach ( $comments as $c ) {
 			if ( $c->comment_ID == $parent_id ) {
 				return $c;
 			}
@@ -302,7 +304,7 @@ class LivePress_Comment {
 
 		// we want to pass this result to the diff server and get only counter update as a result
 		// remove parsed comment from comments table
-		for ( $i = 0 ; $i < count( $comments ) ; $i++ ) {
+		for ( $i = 0 ; $i < count( $comments ); $i++ ) {
 			if ( $comments[$i]->comment_ID == $comment_id ) {
 				unset( $comments[$i] );
 			}
@@ -340,7 +342,7 @@ class LivePress_Comment {
 		$dom->formatOutput    = true;
 		$parse_success       = @$dom->loadHTML( '<?xml encoding="UTF-8"?>' . $view );
 
-		if ( !$parse_success ) {
+		if ( ! $parse_success ) {
 			// fix for encoding detection bug, as "UTF-8" passed to constructor is not enough. *sigh*.
 			$parse_success = $dom->loadHTML( '<?xml encoding="UTF-8"?>' . $view );
 		}
@@ -372,7 +374,7 @@ class LivePress_Comment {
 		$comments = LivePress_Post::all_approved_comments( $local_comment->comment_post_ID );
 
 		// When comment by XMLRPC the $post is empty, so get from the comment.
-		if ( !isset( $post ) ) {
+		if ( ! isset( $post ) ) {
 			$post = get_post( $local_comment->comment_post_ID );
 		}
 
@@ -382,7 +384,7 @@ class LivePress_Comment {
 		$comment_full_out = $this->get_comments_list_template( $comments, $post );
 
 		// remove parsed comment from comments table
-		for ( $i = 0 ; $i < count( $comments ) ; $i++ ) {
+		for ( $i = 0 ; $i < count( $comments ); $i++ ) {
 			if ( $comments[$i]->comment_ID == $local_comment->comment_ID ) {
 				unset( $comments[$i] );
 			}
@@ -399,7 +401,7 @@ class LivePress_Comment {
 		$original = clone $wp_query;
 
 		// Fakes have_comments() that uses $wp_query->current_comment + 1 < $wp_query->comment_count
-		if ( !$comments_count ) {
+		if ( ! $comments_count ) {
 			$comments_count = count( $comments );
 		}
 
@@ -414,7 +416,7 @@ class LivePress_Comment {
 		$wp_query->comments = $comments;
 
 		// Fakes $comments_by_type
-		$c_by_type =  separate_comments( $comments );
+		$c_by_type = separate_comments( $comments );
 		$wp_query->comments_by_type = $c_by_type;
 		$comments_by_type = $wp_query->comments_by_type;
 		// Hack for bad-written themes, which rely on globals instead of functions
@@ -454,7 +456,7 @@ class LivePress_Comment {
 		if ( empty( $post->comment_status ) ) {
 			do_action( 'comment_id_not_found', $comment_post_ID );
 			$this->die_post_status_to_json( 'error' );
-		} elseif ( !comments_open( $comment_post_ID ) ) {
+		} elseif ( ! comments_open( $comment_post_ID ) ) {
 			do_action( 'comment_closed', $comment_post_ID );
 			$this->die_post_status_to_json( 'closed' );
 		} elseif ( in_array( $post->post_status, array( 'draft', 'pending' ) ) ) {
@@ -469,8 +471,8 @@ class LivePress_Comment {
 		// If the user is logged in
 		$user = wp_get_current_user();
 		if ( $user->ID ) {
-			if ( empty( $user->display_name ) )
-						$user->display_name = $user->user_login;
+			if ( empty( $user->display_name ) ) {
+						$user->display_name = $user->user_login; }
 			$comment_author        = esc_sql( $user->display_name );
 			$comment_author_email  = esc_sql( $user->user_email );
 			$comment_author_url    = esc_sql( $user->user_url );
@@ -481,21 +483,21 @@ class LivePress_Comment {
 				}
 			}
 		} else {
-		if ( get_option( 'comment_registration' ) )
-			$this->die_post_status_to_json( 'not_allowed' );
+			if ( get_option( 'comment_registration' ) ) {
+				$this->die_post_status_to_json( 'not_allowed' ); }
 		}
 
 		$comment_type = '';
 
-		if ( get_option( 'require_name_email' ) && !$user->ID ) {
-			if ( 6 > strlen( $comment_author_email ) || '' == $comment_author )
-				$this->die_post_status_to_json( 'missing_fields' );
-			elseif ( !is_email( $comment_author_email ) )
+		if ( get_option( 'require_name_email' ) && ! $user->ID ) {
+			if ( 6 > strlen( $comment_author_email ) || '' == $comment_author ) {
+				$this->die_post_status_to_json( 'missing_fields' ); }
+			elseif ( ! is_email( $comment_author_email ) )
 				$this->die_post_status_to_json( 'missing_fields' );
 		}
 
-		if ( '' == $comment_content )
-			$this->die_post_status_to_json( 'missing_fields' );
+		if ( '' == $comment_content ) {
+			$this->die_post_status_to_json( 'missing_fields' ); }
 
 		$comment_parent = isset( $_POST['comment_parent'] ) ? absint( $_POST['comment_parent'] ) : 0;
 

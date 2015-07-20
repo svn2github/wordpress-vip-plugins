@@ -74,10 +74,10 @@
 		 * Gets the metainfo shortcode
 		 */
 		this.newMetainfoShortcode = function () {
-			var metainfo = "[livepress_metainfo";
+			var metainfo = "\n[livepress_metainfo";
 
 			if (config.author_display_name) {
-				metainfo += ' author="' + config.author_display_name + '"';
+				metainfo += ' authors="' + config.author_display_name + '"';
 			}
 
 			var d, utc, server_time;
@@ -97,7 +97,7 @@
 				metainfo += ' has_avatar="1"';
 			}
 
-			return metainfo + "]";
+			return metainfo + "]\n\n";
 		};
 
 		/*

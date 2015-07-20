@@ -1,6 +1,6 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
- * Copyright (c) 2014 LivePress, Inc.
+ * Copyright (c) 2015 LivePress, Inc.
  */
 /*global LivepressConfig, console, jQuery, document, navigator */
 var Livepress = Livepress || {};
@@ -68,7 +68,6 @@ var Livepress = Livepress || {};
 			return true;
 		};
 		var loadScript = function (idx, only) {
-			console.log( 'loadScript' );
 			if (idx >= scripts.length) {
 				return false;
 			}

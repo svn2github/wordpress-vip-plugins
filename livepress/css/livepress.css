@@ -89,20 +89,43 @@
 .count-update {
 	display: block;
 	position: absolute;
-	top: .3em;
-	right: 30px;
-	font-size: .8em;
-	height: 2em;
-	width: 2em;
-	line-height: 2em;
-	background: #D54E17;
+	top: 0;
 	text-align: center;
+	width: 2em;
+	background-color: #d54e21;
 	color: #fff;
+	font-size: 9px;
+	font-weight: 600;
+	margin: 6px 0 0 2px;
+	vertical-align: top;
+	-webkit-border-radius: 10px;
+	border-radius: 10px;
+	z-index: 26;
 
-	-moz-border-radius: 50%;
-	border-radius: 50%;
-	-webkit-border-radius: 50%;
 	}
+
+.admin-color-light .count-update{
+	background-color: #d64e07;
+}
+.admin-color-blue .count-update{
+	background-color: #d54e21;
+}
+.admin-color-coffee .count-update{
+	background-color: #9ea476;
+}
+.admin-color-ectoplasm .count-update{
+	background-color: #d46f15;
+}
+.admin-color-midnight .count-update{
+	 background-color: #69a8bb;
+ }
+.admin-color-ocean .count-update{
+	background-color: #aa9d88;
+}
+.admin-color-sunrise .count-update{
+	background-color: #ccaf0b;
+}
+
 
 .blogging-tools-tabs li {
 	position: relative;
@@ -130,19 +153,26 @@
 
 .livepress-meta {
 	margin-right: 10px;
-	border: 1px solid #dedede;
 	margin-bottom: 15px;
 	width: 100%;
 	padding: 0;
 	padding-left: 5px;
+}
+.livepress-update-format-newstyle .livepress-meta{
 	background-color: #f5f5f5;
+	border: 1px solid #dedede;
 }
 
-.livepress-update.pinned-first-live-update .livepress-meta,
-.livepress-update.pinned-first-live-update .livepress-meta,
+
+.livepress-update.pinned-first-live-update .livepress-meta > strong,
+.livepress-update.pinned-first-live-update .livepress-update-header-timestamp,
+.livepress-update.pinned-first-live-update .livepress-update-author,
 .livepress-update.pinned-first-live-update .live-update-livetags,
 .livepress-update.pinned-first-live-update .live-update-authors {
 	display: none;
+}
+.livepress-update.pinned-first-live-update div.livepress-update-inner-wrapper.lp_avatar_shown{
+    margin-left: auto;
 }
 
 /* Needs #post_content_livepress to be more specialized than #content img */
@@ -155,11 +185,35 @@ body#tinymce .livepress-meta img {
 	float: left;
 	margin-right: 5px;
 }
+.livepress-meta .wp-caption img,
+#post_content_livepress .livepress-meta .wp-caption img,
+body#tinymce .livepress-meta .wp-caption img {
+    width: auto;
+    height: auto;
+}
 
-.livepress-update-format-default .livepress-update-header,
-.livepress-update-format-default .livepress-byline,
-.lp-authorID  {
+.livepress-update-header,
+.livepress-byline,
+.livepress-timestamp-option,
+.livepress-live-tags,
+.lp-authorID {
 	display: none;
+
+}
+
+.livepress-update-show-header .livepress-update-header{
+	display: inline;
+}
+
+.livepress-newform  .livepress-update-header{
+    position: relative;
+    left: inherit;
+}
+
+.livepress-update-show-author .livepress-byline,
+.livepress-update-show-time .livepress-timestamp-option,
+.livepress-update-show-tags .livepress-live-tags{
+	display: block;
 }
 
 .live-author-gravatar img {
@@ -175,11 +229,15 @@ body#tinymce .livepress-meta img {
 }
 
 .live-update-authors {
-	width: 100;
+	width: 75px;
 	font-weight: bold;
 	font-style: italic;
+	float:left;
 }
 
+div.livepress-update-inner-wrapper.lp_avatar_shown{
+	margin-left: 80px;
+}
 
 div.livepress-update-header > input,
 div.livepress-byline > input {
@@ -190,21 +248,19 @@ div.livepress-byline > input {
 	line-height: 18px;
 }
 
-div.livepress-live-tags,
-div.livepress-byline {
+div.livepress-live-tags {
 	float: left;
 	text-align: left;
+	width: 40%;
 }
 
 div.livepress-byline {
 	width: 50%;
 	text-align: right;
 	margin-bottom: 5px;
+	float: right;
 }
 
-div.livepress-live-tags {
-	width: 50%;
-}
 
 div.livepress-update-header > input {
 	width: 100%;
@@ -1195,6 +1251,7 @@ a.lp-term-clean-button:hover{
 	display: none;
 }
 
+
 /* @end */
 
 /* Plugin specific CSS Fixes */
@@ -1241,3 +1298,4 @@ video {
 	position: relative;
 	top: .1em;
 }
+

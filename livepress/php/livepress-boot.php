@@ -20,6 +20,9 @@ require_once( LP_PLUGIN_PATH . 'php/livepress-blogging-tools.php' );
 require_once( LP_PLUGIN_PATH . 'php/livepress-post-format-controller.php' );
 require_once( LP_PLUGIN_PATH . 'php/livepress-fix-twitter-oembed.php' );
 
+// load wp-cli
+require_once( LP_PLUGIN_PATH . 'php/livepress-cli.php' );
+
 // Handle i10n/i18n
 add_action( 'plugins_loaded', 'livepress_init' );
 
@@ -113,17 +116,16 @@ function add_content_css( $init ) {
 	$init['content_css'] .= ',' . $css . ',' . $css_for_tinymce;
 	return $init;
 }
-	add_filter( "tiny_mce_before_init", "add_content_css" );
+	add_filter( 'tiny_mce_before_init', 'add_content_css' );
 
 /**
  * Render LivePress Real-time Tools.
  */
 function livepress_render_dashboard() {
 	global $post_type;
-	if( ! in_array( $post_type, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
+	if ( ! in_array( $post_type, apply_filters( 'livepress_post_types', array( 'post' ) ) ) ) {
 		return;
 	}
-	error_log('add meta box');
 	add_meta_box(
 		'lp-dashboard',
 		esc_html__( 'LivePress Real-time Tools', 'livepress' ),

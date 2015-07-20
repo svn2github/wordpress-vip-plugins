@@ -10,6 +10,7 @@ class LivePress_Admin_Settings {
 	 * @var array $settings Settings array.
 	 */
 	public $settings = array();
+	private $livepress_config;
 
 	/**
 	 * Constructor.
@@ -20,6 +21,7 @@ class LivePress_Admin_Settings {
 		add_action( 'admin_menu',            array( $this, 'admin_menu' ) );
 
 		$this->settings = $this->get_settings();
+		$this->livepress_config = LivePress_Config::get_instance();
 	}
 
 	/**
@@ -33,7 +35,7 @@ class LivePress_Admin_Settings {
 	 * Get the current settings.
 	 */
 	function get_settings() {
-		$settings = get_option( 'livepress' );
+		$settings = get_option( LivePress_Administration::$options_name );
 
 		return (object) wp_parse_args(
 			$settings,
@@ -41,6 +43,7 @@ class LivePress_Admin_Settings {
 				'api_key'                      => '',
 				'feed_order'                   => 'top',
 				'notifications'                => array( 'tool-tip', 'effects' ),
+				'show'                         => array( 'TIME', 'AUTHOR', 'HEADER' ),
 				'byline_style'                 => '',
 				'allow_remote_twitter'         => true,
 				'allow_sms'                    => true,
@@ -54,7 +57,7 @@ class LivePress_Admin_Settings {
 				'timestamp_format'             => 'timeago',
 				'update_format'                => 'default',
 				'facebook_app_id'              => '',
-				'sharing_ui'                   => 'display',
+				'sharing_ui'                   => 'dont_display',
 			)
 		);
 	}
@@ -69,10 +72,15 @@ class LivePress_Admin_Settings {
 	 * @return string $hook, unaltered regardless.
 	 */
 	function admin_enqueue_scripts( $hook ) {
-		if ( $hook != 'settings_page_livepress-settings' )
+		if ( $hook != 'settings_page_livepress-settings' ){
 			return $hook;
+		}
 
-		wp_enqueue_script( 'livepress_admin_ui_js', LP_PLUGIN_URL . 'js/admin_ui.full.js', array( 'jquery' ) );
+		if ( $this->livepress_config->script_debug() ) {
+			wp_enqueue_script( 'livepress_admin_ui_js', LP_PLUGIN_URL . 'js/admin_ui.full.js', array( 'jquery' ) );
+		}else {
+			wp_enqueue_script( 'livepress_admin_ui_js', LP_PLUGIN_URL . 'js/admin_ui.min.js', array( 'jquery' ) );
+		}
 
 		wp_enqueue_style( 'livepress_admin', LP_PLUGIN_URL . 'css/wp-admin.css' );
 		return $hook;
@@ -107,12 +115,14 @@ class LivePress_Admin_Settings {
 		add_settings_field( 'feed_order',  esc_html__( 'When using the real-time editor, place new updates on', 'livepress' ), array( $this, 'feed_order_form' ), 'livepress-settings', 'lp-appearance' );
 		add_settings_field( 'timestamp_format',  esc_html__( 'When using update timestamps, show', 'livepress' ), array( $this, 'timestamp_format_form' ), 'livepress-settings', 'lp-appearance' );
 		add_settings_field( 'update_format',  esc_html__( 'Live update format', 'livepress' ), array( $this, 'update_format_form' ), 'livepress-settings', 'lp-appearance' );
+		add_settings_field( 'show_meta',  esc_html__( 'Metadata to show', 'livepress' ), array( $this, 'show_form' ), 'livepress-settings', 'lp-appearance' );
+		add_settings_field( 'sharing_ui',  esc_html__( 'Display Sharing links per update', 'livepress' ), array( $this, 'sharing_ui_form' ), 'livepress-settings', 'lp-appearance' );
+		add_settings_field( 'facebook_app_id',  esc_html__( 'Facebook App ID', 'livepress' ), array( $this, 'facebook_app_id_form' ), 'livepress-settings', 'lp-appearance' );
+
 		add_settings_field( 'notifications',  esc_html__( 'Readers receive these notifications when you update or publish a post', 'livepress' ), array( $this, 'notifications_form' ), 'livepress-settings', 'lp-appearance' );
 		add_settings_field( 'allow_remote_twitter',  esc_html__( 'Allow authors to publish via Twitter', 'livepress' ), array( $this, 'allow_remote_twitter_form' ), 'livepress-settings', 'lp-remote' );
 		add_settings_field( 'allow_sms',  esc_html__( 'Allow authors to publish via SMS', 'livepress' ), array( $this, 'allow_sms_form' ), 'livepress-settings', 'lp-remote' );
 		add_settings_field( 'post_to_twitter',  esc_html__( 'Publish Updates to Twitter', 'livepress' ), array( $this, 'push_to_twitter_form' ), 'livepress-settings', 'lp-remote' );
-		add_settings_field( 'sharing_ui',  esc_html__( 'Display Sharing links per update', 'livepress' ), array( $this, 'sharing_ui_form' ), 'livepress-settings', 'lp-remote' );
-		add_settings_field( 'facebook_app_id',  esc_html__( 'Facebook App Id', 'livepress' ), array( $this, 'facebook_app_id_form' ), 'livepress-settings', 'lp-remote' );
 	}
 
 	/**
@@ -191,7 +201,7 @@ class LivePress_Admin_Settings {
 
 		$options = get_option( 'livepress', array() );
 		$api_key = isset( $options['api_key'] ) ? $options['api_key'] : '';
-		$authenticated = $api_key && !$options['error_api_key'];
+		$authenticated = $api_key && ! $options['error_api_key'];
 
 		if ( $api_key && $options['error_api_key'] ) {
 			$api_key_status_class = 'invalid_api_key';
@@ -218,13 +228,13 @@ class LivePress_Admin_Settings {
 	<p>
 		<label>
 			<input type="radio" name="livepress[update_format]" id="update_format" value="default" <?php echo checked( 'default', $settings->update_format, false ); ?> />
-			<?php esc_html_e( 'Timestamp & post author at top', 'livepress' ); ?>
+			<?php esc_html_e( 'Compact Format the update metadata is shown inline,  preceding the content', 'livepress' ); ?>
 		</label>
 	</p>
 	<p>
 		<label>
 			<input type="radio" name="livepress[update_format]" id="update_format" value="newstyle" <?php echo checked( 'newstyle', $settings->update_format, false ); ?> />
-			<?php esc_html_e( 'Timestamp and headline at top, author(s) at bottom', 'livepress' ); ?>
+			<?php esc_html_e( 'Expanded Format the update metadata is shown in a header above the content', 'livepress' ); ?>
 		</label>
 	</p>
 		<?php
@@ -270,6 +280,23 @@ class LivePress_Admin_Settings {
         </label>
     </p>
 		<?php
+	}
+
+	/**
+	 * Items to show.
+	 */
+	function show_form() {
+		$settings = $this->settings;
+		echo '<p><label><input type="checkbox" name="livepress[show][]" id="lp-notifications" value="AVATAR" ' .
+		     checked( true, in_array( 'AVATAR', $settings->show ), false ) . '> ' . esc_html__( 'Show Avatar ( avatar shows to the left of the update )', 'livepress' ) . '</label></p>';
+		echo '<p><label><input type="checkbox" name="livepress[show][]" id="lp-notifications" value="AUTHOR"
+		' . checked( true , in_array( 'AUTHOR', $settings->show ), false ) . '> ' . esc_html__( 'Show Author', 'livepress' ) . '</label></p>';
+		echo '<p><label><input type="checkbox" name="livepress[show][]" id="lp-notifications" value="TIME" '
+		     . checked( true, in_array( 'TIME', $settings->show ), false ) . '> ' . esc_html__( 'Show Time', 'livepress' ) . ' </label></p>';
+		echo '<p><label><input type="checkbox" name="livepress[show][]" id="lp-notifications" value="HEADER" '
+		     . checked( true, in_array( 'HEADER', $settings->show ), false ) . '> ' . esc_html__( 'Show Headline', 'livepress' ) . ' </label></p>';
+		echo '<p><label><input type="checkbox" name="livepress[show][]" id="lp-notifications" value="TAGS" '
+		     . checked( true, in_array( 'TAGS', $settings->show ), false ) . '> ' . esc_html__( 'Show tags', 'livepress' ) . ' </label></p>';
 	}
 
 	/**
@@ -337,6 +364,10 @@ class LivePress_Admin_Settings {
 		$facebook_app_id = isset( $options['facebook_app_id'] ) ? trim( $options['facebook_app_id'] ) : '';
 
 		echo '<input type="text" name="livepress[facebook_app_id]" id="facebook_app_id" value="' . esc_attr( $facebook_app_id ) . '">';
+		echo '<br />' . sprintf( esc_html__( 'Supply an  app ID to enable the Facebook Share Dialog.%1$s
+					By default LivePress will present a Feed Dialog for sharing to Facebook.%1$s ', 'livepress' ), '<br />' ).
+		            '<a href="http://help.livepress.com/" target="_blank" >' .
+					 esc_html__( 'See our FAQ for more information.', 'livepress' ) .  '</a>';
 	}
 
 	function sharing_ui_form() {
@@ -366,22 +397,22 @@ class LivePress_Admin_Settings {
 			$api_key = sanitize_text_field( $input['api_key'] );
 
 			if ( ! empty( $input['api_key'] ) ) {
-					$livepress_com = new LivePress_Communication($api_key);
+					$livepress_com = new LivePress_Communication( $api_key );
 
 					// Note: site_url is the admin url on VIP
 					$validation = $livepress_com->validate_on_livepress( site_url() );
 					$sanitized_input['api_key'] = $api_key;
 					$sanitized_input['error_api_key'] = ($validation != 1);
-					if ( $validation == 1 ) {
-						// We pass validation, update blog parameters from LP side
-						$blog = $livepress_com->get_blog();
+				if ( $validation == 1 ) {
+					// We pass validation, update blog parameters from LP side
+					$blog = $livepress_com->get_blog();
 
-						$sanitized_input['blog_shortname'] = isset( $blog->shortname ) ? $blog->shortname : '';
-						$sanitized_input['post_from_twitter_username'] = isset( $blog->twitter_username ) ? $blog->twitter_username : '';
-						$sanitized_input['api_key'] = $api_key;
-					} else {
-						add_settings_error('api_key', 'invalid', esc_html__( "Key is not valid", 'livepress' ) );
-					}
+					$sanitized_input['blog_shortname'] = isset( $blog->shortname ) ? $blog->shortname : '';
+					$sanitized_input['post_from_twitter_username'] = isset( $blog->twitter_username ) ? $blog->twitter_username : '';
+					$sanitized_input['api_key'] = $api_key;
+				} else {
+					add_settings_error( 'api_key', 'invalid', esc_html__( 'Key is not valid', 'livepress' ) );
+				}
 			} else {
 					$sanitized_input['api_key'] = $api_key;
 			}
@@ -403,6 +434,12 @@ class LivePress_Admin_Settings {
 			$sanitized_input['update_format'] = 'newstyle';
 		} else {
 			$sanitized_input['update_format'] = 'default';
+		}
+
+		if ( isset( $input['show'] ) && ! empty( $input['show'] ) ) {
+			$sanitized_input['show'] = array_map( 'sanitize_text_field',  $input['show'] );
+		} else {
+			$sanitized_input['show'] = array();
 		}
 
 		if ( isset( $input['notifications'] ) && ! empty( $input['notifications'] ) ) {
@@ -459,32 +496,32 @@ class LivePress_Admin_Settings {
 		<?php
 			$this->options = get_option( LivePress_Administration::$options_name );
 			// If the API key is blank and the show=enetr-api-key toggle is not passed, prompt the user to register
-			if ( ( ! ( isset( $_GET['show'] ) && 'enter-api-key' ==  $_GET['show'] ) ) && empty( $this->options['api_key'] ) && ! isset( $_POST[ 'submit' ] ) ) {
-				echo '<div class="updated" style="padding: 0; margin: 0; border: none; background: none;">
+		if ( ( ! ( isset( $_GET['show'] ) && 'enter-api-key' == $_GET['show'] ) ) && empty( $this->options['api_key'] ) && ! isset( $_POST[ 'submit' ] ) ) {
+			echo '<div class="updated" style="padding: 0; margin: 0; border: none; background: none;">
 							<div class="livepress_admin_warning">
 								<div class="aa_button_container" onclick="window.open(\'http://www.livepress.com/wordpress\', \'_blank\' );">
 									<div class="aa_button_border">
-										<div class="aa_button">'. esc_html__('Sign up for LivePress').'</div>
+										<div class="aa_button">'. esc_html__( 'Sign up for LivePress' ).'</div>
 									</div>
 								</div>
 								<div class="aa_description">
 									<a href = "' . esc_url( add_query_arg( array( 'page' => 'livepress-settings' ), admin_url( 'options-general.php' ) ) ) .
-									'&show=enter-api-key">' .
-									esc_html__('I have already activated my LivePress account', 'livepress' ).'</a></div>
+								'&show=enter-api-key">' .
+								esc_html__( 'I have already activated my LivePress account', 'livepress' ).'</a></div>
 							</div>
 					</div>
 				';
-			} else {
-				// Otherwise, display the settings page as usual
+		} else {
+			// Otherwise, display the settings page as usual
 		?>
-				<?php settings_fields( 'livepress' ); ?>
-				<?php do_settings_sections( 'livepress-settings' ); ?>
-				<?php wp_nonce_field( 'activate_license', '_lp_nonce' ); ?>
-				<?php submit_button(); ?>
-			</form>
+			<?php settings_fields( 'livepress' ); ?>
+			<?php do_settings_sections( 'livepress-settings' ); ?>
+			<?php wp_nonce_field( 'activate_license', '_lp_nonce' ); ?>
+			<?php submit_button(); ?>
+		</form>
 		</div>
 		<?php
-			}
+		}
 	}
 
 }

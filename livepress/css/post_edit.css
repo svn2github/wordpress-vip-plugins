@@ -474,6 +474,9 @@
 		display: none;
 	}
 
+    .livepress-live #local-storage-notice{
+        display: none !important;
+    }
 /**
  * HiDPI Graphics
  */

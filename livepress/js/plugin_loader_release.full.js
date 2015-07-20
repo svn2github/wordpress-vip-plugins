@@ -1,6 +1,6 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
- * Copyright (c) 2014 LivePress, Inc.
+ * Copyright (c) 2015 LivePress, Inc.
  */
 /*global LivepressConfig, jQuery, document */
 var Livepress = Livepress || {};
@@ -16,7 +16,7 @@ var Livepress = Livepress || {};
 		if (LivepressConfig.debug) {
 			mode = 'full';
 		}
-		Livepress.JSQueue = [(jQuery === undefined ? 'jquery://' : ''), 'wpstatic://js/' + '/livepress-release.full.js?v=' + LivepressConfig.ver];
+		Livepress.JSQueue = [(jQuery === undefined ? 'jquery://' : ''), 'wpstatic://js/' + '/livepress-release.' + mode + '.js?v=' + LivepressConfig.ver];
 		var loader = document.createElement('script');
 		loader.setAttribute('id', 'LivePress-loader-script');
 		loader.setAttribute('src', LivepressConfig.wpstatic_url + 'js/livepress_loader.' + mode + '.js?v=' + LivepressConfig.ver);

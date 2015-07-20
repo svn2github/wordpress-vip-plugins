@@ -15,7 +15,7 @@ class LivePress_Themes_Helper {
 	 * @access private
 	 * @var null $instance LivePress_Themes_Helper instance.
 	 */
-	private static $instance = NULL;
+	private static $instance = null;
 
 	/**
 	 * Instance.
@@ -25,7 +25,7 @@ class LivePress_Themes_Helper {
 	 * @return LivePress_Themes_Helper
 	 */
 	public static function instance() {
-		if (self::$instance == NULL) {
+		if ( self::$instance == null ) {
 			self::$instance = new LivePress_Themes_Helper();
 		}
 		return self::$instance;
@@ -45,9 +45,8 @@ class LivePress_Themes_Helper {
 		static $did_output = false;
 		if ( ! defined( 'LIVEPRESS_THEME' ) || ! constant( 'LIVEPRESS_THEME' ) ) {
 			if ( ! $did_output && ( is_single() || is_home() ) ) {
-				livepress_update_box();
-				if ( is_single() )
-					LivePress_Updater::instance()->inject_widget( true );
+				if ( is_single() ) {
+					LivePress_Updater::instance()->inject_widget( true ); }
 				$did_output = true;
 			}
 		}

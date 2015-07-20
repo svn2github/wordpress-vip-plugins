@@ -23,10 +23,10 @@ if ( file_exists( LivePress_Comment::$comments_template_path ) ) {
 					'" size="30"' . $aria_req . ' /></p>',
 				'email' => '<p class="comment-form-email"><label for="email">' . esc_html__( 'Email', 'livepress' ) . '</label> ' .
 					( $req ? '<span class="required">*</span>' : '' ) .
-					'<input id="email" name="email" type="text" value="' . esc_attr(  $commenter['comment_author_email'] ) .
+					'<input id="email" name="email" type="text" value="' . esc_attr( $commenter['comment_author_email'] ) .
 					'" size="30"' . $aria_req . ' /></p>',
 					)
-			),
+		),
 	);
 	comment_form( $args );
 }

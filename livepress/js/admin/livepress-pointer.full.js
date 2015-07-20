@@ -1,6 +1,6 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
- * Copyright (c) 2014 LivePress, Inc.
+ * Copyright (c) 2015 LivePress, Inc.
  */
 ( function( window, $, undefined ) {
 	var CORE = window.livepress_pointer;

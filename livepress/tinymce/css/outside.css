@@ -92,6 +92,10 @@ body#tinymce .livepress-update p {
 	margin-bottom: 5px;
 	clear: both;
 }
+.wp-core-ui .button.livepress-draft{
+    margin-right: 10px;
+}
+
 
 .livepress-form-actions{
 	margin-top: 7px;
@@ -101,8 +105,13 @@ body#tinymce .livepress-update p {
 	padding: 4px;
 }
 
+#livepress-canvas div.livepress-update.livepress-draft,
+#livepress-canvas form.livepress-update-form.livepress-draft{
+    background: #dbfae1;
+}
+
 .livepress-form-actions .quick-publish {
-	margin-right: 10px;
+
 	line-height: 21px;
 	color: #BBB;
 	font-weight: bold;
@@ -111,7 +120,9 @@ body#tinymce .livepress-update p {
 .livepress-form-actions .livepress-submit {
 	float: right;
 }
-
+.livepress-actions {
+	clear: both;
+}
 .livepress-form-actions input,
 .livepress-form-actions input.livepress-update {
 	display: inline-block;
@@ -123,7 +134,8 @@ body#tinymce .livepress-update p {
 }
 
 .livepress-form-actions .livepress-delete {
-    float: left;
+    position: absolute;
+    left: 16px;
 	color: red;
     text-decoration: none;
 }
@@ -270,7 +282,7 @@ body.livepress-active #post-body-content .editorcontainerend{
 }
 
 #livepress-canvas {
-	margin: 15px 0;
+	margin: 28px 0;
 }
 
 	#livepress-canvas .inside {
@@ -280,7 +292,7 @@ body.livepress-active #post-body-content .editorcontainerend{
 
 	#livepress-canvas div.livepress-update {
 		border-top: 1px solid #ccc;
-		margin-bottom: 7px;
+		margin-bottom: 0;
 		padding: 17px 10px 10px 10px;
 		border-radius: 0px;
 		-moz-border-radius: 0px;
@@ -300,7 +312,7 @@ body.livepress-active #post-body-content .editorcontainerend{
 		border-top: 1px solid #ccc;
 		background: white;
 		padding-top: 10px;
-		padding-bottom: 36px;
+		padding-bottom: 55px;
 	}
 
 	form.livepress-update-form textarea {
@@ -350,4 +362,14 @@ body.livepress-active #post-body-content .editorcontainerend{
 
 div.livepress-update.livepress-update-stub{
 	display: none;
+}
+
+.livepress-update-format-default #livepress-canvas div.livepress-update{
+	background: none;
+}
+
+
+.livepress-meta .livepress-update-header{
+	display: inline-block;
+
 }

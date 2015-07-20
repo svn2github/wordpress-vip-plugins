@@ -1,6 +1,6 @@
-/*! livepress -v1.2.2
+/*! livepress -v1.3
  * http://livepress.com/
- * Copyright (c) 2014 LivePress, Inc.
+ * Copyright (c) 2015 LivePress, Inc.
  */
 var Livepress = Livepress || {};
 
@@ -111,6 +111,15 @@ if ( 'undefined' === typeof window.twttr ) {
 					}(document, "script", "twitter-wjs"));
 }
 
+// Hack for when a user loads a post from a permalink to an update and
+// twitter embeds manipulate the DOM and generate a "jump"
+if( window.location.hash ){
+    twttr.ready( function ( twttr ) {
+        twttr.events.bind( 'loaded', function (event) {
+            jQuery.scrollTo( jQuery(window.location.hash) );
+        });
+    });
+}
 jQuery.fn.getBg = function () {
 	var $this = jQuery(this),
 		actual_bg, newBackground, color;
@@ -849,6 +858,212 @@ Date.replaceChars = {
 } (jQuery));
 
 
+(function (factory) {
+  if (typeof define === 'function' && define.amd) {
+    // AMD. Register as an anonymous module.
+    define(['jquery'], factory);
+  } else {
+    // Browser globals
+    factory(jQuery);
+  }
+}(function ($) {
+  $.timeago = function(timestamp) {
+    if (timestamp instanceof Date) {
+      return inWords(timestamp);
+    } else if (typeof timestamp === "string") {
+      return inWords($.timeago.parse(timestamp));
+    } else if (typeof timestamp === "number") {
+      return inWords(new Date(timestamp));
+    } else {
+      return inWords($.timeago.datetime(timestamp));
+    }
+  };
+  var $t = $.timeago;
+
+  $.extend($.timeago, {
+    settings: {
+      refreshMillis: 60000,
+      allowPast: true,
+      allowFuture: false,
+      localeTitle: false,
+      cutoff: 0,
+      strings: {
+        prefixAgo: null,
+        prefixFromNow: null,
+        suffixAgo: "ago",
+        suffixFromNow: "from now",
+        inPast: 'any moment now',
+        seconds: "less than a minute",
+        minute: "about a minute",
+        minutes: "%d minutes",
+        hour: "about an hour",
+        hours: "about %d hours",
+        day: "a day",
+        days: "%d days",
+        month: "about a month",
+        months: "%d months",
+        year: "about a year",
+        years: "%d years",
+        wordSeparator: " ",
+        numbers: []
+      }
+    },
+
+    inWords: function(distanceMillis) {
+      if(!this.settings.allowPast && ! this.settings.allowFuture) {
+          throw 'timeago allowPast and allowFuture settings can not both be set to false.';
+      }
+
+      var $l = this.settings.strings;
+      var prefix = $l.prefixAgo;
+      var suffix = $l.suffixAgo;
+      if (this.settings.allowFuture) {
+        if (distanceMillis < 0) {
+          prefix = $l.prefixFromNow;
+          suffix = $l.suffixFromNow;
+        }
+      }
+
+      if(!this.settings.allowPast && distanceMillis >= 0) {
+        return this.settings.strings.inPast;
+      }
+
+      var seconds = Math.abs(distanceMillis) / 1000;
+      var minutes = seconds / 60;
+      var hours = minutes / 60;
+      var days = hours / 24;
+      var years = days / 365;
+
+      function substitute(stringOrFunction, number) {
+        var string = $.isFunction(stringOrFunction) ? stringOrFunction(number, distanceMillis) : stringOrFunction;
+        var value = ($l.numbers && $l.numbers[number]) || number;
+        return string.replace(/%d/i, value);
+      }
+
+      var words = seconds < 45 && substitute($l.seconds, Math.round(seconds)) ||
+        seconds < 90 && substitute($l.minute, 1) ||
+        minutes < 45 && substitute($l.minutes, Math.round(minutes)) ||
+        minutes < 90 && substitute($l.hour, 1) ||
+        hours < 24 && substitute($l.hours, Math.round(hours)) ||
+        hours < 42 && substitute($l.day, 1) ||
+        days < 30 && substitute($l.days, Math.round(days)) ||
+        days < 45 && substitute($l.month, 1) ||
+        days < 365 && substitute($l.months, Math.round(days / 30)) ||
+        years < 1.5 && substitute($l.year, 1) ||
+        substitute($l.years, Math.round(years));
+
+      var separator = $l.wordSeparator || "";
+      if ($l.wordSeparator === undefined) { separator = " "; }
+      return $.trim([prefix, words, suffix].join(separator));
+    },
+
+    parse: function(iso8601) {
+      var s = $.trim(iso8601);
+      s = s.replace(/\.\d+/,""); // remove milliseconds
+      s = s.replace(/-/,"/").replace(/-/,"/");
+      s = s.replace(/T/," ").replace(/Z/," UTC");
+      s = s.replace(/([\+\-]\d\d)\:?(\d\d)/," $1$2"); // -04:00 -> -0400
+      s = s.replace(/([\+\-]\d\d)$/," $100"); // +09 -> +0900
+      return new Date(s);
+    },
+    datetime: function(elem) {
+      var iso8601 = $t.isTime(elem) ? $(elem).attr("datetime") : $(elem).attr("title");
+      return $t.parse(iso8601);
+    },
+    isTime: function(elem) {
+      // jQuery's `is()` doesn't play well with HTML5 in IE
+      return $(elem).get(0).tagName.toLowerCase() === "time"; // $(elem).is("time");
+    }
+  });
+
+  // functions that can be called via $(el).timeago('action')
+  // init is default when no action is given
+  // functions are called with context of a single element
+  var functions = {
+    init: function(){
+      var refresh_el = $.proxy(refresh, this);
+      refresh_el();
+      var $s = $t.settings;
+      if ($s.refreshMillis > 0) {
+        this._timeagoInterval = setInterval(refresh_el, $s.refreshMillis);
+      }
+    },
+    update: function(time){
+      var parsedTime = $t.parse(time);
+      $(this).data('timeago', { datetime: parsedTime });
+      if($t.settings.localeTitle) $(this).attr("title", parsedTime.toLocaleString());
+      refresh.apply(this);
+    },
+    updateFromDOM: function(){
+      $(this).data('timeago', { datetime: $t.parse( $t.isTime(this) ? $(this).attr("datetime") : $(this).attr("title") ) });
+      refresh.apply(this);
+    },
+    dispose: function () {
+      if (this._timeagoInterval) {
+        window.clearInterval(this._timeagoInterval);
+        this._timeagoInterval = null;
+      }
+    }
+  };
+
+  $.fn.timeago = function(action, options) {
+    var fn = action ? functions[action] : functions.init;
+    if(!fn){
+      throw new Error("Unknown function name '"+ action +"' for timeago");
+    }
+    // each over objects here and call the requested function
+    this.each(function(){
+      fn.call(this, options);
+    });
+    return this;
+  };
+
+  function refresh() {
+    //check if it's still visible
+    if(!$.contains(document.documentElement,this)){
+      //stop if it has been removed
+      $(this).timeago("dispose");
+      return this;
+    }
+
+    var data = prepareData(this);
+    var $s = $t.settings;
+
+    if (!isNaN(data.datetime)) {
+      if ( $s.cutoff == 0 || Math.abs(distance(data.datetime)) < $s.cutoff) {
+        $(this).text(inWords(data.datetime));
+      }
+    }
+    return this;
+  }
+
+  function prepareData(element) {
+    element = $(element);
+    if (!element.data("timeago")) {
+      element.data("timeago", { datetime: $t.datetime(element) });
+      var text = $.trim(element.text());
+      if ($t.settings.localeTitle) {
+        element.attr("title", element.data('timeago').datetime.toLocaleString());
+      } else if (text.length > 0 && !($t.isTime(element) && element.attr("title"))) {
+        element.attr("title", text);
+      }
+    }
+    return element.data("timeago");
+  }
+
+  function inWords(date) {
+    return $t.inWords(distance(date));
+  }
+
+  function distance(date) {
+    return (new Date().getTime() - date.getTime());
+  }
+
+  // fix for IE6 suckage
+  document.createElement("abbr");
+  document.createElement("time");
+}));
+
 /*global lp_client_strings, LivepressConfig, Livepress, console */
 Livepress.Ui = {};
 
@@ -908,30 +1123,6 @@ Livepress.Ui.View = function (disable_comments) {
 		return self.innerWidth || ( de && de.clientWidth ) || document.body.clientWidth;
 	};
 
-	var showSettingsBox = function () {
-		var save_window_width = window_width();
-		var save_window_height = window_height();
-		var barOffset = $lpBarBox.offset();
-
-		$settingsBox.show( 'blind' );
-	};
-
-	var hideSettingsBox = function () {
-		$settingsBox.hide( 'blind' );
-		$optionsShortBox.removeClass('expanded');
-	};
-
-	var toggleSettingsBox = function () {
-		return $settingsBox.is(':visible') ? hideSettingsBox() : showSettingsBox();
-	};
-
-	$settingsButton.click(function () {
-		return toggleSettingsBox();
-	});
-	$exitButton.click(function () {
-		return hideSettingsBox();
-	});
-
 	var control = function (initial, $checkbox, fOn, fOff) {
 		$checkbox.prop('checked', initial).change(function () {
 			return $checkbox.is(':checked') ? fOn(1) : fOff(1);
@@ -939,62 +1130,8 @@ Livepress.Ui.View = function (disable_comments) {
 		return initial ? fOn() : fOff();
 	};
 
-	this.live_control = function (init, fOn, fOff) {
-		control(init, $updatesCheckbox, fOn, fOff);
-	};
-
 	this.follow_comments_control = function (init, fOn, fOff) {
 		control(init, $commentsCheckbox, fOn, fOff);
-	};
-
-	this.scroll_control = function (init, fOn, fOff) {
-		control(init, $scrollCheckbox, fOn, fOff);
-	};
-
-	// Google Reader handler
-	this.add_link_to_greader = function (link) {
-		$settingsBox.find('.lp-greader-link').attr("href", link);
-	};
-
-	// Im handler
-	this.subscribeIm = function (callback) {
-		$settingsBox.find('.lp-subscribe .lp-button').click(function () {
-			var imType = $settingsBox.find('[name=lp-im-type]').val();
-			var userName = $settingsBox.find('[name=lp-im-username]').val();
-			callback(userName, imType);
-		});
-	};
-
-	this.imFeedbackSpin = function (on) {
-		$settingsBox.find('.lp-subscribe-im-spin')[ on ? 'show' : 'hide']();
-	};
-
-	this.handleImFeedback = function (response, username) {
-		var messages = {
-			'INVALID_JID':           lp_client_strings.no_google_acct,
-			'NOT_IN_ROSTER':         lp_client_strings.no_acct_in_jabber,
-			'NOT_AUTHORIZED':        lp_client_strings.username_not_auth,
-			'AUTHORIZED':            lp_client_strings.username_authorized,
-			'INTERNAL_SERVER_ERROR': lp_client_strings.livepress_err_retry,
-			'AUTHORIZATION_SENT':    lp_client_strings.auth_request_sent
-		};
-
-		var message = messages[response];
-
-		if (typeof(message) !== 'undefined') {
-			message = message.replace("[USERNAME]", username);
-		} else {
-			message = messages.INTERNAL_SERVER_ERROR;
-		}
-
-		if (message.length > 0) {
-			this.imFeedbackSpin(false);
-			$settingsBox.find('.lp-im-subscription-message').html(message).show();
-		}
-
-		//var reset_func = function() {jQuery('#im_following_message').hide();
-		//jQuery('#im_following').show(); };
-		//setTimeout(reset_func, 5000);
 	};
 
 	//
@@ -1018,15 +1155,8 @@ Livepress.Ui.View = function (disable_comments) {
 	//
 	// Live notifications
 	//
-
-	var update_gritter_settings_click = function () {
-		jQuery('.gritter-settings').click(function () {
-			showSettingsBox();
-		});
-	};
-
 	this.comment_alert = function (options, date) {
-		console.log('Comment alert', options);
+
 		var container = jQuery("<div>");
 		var dateEl = jQuery("<abbr>").attr("class", "timeago").attr("title", date).text(date.replace(/Z/, " UTC"));
 		container.append(dateEl);
@@ -1040,8 +1170,7 @@ Livepress.Ui.View = function (disable_comments) {
 		jQuery(".gritter-comments .add-comment").click(function () {
 			jQuery().scrollTo('#respond, #commentform, #submit', 900);
 		});
-		update_gritter_settings_click();
-		jQuery("abbr.livepress-timestamp").timeago().attr( 'title', '' );
+    jQuery("abbr.livepress-timestamp").timeago().attr( 'title', '' );
 	};
 };
 
@@ -1321,28 +1450,28 @@ Livepress.Ui.ReactButton = function (type, update) {
 				options = "width=600,height=350,location=yes,,status=yes,top=" + top + ", left=" + left,
 				twitterLink = update.shortLink();
 
-				var shortExcerpt = ( 3 > update.shortExcerpt.length ) ? '' : update.shortExcerpt.replace(/#/g,'%23') + ' ',
-					updateTitle = update.title.trim(),
+				var shortExcerpt = ( 3 > update.shortExcerpt.length ) ? '' : update.shortExcerpt.replace(/#/g,'%23').replace(/%/g,'%25') + ' ',
+					updateTitle = update.title.trim().replace(/%/g,'%25'),
 					description = ( '' === updateTitle ? shortExcerpt :  updateTitle + ' ' );
 
+
 				// Did we get the shortened link or only a promise?
+                var fail_url = 'https://twitter.com/intent/tweet?text=' + description + Livepress.getUpdatePermalink( update.id );
+                var twitter_popup = window.open( fail_url, "Twitter", options );
 				if ( 'string' === typeof twitterLink ) {
-					window.open( 'https://twitter.com/intent/tweet?text=' + description + twitterLink, "Twitter", options );
+                    twitter_popup.location = 'https://twitter.com/intent/tweet?text=' + description + twitterLink;
 				} else {
 					twitterLink
 						.done( function( data ){
-							window.open( 'https://twitter.com/intent/tweet?text=' + description + ( ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) ), "Twitter", options );
+                            twitter_popup.location = 'https://twitter.com/intent/tweet?text=' + description + ( ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) );
 							var re = /livepress-update-([0-9]+)/,
-								update_id = re.exec(update.id)[1];
+								update_id = re.exec( update.id )[1];
 							if ( 'undefined' !== typeof data.data ) {
 								Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
 							}
-						})
-						// Fallback to full URL
-						.fail( function() {
-							window.open( 'https://twitter.com/intent/tweet?text=' + description + Livepress.getUpdatePermalink( update.id ), "Twitter", options );
 						});
 				}
+                twitter_popup.focus();
 			});
 	};
 
@@ -1369,8 +1498,8 @@ Livepress.Ui.ReactButton = function (type, update) {
 						'&display=popup' +
 						'&action_type=og.likes' +
 						'&action_properties=' + encodeURIComponent('{"object":"' + u + '" }') +
-						'&redirect_uri=' + encodeURIComponent(u)
-				);
+						'&redirect_uri=' + encodeURIComponent(u), ' sharer', windowParams
+                );
 			}
 
 			return false;
@@ -1391,7 +1520,6 @@ Livepress.Ui.ReactButton = function (type, update) {
 					i.hide();
 					u
 						.done( function( data ) {
-							console.log( data.data.shortlink );
 							i.show();
 							i.attr( 'value', '' + ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) );
 						})
@@ -1658,7 +1786,6 @@ Livepress.DOMManipulator.prototype = {
 							jQuery( document ).trigger( 'live_post_update' );
 						}
 					);
-					console.log('loading twitter');
 					window.twttr.widgets.load(el);
 				} catch ( e ) {}
 			} else {
@@ -1968,9 +2095,7 @@ Livepress.DOMManipulator.prototype = {
 			var inFilteredList = false,
 				$insertedtags  = $livetags.find( '.live-update-livetag' );
 
-			jQuery.each( $insertedtags, function( index, tag ) {
-				console.log( tag );
-			});
+
 			// iterate thru the update tags, checking if any match any active tag
 			jQuery.each( $insertedtags, function( index, tag ) {
 				target = jQuery( tag ).attr( 'class' );
@@ -2546,7 +2671,24 @@ Livepress.Ui.Controller = function (config, hooks) {
 	}
 
 	function comet_error_callback ( message ) {
-		console.log( "Comet error: ", message );
+		if (message.reason === "cache_empty") {
+			// post is new, or we have connected to clean node
+			// nothing to be handled there now with incremental updates
+			// of course, we can miss some update, if it was published after page was cached
+			// but next updates would still correctly displayed live
+		} else
+		if (message.reason === "cache_miss") {
+			// we have connected to node, that have no message, that we referenced
+			// that can be cause by:
+			// 1. we have very old cached page version, so there lot of updates,
+			//    so "last" we know are outdated;
+			// 2. something was wrong, and last id published with page invalid
+			// in any case, right now nothing should be done:
+			// yes, we can miss some update(s) between cache and current moment
+			// but next updates would still correctly displayed live
+		} else {
+			console.log( "Comet warn: ", message );
+		}
 	}
 
 	function call_hook (name) {
@@ -2651,8 +2793,8 @@ Livepress.Ui.Controller = function (config, hooks) {
 		$live_updates.each(function () {
 			var $this = jQuery( this );
 			if ( ! $this.is( '.lp-live' ) ) {
-				$this.addClass('lp-live');
-				if (LivepressConfig.sharing_ui !== 'dont_display'){
+				$this.addClass( 'lp-live' );
+				if ( LivepressConfig.sharing_ui === 'display' ){
 					return new Livepress.Ui.UpdateView($this, current_post_link, config.disable_comments);
 				}
 			}
@@ -2667,13 +2809,15 @@ Livepress.Ui.Controller = function (config, hooks) {
 		if ( typeof(FB) !== 'undefined'){
 			FB.XFBML.parse();
 		}
+		var id = get_update_id_from_data(data);
+		embed_audio_and_video(id);
+	}
 
+	function get_update_id_from_data(data){
 		// Get the update id in the form 'live-press-update-23423423'
 		var re = /id\=\"(livepress-update-[0-9]+)/;
 		// data Array: ['ins_node', '0:0', '<div id="livepress-update..."']
-		var id = re.exec(data[0][2])[1];
-
-		embed_audio_and_video(id);
+		return re.exec(data[0][2])[1];
 	}
 
 	// WordPress' Audio and Video embeds
@@ -2753,7 +2897,7 @@ Livepress.Ui.Controller = function (config, hooks) {
 			dateString = date.toISOString(),
 			abbr       = '<abbr class="livepress-timestamp" title="' + dateString +'"></abbr>';
 
-		console.log("post_update with data = ", data);
+
         if ('op' in data && data.op === 'broadcast') {
             var broadcast = JSON.parse(data.data);
             if('shortlink' in broadcast) {
@@ -2783,13 +2927,17 @@ Livepress.Ui.Controller = function (config, hooks) {
 		}
 		trigger_action_on_view();
 		update_embeds(data);
-		sounds.play("postUpdated");
+		if ( !firstRun ){
+			sounds.play("postUpdated");
+		}
+		firstRun = true;
 
 		$livepress.find('.lp-updated-counter').html( abbr );
 		$livepress.find('.lp-updated-counter').find('.livepress-timestamp').attr('title', dateString );
 		$livepress.find('.lp-bar .lp-status').removeClass('lp-off').addClass('lp-on');
-		var timestamp = jQuery('abbr.livepress-timestamp').eq( 1 ),
-			update_id = timestamp.closest('.livepress-update').attr('id');
+		var update_id = get_update_id_from_data(data);
+		var timestamp = jQuery('#' + update_id).find('abbr.livepress-timestamp');
+
 		if ( 'timeago' === LivepressConfig.timestamp_format ) {
 			timestamp.timeago().attr( 'title', '' );
 		} else {
@@ -2829,8 +2977,8 @@ Livepress.Ui.Controller = function (config, hooks) {
 		});
 	}
 
+	var firstRun = true;
 	function bindPageActivity () {
-		console.log( 'bindPageActivity' );
 		var animateLateUpdates = function () {
 			var updates = jQuery(".unfocused-lp-update");
 			var old_bg = updates.data("oldbg") || "#FFF";
@@ -2855,7 +3003,6 @@ Livepress.Ui.Controller = function (config, hooks) {
 
 		var $livediv = jQuery( '#post_content_livepress' ),
 			liveTags = $livediv.data( 'livetags' );
-			console.log( liveTags );
 			if ( '' !== liveTags ) {
 				post_dom_manipulator.addLiveTagControlBar();
 				var allTags = liveTags.split( ',' );
@@ -2877,9 +3024,6 @@ Livepress.Ui.Controller = function (config, hooks) {
 		widget = new Livepress.Ui.View(config.disable_comments);
 		widget.set_comment_num(comment_count);
 		update_live_updates();
-		var feed_link = encodeURIComponent(config.feed_sub_link);
-		var feed_title = encodeURIComponent(config.feed_title);
-		widget.add_link_to_greader("http://www.google.com/ig/addtoreader?et=gEs490VY&source=ign_pLt&feedurl=" + feed_link + "&feedtitle=" + feed_title);
 	}
 
 	// Just connect to LivePress if there is any of the views present
@@ -2930,45 +3074,19 @@ Livepress.Ui.Controller = function (config, hooks) {
 			opt = config.post_update_msg_id ? {last_id:config.post_update_msg_id} : {fetch_all:true};
 			comet.subscribe(post_update_topic, post_update, opt);
 
-			widget.subscribeIm(imSubscribeCallback);
+			comet.connect();
 
-			widget.live_control(
-				Livepress.storage.get('settings-live', true),
-				function (save) {
-					comet.connect();
-					if (save) { Livepress.storage.set('settings-live', "1"); }
-				},
-				function (save) {
-					comet.disconnect();
-					if (save) { Livepress.storage.set('settings-live', ""); }
-				}
-			);
+      if ( config.autoscroll ) {
+        Livepress.Scroll.settings_enabled = true;
+      } else {
+        Livepress.Scroll.settings_enabled = false;
+      }
 
-			if (!config.disable_comments) {
-				widget.follow_comments_control(
-					Livepress.storage.get('settings-comments', true),
-					function (save) {
-						comet.subscribe(comment_update_topic, comment_update);
-						if (save) { Livepress.storage.set('settings-comments', "1"); }
-					},
-					function (save) {
-						comet.unsubscribe(comment_update_topic, comment_update);
-						if (save) { Livepress.storage.set('settings-comments', ""); }
-					}
-				);
-			}
-
-			widget.scroll_control(
-				Livepress.storage.get('settings-scroll', config.autoscroll === undefined || config.autoscroll),
-				function (save) {
-					Livepress.Scroll.settings_enabled = true;
-					if (save) { Livepress.storage.set('settings-scroll', "1"); }
-				},
-				function (save) {
-					Livepress.Scroll.settings_enabled = false;
-					if (save) { Livepress.storage.set('settings-scroll', ""); }
-				}
-			);
+      if ( !config.disable_comments ) {
+        comet.subscribe(comment_update_topic, comment_update);
+      } else {
+        comet.unsubscribe(comment_update_topic, comment_update);
+      }
 		}
 	}
 };
@@ -3199,7 +3317,7 @@ Livepress.Ready = function () {
 		function(){
 			var timestamp = jQuery(this).find('abbr.livepress-timestamp');
 			timestamp.wrap('<a href="' + Livepress.getUpdatePermalink(jQuery(this).attr('id')) + '" ></a>');
-			console.log( LivepressConfig.update_format );
+
 			if ( 'timeago' === LivepressConfig.timestamp_format ) {
 				jQuery('abbr.livepress-timestamp').timeago().attr( 'title', '' );
 			} else {
@@ -3211,43 +3329,25 @@ Livepress.Ready = function () {
 
 	if ( jQuery( '.lp-status' ).hasClass( 'livepress-pinned-header' ) ) {
 
-		jQuery( '.livepress_content' ).find( '.livepress-update:first' ).addClass( 'pinned-first-live-update' );
-		// Adjust the positioning of the first post to pin it to the top
-		var adjustTopPostPositioning = function() {
+        jQuery( '.livepress_content' ).find( '.livepress-update:first' ).addClass( 'pinned-first-live-update' );
 
-			window.console.log( 'adjust top' );
-			$lpcontent    = jQuery( '.livepress_content' );
-			$firstUpdate  = $lpcontent.find( '.pinned-first-live-update' );
-			// keep at the top of the list
-			$firstUpdate.detach().prependTo( $lpcontent );
-			$firstUpdateContainer = $lpcontent.parent();
-			$firstUpdate.css( 'marginTop', 0 );
-			$livepressBar = jQuery( '#livepress' );
-			$livepressBar.css( 'marginTop', 0 );
-			diff = $firstUpdate.offset().top - $firstUpdateContainer.offset().top;
-			$heightOfFirstUpdate = ( $firstUpdate.outerHeight() + 20 );
-			$firstUpdate.css( {
-				'margin-top': '-' + ( diff + $heightOfFirstUpdate ) + 'px',
-				'position': 'absolute',
-				'width' : ( $livepressBar.outerWidth() ) + 'px'
-			} );
-			$livepressBar.css( { 'margin-top': $heightOfFirstUpdate + 'px' } );
-		};
-
-		adjustTopPostPositioning();
-
-		// Adjust the top position whenever the post is updated so it fits properly
-		jQuery( document ).on( 'live_post_update', function(){
-			console.log ('live_post_update triggered' );
-			setTimeout( adjustTopPostPositioning, 50 );
-			// Rerun in 2 seconds to account fo resized embeds
-			//setTimeout( adjustTopPostPositioning, 2000 );
-		});
-
-		// Adjust the top positioning whenever the browser is resized to adjust sizing correctly
-		jQuery( window ).on( 'resize', throttle ( function() {
-			adjustTopPostPositioning();
-		}, 500 ) );
+		var movePinnedPost = function(){
+            //remove so we don't end up lots of content
+            jQuery( '#livepress  > .pinned-first-live-update' ).remove();
+            $lpcontent    = jQuery( '.livepress_content' );
+            $firstUpdate  = $lpcontent.find( '.pinned-first-live-update' );
+            $livepressBar = jQuery( '#livepress' );
+            $firstUpdate.hide();
+            // clone the hidden content
+            $firstUpdate.clone( true ).prependTo( $livepressBar ).show();
+            //remove any diff copied
+            jQuery( '#livepress  > .pinned-first-live-update.oortle-diff-removed' ).remove();
+        };
+        // recopy whenever the post is updated
+        jQuery( document ).on( 'live_post_update', function(){
+            setTimeout( movePinnedPost, 50 );
+        });
+        setTimeout( movePinnedPost, 50 );
 	}
 	return new Livepress.Ui.Controller(LivepressConfig, hooks);
 };
@@ -3885,9 +3985,10 @@ this.createjs=this.createjs||{},function(){var a=createjs.SoundJS=createjs.Sound
 }this.tag.preload="auto",this.tag.load()},b.preloadTick=function(){var a=this.tag.buffered,b=this.tag.duration;a.length>0&&a.end(0)>=b-1&&this.handleTagLoaded()},b.handleTagLoaded=function(){clearInterval(this.preloadTimer)},b.sendLoadedEvent=function(){this.tag.removeEventListener&&this.tag.removeEventListener("canplaythrough",this.loadedHandler),this.tag.onreadystatechange=null,createjs.Sound._sendFileLoadEvent(this.src)},b.toString=function(){return"[HTMLAudioPlugin Loader]"},createjs.HTMLAudioPlugin.Loader=a}(),function(){"use strict";function a(a){this._init(a)}var b=a;b.tags={},b.get=function(c){var d=b.tags[c];return null==d&&(d=b.tags[c]=new a(c)),d},b.remove=function(a){var c=b.tags[a];return null==c?!1:(c.removeAll(),delete b.tags[a],!0)},b.removeAll=function(){for(var a in b.tags)b.tags[a].removeAll();b.tags={}},b.getInstance=function(a){var c=b.tags[a];return null==c?null:c.get()},b.setInstance=function(a,c){var d=b.tags[a];return null==d?null:d.set(c)},b.checkSrc=function(a){var c=b.tags[a];return null==c?null:(c.checkSrcChange(),void 0)};var c=a.prototype;c.src=null,c.length=0,c.available=0,c.tags=null,c._init=function(a){this.src=a,this.tags=[]},c.add=function(a){this.tags.push(a),this.length++,this.available++},c.removeAll=function(){for(;this.length--;)delete this.tags[this.length];this.src=null,this.tags.length=0},c.get=function(){if(0==this.tags.length)return null;this.available=this.tags.length;var a=this.tags.pop();return null==a.parentNode&&document.body.appendChild(a),a},c.set=function(a){var b=createjs.indexOf(this.tags,a);-1==b&&this.tags.push(a),this.available=this.tags.length},c.checkSrcChange=function(){for(var a=this.tags.length-1,b=this.tags[a].src;a--;)this.tags[a].src=b},c.toString=function(){return"[HTMLAudioPlugin TagPool]"},createjs.HTMLAudioPlugin.TagPool=a}();
 /*global LivepressConfig, Livepress, soundManager, console */
 Livepress.sounds = (function () {
-	var soundsBasePath = LivepressConfig.lp_plugin_url + "sounds/";
-	var soundOn = ( 1 == LivepressConfig.sounds_default );
-	var sounds = {};
+	var soundsBasePath = LivepressConfig.noncdn_url + "/sounds/";
+	var soundOn         = ( 1 == LivepressConfig.sounds_default );
+	var sounds          = {};
+    var soundsLoaded    = false;
 
 	// Sound files
 	var vibeslr = 'vibes_04-04LR_02-01.mp3';
@@ -3895,16 +3996,30 @@ Livepress.sounds = (function () {
 	var piano16 = 'piano_w-pad_01-16M_01-01.mp3';
 	var piano17 = 'piano_w-pad_01-17M_01.mp3';
 
-	createjs.Sound.alternateExtensions = ["mp3"];
-	createjs.Sound.registerSound(soundsBasePath + vibeslr, "commentAdded");
-	createjs.Sound.registerSound(soundsBasePath + vibeslr, "firstComment");
-	createjs.Sound.registerSound(soundsBasePath + vibesshort, "commentReplyToUserReceived");
-	createjs.Sound.registerSound(soundsBasePath + vibeslr, "commented");
-	createjs.Sound.registerSound(soundsBasePath + piano17, "newPost");
-	createjs.Sound.registerSound(soundsBasePath + piano16, "postUpdated");
+    var manager = createjs.Sound;
+    var timeoutId = 0;
+
+	manager.alternateExtensions = ["mp3"];
+
+    sounds.loadSounds = function() {
+        manager.registerSound(soundsBasePath + vibeslr, "commentAdded", 1);
+        manager.registerSound(soundsBasePath + vibeslr, "firstComment", 1);
+        manager.registerSound(soundsBasePath + vibesshort, "commentReplyToUserReceived", 1);
+        manager.registerSound(soundsBasePath + vibeslr, "commented", 1);
+        manager.registerSound(soundsBasePath + piano17, "newPost", 1);
+        manager.registerSound(soundsBasePath + piano16, "postUpdated", 1);
+        soundsLoaded = true;
+    };
+
+    if( soundOn ){
+        sounds.loadSounds();
+    }
 
 	sounds.on = function () {
 		soundOn = true;
+        if( false === soundsLoaded ){
+            sounds.loadSounds();
+        }
 	};
 
 	sounds.off = function () {
@@ -3912,9 +4027,12 @@ Livepress.sounds = (function () {
 	};
 
 	sounds.play = function(sound){
-		if ( soundOn ){
-			createjs.Sound.play(sound);
-		}
+    if ( timeoutId !== 0 ){
+      window.clearTimeout(timeoutId);
+    }
+    timeoutId = window.setTimeout(function(){
+      manager.play(sound);
+    }, 500);
 	};
 
 	return sounds;
