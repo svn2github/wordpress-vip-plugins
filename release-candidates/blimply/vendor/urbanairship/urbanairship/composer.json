@@ -1,0 +1,31 @@
+{
+    "name": "urbanairship/urbanairship",
+    "type": "library",
+    "description": "Urban Airship PHP Library",
+    "homepage": "http://docs.urbanairship.com/reference/libraries/php/",
+    "license": "Apache",
+    "authors": [
+        {
+            "name": "Urban Airship",
+            "email": "support@urbanairship.com",
+            "homepage": "http://support.urbanairship.com",
+            "role": "Developer"
+        }
+    ],
+    "autoload" : {
+        "psr-0":{"UrbanAirship":"src/"},
+        "files": [
+            "src/UrbanAirship/Push/Audience.php",
+            "src/UrbanAirship/Push/Notification.php",
+            "src/UrbanAirship/Push/Schedule.php"
+        ]
+
+    },
+    "require":{
+        "monolog/monolog":"1.5.0",
+        "nategood/httpful":"*"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*"
+    }
+}
