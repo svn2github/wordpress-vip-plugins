@@ -412,7 +412,7 @@ class SocialFlow_Accounts {
 
 						// Validate optimize period
 						if ( !empty( $values['optimize_end_date'] ) AND !empty( $values['optimize_start_date'] ) ) {
-							if ( strtotime( $values['optimize_end_date'] ) < strtotime( $values['optimize_start_date'] ) ) {
+							if ( $values['optimize_end_date'] < $values['optimize_start_date'] ) {
 								$errors[] = new WP_Error( 'invalid_optimize_period:', __( '<b>Error:</b> Invalid optimize period for <i>%s.</i>' ), array( $account_id ) );
 							}
 						}
