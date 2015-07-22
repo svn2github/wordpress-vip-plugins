@@ -1,10 +1,10 @@
 === Taxonomy List Widget ===
 Contributors: ethitter
-Donate link: https://ethitter.com/plugins/taxonomy-list-widget/
+Donate link: https://ethitter.com/donate/
 Tags: tag, tags, taxonomy, sidebar, widget, widgets, list
 Requires at least: 2.8
-Tested up to: 4.2
-Stable tag: 1.2
+Tested up to: 4.3
+Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -80,6 +80,9 @@ To make targeting a specific filter reference possible should you use multiple i
 
 == Changelog ==
 
+= 1.3 =
+* Update for WordPress 4.3 by removing PHP4-style widget constructor usage (https://make.wordpress.org/core/2015/07/02/deprecating-php4-style-constructors-in-wordpress-4-3/).
+
 = 1.2 =
 * Update for WordPress 4.2 to handle term splitting in the plugin's include/exclude functionality. Details at https://make.wordpress.org/core/2015/02/16/taxonomy-term-splitting-in-4-2-a-developer-guide/.
 
@@ -120,6 +123,9 @@ To make targeting a specific filter reference possible should you use multiple i
 * Added function `TLW_direct`
 
 == Upgrade Notice ==
+
+= 1.3 =
+Updated for WordPress 4.3. Removed PHP4-style widget constructor usage (https://make.wordpress.org/core/2015/07/02/deprecating-php4-style-constructors-in-wordpress-4-3/).
 
 = 1.2 =
 Updated for WordPress 4.2. Only version 2.2 or higher should be used with WordPress 4.2 or higher, otherwise included/excluded terms may reappear in dropdowns. This is due to WordPress splitting shared terms, as detailed at https://make.wordpress.org/core/2015/02/16/taxonomy-term-splitting-in-4-2-a-developer-guide/.
