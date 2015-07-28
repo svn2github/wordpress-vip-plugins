@@ -1,0 +1,75 @@
+# Copyright (C) 2015 Fusion Engineering
+# This file is distributed under the same license as the Publishing Checklist package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Publishing Checklist 0.1-alpha\n"
+"Report-Msgid-Bugs-To: "
+"http://wordpress.org/support/plugin/publishing-checklist\n"
+"POT-Creation-Date: 2015-06-26 19:39:10+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2015-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: grunt-wp-i18n 0.5.2\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_x:1,2c;_ex:1,2c;_n:1,2;_nx:1,2,4c;_n_noop:1,2;_nx_noop:1,2,3c;esc_"
+"attr__;esc_html__;esc_attr_e;esc_html_e;esc_attr_x:1,2c;esc_html_x:1,2c;\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-Country: United States\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-Basepath: ../\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-Bookmarks: \n"
+"X-Textdomain-Support: yes\n"
+
+#: inc/class-cli-command.php:48
+msgid "No checklist found for %d."
+msgstr ""
+
+#: inc/class-cli-command.php:53
+msgid "%d of %d tasks complete for %d"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Publishing Checklist"
+msgstr ""
+
+#: templates/column-checklist.php:3 templates/post-submitbox-misc-actions.php:5
+msgid "%d of %d tasks complete"
+msgstr ""
+
+#: templates/column-checklist.php:6 templates/post-submitbox-misc-actions.php:8
+msgid "Show List"
+msgstr ""
+
+#: templates/column-checklist.php:21
+#: templates/post-submitbox-misc-actions.php:23
+msgid "Hide List"
+msgstr ""
+
+#: tests/test-publishing-checklist.php:30
+msgid "Word Count"
+msgstr ""
+
+#: tests/test-publishing-checklist.php:32
+msgid "Posts should be at least 200 words."
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://github.com/fusioneng/publishing-checklist"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "Pre-flight your posts."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Fusion Engineering"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://fusion.net/"
+msgstr ""

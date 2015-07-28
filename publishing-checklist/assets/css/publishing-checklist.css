@@ -1,0 +1,26 @@
+.misc-pub-section.publishing-checklist {
+  border-top: 1px solid #ddd;
+  background: #f5f5f5; }
+  .misc-pub-section.publishing-checklist h4 {
+    margin-top: 0;
+    margin-bottom: 5px; }
+  .misc-pub-section.publishing-checklist .publishing-checklist-items-complete {
+    font-style: italic;
+    margin-bottom: 5px; }
+  .misc-pub-section.publishing-checklist progress {
+    display: block; }
+
+@media screen and (max-width: 782px) {
+  .column-publishing_checklist {
+    display: none; } }
+.column-publishing_checklist h4 {
+  margin-top: 0;
+  margin-bottom: 5px; }
+.column-publishing_checklist .publishing-checklist-items-complete {
+  font-style: italic;
+  margin-bottom: 5px; }
+.column-publishing_checklist progress {
+  display: block;
+  max-width: 100%; }
+.column-publishing_checklist a.publishing-checklist-show-list.row-actions {
+  color: #0073aa !important; }
