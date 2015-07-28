@@ -383,3 +383,53 @@ function wpcom_vip_get_nav_menu_object( $menu ) {
 
 	return $menu_obj;
 }
+
+/**
+ * Require the Stampedeless_Cache class for use in our helper functions below.
+ *
+ * The Stampedeless_Cache helps prevent cache stampedes by internally varying the cache
+ * expiration slightly when creating a cache entry in an effort to avoid multiple keys
+ * expiring simultaneously and allowing a single request to regenerate the cache shortly
+ * before it's expiration.
+ */
+if( function_exists( 'require_lib' ) && defined( 'WPCOM_IS_VIP_ENV' ) && WPCOM_IS_VIP_ENV )
+	require_lib( 'class.stampedeless-cache' );
+
+/**
+ * Drop in replacement for wp_cache_set().
+ *
+ * Wrapper for the WPCOM Stampedeless_Cache class.
+ *
+ * @param string $key Cache key.
+ * @param string|int|array|object $value Data to store in the cache.
+ * @param string $group Optional. Cache group.
+ * @param int $expiration Optional. Cache TTL in seconds.
+ * @return bool This function always returns true.
+ */
+function wpcom_vip_cache_set( $key, $value, $group = '', $expiration = 0 ) {
+	if( ! class_exists( 'Stampedeless_Cache' ) )
+		return wp_cache_set( $key, $value, $group, $expiration );
+
+	$sc = new Stampedeless_Cache( $key, $group );
+	$sc->set( $value, $expiration );
+
+	return true;
+}
+
+/**
+ * Drop in replacement for wp_cache_get().
+ *
+ * Wrapper for the WPCOM Stampedeless_Cache class.
+ *
+ * @param string $key Cache key.
+ * @param string $group Optional. Cache group.
+ * @return mixed Returns false if failing to retrieve cache entry or the cached data otherwise.
+ */
+function wpcom_vip_cache_get( $key, $group = '' ) {
+	if( ! class_exists( 'Stampedeless_Cache' ) )
+		return wp_cache_get( $key, $group );
+
+	$sc = new Stampedeless_Cache( $key, $group );
+
+	return $sc->get();
+}       
