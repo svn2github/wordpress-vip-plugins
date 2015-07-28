@@ -1,8 +1,8 @@
 === LivePress ===
 Requires at least: 3.5
-Tested up to: 4.2.2
+Tested up to: 4.3-beta2
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
@@ -118,6 +118,12 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 2. New update sent -- it appears for all readers of this post at the same time.
 
 == Changelog ==
+
+= 1.3.2 =
+
+* replaced &$this with $this in hook calls
+* added the_title filter to the metatag og:title
+* added the_excerpt filter to the metatag og:description
 
 = 1.3.1 =
 
