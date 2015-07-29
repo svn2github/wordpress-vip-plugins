@@ -116,7 +116,7 @@ class SocialFlow_Admin {
 
 			// Enqeue styles
 			wp_enqueue_style( 'socialflow-admin', plugins_url( 'assets/css/socialflow.css', SF_FILE ) );
-			wp_enqueue_style( 'jquery-ui', 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/smoothness/jquery-ui.css', false, '1.8.1', false);
+			wp_enqueue_style( 'jquery-ui', '//ajax.googleapis.com/ajax/libs/jqueryui/1.8.1/themes/smoothness/jquery-ui.css', false, '1.8.1', false);
 
 			wp_enqueue_media();
 
