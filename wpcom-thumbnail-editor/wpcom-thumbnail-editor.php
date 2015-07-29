@@ -140,6 +140,8 @@ class WPcom_Thumbnail_Editor {
 
 		$sizes = $this->use_ratio_map ? $this->get_image_sizes_by_ratio() : $this->get_intermediate_image_sizes();
 
+		$sizes = apply_filters( 'wpcom_thumbnail_editor_image_size_names_choose', $sizes );
+
 		if ( empty( $sizes ) )
 			return '<p>' . __( 'No thumbnail sizes could be found that are cropped. For now this functionality only supports cropped thumbnails.', 'wpcom-thumbnail-editor' ) . '</p>';
 
