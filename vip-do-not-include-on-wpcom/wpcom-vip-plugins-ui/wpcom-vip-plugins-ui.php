@@ -236,6 +236,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Parsely',
 				'description' => 'Start a trial to finally see your audience clearly.',
 			),
+			'playbuzz'        => array(
+				'name'        => 'Playbuzz',
+				'description' => 'Embed customized playful content from Playbuzz.com into your WordPress site.',
+			),
 			'publishthis'        => array(
 				'name'        => 'PublishThis',
 				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
