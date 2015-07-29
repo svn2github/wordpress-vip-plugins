@@ -51,13 +51,6 @@ class Blimply_Settings {
         $settings_fields = array(
             'urban_airship' => array(
                 array(
-                    'name' => BLIMPLY_PREFIX . '_name',
-                    'label' => __( 'Urban Airship Application Slug!', 'blimply' ),
-                    'desc' => __( 'Text input description', 'blimply' ),
-                    'type' => 'text',
-                    'default' => 'Title'
-                ),
-                array(
                     'name' => BLIMPLY_PREFIX . '_app_key',
                     'label'=> __( 'Application API Key', 'blimply' ),
                     'desc'=> __( '22 character long app key( like SYk74m98TOiUhHHHHb5l_Q.', 'blimply' ),

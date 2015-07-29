@@ -1,0 +1,26 @@
+{
+    "name": "rinatkhaziev/wordpress-settings-api-class",
+    "type": "wordpress-library",
+    "description": "Fork of a wordpress-settings-api-class",
+    "homepage": "",
+    "license": "GPL v2+",
+    "authors": [
+        {
+            "name": "Rinat Khaziev",
+            "email": "rinat.khaziev@gmail.com",
+            "homepage": "http://doejo.com",
+            "role": "Maintainer"
+        }
+    ],
+    "require":{
+    },
+    "require-dev": {
+
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true,
+    "config": {
+			"optimize-autoloader": true
+    }
+
+}

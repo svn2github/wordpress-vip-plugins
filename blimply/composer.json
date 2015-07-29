@@ -1,0 +1,43 @@
+{
+    "name": "rinatkhaziev/blimply",
+    "type": "wordpress-plugin",
+    "description": "Urban Airship Plugin for WordPress",
+    "homepage": "http://docs.urbanairship.com/reference/libraries/php/",
+    "license": "GPL v2+",
+    "authors": [
+        {
+            "name": "Rinat Khaziev",
+            "email": "rinat.khaziev@gmail.com",
+            "homepage": "http://doejo.com",
+            "role": "Maintainer"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/rinatkhaziev/wordpress-settings-api-class"
+        }
+    ],
+    "require":{
+        "urbanairship/urbanairship": "0.1.3",
+        "rinatkhaziev/wordpress-settings-api-class": "dev-master"
+    },
+    "require-dev": {
+        "urbanairship/urbanairship": "dev-master",
+        "phpunit/phpunit": "3.7.*",
+        "phpdocumentor/phpdocumentor": "2.*"
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true,
+    "config": {
+		"optimize-autoloader": true
+	},
+    "scripts": {
+        "post-install-cmd": [
+            "rm -rf vendor/nategood"
+        ],
+        "post-update-cmd": [
+            "rm -rf vendor/nategood"
+        ]
+    }
+}

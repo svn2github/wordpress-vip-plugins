@@ -1,32 +1,42 @@
 # Blimply
 [![Build Status](https://travis-ci.org/rinatkhaziev/blimply.png?branch=master)](https://travis-ci.org/rinatkhaziev/blimply)
 
-
 ## Description
 
-Blimply is a plugin that will allow you to send push notifications to your mobile users utilizing Urban Airship API. [Urban Airship](http://urbanairship.com/) account in order to be able to use this plugin. The plugin features the ability to make a push for posts/pages/custom post types, and a handy Dashboard widget.
+Blimply is unofficial WordPress Plugin for [Urban Airship](http://urbanairship.com/). It's based on official [UA PHP library](https://github.com/urbanairship/php-library2) and supports Urban Airship v3 APIs.
+
+## Requirements
++ [WordPress 3.9](https://wordpress.org/download/)
++ PHP 5.3+
++ [Composer](https://getcomposer.org/)
+
+## Features
++ Send push notifications from Dashboard widget
++ Send pushes on post publish
++ Manage Urban Airship tags/segments
++ Set custom sounds for push notifications (iOS only)
++ Set quiet time for pushes (no sound)
 
 ##  Initial installation
-
 1. `git clone https://github.com/rinatkhaziev/blimply.git` in your WP plugins directory
-1. `git submodule update --init --recursive` in the plugin dir to get dependencies
+1. Do `composer install --no-dev`
 1. Activate the plugin
 1. Set the settings
 1. Enjoy
 
 ## Upgrade instructions
-
 1. Pull as usual
-1. Do `git submodule -q foreach git pull -q origin master` to update submodules
+1. Do `composer install --no-dev`
 1. ...
 1. Profit
 
-## Developers
+## Tests
+Plugin includes basic test suite, run a phpunit from the plugin folder
 
+## Developers
 Miss a feature? Pull requests are welcome.
 
 ## Future improvements
-* Multiple Airship apps support
 * Rich Push
 * Scheduled pushes
 * Geolocated pushes

@@ -1,0 +1,9 @@
+# Removing entire .idea directory, and supporting files
+.idea/
+*.iml
+
+docs/_build/
+data/
+vendor/
+composer.phar
+composer.lock

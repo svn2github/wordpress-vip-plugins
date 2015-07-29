@@ -4,7 +4,7 @@ Plugin Name: Blimply
 Plugin URI: http://doejo.com
 Description: Blimply allows you to send push notifications to your mobile users utilizing Urban Airship API. It sports a post meta box and a dashboard widgets. You have the ability to broadcast pushes, and to push to specific Urban Airship tags as well.
 Author: Rinat Khaziev, doejo
-Version: 0.5.1
+Version: 0.6
 Author URI: http://doejo.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,16 +25,25 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'BLIMPLY_VERSION', '0.5.1' );
+define( 'BLIMPLY_VERSION', '0.6' );
 define( 'BLIMPLY_ROOT' , dirname( __FILE__ ) );
 define( 'BLIMPLY_FILE_PATH' , BLIMPLY_ROOT . '/' . basename( __FILE__ ) );
 define( 'BLIMPLY_URL' , plugins_url( '/', __FILE__ ) );
 define( 'BLIMPLY_PREFIX' , 'blimply' );
 
-// Bootstrap
-require_once BLIMPLY_ROOT . '/lib/wp-urban-airship/urbanairship.php';
-require_once BLIMPLY_ROOT . '/lib/settings-api-class/class.settings-api.php';
+// Composer autoload
+require_once BLIMPLY_ROOT . '/vendor/autoload.php';
+
+require_once BLIMPLY_ROOT . '/vendor/rinatkhaziev/wordpress-settings-api-class/class.settings-api.php';
 require_once BLIMPLY_ROOT . '/lib/blimply-settings.php';
+
+require_once BLIMPLY_ROOT . '/lib/class.wpairship.php';
+
+
+use UrbanAirship\WpAirship as Airship;
+use UrbanAirship\UALog;
+use UrbanAirship\Push as P;
+
 
 class Blimply {
 
@@ -44,7 +53,7 @@ class Blimply {
 	 */
 	function __construct() {
 		add_action( 'admin_init', array( $this, 'action_admin_init' ) );
-		add_action( 'save_post', array( $this, 'action_save_post' ) );
+		add_action( 'save_post', array( $this, 'action_save_post' ), 50 );
 		add_action( 'add_meta_boxes', array( $this, 'post_meta_boxes' ) );
 		add_action( 'update_option_blimply_options', array( $this, 'sync_airship_tags' ), 5, 2 );
 		add_action( 'register_taxonomy', array( $this, 'after_register_taxonomy' ), 5, 3 );
@@ -86,7 +95,6 @@ class Blimply {
 		if ( ! in_array( $pagenow, array( 'post-new.php', 'post.php', 'index.php', 'options.php' ) ) && ! defined( 'DOING_AJAX' ) )
 			return;
 		$defaults = array(
-			BLIMPLY_PREFIX  . '_name' => '',
 			BLIMPLY_PREFIX  . '_app_key' => '',
 			BLIMPLY_PREFIX . '_app_secret' => '',
 			BLIMPLY_PREFIX . '_character_limit' => 140,
@@ -101,17 +109,15 @@ class Blimply {
 		$this->options = array_merge( $defaults, (array) $this->options );
 
 		$this->sounds = get_option( 'blimply_sounds' );
-		$this->airships[ $this->options['blimply_name'] ] = new Airship( $this->options['blimply_app_key'], $this->options['blimply_app_secret'] );
-		// Pass the reference to convenience var
-		// We don't use multiple Airships yet.
-		// Although we can, there's no UI for switching Airships.
-		$this->airship = &$this->airships[ $this->options['blimply_name'] ];
+
+		$this->airship = new Airship( $this->options['blimply_app_key'], $this->options['blimply_app_secret'] );
 		// We don't use built-in WP UI, instead we choose tag in custom Blimply meta box
 		$this->tags = get_terms( 'blimply_tags', array( 'hide_empty' => 0 ) );
 	}
 
 	/**
 	 * Helper function to determine if current time should be quiet time (no push sounds)
+	 *
 	 * @return boolean [description]
 	 */
 	function _is_quiet_time() {
@@ -152,20 +158,20 @@ class Blimply {
 	 * @param string  $taxonomy
 	 */
 	function action_create_term( $term_id, $tt_id, $taxonomy ) {
+		//
 		if ( 'blimply_tags' != $taxonomy )
 			return;
+
 		$tag = get_term( $term_id, $taxonomy );
 		// Let's sync
-		if ( ! is_wp_error( $tag ) ) {
-			try {
-				$response = $this->airship->_request( BASE_URL . "/tags/{$tag->slug}", 'PUT', null );
-			} catch ( Exception $e ) {
-				// @todo do something with exception
-			}
-			if ( isset( $response[0] ) && $response[0] == 201 ) {
-				// @todo process ok result
-			}
+
+		try {
+			$response = $this->airship->request( 'PUT', null, $this->airship->buildUrl( "/api/tags/{$tag->slug}" ) );
+		} catch ( \Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
+
+		return $response;
 	}
 
 	/**
@@ -185,8 +191,15 @@ class Blimply {
 
 		if ( isset( $_POST['blimply_push'] ) && 1 == $_POST['blimply_push'] ) {
 			$alert = !empty( $_POST['blimply_push_alert'] ) ? sanitize_text_field( $_POST['blimply_push_alert'] ) : sanitize_text_field( $_POST['post_title'] );
-			$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], get_permalink( $post_id ), (bool) isset( $_POST['blimply_no_sound'] ) && $_POST['blimply_no_sound'] );
-			update_post_meta( $post_id, 'blimply_push_sent', true );
+
+			// Do something specific for save_post hook before we actually make a request
+			do_action( 'blimply_save_post_before_send_push' );
+
+			$response = $this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], get_permalink( $post_id ), (bool) isset( $_POST['blimply_no_sound'] ) && $_POST['blimply_no_sound'] );
+
+			if ( ! is_wp_error( $response ) )
+				update_post_meta( $post_id, 'blimply_push_sent', true );
+
 		}
 	}
 
@@ -207,9 +220,9 @@ class Blimply {
 		// Determine if sounds are disabled for the push
 		$no_sound = isset( $_POST['blimply_no_sound'] ) && $_POST['blimply_no_sound'];
 
-		$this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], false, (bool) $no_sound );
-		echo 'ok';
-		exit;
+		$response = $this->_send_broadcast_or_push( $alert, $_POST['blimply_push_tag'], false, (bool) $no_sound );
+
+		wp_send_json( array( 'success' => !is_wp_error( $response ) ) );
 	}
 
 	/**
@@ -222,35 +235,48 @@ class Blimply {
 	function _send_broadcast_or_push( $alert, $tag, $url = false, $disable_sound = false ) {
 		// Strip escape slashes, otherwise double escaping would happen
 		$alert = html_entity_decode( stripcslashes( strip_tags( $alert ) ) );
-		// Include Android and iOS payloads
-		$payload = array(
-			'aps'     => array( 'alert' => $alert, 'badge' => '+1' ),
-			'android' => array( 'alert' => $alert ),
-			'blackberry' => array( 'content-type' => 'text/plain', 'body' => $alert ),
-		);
 
-		// Add a URL if any, to be handled by apps
-		if ( $url ) {
-			$payload['aps']['url'] = $url;
-			$payload['android']['extra']['url'] = $url;
+		// Grab an instance of PushRequest
+		$response = $this->airship->push();
+
+		// If tag is broadcast use Push\all const, otherwise set audience to tag
+		$audience = $tag == 'broadcast' ? P\all : P\tag( $tag );
+		$response->setAudience( $audience );
+
+		// Sound part of ios push
+		if ( !$disable_sound && isset( $this->sounds["blimply_sound_{$tag}"] ) && !empty( $this->sounds["blimply_sound_{$tag}"] ) )
+			$sound  = $this->sounds["blimply_sound_{$tag}"];
+		// Or use the default sound
+		elseif ( !$disable_sound )
+			$sound = 'default';
+		else
+			$sound = null;
+
+		// Set extra payload arguments, for now it's just the url
+		$extra = $url ? array( 'url' => $url ) : null;
+
+		// iOS and Android specific parts of payload
+		$ios = P\ios( $alert, '+1', $sound, false, $extra );
+		$android = P\android( $alert, null, null, null, $extra );
+
+		// TODO: Windows and Blackberry payloads (HA!)
+
+		// Payload filter (allows to workaround quirks of UA API if any and/or fine tuning of payload data)
+		$payload = apply_filters( 'blimply_payload_override', P\notification( $alert, array( 'ios' => $ios, 'android' => $android ) ) );
+
+		$response->setNotification( $payload )
+		->setDeviceTypes( P\all )
+		;
+
+		do_action( 'blimply_before_send_push', $payload );
+
+		try {
+			$response->send();
+		} catch ( \Exception $e ) {
+			return new WP_Error( $e->getCode(), $e->getMessage() );
 		}
 
-		if ( $tag === 'broadcast' ) {
-			$response =  $this->request( $this->airship, 'broadcast', $payload );
-		} else {
-			// Set a sound for the specific tag
-			if ( !$disable_sound && isset( $this->sounds["blimply_sound_{$tag}"] ) && !empty( $this->sounds["blimply_sound_{$tag}"] ) )
-				$payload['aps']['sound'] = $this->sounds["blimply_sound_{$tag}"];
-			// Or use the default sound
-			elseif ( !$disable_sound )
-				$payload['aps']['sound'] = 'default';
-
-			$payload['tags'] = array( $tag );
-
-			// Payload filter (allows to workaround quirks of UA API if any)
-			$payload = apply_filters( 'blimply_payload_override', $payload );
-			$response = $this->request( $this->airship, 'push', $payload );
-		}
+		return $response;
 	}
 
 	/**
@@ -316,32 +342,6 @@ class Blimply {
 	}
 
 	/**
-	 * Wrapper to make a remote request to Urban Airship
-	 *
-	 * @param Airship $airship an instance of Airship passed by reference
-	 * @param string  $method
-	 * @param mixed   $args
-	 * @param mixed   $tokens
-	 * @return mixed response or Exception or error
-	 */
-	function request( Airship &$airship, $method = '', $args = array(), $tokens = array() ) {
-		if ( in_array( $method, array( 'register', 'deregister', 'feedback', 'push', 'broadcast' ) ) ) {
-			$args = apply_filters( "blimply_{$method}_args", $args, $airship, $tokens );
-			try {
-				$response = $airship->$method( $args, $tokens );
-				return $response;
-			} catch ( Exception $e ) {
-				$exception_class = get_class( $e );
-				if ( is_admin() ) {
-					// @todo implement admin notification of misconfiguration
-				}
-			}
-		} else {
-			// @todo illegal request
-		}
-	}
-
-	/**
 	 * Dashboard widget
 	 *
 	 */
@@ -350,6 +350,7 @@ class Blimply {
 		$limit_html = $limit ? sprintf( ' maxlength="%d" ', $limit ) :  '';
 ?>
 		<form name="post" action="<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>" method="post" id="blimply-dashboard-widget">
+		<fieldset>
 			<h4 id="content-label"><label for="content"><?php esc_html_e( 'Send Push Notification' ) ?></label></h4>
 			<small><?php esc_html_e( 'Keep in mind that all HTML will be stripped out, and refrain from putting any links in the message.', 'blimply' ); ?></small><br/>
 			<?php if ( $limit ): ?>
@@ -365,22 +366,22 @@ class Blimply {
 <?php
 		foreach ( (array) $this->tags as $tag ) {
 			echo '<label class="float-left f-left selectit" for="blimply_tag_' . esc_attr( $tag->term_id ) . '" style="margin-left: 4px">';
-			echo '<input type="radio" class="float-left f-left" style="float:left" name="blimply_push_tag" id="blimply_tag_' . esc_attr( $tag->term_id ) . '" value="' . esc_attr( $tag->slug ) . '"/>';
+			echo '<input type="radio" class="float-left f-left" name="blimply_push_tag" id="blimply_tag_' . esc_attr( $tag->term_id ) . '" value="' . esc_attr( $tag->slug ) . '"/>';
 			echo $tag->name;
 			echo '</label><br/>';
 		}
 
 		if ( isset( $this->options['blimply_allow_broadcast'] ) && $this->options['blimply_allow_broadcast'] == 'on' ) {
 			echo '<label class="selectit" for="blimply_tag_broadcast" style="margin-left: 4px">';
-			echo '<input type="radio" style="float:left" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
+			echo '<input type="radio" name="blimply_push_tag" id="blimply_tag_broadcast" value="broadcast"/>';
 			esc_html_e( 'Broadcast (send to all tags)', 'blimply' );
 			echo '</label><br/>';
 		}
-		?>
+?>
 		<br/>
 		<h4><label for="blimply_no_sound"><?php esc_html_e( 'Turn the sound off' ) ?></label></h4> <?php
 		echo '<label class="selectit" for="blimply_no_sound" style="margin-left: 4px">';
-		echo '<input type="checkbox" style="float:left" name="blimply_no_sound" id="blimply_no_sound" value="1" '. checked( $this->_is_quiet_time(), true, false ) . ' />';
+		echo '<input type="checkbox" name="blimply_no_sound" id="blimply_no_sound" value="1" '. checked( $this->_is_quiet_time(), true, false ) . ' />';
 		esc_html_e( 'Turn the sound off', 'blimply' );
 		echo '</label><br/>';
 ?>
@@ -392,12 +393,13 @@ class Blimply {
 					<?php
 		if ( current_user_can( apply_filters( 'blimply_push_cap', 'publish_posts' ) ) ):
 ?>
-					<input type="submit" name="publish" disabled="disabled" id="blimply_push_send" accesskey="p" tabindex="5" class="button-primary" value="<?php  esc_attr_e( 'Send push notification' ) ?>" />
+					<input type="submit" name="publish" disabled="disabled" id="blimply_push_send" accesskey="p" tabindex="5" class="button-primary" value="<?php esc_attr_e( 'Send push notification', 'blimply' ) ?>" />
 					<?php endif; ?>
 					<img class="waiting" style="display:none;" src="<?php echo esc_url( admin_url( 'images/wpspin_light.gif' ) ); ?>" alt="" />
 				</span>
 				<br class="clear" />
 			</p>
+</fieldset>
 		</form>
 <?php
 	}
