@@ -67,6 +67,10 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 			$this->single_row( $plugin_file, $plugin_data );
 	}
 
+	public function get_columns() {
+		return;
+	}
+
 	/**
 	 * Handles outputting the markup for a single row of the list table.
 	 *
