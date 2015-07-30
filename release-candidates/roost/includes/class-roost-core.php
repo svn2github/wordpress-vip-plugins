@@ -324,7 +324,7 @@ class Roost {
                             }
                         }
                         if ( ! empty( $custom_headline ) ) {
-                            $alert = $custom_headline;
+                            $alert = stripslashes( $custom_headline );
                         } else {
                             $alert = get_the_title( $post_id );
                         }
