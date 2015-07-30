@@ -260,7 +260,7 @@ class Roost {
         if ( empty( $post ) ) {
             return;
         }
-        if ( ! current_user_can( 'publish_posts' ) ) {
+        if ( ! current_user_can( 'publish_posts' ) && ! DOING_CRON  ) {
             return;
         }
 
