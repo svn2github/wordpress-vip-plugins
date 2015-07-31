@@ -17,7 +17,7 @@ class LivePress_Feed {
 	public function  __construct( $name ) {
 		$this->name = $name;
 		if ( is_single() ) {
-			add_action( 'wp_print_scripts', array( &$this, 'feed_link' ), 4 );
+			add_action( 'wp_print_scripts', array( $this, 'feed_link' ), 4 );
 		}
 	}
 

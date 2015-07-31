@@ -44,7 +44,7 @@ class LivePress_Live_Update {
 		global $current_user;
 		$this->user_options = get_user_option( LivePress_Administration::$options_name, $current_user->ID, false );
 
-		add_shortcode( 'livepress_metainfo', array( &$this, 'shortcode' ) );
+		add_shortcode( 'livepress_metainfo', array( $this, 'shortcode' ) );
 		if ( is_admin() ) {
 			// setup WYSIWYG editor
 			$this->add_editor_button();
@@ -63,8 +63,8 @@ class LivePress_Live_Update {
 
 		// Add only in Rich Editor mode
 		if ( get_user_option( 'rich_editing' ) == 'true' ) {
-			add_filter( 'teeny_mce_buttons', array( &$this, 'register_tinymce_button' ) );
-			add_filter( 'mce_buttons', array( &$this, 'register_tinymce_button' ) );
+			add_filter( 'teeny_mce_buttons', array( $this, 'register_tinymce_button' ) );
+			add_filter( 'mce_buttons', array( $this, 'register_tinymce_button' ) );
 		}
 	}
 

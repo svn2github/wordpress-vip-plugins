@@ -54,19 +54,19 @@ class LivePress_Comment {
 	 */
 	public function do_wp_binds( $is_ajax_lp_comment_request ) {
 		// Send to livepress for diff everytime something changes in the comments list.
-		add_action( 'comment_post', array( &$this, 'send_to_livepress_new_comment' ) );
+		add_action( 'comment_post', array( $this, 'send_to_livepress_new_comment' ) );
 
 		// TODO: fix those operations with comments
-		add_action( 'transition_comment_status', array( &$this, 'send_comment_if_approved' ), 10, 3 );
+		add_action( 'transition_comment_status', array( $this, 'send_comment_if_approved' ), 10, 3 );
 
-		add_action( 'wp_ajax_lp_post_comment',        array( &$this, 'lp_post_comment' ) );
-		add_action( 'wp_ajax_nopriv_lp_post_comment', array( &$this, 'lp_post_comment' ) );
-		add_action( 'wp_ajax_lp_dim_comment',         array( &$this, 'lp_dim_comment' ) );
+		add_action( 'wp_ajax_lp_post_comment',        array( $this, 'lp_post_comment' ) );
+		add_action( 'wp_ajax_nopriv_lp_post_comment', array( $this, 'lp_post_comment' ) );
+		add_action( 'wp_ajax_lp_dim_comment',         array( $this, 'lp_dim_comment' ) );
 
 		if ( $is_ajax_lp_comment_request ) {
-			add_action( 'comment_flood_trigger',     array( &$this, 'received_a_flood_comment' ) );
+			add_action( 'comment_flood_trigger',     array( $this, 'received_a_flood_comment' ) );
 		} else {
-			add_filter( 'comments_template', array( &$this, 'enclose_comments_in_div' ) );
+			add_filter( 'comments_template', array( $this, 'enclose_comments_in_div' ) );
 		}
 	}
 
@@ -435,7 +435,7 @@ class LivePress_Comment {
 
 	private function add_overridden_comments_count_filter( $count ) {
 		$this->overridden_comments_count = $count;
-		add_filter( 'get_comments_number', array( &$this, 'overload_comments_number' ) );
+		add_filter( 'get_comments_number', array( $this, 'overload_comments_number' ) );
 	}
 
 	public function overload_comments_number() {

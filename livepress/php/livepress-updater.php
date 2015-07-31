@@ -79,29 +79,29 @@ class LivePress_Updater {
 		if ( ! isset( $_POST['livepress_update'] ) ) {
 			$livepress_enabled = $this->has_livepress_enabled();
 			if ( $livepress_enabled ) {
-				add_action( 'admin_head', array( &$this, 'embed_constants' ) );
+				add_action( 'admin_head', array( $this, 'embed_constants' ) );
 
-				add_action( 'admin_enqueue_scripts', array( &$this, 'add_js_config' ), 11 );
+				add_action( 'admin_enqueue_scripts', array( $this, 'add_js_config' ), 11 );
 
-				add_action( 'admin_enqueue_scripts', array( &$this, 'add_css_and_js_on_header' ), 10 );
+				add_action( 'admin_enqueue_scripts', array( $this, 'add_css_and_js_on_header' ), 10 );
 
 				add_action( 'admin_head', array( $this, 'remove_auto_save' ), 10 );
 
 				// Adds the modified tinyMCE
 				if ( get_user_option( 'rich_editing' ) == 'true' ) {
-					add_filter( 'mce_external_plugins', array( &$this, 'add_modified_tinymce' ) );
+					add_filter( 'mce_external_plugins', array( $this, 'add_modified_tinymce' ) );
 				}
 			}
 			// Ensuring that the post is divided into micro-post livepress chunks
 			$live_update = $this->init_live_update();
 
-			add_action( 'wp_enqueue_scripts', array( &$this, 'add_js_config' ), 11 );
-			add_action( 'wp_enqueue_scripts', array( &$this, 'add_css_and_js_on_header' ), 10 );
-			add_filter( 'edit_post', array( &$this, 'maybe_merge_post' ), 10 );
+			add_action( 'wp_enqueue_scripts', array( $this, 'add_js_config' ), 11 );
+			add_action( 'wp_enqueue_scripts', array( $this, 'add_css_and_js_on_header' ), 10 );
+			add_filter( 'edit_post', array( $this, 'maybe_merge_post' ), 10 );
 
-			add_action( 'pre_post_update',  array( &$this, 'save_old_post' ),  999 );
+			add_action( 'pre_post_update',  array( $this, 'save_old_post' ),  999 );
 
-			add_filter( 'pre_post_update', array( &$this, 'save_lp_post_options' ), 10 );
+			add_filter( 'pre_post_update', array( $this, 'save_lp_post_options' ), 10 );
 
 			add_filter( 'content_save_pre', array( $live_update, 'fill_livepress_shortcodes' ), 5 );
 
@@ -131,7 +131,7 @@ class LivePress_Updater {
 			)
 		);
 		// We only want the taxonomy to show in the menu, not on the post edit page
-		add_action( 'admin_menu' , array( &$this, 'remove_livetag_metabox' ) );
+		add_action( 'admin_menu' , array( $this, 'remove_livetag_metabox' ) );
 
 	}
 
@@ -648,7 +648,7 @@ class LivePress_Updater {
 		}
 
 		// Temporarily remove the edit post filter, so we can update without firing it again.
-		remove_filter( 'edit_post', array( &$this, 'maybe_merge_post' ), 10 );
+		remove_filter( 'edit_post', array( $this, 'maybe_merge_post' ), 10 );
 
 		// Merge the child posts
 		$post = LivePress_PF_Updates::get_instance()->merge_children( $post_id );
@@ -660,7 +660,7 @@ class LivePress_Updater {
 		Collaboration::clear_terms_cache( $post_id );
 
 		// Re-add the edit_post filter.
-		add_filter( 'edit_post', array( &$this, 'maybe_merge_post' ), 10 );
+		add_filter( 'edit_post', array( $this, 'maybe_merge_post' ), 10 );
 
 		return true;
 	}
