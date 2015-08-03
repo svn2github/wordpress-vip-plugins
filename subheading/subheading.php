@@ -57,7 +57,8 @@ if ( ! class_exists( 'SubHeading' ) ) {
 				add_filter( 'the_subheading', array( &$this, 'build' ), 1 );
 				add_filter( 'the_content', array( &$this, 'append' ) );
 				if ( isset( $this->options['search'] ) ) {
-					add_action( 'posts_where_request', array( &$this, 'search' ) );
+					//add_action( 'posts_where_request', array( &$this, 'search' ) ); //VIP: disable postmeta
+					// searching. This can only be re-enabled if ES is enabled on a site.
 				}
 			}
 		}
