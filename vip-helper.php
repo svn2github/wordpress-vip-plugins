@@ -222,10 +222,10 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 			$cache_time = 60;
 
 		// Cache the result
-		wp_cache_set( $cache_key, $content, $cache_group, $cache_time );
+		wp_cache_add( $cache_key, $content, $cache_group, $cache_time );
 
 		// Additionally cache the result with no expiry as a backup content source
-		wp_cache_set( $backup_key, $content, $cache_group );
+		wp_cache_add( $backup_key, $content, $cache_group );
 
 		// So we can hook in other places and do stuff
 		do_action( 'wpcom_vip_remote_request_success', $url, $response );
@@ -254,7 +254,7 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	}
 	// We were unable to fetch any content, so don't try again for another 60 seconds
 	elseif ( $response ) {
-		wp_cache_set( $disable_get_key, 1, $cache_group, 60 );
+		wp_cache_add( $disable_get_key, 1, $cache_group, 60 );
 
 		// If a remote request failed, log why it did
 		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
