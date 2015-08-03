@@ -1362,9 +1362,12 @@ class Zoninator
 		$whitelisted_fields = array( 'ID', 'post_date', 'post_title', 'post_content', 'post_excerpt', 'post_status', 'guid' );
 
 		$i = 0;
+		$filtered_results = array();
 		foreach ( $results as $result ) {
 			foreach( $whitelisted_fields as $field ) {
-					$filtered_results[$i]->$field = $result->$field;
+					if ( ! empty( $result->$field ) ){
+						$filtered_results[$i]->$field = $result->$field;
+					}
 			}
 			$i++;
 		}
