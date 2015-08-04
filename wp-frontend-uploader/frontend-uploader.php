@@ -3,7 +3,7 @@
 Plugin Name: Frontend Uploader
 Description: Allow your visitors to upload content and moderate it.
 Author: Rinat Khaziev, Daniel Bachhuber
-Version: 0.9.3
+Version: 0.9.4
 Author URI: http://digitallyconscious.com
 
 GNU General Public License, Free Software Foundation <http://creativecommons.org/licenses/GPL/2.0/>
@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 */
 
 // Define consts and bootstrap and dependencies
-define( 'FU_VERSION', '0.9.3' );
+define( 'FU_VERSION', '0.9.4' );
 define( 'FU_ROOT' , dirname( __FILE__ ) );
 define( 'FU_FILE_PATH' , FU_ROOT . '/' . basename( __FILE__ ) );
 define( 'FU_URL' , plugins_url( '/', __FILE__ ) );
@@ -236,7 +236,7 @@ class Frontend_Uploader {
 	 * @param int  $post_id Parent post id
 	 * @return array Combined result of media ids and errors if any
 	 */
-	function _upload_files( $post_id ) {
+	function _upload_files( $post_id = 0 ) {
 		$media_ids = $errors = array();
 		// Bail if there are no files
 		if ( empty( $_FILES ) )
@@ -330,23 +330,28 @@ class Frontend_Uploader {
 			}
 		}
 
+		$post_title = isset( $_POST['caption'] ) ? sanitize_text_field( $_POST['caption'] ) : sanitize_text_field( $_POST['post_title'] );
+
 		// Construct post array;
 		$post_array = array(
 			'post_type' => isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], $this->settings['enabled_post_types'] ) ? $_POST['post_type'] : 'post',
-			'post_title' => isset( $_POST['caption'] ) ? sanitize_text_field( $_POST['caption'] ) : sanitize_text_field( $_POST['post_title'] ),
+			'post_title' => $post_title ? $post_title : __( 'Untitled post submission', 'frontend-uploader' ),
 			'post_content' => wp_filter_post_kses( $_POST['post_content'] ),
 			'post_status' => $this->_is_public() ? 'publish' : 'private',
 			'post_category' => $category,
 		);
 
 		$author = isset( $_POST['post_author'] ) ? sanitize_text_field( $_POST['post_author'] ) : '';
-		$users = get_users( array(
+
+		if ( $author ) {
+			$users = get_users( array(
 				'search' => $author,
 				'fields' => 'ID'
 			) );
 
-		if ( isset( $users[0] ) ) {
-			$post_array['post_author'] = (int) $users[0];
+			if ( isset( $users[0] ) ) {
+				$post_array['post_author'] = (int) $users[0];
+			}
 		}
 
 		$post_array = apply_filters( 'fu_before_create_post', $post_array );
@@ -445,9 +450,8 @@ class Frontend_Uploader {
 			// Upload media
 		case 'image':
 		case 'media':
-			if ( isset( $_POST['post_ID'] ) && 0 !== $pid = (int) $_POST['post_ID'] ) {
-				$result = $this->_upload_files( $pid );
-			}
+			$pid = isset( $_POST['post_ID'] ) ? (int) $_POST['post_ID'] : 0;
+			$result = $this->_upload_files( $pid );
 
 			break;
 		}
