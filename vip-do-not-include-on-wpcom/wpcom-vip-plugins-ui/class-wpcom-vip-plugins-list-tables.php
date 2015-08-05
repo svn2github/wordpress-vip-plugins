@@ -68,7 +68,7 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 	}
 
 	public function get_columns() {
-		return;
+		return array();
 	}
 
 	/**
@@ -163,6 +163,10 @@ class WPCOM_VIP_Featured_Plugins_List_Table extends WP_List_Table {
 		parent::__construct( array(
 			'plural' => 'Featured Plugins',
 		) );
+	}
+
+	public function get_columns() {
+		return array();
 	}
 
 	/**
