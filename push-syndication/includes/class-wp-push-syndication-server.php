@@ -1260,55 +1260,60 @@ class WP_Push_Syndication_Server {
 			$posts          = apply_filters( 'syn_pre_pull_posts', $client->get_posts(), $site, $client );
 
 			$post_types_processed = array();
+			if ( ! empty( $posts ) ) {
+				foreach ( $posts as $post ) {
 
-			foreach( $posts as $post ) {
-
-				if ( ! in_array( $post['post_type'], $post_types_processed ) ) {
-					remove_post_type_support( $post['post_type'], 'revisions' );
-					$post_types_processed[] = $post['post_type'];
-				}
-
-				if ( empty( $post['post_guid'] ) )
-					continue;
-
-				$post_id = $this->find_post_by_guid( $post['post_guid'], $post, $site );
-
-				if ( $post_id ) {
-					$pull_edit_shortcircuit = apply_filters( 'syn_pre_pull_edit_post_shortcircuit', false, $post, $site, $transport_type, $client );
-					if ( true === $pull_edit_shortcircuit )
-						continue;
-				
-					// if updation is disabled continue
-					if( $this->push_syndicate_settings['update_pulled_posts'] != 'on' )
-						continue;
-
-					$post['ID'] = $post_id;
-
-					$post = apply_filters( 'syn_pull_edit_post', $post, $site, $client );
-
-					$result = wp_update_post( $post, true );
-
-					do_action( 'syn_post_pull_edit_post', $result, $post, $site, $transport_type, $client );
-					
-				} else {
-					$pull_new_shortcircuit = apply_filters( 'syn_pre_pull_new_post_shortcircuit', false, $post, $site, $transport_type, $client );
-					if ( true === $pull_new_shortcircuit )
-						continue;
-
-					$post = apply_filters( 'syn_pull_new_post', $post, $site, $client );
-
-					$result = wp_insert_post( $post, true );
-
-					do_action( 'syn_post_pull_new_post', $result, $post, $site, $transport_type, $client );
-
-					if( !is_wp_error( $result ) ) {
-						update_post_meta( $result, 'syn_post_guid', $post['post_guid'] );
-						update_post_meta( $result, 'syn_source_site_id', $site_id );
+					if ( ! in_array( $post[ 'post_type' ], $post_types_processed ) ) {
+						remove_post_type_support( $post[ 'post_type' ], 'revisions' );
+						$post_types_processed[] = $post[ 'post_type' ];
 					}
 
+					if ( empty( $post[ 'post_guid' ] ) ) {
+						continue;
+					}
+
+					$post_id = $this->find_post_by_guid( $post[ 'post_guid' ], $post, $site );
+
+					if ( $post_id ) {
+						$pull_edit_shortcircuit = apply_filters( 'syn_pre_pull_edit_post_shortcircuit', false, $post, $site, $transport_type, $client );
+						if ( true === $pull_edit_shortcircuit ) {
+							continue;
+						}
+
+						// if updation is disabled continue
+						if ( $this->push_syndicate_settings[ 'update_pulled_posts' ] != 'on' ) {
+							continue;
+						}
+
+						$post[ 'ID' ] = $post_id;
+
+						$post = apply_filters( 'syn_pull_edit_post', $post, $site, $client );
+
+						$result = wp_update_post( $post, true );
+
+						do_action( 'syn_post_pull_edit_post', $result, $post, $site, $transport_type, $client );
+
+					} else {
+						$pull_new_shortcircuit = apply_filters( 'syn_pre_pull_new_post_shortcircuit', false, $post, $site, $transport_type, $client );
+						if ( true === $pull_new_shortcircuit ) {
+							continue;
+						}
+
+						$post = apply_filters( 'syn_pull_new_post', $post, $site, $client );
+
+						$result = wp_insert_post( $post, true );
+
+						do_action( 'syn_post_pull_new_post', $result, $post, $site, $transport_type, $client );
+
+						if ( ! is_wp_error( $result ) ) {
+							update_post_meta( $result, 'syn_post_guid', $post[ 'post_guid' ] );
+							update_post_meta( $result, 'syn_source_site_id', $site_id );
+						}
+
+					}
 				}
 			}
-
+			
 			foreach ( $post_types_processed as $post_type ) {
 				add_post_type_support( $post_type, 'revisions' );
 			}
