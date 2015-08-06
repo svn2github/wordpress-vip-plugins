@@ -1366,6 +1366,7 @@ class Zoninator
 		foreach ( $results as $result ) {
 			foreach( $whitelisted_fields as $field ) {
 					if ( ! empty( $result->$field ) ){
+						$filtered_results[$i] = new stdClass();
 						$filtered_results[$i]->$field = $result->$field;
 					}
 			}
