@@ -294,7 +294,7 @@ LOGOUT;
 			}
 			$realm			 = self::get_option( self::$name . '_rpx_realm' );
 			$share_providers = JanrainCapture::get_option( JanrainCapture::$name . '_rpx_share_providers' );
-			$share_providers = implode( "', '", array_map( 'esc_js', $share_providers ) );
+			$share_providers = implode( "', '", array_map( 'esc_js', (array)$share_providers ) );
 			return ($realm && "['$share_providers']");
 		}
 
