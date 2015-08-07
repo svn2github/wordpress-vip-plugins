@@ -516,17 +516,12 @@ function jwplayer_create_js_embed( $arguments ) {
 	$timeout = intval( get_option( 'jwplayer_timeout' ) );
 	$path = 'players/' . $video_hash . '-' . $player_hash . '.js';
 	if ( $timeout < 1 ) {
-		$url = 'http://' . $content_mask . '/' .$path;
+		$url = '//' . $content_mask . '/' .$path;
 	} else {
 		$api_secret = get_option( 'jwplayer_api_secret' );
 		$expires = time() + 60 * $timeout;
 		$signature = md5( $path . ':' . $expires . ':' . $api_secret );
-		if ( is_ssl() ) {
-			$url = 'https://' . $content_mask . '/' . $path . '?exp=$expires&sig=' .$signature;
-		}
-		else {
-			$url = 'http://' . $content_mask . '/' . $path . '?exp=' . $expires . '&sig=' . $signature;
-		}
+		$url = '//' . $content_mask . '/' . $path . '?exp=' . $expires . '&sig=' . $signature;
 	}
 
 	return '<script type="text/javascript" src="' . esc_url( $url ) . '"></script>';
