@@ -39,6 +39,10 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
 		if ( !$arr ) {
 			$stat_result = _wpcom_vip_get_stats_result( 'postviews', $end_date, $num_days, '', $limit );
 			$arr = wpcom_vip_stats_csv_print( $stat_result, 'postviews', $limit, true, true );
+
+			// Trim it down, internal stats function sometimes return more than $limit
+			$arr = array_slice( $arr, 0, $limit );
+
 			wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
 		}
 
