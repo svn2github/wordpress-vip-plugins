@@ -139,43 +139,43 @@ function vip_regex_redirects( $vip_redirects_array = array(), $with_querystring 
  */
 function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $extra_args = array() ) {
 	global $blog_id;
-a8c_slack('@philipjohn',__LINE__);
+
 	$extra_args_defaults = array(
 		'obey_cache_control_header' => true, // Uses the "cache-control" "max-age" value if greater than $cache_time
 		'http_api_args' => array(), // See http://codex.wordpress.org/Function_API/wp_remote_get
 	);
-a8c_slack('@philipjohn',__LINE__);
+
 	$extra_args = wp_parse_args( $extra_args, $extra_args_defaults );
-a8c_slack('@philipjohn',__LINE__);
+
 	$cache_key       = md5( serialize( array_merge( $extra_args, array( 'url' => $url ) ) ) );
 	$backup_key      = $cache_key . '_backup';
 	$disable_get_key = $cache_key . '_disable';
 	$cache_group     = 'wpcom_vip_file_get_contents';
-a8c_slack('@philipjohn',__LINE__);
+
 	// Temporary legacy keys to prevent mass cache misses during our key switch
 	$old_cache_key       = md5( $url );
 	$old_backup_key      = 'backup:' . $old_cache_key;
 	$old_disable_get_key = 'disable:' . $old_cache_key;
-a8c_slack('@philipjohn',__LINE__);
+
 	// Let's see if we have an existing cache already
 	// Empty strings are okay, false means no cache
 	if ( false !== $cache = wp_cache_get( $cache_key, $cache_group) )
 		return $cache;
-a8c_slack('@philipjohn',__LINE__);
+
 	// Legacy
 	if ( false !== $cache = wp_cache_get( $old_cache_key, $cache_group) )
 		return $cache;
-a8c_slack('@philipjohn',__LINE__);
+
 	// The timeout can be 1 to 10 seconds, we strongly recommend no more than 3 seconds
 	$timeout = min( 10, max( 1, (int) $timeout ) );
-a8c_slack('@philipjohn',__LINE__);
+
 	if ( $timeout > 3 )
 		_doing_it_wrong( __FUNCTION__, 'Using a timeout value of over 3 seconds is strongly discouraged because users have to wait for the remote request to finish before the rest of their page loads.', null );
-a8c_slack('@philipjohn',__LINE__);
+
 	$server_up = true;
 	$response = false;
 	$content = false;
-a8c_slack('@philipjohn',__LINE__);
+
 	// Check to see if previous attempts have failed
 	if ( false !== wp_cache_get( $disable_get_key, $cache_group ) ) {
 		$server_up = false;
@@ -190,7 +190,7 @@ a8c_slack('@philipjohn',__LINE__);
 		$http_api_args['timeout'] = $timeout;
 		$response = wp_remote_get( $url, $http_api_args );
 	}
-a8c_slack('@philipjohn',__LINE__);
+
 	// Was the request successful?
 	if ( $server_up && ! is_wp_error( $response ) && 200 == wp_remote_retrieve_response_code( $response ) ) {
 		$content = wp_remote_retrieve_body( $response );
@@ -220,7 +220,7 @@ a8c_slack('@philipjohn',__LINE__);
 		$cache_time = (int) $cache_time;
 		if ( $cache_time < 60 )
 			$cache_time = 60;
-a8c_slack('@philipjohn',__LINE__);
+
 		// Cache the result
 		wp_cache_add( $cache_key, $content, $cache_group, $cache_time );
 
@@ -267,7 +267,7 @@ a8c_slack('@philipjohn',__LINE__);
 		// So we can hook in other places and do stuff
 		do_action( 'wpcom_vip_remote_request_error', $url, $response );
 	}
-a8c_slack('@philipjohn',__LINE__);
+
 	return $content;
 }
 
