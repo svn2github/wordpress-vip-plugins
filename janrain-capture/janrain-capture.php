@@ -6,7 +6,7 @@
 Plugin Name: Social User Registration and Profile Storage with Janrain Capture for Wordpress VIP
 Plugin URI: http://www.janrain.com/capture/
 Description: Collect, store and leverage user profile data from social networks in a flexible, lightweight hosted database.
-Version: 0.5.2
+Version: 0.5.3
 Author: Janrain
 Author URI: http://developers.janrain.com/extensions/wordpress-for-capture/
 License: Apache License, Version 2.0
