@@ -911,3 +911,7 @@ function wpcom_vip_https_canonical_url() {
 		return str_replace( 'http://', 'https://', $link );
 	}, 99 );
 }
+
+function wpcom_vip_disable_oembed_link_tag(){
+	remove_action( 'wp_head', 'add_oembed_link_tags' );
+}
