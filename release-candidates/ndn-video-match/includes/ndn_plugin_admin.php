@@ -621,7 +621,7 @@ class NDN_Plugin_Admin
 
         // Provide media wizard button for a admin posts editor view.
         ?>
-          <a href="#"
+          <a href="admin.php?page=ndn-video-search%3F&amp;iframe&amp;TB_iframe=true"
             class="button ndn-plugin-wiz-button <?php echo(self::$has_token && self::$configured) ? 'thickbox' : 'disabled' ?>"
             id="ndn-plugin-wiz-button"
             title="NDN Video Match"

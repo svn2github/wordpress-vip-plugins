@@ -8,7 +8,6 @@
     initializeGA();
 
     // Event Listeners for plugin actions
-    jQuery( '#ndn-plugin-wiz-button' ).click( ndnOpenMediaWindow );
     ndnChangedResponsiveCheckbox();
     jQuery( '.ndn-responsive-checkbox' ).change( ndnChangedResponsiveCheckbox );
     // Input Validators
@@ -28,26 +27,6 @@
     jQuery( '.ndn-notify-credentials' ).on('click', ndnGAClickEvent);
     jQuery( '.ndn-notify-settings' ).on('click', ndnGAClickEvent);
   });
-
-  /**
-  	 * Opens media window modal
-  	 * @return {bool}
-  	 */
-  function ndnOpenMediaWindow( event ) {
-    ndnGAClickEvent( '.ndn-plugin-wiz-button' );
-    var href = 'admin.php?page=ndn-video-search';
-
-    if ( $( '.ndn-plugin-wiz-button' ).hasClass( 'disabled' ) ) {
-        // console.log( 'Disabled' );
-        event.preventDefault();
-        return true;
-    } else {
-      /* jshint -W117 */
-      tb_show( 'NDN Video Match', href + '?TB_iframe=true&width=950&height=800' );
-      /* jshint +W117 */
-      return false;
-    }
-  }
 
   /**
    * On change responsive checkbox
