@@ -49,8 +49,8 @@ class BC_Permissions {
 			wpcom_vip_add_role_caps( 'editor', $editor_roles );
 		} else {
 
-		$administrator = get_role( 'administrator' );
-		$editor = get_role( 'editor' );
+			$administrator = get_role( 'administrator' );
+			$editor = get_role( 'editor' );
 
 			foreach( $admin_roles as $admin_role ) {
 				$administrator->add_cap( $admin_role );

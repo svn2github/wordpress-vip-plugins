@@ -21,6 +21,18 @@ class BC_Utility {
         return is_string( $client_secret ) ?  preg_replace( '/[^a-z0-9_-]/i', '', $client_secret ) : '';
     }
 
+    /**
+     * Check if the current user can work with Brightcove videos
+     * @return boolean current_user_can_brightcove
+     */
+    public static function current_user_can_brightcove() {
+    	if ( is_admin() && ( current_user_can( 'brightcove_manipulate_videos' ) || is_super_admin() ) ) {
+    		return true;
+    	} else {
+    		return false;
+    	}
+    }
+
 	/**
 	 * @param $numeric_string
 	 * @return string containing integers only

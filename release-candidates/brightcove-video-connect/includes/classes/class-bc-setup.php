@@ -37,7 +37,7 @@ class BC_Setup {
 		new BC_Permissions();
 
 		// Load Administrative Resources
-		if ( is_admin() && ( current_user_can( 'brightcove_manipulate_videos' ) || is_super_admin() ) ) {
+		if ( BC_Utility::current_user_can_brightcove() ) {
 
 			require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/api/class-bc-admin-media-api.php');
 			require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-menu.php');
@@ -81,8 +81,9 @@ class BC_Setup {
 	}
 
 	public static function add_brightcove_media_button() {
-
-		echo '<a href="#" id="brightcove-add-media" class="button brightcove-add-media"><img class="bc-button-icon" src="' . esc_url( BRIGHTCOVE_URL . 'images/admin/menu-icon.svg' ) . '"> ' . esc_html__( 'Brightcove Media', 'brightcove' ) . '</a>';
+		if ( BC_Utility::current_user_can_brightcove() ) {
+			echo '<a href="#" id="brightcove-add-media" class="button brightcove-add-media"><img class="bc-button-icon" src="' . esc_url( BRIGHTCOVE_URL . 'images/admin/menu-icon.svg' ) . '"> ' . esc_html__( 'Brightcove Media', 'brightcove' ) . '</a>';
+		}
 	}
 
 	public static function add_brightcove_media_modal_container() {
@@ -104,24 +105,30 @@ class BC_Setup {
 		$uri  = $_SERVER['REQUEST_URI'];
 		$type = 'videos';
 
-		$cms_api = new BC_CMS_API();
-		$admin_media_api = new BC_Admin_Media_API();
-		if ( false !== strpos( $uri, BC_Admin_Menu::get_videos_page_uri_component() ) ) {
-			$params[ 'videos' ] = $admin_media_api->fetch_all('videos');
-		} else if ( false !== strpos( $uri, BC_Admin_Menu::get_playlists_page_uri_component() ) ) {
-			$type            = 'playlists';
-			$params[ 'playlists' ] = $cms_api->playlist_list();
-		} else {
-			global $pagenow;
-			if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) ) {
-				// Preload both videos and playlists for the post pages because the modal
-				// has tabs to alternate between the two views.
+		if ( BC_Utility::current_user_can_brightcove() ) {
+
+			$cms_api = new BC_CMS_API();
+			$admin_media_api = new BC_Admin_Media_API();
+			if ( false !== strpos( $uri, BC_Admin_Menu::get_videos_page_uri_component() ) ) {
 				$params[ 'videos' ] = $admin_media_api->fetch_all('videos');
+			} else if ( false !== strpos( $uri, BC_Admin_Menu::get_playlists_page_uri_component() ) ) {
+				$type            = 'playlists';
 				$params[ 'playlists' ] = $cms_api->playlist_list();
 			} else {
-				// What weird page are we on?
-				return false;
+				global $pagenow;
+				if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) ) {
+					// Preload both videos and playlists for the post pages because the modal
+					// has tabs to alternate between the two views.
+					$params[ 'videos' ] = $admin_media_api->fetch_all('videos');
+					$params[ 'playlists' ] = $cms_api->playlist_list();
+				} else {
+					// What weird page are we on?
+					return false;
+				}
 			}
+
+		} else {
+			return false;
 		}
 		$params['dates'] = array( $type => BC_Utility::get_video_playlist_dates_for_display( $type ) );
 		$params['nonce'] = wp_create_nonce( '_bc_ajax_search_nonce' );
