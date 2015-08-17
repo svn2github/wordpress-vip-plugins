@@ -1376,7 +1376,8 @@ class Sailthru_Client {
         $response = $this->{$this->http_request_type}($url, $data, $method);
         $json = json_decode($response, true);
         if ($json === NULL) {
-            throw new Sailthru_Client_Exception("Response: {$response} is not a valid JSON");
+            //throw new Sailthru_Client_Exception("Response: {$response} is not a valid JSON");
+			$json = '';
         }
         return $json;
     }
