@@ -72,7 +72,7 @@ class BC_Video_Shortcode {
 			$video_id
 		);
 		$html .= sprintf(
-			'<script src="http://players.brightcove.net/%s/%s_default/index.min.js"></script>',
+			'<script src="//players.brightcove.net/%s/%s_default/index.min.js"></script>',
 			$account_id,
 			$player_id
 		);
