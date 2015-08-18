@@ -88,20 +88,31 @@
 	<div class="thumbnail">
 		<# if(data.preview_image_url) { #>
 			<img src="{{ data.preview_image_url }}" class="icon" draggable="false" />
+			<div class="ooyala-thumbnail-action">
+			<# if(typeof data.attachment_id != 'undefined') { #>
+				<# if(data.attachment_id && data.attachment_id === wp.media.view.settings.post.featuredImageId) { #>
+					<span class="ooyala-status-text ooyala-status-featured"><span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Featured Image Set to Thumbnail', 'ooyala' ); ?></span>
+				<# } else { #>
+				<button class="ooyala-set-featured button-secondary" {{ data.attachment_id && data.attachment_id === wp.media.view.settings.post.featuredImageId ? disabled="disabled" : '' }}><?php esc_html_e( 'Set Thumbnail as Featured Image', 'ooyala' ); ?></button>
+				<# } #>
+			<# } else { #>
+				<span class="ooyala-status-text ooyala-status-checking loading"><?php esc_html_e( 'Checking image', 'ooyala' ); ?></span>
+			<# } #>
 		<# } #>
+		</div>
 	</div>
 </div>
 <dl class="ooyala-image-details-list">
 
-	<dt class="ooyala-title"><?php esc_html_e( "Title: ", 'ooyala' ); ?></dt>
+	<dt class="ooyala-title"><?php esc_html_e( 'Title:', 'ooyala' ); ?></dt>
 	<dd class="ooyala-title">{{ data.name }}</dd>
 
 	<# if (data.duration) { #>
-	<dt class="ooyala-duration"><?php esc_html_e( "Duration: ", 'ooyala' ); ?></dt>
+	<dt class="ooyala-duration"><?php esc_html_e( 'Duration:', 'ooyala' ); ?></dt>
 	<dd class="ooyala-duration">{{ data.duration_string }}</dd>
 	<# } #>
 
-	<dt class="ooyala-status"><?php esc_html_e( "Status: ", 'ooyala' ); ?></dt>
+	<dt class="ooyala-status"><?php esc_html_e( 'Status:', 'ooyala' ); ?></dt>
 	<dd class="ooyala-status ooyala-status-{{ data.status }} {{ data.status == 'processing' ? 'loading' : '' }}">{{ data.status }}
 	<# if (data.status=='uploading' && data.percent !== undefined) { #>
 		<em class="progress">(<span>{{ data.percent }}</span>%)</em>
@@ -109,7 +120,7 @@
 	</dd>
 
 	<# if ( data.description ) { #>
-	<dt class="ooyala-description"><?php esc_html_e( "Description: ", 'ooyala' ); ?></dt>
+	<dt class="ooyala-description"><?php esc_html_e( 'Description:', 'ooyala' ); ?></dt>
 	<#  if ( data.description.length > ( data.descriptionMaxLen + data.maxLenThreshold ) ) {
 			var trunc = data.description.lastIndexOf(" ", data.descriptionMaxLen);
 			if (trunc==-1) trunc = data.descriptionMaxLen;
@@ -122,7 +133,7 @@
 
 	<# if(data.labels && data.labels.length > 0) {
 	#>
-	<dt class="ooyala-labels"><?php esc_html_e( "Labels: ", 'ooyala' ); ?></dt>
+	<dt class="ooyala-labels"><?php esc_html_e( 'Labels:', 'ooyala' ); ?></dt>
 	<dd class="ooyala-labels">
 		<ul>
 		<# for(var i = 0; i < data.labels.length; i++) { #>
@@ -137,7 +148,7 @@
 
 <!-- Player display options -->
 <script type="text/html" id="tmpl-ooyala-display-settings">
-<h3><?php esc_html_e( "Player Display Settings", 'ooyala' ); ?></h3>
+<h3><?php esc_html_e( 'Player Display Settings', 'ooyala' ); ?></h3>
 
 <div class="ooyala-display-settings-wrapper {{ (data.model.forceEmbed || data.model.attachment.canEmbed()) ? '' : 'embed-warning' }}">
 <div class="message"><?php esc_html_e( 'This asset may not display correctly due to its current status. Do you wish to embed it anyway?', 'ooyala' ); ?><a href="#">Show Player Settings</a></div>
@@ -171,11 +182,12 @@
 		<em class="loading"><?php esc_html_e( 'Retrieving video resolutions', 'ooyala' ); ?></em>
 	<# } else { #>
 		<select data-setting="resolution">
+			<option value="auto"><?php esc_html_e( 'Auto', 'ooyala' ); ?></option>
 		<# var resolutions = data.model.attachment.get('resolutions');
 		if (resolutions && resolutions.length > 0) {
-			for (var i=0; i < resolutions.length; i++) {
+			for (var i = 0; i < resolutions.length; i++) {
 				var res = resolutions[i].join(' x ') #>
-			<option value="{{ res }}">{{ res }}</option>
+				<option value="{{ res }}">{{ res }}</option>
 			<# }
 		} #>
 			<option value="custom"><?php esc_html_e( 'Custom', 'ooyala' ); ?></option>
@@ -197,6 +209,16 @@
 <label class="setting initial-time">
 	<span><?php esc_html_e( 'Initial Time', 'ooyala' ); ?></span>
 	<input type="text" data-setting="initial_time" min="0" max="{{ data.model.attachment.get('duration') / 1000 }}"> <?php esc_html_e( 'sec', 'ooyala' ); ?>
+</label>
+
+<label class="setting">
+	<span><?php esc_html_e( 'Autoplay', 'ooyala' ); ?></span>
+	<input type="checkbox" data-setting="autoplay"/>
+</label>
+
+<label class="setting">
+	<span><?php esc_html_e( 'Chromeless', 'ooyala' ); ?></span>
+	<input type="checkbox" data-setting="chromeless"/>
 </label>
 
 <label class="setting">
@@ -238,7 +260,7 @@
 		</div>
 		<div class="ooyala-more-text-container">
 			<!--// <span class="ooyala-number-remaining"></span> //-->
-			<span class="ooyala-more-text"><?php esc_html_e( "More", 'ooyala' ); ?></span>
+			<span class="ooyala-more-text"><?php esc_html_e( 'More', 'ooyala' ); ?></span>
 		</div>
 	</div>
 </script>

@@ -1,9 +1,9 @@
 === Ooyala ===
-Contributors: ooyala, thinkoomph, balbuf
+Contributors: ooyala, thinkoomph, balbuf, bendoh
 Tags: video, media, ooyala
 Requires at least: 3.9
-Tested up to: 4.2.2
-Stable tag: 2.0.2
+Tested up to: 4.2.3
+Stable tag: 2.1.0
 License: GPLv2 or later
 
 Connect your Ooyala account to embed and upload assets directly from WordPress.
@@ -13,7 +13,6 @@ Connect your Ooyala account to embed and upload assets directly from WordPress.
 Ooyala harnesses the power of big data to help broadcasters, operators and media companies build more engaged audiences and monetize video with personalized, interactive experiences for every screen. We go beyond traditional online video platforms, providing software and services combining best-of-breed technologies with industry-leading video analytics to help our customers optimize and automate video programming, video streaming and video syndication. Ooyala is an independent subsidiary of Telstra.
 
 The Ooyala WordPress plugin integrates seamlessly with your Wordpress 3.5+ Media Manager and lets you create posts with assets from your Ooyala account–-even uploading new videos–-without ever leaving your WordPress site.
-
 
 
 Using the plugin once installed
@@ -41,6 +40,10 @@ Using the plugin once installed
 
 
 == Changelog ==
+
+= 2.1.0 =
+* Add "Set Featured Image" button to video thumbnails, allowing users to set thumbnails.
+* Add "Auto" sizing capability (by default) to scale videos down responsively.
 
 = 2.0.2 =
 * Use HTTPS for JavaScripts to fix security compatibility for sites served via HTTPS.

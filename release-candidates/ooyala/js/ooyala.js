@@ -190,6 +190,7 @@ Number.prototype.bytesToString = Number.prototype.bytesToString || function () {
 				player_id: display.get('player_id') || asset.get('player_id'),
 				width: display.get('width'),
 				height: display.get('height'),
+				auto: !!asset.get('auto')
 			};
 
 			// get the display options but only if different than the defaults

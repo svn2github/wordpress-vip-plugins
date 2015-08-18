@@ -49,6 +49,7 @@
 			'click .ooyala-more': 'more',
 			'click .ooyala-label': 'refineLabel',
 			'click .ooyala-clear-label': 'clearLabel',
+			'click .ooyala-set-featured': 'setFeatured',
 		},
 
 		initialize: function() {
@@ -69,6 +70,27 @@
 			this.collection.propsQueue.on('change:label', this.labelState, this);
 
 			media.view.AttachmentsBrowser.prototype.initialize.apply(this, arguments);
+		},
+
+		/**
+		 * Set featured image to the live preview image
+		 */
+		setFeatured: function() {
+			var single = this.options.selection.single()
+			  , $thumbnail = this.$el.find('.thumbnail')
+			  , attachment = single.id ? ooyala.model.Attachments.all.get(single.id) : false
+				, view = this
+			;
+
+			if(attachment) {
+				$thumbnail.addClass('featured-loading');
+				$thumbnail.find('button').prop('disabled', true);
+
+				attachment.setFeatured().done(function() {
+					view.sidebar.get('details').render();
+				});
+			}
+
 		},
 
 		/**
@@ -154,6 +176,8 @@
 				};
 
 				sidebar.set('display', new ooyala.view.AttachmentDisplaySettings(displayOptions));
+
+				this.$('.ooyala-set-featured').blur();
 			}
 		},
 
@@ -449,14 +473,24 @@
 		// show the width/height inputs only when selecting custom size,
 		// otherwise update these values behind the scenes
 		updateSize: function() {
-			var val = this.$('.setting.resolution select').val(),
-				$custom = this.$('.custom-resolution');
+			var val = this.$('.setting.resolution select').val() || 'auto',
+				$custom = this.$('.custom-resolution'),
+				resolutions = this.model.attachment.get('resolutions') || [],
+				resolution;
 
 			// add class only if custom is selected
-			$custom.toggleClass('custom-entry', (val == 'custom') );
+			$custom.toggleClass('custom-entry', (val == 'custom'));
 
-			if ( val && val != 'custom' ) {
-				var resolution = val.split(' x ');
+			this.model.set('auto', (val == 'auto'));
+
+			if ( val == 'auto' ) {
+				resolution = resolutions && resolutions[0];
+			}
+			else if ( val != 'custom' ) {
+				resolution = val.split(' x ');
+			}
+
+			if ( resolution ) {
 				// update width and height values, which are also propagated to the input fields
 				this.model.set('width', resolution[0]);
 				this.model.set('height', resolution[1]);
@@ -854,6 +888,9 @@
 			// update as we are uploading or when the status changes
 			this.model.on('change:percent', this.progress, this);
 			this.model.on('change:status', this.render, this);
+
+			// or if we get an attachment ID
+			this.model.on('change:attachment_id', this.render, this);
 
 			media.view.Attachment.Details.prototype.initialize.apply(this, arguments);
 

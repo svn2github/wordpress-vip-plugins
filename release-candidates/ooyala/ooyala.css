@@ -400,6 +400,10 @@
 		display: block;
 		margin: 0 auto .5em;
 	}
+		.ooyala-image-details .thumbnail button {
+			margin: .25em .5em;
+		}
+
 		.ooyala-image-details-list {
 			line-height: 1.5em;
 		}
@@ -477,6 +481,24 @@
 		display: block;
 		line-height: 16px;
 	}
+
+		.ooyala-thumbnail-action {
+			height: 30px;
+		}
+			/* duplicate margin/padding on button for text */
+			.ooyala-status-text {
+				display: inline-block;
+				line-height: 28px;
+				margin: .25em .5em;
+				padding: 0 11px 2px;
+			}
+				.ooyala-status-text .dashicons {
+					line-height: 28px;
+				}
+				.ooyala-status-featured {
+					margin-left: -.5em;
+				}
+
 
 		/* animated ellipsis for loading message */
 		.ooyala-attachments-browser .loading:after { /* TODO: make sure this looks good in all browsers... */

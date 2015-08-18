@@ -73,18 +73,32 @@
 			if(method == 'read') {
 
 				// get stream resolutions if we do not have them, but only for videos or ads that were processed already
-				if ( _.contains( ['video','ad'], this.get('asset_type') ) && _.contains( ['live','paused'], this.get('status') ) && !this.get('resolutions') ) {
+				if ( _.contains( ['video','ad'], model.get('asset_type') ) && _.contains( ['live','paused'], model.get('status') ) && !model.get('resolutions') ) {
 
-					this.set('downloadingResolutions', true);
+					model.set('downloadingResolutions', true);
 
-					return api.request('GET','/v2/assets/' + this.get('id') + '/streams', null, null, this )
+					var defer = $.Deferred();
+
+					api.request('GET','/v2/assets/' + this.get('id') + '/streams')
 						.done(function(data) {
 							var resolutions = _.zip( _.pluck(data,'video_width'), _.pluck(data,'video_height') );
 							// remove duplicates
 							resolutions = _.uniq(resolutions, false, function(x){return x.join(',');});
 							// sort resolutions, largest first
 							resolutions.sort(function(a,b){return b[0]-a[0];});
-							this.set('resolutions',resolutions);
+							model.set('resolutions',resolutions);
+
+							$.post(ooyala.imageId, {
+								image_url: model.get('preview_image_url'),
+								post_id: $('#post_ID').val(),
+								nonce: ooyala.nonce
+							})
+								.done(function(response) {
+									model.set('attachment_id', response.data && response.data.id);
+								})
+								.always(function(response) {
+									defer.resolve(response);
+								});
 						})
 						.fail(function(jqXHR) {
 							// If resolutions cannot be loaded, falls back on default dimensions automatically
@@ -92,23 +106,45 @@
 								// 404 is returned when this asset does not have streams,
 								// so save an empty array so we don't try again
 								case 404:
-									this.set('resolutions',[]);
+									model.set('resolutions',[]);
 								break;
 
 								// TODO: perhaps deal with other kinds of errors here
 							}
+
+							defer.resolve(jqXHR);
 						})
 						.always(function() {
-							this.unset('downloadingResolutions');
+							model.unset('downloadingResolutions');
 						});
+
+						return defer;
 				}
 			} else if (method=='update') {
 				// we only allow name and description to be edited at this time
-				return api.request('PATCH','/v2/assets/' + this.get('id'), null, _.pick(this.toJSON(), ['name','description']), this )
+				return api.request('PATCH','/v2/assets/' + this.get('id'), null, _.pick(this.toJSON(), ['name','description']))
 					.done(function(data){
-						this.set(data);
+						model.set(data);
 					});
 			}
+		},
+
+		/**
+		 * Sideload the image and set it to the featured image
+		 */
+		setFeatured: function() {
+			var model = this;
+
+			return $.post(ooyala.download, {
+				image_url: this.get('preview_image_url'),
+				post_id: $('#post_ID').val(),
+				nonce: ooyala.nonce
+			})
+				.done(function(response) {
+					wp.media.featuredImage.set(response.data.id);
+
+					model.set('attachment_id', response.data && response.data.id);
+				});
 		},
 
 		// fetch the asset...the normal fetch method is essentially no-op'ed (it only pulls extra info needed for details panel)
@@ -434,6 +470,20 @@
 	ooyala.model.DisplayOptions = Backbone.Model.extend({
 
 		defaults: _.extend( { lockAspectRatio:true }, ooyala.playerDefaults ),
+
+		/*
+		 * NOTE: Is this object (DisplayOptions) even necessary? – it's only saving
+		 * a player_id property (copied from Asset model) and then a reference to
+		 * the attachment/Asset itself.
+		 *
+		 * This is only referenced ONCE anywhere (in ooyala.State.insert ->
+		 * ooyala.State.display), and most of the other properties used in
+		 * rendering the shortcode are derived from the attachment object anyway.
+		 *
+		 * Food for thought. I don't want to refactor this un-necessarily, but it
+		 * seems that this holdover pattern is purely vestigial and can be trimmed
+		 * safely. bcd 2015.07.29
+		 */
 
 		initialize: function() {
 			this.attachment = this.get('attachment');
