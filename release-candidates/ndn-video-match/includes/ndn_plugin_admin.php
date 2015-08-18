@@ -317,42 +317,53 @@ class NDN_Plugin_Admin
      * @param string $redirect_location       admin page where the redirect will occur
      * @param string $error_redirect_location admin page where error redirect should occur
      */
-    private function login_user( $username, $password, $redirect_location, $error_redirect_location)
+    private function login_user( $username, $password, $redirect_location, $error_redirect_location )
     {
-        if (isset( $username ) && isset( $password ) ) {
+        if ( isset( $username ) && isset( $password ) ) {
+
+            // If client id and secret are obtained, do not create a new client. Obtain tokens
+            $client_id = get_option( 'ndn_client_id' );
+            $client_secret = get_option( 'ndn_client_secret' );
+
             // Upon submission of username and password, fetch client details for client_id and client_secret
-            $create_client_response = $this->create_oauth_client( $username, $password );
-            if ( $create_client_response) {
-                $this->set_client_attrs( $create_client_response );
+            if ( !isset( $client_id ) && !isset( $client_secret ) ) {
+                $create_client_response = $this->create_oauth_client( $username, $password );
 
-                // Pass along username and password to create oauth token.
-                $create_token_response = $this->create_oauth_token( $username, $password );
-
-                // Set returned token
-                if ( $create_token_response) {
-                    $this->set_token( $create_token_response );
-                    $location = $redirect_location;
-                    $status = '302';
-                    wp_redirect( $location, $status );
+                if ( $create_client_response ) {
+                    $this->set_client_attrs( $create_client_response );
                 } else {
+                    // If client response does not come back, redirect the user back to the error redirect location
                     $error_message = 'Server Error';
                     $location = $error_redirect_location;
                     $status = '302';
                     wp_redirect( $location, $status );
                 }
+            }
+
+            // Pass along username and password to create oauth token.
+            $create_token_response = $this->create_oauth_token( $username, $password );
+
+            // Set returned token
+            if ( $create_token_response ) {
+                 $this->set_access_token( $create_token_response );
+                 $this->set_refresh_token( $create_token_response );
+                 $location = $redirect_location;
+                 $status = '302';
+                 wp_redirect( $location, $status );
             } else {
-                $error_message = 'Server Error';
-                $location = $error_redirect_location;
-                $status = '302';
-                wp_redirect( $location, $status );
+                 // No token returned
+                 $error_message = 'Server Error';
+                 $location = $error_redirect_location;
+                 $status = '302';
+                 wp_redirect( $location, $status );
             }
         } else {
+            // No username or password set
             $error_message = 'Invalid Username or Password Input';
             $location = $error_redirect_location;
             $status = '302';
             wp_redirect( $location, $status );
         }
-        // TODO show error message on redirect
     }
 
     /**
@@ -467,17 +478,28 @@ class NDN_Plugin_Admin
     }
 
     /**
-     * Set Token from Response.
-     * @param string $response JSON string from API
+     * Set Access Token from Response.
+     * @param array $response API JSON string from API
      */
-    private function set_token( $response)
+    private function set_access_token( $response )
     {
-        if ( $response) {
+        if ( $response ) {
             $token_response = json_decode( $response['body'], $assoc = true );
-            $this->token = $token_response;
 
-            self::save_option( 'ndn_access_token', $this->token['access_token'] );
-            self::save_option( 'ndn_refresh_token', $this->token['refresh_token'] );
+            self::save_option( 'ndn_access_token', $token_response['access_token'] );
+        }
+    }
+
+    /**
+     * Set Refresh Token from Response
+     * @param array $response API JSON string from API
+     */
+    private function set_refresh_token( $response )
+    {
+        if ( $response ) {
+            $token_response = json_decode( $response['body'], $assoc = true );
+
+            self::save_option( 'ndn_refresh_token', $token_response['refresh_token'] );
         }
     }
 
@@ -522,7 +544,8 @@ class NDN_Plugin_Admin
         $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
 
         // Set oauth_token to the response from API
-        $this->set_token( $response );
+        $this->set_access_token( $response );
+        $this->set_refresh_token( $response );
 
         return $response;
     }
@@ -689,28 +712,33 @@ class NDN_Plugin_Admin
         $response = wp_cache_get( $cache_key );
         // If there is no response in cache
         if ( $response == false ) {
-          $headers = array(
+            $headers = array(
               'Authorization' => sprintf( 'Bearer %s', $access_token )
-          );
-          $query_data = array( 'text' => $search_string );
-          $query_string = http_build_query( $query_data );
+            );
+            $query_data = array( 'text' => $search_string );
+            $query_string = http_build_query( $query_data );
 
-          $wp_get_url = sprintf( 'https://public-search-api.newsinc.com/content/search/v1/text?%s', $query_string );
+            $wp_get_url = sprintf( 'https://public-search-api.newsinc.com/content/search/v1/text?%s', $query_string );
 
-          $wp_get_args = array(
+            $wp_get_args = array(
               'headers' => $headers
-          );
+            );
 
-          $response = vip_safe_wp_remote_get( $wp_get_url, $wp_get_args );
-          $info = $response['response'];
+            $response = vip_safe_wp_remote_get( $wp_get_url, '', 3, 1, 20, $wp_get_args );
 
-          if ( $info['code'] == '401' ) {
-              // Token is stale. Need user to re-authorize the API
-              delete_option( 'ndn_refresh_token' );
-          } else {
-              // Set cache for 10 minutes
-              wp_cache_set( $cache_key, $response, '', 600 );
-          }
+            if ( array_key_exists( 'response', $response ) ) {
+                $info = $response['response'];
+
+                if ( $info['code'] == '401' ) {
+                    // Token is stale. Need user to re-authorize the API
+                    return false;
+                }
+            } else {
+                // Saving data in cache, set to expire in 10 minutes
+                if ( WP_CACHE ) {
+                    wp_cache_add( $cache_key, $response, '', 600 );
+                }
+            }
         }
         return $response;
     }
