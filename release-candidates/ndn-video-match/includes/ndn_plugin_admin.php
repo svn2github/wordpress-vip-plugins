@@ -326,7 +326,7 @@ class NDN_Plugin_Admin
             $client_secret = get_option( 'ndn_client_secret' );
 
             // Upon submission of username and password, fetch client details for client_id and client_secret
-            if ( !isset( $client_id ) && !isset( $client_secret ) ) {
+            if ( !$client_id && !$client_secret ) {
                 $create_client_response = $this->create_oauth_client( $username, $password );
 
                 if ( $create_client_response ) {
@@ -735,9 +735,7 @@ class NDN_Plugin_Admin
                 }
             } else {
                 // Saving data in cache, set to expire in 10 minutes
-                if ( WP_CACHE ) {
-                    wp_cache_add( $cache_key, $response, '', 600 );
-                }
+                wp_cache_add( $cache_key, $response, '', 600 );
             }
         }
         return $response;
