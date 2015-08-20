@@ -724,7 +724,7 @@ class NDN_Plugin_Admin
               'headers' => $headers
             );
 
-            $response = vip_safe_wp_remote_get( $wp_get_url, '', 3, 1, 20, $wp_get_args );
+            $response = vip_safe_wp_remote_get( $wp_get_url, '', 3, 3, 20, $wp_get_args );
 
             if ( array_key_exists( 'response', $response ) ) {
                 $info = $response['response'];
