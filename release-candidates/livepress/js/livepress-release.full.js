@@ -1,4 +1,4 @@
-/*! livepress -v1.3.2
+/*! livepress -v1.3.3
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -1481,6 +1481,7 @@ Livepress.Ui.ReactButton = function (type, update) {
 			// Set the Facebook link to the actual url since the app has to
 			// be tied to a specific domain:
 			var u = Livepress.getUpdatePermalink(update.id);
+            var redirect_uri = u.replace('?','?lp_close_popup=true&');
 			var height = 436;
 			var width = 626;
 			var left = (screen.width - width) / 2;
@@ -1492,14 +1493,15 @@ Livepress.Ui.ReactButton = function (type, update) {
 				window.open( 'http://www.facebook.com/sharer.php?u=' +
 										encodeURIComponent(u) , ' sharer', windowParams );
 			} else {
-				window.open(
+                window.open(
 					'https://www.facebook.com/dialog/share_open_graph?' +
 						'app_id=' + LivepressConfig.facebook_app_id +
 						'&display=popup' +
 						'&action_type=og.likes' +
 						'&action_properties=' + encodeURIComponent('{"object":"' + u + '" }') +
-						'&redirect_uri=' + encodeURIComponent(u), ' sharer', windowParams
+						'&redirect_uri=' + encodeURIComponent(redirect_uri), ' sharer', windowParams
                 );
+
 			}
 
 			return false;

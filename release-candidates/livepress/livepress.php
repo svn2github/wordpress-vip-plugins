@@ -43,7 +43,7 @@ class LivePress_Enabler {
 $livepress_enabler = new LivePress_Enabler();
 
 
-define( 'LP_PLUGIN_VERSION',      '1.3.2' );
+define( 'LP_PLUGIN_VERSION',      '1.3.3' );
 define( 'LP_PLUGIN_NAME',         'livepress' );
 define( 'LP_PLUGIN_SYMLINK',       false ); // Use for local testing when plugin symlinked
 define( 'LP_PLUGIN_THEME_INCLUDE', false ); // Use when plugin included in theme

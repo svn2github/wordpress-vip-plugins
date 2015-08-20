@@ -2,7 +2,7 @@
 Requires at least: 3.5
 Tested up to: 4.3-beta2
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.3.2
+Stable tag: 1.3.3
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
@@ -118,6 +118,8 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 2. New update sent -- it appears for all readers of this post at the same time.
 
 == Changelog ==
+= 1.3.3 =
+* Fixed FB popup not closing
 
 = 1.3.2 =
 

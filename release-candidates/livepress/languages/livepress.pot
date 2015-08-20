@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: livepress 1.3.2\n"
+"Project-Id-Version: livepress 1.3.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-09 20:01-0400\n"
+"POT-Creation-Date: 2015-08-04 09:18-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -301,147 +301,151 @@ msgstr ""
 msgid "link and then on \"Allow\""
 msgstr ""
 
-#: php/livepress-blogging-tools.php:164 php/livepress-blogging-tools.php:203
-#: php/livepress-blogging-tools.php:240
+#: php/livepress-blogging-tools.php:131
+msgid "Your post has sent to Facebook you may close this window now."
+msgstr ""
+
+#: php/livepress-blogging-tools.php:177 php/livepress-blogging-tools.php:216
+#: php/livepress-blogging-tools.php:253
 msgid "&hellip;"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:548 php/livepress-blogging-tools.php:549
+#: php/livepress-blogging-tools.php:561 php/livepress-blogging-tools.php:562
 msgid "This Post is"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:548 php/livepress-template.php:25
+#: php/livepress-blogging-tools.php:561 php/livepress-template.php:25
 msgid "LIVE"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:549
+#: php/livepress-blogging-tools.php:562
 msgid "NOT LIVE"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:550
+#: php/livepress-blogging-tools.php:563
 msgid "LivePress is Disabled"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:551
+#: php/livepress-blogging-tools.php:564
 msgid "Turn off live"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:552
+#: php/livepress-blogging-tools.php:565
 msgid "Turn on live"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:559
+#: php/livepress-blogging-tools.php:572
 msgid "First update sticky"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:584
+#: php/livepress-blogging-tools.php:597
 msgid "LivePress Status"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:821 php/livepress-blogging-tools.php:844
+#: php/livepress-blogging-tools.php:834 php/livepress-blogging-tools.php:857
 msgid "Comments"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:827
+#: php/livepress-blogging-tools.php:840
 msgid "Twitter Search"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:833
+#: php/livepress-blogging-tools.php:846
 msgid "Manage Remote Authors"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:839
+#: php/livepress-blogging-tools.php:852
 msgid "Author Notes"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:843
+#: php/livepress-blogging-tools.php:856
 msgid "This post at a glance:"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:845 php/livepress-updater.php:547
+#: php/livepress-blogging-tools.php:858 php/livepress-updater.php:547
 msgid "Remote Authors"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:846 php/livepress-updater.php:487
+#: php/livepress-blogging-tools.php:859 php/livepress-updater.php:487
 msgid "People Online"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:865
+#: php/livepress-blogging-tools.php:878
 msgid ""
 "These notes are for reference and will not be published. They will be saved "
 "with the post for future reference for sharing with co-authors."
 msgstr ""
 
-#: php/livepress-blogging-tools.php:870 php/livepress-updater.php:500
+#: php/livepress-blogging-tools.php:883 php/livepress-updater.php:500
 msgid "Save"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:871
+#: php/livepress-blogging-tools.php:884
 msgid "Notes Saved"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:908
+#: php/livepress-blogging-tools.php:921
 msgid "New comments will be shown here."
 msgstr ""
 
-#: php/livepress-blogging-tools.php:942
+#: php/livepress-blogging-tools.php:955
 msgid "Updates in real-time using your search terms."
 msgstr ""
 
-#: php/livepress-blogging-tools.php:947
+#: php/livepress-blogging-tools.php:960
 msgid "Add Search Term"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:950
+#: php/livepress-blogging-tools.php:963
 msgid "play/pause"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:973
+#: php/livepress-blogging-tools.php:986
 msgid "All"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:973
+#: php/livepress-blogging-tools.php:986
 msgid ""
 "tweets from these remote authors will automatically be published as updates "
 "to this blog post until removed.."
 msgstr ""
 
-#: php/livepress-blogging-tools.php:978
+#: php/livepress-blogging-tools.php:991
 msgid "Account Name"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:979
+#: php/livepress-blogging-tools.php:992
 msgid "Add Remote Author"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:982
+#: php/livepress-blogging-tools.php:995
 msgid "Author error: "
 msgstr ""
 
-#: php/livepress-blogging-tools.php:985
+#: php/livepress-blogging-tools.php:998
 msgid "Done live blogging on this post?"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:986
+#: php/livepress-blogging-tools.php:999
 msgid "Remove All"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:1041
+#: php/livepress-blogging-tools.php:1054
 msgid "New Real-Time Writing Tools!"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:1042
+#: php/livepress-blogging-tools.php:1055
 msgid ""
 "Click the above link to expand a set of tools for managing comments, "
 "searching Twitter, adding remote authors, and saving notes. &mdash; All in "
 "real-time!"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:1062
+#: php/livepress-blogging-tools.php:1075
 msgid "This Post is LIVE"
 msgstr ""
 
-#: php/livepress-blogging-tools.php:1065
+#: php/livepress-blogging-tools.php:1078
 msgid "This Post is NOT LIVE"
 msgstr ""
 
