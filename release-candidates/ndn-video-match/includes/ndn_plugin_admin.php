@@ -755,7 +755,7 @@ class NDN_Plugin_Admin
         } else {
             // The option hasn't been added yet. We'll add it with $autoload set to 'no'.
             $deprecated = null;
-            $autoload = 'no';
+            $autoload = 'yes';
             add_option( $option_name, $value, $deprecated, $autoload );
         }
     }
