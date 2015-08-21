@@ -8,6 +8,8 @@
  * Note: this function does not validate the domain that the image is coming from. Please make sure
  *   to validate this before downloading the image. Should only pull down images from trusted sources.
  *
+ * Note: This function does not support GET params because these will not work on WPCOM production servers see r157060
+ *
  * @param string $image_url URL of the image.
  * @param int $post_ID ID of the post it should be attached to.
  * @return $thumbnail_id id of the thumbnail attachment post id
