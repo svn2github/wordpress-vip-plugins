@@ -39,7 +39,6 @@ class Shortcode_UI {
 			$args['inner_content'] = array(
 				'label'       => esc_html__( 'Inner Content', 'shortcode-ui' ),
 				'description' => '',
-				'placeholder' => '',
 			);
 		}
 
@@ -53,13 +52,14 @@ class Shortcode_UI {
 	}
 
 	public function get_shortcodes() {
-		return $this->shortcodes;
+		return apply_filters( 'shortcode_ui_shortcodes', $this->shortcodes );
 	}
 
 	public function get_shortcode( $shortcode_tag ) {
 
-		if ( isset( $this->shortcodes[ $shortcode_tag ] ) ) {
-			return $this->shortcodes[ $shortcode_tag ];
+		$shortcodes = $this->get_shortcodes();
+		if ( isset( $shortcodes[ $shortcode_tag ] ) ) {
+			return $shortcodes[ $shortcode_tag ];
 		}
 
 	}
@@ -69,7 +69,7 @@ class Shortcode_UI {
 	 */
 	public function action_admin_enqueue_scripts() {
 		// Editor styles needs to be added before wp_enqueue_editor
-		add_editor_style( $this->plugin_url . '/css/shortcode-ui-editor-styles.css' );
+		add_editor_style( trailingslashit( $this->plugin_url ) . 'css/shortcode-ui-editor-styles.css' );
 	}
 
 	public function enqueue() {
@@ -81,8 +81,8 @@ class Shortcode_UI {
 		// make sure media library is queued
 		wp_enqueue_media();
 
-		$shortcodes = array_values( $this->shortcodes );
-		$screen = get_current_screen();
+		$shortcodes = array_values( $this->get_shortcodes() );
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : false;
 		if ( $screen && ! empty( $screen->post_type ) ) {
 			foreach ( $shortcodes as $key => $args ) {
 				if ( ! empty( $args['post_type'] ) && ! in_array( $screen->post_type, $args['post_type'] ) ) {
@@ -97,7 +97,11 @@ class Shortcode_UI {
 
 		usort( $shortcodes, array( $this, 'compare_shortcodes_by_label' ) );
 
-		wp_enqueue_script( 'shortcode-ui', $this->plugin_url . 'js/build/shortcode-ui.js', array( 'jquery', 'backbone', 'mce-view' ), $this->plugin_version );
+		// Load minified version of wp-js-hooks if not debugging.
+		$wp_js_hooks_file = 'wp-js-hooks' . ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '.min' : '' ) . '.js';
+
+		wp_enqueue_script( 'shortcode-ui-js-hooks', $this->plugin_url . 'lib/wp-js-hooks/' . $wp_js_hooks_file, array(), '2015-03-19' );
+		wp_enqueue_script( 'shortcode-ui', $this->plugin_url . 'js/build/shortcode-ui.js', array( 'jquery', 'backbone', 'mce-view', 'shortcode-ui-js-hooks' ), $this->plugin_version );
 		wp_enqueue_style( 'shortcode-ui', $this->plugin_url . 'css/shortcode-ui.css', array(), $this->plugin_version );
 		wp_localize_script( 'shortcode-ui', ' shortcodeUIData', array(
 			'shortcodes'      => $shortcodes,
@@ -117,7 +121,7 @@ class Shortcode_UI {
 			'nonces'     => array(
 				'preview'        => wp_create_nonce( 'shortcode-ui-preview' ),
 				'thumbnailImage' => wp_create_nonce( 'shortcode-ui-get-thumbnail-image' ),
-			)
+			),
 		) );
 
 		// queue templates

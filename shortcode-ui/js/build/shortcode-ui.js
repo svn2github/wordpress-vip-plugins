@@ -120,7 +120,7 @@ var ShortcodeAttribute = Backbone.Model.extend({
 		description: '',
 		meta: {
 			placeholder: '',
-		}
+		},
 	},
 });
 
@@ -210,7 +210,11 @@ Shortcode = Backbone.Model.extend({
 			content = this.get( 'inner_content' ).get( 'value' );
 		}
 
-		template = "[{{ shortcode }} {{ attributes }}]"
+		if ( attrs.length > 0 ) {
+			template = "[{{ shortcode }} {{ attributes }}]"
+		} else {
+			template = "[{{ shortcode }}]"
+		}
 
 		if ( content && content.length > 0 ) {
 			template += "{{ content }}[/{{ shortcode }}]"
@@ -448,10 +452,23 @@ var shortcodeViewConstructor = {
 
 		if ( matches[3] ) {
 			var inner_content = currentShortcode.get( 'inner_content' );
-			inner_content.set( 'value', matches[3] );
+			inner_content.set( 'value', this.unAutoP( matches[3] ) );
 		}
 
 		return currentShortcode;
+
+	},
+
+ 	/**
+	 * Strip 'p' and 'br' tags, replace with line breaks.
+	 * Reverse the effect of the WP editor autop functionality.
+	 */
+	unAutoP: function( content ) {
+		if ( switchEditors && switchEditors.pre_wpautop ) {
+			content = switchEditors.pre_wpautop( content );
+		}
+
+		return content;
 
 	},
 
@@ -586,9 +603,9 @@ module.exports = window.Shortcode_UI;
 
 },{"./../collections/shortcodes.js":2}],10:[function(require,module,exports){
 (function (global){
-var Backbone = (typeof window !== "undefined" ? window.Backbone : typeof global !== "undefined" ? global.Backbone : null),
-sui = require('./../utils/sui.js'),
-$ = (typeof window !== "undefined" ? window.jQuery : typeof global !== "undefined" ? global.jQuery : null);
+var Backbone     = (typeof window !== "undefined" ? window.Backbone : typeof global !== "undefined" ? global.Backbone : null),
+	sui          = require('./../utils/sui.js'),
+	$            = (typeof window !== "undefined" ? window.jQuery : typeof global !== "undefined" ? global.jQuery : null);
 
 var editAttributeField = Backbone.View.extend( {
 
@@ -611,13 +628,6 @@ var editAttributeField = Backbone.View.extend( {
 		var data = jQuery.extend( {
 			id: 'shortcode-ui-' + this.model.get( 'attr' ) + '-' + this.model.cid,
 		}, this.model.toJSON() );
-
-		// Handle legacy custom meta.
-		// Can be removed in 0.4.
-		if ( data.placeholder ) {
-			data.meta.placeholder = data.placeholder;
-			delete data.placeholder;
-		}
 
 		// Convert meta JSON to attribute string.
 		var _meta = [];
@@ -642,6 +652,7 @@ var editAttributeField = Backbone.View.extend( {
 		data.meta = _meta.join( ' ' );
 
 		this.$el.html( this.template( data ) );
+		this.updateValue();
 
 		return this
 	},
@@ -650,7 +661,8 @@ var editAttributeField = Backbone.View.extend( {
 	 * Input Changed Update Callback.
 	 *
 	 * If the input field that has changed is for content or a valid attribute,
-	 * then it should update the model.
+	 * then it should update the model. If a callback function is registered
+	 * for this attribute, it should be called as well.
 	 */
 	updateValue: function( e ) {
 
@@ -667,7 +679,30 @@ var editAttributeField = Backbone.View.extend( {
 		} else {
 			this.model.set( 'value', $el.val() );
 		}
-	},
+
+		var shortcodeName = this.shortcode.attributes.shortcode_tag,
+			attributeName = this.model.get( 'attr' ),
+			hookName      = [ shortcodeName, attributeName ].join( '.' ),
+			changed       = this.model.changed,
+			collection    = _.flatten( _.values( this.views.parent.views._views ) ),
+			shortcode     = this.shortcode;
+
+		/*
+		 * Action run when an attribute value changes on a shortcode
+		 *
+		 * Called as `{shortcodeName}.{attributeName}`.
+		 *
+		 * @param changed (object)
+		 *           The update, ie. { "changed": "newValue" }
+		 * @param viewModels (array)
+		 *           The collections of views (editAttributeFields)
+		 *                         which make up this shortcode UI form
+		 * @param shortcode (object)
+		 *           Reference to the shortcode model which this attribute belongs to.
+		 */
+		wp.shortcake.hooks.doAction( hookName, changed, collection, shortcode );
+
+	}
 
 } );
 
@@ -696,12 +731,11 @@ var EditShortcodeForm = wp.Backbone.View.extend({
 		if ( innerContent && typeof innerContent.attributes.type !== 'undefined' ) {
 
 			// add UI for inner_content
-			var view = new editAttributeField( {
-				model:     innerContent,
-				shortcode: t.model,
-			} );
+			var view = new editAttributeField( { model: innerContent } );
 
-			view.template = wp.media.template( 'shortcode-ui-content' );
+			view.shortcode = t.model;
+			view.template  = wp.media.template( 'shortcode-ui-content' );
+
 			t.views.add( '.edit-shortcode-form-fields', view );
 
 		}
@@ -889,7 +923,7 @@ var mediaFrame = postMediaFrame.extend( {
 	},
 
 	resetMediaController: function( event ) {
-		if ( this.state().props.get('currentShortcode') ) {
+		if ( this.state() && this.state().props.get('currentShortcode') ) {
 			this.mediaController.reset();
 			this.contentRender( 'shortcode-ui', 'insert' );
 		}
