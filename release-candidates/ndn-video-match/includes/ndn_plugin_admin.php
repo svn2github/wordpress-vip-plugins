@@ -436,11 +436,11 @@ class NDN_Plugin_Admin
      * @param string $password Password of the user
      * @return object OAuth Response, Token Object
      */
-    private function create_oauth_token( $username, $password)
+    private function create_oauth_token( $username, $password )
     {
         // Take Client_ID and Client_Secret from inputted value from user
-        $client_id = $this->client_id;
-        $client_secret = $this->client_secret;
+        $client_id = get_option( 'ndn_client_id' );
+        $client_secret = get_option( 'ndn_client_secret' );
 
         // Construct headers
         $headers = array(
@@ -676,25 +676,29 @@ class NDN_Plugin_Admin
 
 
             $response = $this->run_text_search( $access_token, $query );
-            $decoded_response = json_decode( $response['body'] );
+            if ( $response ) {
+                $decoded_response = json_decode( $response['body'] );
 
-            if ( ( $response == false && !get_option( 'ndn_refresh_token' ) ) || !$decoded_response->response->videos) {
-                wp_redirect( 'admin.php?page=ndn-plugin-login?' );
-            } elseif ( $response == false || $response == 'unexpected error' ) {
-                echo '<h1>Server Error. Go back and try searching again.</h1>';
-            } else {
+                if ( !get_option( 'ndn_refresh_token' ) || !$decoded_response->response->videos ) {
+                    wp_redirect( 'admin.php?page=ndn-plugin-login?' );
+                } elseif ( $response == false || $response == 'unexpected error' ) {
+                    echo '<h1>Server Error. Go back and try searching again.</h1>';
+                } else {
+                    // Sort Videos by Recency
+                    $videos = array();
+                    $response_videos = $decoded_response->response->videos;
+                    foreach ( $response_videos as $key => $row) {
+                        $videos[$key] = $row->publish_date;
+                    }
+                    array_multisort( $videos, SORT_DESC, $response_videos );
 
-                // Sort Videos by Recency
-                $videos = array();
-                $response_videos = $decoded_response->response->videos;
-                foreach ( $response_videos as $key => $row) {
-                    $videos[$key] = $row->publish_date;
+                    // Set search_results as response
+                    self::save_option( 'ndn_search_results', $response_videos ); // Recency
+
+                    wp_redirect( 'admin.php?page=ndn-video-search-results?' );
                 }
-                array_multisort( $videos, SORT_DESC, $response_videos );
-                // Set search_results as response
-                self::save_option( 'ndn_search_results', $response_videos ); // Recency
-
-                wp_redirect( 'admin.php?page=ndn-video-search-results?' );
+            } else {
+                wp_redirect( 'admin.php?page=ndn-plugin-login?' );
             }
         }
     }
@@ -733,6 +737,8 @@ class NDN_Plugin_Admin
                     // Token is stale. Need user to re-authorize the API
                     return false;
                 }
+            } else if ( array_key_exists ( 'errors', $response) ) {
+                return false;
             } else {
                 // Saving data in cache, set to expire in 10 minutes
                 wp_cache_add( $cache_key, $response, '', 600 );
@@ -776,6 +782,7 @@ class NDN_Plugin_Admin
             'ndn-site-section-id' => array(),
             'ndn-video-width' => array(),
             'ndn-video-height' => array(),
+            'ndn-responsive' => array()
         );
 
         foreach ( $tags as $tag) {

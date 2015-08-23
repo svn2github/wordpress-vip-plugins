@@ -56,8 +56,8 @@
           <p><span><?php echo esc_html( $video->owner ) ?>&nbsp;&nbsp;|&nbsp;&nbsp;<?php echo esc_html( $duration ) ?></span></p>
         </div>
         <div class="ndn-search-attributes">
-            <header><span video-id="<?php echo esc_attr( $video->id ) ?>" analytics-category="WPPreview" analytics-label="PreviewTitle"><?php echo esc_html( $video->title ) ?></span></header>
-            <div class="ndn-search-description"><span><?php echo esc_html( $video->description ) ?></span></div>
+            <header><span class="ndn-search-video-title" style="display:none;" video-id="<?php echo esc_attr( $video->id ) ?>" analytics-category="WPPreview" analytics-label="PreviewTitle"><?php echo esc_html( $video->title ) ?></span></header>
+            <div class="ndn-search-description" style="display:none;" ><span><?php echo esc_html( $video->description ) ?></span></div>
             <div class="ndn-search-date"><span class="ndn-search-publish-date"><?php echo esc_html( $publish_date ) ?></span></div>
 
             <div class="ndn-search-media-buttons">

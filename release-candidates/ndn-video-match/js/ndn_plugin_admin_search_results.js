@@ -1,8 +1,8 @@
 ( function( $ ) {
   // ndnq variable initialization
   var _ndnq = _ndnq || [],
-    // Keep track of all video player previews that been initialized
-    videoPlayerPreviewContainerIds = [];
+  // Keep track of all video player previews that been initialized
+  videoPlayerPreviewContainerIds = [];
 
   /**
    * Pushes each video container id to the array, tracking them for maniuplation later
@@ -12,6 +12,12 @@
       videoPlayerPreviewContainerIds.push( event.containerElement.id );
     }] );
   })();
+
+  $( document ).ready( function() {
+    // Convert all search results descriptions and titles <em> raw text tags to actual tags
+    replaceEmphases( '.ndn-search-video-title' );
+    replaceEmphases( '.ndn-search-description' );
+  });
 
   /**
    * Callbacks hooked upon initialization of the page
@@ -67,6 +73,22 @@
 
     // Toggle the video preview on/off
     $( '.ndn_embed[data-config-video-id="' + id + '"]' ).parent().parent().toggle();
+  }
+
+  /**
+   * Selects each element and replaces the text with <em> placed manually back in
+   * @param  {string} selector Group of text blocks needing reselection of emphases
+   */
+  function replaceEmphases(selector) {
+    $( selector ).each(function() {
+      var that = $( this );
+      var regex = /(.*)<em>(.+)<\/em>(.*)/;
+      var content = $( that ).text().replace( regex, '$1<em>$2</em>$3' );
+      $( that ).html( content );
+      $( that ).css({
+        'display': 'inherit'
+      });
+    });
   }
 
   /**
@@ -246,7 +268,6 @@
     values['ndn-video-height'] = ndnCalculateHeight(values['ndn-video-width']);
     values['ndn-video-start-behavior'] = $( this ).closest( '.ndn-search' ).find( '.ndn-video-start-behavior' ).val();
     values['ndn-video-position'] = $( this ).closest( '.ndn-search' ).find( '.ndn-video-position' ).val();
-
     // Check for config widget id (video player type)
     values['ndn-config-widget-id'] = values['ndn-video-start-behavior'] ? values['ndn-video-start-behavior'] : '1';
 

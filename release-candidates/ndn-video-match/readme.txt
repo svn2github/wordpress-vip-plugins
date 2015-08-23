@@ -3,7 +3,7 @@ Contributors: NDN, Inc.
 Donate link: http://www.newsinc.com/
 Tags: video, videos, embed
 Requires at least: 4.2.2
-Tested up to: 4.2.2
+Tested up to: 4.2.3
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -120,6 +120,9 @@ If you have any concerns about this, let Wordpress know on their [support page](
 
 == Changelog ==
 
+= 0.1.12 =
+* Updated i18n domains
+
 = 0.1.11 =
 * Major security vulnerabilities fixed
 * Properly escaped html, urls, and attrs
@@ -142,6 +145,9 @@ If you have any concerns about this, let Wordpress know on their [support page](
 * Initial Release
 
 == Upgrade Notice ==
+
+= 0.1.12 =
+* Updated i18n domains
 
 = 0.1.11 =
 * Major security vulnerabilities fixed
