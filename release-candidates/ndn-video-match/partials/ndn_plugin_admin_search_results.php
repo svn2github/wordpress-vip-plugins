@@ -7,7 +7,7 @@
 
 <link rel="stylesheet" href="<?php echo esc_url( NDN_PLUGIN_DIR . '/css/ndn_plugin_admin_search_results.css' ) ?>" type="text/css" />
 
-<script type="text/javascript" async src="http://launch.newsinc.com/js/embed.js" id="_nw2e-js"></script>
+<script type="text/javascript" async src="//launch.newsinc.com/js/embed.js" id="_nw2e-js"></script>
 <script src="<?php echo esc_url( NDN_PLUGIN_DIR . '/js/ndn_plugin_admin_search_results.js' ) ?>"></script>
 
 <div class="ndn-search-results-container">

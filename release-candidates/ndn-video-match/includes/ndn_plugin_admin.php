@@ -299,14 +299,18 @@ class NDN_Plugin_Admin
             $username = sanitize_text_field( $_POST['username'] );
             $password = sanitize_text_field( $_POST['password'] );
 
+            $redirect_location = 'admin.php?page=ndn-plugin-settings&iframe=true';
+            $error_redirect_location = 'admin.php?page=ndn-plugin-settings&iframe=true';
             // After login success, go back to settings page
-            $this->login_user( $username, $password, 'admin.php?page="ndn-plugin-settings"', 'admin.php?page="ndn-plugin-settings"' );
+            $this->login_user( $username, $password, $redirect_location, $error_redirect_location );
         } elseif (isset( $_POST['redirect-login-submission']) && '1' == $_POST['redirect-login-submission']) {
             $username = sanitize_text_field( $_POST['username'] );
             $password = sanitize_text_field( $_POST['password'] );
 
             // After login success, go back to search page
-            $this->login_user( $username, $password, 'admin.php?page="ndn-video-search?"', 'admin.php?page="ndn-plugin-login?"' );
+            $redirect_location = 'admin.php?page=ndn-video-search%3F&iframe=true';
+            $error_redirect_location ='admin.php?page=ndn-plugin-login%3F&iframe=true';
+            $this->login_user( $username, $password, $redirect_location, $error_redirect_location );
         }
     }
 
@@ -336,7 +340,8 @@ class NDN_Plugin_Admin
                     $error_message = 'Server Error';
                     $location = $error_redirect_location;
                     $status = '302';
-                    wp_redirect( $location, $status );
+                    wp_safe_redirect( esc_url_raw( $location ), $status );
+                    exit;
                 }
             }
 
@@ -349,20 +354,23 @@ class NDN_Plugin_Admin
                  $this->set_refresh_token( $create_token_response );
                  $location = $redirect_location;
                  $status = '302';
-                 wp_redirect( $location, $status );
+                 wp_safe_redirect( esc_url_raw( $location ), $status );
+                 exit;
             } else {
                  // No token returned
                  $error_message = 'Server Error';
                  $location = $error_redirect_location;
                  $status = '302';
-                 wp_redirect( $location, $status );
+                 wp_safe_redirect( esc_url_raw( $location ), $status );
+                 exit;
             }
         } else {
             // No username or password set
             $error_message = 'Invalid Username or Password Input';
             $location = $error_redirect_location;
             $status = '302';
-            wp_redirect( $location, $status );
+            wp_safe_redirect( esc_url_raw( $location ), $status );
+            exit;
         }
     }
 
@@ -680,7 +688,9 @@ class NDN_Plugin_Admin
                 $decoded_response = json_decode( $response['body'] );
 
                 if ( !get_option( 'ndn_refresh_token' ) || !$decoded_response->response->videos ) {
-                    wp_redirect( 'admin.php?page=ndn-plugin-login?' );
+                    $redirect_location = 'admin.php?page=ndn-plugin-login%3F&iframe=true';
+                    wp_safe_redirect( esc_url_raw( $redirect_location ) );
+                    exit;
                 } elseif ( $response == false || $response == 'unexpected error' ) {
                     echo '<h1>Server Error. Go back and try searching again.</h1>';
                 } else {
@@ -695,10 +705,14 @@ class NDN_Plugin_Admin
                     // Set search_results as response
                     self::save_option( 'ndn_search_results', $response_videos ); // Recency
 
-                    wp_redirect( 'admin.php?page=ndn-video-search-results?' );
+                    $redirect_location = 'admin.php?page=ndn-video-search-results%3F&iframe=true';
+                    wp_safe_redirect( esc_url_raw( $redirect_location ) );
+                    exit;
                 }
             } else {
-                wp_redirect( 'admin.php?page=ndn-plugin-login?' );
+                $redirect_location = 'admin.php?page=ndn-plugin-login%3F&iframe=true';
+                wp_safe_redirect( esc_url_raw( $redirect_location ) );
+                exit;
             }
         }
     }
