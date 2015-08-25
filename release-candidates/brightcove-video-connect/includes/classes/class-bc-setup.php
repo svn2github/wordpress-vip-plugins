@@ -40,7 +40,6 @@ class BC_Setup {
 		if ( BC_Utility::current_user_can_brightcove() ) {
 
 			require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/api/class-bc-admin-media-api.php');
-			require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-menu.php');
 			require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-settings-page.php');
 			require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-playlists-page.php');
 			require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-videos-page.php');
@@ -57,7 +56,6 @@ class BC_Setup {
 			}
 
 			new BC_Admin_Media_API();
-			new BC_Admin_Menu();
 			new BC_Admin_Settings_Page();
 			new BC_Admin_Playlists_Page();
 			new BC_Admin_Videos_Page();
@@ -78,6 +76,25 @@ class BC_Setup {
 		add_action( 'admin_footer', array( 'BC_Setup', 'add_brightcove_media_modal_container' ) );
 		// Show admin notice only if there are not sources
 		add_action( 'admin_notices', array( 'BC_Setup', 'bc_activation_admin_notices' ) );
+	}
+
+	/**
+	 * Load admin init actions for all pages
+	 *
+	 * Loads various admin init actions required for all admin pages such as the admin menu.
+	 *
+	 * @since 1.0.5
+	 *
+	 * @return void
+	 */
+	public static function action_init_all() {
+
+		if ( BC_Utility::current_user_can_brightcove() ) {
+			require_once( BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-menu.php' );
+		}
+
+		new BC_Admin_Menu();
+
 	}
 
 	public static function add_brightcove_media_button() {
@@ -216,11 +233,7 @@ class BC_Setup {
 			'tinymce_preview',
 		);
 
-		if ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) {
-			wp_enqueue_script( 'setup', esc_url( BRIGHTCOVE_URL . 'assets/js/src/setup.js' ), $dependencies );
-		} else {
-			wp_enqueue_script( 'brightcove-video-connect', esc_url( BRIGHTCOVE_URL . 'assets/js/brightcove_video_connect.min.js' ), $dependencies );
-		}
+		wp_enqueue_script( 'setup', esc_url( BRIGHTCOVE_URL . 'assets/js/src/setup.js' ), $dependencies );
 
 		wp_enqueue_media();
 
