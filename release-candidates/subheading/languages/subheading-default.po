@@ -1,0 +1,170 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: SubHeading\n"
+"POT-Creation-Date: 2015-07-26 16:37+0100\n"
+"PO-Revision-Date: 2015-07-26 17:04+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: subheading.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
+"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: en_GB\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: subheading.php:400
+msgid "Allow search to find matches based on subheading values."
+msgstr ""
+
+#: subheading.php:401
+msgid "Append to RSS feeds."
+msgstr ""
+
+#: subheading.php:402
+msgid "Prevent reposition of input under the title when editing."
+msgstr ""
+
+#: subheading.php:403 subheading.php:405
+msgid "Display on admin edit lists."
+msgstr ""
+
+#: subheading.php:404
+msgid "Apply shortcode filters."
+msgstr ""
+
+#: subheading.php:407
+msgid "Automatically display subheadings before post content."
+msgstr ""
+
+#: subheading.php:411
+msgid "Before"
+msgstr ""
+
+#: subheading.php:418
+msgid "After"
+msgstr ""
+
+#: subheading.php:428
+msgid "Enable on"
+msgstr ""
+
+#: subheading.php:465
+#, php-format
+msgid "Configuration options for the %s plugin."
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "SubHeading"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://wordpress.org/extend/plugins/subheading/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Adds the ability to show a subheading for posts, pages and custom post "
+"types. To display subheadings place <code>&lt;?php the_subheading(); ?&gt;</"
+"code> in your template file."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "StvWhtly"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://stv.whtly.com"
+msgstr ""
+msgid ""
+msgstr ""
+"Project-Id-Version: SubHeading\n"
+"POT-Creation-Date: 2015-07-26 16:37+0100\n"
+"PO-Revision-Date: 2015-07-26 17:04+0100\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: subheading.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
+"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: en_GB\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: subheading.php:400
+msgid "Allow search to find matches based on subheading values."
+msgstr ""
+
+#: subheading.php:401
+msgid "Append to RSS feeds."
+msgstr ""
+
+#: subheading.php:402
+msgid "Prevent reposition of input under the title when editing."
+msgstr ""
+
+#: subheading.php:403 subheading.php:405
+msgid "Display on admin edit lists."
+msgstr ""
+
+#: subheading.php:404
+msgid "Apply shortcode filters."
+msgstr ""
+
+#: subheading.php:407
+msgid "Automatically display subheadings before post content."
+msgstr ""
+
+#: subheading.php:411
+msgid "Before"
+msgstr ""
+
+#: subheading.php:418
+msgid "After"
+msgstr ""
+
+#: subheading.php:428
+msgid "Enable on"
+msgstr ""
+
+#: subheading.php:465
+#, php-format
+msgid "Configuration options for the %s plugin."
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "SubHeading"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://wordpress.org/extend/plugins/subheading/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Adds the ability to show a subheading for posts, pages and custom post "
+"types. To display subheadings place <code>&lt;?php the_subheading(); ?&gt;</"
+"code> in your template file."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "StvWhtly"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://stv.whtly.com"
+msgstr ""

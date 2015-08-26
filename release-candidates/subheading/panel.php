@@ -1,7 +1,7 @@
 <?php if ( ! isset( $this->options['reposition'] ) ) : ?>
 <script type="text/javascript">
 	jQuery( function( $ ) {
-		var subheading = $( '#<?php echo $this->tag; ?>_postbox' )
+		$( '#<?php echo esc_js(  $this->tag ); ?>_postbox' )
 			.hide()
 			.find( 'input' )
 			.attr( 'tabindex', 1 )
