@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/ooyala-wordpress-plugin/
 Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in media settings.
 Author: ooyala
 Author URI: http://oomphinc.com/
-Version: 2.1.0
+Version: 2.1.1
 */
 
 /*  Copyright 2015  Ooyala
@@ -642,13 +642,14 @@ class Ooyala {
 			<script src="<?php echo esc_url( '//player.ooyala.com/v3/' . $atts['player_id'] . '?' . http_build_query( $query_params ) ); ?>"></script>
 			<div id="ooyalaplayer-<?php echo (int) $num; ?>" class="<?php echo esc_attr( $atts['wrapper_class'] ); ?>" style="<?php echo esc_attr( $player_style ); ?>" ></div>
 			<script>
+				var ooyalaplayers = ooyalaplayers || [];
 				<?php
 				$player = 'OoyalaPlayer' . $num;
 				$params = array( "ooyalaplayer-$num", $atts['code'] );
 				if ( count( $js_params ) ) {
 					$params[] = $js_params;
 				}
-				echo esc_js( $player ) . '.ready(function() { ' . esc_js( $player ) . '.Player.create.apply(this, ' . json_encode( $params ) .'); });';
+				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, ' . json_encode( $params ) .') ); });';
 				?>
 			</script>
 			<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>

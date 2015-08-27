@@ -3,7 +3,7 @@ Contributors: ooyala, thinkoomph, balbuf, bendoh
 Tags: video, media, ooyala
 Requires at least: 3.9
 Tested up to: 4.2.3
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2 or later
 
 Connect your Ooyala account to embed and upload assets directly from WordPress.
@@ -40,6 +40,9 @@ Using the plugin once installed
 
 
 == Changelog ==
+
+= 2.1.1 =
+* Save references to Ooyala players in 'ooyalaplayers' global JS var.
 
 = 2.1.0 =
 * Add "Set Featured Image" button to video thumbnails, allowing users to set thumbnails.
