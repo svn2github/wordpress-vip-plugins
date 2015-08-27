@@ -48,6 +48,10 @@ class NDN_Plugin_Admin
     public static $login_form_options = array(
         'ndn_username' => 'ndn-plugin-login-username',
         'ndn_password' => 'ndn-plugin-login-password',
+        'ndn_name' => 'ndn-plugin-login-name',
+        'ndn_company_name' => 'ndn-plugin-login-company-name',
+        'ndn_contact_name' => 'ndn-plugin-login-contact-name',
+        'ndn_contact_email' => 'ndn-plugin-login-contact-email'
     );
 
     /**
@@ -295,22 +299,45 @@ class NDN_Plugin_Admin
      */
     public function submit_client_information()
     {
-        if (isset( $_POST['login-submission']) && '1' == $_POST['login-submission']) {
-            $username = sanitize_text_field( $_POST['username'] );
-            $password = sanitize_text_field( $_POST['password'] );
+        if (isset( $_POST['returning-login-submission']) && '1' == $_POST['returning-login-submission']) {
+            $args = array(
+                'username' => sanitize_text_field( $_POST['username'] ),
+                'password' => sanitize_text_field( $_POST['password'] ),
+                'first_time_login' => false
+            );
 
-            $redirect_location = 'admin.php?page=ndn-plugin-settings&iframe=true';
-            $error_redirect_location = 'admin.php?page=ndn-plugin-settings&iframe=true';
+            $redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
+            $error_redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
+
             // After login success, go back to settings page
-            $this->login_user( $username, $password, $redirect_location, $error_redirect_location );
-        } elseif (isset( $_POST['redirect-login-submission']) && '1' == $_POST['redirect-login-submission']) {
-            $username = sanitize_text_field( $_POST['username'] );
-            $password = sanitize_text_field( $_POST['password'] );
+            $this->login_user( $args, $redirect_location,  $error_redirect_location);
+        } elseif ( isset( $_POST['login-submission'] ) && '1' == $_POST['login-submission'] ) {
+            $args = array(
+                'username' => sanitize_text_field( $_POST['username'] ),
+                'password' => sanitize_text_field( $_POST['password'] ),
+                'name' => sanitize_text_field( $_POST['name'] ),
+                'company_name' => sanitize_text_field( $_POST['company_name'] ),
+                'contact_name' => sanitize_text_field( $_POST['contact_name'] ),
+                'contact_email' => sanitize_text_field( $_POST['contact_email'] ),
+                'first_time_login' => true
+            );
 
+            $redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
+            $error_redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
+
+            // After login success, go back to settings page
+            $this->login_user( $args, $redirect_location,  $error_redirect_location);
+        } elseif (isset( $_POST['redirect-login-submission']) && '1' == $_POST['redirect-login-submission']) {
+            $args = array(
+                'username' => sanitize_text_field( $_POST['username'] ),
+                'password' => sanitize_text_field( $_POST['password'] ),
+                'first_time_login' => false
+            );
+
+            $redirect_location = admin_url( 'admin.php?page=ndn-video-search?%3F&iframe=true' );
+            $error_redirect_location = admin_url( 'admin.php?page=ndn-plugin-login%3F&iframe=true' );
             // After login success, go back to search page
-            $redirect_location = 'admin.php?page=ndn-video-search%3F&iframe=true';
-            $error_redirect_location ='admin.php?page=ndn-plugin-login%3F&iframe=true';
-            $this->login_user( $username, $password, $redirect_location, $error_redirect_location );
+            $this->login_user( $args, $redirect_location,  $error_redirect_location);
         }
     }
 
@@ -321,17 +348,22 @@ class NDN_Plugin_Admin
      * @param string $redirect_location       admin page where the redirect will occur
      * @param string $error_redirect_location admin page where error redirect should occur
      */
-    private function login_user( $username, $password, $redirect_location, $error_redirect_location )
+    private function login_user( $args, $redirect_location, $error_redirect_location )
     {
-        if ( isset( $username ) && isset( $password ) ) {
-
+        if ( isset( $args['username'] ) && isset( $args['password'] ) ) {
+            $username = $args['username'];
+            $password = $args['password'];
             // If client id and secret are obtained, do not create a new client. Obtain tokens
             $client_id = get_option( 'ndn_client_id' );
             $client_secret = get_option( 'ndn_client_secret' );
 
             // Upon submission of username and password, fetch client details for client_id and client_secret
             if ( !$client_id && !$client_secret ) {
-                $create_client_response = $this->create_oauth_client( $username, $password );
+                if ( $args['first_time_login'] ) {
+                    $create_client_response = $this->create_oauth_client( $username, $password, $args['name'], $args['company_name'], $args['contact_name'], $args['contact_email'] );
+                } else {
+                    $create_client_response = $this->get_oauth_client( $username, $password );
+                }
 
                 if ( $create_client_response ) {
                     $this->set_client_attrs( $create_client_response );
@@ -402,7 +434,7 @@ class NDN_Plugin_Admin
         // Turn it into JSON
         $json_data = json_encode( $data );
 
-        $wp_post_url = 'https://oauth.newsinc.com/v1/oauth2/client';
+        $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/client';
 
         $wp_post_args = array(
             'method' => 'POST',
@@ -411,26 +443,66 @@ class NDN_Plugin_Admin
         );
 
         $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
-
         // If there is a response, return it. Otherwise, return false.
         if ( $response ) {
-            return $response;
+            // If client already exists, get that client
+            if ( $response['response'] && $response['response']['code'] == '422' ) {
+                return $this->get_oauth_client( $username, $password );
+            } else {
+                return $response;
+            }
         } else {
             return false;
         }
     }
 
     /**
+     * Get Client details
+     *
+     * @param string $username      Username of the user
+     * @param string $password      Password of the user
+     */
+    private function get_oauth_client( $username, $password )
+    {
+      // Construct headers
+      $headers = array(
+          'Authorization' => 'Basic ' . base64_encode( $username . ':' . $password ),
+          'content-type' => 'application/json'
+      );
+
+      $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/client';
+
+      $wp_post_args = array(
+        'method' => 'GET',
+        'headers' => $headers
+      );
+
+      $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
+
+      // If there is a response, return it. Otherwise, return false.
+      if ( $response ) {
+          return $response;
+      } else {
+          return false;
+      }
+    }
+
+    /**
      * Sets client attributes (id & secret) from API response.
      * @param string $response Client information in JSON format
      */
-    private function set_client_attrs( $response)
+    private function set_client_attrs( $response )
     {
-        if ( $response) {
+        if ( $response ) {
             $client_response = json_decode( $response['body'], $assoc = true );
 
-            $this->client_id = $client_response['client_id'];
-            $this->client_secret = $client_response['client_secret'];
+            if ( array_key_exists( 'client', $client_response ) ) {
+                $this->client_id = $client_response['client']['client_id'];
+                $this->client_secret = $client_response['client']['client_secret'];
+            } else {
+                $this->client_id = $client_response['client_id'];
+                $this->client_secret = $client_response['client_secret'];
+            }
 
             self::save_option( 'ndn_client_id', $this->client_id );
             self::save_option( 'ndn_client_secret', $this->client_secret );
@@ -473,7 +545,7 @@ class NDN_Plugin_Admin
         }
         rtrim( $post_data, '&' );
 
-        $wp_post_url = 'https://oauth.newsinc.com/v1/oauth2/token';
+        $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/token';
         $wp_post_args = array(
             'method' => 'POST',
         	'headers' => $headers,
@@ -542,7 +614,7 @@ class NDN_Plugin_Admin
         }
         rtrim( $post_data, '&' );
 
-        $wp_post_url = 'https://oauth.newsinc.com/v1/oauth2/token';
+        $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/token';
         $wp_post_args = array(
             'method' => 'POST',
         	'headers' => $headers,
@@ -582,7 +654,12 @@ class NDN_Plugin_Admin
         }
         ?>
         <div class="update-nag">
-            <?php echo wp_kses_post(sprintf(__( 'Your NDN credential needs to be entered in <a href="%s" title="NDN Video Match Settings" class="ndn-notify-credentials">NDN Video Match Settings</a>.', 'NDN' ), esc_url( $url ) ));
+            <?php
+            if ( current_user_can( 'manage_options' ) ) {
+                echo wp_kses_post(sprintf(__( 'Your NDN tracking group needs to be entered in <a href="%s" title="NDN Video Match Settings" class="ndn-notify-credentials">NDN Video Match Settings</a>.', 'NDN' ), esc_url( $url ) ));
+            } else {
+                echo wp_kses_post(sprintf(__( 'Please contact your administrator to activate the NDN Video Match plugin.', 'NDN' ), esc_url( $url) ));
+            }
             ?>
         </div>
         <?php
@@ -736,7 +813,7 @@ class NDN_Plugin_Admin
             $query_data = array( 'text' => $search_string );
             $query_string = http_build_query( $query_data );
 
-            $wp_get_url = sprintf( 'https://public-search-api.newsinc.com/content/search/v1/text?%s', $query_string );
+            $wp_get_url = sprintf( NDN_SEARCH_API . '/content/search/v1/text?%s', $query_string );
 
             $wp_get_args = array(
               'headers' => $headers

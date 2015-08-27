@@ -2,13 +2,6 @@
 
 /**
  * Provide a admin area view for the plugin
- *
- * This file is used to markup the admin-facing aspects of the plugin.
- *
- * @link       https://github.com/reverb/ndn-plugin-wordpress
- *
- * @package    NDN_Plugin
- * @subpackage NDN_Plugin/admin/partials
  */
 
 ?>
@@ -36,19 +29,62 @@
 
 								<h3><span><?php esc_html_e( 'Login with your NDN Control Room credentials. If you don\'t have an NDN Control Room login, contact your account manager ', 'ndn_admin' ); ?><a href="mailto:wordpress@newsinc.com" class="ndn-email-help" analytics-category="WPSettings" analytics-label="SettingsHelp"><?php esc_html_e('or click here.', 'ndn_admin') ?></a></span></h3>
 
-								<form name="ndn-plugin-login-form" action="" analytics-category="WPSettings" analytics-label="SettingsLogin" method="post" novalidate>
+								<fieldset style="margin:10px 0;padding:0 12px;">
+									<select class="ndn-login-form-type" name="login-type">
+										<option value="1" selected="selected">First Time Login</option>
+										<option value="2">Returning User</option>
+									</select><br />
+								</fieldset>
+
+								<form id="ndn-plugin-first-time-login" name="ndn-plugin-login-form" action="" analytics-category="WPSettings" analytics-label="SettingsLogin" method="post" novalidate>
 
 									<fieldset style="margin:10px 0;padding:0 12px;">
-										<label for="<?php echo esc_attr( self::$login_form_options['ndn_username'] ) ?>">Username</label><br />
-										<input style="min-width:400px;" type="text" value="" class="regular-text" name="username" /><br />
+										<label for="username">Username</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_username'] ) ?>" type="text" value="" class="regular-text" name="username" placeholder="required" required /><br />
 									</fieldset>
 
 									<fieldset style="margin:10px 0;padding:0 12px;">
-										<label for="<?php echo esc_attr( self::$login_form_options['ndn_password'] ) ?>">Password</label><br />
-										<input style="min-width:400px;" type="password" value="" class="regular-text" name="password" /><br />
+										<label for="password">Password</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_password'] ) ?>" type="password" value="" class="regular-text" name="password" placeholder="required" required /><br />
+									</fieldset>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<label for="name">Name</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_name'] ) ?>" type="text" value="" class="regular-text" name="name" placeholder="required" required /><br />
+									</fieldset>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<label for="company_name">Company Name</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_company_name'] ) ?>" type="text" value="" class="regular-text" name="company_name" placeholder="required" required /><br />
+									</fieldset>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<label for="contact_name">Contact Name</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_contact_name'] ) ?>" type="text" value="" class="regular-text" name="contact_name" placeholder="required" required /><br />
+									</fieldset>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<label for="contact_email">Contact Email</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_contact_email'] ) ?>" type="text" value="" class="regular-text" name="contact_email" placeholder="required" required /><br />
 									</fieldset>
 
 									<input type="hidden" name="login-submission" value="1" />
+									<input class="button-primary" type="submit" name="submit" style="margin: 10px 10px 10px 12px;" value="<?php echo esc_attr( 'Login' ); ?>" />
+								</form>
+
+								<form id="ndn-plugin-returning-login" style="display:none;" name="ndn-plugin-login-form" action="" analytics-category="WPSettings" analytics-label="SettingsLogin" method="post" novalidate>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<label for="username">Username</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_username'] ) ?>" type="text" value="" class="regular-text" name="username" /><br />
+									</fieldset>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<label for="password">Password</label><br />
+										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_password'] ) ?>" type="password" value="" class="regular-text" name="password" /><br />
+									</fieldset>
+
+									<input type="hidden" name="returning-login-submission" value="1" />
 									<input class="button-primary" type="submit" name="submit" style="margin: 10px 10px 10px 12px;" value="<?php echo esc_attr( 'Login' ); ?>" />
 								</form>
 							</div>

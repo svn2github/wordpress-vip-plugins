@@ -10,7 +10,12 @@
     // Event Listeners for plugin actions
     ndnChangedResponsiveCheckbox();
     jQuery( '.ndn-responsive-checkbox' ).change( ndnChangedResponsiveCheckbox );
+
+    // Login Toggle
+    jQuery( '.ndn-login-form-type' ).change( ndnChangeLoginForm );
+
     // Input Validators
+    jQuery( '#ndn-plugin-first-time-login' ).submit( ndnValidateCompleteLoginForm );
     jQuery( 'input[name="ndn-plugin-default-tracking-group"]' ).keyup( ndnValidateInput );
     jQuery( 'input[name="ndn-plugin-default-width"]' ).keyup( ndnValidateInput );
 
@@ -40,6 +45,42 @@
       $( 'input[name=ndn-plugin-default-width]' ).prop( 'disabled', false );
       $( '.ndn-default-width-disabled' ).prop( 'disabled', true );
       $( '.ndn-responsive-checkbox-disabled' ).prop( 'disabled', false );
+    }
+  }
+
+  /**
+   * Change between first time login and returning login
+   */
+  function ndnChangeLoginForm() {
+    $( '#ndn-plugin-first-time-login' ).toggle();
+    $( '#ndn-plugin-returning-login' ).toggle();
+  }
+
+  /**
+   * Validate Completed Login Form
+   * @return {bool} Returns boolean whether the form was completed or not
+   */
+  function ndnValidateCompleteLoginForm() {
+    /**
+     * Highlight the field that is not complete
+     */
+    function ndnHighlightIncompleteFields() {
+      $('#ndn-plugin-first-time-login input').each(function() {
+        if ( !$(this).val() ) {
+          $(this).addClass( 'ndn-input-invalid' );
+        } else {
+          $( this ).removeClass( 'ndn-input-invalid' );
+        }
+      });
+    }
+
+    if ( $.trim( $( '#ndn-plugin-login-username' ).val() ) === '' || $.trim( $( '#ndn-plugin-login-password' ).val() ) === '' || $.trim( $( '#ndn-plugin-login-name' ).val() ) === '' || $.trim( $( '#ndn-plugin-login-company-name' ).val() ) === '' || $.trim( $( '#ndn-plugin-login-contact-name' ).val() ) === '' || $.trim( $( '#ndn-plugin-login-contact-email' ).val() ) === '' ) {
+      if ( event ) {
+        event.preventDefault();
+      }
+
+      ndnHighlightIncompleteFields();
+      return false;
     }
   }
 
