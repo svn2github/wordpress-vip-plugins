@@ -334,7 +334,7 @@ class NDN_Plugin_Admin
                 'first_time_login' => false
             );
 
-            $redirect_location = admin_url( 'admin.php?page=ndn-video-search?%3F&iframe=true' );
+            $redirect_location = admin_url( 'admin.php?page=ndn-video-search%3F&iframe=true' );
             $error_redirect_location = admin_url( 'admin.php?page=ndn-plugin-login%3F&iframe=true' );
             // After login success, go back to search page
             $this->login_user( $args, $redirect_location,  $error_redirect_location);
