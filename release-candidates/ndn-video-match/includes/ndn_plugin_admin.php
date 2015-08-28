@@ -129,6 +129,8 @@ class NDN_Plugin_Admin
      * NDN Plugin Shortcode.
      */
     const shortcode = 'ndn';
+    const NDN_OAUTH_API = 'https://oauth.newsinc.com';
+    const NDN_SEARCH_API = 'https://public-search-api.newsinc.com';
 
     /**
      * Initialize the class and set its properties.
@@ -434,7 +436,7 @@ class NDN_Plugin_Admin
         // Turn it into JSON
         $json_data = json_encode( $data );
 
-        $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/client';
+        $wp_post_url = self::NDN_OAUTH_API . '/v1/oauth2/client';
 
         $wp_post_args = array(
             'method' => 'POST',
@@ -443,16 +445,17 @@ class NDN_Plugin_Admin
         );
 
         $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
-        // If there is a response, return it. Otherwise, return false.
-        if ( $response ) {
-            // If client already exists, get that client
+
+        // If client already exists, get that client
+
+        if ( is_array( $response ) ) {
             if ( $response['response'] && $response['response']['code'] == '422' ) {
                 return $this->get_oauth_client( $username, $password );
             } else {
                 return $response;
             }
         } else {
-            return false;
+            return $response;
         }
     }
 
@@ -470,7 +473,7 @@ class NDN_Plugin_Admin
           'content-type' => 'application/json'
       );
 
-      $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/client';
+      $wp_post_url = self::NDN_OAUTH_API . '/v1/oauth2/client';
 
       $wp_post_args = array(
         'method' => 'GET',
@@ -480,11 +483,15 @@ class NDN_Plugin_Admin
       $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
 
       // If there is a response, return it. Otherwise, return false.
-      if ( $response ) {
-          return $response;
-      } else {
-          return false;
-      }
+        if ( !is_wp_error( $response ) && is_array( $response ) ) {
+            if ( array_key_exists( 'body', $response ) ) {
+              return $response;
+            } else {
+              return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     /**
@@ -493,9 +500,10 @@ class NDN_Plugin_Admin
      */
     private function set_client_attrs( $response )
     {
-        if ( $response ) {
-            $client_response = json_decode( $response['body'], $assoc = true );
+        $client_response = json_decode( $response['body'], $assoc = true );
 
+        // Check if client_response is not null
+        if ( is_array( $client_response ) ) {
             if ( array_key_exists( 'client', $client_response ) ) {
                 $this->client_id = $client_response['client']['client_id'];
                 $this->client_secret = $client_response['client']['client_secret'];
@@ -545,7 +553,7 @@ class NDN_Plugin_Admin
         }
         rtrim( $post_data, '&' );
 
-        $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/token';
+        $wp_post_url = self::NDN_OAUTH_API . '/v1/oauth2/token';
         $wp_post_args = array(
             'method' => 'POST',
         	'headers' => $headers,
@@ -614,7 +622,7 @@ class NDN_Plugin_Admin
         }
         rtrim( $post_data, '&' );
 
-        $wp_post_url = NDN_OAUTH_API . '/v1/oauth2/token';
+        $wp_post_url = self::NDN_OAUTH_API . '/v1/oauth2/token';
         $wp_post_args = array(
             'method' => 'POST',
         	'headers' => $headers,
@@ -813,7 +821,7 @@ class NDN_Plugin_Admin
             $query_data = array( 'text' => $search_string );
             $query_string = http_build_query( $query_data );
 
-            $wp_get_url = sprintf( NDN_SEARCH_API . '/content/search/v1/text?%s', $query_string );
+            $wp_get_url = sprintf( self::NDN_SEARCH_API . '/content/search/v1/text?%s', $query_string );
 
             $wp_get_args = array(
               'headers' => $headers
@@ -821,14 +829,19 @@ class NDN_Plugin_Admin
 
             $response = vip_safe_wp_remote_get( $wp_get_url, '', 3, 3, 20, $wp_get_args );
 
-            if ( array_key_exists( 'response', $response ) ) {
-                $info = $response['response'];
+            if ( is_array( $response ) ) {
+                if ( array_key_exists( 'response', $response ) ) {
+                    $info = $response['response'];
 
-                if ( $info['code'] == '401' ) {
-                    // Token is stale. Need user to re-authorize the API
+                    if ( $info['code'] == '401' ) {
+                        // Token is stale. Need user to re-authorize the API
+                        return false;
+                    }
+                // If API gives back error message
+                } else if ( array_key_exists ( 'errors', $response) ) {
                     return false;
                 }
-            } else if ( array_key_exists ( 'errors', $response) ) {
+            } else if ( is_wp_error( $response ) ) {
                 return false;
             } else {
                 // Saving data in cache, set to expire in 10 minutes
