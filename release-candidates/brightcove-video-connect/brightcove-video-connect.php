@@ -70,7 +70,7 @@ if (in_array($pagenow, array('admin-ajax.php', 'admin.php', 'post-new.php', 'edi
 }
 add_action( 'init', array( 'BC_Video_Shortcode', 'shortcode' ) );
 add_action( 'init', array( 'BC_Playlist_Shortcode', 'shortcode' ) );
-add_action( 'init', array( 'BC_Setup', 'action_init_all' ) ); //ensures the menu is loaded on all pages
+add_action( 'init', array( 'BC_Setup', 'action_init_all' ), 9 ); //ensures the menu is loaded on all pages
 
 if ( ! defined( 'WPCOM_IS_VIP_ENV' ) || ! WPCOM_IS_VIP_ENV ) {
     // Activation / Deactivation

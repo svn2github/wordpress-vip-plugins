@@ -8,7 +8,6 @@ class BC_Setup {
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-errors.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-callbacks.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-logging.php');
-		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-permissions.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-playlist-shortcode.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-utility.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-video-shortcode.php');
@@ -32,9 +31,6 @@ class BC_Setup {
 		new BC_Errors();
 		new BC_Callbacks();
 		$bc_accounts = new BC_Accounts();
-
-		// Load WordPress resources
-		new BC_Permissions();
 
 		// Load Administrative Resources
 		if ( BC_Utility::current_user_can_brightcove() ) {
@@ -88,6 +84,11 @@ class BC_Setup {
 	 * @return void
 	 */
 	public static function action_init_all() {
+
+		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-permissions.php');
+
+		// Load WordPress resources
+		new BC_Permissions();
 
 		if ( BC_Utility::current_user_can_brightcove() ) {
 			require_once( BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-menu.php' );
