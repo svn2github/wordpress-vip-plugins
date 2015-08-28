@@ -9,7 +9,6 @@ class BC_Setup {
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-callbacks.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-logging.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-playlist-shortcode.php');
-		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-utility.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-video-shortcode.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-video-upload.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/sync/class-bc-playlists.php');
@@ -85,6 +84,7 @@ class BC_Setup {
 	 */
 	public static function action_init_all() {
 
+		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-utility.php');
 		require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-permissions.php');
 
 		// Load WordPress resources
