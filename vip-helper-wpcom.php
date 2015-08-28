@@ -330,10 +330,11 @@ function wpcom_vip_get_resized_remote_image_url( $url, $width, $height, $escape 
  *
  * @link http://vip.wordpress.com/documentation/image-resizing-and-cropping/
  *
+ * @uses wpcom_vip_sanitize_photon_crop_values()
  * @param int $attachment_id ID of the attachment
  * @param int $width Width of our resized image
  * @param int $height Height of our resized image
- * @param bool $crop (optional) whether or not to crop the image
+ * @param bool|array $crop (optional) whether or not to crop the image for bool value. How to crop the image for array(x,y,w,h). The values of array can be either integers or numerical string trailing with "px". Eg.: array( 0, 0, '150px', '150px' ).
  * @return string URL of the resized attachmen
  */
 function wpcom_vip_get_resized_attachment_url( $attachment_id, $width, $height, $crop = false ) {
@@ -348,11 +349,34 @@ function wpcom_vip_get_resized_attachment_url( $attachment_id, $width, $height, 
 		'h' => intval( $height ),
 	), $url );
 
-	if ( $crop ) {
+	if ( true === is_array( $crop ) && 4 === count( $crop ) ) {
+		$sanitized_crop = array_map( 'wpcom_vip_sanitize_photon_crop_values', $crop );
+		$url = add_query_arg( 'crop', join( $sanitized_crop, ',' ), $url );
+	} else if ( $crop ) {
 		$url = add_query_arg( 'crop', 1, $url );
 	}
 
 	return $url;
+}
+/**
+ * Helper function for validiting and sanitizing values for crop parametr used in photon URLs
+ * 
+ * Returns the value passeed after it was sanitized by intval function while preserving trailing px string
+ * 
+ * @param int|string $value. A number without unit (representing percentages) or a numerical string trailing with "px" representing a width/height in pixels
+ * @return int|string. Sanitized value which is safe to use in URL
+ */ 
+function wpcom_vip_sanitize_photon_crop_values( $value ) {
+
+	$sanitized_value = intval( $value );
+
+	if ( preg_match( '/^(\d+)(px)?$/', $value, $matches ) ) {
+		if ( true === is_array( $matches ) && true === isset( $matches[2] ) && 'px' === $matches[2] ) {
+			$sanitized_value = intval( $matches[1] ) . 'px';
+		}
+	}
+
+	return $sanitized_value;
 }
 
 /**
