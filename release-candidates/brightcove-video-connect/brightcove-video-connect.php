@@ -61,11 +61,9 @@ if (in_array($pagenow, array('admin-ajax.php', 'admin.php', 'post-new.php', 'edi
     require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-playlist-shortcode.php');
     require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-video-shortcode.php');
     require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-utility.php');
-    require_once(BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-menu.php');
     require_once(BRIGHTCOVE_PATH . 'includes/classes/class-bc-accounts.php');
     global $bc_accounts;
     $bc_accounts = new BC_Accounts();
-    new BC_Admin_Menu();
     add_action( 'admin_notices', array( 'BC_Setup', 'bc_activation_admin_notices' ) );
 }
 add_action( 'init', array( 'BC_Video_Shortcode', 'shortcode' ) );

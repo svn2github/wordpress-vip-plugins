@@ -91,11 +91,12 @@ class BC_Setup {
 		new BC_Permissions();
 
 		if ( BC_Utility::current_user_can_brightcove() ) {
+
 			require_once( BRIGHTCOVE_PATH . 'includes/classes/admin/class-bc-admin-menu.php' );
+
+			new BC_Admin_Menu();
+
 		}
-
-		new BC_Admin_Menu();
-
 	}
 
 	public static function add_brightcove_media_button() {
