@@ -224,6 +224,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Nativo',
 				'description' => 'Unlock a premium revenue stream with native ads.',
 			),
+			'ndn-video-match'        => array(
+				'name'        => 'NDN',
+				'description' => 'Better than free.',
+			),
 			'newscred'        => array(
 				'name'        => 'NewsCred',
 				'description' => 'Publish fully licensed, full text articles and images from 4,000+ of the world’s best news sources!',
