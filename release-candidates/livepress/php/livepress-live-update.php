@@ -282,7 +282,7 @@ class LivePress_Live_Update {
 		preg_match( '/\[livepress_metainfo show_timestmp=.?"(.).?".*\]/s', $content, $show_timestmp );
 
 		if ( ! empty( $show_timestmp[1] ) || ! $has_shortcode ) {
-			$current_time_attr = ' time="'. $this->format_timestamp( current_time( 'timestamp' ) ) .'" ';
+			$current_time_attr = ' time="'. $this->format_timestamp( current_time( 'timestamp', 1 ) ) .'" ';
 
 			if ( $options['timestamp'] ) {
 				$new_shortcode   .= ' show_timestmp="1" ';

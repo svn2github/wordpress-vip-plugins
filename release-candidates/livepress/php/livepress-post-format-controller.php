@@ -578,7 +578,7 @@ class LivePress_PF_Updates {
 
 		// set the custom timestanp to current publish date
 		$lp_updater = new LivePress_Updater();
-		$lp_updater->set_custom_timestamp( $update->post_date );
+		$lp_updater->set_custom_timestamp( date( 'c', strtotime( $update->post_date ) - ( get_option( 'gmt_offset' ) * 3600 ) ) );
 
 		if ( null == $update ) {
 			// Todo: notify about error: post get deleted by another editor
