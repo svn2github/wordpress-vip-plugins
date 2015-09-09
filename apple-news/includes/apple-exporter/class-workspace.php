@@ -79,12 +79,17 @@ class Workspace {
 	 */
 	public function write_json( $content ) {
 		$json = apply_filters( 'apple_news_write_json', $content, $this->content_id );
-		if ( null === json_decode( $json ) ) {
+
+		// JSON should be decoded before being stored.
+		// Otherwise, stripslashes_deep could potentially remove valid characters
+		// such as newlines (\n).s
+		$decoded_json = json_decode( sanitize_text_field( $json ) );
+		if ( null === $decoded_json ) {
 			// This is invalid JSON.
-			// Store as an empty string to be handled later down the line.
-			$json = '';
+			// Store as an empty string.
+			$decoded_json = '';
 		}
-		update_post_meta( $this->content_id, self::JSON_META_KEY, sanitize_text_field( $json ) );
+		update_post_meta( $this->content_id, self::JSON_META_KEY, $decoded_json );
 	}
 
 	/**
@@ -94,7 +99,11 @@ class Workspace {
 	 * @since 0.9.0
 	 */
 	public function get_json() {
-		return apply_filters( 'apple_news_get_json', get_post_meta( $this->content_id, self::JSON_META_KEY, true ), $this->content_id );
+		$json = get_post_meta( $this->content_id, self::JSON_META_KEY, true );
+		if ( ! empty( $json ) ) {
+			$json = json_encode( $json );
+		}
+		return apply_filters( 'apple_news_get_json', $json, $this->content_id );
 	}
 
 	/**

@@ -140,7 +140,7 @@ class Component_Layouts extends Builder {
 		// TODO: Use an animation manager
 		$component->set_json( 'animation', array(
 			'type'             => 'fade_in',
-			'userControllable' => 'true',
+			'userControllable' => true,
 			'initialAlpha'     => 0.0,
 		) );
 	}

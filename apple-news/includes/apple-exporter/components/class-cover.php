@@ -53,7 +53,7 @@ class Cover extends Component {
 	private function set_default_layout() {
 		$this->register_layout( 'headerContainerLayout', array(
 			'columnStart'          => 0,
-			'columnSpan'           => $this->get_setting( 'layout_columns' ),
+			'columnSpan'           => intval( $this->get_setting( 'layout_columns' ) ),
 			'ignoreDocumentMargin' => true,
 			'minimumHeight'        => '50vh',
 			'margin'               => array( 'top' => 0, 'bottom' => 25 ),
