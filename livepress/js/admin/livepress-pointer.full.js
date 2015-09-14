@@ -1,4 +1,4 @@
-/*! livepress -v1.3.2
+/*! livepress -v1.3.4.1
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -35,8 +35,8 @@
 		var pointer = CORE.pointer = new Pointer( '#blogging-tools-link-wrap' );
 		pointer.open();
 		// Close the pointer when live blogging tools opened (once)
-		$( 'a#blogging-tools-link' ).one( 'click', function() {
-			$( '.livepress_pointer a.close' ).trigger( 'click' );
+		$( '#blogging-tools-link' ).one( 'click', function() {
+			$( '.livepress_pointer .close' ).trigger( 'click' );
 		} );
 
 	} );

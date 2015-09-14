@@ -61,6 +61,8 @@ final class LivePress_Blogging_Tools {
 	 */
 	function opengraph_request() {
 		if ( isset( $_GET['lpup'] ) ) {
+
+
 			$id              = absint( $_GET['lpup'] );
 			$update          = $this->lp_get_single_update( $id );
 			$data            = $this->opengraph_data( $update );
@@ -100,7 +102,7 @@ final class LivePress_Blogging_Tools {
 			}
 
 			// Facebook Open Graph:
-			$old_title = $this->lp_strip_shortcodes( urldecode( $data->title ) );
+			$old_title =$this->lp_strip_shortcodes( urldecode( $data->title ) );
 			$title     = wp_kses( apply_filters( 'the_title', $old_title ), array() );
 			echo '<meta property="og:title" content="' .  esc_attr( $title ). "\" />\n";
 			echo '<meta property="og:type" content="' . esc_attr( $data->type ) . "\" />\n";
@@ -110,15 +112,26 @@ final class LivePress_Blogging_Tools {
 			echo '<meta property="og:site_name" content="' . esc_attr( get_bloginfo( 'name' ) ) . "\" />\n";
 
 			$old_description = $this->lp_strip_shortcodes( urldecode( $data->description ) );
-			$description     = wp_kses( apply_filters( 'the_excerpt', $old_description ), array() );
+			$description = wp_kses( apply_filters( 'the_excerpt', $old_description ), array() );
 			echo '<meta property="og:description" content="' . esc_html( $description ). "\" />\n";
 
-			$post_url = $post_parent_url . '#livepress-update-' . $id;
-			echo '<meta http-equiv="refresh" content="2;URL=' . $post_url . "\">\n";
-			echo "<script type=\"text/javascript\">window.location.replace('" . $post_url . "');</script>\n";
+
+
+			if ( isset( $_GET['lp_close_popup'] ) ) {
+				echo('<script type="text/javascript">window.close();</script>');
+			}else{
+				$post_url = $post_parent_url . '#livepress-update-' . $id;
+				echo '<meta http-equiv="refresh" content="2;URL=' . $post_url . "\">\n";
+				echo "<script type=\"text/javascript\">window.location.replace('" . $post_url . "');</script>\n";
+			}
+
 			echo "</head>\n";
 			echo "<body>\n";
-			echo '<p>' . esc_html( $data->description ) . "</p>\n";
+			if ( isset( $_GET['lp_close_popup'] ) ) {
+				echo '<p>' . esc_html( __('Your post has sent to Facebook you may close this window now.', 'livepress') ) . "</p>\n";
+			}else{
+				echo '<p>' . esc_html( $data->description ) . "</p>\n";
+			}
 			echo "</body>\n</html>\n";
 			exit( 0 );
 		}

@@ -1,4 +1,4 @@
-/*! livepress -v1.3.2
+/*! livepress -v1.3.4.1
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -1448,30 +1448,45 @@ Livepress.Ui.ReactButton = function (type, update) {
 			var left = ( screen.width / 2 ) - 300,
 				top = ( screen.height / 2 ) - 175,
 				options = "width=600,height=350,location=yes,,status=yes,top=" + top + ", left=" + left,
-				twitterLink = update.shortLink();
+                twitterLink = update.shortLink(),
+                re = /livepress-update-([0-9]+)/,
+                image, imageAltText, update_id = re.exec( update.id )[1];
 
-				var shortExcerpt = ( 3 > update.shortExcerpt.length ) ? '' : update.shortExcerpt.replace(/#/g,'%23').replace(/%/g,'%25') + ' ',
-					updateTitle = update.title.trim().replace(/%/g,'%25'),
-					description = ( '' === updateTitle ? shortExcerpt :  updateTitle + ' ' );
+                var shortExcerpt = ( 3 > update.shortExcerpt.length ) ? '' : encodeURIComponent( update.shortExcerpt ) + ' ',
+                    updateTitle = encodeURIComponent(update.title.trim() ),
+                    description = ( '' === updateTitle ? shortExcerpt :  updateTitle + ' ' );
 
+                // when no description is present, fall back to image alt tag if there's an image
+                if ( ! description ) {
+                    image = jQuery( '#livepress-update-' + update_id + ' .livepress-update-inner-wrapper img' );
+                    if ( image.length ) {
+                        imageAltText = image.attr( 'alt' );
+                        if ( imageAltText ) {
+                            description = imageAltText + ' ' ;
+                            }
+                        }
+                }
 
-				// Did we get the shortened link or only a promise?
+                // Did we get the shortened link or only a promise?
                 var fail_url = 'https://twitter.com/intent/tweet?text=' + description + Livepress.getUpdatePermalink( update.id );
-                var twitter_popup = window.open( fail_url, "Twitter", options );
-				if ( 'string' === typeof twitterLink ) {
+                var twitter_popup = window.open( fail_url, 'Twitter', options );
+
+                if ( 'string' === typeof twitterLink ) {
                     twitter_popup.location = 'https://twitter.com/intent/tweet?text=' + description + twitterLink;
-				} else {
-					twitterLink
-						.done( function( data ){
+                } else {
+                    twitterLink
+                    .done( function( data ) {
+                        if ( twitter_popup ) {
                             twitter_popup.location = 'https://twitter.com/intent/tweet?text=' + description + ( ( 'undefined' !== typeof data.data ) ? data.data.shortlink : Livepress.getUpdatePermalink( update.id ) );
-							var re = /livepress-update-([0-9]+)/,
-								update_id = re.exec( update.id )[1];
-							if ( 'undefined' !== typeof data.data ) {
-								Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
-							}
-						});
+                            if ( 'undefined' !== typeof data.data ) {
+                                Livepress.updateShortlinksCache[update_id] = data.data.shortlink;
+                            }
+                        }
+                    });
 				}
-                twitter_popup.focus();
+                if ( twitter_popup ) {
+                    twitter_popup.focus();
+                }
 			});
 	};
 
@@ -1481,6 +1496,7 @@ Livepress.Ui.ReactButton = function (type, update) {
 			// Set the Facebook link to the actual url since the app has to
 			// be tied to a specific domain:
 			var u = Livepress.getUpdatePermalink(update.id);
+            var redirect_uri = u.replace('?','?lp_close_popup=true&');
 			var height = 436;
 			var width = 626;
 			var left = (screen.width - width) / 2;
@@ -1492,14 +1508,15 @@ Livepress.Ui.ReactButton = function (type, update) {
 				window.open( 'http://www.facebook.com/sharer.php?u=' +
 										encodeURIComponent(u) , ' sharer', windowParams );
 			} else {
-				window.open(
+                window.open(
 					'https://www.facebook.com/dialog/share_open_graph?' +
 						'app_id=' + LivepressConfig.facebook_app_id +
 						'&display=popup' +
 						'&action_type=og.likes' +
 						'&action_properties=' + encodeURIComponent('{"object":"' + u + '" }') +
-						'&redirect_uri=' + encodeURIComponent(u), ' sharer', windowParams
+						'&redirect_uri=' + encodeURIComponent(redirect_uri), ' sharer', windowParams
                 );
+
 			}
 
 			return false;

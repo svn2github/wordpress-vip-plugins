@@ -1,8 +1,8 @@
 === LivePress ===
 Requires at least: 3.5
-Tested up to: 4.3-beta2
+Tested up to: 4.3
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.3.2
+Stable tag: 1.3.4.1
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
@@ -74,7 +74,7 @@ Example:
 
 = Remove a Tab to the Live Blogging Tools Palette =
 
-All of the default tabs in the toole palette can be removed by name using the "livepress_setup_tabs" action hook and calling
+All of the default tabs in the tool palette can be removed by name using the "livepress_setup_tabs" action hook and calling
 the `remove_tab()` method of the passed class.
 
 Example:
@@ -118,6 +118,16 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 2. New update sent -- it appears for all readers of this post at the same time.
 
 == Changelog ==
+= 1.3.4.1
+    * added fallback to img alt for twitter text ig not content or update title props: Paul Schreiber from FiveThirtyEight.com
+
+= 1.3.4
+   * Added support for WP version 4.3
+   * Fixed code where the  "add media" button in th eeitors was changed from a href to a button
+   * Fixed inserting media into text editor for new updates
+
+= 1.3.3 =
+* Fixed FB popup not closing
 
 = 1.3.2 =
 

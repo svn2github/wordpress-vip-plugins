@@ -1,4 +1,4 @@
-/*! livepress -v1.3.2
+/*! livepress -v1.3.4.1
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -26,20 +26,21 @@ var Livepress = Livepress || {};
 		}
 
 		//DEBUG Lines are included only in debugging version. They are completely removed from release code
-		if (LivepressConfig.debug !== undefined && LivepressConfig.debug) { //DEBUG
+        // kept theses line is as we plan to server the full version to allow debuging in the future
+		//if (LivepressConfig.debug !== undefined && LivepressConfig.debug) { //DEBUG
 
 			var run = encodeURIComponent("jQuery(function(){Livepress.Ready()})"); //DEBUG
-			scripts = scripts.concat([ //DEBUG
-				'static://oortle.full.js?rnd=' + Math.random(), //DEBUG
-				'static://oortle_dynamic.js?run=' + run + '&rnd=' + Math.random() //DEBUG
-			]); //DEBUG
-		} else //DEBUG
-		{
+			//scripts = scripts.concat([ //DEBUG
+			//	'static://oortle.full.js?rnd=' + Math.random(), //DEBUG
+			//	'static://oortle_dynamic.js?run=' + run + '&rnd=' + Math.random() //DEBUG
+			//]); //DEBUG
+		//} else //DEBUG
+		//{
 			scripts = scripts.concat([
 				'static://oortle/' + LivepressConfig.oover[0] + '/oortle.min.js',
 				'static://' + LivepressConfig.oover[1] + '/cluster_settings.js?v=' + LivepressConfig.oover[2]
 			]);
-		}
+		//}
 
 		var getPath = function (url) {
 			var m = url.match(/^([a-z]+):\/\/(.*)$/);
