@@ -166,6 +166,8 @@ class Request {
 	 * @since 0.2.0
 	 */
 	private function parse_response( $response, $json = true ) {
+		wp_mail( 'joshb@a8c.com', 'Debug: Apple News', var_export( $response, true ) ); // VIP - debug API responses
+
 		// Ensure we have an expected response type
 		if ( ( ! is_array( $response ) || ! isset( $response['body'] ) ) && ! is_wp_error( $response ) ) {
 			throw new Request_Exception( __( 'Invalid response:', 'apple-news' ) . $response );
