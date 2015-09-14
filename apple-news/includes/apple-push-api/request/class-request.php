@@ -200,6 +200,7 @@ class Request {
 	 * @since 0.2.0
 	 */
 	private function build_content( $article, $bundles = array(), $meta = null ) {
+		$bundles = array_unique( $bundles );
 		$content = '';
 
 		if ( $meta ) {
