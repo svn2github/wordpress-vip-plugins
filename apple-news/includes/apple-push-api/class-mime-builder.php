@@ -136,13 +136,7 @@ class MIME_Builder {
 	 * @access private
 	 */
 	private function get_mime_type_for( $filepath ) {
-		$finfo = finfo_open( FILEINFO_MIME_TYPE );
-		$type  = finfo_file( $finfo, $filepath );
-
-		if ( $this->is_valid_mime_type( $type ) ) {
-			return $type;
-		}
-
+		// TODO: rethink this for better integration with WordPress
 		return 'application/octet-stream';
 	}
 
