@@ -256,6 +256,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 		$current_page = $this->get_pagenum();
 		$query = new WP_Query( apply_filters( 'apple_news_export_table_get_posts_args', array(
 			'post_type'     => $this->settings->get( 'post_types' ),
+			'post_status'	=> 'publish',
 			'posts_per_page' => $this->per_page,
 			'offset'         => ( $current_page - 1 ) * $this->per_page,
 			'orderby'        => 'ID',
