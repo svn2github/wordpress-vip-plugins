@@ -54,7 +54,7 @@ class Embed_Web_Video extends Component {
 	 * @access protected
 	 */
 	protected function build( $text ) {
-		$aspect_ratio = '1.777';
+		$aspect_ratio = 1.777;
 		$src          = null;
 
 		// If a paragraph was matched, it's because it only contains a EWV URL.
@@ -85,4 +85,3 @@ class Embed_Web_Video extends Component {
 	}
 
 }
-

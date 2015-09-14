@@ -39,7 +39,7 @@ class Image extends Component {
 	protected function build( $text ) {
 		preg_match( '/src="([^"]*?)"/im', $text, $matches );
 		$url      = $matches[1];
-		$filename = basename( $url );
+		$filename = preg_replace( '/\\?.*/', '', basename( $url ) );
 
 		// Save image into bundle
 		$this->bundle_source( $filename, $url );
@@ -163,4 +163,3 @@ class Image extends Component {
 	}
 
 }
-
