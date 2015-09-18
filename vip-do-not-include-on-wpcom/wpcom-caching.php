@@ -458,6 +458,10 @@ function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_term = ''
 	$where = '';
 	$current_post_date = $post->post_date;
 
+	if ( ! is_int( $excluded_term && ! empty( $excluded_term ) ) ){
+		$term = wpcom_vip_get_term_by( 'name', $excluded_term, $taxonomy );
+		$excluded_term = $term->ID;
+	}
 
 	if ( $in_same_term ) {
 		if ( is_object_in_taxonomy( $post->post_type, $taxonomy ) ) {
