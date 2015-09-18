@@ -182,7 +182,7 @@ class Markdown {
 	 * @access private
 	 */
 	private function parse_hyperlink_node( $node ) {
-		$url = $node->getAttribute( 'href' );
+		$url = esc_url_raw( apply_filters( 'apple_news_markdown_hyperlink', $node->getAttribute( 'href' ) ) );
 		return '[' . $this->parse_nodes( $node->childNodes ) . '](' . $url . ')';
 	}
 

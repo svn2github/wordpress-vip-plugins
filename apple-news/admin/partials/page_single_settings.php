@@ -34,7 +34,14 @@
 		<?php do_action( 'apple_news_after_single_settings' ); ?>
 
 		<p class="submit">
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=apple_news_index' ) ); ?>" class="button"><?php esc_html_e( 'Back', 'apple-news' ) ?></a>
+			<a href="<?php
+				$back_url = admin_url( 'admin.php?page=apple_news_index' );
+				if ( ! empty( $_GET['paged'] ) ) {
+					$back_url = add_query_arg( 'paged', absint( $_GET['paged'] ), $back_url );
+				}
+				echo esc_url( $back_url );
+
+			?>" class="button"><?php esc_html_e( 'Back', 'apple-news' ) ?></a>
 			<button type="submit" class="button button-primary"><?php esc_html_e( 'Save Changes', 'apple-news' ) ?></button>
 		</p>
 	</form>

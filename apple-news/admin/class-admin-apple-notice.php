@@ -77,7 +77,8 @@ class Admin_Apple_Notice {
 	 * @access public
 	 */
 	public static function has_notice() {
-		return ! empty( get_user_meta( get_current_user_id(), self::KEY . 'message', true ) );
+		$message = get_user_meta( get_current_user_id(), self::KEY . 'message', true );
+		return ! empty( $message );
 	}
 
 	/**

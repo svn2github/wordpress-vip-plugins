@@ -70,9 +70,12 @@ abstract class API_Action extends Action {
 	 * @access protected
 	 */
 	protected function is_api_configuration_valid() {
-		if ( empty( $this->get_setting( 'api_key' ) )
-			|| empty( $this->get_setting( 'api_secret' ) )
-			|| empty( $this->get_setting( 'api_channel' ) ) )
+		$api_key = $this->get_setting( 'api_key' );
+		$api_secret = $this->get_setting( 'api_secret' );
+		$api_channel = $this->get_setting( 'api_channel' );
+		if ( empty( $api_key )
+			|| empty( $api_secret )
+			|| empty( $api_channel ) )
 		{
 			return false;
 		}

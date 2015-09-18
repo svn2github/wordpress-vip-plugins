@@ -149,17 +149,17 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 		$actions = array(
 			'settings' => sprintf(
 				"<a href='%s'>%s</a>",
-				esc_url( add_query_arg( 'action', 'settings', $base_url ) ),
+				esc_url( $this->action_query_params( 'settings', $base_url ) ),
 				esc_html__( 'Options', 'apple-news' )
 			),
 			'export' => sprintf(
 				"<a href='%s'>%s</a>",
-				esc_url( add_query_arg( 'action', 'export', $base_url ) ),
+				esc_url( $this->action_query_params( 'export', $base_url ) ),
 				esc_html__( 'Download', 'apple-news' )
 			),
 			'push' => sprintf(
 				"<a href='%s'>%s</a>",
-				esc_url( add_query_arg( 'action', 'push', $base_url ) ),
+				esc_url( $this->action_query_params( 'push', $base_url ) ),
 				esc_html__( 'Publish', 'apple-news' )
 			),
 		);
@@ -169,7 +169,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 			$actions['delete'] = sprintf(
 				"<a title='%s' href='%s'>%s</a>",
 				esc_html__( 'Delete from Apple News', 'apple-news' ),
-				esc_url( add_query_arg( 'action', 'delete', $base_url ) ),
+				esc_url( $this->action_query_params( 'delete', $base_url ) ),
 				esc_html__( 'Delete', 'apple-news' )
 			);
 		}
@@ -271,6 +271,26 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 			'per_page'    => $this->per_page,
 			'total_pages' => ceil( $total_items / $this->per_page ),
 		) ) );
+	}
+
+	/**
+	 * Helps build query params for each row action.
+	 *
+	 * @param string $action
+	 * @param string $url
+	 * @return string
+	 * @access private
+	 */
+	private function action_query_params( $action, $url ) {
+		$params = array(
+			'action' => $action,
+		);
+
+		if ( ! empty( $this->get_pagenum() ) && $this->get_pagenum() > 1 ) {
+			$params['paged'] = $this->get_pagenum();
+		}
+
+		return add_query_arg( $params, $url );
 	}
 
 }
