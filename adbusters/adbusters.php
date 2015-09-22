@@ -30,18 +30,8 @@ along with this program.  If not, see http://www.gnu.org/licenses/.
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;
 
-/**
- * If an appropriate request comes in, load an iframe ad buster file.
- *
- * Note: the following networks/scripts are insecure and will not be added to the plugin:
- * > EyeReturn (/eyereturn/eyereturn.html)
- * > Unicast (/unicast/unicastIFD.html)
- *
- * @since Adbusters (1.0)
- */
-function wpcom_vip_maybe_load_ad_busters() {
-
-	$ad_busters = array(
+function wpcom_vip_get_ad_busters_array() {
+	return array(
 		'adcade/adcadebuster.html',          // Adcade
 		'adcentric/ifr_b.html',              // AdCentric
 		'adinterax/adx-iframe-v2.html',      // AdInterax
@@ -53,7 +43,7 @@ function wpcom_vip_maybe_load_ad_busters() {
 		'doubleclick/fif.html',              // Flite
 		'eyeblaster/addineyeV2.html',        // MediaMind - EyeBlaster
 		'eyewonder/interim.html',            // EyeWonder
-		'f3-iframeout/f3-iframeout.html',     // F Sharp
+		'f3-iframeout/f3-iframeout.html',    // F Sharp
 		'flashtalking/ftlocal.html',         // Flashtalking
 		'flite/fif.html',                    // Flite
 		'gumgum/iframe_buster.html',         // gumgum
@@ -74,11 +64,33 @@ function wpcom_vip_maybe_load_ad_busters() {
 		'_uac/adpage.html',                  // AOL - atwola.com
 		'adcom/aceFIF.html',                 // Advertising.com (ad.com)
 	);
+}
+
+/**
+ * If an appropriate request comes in, load an iframe ad buster file.
+ *
+ * Note: the following networks/scripts are insecure and will not be added to the plugin:
+ * > EyeReturn (/eyereturn/eyereturn.html)
+ * > Unicast (/unicast/unicastIFD.html)
+ *
+ * @since Adbusters (1.0)
+ */
+function wpcom_vip_maybe_load_ad_busters() {
+
+	$ad_busters = wpcom_vip_get_ad_busters_array();
+
+	// To only support a specific ad network, use this filter and return an array containing the values of $ad_busters to load
+	$whitelist_ads = (array) apply_filters( 'wpcom_vip_ad_busters_whitelist', $ad_busters );
+	$ad_busters = array_intersect( $ad_busters, $whitelist_ads );
 
 	// To ignore an ad network, use this filter and return an array containing the values of $ad_busters to not load
 	$block_ads  = apply_filters( 'wpcom_vip_maybe_load_ad_busters', array() );
 	$ad_busters = array_diff( $ad_busters, $block_ads );
 	$ad_paths   = $ad_busters;
+
+	// nothing to do if there are no paths after whitelisting and blocking
+	if ( empty( $ad_paths ) )
+		return;
 
 	// If your ads need to be served from example.com/some/subfolder/*, pass "some/subfolder" to this filter
 	$path = explode( '/', apply_filters( 'wpcom_vip_ad_busters_custom_path', '' ) );
