@@ -487,4 +487,3 @@ function wemo_maybe_enqueue_media() {
 // where wp_enqueue_media is currently running. Follow this pattern to add any
 // pages where it runs for your site.
 add_action( 'load-post.php', 'wemo_maybe_enqueue_media' );
-add_action( 'load-post-new.php', 'wemo_maybe_enqueue_media' );
