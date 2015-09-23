@@ -78,7 +78,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 		$updated_at = get_post_meta( $post->ID, 'apple_news_api_modified_at', true );
 
 		if ( $updated_at ) {
-			return date( 'F j, h:i a', strtotime( $updated_at ) );
+			return get_date_from_gmt( date( 'F j, h:i a', strtotime( $updated_at ) ), 'F j, h:i a' );
 		}
 
 		return __( 'Never', 'apple-news' );
@@ -286,7 +286,8 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 			'action' => $action,
 		);
 
-		if ( ! empty( $this->get_pagenum() ) && $this->get_pagenum() > 1 ) {
+		$pagenum = $this->get_pagenum();
+		if ( ! empty( $pagenum ) && $pagenum > 1 ) {
 			$params['paged'] = $this->get_pagenum();
 		}
 

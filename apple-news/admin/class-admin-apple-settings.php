@@ -5,6 +5,7 @@ require_once plugin_dir_path( __FILE__ ) . 'settings/class-admin-apple-settings-
 require_once plugin_dir_path( __FILE__ ) . 'settings/class-admin-apple-settings-section-formatting.php';
 require_once plugin_dir_path( __FILE__ ) . 'settings/class-admin-apple-settings-section-advanced.php';
 require_once plugin_dir_path( __FILE__ ) . 'settings/class-admin-apple-settings-section-post-types.php';
+require_once plugin_dir_path( __FILE__ ) . 'settings/class-admin-apple-settings-section-developer-tools.php';
 
 use Apple_Exporter\Settings as Settings;
 
@@ -82,6 +83,7 @@ class Admin_Apple_Settings extends Apple_News {
 		$this->add_section( new Admin_Apple_Settings_Section_Post_Types( $this->page_name ) );
 		$this->add_section( new Admin_Apple_Settings_Section_Formatting( $this->page_name ) );
 		$this->add_section( new Admin_Apple_Settings_Section_Advanced( $this->page_name ) );
+		$this->add_section( new Admin_Apple_Settings_Section_Developer_Tools( $this->page_name ) );
 	}
 
 	/**
