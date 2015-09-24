@@ -184,7 +184,7 @@ class Request {
 			}
 		}
 
-		// Check for errors
+		// Check for errors with the request itself
 		if ( is_wp_error( $response ) ) {
 			$string_errors = '';
 			foreach ( $response->get_error_messages() as $error ) {
@@ -193,8 +193,15 @@ class Request {
 			throw new Request_Exception( __( 'There has been an error with your request:', 'apple-news' ) . "\n$string_errors" );
 		}
 
+		// Check for errors from the API
+		$response_decoded = json_decode( $response['body'] );
+		if ( ! empty( $response_decoded->errors ) ) {
+			$messages = implode( ', ', wp_list_pluck( $response_decoded->errors, 'code' ) );
+			throw new Request_Exception( $messages );
+		}
+
 		// Return the response in the desired format
-		return $json ? json_decode( $response['body'] ) : $response['body'];
+		return $json ? $response_decoded : $response['body'];
 	}
 
 	/**

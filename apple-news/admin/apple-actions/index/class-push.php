@@ -130,9 +130,9 @@ class Push extends API_Action {
 		} catch ( \Apple_Push_API\Request\Request_Exception $e ) {
 			if ( preg_match( '#WRONG_REVISION#', $e->getMessage() ) ) {
 				throw new \Apple_Actions\Action_Exception( __( 'It seems like the article was updated by another call. If the problem persist, try removing and pushing again.', 'apple-news' ) );
+			} else {
+				throw new \Apple_Actions\Action_Exception( __( 'There has been an error with the API. Please make sure your API settings are correct and try again: ', 'apple-news' ) .  $e->getMessage() );
 			}
-
-			throw new \Apple_Actions\Action_Exception( __( 'There has been an error with the API. Please make sure your API settings are correct and try again.', 'apple-news' ) );
 		}
 	}
 
