@@ -1,0 +1,21 @@
+/**
+ * All of the CSS for your admin-specific functionality should be
+ * included in this file.
+ */
+
+.ndn-plugin-wiz-button span {
+  background: transparent url("../assets/informIcon_20x20.png") no-repeat scroll top left;
+  display: inline-block;
+  height: 20px;
+  margin: 3px 0 0 0;
+  vertical-align: top;
+  width: 20px;
+}
+
+.ndn-plugin-wiz-button.disabled span {
+  opacity: 0.3;
+}
+
+#adminmenu .current .current .wp-menu-image img {
+  opacity: 1;
+}
