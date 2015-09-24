@@ -66,12 +66,14 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 	}
 	#plugins-fp .plugin.hovered .interstitial {
 		display: block;
+		z-index: 2;
 		-moz-animation: expand 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		-webkit-animation: expand 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		animation: expand 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards
 	}
 	#plugins-fp .plugin.hovered .interstitial-inner,
 	#plugins-fp .plugin.activating .interstitial-inner {
+		z-index: 3;
 		-moz-animation: slideUp 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		-webkit-animation: slideUp 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards;
 		animation: slideUp 0.3s cubic-bezier(0.14, 0.61, 0.2, 1) 0s 1 forwards
@@ -168,16 +170,13 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 }
 	#plugins-fp .more-info a:hover {
 		color: #fff;
-		-moz-transform: scale(1.1);
-		-ms-transform: scale(1.1);
-		-webkit-transform: scale(1.1);
-		transform: scale(1.1)
 	}
 
 #plugins-fp .more-info .icon {
 	position: absolute;
 	top: 8px;
-	right: 8px
+	right: 8px;
+	z-index: 5;
 }
 	#plugins-fp .more-info .icon:before {
 		content: '\f455';
