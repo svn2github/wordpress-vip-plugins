@@ -204,6 +204,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Getty Images',
 				'description' => 'Search and use Getty Images photos in your posts without ever leaving WordPress.com.',
 			),
+			'inform-video-match'        => array(
+				'name'        => 'Inform Video Match',
+				'description' => 'Better than free.',
+			),
 			'janrain-capture' => array(
 				'name'        => 'Janrain',
 				'description' => 'User Registration and Social Integration for WordPress.com VIP.',
@@ -223,10 +227,6 @@ class WPcom_VIP_Plugins_UI {
 			'postrelease-vip'        => array(
 				'name'        => 'Nativo',
 				'description' => 'Unlock a premium revenue stream with native ads.',
-			),
-			'ndn-video-match'        => array(
-				'name'        => 'NDN',
-				'description' => 'Better than free.',
 			),
 			'newscred'        => array(
 				'name'        => 'NewsCred',
