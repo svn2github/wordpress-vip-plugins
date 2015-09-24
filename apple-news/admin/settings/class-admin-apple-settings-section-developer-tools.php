@@ -57,4 +57,3 @@ class Admin_Apple_Settings_Section_Developer_Tools extends Admin_Apple_Settings_
 		return __( 'If debugging is enabled, emails will be sent to an administrator for every publish, update or delete action with a detailed API response.', 'apple-news' );
 	}
 }
-

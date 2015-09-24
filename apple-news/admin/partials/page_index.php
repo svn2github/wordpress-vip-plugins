@@ -6,7 +6,10 @@
 		<?php if ( ! empty( $current_screen->parent_base ) ): ?>
 		<input type="hidden" name="page" value="<?php echo esc_attr( $current_screen->parent_base ) ?>">
 		<?php endif; ?>
-		<?php $table->display(); ?>
+		<?php
+			$table->search_box( __( 'Search', 'apple-news' ), 'apple-news-search' );
+			$table->display();
+		?>
 		<?php do_action( 'apple_news_after_index_table' ); ?>
 	</form>
 </div>

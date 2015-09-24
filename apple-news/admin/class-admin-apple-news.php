@@ -62,5 +62,4 @@ class Admin_Apple_News extends Apple_News {
 		echo '.row-actions.is-active { visibility: visible }';
 		echo '</style>';
 	}
-
 }

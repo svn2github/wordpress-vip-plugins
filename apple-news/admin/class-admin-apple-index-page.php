@@ -27,9 +27,12 @@ class Admin_Apple_Index_Page extends Apple_News {
 	function __construct( $settings ) {
 		$this->settings = $settings;
 
+		// Handle routing to various admin pages
 		add_action( 'admin_menu', array( $this, 'setup_admin_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'setup_assets' ) );
 	}
+
+
 
 	/**
 	 * Sets up the admin page.
@@ -125,16 +128,45 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 * @access public
 	 */
 	private function do_redirect() {
-		$url = menu_page_url( $this->plugin_slug . '_index', false );
+		// Perform the redirect
+		wp_safe_redirect( esc_url_raw( self::action_query_params( '', menu_page_url( $this->plugin_slug . '_index', false ) ) ) );
+		exit;
+	}
 
-		// Add a pagination parameter, if applicable
-		if ( ! empty( $_GET['paged'] ) ) {
-			$url = add_query_arg( 'paged', absint( $_GET['paged'] ), $url );
+	/**
+	 * Helps build query params for each row action.
+	 *
+	 * @param string $action
+	 * @param string $url
+	 * @return string
+	 * @access public
+	 * @static
+	 */
+	public static function action_query_params( $action, $url ) {
+		// Set the keys we need to pay attention to
+		$keys = array(
+			'apple_news_publish_status',
+			'apple_news_date_from',
+			'apple_news_date_to',
+			's',
+			'paged',
+		);
+
+		// Start the params
+		$params = array();
+		if ( ! empty( $action ) ) {
+			$params['action'] = $action;
 		}
 
-		// Perform the redirect
-		wp_safe_redirect( esc_url_raw( $url ) );
-		exit;
+		// Add the other params
+		foreach ( $keys as $key ) {
+			if ( ! empty( $_GET[ $key ] ) ) {
+				$params[ $key ] = urlencode( sanitize_text_field( $_GET[ $key ] ) );
+			}
+		}
+
+		// Add to the action URL
+		return add_query_arg( $params, $url );
 	}
 
 	/**
@@ -176,10 +208,14 @@ class Admin_Apple_Index_Page extends Apple_News {
 			return;
 		}
 
+		// Enable jQuery datepicker for the export table date filter
+		wp_enqueue_script( 'jquery-ui-datepicker' );
+
+		// Add the export table script and style
 		wp_enqueue_style( $this->plugin_slug . '_export_table_css', plugin_dir_url(
 			__FILE__ ) .  '../assets/css/export-table.css' );
 		wp_enqueue_script( $this->plugin_slug . '_export_table_js', plugin_dir_url(
-			__FILE__ ) .  '../assets/js/export-table.js', array( 'jquery' ), $this->version, true );
+			__FILE__ ) .  '../assets/js/export-table.js', array( 'jquery', 'jquery-ui-datepicker' ), $this->version, true );
 	}
 
 	/**
