@@ -87,8 +87,10 @@ function sranalytics_insert_js() {
 	// default case of a regular post
 	$title = $post->post_title;
 	$authors = array( get_author_name( $post->post_author ) );
-	$tags = wp_get_post_tags( $post->ID, array( 'fields' => 'names' ) );
-	$channels = wp_get_post_categories( $post->ID, array( 'fields' => 'slugs' ) );
+	$tags = get_the_terms( $post->ID, 'post_tags');
+	$tags = wp_list_pluck( $tags, 'names' );
+	$channels = get_the_terms( $post->ID, 'category' );
+	$channels = wp_list_pluck( $tags, 'slugs' );
 	$published_date = $post->post_date_gmt;
 	$canonical_url = get_permalink( $post->ID );
 
