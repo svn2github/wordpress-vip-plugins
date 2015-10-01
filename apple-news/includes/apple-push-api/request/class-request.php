@@ -143,7 +143,7 @@ class Request {
 		// Build the get request args
 		$args = array(
 			'headers' => array(
-				'Authorization' => $this->sign( $url, 'DELETE' ),
+				'Authorization' => $this->sign( $url, 'GET' ),
 			),
 		);
 

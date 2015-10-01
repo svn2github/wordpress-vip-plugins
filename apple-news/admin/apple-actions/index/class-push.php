@@ -61,12 +61,35 @@ class Push extends API_Action {
 		}
 
 		$api_time   = get_post_meta( $this->id, 'apple_news_api_modified_at', true );
-		$api_time   = strtotime( $api_time );
+		$api_time = strtotime( get_date_from_gmt( date( 'Y-m-d H:i:s', strtotime( $api_time ) ) ) );
 		$local_time = strtotime( $post->post_modified );
 
 		$in_sync = $api_time >= $local_time;
 
 		return apply_filters( 'apple_news_is_post_in_sync', $in_sync, $this->id, $api_time, $local_time );
+	}
+
+	/**
+	 * Get the post using the API data.
+	 * Updates the current relevant metadata stored for the post.
+	 *
+	 * @access private
+	 */
+	private function get() {
+		// Ensure we have a valid ID.
+		$apple_id = get_post_meta( $this->id, 'apple_news_api_id', true );
+		if ( empty( $apple_id ) ) {
+			throw new \Apple_Actions\Action_Exception( __( 'This post does not have a valid Apple News ID, so it cannot be retrieved from the API.', 'apple-news' ) );
+		}
+
+		// Get the article from the API
+		$result = $this->get_api()->get_article( $apple_id );
+		if ( empty( $result->data->revision ) ) {
+			throw new \Apple_Actions\Action_Exception( __( 'The API returned invalid data for this article since the revision is empty.', 'apple-news' ) );
+		}
+
+		// Update the revision
+		update_post_meta( $this->id, 'apple_news_api_revision', sanitize_text_field( $result->data->revision ) );
 	}
 
 	/**
@@ -110,13 +133,17 @@ class Push extends API_Action {
 			do_action( 'apple_news_before_push', $this->id );
 
 			if ( $remote_id ) {
+				// Update the current article from the API in case the revision changed
+				$this->get();
+
+				// Get the current revision
 				$revision = get_post_meta( $this->id, 'apple_news_api_revision', true );
 				$result   = $this->get_api()->update_article( $remote_id, $revision, $json, $bundles );
 			} else {
 				$result = $this->get_api()->post_article_to_channel( $json, $this->get_setting( 'api_channel' ), $bundles );
 			}
 
-			// Save the ID that was assigned to this post in by the API
+			// Save the ID that was assigned to this post in by the API.
 			update_post_meta( $this->id, 'apple_news_api_id', sanitize_text_field( $result->data->id ) );
 			update_post_meta( $this->id, 'apple_news_api_created_at', sanitize_text_field( $result->data->createdAt ) );
 			update_post_meta( $this->id, 'apple_news_api_modified_at', sanitize_text_field( $result->data->modifiedAt ) );
@@ -129,11 +156,13 @@ class Push extends API_Action {
 			do_action( 'apple_news_after_push', $this->id, $result );
 		} catch ( \Apple_Push_API\Request\Request_Exception $e ) {
 			if ( preg_match( '#WRONG_REVISION#', $e->getMessage() ) ) {
-				throw new \Apple_Actions\Action_Exception( __( 'It seems like the article was updated by another call. If the problem persist, try removing and pushing again.', 'apple-news' ) );
+				throw new \Apple_Actions\Action_Exception( __( 'It seems like the article was updated by another call. If the problem persists, try removing and pushing again.', 'apple-news' ) );
 			} else {
 				throw new \Apple_Actions\Action_Exception( __( 'There has been an error with the API. Please make sure your API settings are correct and try again: ', 'apple-news' ) .  $e->getMessage() );
 			}
 		}
+
+		$this->clean_workspace();
 	}
 
 	/**

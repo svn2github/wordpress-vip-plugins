@@ -34,11 +34,12 @@ class Admin_Apple_Post_Sync {
 		}
 
 		// Register update hooks if needed
-		if ( 'yes' == $settings->get( 'api_autosync' ) ) {
+		if ( 'yes' == $settings->get( 'api_autosync' ) || 'yes' == $settings->get( 'api_autosync_update' )  ) {
 			add_action( 'publish_post', array( $this, 'do_publish' ), 10, 2 );
 			add_action( 'before_delete_post', array( $this, 'do_delete' ) );
-			add_filter( 'redirect_post_location', array( $this, 'do_redirect' ) );
 		}
+
+		add_filter( 'redirect_post_location', array( $this, 'do_redirect' ) );
 	}
 
 	/**
@@ -55,9 +56,15 @@ class Admin_Apple_Post_Sync {
 			return;
 		}
 
-		// If the post has been marked as deleted from the API, ignore this update
+		// Proceed based on the current settings for auto publish and update.
+		// Also, if the post has been marked as deleted from the API, ignore this update.
+		$updated = get_post_meta( $id, 'apple_news_api_id', true );
 		$deleted = get_post_meta( $id, 'apple_news_api_deleted', true );
-		if ( $deleted ) {
+		if (
+			( 'yes' != $this->settings->get( 'api_autosync' ) && ! $updated )
+			|| ( 'yes' != $this->settings->get( 'api_autosync_update' ) && $updated )
+			|| $deleted
+		) {
 			return;
 		}
 

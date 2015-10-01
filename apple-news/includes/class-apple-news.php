@@ -30,6 +30,27 @@ class Apple_News {
 	 * @var string
 	 * @access protected
 	 */
-	protected $version = '0.9.1';
+	protected $version = '0.9.2';
 
+	/**
+	 * Extracts the filename for bundling an asset.
+	 * This functionality is used in a number of classes that do not have a common ancestor.
+	 *
+	 * @var string
+	 * @access protected
+	 */
+	public static function get_filename( $path ) {
+		// Remove any URL parameters.
+		// This is important for sites using WordPress VIP or Jetpack Photon.
+		$url_parts = parse_url( $path );
+		if ( empty( $url_parts['path'] ) ) {
+			return '';
+		}
+
+		// Get the filename
+		$filename = basename( $url_parts['path'] );
+
+		// Remove any spaces and return the filename
+		return str_replace( ' ', '', $filename );
+	}
 }

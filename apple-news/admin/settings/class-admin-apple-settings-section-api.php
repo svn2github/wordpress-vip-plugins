@@ -42,6 +42,10 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 				'label'   => __( 'Automatically publish to Apple News', 'apple-news' ),
 				'type'    => array( 'yes', 'no' ),
 			),
+			'api_autosync_update' => array(
+				'label'   => __( 'Automatically update Apple News', 'apple-news' ),
+				'type'    => array( 'yes', 'no' ),
+			),
 		);
 
 		// Add the groups
@@ -49,7 +53,7 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 			'apple_news' => array(
 				'label'       => __( 'Apple News API', 'apple-news' ),
 				'description' => __( 'All of these settings are required for publishing to Apple News', 'apple-news' ),
-				'settings'    => array( 'api_key', 'api_secret', 'api_channel', 'api_autosync' ),
+				'settings'    => array( 'api_key', 'api_secret', 'api_channel', 'api_autosync', 'api_autosync_update' ),
 			),
 		);
 

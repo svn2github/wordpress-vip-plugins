@@ -19,6 +19,7 @@ class Settings {
 		'api_secret'      => '',
 		'api_channel'     => '',
 		'api_autosync'    => 'yes',
+		'api_autosync_update'    => 'yes',
 
 		'post_types'      => array( 'post' ),
 		'show_metabox'    => 'no',
@@ -59,7 +60,6 @@ class Settings {
 
 		// This can either be gallery or mosaic.
 		'gallery_type'   => 'gallery',
-
 		'enable_advertisement' => 'yes',
 	);
 

@@ -80,7 +80,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 		$updated_at = get_post_meta( $post->ID, 'apple_news_api_modified_at', true );
 
 		if ( $updated_at ) {
-			return get_date_from_gmt( date( 'F j, h:i a', strtotime( $updated_at ) ), 'F j, h:i a' );
+			return get_date_from_gmt( date( 'Y-m-d H:i:s', strtotime( $updated_at ) ), 'F j, h:i a' );
 		}
 
 		return __( 'Never', 'apple-news' );
@@ -108,11 +108,11 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 		}
 
 		$updated = get_post_meta( $post->ID, 'apple_news_api_modified_at', true );
-		$updated = strtotime( $updated );
+		$updated = strtotime( get_date_from_gmt( date( 'Y-m-d H:i:s', strtotime( $updated ) ) ) );
 		$local   = strtotime( $post->post_modified );
 
 		if ( $local > $updated ) {
-			return __( 'Needs to be updated'. 'apple-news' );
+			return __( 'Needs to be updated', 'apple-news' );
 		}
 
 		return __( 'Published', 'apple-news' );

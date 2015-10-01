@@ -39,7 +39,7 @@ class Image extends Component {
 	protected function build( $text ) {
 		preg_match( '/src="([^"]*?)"/im', $text, $matches );
 		$url      = esc_url_raw( apply_filters( 'apple_news_build_image_src', $matches[1], $text ) );
-		$filename = preg_replace( '/\\?.*/', '', basename( $url ) );
+		$filename = preg_replace( '/\\?.*/', '', \Apple_News::get_filename( $url ) );
 
 		// Save image into bundle
 		$this->bundle_source( $filename, $url );

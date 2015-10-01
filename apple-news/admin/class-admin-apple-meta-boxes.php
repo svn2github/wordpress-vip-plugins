@@ -141,9 +141,9 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		if ( ! empty( $api_id ) ) {
 			$share_url = get_post_meta( $post->ID, 'apple_news_api_share_url', true );
 			$created_at = get_post_meta( $post->ID, 'apple_news_api_created_at', true );
-			$created_at = empty( $created_at ) ? __( 'None', 'apple-news' ) : date( 'Y-m-d h:m a', strtotime( $created_at ) );
+			$created_at = empty( $created_at ) ? __( 'None', 'apple-news' ) : get_date_from_gmt( date( 'Y-m-d H:i:s', strtotime( $created_at ) ), 'F j, h:i a' );
 			$modified_at = get_post_meta( $post->ID, 'apple_news_api_modified_at', true );
-			$modified_at = empty( $modified_at ) ? __( 'None', 'apple-news' ) : date( 'Y-m-d h:m a', strtotime( $modified_at ) );
+			$modified_at = empty( $modified_at ) ? __( 'None', 'apple-news' ) : get_date_from_gmt( date( 'Y-m-d H:i:s', strtotime( $modified_at ) ), 'F j, h:i a' );
 			?>
 			<p><b><?php esc_html_e( 'Apple News Publish Information', 'apple-news' ) ?></b>
 			<br/><?php esc_html_e( 'ID', 'apple-news' ) ?>: <?php echo esc_html( $api_id ) ?>

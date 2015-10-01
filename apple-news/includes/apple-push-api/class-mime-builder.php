@@ -88,7 +88,7 @@ class MIME_Builder {
 	 * @access public
 	 */
 	public function add_content_from_file( $filepath, $name = 'a_file' ) {
-		$filename     = basename( $filepath );
+		$filename     = \Apple_News::get_filename( $filepath );
 		$file_content = file_get_contents( $filepath );
 		$file_mime    = $this->get_mime_type_for( $filepath );
 
