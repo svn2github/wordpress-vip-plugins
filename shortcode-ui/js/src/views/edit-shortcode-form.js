@@ -1,7 +1,14 @@
 var wp = require('wp'),
-sui = require('sui-utils/sui'),
-backbone = require('backbone'),
-editAttributeField = require( 'sui-views/edit-attribute-field' );
+	sui = require('sui-utils/sui'),
+	backbone = require('backbone'),
+	editAttributeField = require( 'sui-views/edit-attribute-field' ),
+
+	// Additional attribute field types: these fields are all standalone in functionality,
+	// but bundled here for simplicity to save an HTTP request.
+	editAttributeFieldAttachment = require( 'sui-views/edit-attribute-field-attachment' ),
+	editAttributeFieldPostSelect = require( 'sui-views/edit-attribute-field-post-select' ),
+	editAttributeFieldColor = require( 'sui-views/edit-attribute-field-color' );
+
 
 /**
  * Single edit shortcode content view.
@@ -40,7 +47,7 @@ var EditShortcodeForm = wp.Backbone.View.extend({
 				attr_raw: {
 					name: attr.get('value')
 				}
-			}
+			};
 
 			var viewObjName = shortcodeUIFieldData[ type ].view;
 			var tmplName    = shortcodeUIFieldData[ type ].template;
@@ -53,7 +60,7 @@ var EditShortcodeForm = wp.Backbone.View.extend({
 
 		} );
 
-		if ( 0 == this.model.get( 'attrs' ).length && ( ! innerContent || typeof innerContent == 'undefined' ) ) {
+		if ( 0 === this.model.get( 'attrs' ).length && ( ! innerContent || typeof innerContent == 'undefined' ) ) {
 			var messageView = new Backbone.View({
 				tagName:      'div',
 				className:    'notice updated',

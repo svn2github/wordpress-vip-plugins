@@ -81,11 +81,11 @@
 		padding: 10px;
 		border-top: 1px solid #ddd;
 	}
-	
+
 	a.wp-color-result {
 		border-bottom: 1px solid #ccc;
 	}
-	
+
 	.media-toolbar {
 		position: relative;
 		height: auto;
@@ -114,6 +114,17 @@
 		max-width: 100%;
 	}
 
+	input[type="range"] {
+		-webkit-box-shadow: none;
+		box-shadow: none;
+	}
+
+	output.range {
+		display: inline-block;
+		padding: 6px 8px;
+		vertical-align: top;
+	}
+
 	textarea {
 		width: 100%;
 		max-width: 100%;
@@ -139,6 +150,9 @@
 		padding-top: 10px;
 	}
 
+	.description {
+		clear: both;
+	}
 }
 
 @import 'field-image';
