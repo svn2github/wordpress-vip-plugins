@@ -6,10 +6,10 @@
  *  Plugin Name: Inform Video Match
  *  Plugin URI: http://control.newsinc.com/
  *  Description: The Inform Video Match plugin enables you to easily embed videos from the Inform video library into your WordPress post.
- *  Version: 1.1.0
+ *  Version: 1.3.1
  *  Author: Inform, Inc. <wordpress@inform.com>
  *  Author URL: http://www.newsinc.com/
- *  Text Domain: ndn-plugin
+ *  Text Domain: inform-plugin
  *  Domain Path: /languages
  *  License: GPL-2.0+
  *
@@ -72,7 +72,7 @@
     public function __construct()
     {
         $this->plugin_name = 'ndn_plugin';
-        $this->version = '1.1.0';
+        $this->version = '1.3.1';
 
         $this->load_dependencies();
         $this->set_locale();
@@ -168,6 +168,9 @@
 
             // Media Button
             $this->loader->add_action('media_buttons', $plugin_admin, 'add_media_button_wizard', 12);
+
+            // AJAX requests
+            $this->loader->add_action('wp_ajax_set_featured_image', $plugin_admin, 'set_featured_image');
         }
     }
 

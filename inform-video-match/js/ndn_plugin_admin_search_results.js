@@ -28,10 +28,13 @@
     $( '.ndn-search-screenshot' ).on( 'click', ndnPreviewVideo );
     $( '.ndn-search-attributes header span' ).on( 'click', ndnPreviewVideo );
     $( '.ndn-video-settings' ).on( 'click', ndnPreviewVideo );
-    $( '.ndn-configuration-exit span' ).on( 'click', ndnClosePreviewVideo );
+    $( '.ndn-configuration-exit button' ).on( 'click', ndnClosePreviewVideo );
 
     // on responsive change
     $( '.ndn-responsive-checkbox' ).on( 'change', ndnChangedResponsiveCheckbox );
+
+    // on featured image change
+    $( '.ndn-featured-image-checkbox' ).on( 'change', ndnChangedFeaturedImageCheckbox );
 
     // on width change
     $( '.ndn-video-width' ).on( 'input', ndnChangeVideoWidth );
@@ -108,18 +111,20 @@
       var width = $( self ).closest( '.ndn-search' ).find( '.ndn-video-width' ).val(),
         height = ndnCalculateHeight( width );
 
+      $( self ).closest( '.ndn-search' ).find( '.video-width-display' ).text( width );
       // Find the video calculated height of this toggled preview video
       $( self ).closest( '.ndn-search' ).find( '.video-calculated-height' ).text( height );
     }
 
     /**
      * Initial responsive checkbox check for disabling other fields
-     * Not a DRY Solution
+     * TODO refactor
      * @return [type] [description]
      */
     function checkInitialResponsiveCheckbox() {
       if ($( '.ndn-responsive-checkbox' ).is( ':checked' )) {
         $( 'input[name=ndn-video-width]' ).prop( 'disabled', true );
+        $( '.ndn-manual-sizing' ).hide();
         $( '.ndn-video-width-disabled' ).prop( 'disabled', false );
         $( '.ndn-responsive-checkbox-disabled' ).prop( 'disabled', true );
       } else {
@@ -129,9 +134,22 @@
       }
     }
 
+    /**
+     * Initial featured image checkbox check
+     * TODO refactor
+     */
+    function checkInitialFeaturedImageCheckbox() {
+      if ( $( '.ndn-featured-image-checkbox' ).is( ':checked' ) ){
+        $( '.ndn-featured-image-checkbox-disabled' ).prop( 'disabled', true);
+      } else {
+        $( '.ndn-featured-image-checkbox-disabled' ).prop( 'disabled', false);
+      }
+    }
+
     togglePreviewPanel(self);
     initializeHeightText();
     checkInitialResponsiveCheckbox();
+    checkInitialFeaturedImageCheckbox();
   }
 
   /**
@@ -148,7 +166,7 @@
    * @return jQuery change attributes
    */
   function ndnChangedResponsiveCheckbox() {
-    if (this.checked) {
+    if ( this.checked ) {
       $( 'input[name=ndn-video-width]' ).prop( 'disabled', true);
       $( '.ndn-video-width-disabled' ).prop( 'disabled', false);
       $( '.ndn-responsive-checkbox-disabled' ).prop( 'disabled', true);
@@ -156,6 +174,19 @@
       $( 'input[name=ndn-video-width]' ).prop( 'disabled', false);
       $( '.ndn-video-width-disabled' ).prop( 'disabled', true);
       $( '.ndn-responsive-checkbox-disabled' ).prop( 'disabled', false);
+    }
+    $( '.ndn-manual-sizing' ).toggle();
+  }
+
+  /**
+   * On change featured image checkbox
+   * @return jQuery change attributes
+   */
+  function ndnChangedFeaturedImageCheckbox() {
+    if ( this.checked ) {
+      $( '.ndn-featured-image-checkbox-disabled' ).prop( 'disabled', true);
+    } else {
+      $( '.ndn-featured-image-checkbox-disabled' ).prop( 'disabled', false);
     }
   }
 
@@ -169,15 +200,17 @@
   }
 
   /**
-   * Append new height to span
+   * Append new width & height to span
    */
   function ndnChangeVideoWidth() {
     var self = this,
       newWidth = $(this).val(),
       newHeight = ndnCalculateHeight(newWidth);
 
+    // Change the new width value on the span element
+    $( self ).closest( '.ndn-search' ).find( '.video-width-display' ).text( newWidth );
     // Change the new height value on the span element
-    $(self).closest( '.ndn-search' ).find( '.video-calculated-height' ).text(newHeight);
+    $( self ).closest( '.ndn-search' ).find( '.video-calculated-height' ).text( newHeight );
   }
 
   /**
@@ -238,6 +271,7 @@
    * Selects the video from the search results
    */
   function ndnSelectVideo(e) {
+
     // Prevent default
     if (e.preventDefault) {
       e.preventDefault();
@@ -268,6 +302,7 @@
 
     // Include all form data from custom configurations
     values['ndn-responsive'] = $( this ).closest( '.ndn-search' ).find( '.ndn-responsive-checkbox' ).is( ':checked' ) ? 'true' : '' ;
+    values['ndn-featured-image'] = $( this ).closest( '.ndn-search' ).find( '.ndn-featured-image-checkbox' ).is( ':checked' ) ? 'true' : '' ;
     values['ndn-video-width'] = $( this ).closest( '.ndn-search' ).find( '.ndn-video-width' ).val();
     values['ndn-video-height'] = ndnCalculateHeight(values['ndn-video-width']);
     values['ndn-video-start-behavior'] = $( this ).closest( '.ndn-search' ).find( '.ndn-video-start-behavior' ).val();
@@ -307,6 +342,25 @@
 
     var html = buildHtml.prop('outerHTML');
 
+    /**
+     * Sets featured image from the video selected
+     */
+    function setFeaturedImage() {
+      // Set featured image
+      var eventPayload = {
+        'detail': {
+          src: values['ndn-video-thumbnail'],
+          alt: values['ndn-video-description']
+        }
+      };
+      var videoSelected = new CustomEvent( 'videoSelected', eventPayload );
+      self.parent.dispatchEvent( videoSelected );
+    }
+
+    /**
+     * Inserts select image to the visual editor
+     * @return {[type]} [description]
+     */
     function insertSelectedImage() {
       // Insert Image placeholder
       media.editor.insert(html);
@@ -314,6 +368,11 @@
       media.editor.insert( ' ' );
       // Remove thickbox
       self.parent.tb_remove();
+    }
+
+    // if set featured image selected, set the featured image
+    if ( values['ndn-featured-image'] ) {
+      setFeaturedImage();
     }
 
     // Wait for the image to load

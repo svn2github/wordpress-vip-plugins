@@ -65,6 +65,7 @@ class NDN_Plugin_Admin
         'ndn_default_responsive' => 'ndn-default-responsive',
         'ndn_default_video_position' => 'ndn-default-video-position',
         'ndn_default_start_behavior' => 'ndn-plugin-default-start-behavior',
+        'ndn_default_featured_image' => 'ndn-plugin-default-featured-image'
     );
 
     /**
@@ -76,6 +77,7 @@ class NDN_Plugin_Admin
         'ndn_video_width' => 'ndn-video-width',
         'ndn_video_start_behavior' => 'ndn-video-start-behavior',
         'ndn_video_position' => 'ndn-video-position',
+        'ndn_featured_image' => 'ndn-featured-image'
     );
 
     /**
@@ -173,9 +175,12 @@ class NDN_Plugin_Admin
      */
     public function enqueue_scripts()
     {
+        global $post;
         wp_enqueue_media();
         wp_enqueue_script( $this->plugin_name, NDN_PLUGIN_DIR . '/js/ndn_plugin_admin.js', array( 'jquery' ), $this->version, false );
-    }
+        if ( $post ) {
+          wp_localize_script( $this->plugin_name, 'NDNAjax', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'postID' => $post->ID ) );
+        }    }
 
     /**
      * Register the JavaScript for the admin post pages
@@ -781,17 +786,16 @@ class NDN_Plugin_Admin
             $response = $this->run_text_search( $access_token, $query );
             if ( $response ) {
                 $decoded_response = json_decode( $response['body'] );
-
                 if ( !get_option( 'ndn_refresh_token' ) ) {
                     $redirect_location = admin_url( 'admin.php?page=inform-plugin-login%3F&iframe=true' );
                     wp_safe_redirect( esc_url_raw( $redirect_location ) );
                     exit;
-                } elseif ( !$decoded_response->response || $response == 'unexpected error' ) {
-                    echo '<p>Search not found. Go back and try searching again.</p>';
+                } elseif ( !$decoded_response->response ) {
+                    echo '<p>No Results Found. Go back and try searching again.</p>';
                 } else {
                     // Saving data in cache, set to expire in 10 minutes
+                    $cache_key = 'ndn_query_' . $query;
                     wp_cache_add( $cache_key, $response, '', 600 );
-
                     // Sort Videos by Recency
                     $videos = array();
                     $response_videos = $decoded_response->response->videos;
@@ -799,11 +803,10 @@ class NDN_Plugin_Admin
                         $videos[$key] = $row->publish_date;
                     }
                     array_multisort( $videos, SORT_DESC, $response_videos );
-
                     // Set search_results as response
                     self::save_option( 'ndn_search_results', $response_videos ); // Recency
 
-                    $redirect_location = 'admin.php?page=inform-video-search-results%3F&iframe=true';
+                    $redirect_location = admin_url( 'admin.php?page=inform-video-search-results%3F&iframe=true' ) ;
                     wp_safe_redirect( esc_url_raw( $redirect_location ) );
                     exit;
                 }
@@ -840,7 +843,7 @@ class NDN_Plugin_Admin
               'headers' => $headers
             );
 
-            $response = vip_safe_wp_remote_get( $wp_get_url, '', 3, 3, 20, $wp_get_args );
+            $response = vip_safe_wp_remote_get( $wp_get_url, '', 10, 3, 20, $wp_get_args );
 
             if ( is_array( $response ) ) {
                 if ( array_key_exists( 'response', $response ) ) {
@@ -929,5 +932,75 @@ class NDN_Plugin_Admin
         $options['custom_elements']         .= 'img[ndn-config-video-id|ndn-video-element-id|ndn-config-widget-id|ndn-tracking-group|ndn-site-section-id|ndn-video-width|ndn-video-height|ndn-responsive|class|src|border|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|style]';
 
         return $options;
+    }
+
+    /**
+     * Set featured image from $url
+     */
+    public function set_featured_image()
+    {
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-includes/pluggable.php');
+
+        $url = sanitize_text_field( $_POST['url'] );
+        $post_id = sanitize_text_field( $_POST['postID'] );
+        $desc = sanitize_text_field( $_POST['description'] );
+
+        // Sideload image, returns image src
+        $image_id = $this->sideload_featured_image($url, $post_id, $desc);
+        if ( is_wp_error( $image_id ) ) {
+            wp_die( 0 );
+        } else {
+            // Set featured image
+            set_post_thumbnail( $post_id, $image_id );
+
+            $return = _wp_post_thumbnail_html( $image_id, $post_id );
+            wp_die( $return );
+        }
+    }
+
+    /**
+     * Re-written media_sideload_image function to return attachment ID instead of html
+     * @param  string $file    url of the file
+     * @param  int    $post_id post id of the post being edited
+     * @param  string $desc    description of the image, for alt tags
+     * @return int             attachment id of image
+     */
+    function sideload_featured_image( $file, $post_id, $desc = null ) {
+        if ( ! empty( $file ) ) {
+
+    		// Set variables for storage, fix file filename for query strings.
+    		preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file, $matches );
+    		$file_array = array();
+    		$file_array['name'] = basename( $matches[0] );
+
+    		// Download file to temp location.
+    		$file_array['tmp_name'] = download_url( $file );
+
+    		// If error storing temporarily, return the error.
+    		if ( is_wp_error( $file_array['tmp_name'] ) ) {
+    			return $file_array['tmp_name'];
+    		}
+
+    		// Do the validation and storage stuff.
+    		$id = media_handle_sideload( $file_array, $post_id, $desc );
+
+    		// If error storing permanently, unlink.
+    		if ( is_wp_error( $id ) ) {
+    			@unlink( $file_array['tmp_name'] );
+    			return $id;
+    		}
+
+    		$src = wp_get_attachment_url( $id );
+    	}
+
+    	// Finally, check to make sure the file has been saved, then return the id.
+    	if ( ! empty( $src ) ) {
+    		return $id;
+    	} else {
+    		return new WP_Error( 'image_sideload_failed' );
+    	}
     }
 }

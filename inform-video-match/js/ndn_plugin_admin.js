@@ -10,6 +10,7 @@
     // Event Listeners for plugin actions
     ndnChangedResponsiveCheckbox();
     jQuery( '.ndn-responsive-checkbox' ).change( ndnChangedResponsiveCheckbox );
+    jQuery( '.ndn-featured-image-checkbox').change( ndnChangedFeaturedImageCheckbox );
 
     // Login Toggle
     jQuery( '.ndn-login-form-type' ).change( ndnChangeLoginForm );
@@ -31,6 +32,9 @@
     jQuery( 'form[name="ndn-plugin-default-settings-form"]' ).on('submit', ndnGASubmitEvent);
     jQuery( '.ndn-notify-credentials' ).on('click', ndnGAClickEvent);
     jQuery( '.ndn-notify-settings' ).on('click', ndnGAClickEvent);
+
+    // Register functions
+    window.addEventListener( 'videoSelected' , assignFeaturedImage, false );
   });
 
   /**
@@ -45,6 +49,17 @@
       $( 'input[name=ndn-plugin-default-width]' ).prop( 'disabled', false );
       $( '.ndn-default-width-disabled' ).prop( 'disabled', true );
       $( '.ndn-responsive-checkbox-disabled' ).prop( 'disabled', false );
+    }
+  }
+
+  /**
+   * On change featured image checkbox
+   */
+  function ndnChangedFeaturedImageCheckbox() {
+    if ($( '.ndn-featured-image-checkbox' ).is( ':checked' )) {
+      $( '.ndn-featured-image-checkbox-disabled' ).prop( 'disabled', true );
+    } else {
+      $( '.ndn-featured-image-checkbox-disabled' ).prop( 'disabled', false );
     }
   }
 
@@ -169,6 +184,40 @@
     label = jqForm.attr( 'analytics-label' );
 
     ga('send', 'event', category, 'submit', label);
+  }
+
+  /**
+   * assign featured image to Post
+   * @param  {String} url link to the thumbnail
+   */
+  function assignFeaturedImage ( event ) {
+    // Create data object
+    var data = {
+      action: 'set_featured_image',
+      url: event.detail.src,
+      description: event.detail.alt,
+      postID: NDNAjax.postID
+    };
+
+    /**
+     * After image has been assigned, replace div with HTML response from Server
+     * @param  {string} response html response for replacing postimagediv
+     */
+    function onImageAssigned ( response ) {
+      if ( response ) {
+        if (jQuery( '#postimagediv .hide-if-no-js' ).length > 1 ) {
+          jQuery( '#postimagediv .hide-if-no-js' ).remove();
+          jQuery( '#postimagediv .inside').append( response );
+        } else {
+          jQuery( '#postimagediv .hide-if-no-js' ).replaceWith( response );
+        }
+      }
+      // End Spinner
+      tb_remove();
+    }
+    // Start Spinner
+    tb_click();
+    jQuery.post( NDNAjax.ajaxUrl, data, onImageAssigned );
   }
 
 })( jQuery );

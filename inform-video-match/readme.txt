@@ -120,6 +120,16 @@ If you have any concerns about this, let Wordpress know on their [support page](
 
 == Changelog ==
 
+= 1.3.0 =
+* Allows user to set any post with a video inserted to use that video's thumbnail as the featured image
+
+= 1.2.0 =
+* Allow user to set video thumbnail as featured image on post
+
+= 1.1.0 =
+* Rebranding Changes
+* Bug fix for no image loaded on the visual editor
+
 = 0.1.12 =
 * Updated i18n domains
 
@@ -145,6 +155,16 @@ If you have any concerns about this, let Wordpress know on their [support page](
 * Initial Release
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+* Allows user to set any post with a video inserted to use that video's thumbnail as the featured image
+
+= 1.2.0 =
+* Allow user to set video thumbnail as featured image on post
+
+= 1.1.0 =
+* Rebranding Changes
+* Bug fix for no image loaded on the visual editor
 
 = 0.1.12 =
 * Updated i18n domains

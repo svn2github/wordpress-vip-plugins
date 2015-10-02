@@ -93,7 +93,8 @@
 									'ndn_default_responsive' => get_option('ndn_default_responsive') == '1',
 									'ndn_default_width' => get_option('ndn_default_width') ? get_option('ndn_default_width') : '425',
 									'ndn_default_video_position' => get_option('ndn_default_video_position'),
-									'ndn_default_start_behavior' => get_option('ndn_default_start_behavior')
+									'ndn_default_start_behavior' => get_option('ndn_default_start_behavior'),
+									'ndn_default_featured_image' => get_option('ndn_default_featured_image') == '1'
 								);
 							?>
 
@@ -154,6 +155,15 @@
 												<option value="<?php echo esc_attr($selection['value']) ?>" <?php echo ( $ndn_settings['ndn_default_start_behavior'] == $selection['value'] ? esc_attr('selected="selected"') : '' ) ?>><?php echo esc_html( $selection['name'] ) ?></option>
 											<?php } ?> <!-- End FOR -->
 										</select><br />
+									</fieldset>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<legend class="screen-reader-text"><span>Set Featured Image</span></legend>
+										<label for="<?php echo esc_attr( self::$settings_form_options['ndn_default_featured_image'] ) ?>">
+											<input class="ndn-featured-image-checkbox" type="checkbox" name="<?php echo esc_attr( self::$settings_form_options['ndn_default_featured_image'] ) ?>" value="1" <?php echo ( $ndn_settings['ndn_default_featured_image'] ? esc_attr('checked') : '' ) ?> />
+											<input class="ndn-featured-image-checkbox-disabled" type='hidden' name='<?php echo esc_attr( self::$settings_form_options['ndn_default_featured_image'] ) ?>' value="not_checked" />
+											<span><?php esc_html_e( 'Set Featured Image', 'ndn_admin' ); ?></span>
+										</label>
 									</fieldset>
 
 									<input type="hidden" name="ndn-save-settings" value="1" />
