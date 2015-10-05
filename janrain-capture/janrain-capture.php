@@ -24,9 +24,8 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 		 * Initializes the plugin.
 		 */
 		function init() {
-			if ( ! headers_sent() ){
-				header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
-			}
+			header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+
 			$this->path = plugin_dir_path( __FILE__ );
 			$this->url  = plugin_dir_url( __FILE__ );
 
@@ -73,15 +72,13 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 
 			// check our redirect
 			$r = isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : home_url();
-			$r = wp_validate_redirect( $r, home_url() );
+ 			$r = wp_validate_redirect($r, home_url());
 
 			// Escaping - applied early due to heredoc
-			if ( function_exists( 'wp_json_encode' ) ) {
-				$r = wp_json_encode( $r );
-			} elseif( function_exists( 'json_encode') ) {
-				$r = json_encode( $r );
-			} else {
-				$r = '"' . esc_url( $r ) . '"';
+			if (function_exists('wp_json_encode')){
+				$r = wp_json_encode($r);
+			}elseif(function_exists('json_encode')){
+				$r = json_encode($r);
 			}
 
 			echo <<<REDIRECT
@@ -172,16 +169,14 @@ SCREEN2;
 			$s = isset( $_SERVER['HTTPS'] ) ? '; secure' : '';
 			$n = self::$name;
 			$r = isset( $_GET['source'] ) ? $_GET['source'] : home_url();
-			$r = wp_validate_redirect( $r, home_url() );
+ 			$r = wp_validate_redirect( $r, home_url());
 
 			// Escaping - applied early due to heredoc
-			if ( function_exists( 'wp_json_encode' ) ) {
-				$r = wp_json_encode( $r );
-			} elseif( function_exists( 'json_encode') ) {
-				$r = json_encode( $r );
-			} else {
-				$r = '"' . esc_url( $r ) . '"';
- 			}
+			if (function_exists('wp_json_encode')){
+				$r = wp_json_encode($r);
+			}elseif(function_exists('json_encode')){
+				$r = json_encode($r);
+			}
 
 			echo <<<LOGOUT
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
@@ -212,8 +207,8 @@ LOGOUT;
 		 */
 		function shortcode( $args ) {
 			$atts = array(
-					'text' => 'Sign in / Register',
-					'action' => 'signin',
+				'text' => 'Sign in / Register',
+				'action' => 'signin',
 			);
 
 			$atts = shortcode_atts( $atts, $args );
@@ -294,7 +289,7 @@ LOGOUT;
 			}
 			$realm			 = self::get_option( self::$name . '_rpx_realm' );
 			$share_providers = JanrainCapture::get_option( JanrainCapture::$name . '_rpx_share_providers' );
-			$share_providers = implode( "', '", array_map( 'esc_js', (array)$share_providers ) );
+			$share_providers = implode( "', '", array_map( 'esc_js', $share_providers ) );
 			return ($realm && "['$share_providers']");
 		}
 
@@ -310,8 +305,12 @@ LOGOUT;
 			$social_providers = self::get_option( self::$name . '_rpx_share_providers' );
 			if ( is_array( $social_providers ) ) {
 				$rpx_social_icons = '';
-				foreach ( $social_providers as $val ) {
-					$rpx_social_icons .= '<span class="janrain-provider-icon-16 janrain-provider-icon-' . esc_attr( $val ) . '" rel="' . esc_attr( $val ) . '" onclick="' . esc_js( $onclick ) . '"></span>';
+				foreach($social_providers as $val) {
+					$rpx_social_icons .= sprintf(
+						"<span class='janrain-provider-icon-16 janrain-provider-icon-%s' rel='%s' onclick='%s'></span>",
+						esc_attr($val),
+						esc_attr($val),
+						esc_js($onclick));
 				}
 				$buttons = '<span class="rpx_social_icons">' . $rpx_social_icons . '</span>';
 				return $buttons;

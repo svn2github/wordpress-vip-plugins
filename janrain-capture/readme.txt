@@ -1,8 +1,8 @@
 === Social User Registration and Profile Storage with Janrain Capture ===
-Contributors: byronjanrain, kylejanrain, rebekahjanrain
+Contributors: byronjanrain, kylejanrain, rebekahjanrain, pbjanrain
 Tags: capture, janrain, sso
 Requires at least: 3.5
-Tested up to: 3.8.3
+Tested up to: 4.3
 License: APL
 Stable tag: trunk
 

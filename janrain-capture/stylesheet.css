@@ -7,9 +7,9 @@
 		padding:5px;
 		background: #F0F0F0;
 		color:#666;
-		-moz-border-radius: 3px; 
+		-moz-border-radius: 3px;
 		-webkit-border-radius: 3px;
-		border-radius: 3px 3px; 
+		border-radius: 3px 3px;
 }
 
 .janrain-share-text{
@@ -17,10 +17,10 @@
 	top: 1px;
 }
 
-.janrain-provider-icon-16, .janrain-provider-icon-32 {			
+.janrain-provider-icon-16, .janrain-provider-icon-32 {
 		margin-left: 5px !important;
-		margin-bottom: 1px !important; 
-		cursor:pointer !important; 
+		margin-bottom: 1px !important;
+		cursor:pointer !important;
 }
 
 #janrain_capture_main select[multiple],

@@ -158,6 +158,7 @@ function janrainSignOut(){
 	janrain.settings.capture.setProfileCookie = true;
 	janrain.settings.capture.keepProfileCookieAfterLogout = true;
 	janrain.settings.capture.setProfileData = 'true';
+
 	janrain.settings.capture.federateEnableSafari = true;
 
 	// styles
@@ -184,7 +185,7 @@ WIDGETCAPTURE;
 		<?php
 			if ( isset($settings['capture.backplaneServerBaseUrl']) && $settings['capture.backplaneServerBaseUrl'] != '' ) {
 				?>
-			janrain.settings.capture.backplaneServerBaseUrl = 'https://<?php echo $settings['capture.backplaneServerBaseUrl']?>';
+			janrain.settings.capture.backplaneServerBaseUrl = 'https://<?php echo $settings['capture.backplaneServerBaseUrl'] ?>';
 				<?php
 			}
 		}

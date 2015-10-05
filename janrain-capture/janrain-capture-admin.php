@@ -102,7 +102,7 @@ class JanrainCaptureAdmin {
 			array(
 				'name' => JanrainCapture::$name . '_sso_address',
 				'title' => 'Application Domain',
-				'description' => 'Your Janrain Federate SSO domain <br/>(example: demo.janrainsso.com)',
+				'description' => 'Your Janrain Federate SSO domain with protocol <br/>(example: https://demo.janrainsso.com)',
 				'default' => '',
 				'type' => 'text',
 				'screen' => 'main',

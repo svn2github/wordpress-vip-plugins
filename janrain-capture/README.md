@@ -23,7 +23,7 @@ By default, [janrain_capture] will result in a link with the text "Sign in / Reg
 
 [janrain_capture text="Register"]
 
-The Edit Profile page for Capture requires creating a new WordPress page and adding only the following shortcode to it: [janrain_capture action="edit_profile"] 
+The Edit Profile page for Capture requires creating a new WordPress page and adding only the following shortcode to it: [janrain_capture action="edit_profile"]
 
 To insert links in your theme templates you can use the [do\_shortcode](http://codex.wordpress.org/Function_Reference/do_shortcode) WordPress function.
 
