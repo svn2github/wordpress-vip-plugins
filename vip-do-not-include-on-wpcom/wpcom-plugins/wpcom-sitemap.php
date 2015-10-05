@@ -6,8 +6,6 @@
  * @version 2.0
  * @link http://sitemaps.org/protocol.php Base sitemaps protocol
  * @link http://www.google.com/support/webmasters/bin/answer.py?answer=74288 Google news sitemaps
- *
- * Note: this plugin is very old and does some "interesting" things for the sake of performance. Don't judge us based on it.
  */
 
 
@@ -80,7 +78,7 @@ function wpcom_print_xml_tag( $array ) {
  */
 function wpcom_sitemap_array_to_simplexml($data, &$tree ) {
 	$doc_namespaces = $tree->getDocNamespaces();
-	
+
 	foreach( $data as $key => $value ) {
 		// Allow namespaced keys by use of colon in $key, namespaces must be part of the document
 		$namespace = null;
@@ -89,7 +87,7 @@ function wpcom_sitemap_array_to_simplexml($data, &$tree ) {
 			if ( isset( $doc_namespaces[$namespace_prefix] ) )
 				$namespace = $doc_namespaces[$namespace_prefix];
 		}
-		
+
 		if ( is_array( $value ) ) {
 			$child = $tree->addChild( $key, null, $namespace );
 			wpcom_sitemap_array_to_simplexml( $value, $child );
@@ -142,11 +140,11 @@ function wpcom_print_sitemap() {
 	global $wpdb, $current_blog;
 	$key = sitemap_cache_key();
 	$xml = wp_cache_get( $key, 'sitemap' );
-	
+
 	$post_types = array( 'post', 'page' );
-		
+
 	if ( empty($xml) ) {
-				
+
 		$post_types_in = array();
 		$post_types = apply_filters('wpcom_sitemap_post_types', $post_types);
 		foreach( (array) $post_types as $post_type )
@@ -164,7 +162,7 @@ function wpcom_print_sitemap() {
 		// If we did not get a valid string, force UTF-8 and try again.
 		if( false === $tree ) {
 			$initstr = wpcom_sitemap_initstr( 'UTF-8' );
-			$tree = simplexml_load_string( $initstr );	
+			$tree = simplexml_load_string( $initstr );
 		}
 
 		// Acquire necessary attachment data for all of the posts in a performant manner
@@ -226,7 +224,7 @@ function wpcom_print_sitemap() {
 				foreach ( $attachments as $attachment ) {
 					$attachment_url = false;
 					if ( $attachment->guid ) {
-						
+
 						// Copied from core's wp_get_attachment_url(). We already
 						// have the guid value, so we don't want to get it again.
 						// Note: we're using the WP.com version of the function.
@@ -334,7 +332,7 @@ function wpcom_print_news_sitemap($format) {
 			LEFT JOIN $wpdb->terms AS t ON tt.term_id = t.term_id
 		WHERE
 			post_status='publish' AND post_type IN ( {$post_types_in_string} ) AND post_date_gmt > (%s - INTERVAL 2 DAY)
-		GROUP BY p.ID	
+		GROUP BY p.ID
 		ORDER BY p.post_date_gmt DESC LIMIT %d", $cur_datetime, $limit );
 
 	header('Content-Type: application/xml');
@@ -357,15 +355,15 @@ function wpcom_print_news_sitemap($format) {
 
 		$GLOBALS['post'] = $post;
 		$url = array();
-		$url['loc'] = get_permalink($post->ID);
+		$url['loc'] = get_permalink( $post->ID );
 		$news = array();
-		$news['n:publication']['n:name'] = html_entity_decode( get_bloginfo( 'name' ), ENT_XML1 );
+		$news['news:publication']['news:name'] = get_bloginfo_rss( 'name' );
 		if ( function_exists( 'get_blog_lang_code' ) )
-			$news['n:publication']['n:language'] = get_blog_lang_code() ;
-		$news['n:publication_date'] = w3cdate_from_mysql($post->post_date_gmt);
-		$news['n:title'] = html_entity_decode( $post->post_title, ENT_XML1 );
-		if ( $post->keywords ) $news['n:keywords'] = html_entity_decode( $post->keywords, ENT_XML1 );
-		$url['n:news'] = $news;
+			$news['news:publication']['news:language'] = get_blog_lang_code() ;
+		$news['news:publication_date'] = w3cdate_from_mysql($post->post_date_gmt);
+		$news['news:title'] = get_the_title_rss();
+		if ( $post->keywords ) $news['news:keywords'] = html_entity_decode( ent2ncr( $post->keywords ) , ENT_HTML5 );
+		$url['news:news'] = $news;
 
 		// Add image to sitemap
 		if ( current_theme_supports( 'post-thumbnails' ) && has_post_thumbnail( $post->ID ) ) {
@@ -376,10 +374,10 @@ function wpcom_print_news_sitemap($format) {
 		}
 
 		$url = apply_filters( 'wpcom_sitemap_news_sitemap_item', $url, $post );
-		
+
 		if ( empty( $url ) )
 			continue;
-		
+
 		wpcom_print_sitemap_item($url);
 	endforeach;
 ?>
@@ -387,49 +385,6 @@ function wpcom_print_news_sitemap($format) {
 <?php
 	die();
 }
-/**
-* Transitionary solution in migration from n to news namespace
-* 
-* While we get all the VIP clients that have filters that changing the namespace 
-* would impact we will convert n: to news: as late as possible. 
-* 
-* @param mixed $url
-*/
-function wpcom_sitemap_n_to_news_namespace( $url ) {
-
-	if ( empty( $url ) ){
-		return $url;
-	}
-	
-	//We are going to take both n and news namespace arrays since filters will potentially have added items to n or to news. 
-	//We prioritize items from news since this is the newer namespace
-	$news_n = $url['n:news'];
-	$news_news = $url['news:news'];
-	
-	//loop thru the old n: bucket and its subheadings and only put in items that are not already present in the current news: bucket (presumably added by filters)
-	foreach ( $news_n as $current_sitemap_index => $value ) {
-		if ( is_array( $value ) ){
-			foreach( $value as $current_sitemap_index_subheader => $sub_value ) {
-				$new_sub_index = str_replace( 'n:', 'news:', $current_sitemap_index_subheader );
-				if ( $new_sub_index !== false ) {
-					$value[ $new_sub_index ] = $sub_value;
-					unset( $value[ $current_sitemap_index_subheader ] );
-				}
-			}
-		}
-		
-		$new_index = str_replace( 'n:', 'news:', $current_sitemap_index );
-		if ( ! isset( $news_news[ $new_index ] ) ){ //only input the new "news:" value generated from n: if there has not been one created by a filter earlier on
-			$news_news[ $new_index ] = $value;
-		}
-	}
-	
-	$url['news:news'] = $news_news;
-	unset( $url['n:news'] );
-	
-	return $url;
-}
-add_filter( 'wpcom_sitemap_news_sitemap_item', 'wpcom_sitemap_n_to_news_namespace', 1000 );
 
 /**
  * Absolute URL of the current blog's sitemap
@@ -461,8 +416,8 @@ function news_sitemap_uri() {
 function sitemap_endpoints() {
 	return apply_filters( 'sitemap_ping_uris', array(
 		'www.google.com/webmasters/tools/ping?sitemap=',
-	  	'http://search.yahooapis.com/SiteExplorerService/V1/updateNotification?appid=' . urlencode(WPAS__YAHOO_UPDATES_APPLICATION_ID) . '&url=', // appid is WPCOM id
-  		'http://www.bing.com/webmaster/ping.aspx?siteMap='
+		'http://search.yahooapis.com/SiteExplorerService/V1/updateNotification?appid=' . urlencode(WPAS__YAHOO_UPDATES_APPLICATION_ID) . '&url=', // appid is WPCOM id
+		'http://www.bing.com/webmaster/ping.aspx?siteMap='
 	));
 }
 
@@ -532,7 +487,7 @@ if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
 		add_action( 'init', 'wpcom_print_sitemap', 999 ); // run later so things like custom post types have been registered
 	} elseif ( $_SERVER['REQUEST_URI'] == '/news-sitemap.xml' ) {
 		add_action( 'init', 'wpcom_print_news_sitemap', 999 ); // run later so things like custom post types have been registered
-	
+
 	}
 }
 
