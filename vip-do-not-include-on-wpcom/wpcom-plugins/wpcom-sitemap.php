@@ -483,9 +483,11 @@ if ( ! function_exists( 'is_publicly_available' ) || is_publicly_available() ) {
 	add_action( 'trash_post', 'sitemap_handle_update', 12, 1 );
 	add_action( 'deleted_post', 'sitemap_handle_update', 12, 1 );
 
-	if ( $_SERVER['REQUEST_URI'] == '/sitemap.xml' ) {
+	$protocol = is_ssl() ? 'https://' : 'http://';
+	$request_url = $protocol . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+	if ( $request_url == home_url( 'sitemap.xml' ) ) {
 		add_action( 'init', 'wpcom_print_sitemap', 999 ); // run later so things like custom post types have been registered
-	} elseif ( $_SERVER['REQUEST_URI'] == '/news-sitemap.xml' ) {
+	} elseif ( $request_url == home_url( 'news-sitemap.xml' ) ) {
 		add_action( 'init', 'wpcom_print_news_sitemap', 999 ); // run later so things like custom post types have been registered
 
 	}
