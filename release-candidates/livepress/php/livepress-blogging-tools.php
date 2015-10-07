@@ -97,14 +97,14 @@ final class LivePress_Blogging_Tools {
 			// Check if we're posting updates to a Twitter account and use
 			// it for twitter site handle:
 			$options = get_option( LivePress_Administration::$options_name );
-			if ( $options['post_to_twitter'] == true && ! empty( $options['oauth_authorized_user'] ) ) {
+			if ( true === $options['post_to_twitter'] && ! empty( $options['oauth_authorized_user'] ) ) {
 				echo '<meta name="twitter:site" content=' . esc_attr( $options['oauth_authorized_user'] ) . "\" />\n";
 			}
 
 			// Facebook Open Graph:
-			$old_title =$this->lp_strip_shortcodes( urldecode( $data->title ) );
+			$old_title = $this->lp_strip_shortcodes( urldecode( $data->title ) );
 			$title     = wp_kses( apply_filters( 'the_title', $old_title ), array() );
-			echo '<meta property="og:title" content="' .  esc_attr( $title ). "\" />\n";
+			echo '<meta property="og:title" content="' . esc_attr( $title ) . "\" />\n";
 			echo '<meta property="og:type" content="' . esc_attr( $data->type ) . "\" />\n";
 			echo '<meta property="og:url" content="' . esc_url( $canonical_url ) . "\" />\n";
 			echo '<meta property="og:image" content="' . esc_attr( $data->img ) . "\" />\n";
@@ -112,24 +112,25 @@ final class LivePress_Blogging_Tools {
 			echo '<meta property="og:site_name" content="' . esc_attr( get_bloginfo( 'name' ) ) . "\" />\n";
 
 			$old_description = $this->lp_strip_shortcodes( urldecode( $data->description ) );
-			$description = wp_kses( apply_filters( 'the_excerpt', $old_description ), array() );
-			echo '<meta property="og:description" content="' . esc_html( $description ). "\" />\n";
+			$description     = wp_kses( apply_filters( 'the_excerpt', $old_description ), array() );
+			echo '<meta property="og:description" content="' . esc_html( trim( $description ) ) . "\" />\n";
 
-
-
-			if ( isset( $_GET['lp_close_popup'] ) ) {
-				echo('<script type="text/javascript">window.close();</script>');
-			}else{
-				$post_url = $post_parent_url . '#livepress-update-' . $id;
-				echo '<meta http-equiv="refresh" content="2;URL=' . $post_url . "\">\n";
-				echo "<script type=\"text/javascript\">window.location.replace('" . $post_url . "');</script>\n";
+			if ( ! isset( $_GET['lp_debug'] ) ) {
+				if ( isset( $_GET['lp_close_popup'] ) ) {
+					echo( '<script type="text/javascript">window.close();</script>' );
+				} else {
+					$post_url = $post_parent_url . '#livepress-update-' . $id;
+					echo '<meta http-equiv="refresh" content="2;URL=' . $post_url . "\">\n";
+					echo "<script type=\"text/javascript\">window.location.replace('" . $post_url . "');</script>\n";
+				}
 			}
+
 
 			echo "</head>\n";
 			echo "<body>\n";
 			if ( isset( $_GET['lp_close_popup'] ) ) {
-				echo '<p>' . esc_html( __('Your post has sent to Facebook you may close this window now.', 'livepress') ) . "</p>\n";
-			}else{
+				echo '<p>' . esc_html( __( 'Your post has sent to Facebook you may close this window now.', 'livepress' ) ) . "</p>\n";
+			} else {
 				echo '<p>' . esc_html( $data->description ) . "</p>\n";
 			}
 			echo "</body>\n</html>\n";
@@ -137,6 +138,11 @@ final class LivePress_Blogging_Tools {
 		}
 	}
 
+	/**
+	 * @param $id
+	 *
+	 * @return mixed
+	 */
 	private function lp_get_single_update( $id ) {
 		global $wpdb;
 
@@ -155,17 +161,31 @@ final class LivePress_Blogging_Tools {
 		return $theresult;
 	}
 
+	/**
+	 * @param $update
+	 *
+	 * @return stdClass
+	 */
 	private function opengraph_data( $update ) {
 		$data              = new stdClass();
 		$data->description = '';
 		// TODO: make this customizable:
 		$data->type  = 'article';
 		$data->title = $this->headline_title( $update );
+		if ( ! $data->title ) {
+			$data->title = get_the_title();
+		}
 
 		$content = $this->remove_author_info( $update->post_content );
+
+		// look for alt / caption for later
+		$image_alt = $this->look_for_alt( $content );
+
 		$content = wp_strip_all_tags(
 			preg_replace( '/\[livepress_metainfo.+\]/', '', $content )
 		);
+		// remove [caption]
+		$content = preg_replace( '/\[caption.*\[\/caption\]/i', '', $content );
 
 		// Check tweets first since their content is already cached:
 		if ( 1 === preg_match( '/https?:\/\/twitter\.com\S*/', $content, $matches ) ) {
@@ -173,6 +193,7 @@ final class LivePress_Blogging_Tools {
 			$tweet_data        = wp_oembed_get( $matches[0] );
 			$data->description = wp_strip_all_tags( $tweet_data );
 			$data->img         = $this->og_image( $update );
+
 			if ( ! $data->title ) {
 				$data->title = wp_trim_words( $data->description, 10, esc_html__( '&hellip;', 'livepress' ) );
 			}
@@ -182,6 +203,7 @@ final class LivePress_Blogging_Tools {
 		} elseif ( preg_match( '/^(https?:\/\/)\S*/i', $content, $matches ) ) {
 			// oEmbed update:
 			$odata = get_transient( 'lpup_' . LP_PLUGIN_VERSION . '_' . $update->ID );
+
 			if ( false === $odata ) {
 				// Get oEmbed data
 				$url = $matches[0];
@@ -212,17 +234,30 @@ final class LivePress_Blogging_Tools {
 		if ( ! $data->title ) {
 			$data->title = $this->og_title( $content );
 		}
-		if ( count( $content ) > 0 && $content != '' ) {
+
+
+		if ( count( $content ) > 0 && '' !== $content ) {
 			$data->description = wp_trim_words( $content, 40, esc_html__( '&hellip;', 'livepress' ) );
 		} else {
-			$data->description = $data->title;
+			if ( false !== $image_alt ) {
+				$data->description = $image_alt;
+			} else {
+				$data->description = $data->title;
+			}
 		}
 
 		return $data;
 	}
 
-	// Get the image from the update of from the parent post if there's
-	// a featured image:
+
+	/**
+	 * Get the image from the update of from the parent post if there's
+	 * a featured image:
+	 *
+	 * @param $update
+	 *
+	 * @return false|string
+	 */
 	private function og_image( $update ) {
 		global $post;
 		$img     = '';
@@ -235,6 +270,29 @@ final class LivePress_Blogging_Tools {
 		}
 
 		return $img;
+	}
+
+	/**
+	 * @param $update
+	 *
+	 * @return bool
+	 */
+	private function look_for_alt( $update ) {
+
+		// do we have an image if not return
+		if ( 0 > strpos( $update, '<img' ) ) {
+			return false;
+		}
+		//does have an caption
+		if ( 0 > strpos( $update, '[caption' ) && preg_match( '/a>(.*)\[\/caption\]/i', $update, $matches ) ) {
+			return $matches[1];
+		}
+		// does it have a alt
+		if ( preg_match( '/alt="([^"]*)"/i', $update, $matches ) ) {
+			return $matches[1];
+		}
+
+		return false;
 	}
 
 	// Get the title from the update header
@@ -497,6 +555,9 @@ final class LivePress_Blogging_Tools {
 	 */
 	public function lp_filter_mce_buttons( $buttons ) {
 		global $post;
+		if ( ! is_object( $post ) ) {
+			return;
+		};
 
 		$remove  = 'fullscreen';
 		$is_live = $this->get_post_live_status( $post->ID );
@@ -989,10 +1050,12 @@ final class LivePress_Blogging_Tools {
 				<span class="add-on">@</span>
 				<input type="text" name="new_term" id="new-twitter-account" class="new-term lp-input form-input-tip"
 				       size="16" autocomplete="off" placeholder="<?php esc_html_e( 'Account Name', 'livepress' ); ?>"/>
-				<input class="button-secondary termadd" value="<?php esc_html_e( 'Add Remote Author', 'livepress' ); ?>"
+				<input class="button-secondary termadd"
+				       value="<?php esc_html_e( 'Add Remote Author', 'livepress' ); ?>"
 				       type="submit"/>
 
-				<div id="termadderror" class="lp-message lp-error"><?php esc_html_e( 'Author error: ', 'livepress' ); ?>
+				<div id="termadderror"
+				     class="lp-message lp-error"><?php esc_html_e( 'Author error: ', 'livepress' ); ?>
 					<span id="errmsg"></span></div>
 				<div class="clean lp-tweet-cleaner">
 					<p><?php esc_html_e( 'Done live blogging on this post?', 'livepress' ); ?></p>
@@ -1120,7 +1183,7 @@ final class LivePress_Blogging_Tools {
 			$response    = json_decode( $res['body'], true );
 			$status_code = $response['status_code'];
 
-			if ( is_wp_error( $res ) || $status_code != 200 ) {
+			if ( is_wp_error( $res ) || 200 !== $status_code ) {
 				$shortlink = $canonical_url;
 			} else {
 				if ( ! $res || ! isset( $response['data'] ) || ! isset( $response['data']['url'] ) ) {

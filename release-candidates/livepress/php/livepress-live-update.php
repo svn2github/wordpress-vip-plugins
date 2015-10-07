@@ -149,7 +149,7 @@ class LivePress_Live_Update {
 		 * @param bool   $has_avatar  does this user have a local avatar.
 		 *
 		 */
-		$metainfo = str_replace( '###AVATAR###', apply_filters( 'livepress_meta_info_template_author', $avatar, $avatar_url, $has_avatar ), $metainfo );
+		$metainfo = str_replace( '###AVATAR###', apply_filters( 'livepress_meta_info_template_avatar', $avatar, $avatar_url, $has_avatar ), $metainfo );
 
 		$settings      = get_option( 'livepress' );
 
@@ -242,14 +242,15 @@ class LivePress_Live_Update {
 			 *
 			 * @param array $metainfo_class class's for wraper.
 			 * @param string $update_header  header content.
+			 * @param array $atts the atts passed into / default for the function
 			 *
 			 */
-			$div_class = apply_filters( 'livepress_meta_info_template_header', array( self::$metainfo_class ) );
+			$div_class = apply_filters( 'livepress_meta_info_template_header_class', array( self::$metainfo_class ), $atts );
 			if ( null != $content ){
 				$metainfo = $metainfo . PHP_EOL . $content . PHP_EOL ;
 			}
 
-			$metainfo = '<'. self::$metainfo_tag .' class="'. implode( ', ', $div_class ) .'">'
+			$metainfo = '<'. self::$metainfo_tag .' class="'. implode( ' ', $div_class ) .'">'
 				. $metainfo
 				. '</'. self::$metainfo_tag .'>';
 		}

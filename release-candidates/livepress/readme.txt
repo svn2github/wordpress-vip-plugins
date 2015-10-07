@@ -2,7 +2,7 @@
 Requires at least: 3.5
 Tested up to: 4.3
 Tags: LivePress, live, live blogging, liveblogging, realtime, collaboration, Twitter
-Stable tag: 1.3.4.1
+Stable tag: 1.3.4.2
 
 LivePress is a hosted live blogging solution that integrates seamlessly with your WordPress blog.
 
@@ -118,6 +118,18 @@ apply_filters( 'livepress_the_content_filter_disabled', '__return_true' );
 2. New update sent -- it appears for all readers of this post at the same time.
 
 == Changelog ==
+
+= 1.3.4.2
+    * set social sharing for sticky updates to use post details
+    * set social sharing for update missing title to use post title
+    * set social sharing for update missing content to use img alt if found
+    * rename livepress_meta_info_template_header filter to livepress_meta_info_template_header_class
+    * corrected filter name for livepress_meta_info_template_avatar
+    * fixed class string in meta info
+    * fixed URL encode for social sharing calls
+    * code tidy
+
+
 = 1.3.4.1
     * added fallback to img alt for twitter text ig not content or update title props: Paul Schreiber from FiveThirtyEight.com
 

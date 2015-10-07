@@ -1,4 +1,4 @@
-/*! livepress -v1.3.4.1
+/*! livepress -v1.3.4.2
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -4200,9 +4200,16 @@ Livepress.Admin.PostToTwitter = function () {
         } catch (exc) {
         }
         oauth_popup = window.open(url, '_blank', 'height=600,width=600');
+
+        var a = jQuery('<a />');
+        a.attr('href', url);
+        a.text(url);
+        var b = jQuery('<br />');
+
         jQuery("#post_to_twitter_url")
-            .html('<br /><a href="' + url + '">' + url + '</a>')
-            .click(function (e) {
+            .append(b)
+            .append(a)
+            .click( function (e) {
                 try {
                     oauth_popup.close();
                 } catch (exc) {
@@ -4551,8 +4558,8 @@ Livepress.Admin.Tools = function () {
                             // When toggle complete, redirect to complete the merge
                             jQuery('form#post')
                                 .attr('action', jQuery('form#post').attr('action') +
-                                '?post=' + LivepressConfig.post_id + '&action=edit' +
-                                '&merge_action=merge_children&merge_noonce=' + nonces.data('merge-post'))
+                                    '?post=' + LivepressConfig.post_id + '&action=edit' +
+                                    '&merge_action=merge_children&merge_noonce=' + nonces.data('merge-post'))
                                 .submit();
                         });
                     }
@@ -5671,7 +5678,7 @@ jQuery(function () {
                     }
                 } else {
 
-                    if ( SELF.draft ) {
+                    if (SELF.draft) {
                         SELF.$form.find('input.save').remove();
                         SELF.$form.find('.primary.published').remove();
                         SELF.$form.addClass('livepress-draft');
@@ -6135,26 +6142,26 @@ jQuery(function () {
                  */
                 onFormAction: function (e) {
                     var val = e.target.getAttribute("data-action");
-                    if( 'undefined' === typeof( this.draft ) ){
+                    if ('undefined' === typeof( this.draft )) {
                         this.draft = false;
                     }
-                    if ( val === 'cancel' ) {
+                    if (val === 'cancel') {
                         e.preventDefault();
                         this.onCancel();
                         // make sure if daft is stays draft
-                        if ( this.draft) {
+                        if (this.draft) {
                             jQuery('#' + this.originalUpdateId).addClass('livepress-draft');
                         }
                         return false;
-                    } else if ( val === 'delete' ) {
+                    } else if (val === 'delete') {
                         e.preventDefault();
                         this.onDelete();
                         return false;
-                    } else if ( val === 'draft' ) {
+                    } else if (val === 'draft') {
                         e.preventDefault();
                         this.onDraft();
                         // reset the main form if saving as draft
-                        if ( true !== this.draft ) {
+                        if (true !== this.draft) {
                             this.resetFormFieldStates(this);
                         }
 
@@ -6910,9 +6917,9 @@ jQuery(function () {
                             $currentPosts
                                 .wrap('<div class="pinned-first-livepress-update"></div>')
                                 .before('<div class="pinned-first-livepress-update-header">' +
-                                '<div class="dashicons dashicons-arrow-down"></div>' +
-                                lp_strings.live_post_header +
-                                '</div>');
+                                    '<div class="dashicons dashicons-arrow-down"></div>' +
+                                    lp_strings.live_post_header +
+                                    '</div>');
                             // Move the box to above the Update Count
                             $liveCanvas.find('.pinned-first-livepress-update')
                                 .prependTo($liveCanvas)

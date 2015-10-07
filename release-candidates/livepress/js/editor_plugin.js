@@ -1,5 +1,8 @@
 /*global LivepressConfig, Livepress, switchEditors, tinymce */
 (function () {
+    if( 'undefined' === typeof( LivepressConfig ) ){
+        return;
+    }
     var path = LivepressConfig.lp_plugin_url + 'tinymce/',
         config = LivepressConfig.PostMetainfo,
         Helper;

@@ -1,4 +1,4 @@
-/*! livepress -v1.3.4.1
+/*! livepress -v1.3.4.2
  * http://livepress.com/
  * Copyright (c) 2015 LivePress, Inc.
  */
@@ -1495,7 +1495,15 @@ Livepress.Ui.ReactButton = function (type, update) {
 		button.div.click(function () {
 			// Set the Facebook link to the actual url since the app has to
 			// be tied to a specific domain:
-			var u = Livepress.getUpdatePermalink(update.id);
+
+            var u = Livepress.getUpdatePermalink(update.id);
+
+            // lets see if this a pinned update
+            var is_pinned = jQuery(this).closest('.pinned-first-live-update').length;
+            if( 1 === is_pinned ){
+                u = LivepressConfig.post_url;
+            }
+
             var redirect_uri = u.replace('?','?lp_close_popup=true&');
 			var height = 436;
 			var width = 626;

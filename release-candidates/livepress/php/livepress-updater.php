@@ -73,7 +73,7 @@ class LivePress_Updater {
 		add_filter( 'update_post_metadata', array( $this, 'livepress_filter_post_locks' ), 10, 5 );
 		add_filter( 'add_post_metadata',    array( $this, 'livepress_filter_post_locks' ), 10, 5 );
 
-		$this->lp_comment->do_wp_binds( isset($_POST['livepress_update']) );
+		$this->lp_comment->do_wp_binds( isset( $_POST['livepress_update'] ) );
 
 
 		if ( ! isset( $_POST['livepress_update'] ) ) {

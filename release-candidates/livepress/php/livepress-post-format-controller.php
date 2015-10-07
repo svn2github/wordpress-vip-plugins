@@ -905,7 +905,7 @@ class LivePress_PF_Updates {
 			'content' => $update->post_content,
 			'proceed' => do_shortcode( apply_filters( 'the_content', $update->post_content ) ),
 			'prefix'  => sprintf( '<div id="livepress-update-%s" data-lpg="%d" class="livepress-update">', $piece_id, $piece_gen ),
-			'suffix'  => '</div>'
+			'suffix'  => '</div>',
 		);
 
 		// Restore the_content filters and carry on
