@@ -522,3 +522,9 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 
 
 endif; // function_exists( 'wpcom_is_vip' )
+
+if ( ! function_exists( 'is_automattician' ) ) {
+	function is_automattician() {
+		return false;
+	}
+}
