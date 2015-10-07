@@ -29,7 +29,9 @@ function sitemap_cache_key() {
 	// en.wordpress.com and other xx.wordpress.com blogs
 	// have same blog id but need separate URLS in the sitemap
 	// otherwise we get de.wordpress.com URLs for en.wordpress.com/sitemap.xml
-	return 'sitemap-blog-' . get_locale() . '-' . $GLOBALS['blog_id'];
+	$sitemap_cache_key = 'sitemap-blog-' . get_locale() . '-' . $GLOBALS['blog_id'];
+
+	return apply_filters( 'sitemap_cache_key', $sitemap_cache_key );
 }
 
 /**
