@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  * Adds Babble's components as global variables.
  */
 function babble_globals() {
+	
 	global $bbl_log;
 	$bbl_log = Babble::get( 'log' );
 
