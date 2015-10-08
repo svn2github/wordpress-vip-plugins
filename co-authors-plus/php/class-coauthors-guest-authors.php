@@ -840,7 +840,7 @@ class CoAuthors_Guest_Authors
 				break;
 			case 'user_nicename':
 			case 'post_name':
-				$value = $this->get_post_meta_key( $value );
+				$value = sanitize_title( $this->get_post_meta_key( $value ) );
 				$query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_name=%s AND post_type = %s", $value, $this->post_type );
 				$post_id = $wpdb->get_var( $query );
 				if ( empty( $post_id ) ) {
