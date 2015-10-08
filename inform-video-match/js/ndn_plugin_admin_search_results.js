@@ -362,17 +362,16 @@
      * @return {[type]} [description]
      */
     function insertSelectedImage() {
+      // if set featured image selected, set the featured image
+      if ( values['ndn-featured-image'] ) {
+        setFeaturedImage();
+      }
       // Insert Image placeholder
       media.editor.insert(html);
       // Issue with inserting media. Fixing with adding a space.
       media.editor.insert( ' ' );
       // Remove thickbox
       self.parent.tb_remove();
-    }
-
-    // if set featured image selected, set the featured image
-    if ( values['ndn-featured-image'] ) {
-      setFeaturedImage();
     }
 
     // Wait for the image to load

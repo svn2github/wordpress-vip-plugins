@@ -120,6 +120,9 @@ If you have any concerns about this, let Wordpress know on their [support page](
 
 == Changelog ==
 
+= 1.3.2 =
+* Featured image bug for not inserting video fixed
+
 = 1.3.0 =
 * Allows user to set any post with a video inserted to use that video's thumbnail as the featured image
 
@@ -155,6 +158,9 @@ If you have any concerns about this, let Wordpress know on their [support page](
 * Initial Release
 
 == Upgrade Notice ==
+
+= 1.3.2 =
+* Featured image bug for not inserting video fixed
 
 = 1.3.0 =
 * Allows user to set any post with a video inserted to use that video's thumbnail as the featured image
