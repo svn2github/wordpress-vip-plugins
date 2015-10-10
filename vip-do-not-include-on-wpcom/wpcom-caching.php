@@ -495,17 +495,20 @@ function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_term = ''
 	$sort  = "ORDER BY p.post_date $order LIMIT $limit";
 	$where = $wpdb->prepare( "WHERE p.post_date $op %s AND p.post_type = %s AND p.post_status = 'publish' $where", $current_post_date, $post->post_type );
 	$query = "SELECT p.ID FROM $wpdb->posts AS p $join $where $sort";
+
+	$found_post = ''; // blank instead of false so not found is cached.
+	$query_key = 'wpcom_vip_adjacent_post_' . md5( $query );
+	$cached_result = wp_cache_get( $query_key );
+	if ( false !== $cached_result ) {
+		return get_post( $cached_result );
+	}
+
 	if ( empty ( $excluded_term ) ) {
 		$result = $wpdb->get_var( $query );
 	} else {
 		$result = $wpdb->get_results( $query );
 	}
-	$found_post = '';
-	$query_key = 'wpcom_vip_adjacent_post_' . md5( $query );
-	$cached_result = wp_cache_get( $query_key, 'counts' );
-	if ( false !== $cached_result ) {
-		return get_post( $cached_result );
-	}
+
 	// Find the first post which doesn't have an excluded term
 	if ( ! empty ( $excluded_term ) ) {
 		foreach ( $result as $result_post ) {
@@ -519,8 +522,14 @@ function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_term = ''
 	} else {
 		$found_post = $result;
 	}
-	wp_cache_set( $query_key, $found_post, 'counts' );
-	if ( $found_post ) {
+
+	$cache_time = 6 * HOUR_IN_SECONDS;
+	if ( $found_post !== ''){
+		$cache_time = 15 * MINUTE_IN_SECONDS;
+	}
+
+	wp_cache_set( $query_key, $found_post, '', $cache_time );
+	if ( $found_post !== '' ) {
 		$found_post = get_post( $found_post );
 	}
 	return $found_post;
