@@ -172,9 +172,9 @@ function sranalytics_insert_js() {
 		'title' => esc_js( apply_filters( 'sranalytics_title', $title ) ),
 		'url' => esc_js( apply_filters( 'sranalytics_url', $canonical_url ) ),
 		'date' => esc_js( apply_filters( 'sranalytics_date', $published_date ) ),
-		'channels' => array_map( 'esc_js', apply_filters( 'sranalytics_channels', $channels ) ),
-		'tags' => array_map( 'esc_js', apply_filters( 'sranalytics_tags', $tags ) ),
-		'authors' => array_map( 'esc_js', apply_filters( 'sranalytics_authors', $authors ) ),
+		'channels' => array_map( 'esc_js', (array) apply_filters( 'sranalytics_channels', $channels ) ),
+		'tags' => array_map( 'esc_js', (array) apply_filters( 'sranalytics_tags', $tags ) ),
+		'authors' => array_map( 'esc_js', (array) apply_filters( 'sranalytics_authors', $authors ) ),
 	);
 
 	// Get the JS ready to go
