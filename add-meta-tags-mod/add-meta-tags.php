@@ -38,7 +38,7 @@ class Add_Meta_Tags {
 		The following option exists ONLY for those who do not want a "keywords"
 		metatag META tag to be generated in "Single-Post-View", but still want the
 		"description" META tag.
-		
+
 		Possible values: TRUE, FALSE
 		Default: TRUE
 	*/
@@ -84,9 +84,13 @@ class Add_Meta_Tags {
 
 	function enqueue_scripts() {
 		global $pagenow;
-		// TODO: load on settings page; only for supportd post types
-		if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) && in_array( get_post_type(), array( 'post', 'page' ) ) ) {
-			wp_enqueue_script( 'add-meta-tags', plugins_url( 'js/add-meta-tags.js', __FILE__), array( 'jquery') );
+		$options = get_option( 'add_meta_tags_opts' );
+		$supported_post_types = array( 'post', 'page' );
+		if( isset( $options['custom_post_types'] ) ) {
+			$supported_post_types = array_merge( $supported_post_types, array_keys( $options['custom_post_types'] ) );
+		}
+		if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) && in_array( get_post_type(), $supported_post_types ) ) {
+			wp_enqueue_script( 'add-meta-tags', plugins_url( 'js/add-meta-tags.js', __FILE__ ), array( 'jquery') );
 		}
 	}
 
@@ -161,7 +165,7 @@ class Add_Meta_Tags {
 		$post_options = $options['post_options'];
 		$page_options = $options['page_options'];
 		$custom_post_types = $options['custom_post_types'];
-		
+
 		// good defaults is the hallmark of good software
 		if ( !is_array( $post_options ) )
 			$post_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true, 'mt_seo_google_news_meta' => true );
@@ -169,7 +173,7 @@ class Add_Meta_Tags {
 			$page_options = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true, 'mt_seo_google_news_meta' => true );
 		if ( ! is_array( $custom_post_types ) )
 			$custom_post_types = array();
-		
+
 		$registered_post_types = get_post_types( array(
 			'public'   => true,
 			'show_ui'  => true,
@@ -194,7 +198,7 @@ class Add_Meta_Tags {
 		/*
 		Configuration Page
 		*/
-		
+
 		print('
 		<div class="wrap" id="amt-header">
 			<h2>'.__('Add-Meta-Tags', 'add-meta-tags').'</h2>
@@ -238,7 +242,7 @@ class Add_Meta_Tags {
 
 		</div>
 
-		<div class="wrap" id="amt-header-frontpage"> 
+		<div class="wrap" id="amt-header-frontpage">
 			<h2>'.__('Meta Tags on the Front Page', 'add-meta-tags').'</h2>
 			<p>'.__('If a site description and/or keywords have been set in the Add-Meta-Tags options above, then those will be used in the "<em>description</em>" and "<em>keywords</em>" META tags respectively.', 'add-meta-tags').'</p>
 			<p>'.__('Alternatively, if the above options are not set, then the blog\'s description from the <em>General</em> WordPress options will be used in the "<em>description</em>" META tag, while all of the blog\'s categories, except for the "Uncategorized" category, will be used in the "<em>keywords</em>" META tag.', 'add-meta-tags').'</p>
@@ -253,9 +257,9 @@ class Add_Meta_Tags {
 			<p><strong>'.__('Example', 'add-meta-tags').':</strong> <code>'.__('keyword1, keyword2, %cats%, keyword3, %tags%, keyword4', 'add-meta-tags').'</code></p>
 
 			<p><strong>' . __('Enable the following options for posts:', 'add-meta-tags') . '</strong>
-			' . __( 'Title', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_title]" value="true" ' . ( ( $post_options["mt_seo_title"] ) ? 'checked="checked"' : '' ) . ' /> , 
-			' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_description]" value="true" ' . ( ( $post_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> , 
-			' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_keywords]" value="true" ' . ( ( $post_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> , 
+			' . __( 'Title', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_title]" value="true" ' . ( ( $post_options["mt_seo_title"] ) ? 'checked="checked"' : '' ) . ' /> ,
+			' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_description]" value="true" ' . ( ( $post_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> ,
+			' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_keywords]" value="true" ' . ( ( $post_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> ,
 			' . __( 'Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_meta]" value="true" ' . ( ( $post_options["mt_seo_meta"] ) ? 'checked="checked"' : '' ) . ' />
 			' . __( 'Google News Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="post_options[mt_seo_google_news_meta]" value="true" ' . ( ( $post_options["mt_seo_google_news_meta"] ) ? 'checked="checked"' : '' ) . ' />
 			</p>
@@ -276,9 +280,9 @@ class Add_Meta_Tags {
 			<p>'.__('<strong>WARNING</strong>: Pages do not belong to categories in WordPress. Therefore, the tag <code>%cats%</code> will not be replaced by any categories if it is included in the comma-delimited list of keywords for the Page, so <strong>do not use it for Pages</strong>.', 'add-meta-tags').'</p>
 
 			<p><strong>' . __('Enable the following options for pages:', 'add-meta-tags') . '</strong>
-			' . __( 'Title', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_title]" value="true" ' . ( ( $page_options["mt_seo_title"] ) ? 'checked="checked"' : '' ) . ' /> , 
-			' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_description]" value="true" ' . ( ( $page_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> , 
-			' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_keywords]" value="true" ' . ( ( $page_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> , 
+			' . __( 'Title', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_title]" value="true" ' . ( ( $page_options["mt_seo_title"] ) ? 'checked="checked"' : '' ) . ' /> ,
+			' . __( 'Description', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_description]" value="true" ' . ( ( $page_options["mt_seo_description"] ) ? 'checked="checked"' : '' ) . ' /> ,
+			' . __( 'Keywords', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_keywords]" value="true" ' . ( ( $page_options["mt_seo_keywords"] ) ? 'checked="checked"' : '' ) . ' /> ,
 			' . __( 'Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_meta]" value="true" ' . ( ( $page_options["mt_seo_meta"] ) ? 'checked="checked"' : '' ) . ' />
 			' . __( 'Google News Meta', 'add-meta-tags' ) . ' : <input type="checkbox" name="page_options[mt_seo_google_news_meta]" value="true" ' . ( ( $page_options["mt_seo_google_news_meta"] ) ? 'checked="checked"' : '' ) . ' />
 			</p>
@@ -316,7 +320,7 @@ class Add_Meta_Tags {
 		$desc = strip_tags($desc);
 		$desc = htmlspecialchars($desc);
 		//$desc = preg_replace('/(\n+)/', ' ', $desc);
-		$desc = preg_replace('/([\n \t\r]+)/', ' ', $desc); 
+		$desc = preg_replace('/([\n \t\r]+)/', ' ', $desc);
 		$desc = preg_replace('/( +)/', ' ', $desc);
 		return trim($desc);
 	}
@@ -329,7 +333,7 @@ class Add_Meta_Tags {
 		because the get_the_excerpt() function does not work there any more.
 		This function makes the retrieval of the excerpt independent from the
 		WordPress function in order not to break compatibility with older WP versions.
-		
+
 		Also, this is even better as the algorithm tries to get text of average
 		length 250 characters, which is more SEO friendly. The algorithm is not
 		perfect, but will do for now.
@@ -358,7 +362,7 @@ class Add_Meta_Tags {
 			$end_of_excerpt = strrpos($amt_excerpt, ".");
 
 			if ($end_of_excerpt) {
-				
+
 				/*
 				if there are sentences, end the description at the end of a sentence.
 				*/
@@ -411,12 +415,12 @@ class Add_Meta_Tags {
 	function amt_get_post_tags() {
 		/*
 		Retrieves the post's user-defined tags.
-		
+
 		This will only work in WordPress 2.3 or newer. On older versions it will
 		return an empty string.
 		*/
 		global $posts;
-		
+
 		if ( version_compare( get_bloginfo('version'), '2.3', '>=' ) || 'MU' == get_bloginfo('version') ) {
 			$tags = get_the_tags($posts[0]->ID);
 			if ( empty( $tags ) ) {
@@ -444,10 +448,10 @@ class Add_Meta_Tags {
 			$categories = get_terms( 'category', array( 'fields' => 'names', 'get' => 'all', 'number' => 20, 'orderby' => 'count' ) ); // limit to 20 to avoid killer queries
 			wp_cache_add( 'amt_get_all_categories', $categories, 'category' );
 		}
-		
+
 		if ( empty( $categories ) )
 			return '';
-		
+
 		$all_cats = "";
 		foreach ( $categories as $cat ) {
 			if ( $no_uncategorized && $cat != "Uncategorized" ) {
@@ -499,7 +503,7 @@ class Add_Meta_Tags {
 		// nothing allowed so just return
 		if ( empty( $cmpvalues ) )
 			return;
-		
+
 		if ( is_singular() ) {
 			/*
 			Add META tags to Single Page View or Page
@@ -577,7 +581,7 @@ class Add_Meta_Tags {
 			// see function mt_seo_rewrite_tite() which is added as filter for wp_title
 			//}
 
-			
+
 			/*
 			Keywords
 			Custom post field "keywords" overrides post's categories and tags (tags exist in WordPress 2.3 or newer).
@@ -622,7 +626,7 @@ class Add_Meta_Tags {
 			/*
 			Add META tags to Home Page
 			*/
-			
+
 			/*
 			Description and Keywords from the options override default behaviour
 			*/
@@ -668,7 +672,7 @@ class Add_Meta_Tags {
 			if ( $cur_cat_desc ) {
 				$my_metatags .= '<meta name="description" content="' . esc_attr( $this->amt_clean_desc($cur_cat_desc) ) . '" />';
 			}
-			
+
 			/*
 			Write a keyword metatag if there is a term name (always)
 			*/
@@ -678,7 +682,7 @@ class Add_Meta_Tags {
 			}
 		}
 
-		if ( $site_wide_meta ) 
+		if ( $site_wide_meta )
 			$my_metatags .= $this->amt_get_site_wide_metatags($site_wide_meta) . PHP_EOL;
 
 		// WP.com -- allow filtering of the meta tags
@@ -714,7 +718,7 @@ class Add_Meta_Tags {
 				}
 			}
 		} else {
-			foreach( (array) $this->mt_seo_fields as $field_name => $field_data ) 
+			foreach( (array) $this->mt_seo_fields as $field_name => $field_data )
 				${$field_name} = '';
 		}
 		$tabindex = $tabindex_start = 5000;
@@ -743,7 +747,7 @@ class Add_Meta_Tags {
 		echo '</div>';
 		echo '</div>';
 		echo '</div>';
-		
+
 		foreach( (array) $this->mt_seo_fields as $field_name => $field_data ) {
 			if ( empty( $cmpvalues[$field_name] ) )
 				continue;
@@ -762,12 +766,12 @@ class Add_Meta_Tags {
 		}
 		if ( $tabindex == $tabindex_start )
 			echo '<p>' . __( 'No SEO fields were enabled. Please enable post fields in the Meta Tags options page', 'add-meta-tags' )  . '</p>';
-		
+
 		wp_nonce_field( 'mt-seo', 'mt_seo_nonce', false );
 	}
 
 	function mt_seo_save_meta( $post_id ) {
-		foreach( (array) $this->mt_seo_fields as $field_name => $field_data ) 
+		foreach( (array) $this->mt_seo_fields as $field_name => $field_data )
 			$this->mt_seo_save_meta_field( $post_id, $field_name );
 	}
 
@@ -878,7 +882,7 @@ class Add_Meta_Tags {
 			return $title;
 
 		$options = get_option("add_meta_tags_opts");
-		
+
 		if ( isset( $posts[0] ) && $this->is_supported_post_type( $posts[0]->post_type ) ) {
 			if ( 'page' == $posts[0]->post_type )
 				$cmpvalues = $options['page_options'];
@@ -887,22 +891,22 @@ class Add_Meta_Tags {
 		} else {
 			$cmpvalues = array();
 		}
-		
+
 		if ( !is_array( $cmpvalues ) )
 			$cmpvalues = array( 'mt_seo_title' => true, 'mt_seo_description' => true, 'mt_seo_keywords' => true, 'mt_seo_meta' => true );
 
 		$cmpvalues = $this->amt_clean_array( $cmpvalues );
-		
+
 		if ( ! isset($cmpvalues['mt_seo_title']) || true != $cmpvalues['mt_seo_title'] )
 			return $title;
-		
+
 		$mt_seo_title = (string) get_post_meta( $posts[0]->ID, 'mt_seo_title', true );
 		if ( empty( $mt_seo_title ) )
 			return $title;
-		
+
 		$mt_seo_title = str_replace("%title%", $title, $mt_seo_title);
 		$mt_seo_title = strip_tags( $mt_seo_title );
-		
+
 		if ( apply_filters( 'mt_seo_title_append_separator', true ) && ! empty( $sep ) ) {
 			if ( 'right' == $seplocation ) {
 				$mt_seo_title .= " $sep ";
