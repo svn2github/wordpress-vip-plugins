@@ -42,9 +42,9 @@ class VIP_Staging {
 		}
 
 		// Load the AJAX endpoints
-		add_action( "wp_ajax_vip_prod_deploy", array( $this, 'ajax_deploy_endpoint' ) );
-		add_action( "wp_ajax_vip_prod_deploy_status", array( $this, 'ajax_deploy_status_endpoint' ) );
-		add_action( "wp_ajax_vip_prod_deploy_info", array( $this, 'ajax_deploy_info_endpoint' ) );
+		add_action( "wp_ajax_vip_staging_deploy", array( $this, 'ajax_deploy_endpoint' ) );
+		add_action( "wp_ajax_vip_staging_deploy_status", array( $this, 'ajax_deploy_status_endpoint' ) );
+		add_action( "wp_ajax_vip_staging_deploy_info", array( $this, 'ajax_deploy_info_endpoint' ) );
 
 	}
 
