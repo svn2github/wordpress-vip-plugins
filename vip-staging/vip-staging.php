@@ -41,6 +41,10 @@ class VIP_Staging {
 
 		}
 
+		// Load the AJAX endpoints
+		add_action( "wp_ajax_vip_prod_deploy", array( $this, 'ajax_deploy_endpoint' ) );
+		add_action( "wp_ajax_vip_prod_deploy_status", array( $this, 'ajax_deploy_status_endpoint' ) );
+
 	}
 
     /**
@@ -155,6 +159,82 @@ class VIP_Staging {
 
 		<?php
 	} // end load_staging_button
+
+	public function user_can_stage() {
+		return true; //todo
+	}
+
+	public function user_can_deploy() {
+		return true; //todo
+	}
+
+	public function ajax_deploy_endpoint() {
+		// todo: creating the job to start the deploy
+		wp_send_json(  array( "success" => true ) );
+		wp_die();
+	}
+
+	public function ajax_deploy_status_endpoint() {
+
+		if( ! $this->user_can_deploy() ) {
+
+			$this->ajax_die_no_permissions();
+
+		}
+
+		$stylesheet = str_replace( 'vip/' , '', get_stylesheet() );
+		$template = str_replace( 'vip/' , '', get_template() );
+
+		// There is a child theme activated when the stylesheet name is different than the template name.
+		$has_child = ( $stylesheet != $template );
+
+		// Get the parent revisions
+		$deployed_revision = wpcom_get_vip_deployed_revision( $template );
+		$committed_revision = wpcom_get_vip_committed_revision( $template );
+
+		$data = array(
+			'status' => ( $deployed_revision <= $committed_revision ? 'deployed' : 'undeployed' ),
+			'stylesheet' => $stylesheet,
+			'has_child' => $has_child,
+ 			'parent_theme' => false, // default to false. This can happen when it's a public theme.
+		);
+
+		// It should validate if the parent theme is a valid VIP theme. If so, overwrite with the correct revisions info
+		if( false != $committed_revision ) {
+
+			$data['parent_theme'] = array(
+				'deployed_rev' => $deployed_revision,
+				'committed_rev' => $committed_revision,
+			);
+
+		}
+
+		if( $has_child ) {
+
+			// Fetch the correct data from the child theme
+			$deployed_revision = wpcom_get_vip_deployed_revision( $stylesheet );
+			$committed_revision = wpcom_get_vip_committed_revision( $stylesheet );
+
+			$data['child_theme'] = array(
+				'deployed_rev' => $deployed_revision,
+				'committed_rev' => $committed_revision,
+			);
+		}
+
+		wp_send_json_success( $data );
+
+	}
+
+	public function ajax_deploy_info_endpoint() {
+
+		wp_die();
+	}
+
+	private function ajax_die_no_permissions() {
+		wp_send_json_error( array(
+			'message' => 'No permissions'
+		) );
+	}
 }
 
 new VIP_Staging();
