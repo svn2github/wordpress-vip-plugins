@@ -9,6 +9,7 @@ Author: Team 1
 class VIP_Staging {
 
 	const SUFIX = '-live';
+	private $option_prefix;
 
     /**
      * VIP_Staging constructor
@@ -27,6 +28,8 @@ class VIP_Staging {
 
         }
 
+		$this->option_prefix = 'wpcomstaging_' . get_current_user_id() . '_';
+
 		// Only load the staging theme if user has the option
 		if( $this->is_current_user_staging() ) {
 
@@ -36,6 +39,17 @@ class VIP_Staging {
 			add_filter( 'stylesheet_directory', array( $this, 'change_template_directory' ), 10, 3 );
 			add_filter( 'stylesheet', array( $this, 'change_template' ) );
 
+			//protect options while staging
+
+			//if we're updating an option, leave production options alone -- instead saved to prefixed ones
+			add_filter( 'pre_update_option', array( $this, 'update_tmp_staging_option'), 10, 3 );
+
+			//retrieve prefixed options instead of production ones if available
+			$alloptions =  wp_load_alloptions();
+			foreach ( array_keys( $alloptions ) as $option ) {
+				if ( array_key_exists( $this->option_prefix . $option, $alloptions ) )
+					add_filter( 'pre_option_' . $option, array( $this, 'get_tmp_staging_option' ) );
+			}
 		}
 
         add_action( 'wp_footer' , array( $this, 'load_staging_button' ) );
@@ -172,9 +186,62 @@ class VIP_Staging {
 		// Update the option
 		update_user_option( $user_id, 'show_staging_env', (bool) $is_stage );
 
+		if ( false === $is_stage ) {
+			$this->cleanup_tmp_staging_options();
+		}
+
 	} // end is_current_user_staging
 
-    /**
+	/**
+	 * If we're retrieving an option, check if there's a prefixed temporary staging option available and return that instead
+	 *
+	 */
+
+	public function get_tmp_staging_option( $value ) {
+
+		//this is only for filtering options
+		if ( false === strpos( current_filter(), 'pre_option_' ) ) {
+			return $value;
+		}
+
+		//find the name of the option from the hook
+		$option = str_replace( 'pre_option_', '', current_filter() );
+		$alloptions = wp_load_alloptions();
+
+		return ( array_key_exists( $this->option_prefix . $option, $alloptions ) ) ? $alloptions[ $this->option_prefix . $option ] : $value;
+	}
+
+	/**
+	 * If we're updating an option, only update the prefixed version of the option so
+	 * as not to destroy the live site's options
+	 *
+	 */
+
+	public function update_tmp_staging_option( $value, $option, $old_value ) {
+		// if we're attempting to update a temporary option, the proceed as normal
+		if ( false !== strpos( $option, $this->option_prefix ) ) {
+			return $value;
+		}else{
+			// we're trying to update a non-prefixed option.  Instead, update the prefixed version
+			update_option( $this->option_prefix . $option, $value );
+			// now we must return $old_value, which will guarantee that the naked option is not touched and everything stops here
+			return $old_value;
+		}
+	}
+
+	/**
+	 * Cleanup tmp staging options when they're no longer needed
+	 */
+
+	public function cleanup_tmp_staging_options() {
+		foreach ( array_keys( wp_load_alloptions() ) as $option ) {
+			if ( false !== strpos( $option, $this->option_prefix ) ) {
+				delete_option( $option );
+			}
+		}
+	}
+
+	/**
      * Display the staging user interface.
      *
      * Outputs the HTML , CSS and Javascript
