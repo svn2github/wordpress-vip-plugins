@@ -43,8 +43,9 @@ class VIP_Staging {
 
 		// Load the AJAX endpoints
 		add_action( "wp_ajax_vip_staging_deploy", array( $this, 'ajax_deploy_endpoint' ) );
-		add_action( "wp_ajax_vip_staging_deploy_status", array( $this, 'ajax_deploy_status_endpoint' ) );
+		add_action( "wp_ajax_vip_staging_deploy_status", array( $this, 'ajax_deploy_status_endpoint' ) );   
 		add_action( "wp_ajax_vip_staging_deploy_info", array( $this, 'ajax_deploy_info_endpoint' ) );
+		add_action( "wp_ajax_vip_staging_toggle", array( $this, 'ajax_toggle_staging_endpoint' ) );
 
 	}
 
@@ -154,13 +155,18 @@ class VIP_Staging {
      * Switch the current users between the staging and the live
      * environment.
      */
-	public function toggle_staging() {
+	public function toggle_staging( $is_stage = null ) {
 
 		$user_id = get_current_user_id();
-		$stage_option = get_user_option( 'show_staging_env', $user_id );
+
+		// Simply toggle if there isn't any value set
+		if ( null === $is_stage ) {
+			$is_stage = get_user_option( 'show_staging_env', $user_id );
+			$is_stage = ! $is_stage;
+		}
 
 		// Update the option
-		update_user_option( $user_id, 'show_staging_env', ! $stage_option );
+		update_user_option( $user_id, 'show_staging_env', $is_stage );
 
 	} // end is_current_user_staging
 
@@ -283,6 +289,22 @@ class VIP_Staging {
 		}
 
 		wp_send_json_success( $this->get_repositories_info() );
+
+	}
+
+	public function ajax_toggle_staging_endpoint() {
+
+		$is_staging = (bool) $_POST['is_staging'];
+
+		if( ! $this->user_can_stage() ) {
+
+			$this->ajax_die_no_permissions();
+
+		}
+
+		$this->toggle_staging( $is_staging );
+
+		wp_send_json_success();
 
 	}
 
