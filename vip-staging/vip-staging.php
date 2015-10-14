@@ -250,6 +250,7 @@ class VIP_Staging {
 	public function load_staging_button(){
 
         $class = $this->is_current_user_staging() ? 'staging' : 'live';
+        $class .=  defined ( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED  ? ' sandboxed ' : '';
 
         ?>
 
@@ -345,6 +346,12 @@ class VIP_Staging {
 
 	}
 
+    /**
+     * For successful request incoming ajax requests this function
+     * will initiate the deploy script.
+     *
+     * Will return the result back to the calling ajax query as JSON.
+     */
 	public function ajax_deploy_endpoint() {
 
 		if( ! $this->user_can_deploy() ) {
@@ -355,8 +362,13 @@ class VIP_Staging {
 
 		// todo: creating the job to start the deploy
 		wp_send_json_success();
-	}
 
+	} // end ajax_deploy_endpoint
+
+    /**
+     * Check the current deploy job status on an ajax request.
+     * Will return JSON data containing the status for the current deploy job if one exists.
+     */
 	public function ajax_deploy_status_endpoint() {
 
 		if( ! $this->user_can_deploy() ) {
@@ -373,8 +385,11 @@ class VIP_Staging {
 
 		wp_send_json_success( $data );
 
-	}
+	} // end ajax_deploy_status_endpoint
 
+    /**
+     * Give back the deploy information via JSON
+     */
 	public function ajax_deploy_info_endpoint() {
 
 		if( ! $this->user_can_deploy() ) {
@@ -385,8 +400,13 @@ class VIP_Staging {
 
 		wp_send_json_success( $this->get_repositories_info() );
 
-	}
+	} // end ajax_deploy_info_endpoint
 
+    /**
+     *
+     * Switch the current user between staging and live
+     *
+     */
 	public function ajax_toggle_staging_endpoint() {
         // @todo: change back to POST
 		$is_staging = (bool) $_REQUEST['is_staging'];
@@ -401,13 +421,17 @@ class VIP_Staging {
 
 		wp_send_json_success();
 
-	}
+	}// end ajax_toggle_staging_endpoint
 
+    /**
+     * Send back JSON no permission error message
+     */
 	private function ajax_die_no_permissions() {
 
 		wp_send_json_error( 'No permissions' );
 
-	}
+	} // end ajax_die_no_permissions
+
 }
 
 new VIP_Staging();
