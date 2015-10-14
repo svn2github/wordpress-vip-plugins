@@ -205,11 +205,43 @@ class VIP_Staging {
 	} // end load_staging_button
 
 	public function user_can_stage() {
-		return true; //todo
+
+		// Let's say that all the administrators can stage the site, by default.
+		return apply_filters( 'vip_staging_can_stage', current_user_can( 'manage_options' ) || is_automattician() );
+
 	}
 
+	/**
+	 * Checks if the current user has permission to deploy.
+	 *
+	 * Right now, only who has commit access to the staging repository will have this right.
+	 * This method WON'T work properly when the production theme is loading, so it should only be used on staging.
+	 *
+	 * @return bool
+	 */
 	public function user_can_deploy() {
-		return true; //todo
+
+		if ( $permission = wp_cache_get( get_current_user_id() . '_can_deploy', 'vip-staging' ) ) {
+			return apply_filters( 'vip_staging_can_deploy', $permission );
+		}
+
+		// Load the SVN utils functions
+		if ( ! function_exists( 'svn_get_user_themes' ) ) {
+			require_once( ABSPATH . 'bin/includes/svn-utils.php' );
+		}
+
+		$current_user = wp_get_current_user();
+		$svn_themes = svn_get_user_themes( $current_user->user_login, 'vip' );
+		$stylesheet = str_replace( 'vip/', '', get_stylesheet());
+
+		// Check if user has write access to the child theme.
+		$has_access = ( isset( $svn_themes[ $stylesheet ] ) && 'rw' == $svn_themes[ $stylesheet ] )
+		              || is_automattician();
+
+		wp_cache_set( get_current_user_id() . '_can_deploy', $has_access, 'vip-staging', 5 * MINUTE_IN_SECONDS );
+
+		return apply_filters( 'vip_staging_can_deploy', $has_access );
+
 	}
 
 	public function ajax_deploy_endpoint() {
