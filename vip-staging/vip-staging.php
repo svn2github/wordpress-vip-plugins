@@ -21,12 +21,11 @@ class VIP_Staging {
      */
 	public function __construct() {
 
-		// TODO: remove this, just for testing
-		if( isset($_GET['toggle_staging']) ) {
+        if (! $this->user_can_stage() ){
 
-			$this->toggle_staging();
+            return;
 
-		}
+        }
 
 		// Only load the staging theme if user has the option
 		if( $this->is_current_user_staging() ) {
@@ -37,9 +36,14 @@ class VIP_Staging {
 			add_filter( 'stylesheet_directory', array( $this, 'change_template_directory' ), 10, 3 );
 			add_filter( 'stylesheet', array( $this, 'change_template' ) );
 
-			add_action( 'wp_footer' , array( $this, 'load_staging_button' ) );
-
 		}
+
+        add_action( 'wp_footer' , array( $this, 'load_staging_button' ) );
+
+        // Load the CSS and Javascript for the button LIVE/STAGING interface
+        $plugin_dir = plugins_url( '', __FILE__ );
+        wp_enqueue_style( 'vip-staging-css',  $plugin_dir . '/'  . 'vip-staging-style.css' );
+        wp_enqueue_script( 'vip-staging-js', $plugin_dir . '/' . 'vip-staging-script.js', array('jquery') );
 
 		// Load the AJAX endpoints
 		add_action( "wp_ajax_vip_staging_deploy", array( $this, 'ajax_deploy_endpoint' ) );
@@ -104,7 +108,7 @@ class VIP_Staging {
      */
 	public function is_current_user_staging() {
 
-		return get_user_option( 'show_staging_env', get_current_user_id() );
+		return '1' == get_user_option( 'show_staging_env', get_current_user_id() );
 
 	}// end is_current_user_staging
 
@@ -166,7 +170,7 @@ class VIP_Staging {
 		}
 
 		// Update the option
-		update_user_option( $user_id, 'show_staging_env', $is_stage );
+		update_user_option( $user_id, 'show_staging_env', (bool) $is_stage );
 
 	} // end is_current_user_staging
 
@@ -178,44 +182,68 @@ class VIP_Staging {
      */
 	public function load_staging_button(){
 
-		?>
+        $class = $this->is_current_user_staging() ? 'staging' : 'live';
 
-		<div id="wpcom-staging">
-			<div id="popup" class="hidden" ></div>
-			<a class="button" href="#" >Staging</a>
-		</div>
+        ?>
 
-		<style type="text/css">
+        <div id="staging-vip" class="<?php esc_attr_e( $class ); ?>">
 
-			#wpcom-staging .button {
-				text-transform: uppercase;
-				background: #DCA816;
-				color: #fff;
-				letter-spacing: 0.2em;
-				text-shadow: none;
-				font-size: 9px;
-				font-weight: bold;
-				padding: 8px 10px;
-				float: left;
-				cursor: pointer;
-				margin-left: 10em;
-				position: fixed;
-				bottom: 14px;
-			}
+            <a class="staging__button live" href="#"></a>
+
+            <div class="staging__info">
+
+                <p>You’re viewing the staging site</p>
+
+                <div class="staging__toggles">
+
+                    <div class="staging__toggle">
+
+                        <label for="preview_status">
+
+                            <small class="label-live">Live</small>
+
+                            <input <?php checked(true, $this->is_current_user_staging() ); ?> type="checkbox"  id="preview_status" value="">
+
+                            <span><small></small></span>
+
+                            <small class="label-staging">Staging</small>
+
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <p>There are unsynced changes</p>
+
+                <div class="staging__revisions">
+
+                    <span class="label">Live</span><span>r102093</span>
+
+                    <span class="label">Staging</span><span>r102098</span>
+
+                </div>
+
+            </div>
+
+        </div>
 
 
-
-		</style>
 
 		<?php
 	} // end load_staging_button
 
+    /**
+     * Test if the current user has the permissions run the staging site.
+     *
+     * @return bool
+     */
 	public function user_can_stage() {
 
-		// Let's say that all the administrators can stage the site, by default.
-		return apply_filters( 'vip_staging_can_stage', current_user_can( 'manage_options' ) || is_automattician() );
+        // Let's say that all the administrators can stage the site, by default.
+        return apply_filters('vip_staging_can_stage', current_user_can('manage_options') || is_automattician());
 
-	}
+    }// end user_can_stage
 
 	/**
 	 * Checks if the current user has permission to deploy.
@@ -293,8 +321,8 @@ class VIP_Staging {
 	}
 
 	public function ajax_toggle_staging_endpoint() {
-
-		$is_staging = (bool) $_POST['is_staging'];
+        // @todo: change back to POST
+		$is_staging = (bool) $_REQUEST['is_staging'];
 
 		if( ! $this->user_can_stage() ) {
 
