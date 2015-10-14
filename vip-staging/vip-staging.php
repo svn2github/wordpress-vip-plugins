@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: VIP Staging
-Description: Enables quick staging on your VIP website. No not enable it.
+Description: Enables quick staging on your VIP website. Do not enable it.
 Version: 0.0.1
 Author: Team 1
 */
@@ -213,9 +213,15 @@ class VIP_Staging {
 	}
 
 	public function ajax_deploy_endpoint() {
+
+		if( ! $this->user_can_deploy() ) {
+
+			$this->ajax_die_no_permissions();
+
+		}
+
 		// todo: creating the job to start the deploy
-		wp_send_json(  array( "success" => true ) );
-		wp_die();
+		wp_send_json_success();
 	}
 
 	public function ajax_deploy_status_endpoint() {
@@ -249,9 +255,9 @@ class VIP_Staging {
 	}
 
 	private function ajax_die_no_permissions() {
-		wp_send_json_error( array(
-			'message' => 'No permissions'
-		) );
+
+		wp_send_json_error( 'No permissions' );
+
 	}
 }
 
