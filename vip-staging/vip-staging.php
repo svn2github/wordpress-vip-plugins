@@ -59,8 +59,9 @@ class VIP_Staging {
 
 		// Load the CSS and Javascript for the button LIVE/STAGING interface
 		$plugin_dir = plugins_url( '', __FILE__ );
-		wp_enqueue_style( 'vip-staging-css',  $plugin_dir . '/'  . 'vip-staging-style.css' );
-		wp_enqueue_script( 'vip-staging-js', $plugin_dir . '/' . 'vip-staging-script.js', array('jquery') );
+		wp_enqueue_style( 'vip-staging-css',  $plugin_dir . 'vip-staging-style.css' );
+		wp_enqueue_script( 'js-cookie', $plugin_dir . 'js.cookie-2.0.3.min.js' );
+		wp_enqueue_script( 'vip-staging-js', $plugin_dir . 'vip-staging-script.js', array('jquery', 'js-cookie') );
 
 		// Localize the script
 		wp_localize_script( 'vip-staging-js', 'wp_vip_staging', array(
@@ -301,7 +302,7 @@ class VIP_Staging {
 
 			<div class="staging__info <?php echo $this->is_current_user_staging() ? 'visible' : '' ?>">
 
-				<p>You’re viewing the staging site</p>
+				<p>You’re viewing the <?php echo $this->is_current_user_staging() ? 'staging' : 'live' ?> site</p>
 
 				<div class="staging__toggles">
 
@@ -321,7 +322,7 @@ class VIP_Staging {
 
 					</div>
 
-					<p class="loading">Loading Staging Mode<span class="one">.</span><span class="two">.</span><span class="three">.</span></p>
+					<p class="loading">Loading <?php echo $this->is_current_user_staging() ? 'Live' : 'Staging' ?> Mode<span class="one">.</span><span class="two">.</span><span class="three">.</span></p>
 
 				</div>
 
