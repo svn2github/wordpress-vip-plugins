@@ -41,7 +41,6 @@ class VIP_Staging {
 
 			add_filter( 'stylesheet_uri' , array( $this, 'change_style_sheet_uri' ) );
 
-
 			//protect options while staging
 
 			//if we're updating an option, leave production options alone -- instead saved to prefixed ones
@@ -56,6 +55,7 @@ class VIP_Staging {
 		}
 
 		add_action( 'wp_footer' , array( $this, 'load_staging_button' ) );
+		add_action( 'admin_footer' , array( $this, 'load_staging_button' ) );
 
 		// Load the CSS and Javascript for the button LIVE/STAGING interface
 		$plugin_dir = plugins_url( '', __FILE__ );
