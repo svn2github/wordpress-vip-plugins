@@ -11,22 +11,22 @@ class VIP_Staging {
 	const SUFIX = '-live';
 	private $option_prefix;
 
-    /**
-     * VIP_Staging constructor
-     *
-     * Loading the required hooks and filters for the staging functionality
-     * to be added to a blog.
-     *
-     * The action hooks and filters are only loaded for a specific user a stagin
-     * enabled site.
-     */
+	/**
+	 * VIP_Staging constructor
+	 *
+	 * Loading the required hooks and filters for the staging functionality
+	 * to be added to a blog.
+	 *
+	 * The action hooks and filters are only loaded for a specific user a stagin
+	 * enabled site.
+	 */
 	public function __construct() {
 
-        if (! $this->user_can_stage() ){
+		if (! $this->user_can_stage() ){
 
-            return;
+			return;
 
-        }
+		}
 
 		$this->option_prefix = 'wpcomstaging_' . get_current_user_id() . '_';
 
@@ -38,6 +38,9 @@ class VIP_Staging {
 
 			add_filter( 'stylesheet_directory', array( $this, 'change_template_directory' ), 10, 3 );
 			add_filter( 'stylesheet', array( $this, 'change_template' ) );
+
+			add_filter( 'stylesheet_uri' , array( $this, 'change_style_sheet_uri' ) );
+
 
 			//protect options while staging
 
@@ -52,40 +55,42 @@ class VIP_Staging {
 			}
 		}
 
-        add_action( 'wp_footer' , array( $this, 'load_staging_button' ) );
+		add_action( 'wp_footer' , array( $this, 'load_staging_button' ) );
 
-        // Load the CSS and Javascript for the button LIVE/STAGING interface
-        $plugin_dir = plugins_url( '', __FILE__ );
-        wp_enqueue_style( 'vip-staging-css',  $plugin_dir . '/'  . 'vip-staging-style.css' );
-        wp_enqueue_script( 'vip-staging-js', $plugin_dir . '/' . 'vip-staging-script.js', array('jquery') );
+		// Load the CSS and Javascript for the button LIVE/STAGING interface
+		$plugin_dir = plugins_url( '', __FILE__ );
+		wp_enqueue_style( 'vip-staging-css',  $plugin_dir . '/'  . 'vip-staging-style.css' );
+		wp_enqueue_script( 'vip-staging-js', $plugin_dir . '/' . 'vip-staging-script.js', array('jquery') );
+
+		// Localize the script
+		wp_localize_script( 'vip-staging-js', 'wp_vip_staging', array(
+			'is_staging' => $this->is_current_user_staging(),
+		) );
 
 		// Load the AJAX endpoints
 		add_action( "wp_ajax_vip_staging_deploy", array( $this, 'ajax_deploy_endpoint' ) );
-		add_action( "wp_ajax_vip_staging_deploy_status", array( $this, 'ajax_deploy_status_endpoint' ) );   
+		add_action( "wp_ajax_vip_staging_deploy_status", array( $this, 'ajax_deploy_status_endpoint' ) );
 		add_action( "wp_ajax_vip_staging_deploy_info", array( $this, 'ajax_deploy_info_endpoint' ) );
 		add_action( "wp_ajax_vip_staging_toggle", array( $this, 'ajax_toggle_staging_endpoint' ) );
 
 	}
 
-    /**
-     * Override the template directory to load the staging repository instead
-     * of the live site repository.
-     *
-     * @param $template_dir
-     * @param $template
-     * @param $theme_root
-     *
-     * @return string $template_dir
-     */
+	/**
+	 * Override the template directory to load the staging repository instead
+	 * of the live site repository.
+	 *
+	 * @param $template_dir
+	 * @param $template
+	 * @param $theme_root
+	 *
+	 * @return string $template_dir
+	 */
 	public function change_template_directory( $template_dir, $template, $theme_root ) {
 
-		$staging_name = str_replace( self::SUFIX, '', $template );
+		// Check if there is a staging them loaded
+		if ( $this->has_staging_theme( $template_dir )  ) {
 
-		$staging_theme = wp_get_theme( $staging_name );
-		// Check if there is a staging parent theme.
-		if ( $staging_theme->exists() ) {
-
-			return $theme_root . '/' . $staging_name;
+			return $template_dir . '/staging' ;
 
 		}
 
@@ -93,38 +98,74 @@ class VIP_Staging {
 
 	}
 
-    /**
-     * Override the template name when in a staging environment.
-     *
-     * @param $template
-     * @return mixed
-     */
+	/**
+	 * Override the template name when in a staging environment.
+	 *
+	 * @param $template
+	 * @return mixed
+	 */
 	public function change_template( $template ) {
 
-		$staging_name = str_replace( self::SUFIX, '', $template );
-		$theme = wp_get_theme( $staging_name );
 
-		if( $theme->exists() ) {
+		$theme = wp_get_theme( $template );
+		$theme_dir = $theme->get_stylesheet_directory();
+		// Check if there is a staging them loaded
+		if ( $this->has_staging_theme( $theme_dir )  ) {
 
-			return $staging_name;
+			return $template . '/staging' ;
 
 		}
 
 		return $template;
 
+
 	} // end change_template
 
-    /**
-     * Check if the current user has enabled the staging environment
-     * on the current blog.
-     *
-     * @return boolean
-     */
+	/**
+	 * Check if the current user has enabled the staging environment
+	 * on the current blog.
+	 *
+	 * @return boolean
+	 */
 	public function is_current_user_staging() {
 
 		return '1' == get_user_option( 'show_staging_env', get_current_user_id() );
 
 	}// end is_current_user_staging
+
+	/**
+	 * Change the stylesheet URI to load the staging theme stylesheet
+	 */
+	public function change_style_sheet_uri( $uri ){
+		if( $this->has_staging_theme( get_stylesheet_directory() ) ){
+			return get_stylesheet_directory_uri() . '/staging/style.css';
+		}
+		return $uri;
+	}
+
+	/**
+	 * Determine if the current template has a sub directory
+	 * with a valid theme called staging. It simply looks
+	 * for a valid style.css file.
+	 *
+	 * @return boolean
+	 */
+	public function has_staging_theme( $current_theme_dir ){
+
+		$staging_style_css_path = $current_theme_dir . '/staging/style.css';
+
+		// Check if there is a staging parent theme.
+		if ( file_exists( $staging_style_css_path ) ) {
+
+			return true;
+
+		}
+
+
+
+		return false;
+
+	}// end has_staging_theme
 
 	private function get_repositories_info() {
 		$stylesheet = str_replace( 'vip/' , '', get_stylesheet() );
@@ -169,10 +210,10 @@ class VIP_Staging {
 		return $data;
 	}
 
-    /**
-     * Switch the current users between the staging and the live
-     * environment.
-     */
+	/**
+	 * Switch the current users between the staging and the live
+	 * environment.
+	 */
 	public function toggle_staging( $is_stage = null ) {
 
 		$user_id = get_current_user_id();
@@ -190,7 +231,7 @@ class VIP_Staging {
 			$this->cleanup_tmp_staging_options();
 		}
 
-	} // end is_current_user_staging
+	} // end toggle_staging
 
 	/**
 	 * If we're retrieving an option, check if there's a prefixed temporary staging option available and return that instead
@@ -242,76 +283,78 @@ class VIP_Staging {
 	}
 
 	/**
-     * Display the staging user interface.
-     *
-     * Outputs the HTML , CSS and Javascript
-     * needed for the staging button to function.
-     */
+	 * Display the staging user interface.
+	 *
+	 * Outputs the HTML , CSS and Javascript
+	 * needed for the staging button to function.
+	 */
 	public function load_staging_button(){
 
-        $class = $this->is_current_user_staging() ? 'staging' : 'live';
-        $class .=  defined ( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED  ? ' sandboxed ' : '';
+		$class = $this->is_current_user_staging() ? 'staging' : 'live';
+		$class .=  defined ( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED  ? ' sandboxed ' : '';
 
-        ?>
+		?>
 
-        <div id="staging-vip" class="<?php esc_attr_e( $class ); ?>">
+		<div id="staging-vip" class="<?php esc_attr_e( $class ); ?>">
 
-            <a class="staging__button live" href="#"></a>
+			<a class="staging__button live" href="#"></a>
 
-            <div class="staging__info">
+			<div class="staging__info <?php echo $this->is_current_user_staging() ? 'visible' : '' ?>">
 
-                <p>You’re viewing the staging site</p>
+				<p>You’re viewing the staging site</p>
 
-                <div class="staging__toggles">
+				<div class="staging__toggles">
 
-                    <div class="staging__toggle">
+					<div class="staging__toggle">
 
-                        <label for="preview_status">
+						<label for="preview_status">
 
-                            <small class="label-live">Live</small>
+							<small class="label-live">Live</small>
 
-                            <input <?php checked(true, $this->is_current_user_staging() ); ?> type="checkbox"  id="preview_status" value="">
+							<input <?php checked(true, $this->is_current_user_staging() ); ?> type="checkbox"  id="preview_status" value="">
 
-                            <span><small></small></span>
+							<span><small></small></span>
 
-                            <small class="label-staging">Staging</small>
+							<small class="label-staging">Staging</small>
 
-                        </label>
+						</label>
 
-                    </div>
+					</div>
 
-                </div>
+					<p class="loading">Loading Staging Mode<span class="one">.</span><span class="two">.</span><span class="three">.</span></p>
 
-                <p>There are unsynced changes</p>
+				</div>
 
-                <div class="staging__revisions">
+				<!-- <p>There are unsynced changes</p>
 
-                    <span class="label">Live</span><span>r102093</span>
+				<div class="staging__revisions">
 
-                    <span class="label">Staging</span><span>r102098</span>
+					<span class="label">Live</span><span>r102093</span>
 
-                </div>
+					<span class="label">Staging</span><span>r102098</span>
 
-            </div>
+				</div> -->
 
-        </div>
+			</div>
+
+		</div>
 
 
 
 		<?php
 	} // end load_staging_button
 
-    /**
-     * Test if the current user has the permissions run the staging site.
-     *
-     * @return bool
-     */
+	/**
+	 * Test if the current user has the permissions run the staging site.
+	 *
+	 * @return bool
+	 */
 	public function user_can_stage() {
 
-        // Let's say that all the administrators can stage the site, by default.
-        return apply_filters('vip_staging_can_stage', current_user_can('manage_options') || is_automattician());
+		// Let's say that all the administrators can stage the site, by default.
+		return apply_filters('vip_staging_can_stage', current_user_can('manage_options') || is_automattician());
 
-    }// end user_can_stage
+	}// end user_can_stage
 
 	/**
 	 * Checks if the current user has permission to deploy.
@@ -346,12 +389,12 @@ class VIP_Staging {
 
 	}
 
-    /**
-     * For successful request incoming ajax requests this function
-     * will initiate the deploy script.
-     *
-     * Will return the result back to the calling ajax query as JSON.
-     */
+	/**
+	 * For successful request incoming ajax requests this function
+	 * will initiate the deploy script.
+	 *
+	 * Will return the result back to the calling ajax query as JSON.
+	 */
 	public function ajax_deploy_endpoint() {
 
 		if( ! $this->user_can_deploy() ) {
@@ -365,10 +408,10 @@ class VIP_Staging {
 
 	} // end ajax_deploy_endpoint
 
-    /**
-     * Check the current deploy job status on an ajax request.
-     * Will return JSON data containing the status for the current deploy job if one exists.
-     */
+	/**
+	 * Check the current deploy job status on an ajax request.
+	 * Will return JSON data containing the status for the current deploy job if one exists.
+	 */
 	public function ajax_deploy_status_endpoint() {
 
 		if( ! $this->user_can_deploy() ) {
@@ -387,9 +430,9 @@ class VIP_Staging {
 
 	} // end ajax_deploy_status_endpoint
 
-    /**
-     * Give back the deploy information via JSON
-     */
+	/**
+	 * Give back the deploy information via JSON
+	 */
 	public function ajax_deploy_info_endpoint() {
 
 		if( ! $this->user_can_deploy() ) {
@@ -402,13 +445,13 @@ class VIP_Staging {
 
 	} // end ajax_deploy_info_endpoint
 
-    /**
-     *
-     * Switch the current user between staging and live
-     *
-     */
+	/**
+	 *
+	 * Switch the current user between staging and live
+	 *
+	 */
 	public function ajax_toggle_staging_endpoint() {
-        // @todo: change back to POST
+		// @todo: change back to POST
 		$is_staging = (bool) $_REQUEST['is_staging'];
 
 		if( ! $this->user_can_stage() ) {
@@ -423,9 +466,9 @@ class VIP_Staging {
 
 	}// end ajax_toggle_staging_endpoint
 
-    /**
-     * Send back JSON no permission error message
-     */
+	/**
+	 * Send back JSON no permission error message
+	 */
 	private function ajax_die_no_permissions() {
 
 		wp_send_json_error( 'No permissions' );
