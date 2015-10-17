@@ -28,6 +28,13 @@ class VIP_Staging {
 
 		}
 
+		// for now restrict to just our test blog
+		if ( 101079068 != get_current_blog_id() ) {
+
+			return;
+
+		}
+
 		$this->option_prefix = 'wpcomstaging_' . get_current_user_id() . '_';
 
 		// Only load the staging theme if user has the option
