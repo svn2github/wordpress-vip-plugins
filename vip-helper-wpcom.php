@@ -959,3 +959,15 @@ function wpcom_vip_remove_opensearch(){
 	global $opensearch;
 	remove_action( 'wp_head', array( $opensearch,'insertAutodiscovery' ) );
 }
+
+function wpcom_vip_set_url_scheme( $scheme = 'https' ) {
+	$domain = parse_url( home_url(), PHP_URL_HOST );
+
+	add_filter( 'set_url_scheme', function( $url ) use ( $scheme ) {
+		if ( 'https' == $scheme ) {
+			return str_replace( 'http://' . $domain, 'https://' . $domain, $url );
+		} else {
+			return str_replace( 'https://' . $domain, 'http://' . $domain, $url );
+		}
+	});
+}
