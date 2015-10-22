@@ -81,7 +81,7 @@ FTBWP = ( function( $ ) {
 			return property + '="' + sanitizeShortcode( options[property] ) + '"';
 		} );
 
-		var shortcode = '[findthebest ' + attributes.join( ' ' ) + ']\n\n';
+		var shortcode = '[graphiq ' + attributes.join( ' ' ) + ']\n\n';
 		window.send_to_editor( shortcode );
 	}
 
@@ -94,6 +94,7 @@ FTBWP = ( function( $ ) {
 	}
 
 	function sanitizeShortcode( text ) {
+		text = '' + text; // Coerce to string
 		return text
 			.replace( /\[/g, '(' )
 			.replace( /]/g,  ')' )

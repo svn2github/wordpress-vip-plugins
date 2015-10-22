@@ -1,17 +1,17 @@
 <?php
 /**
- * Plugin Name: FindTheBest Visual Search
- * Description: Discover and embed interactive data visualizations on people, organizations, products, and more.
- * Version: 3.0.4
- * Author: FindTheBest
- * Author URI: http://findthebest.com
+ * Plugin Name: Graphiq Search
+ * Description: Discover and embed interactive visualizations on people, organizations, products, and more.
+ * Version: 3.0.8
+ * Author: Graphiq
+ * Author URI: https://www.graphiq.com
  * Text Domain: findthebest
  * License: GPLv2
  */
 
 define( 'FTB_WP_DEFAULT_KEY', 'cd3d6c2a036146d0e3b242c510ebc855' );
 
-class FindTheBest_VisualSearch {
+class GraphiqSearch {
 
 	/**
 	 * Singleton
@@ -21,7 +21,7 @@ class FindTheBest_VisualSearch {
 
 		if ( !$instance ) {
 			load_plugin_textdomain( 'findthebest', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-			$instance = new FindTheBest_VisualSearch;
+			$instance = new GraphiqSearch;
 		}
 
 		return $instance;
@@ -43,16 +43,17 @@ class FindTheBest_VisualSearch {
 		}
 
 		add_shortcode( 'findthebest', array( &$this, 'shortcode_handler' ) );
+		add_shortcode( 'graphiq', array( &$this, 'shortcode_handler' ) );
 	}
 
-	public function FindTheBest_VisualSearch() {
+	public function GraphiqSearch() {
 		$this->__construct();
 	}
 
 	function add_media_button() {
 		if( $this->post_type_supported() ) {
 			echo $this->render( 'media-button', array(
-				'title' => __( 'Add Visuals', 'findthebest' )
+				'title' => __( 'Add Visualizations', 'findthebest' )
 			) );
 		}
 	}
@@ -61,7 +62,7 @@ class FindTheBest_VisualSearch {
 		if( $this->post_type_supported() ) {
 			add_meta_box(
 				'ftb',
-				__( 'FindTheBest Visual Search', 'findthebest' ),
+				__( 'Graphiq Search', 'findthebest' ),
 				array( &$this, 'meta_box_shim' ),
 				get_post_type(),
 				'side'
@@ -113,8 +114,8 @@ class FindTheBest_VisualSearch {
 
 	function options_page_add_menu() {
 		add_options_page(
-			__( 'FindTheBest Options', 'findthebest' ), // Page title
-			__( 'FindTheBest', 'findthebest' ),         // Menu title
+			__( 'Graphiq Search Options', 'findthebest' ), // Page title
+			__( 'Graphiq Search', 'findthebest' ),         // Menu title
 			'manage_options',                           // Capability
 			'findthebest-options',                      // Menu slug
 			array( &$this, 'options_page_render' )      // Render callback
@@ -204,7 +205,7 @@ class FindTheBest_VisualSearch {
 	}
 
 	/**
-	 * Converts the FindTheBest shortcode into an HTML embed code.
+	 * Converts the Graphiq shortcode into an HTML embed code.
 	 *
 	 * @param array $attributes An associative array of shortcode arguments.
 	 * @return string The HTML embed code.
@@ -225,6 +226,11 @@ class FindTheBest_VisualSearch {
 		);
 
 		$arguments = wp_parse_args( $attributes, $defaults );
+
+		// Backwards compatibility with "name"
+		if ( !empty( $arguments['name'] ) ) {
+			$arguments['title'] = $arguments['name'];
+		}
 
 		if ( empty( $arguments['id'] ) || empty( $arguments['link'] ) ||
 			empty( $arguments['title'] ) || empty( $arguments['url'] ) ) {
@@ -275,4 +281,4 @@ class FindTheBest_VisualSearch {
 
 }
 
-add_action( 'plugins_loaded', array( 'FindTheBest_VisualSearch', 'init' ) );
+add_action( 'plugins_loaded', array( 'GraphiqSearch', 'init' ) );
