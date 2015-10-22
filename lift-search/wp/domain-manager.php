@@ -48,7 +48,7 @@ class Lift_Cloud_Config_API extends Cloud_Config_API {
 				'last_status_code' => $this->last_status_code,
 				'response' => $result
 			);
-			set_transient( 'lift_request_' . $method, $cache, 60 );
+			set_transient( 'lift_request_' . $method, $cache, 600 );
 		} elseif ( isset( $this->clear_cache_methods[$method] ) ) {
 			foreach ( $this->clear_cache_methods[$method] as $clear_methods ) {
 				delete_transient( 'lift_request_' . $clear_methods );
@@ -139,7 +139,7 @@ class Lift_Domain_Manager {
 			}
 		}
 		if ( count( $changed_fields ) ) {
-			TAE_Async_Event::WatchWhen( array( $this, 'needs_indexing' ), array( $domain_name, $region ), 60, 'lift_needs_indexing_'. $domain_name )
+			TAE_Async_Event::WatchWhen( array( $this, 'needs_indexing' ), array( $domain_name, $region ), 660, 'lift_needs_indexing_'. $domain_name )
 				->then( array( $this, 'index_documents' ), array( $domain_name, $region ), true )
 				->then( array( 'Lift_Batch_Handler', 'queue_all' ) )
 				->commit();

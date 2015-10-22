@@ -9,7 +9,7 @@ interface iLift_HTTP {
 	public function getStatusCode();
 
 	public function getResponse();
-	
+
 	public function getLastError();
 }
 
@@ -18,7 +18,7 @@ class Lift_HTTP_WP implements iLift_HTTP {
 	protected $response_code;
 	protected $response;
 	protected $last_error;
-	
+
 
 	private function makeRequest( $url, $method = 'POST', $data = '', $headers = array( ) ) {
 		// @TODO: better error handling to pass up to caller
@@ -68,7 +68,7 @@ class Lift_HTTP_WP implements iLift_HTTP {
 	public function getResponse() {
 		return $this->response;
 	}
-	
+
 	public function getLastError() {
 		return $this->last_error;
 	}

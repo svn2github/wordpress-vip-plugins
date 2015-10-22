@@ -2,8 +2,8 @@
 Contributors: voceplatforms
 Tags: search, cloudsearch, amazon, aws
 Requires at least: 3.4.2
-Tested up to: 3.6.1
-Stable tag: 1.9.1
+Tested up to: 4.0.1
+Stable tag: 1.9.11
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +12,7 @@ Improves WordPress search using Amazon CloudSearch.
 == Description ==
 
 Lift leverages the search index power of Amazon CloudSearch to improve your
- WordPress-powered site’s search experience. Learn more at: 
+ WordPress-powered site’s search experience. Learn more at:
 [getliftsearch.com](http://getliftsearch.com/)
 
 Minimum requirements:
@@ -23,7 +23,7 @@ Minimum requirements:
 
 == Installation ==
 
-For full documentation see 
+For full documentation see
 [getliftsearch.com/documentation/](http://getliftsearch.com/documentation/)
 
 Minimum requirements:
@@ -38,16 +38,16 @@ Minimum requirements:
 
 3. Enter your Amazon Access Key ID and Secret Access Key.
 
-4. Click "Save Save Amazon Keys." If the test fails, check that both of 
-your keys are entered correctly and that you are connected to Amazon. 
+4. Click "Save Save Amazon Keys." If the test fails, check that both of
+your keys are entered correctly and that you are connected to Amazon.
 
 5. Enter a Search Domain Name. This must be a unique string to your AWS account.
 The domain name string can only contain the following characters: a-z (lowercase),
-0-9, and - (hyphen). Uppercase letters and underscores are not allowed. 
+0-9, and - (hyphen). Uppercase letters and underscores are not allowed.
 The string has a max length of 28 characters.
 
-6. Click "Save Domain Name". Lift will create the new domain for you.  If the 
-domain already exist, Lift will confirm if you would like to override the existing 
+6. Click "Save Domain Name". Lift will create the new domain for you.  If the
+domain already exist, Lift will confirm if you would like to override the existing
 domain before applying it's schema to the existing domain.
 
 7. Lift will display a progress screen while your new domain is setup.  Once
@@ -67,7 +67,7 @@ domain. Due to this, searching across sites in a network is not supported, howev
 may be added at a later date if there is interest.
 
 = How much does Lift cost? =
-There is no charge for the plugin. The only charges you incur are for usage of 
+There is no charge for the plugin. The only charges you incur are for usage of
 Amazon CloudSearch. You can [learn more](http://aws.amazon.com/cloudsearch/pricing/) about expected costs at Amazon's
 CloudSearch site.
 
@@ -79,7 +79,7 @@ add li8n support for the setup and status pages.
 = How do I set up Google Analytics to track searches? =
 Since Lift hooks in to the standard WordPress search, if you are already tracking
 searches through Google Analytics you don't need to do anything. If you would
-like to know how to do this, see the [Google Analytics docs](http://www.google.com/url?q=http%3A%2F%2Fsupport.google.com%2Fanalytics%2Fbin%2Fanswer.py%3Fhl%3Den%26answer%3D1012264). 
+like to know how to do this, see the [Google Analytics docs](http://www.google.com/url?q=http%3A%2F%2Fsupport.google.com%2Fanalytics%2Fbin%2Fanswer.py%3Fhl%3Den%26answer%3D1012264).
 The Query Parameter to enter (step #8) is "s".
 
 = What index fields are used when Lift configures a new search domain? =
@@ -102,7 +102,7 @@ taxonomy_post_tag_id     literal  Yes            No       No
 taxonomy_post_tag_label  text     No             No       Yes (default)`
 
 = Which post types are indexed by default? How do I modify which post types are indexed? =
-By default, posts and pages are indexed. To modify this, use the `lift_indexed_post_types` filter which is an array of post types to index. 
+By default, posts and pages are indexed. To modify this, use the `lift_indexed_post_types` filter which is an array of post types to index.
 
 == Screenshots ==
 
@@ -112,6 +112,43 @@ By default, posts and pages are indexed. To modify this, use the `lift_indexed_p
 4. Lift Search Form
 
 == Changelog ==
+== 1.9.11 ==
+* Prefix where replacement query clauses with $wpdb->posts to prevent conflicts with tables using identifical field names
+
+== 1.9.10 ==
+* Cancel original WP core search when Lift returns results
+* Fix PHP strict static warnings
+
+== 1.9.9 ==
+* Adding changes per WP VIP
+
+== 1.9.8 ==
+* Adding `lift_send_search` action to allow logic based upon the results of search
+
+== 1.9.7 ==
+* Bug Fix: Fixing issue with error logs not handling nonce and clearing.
+
+== 1.9.6 ==
+* Fixing packagist.org compatibility
+
+== 1.9.5 ==
+* Fixing class_exists check to be compatible whether the plugin is installed via composer or wp.org
+* Code formatting cleanup
+
+== 1.9.4 ==
+* Adding Capistrano deploy support
+* Removing enqueue of modernizr
+* Removing all trailing slashes
+* JS Cleanup
+
+== 1.9.3 ==
+* Bug Fix: Fix type in Lift_Post_Meta_Update_Watcher's `lift_queue_entire_post` hook.
+* Added `lift_cs_query_orderby_values` filter to allow modification of valid sorting fields.
+* Added reference to `Lift_WP_Query` instance in `get_cs_query` action arguments.
+
+== 1.9.2 ==
+* Increased transient times to 10 minutes to reduce load on AWS caused by DescribeDomain.
+
 == 1.9.1 ==
 * Fixed built in facet option for custom taxonomy fields.
 * Added automatic registration of watcher for custom taxonomy fields.

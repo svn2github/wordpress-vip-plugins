@@ -20,7 +20,7 @@ class Lift_Document_Update_Queue {
 	 * The closed queue is the one that is currently no longer accepting
 	 * new changes and is waiting or in the process of being sent in batches
 	 *
-	 * @return int 
+	 * @return int
 	 */
 	public static function get_closed_queue_id() {
 		return self::get_queue_id( 'closed' );
@@ -28,9 +28,9 @@ class Lift_Document_Update_Queue {
 
 	/**
 	 * Gives the post_id representing the current active queue that all
-	 * new changes are saved to.  
-	 * 
-	 * @return int 
+	 * new changes are saved to.
+	 *
+	 * @return int
 	 */
 	public static function get_active_queue_id() {
 		return self::get_queue_id( 'active' );
@@ -39,12 +39,12 @@ class Lift_Document_Update_Queue {
 	/**
 	 * Closes the active queue and creates a new active queue to start
 	 * storing new updates
-	 * 
-	 * @return type 
+	 *
+	 * @return type
 	 */
 	public static function close_active_queue() {
 		$lock_name = 'lift_close_active_queue';
-		
+
 		$lock_key = md5( uniqid( microtime() . mt_rand(), true ) );
 		if ( !get_transient( $lock_name ) ) {
 			set_transient( $lock_name, $lock_key, 60 );
@@ -54,16 +54,16 @@ class Lift_Document_Update_Queue {
 			//another server/request has this lock
 			return;
 		}
-		
-		
+
+
 		$active_queue_id = self::get_active_queue_id();
 		$closed_queue_id = self::get_closed_queue_id();
-		
+
 		update_option( self::QUEUE_IDS_OPTION, array(
 			'active' => $closed_queue_id,
 			'closed' => $active_queue_id
 		));
-		
+
 		delete_transient($lock_name);
 	}
 
@@ -93,7 +93,7 @@ class Lift_Document_Update_Queue {
 	 * @param int $document_id
 	 * @param string $field_name
 	 * @param string $document_type
-	 * @return bool 
+	 * @return bool
 	 */
 	public static function queue_field_update( $document_id, $field_name, $document_type = 'post' ) {
 		$doc_update = self::get_queued_document_updates( $document_id, $document_type );
@@ -104,7 +104,7 @@ class Lift_Document_Update_Queue {
 	 * Queus the document for deletion
 	 * @param int $document_id
 	 * @param string $document_type
-	 * @return bool 
+	 * @return bool
 	 */
 	public static function queue_deletion( $document_id, $document_type = 'post' ) {
 		$doc_update = self::get_queued_document_updates( $document_id, $document_type );
@@ -116,7 +116,7 @@ class Lift_Document_Update_Queue {
 	 * batch.  A new instance is created if there isn't yet one.
 	 * @param int $document_id
 	 * @param string $document_type
-	 * @return Lift_Update_Document 
+	 * @return Lift_Update_Document
 	 */
 	public static function get_queued_document_updates( $document_id, $document_type = 'post' ) {
 		$key = 'lift_update_' . $document_type . '_' . $document_id;
@@ -137,7 +137,7 @@ class Lift_Document_Update_Queue {
 	}
 
 	/**
-	 * Initializes needed post type for storage 
+	 * Initializes needed post type for storage
 	 */
 	public static function init() {
 		register_post_type( self::STORAGE_POST_TYPE, array(
@@ -202,7 +202,7 @@ class Lift_Document_Update_Queue {
 	}
 
 	/**
-	 * Callback on shutdown to save any updated documents 
+	 * Callback on shutdown to save any updated documents
 	 */
 	public static function _save_updates() {
 		foreach ( self::$document_update_docs as $change_doc ) {

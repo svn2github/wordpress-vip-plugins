@@ -6,8 +6,8 @@ if ( !class_exists( 'Lift_Health' ) ) {
 
 		/**
 		 * Combine the remote and local health into one
-		 * 
-		 * @return array 
+		 *
+		 * @return array
 		 */
 		public static function get_overall_status() {
 
@@ -43,7 +43,7 @@ if ( !class_exists( 'Lift_Health' ) ) {
 		 *
 		 * @global int $lift_health_interval
 		 * @static
-		 * @return array 
+		 * @return array
 		 */
 		public static function get_local_status() {
 			if ( !Lift_Search::error_logging_enabled() ) {
@@ -105,10 +105,10 @@ if ( !class_exists( 'Lift_Health' ) ) {
 
 		/**
 		 * used for local health checks to get recent logs
-		 * 
+		 *
 		 * @global int $lift_health_interval
 		 * @param string $where
-		 * @return string 
+		 * @return string
 		 */
 		public static function filter_posts_where( $where = '' ) {
 			global $lift_health_interval;
@@ -121,8 +121,8 @@ if ( !class_exists( 'Lift_Health' ) ) {
 
 		/**
 		 * use the config API to get the CloudSearch domain/index status
-		 * 
-		 * @return array 
+		 *
+		 * @return array
 		 */
 		public static function get_remote_status() {
 			$domain = Lift_Search::get_domain_manager()->get_domain( Lift_Search::get_search_domain_name() );

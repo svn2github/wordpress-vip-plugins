@@ -28,7 +28,7 @@ class Lift_Posts_To_SDF {
 	 * @param $content
 	 * @return string
 	 */
-	function __strip_tags_shortcodes( $content ) {
+	public static function __strip_tags_shortcodes( $content ) {
 		return strip_tags( strip_shortcodes( $content ) );
 	}
 
@@ -38,7 +38,7 @@ class Lift_Posts_To_SDF {
 	 * @param $cats - "post_categories" Post object property
 	 * @return array
 	 */
-	function __format_post_categories( $cats ) {
+	public static function __format_post_categories( $cats ) {
 		return array_map( 'intval', array_values( $cats ) );
 	}
 
@@ -48,7 +48,7 @@ class Lift_Posts_To_SDF {
 	 * @param $tags - "tags_input" Post object property
 	 * @return array
 	 */
-	function __format_post_tags( $tags ) {
+	public static function __format_post_tags( $tags ) {
 		// @TODO: performance
 		return array_map( function( $tag ) {
 					$term = get_term_by( 'name', $tag, 'post_tag' );

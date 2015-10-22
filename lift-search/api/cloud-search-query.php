@@ -109,5 +109,5 @@ class Cloud_Search_Query {
 }
 
 class CloudSearchAPIException extends Exception {
-	
+
 }

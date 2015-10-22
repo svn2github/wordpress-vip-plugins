@@ -4,7 +4,7 @@ class LiftLinkControl {
 
 	/**
 	 *
-	 * @var Lift_Search_Form 
+	 * @var Lift_Search_Form
 	 */
 	protected $form;
 	public $label;
@@ -16,7 +16,7 @@ class LiftLinkControl {
 	 * @param Lift_Search_Form $form
 	 * @param string $label
 	 * @param array $items
-	 * @param array $options 
+	 * @param array $options
 	 */
 	public function __construct( $form, $label, $items, $options = array( ) ) {
 		$options = wp_parse_args( $options, array(
@@ -30,7 +30,7 @@ class LiftLinkControl {
 
 	/**
 	 * Returns the HTML for a single-selectable control
-	 * @return string 
+	 * @return string
 	 */
 	public function toHTML() {
 		$html = '';

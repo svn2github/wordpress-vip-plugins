@@ -5,13 +5,10 @@
  * @module LiftSearchForm
  */
 (function ($) {
-  var toggleExpanded = function() {
-    $(this).parent('ul').toggleClass('expanded');
-  };
-  
-	"use strict";
   $('.no-js').removeClass('no-js');
-  
-  $('.lift-filter-expand, .lift-filter-collapse').on('click', toggleExpanded);
-  
+
+  $('.lift-filter-expand, .lift-filter-collapse').on('click', function() {
+    $(this).parent('ul').toggleClass('expanded');
+  });
+
 })(jQuery);

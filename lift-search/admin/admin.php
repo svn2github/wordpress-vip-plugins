@@ -88,7 +88,6 @@ class Lift_Admin {
 			'templateDir' => plugins_url( '/templates/', __FILE__ ),
 			'errorLoggingEnabled' => Lift_Search::error_logging_enabled()
 		) );
-		wp_enqueue_script( 'modernizr', plugins_url( 'js/modernizr.min.js', __DIR__ ), array( ), '2.6.2', true );
 		$this->__admin_enqueue_style();
 	}
 
@@ -157,7 +156,7 @@ class Lift_Admin {
 							Lift_Search::set_search_domain_name( '' );
 							Lift_Batch_Handler::_deactivation_cleanup();
 							$response['model']['value'] = '';
-						} elseif ( $domain = $domain_manager->domain_exists( $setting_value, $region ) ) {
+						} elseif ( $domain_manager->domain_exists( $setting_value, $region ) ) {
 							$changed_fields = array( );
 							if ( !is_wp_error( $result = $domain_manager->apply_schema( $setting_value, null, $changed_fields, $region ) ) ) {
 								if ( $replacing_domain ) {
@@ -361,6 +360,7 @@ class Lift_Admin {
 		if ( Lift_Search::error_logging_enabled() ) {
 			$response->view_all_url = esc_url( admin_url( sprintf( 'edit.php?post_type=%s', Voce_Error_Logging::POST_TYPE ) ) );
 			if ( $_SERVER['REQUEST_METHOD'] === 'POST' ) {
+				check_ajax_referer( 'lift_error_log', 'nonce' );
 				$response = Voce_Error_Logging::delete_logs( array( 'lift-search' ) );
 			} else {
 				$args = array(
@@ -408,7 +408,7 @@ class Lift_Admin {
 	 * @param string $page
 	 * @return array
 	 */
-	public function filter__plugin_row_meta( $links, $page ) {
+	public static function filter__plugin_row_meta( $links, $page ) {
 		if ( $page == self::OPTIONS_SLUG ) {
 			$links[] = '<a href="' . admin_url( 'options-general.php?page=' . self::OPTIONS_SLUG ) . '">Settings</a>';
 		}

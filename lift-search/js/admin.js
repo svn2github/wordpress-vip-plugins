@@ -350,7 +350,7 @@
       return window.ajaxurl + '?action=lift_error_log&nonce=' + this.meta.nonce;
     },
     parse: function(resp) {
-      this.meta.nonce = resp.meta;
+      this.meta.nonce = resp.nonce;
       this.meta.view_all_url = resp.view_all_url;
       return resp.errors;
     }

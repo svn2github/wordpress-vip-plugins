@@ -11,7 +11,7 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 
 		/**
 		 * Private var to track whether this class was previously initialized
-		 * 
+		 *
 		 * @var bool
 		 */
 		private static $is_initialized = false;
@@ -25,18 +25,18 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 
 		/**
 		 * The number of documents to add to the queue at a time when doing the
-		 * initial enqueuing of all documents 
+		 * initial enqueuing of all documents
 		 */
 		const QUEUE_ALL_SET_SIZE = 100;
 
 		/**
-		 * ID of the hook called by wp_cron when a batch should be processed 
+		 * ID of the hook called by wp_cron when a batch should be processed
 		 */
 		const BATCH_CRON_HOOK = 'lift_batch_cron';
 
 		/**
 		 * ID of the hook called by wp_cron when a next set of documents should
-		 * be added to the queue 
+		 * be added to the queue
 		 */
 		const QUEUE_ALL_CRON_HOOK = 'lift_queue_all_cron';
 
@@ -46,14 +46,14 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 		const CRON_INTERVAL = 'lift-cron';
 
 		/**
-		 * Name of the transient key used to block multiple processes from 
-		 * modifying batches at the same time. 
+		 * Name of the transient key used to block multiple processes from
+		 * modifying batches at the same time.
 		 */
 		const BATCH_LOCK = 'lift-batch-lock';
 
 		/**
 		 * Option name for the option storing the timestamp that the last
-		 * batch was run. 
+		 * batch was run.
 		 */
 		const LAST_CRON_TIME_OPTION = 'lift-last-cron-time';
 
@@ -69,7 +69,7 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 		}
 
 		/**
-		 * enable the cron 
+		 * enable the cron
 		 */
 		public static function enable_cron( $timestamp = null ) {
 			if ( is_null( $timestamp ) )
@@ -79,7 +79,7 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 		}
 
 		/**
-		 * disable the cron 
+		 * disable the cron
 		 */
 		public static function disable_cron() {
 			wp_clear_scheduled_hook( self::BATCH_CRON_HOOK );
@@ -97,7 +97,7 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 		/**
 		 * get the last cron run time formatted for the blog's timezone and date/time format. or 'n/a' if not available.
 		 *
-		 * * @return string date string or 'n/a' 
+		 * * @return string date string or 'n/a'
 		 */
 		public static function get_last_cron_time() {
 			$date_format = sprintf( '%s @ %s', get_option( 'date_format' ), get_option( 'time_format' ) );
@@ -114,7 +114,7 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 		/**
 		 * get the next cron run time formatted for the blog's timezone and date/time format. or 'n/a' if not available.
 		 *
-		 * * @return string date string or 'n/a' 
+		 * * @return string date string or 'n/a'
 		 */
 		public static function get_next_cron_time() {
 			$date_format = sprintf( '%s @ %s', get_option( 'date_format' ), get_option( 'time_format' ) );
@@ -132,8 +132,8 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 
 		/**
 		 * get a table with the current queue
-		 * 
-		 * @return string 
+		 *
+		 * @return string
 		 */
 		public static function get_queue_list() {
 			$page = (isset( $_GET['paged'] )) ? intval( $_GET['paged'] ) : 1;
@@ -227,7 +227,7 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 
 		/**
 		 * used by queue_all cron job to process the queue of all posts
-		 * 
+		 *
 		 * @global object $wpdb
 		 */
 		public static function process_queue_all() {
@@ -243,20 +243,20 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 			$post_types = Lift_Search::get_indexed_post_types();
 
 			$query = new WP_Query();
-			
+
 			$alter_query = function($where, $wp_query) use ($query, $id_from) {
 				global $wpdb;
 				if($wp_query === $query) { //make sure we're not messing with any other queries
 					//making sure all post_statii are used since wp_query overrides the requested statii
-					$where = $wpdb->prepare(" AND post_type in ('" . implode( "','", $wp_query->get('post_type') ) . "') ".
-						"AND ID > %d ".
-						"AND post_status <> 'auto-draft'", $id_from);
+					$where = $wpdb->prepare(" AND $wpdb->posts.post_type in ('" . implode( "','", $wp_query->get('post_type') ) . "') ".
+						"AND $wpdb->posts.ID > %d ".
+						"AND $wpdb->posts.post_status <> 'auto-draft'", $id_from);
 				}
 				return $where;
 			};
-			
+
 			add_filter('posts_where', $alter_query, 10, 2);
-			
+
 			$posts = $query->query(array(
 				'suppress_filters' => false,
 				'post_type' => $post_types,
@@ -265,9 +265,9 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 				'post_status' => array_diff(get_post_stati(), array('auto-draft')),
 				'posts_per_page' => self::get_queue_all_set_size()
 			));
-			
+
 			remove_filter('posts_where', $alter_query);
-			
+
 			if ( empty( $posts ) ) {
 				wp_clear_scheduled_hook( self::QUEUE_ALL_CRON_HOOK );
 				delete_option( self::QUEUE_ALL_MARKER_OPTION );
@@ -285,8 +285,8 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 
 		/**
 		 * is the batch locked?
-		 * 
-		 * @return bool 
+		 *
+		 * @return bool
 		 */
 		public static function is_batch_locked() {
 			$locked = get_transient( self::BATCH_LOCK );
@@ -296,9 +296,9 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 
 		/**
 		 * is the domain ready for a batch. has to exist and be in a good state
-		 * 
+		 *
 		 * @param string $domain_name
-		 * @return boolean 
+		 * @return boolean
 		 */
 		public static function ready_for_batch( $domain_name ) {
 			$domain_manager = Lift_Search::get_domain_manager();
@@ -307,8 +307,8 @@ if ( !class_exists( 'Lift_Batch_Handler' ) ) {
 
 		/**
 		 * Pulls the next set of items from the queue and sends a batch from it
-		 * Callback for Batch Submission Cron 
-		 * 
+		 * Callback for Batch Submission Cron
+		 *
 		 * @todo Add locking
 		 */
 		public static function send_next_batch() {

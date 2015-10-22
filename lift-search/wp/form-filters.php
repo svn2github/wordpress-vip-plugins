@@ -4,14 +4,14 @@ abstract class aLiftFormFilter {
 
 	/**
 	 *
-	 * @var LiftField 
+	 * @var LiftField
 	 */
 	public $field;
 	public $label;
 	public $args;
 
 	/**
-	 * 
+	 *
 	 * @param LiftField $field
 	 * @param string $label
 	 * @param array $args
@@ -28,7 +28,7 @@ abstract class aLiftFormFilter {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param array $filter_fields
 	 * @param Lift_Search_Form $lift_search_form
 	 * @return array
@@ -70,18 +70,18 @@ abstract class aLiftFormFilter {
 class LiftSingleSelectFilter extends aLiftFormFilter {
 
 	/**
-	 * Array of items to show as options for the filter.  Each item should be an 
+	 * Array of items to show as options for the filter.  Each item should be an
 	 * array of WP_Query formatted query_vars.
-	 * @var array 
+	 * @var array
 	 */
 	protected $item_values;
 	private $_filtered_item_values;
 
 	/**
-	 * 
+	 *
 	 * @param LiftField $field
 	 * @param string $label
-	 * @param array $item_values  Array of items to show as options for the filter.  Each item should be an 
+	 * @param array $item_values  Array of items to show as options for the filter.  Each item should be an
 	 * array of WP_Query formatted query_vars.
 	 * @param array $args
 	 */
@@ -151,10 +151,10 @@ class LiftSingleSelectFilter extends aLiftFormFilter {
 class LiftUnionSelectFilter extends LiftSingleSelectFilter {
 
 	/**
-	 * 
+	 *
 	 * @param LiftField $field
 	 * @param string $label
-	 * @param array $item_values  Array of items to show as options for the filter.  Each item should be an 
+	 * @param array $item_values  Array of items to show as options for the filter.  Each item should be an
 	 * array of WP_Query formatted query_vars.
 	 * @param array $args
 	 */
@@ -170,17 +170,17 @@ class LiftUnionSelectFilter extends LiftSingleSelectFilter {
 class LiftIntersectFilter extends LiftUnionSelectFilter {
 
 	/**
-	 * Array of items to show as options for the filter.  Each item should be an 
+	 * Array of items to show as options for the filter.  Each item should be an
 	 * array of WP_Query formatted query_vars.
-	 * @var array 
+	 * @var array
 	 */
 	protected $item_values;
 
 	/**
-	 * 
+	 *
 	 * @param LiftField $field
 	 * @param string $label
-	 * @param array $item_values  Array of items to show as options for the filter.  Each item should be an 
+	 * @param array $item_values  Array of items to show as options for the filter.  Each item should be an
 	 * array of WP_Query formatted query_vars.
 	 * @param array $args
 	 */

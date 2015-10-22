@@ -90,7 +90,7 @@ class Lift_Post_Meta_Update_Watcher {
 				$post_type = get_post_type( $post_id );
 				$meta_keys = Lift_Post_Meta_Update_Watcher::get_watched_meta_keys( $post_type );
 				foreach ( $meta_keys as $meta_key ) {
-					lift_queue_field_update( $document_id, $meta_key, 'post' );
+					lift_queue_field_update( $post_id, $meta_key, 'post' );
 				}
 			} );
 

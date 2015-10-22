@@ -37,7 +37,7 @@ class TAE_Async_Event {
 	public $then_events;
 
 	/**
-	 * 
+	 *
 	 * @param type $callback
 	 * @param type $params
 	 * @param type $frequency
@@ -51,14 +51,14 @@ class TAE_Async_Event {
 		}
 		return $event;
 	}
-	
+
 	public static function Unwatch( $event_key ) {
 		if($event = self::Restore($event_key)) {
 			$event->then_events = array();
 			$event->commit();
 		}
 	}
-	
+
 	public static function GenerateKey($callback, $params) {
 		return substr( md5( serialize( $callback ) . serialize( $params ) ), 0, 30 );
 	}
@@ -96,7 +96,7 @@ class TAE_Async_Event {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param type $callback
 	 * @param type $params
 	 * @param type $reschedule_on_error
@@ -190,5 +190,5 @@ register_shutdown_function( function() {
 			'tae_events' => get_option('tae_event_keys'),
 		) );
 	} );
- * 
+ *
  */
