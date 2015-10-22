@@ -697,7 +697,7 @@ class Add_Meta_Tags {
 	SEO Write panel
 	*/
 	function mt_seo_meta_box( $post, $meta_box ) {
-		global $pagenow;
+		global $post_type;
 		$this->mt_seo_fields = apply_filters('mt_seo_fields', $this->mt_seo_fields, $post, $meta_box);
 		if ( $post_id = (int) $post->ID ) {
 			foreach( (array) $this->mt_seo_fields as $field_name => $field_data ) {
@@ -725,9 +725,9 @@ class Add_Meta_Tags {
 
 		$options = get_option("add_meta_tags_opts");
 
-		if ( stristr( $pagenow, 'page' ) )
+		if ( stristr( $post_type, 'page' ) )
 			$cmpvalues = $options['page_options'];
-		elseif ( stristr( $pagenow, 'post' ) )
+		elseif ( stristr( $post_type, 'post' ) )
 			$cmpvalues = $options['post_options'];
 
 		if ( !is_array( $cmpvalues ) )
