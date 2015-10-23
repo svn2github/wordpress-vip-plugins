@@ -167,6 +167,7 @@ class WPcom_VIP_Plugins_UI {
 			'breadcrumb-navxt', // use the newer version instead
 			'daylife', // API doesn't work #36756-z
 			'feedwordpress', // breaks all the time
+			'findthebest', // replaced by Graphiq Search due to comapny rebranding
 			'google-calendar-events', // https://viprequests.wordpress.com/2015/01/06/update-google-calendar-events-shared-plugin/
 			'ice', // Crazy out-of-date, doesn't work with MCE 4+, still in use by a handful for some reason
 			'livefyre', // use livefyre3 instead
