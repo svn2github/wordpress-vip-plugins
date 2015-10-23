@@ -195,14 +195,13 @@ class WPcom_VIP_Plugins_UI {
 				'name'        => 'Facebook',
 				'description' => 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
 			),
-			'findthebest'       => array(
-				'name'        => 'FindTheBest',
-				'description' => 'Add visual, interactive content that matches your post and
-				boosts your credibility.',
-			),
 			'getty-images'       => array(
 				'name'        => 'Getty Images',
 				'description' => 'Search and use Getty Images photos in your posts without ever leaving WordPress.com.',
+			),
+			'graphiq-search'       => array(
+				'name'        => 'Graphiq Search',
+				'description' => 'Add relevant, interactive visuals to any WordPress VIP post.',
 			),
 			'inform-video-match'        => array(
 				'name'        => 'Inform Video Match',
