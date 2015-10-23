@@ -961,9 +961,8 @@ function wpcom_vip_remove_opensearch(){
 }
 
 function wpcom_vip_set_url_scheme( $scheme = 'https' ) {
-	$domain = parse_url( home_url(), PHP_URL_HOST );
-
 	add_filter( 'set_url_scheme', function( $url ) use ( $scheme ) {
+		$domain = parse_url( home_url(), PHP_URL_HOST );
 		if ( 'https' == $scheme ) {
 			return str_replace( 'http://' . $domain, 'https://' . $domain, $url );
 		} else {
