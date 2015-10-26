@@ -2,14 +2,15 @@
 /**
  * Plugin Name: Graphiq Search
  * Description: Discover and embed interactive visualizations on people, organizations, products, and more.
- * Version: 3.0.8
+ * Version: 3.1.0
  * Author: Graphiq
  * Author URI: https://www.graphiq.com
- * Text Domain: findthebest
+ * Text Domain: graphiq-search
  * License: GPLv2
  */
 
-define( 'FTB_WP_DEFAULT_KEY', 'cd3d6c2a036146d0e3b242c510ebc855' );
+define( 'GRAPHIQ_WP_DEFAULT_KEY', 'cd3d6c2a036146d0e3b242c510ebc855' );
+define( 'GRAPHIQ_OLD_SLUG', 'findthebest' );
 
 class GraphiqSearch {
 
@@ -20,7 +21,7 @@ class GraphiqSearch {
 		static $instance = false;
 
 		if ( !$instance ) {
-			load_plugin_textdomain( 'findthebest', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+			load_plugin_textdomain( 'graphiq-search', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 			$instance = new GraphiqSearch;
 		}
 
@@ -42,7 +43,7 @@ class GraphiqSearch {
 			add_action( 'print_media_templates',  array( &$this, 'print_media_templates' ) );
 		}
 
-		add_shortcode( 'findthebest', array( &$this, 'shortcode_handler' ) );
+		add_shortcode( GRAPHIQ_OLD_SLUG, array( &$this, 'shortcode_handler' ) );
 		add_shortcode( 'graphiq', array( &$this, 'shortcode_handler' ) );
 	}
 
@@ -53,7 +54,7 @@ class GraphiqSearch {
 	function add_media_button() {
 		if( $this->post_type_supported() ) {
 			echo $this->render( 'media-button', array(
-				'title' => __( 'Add Visualizations', 'findthebest' )
+				'title' => __( 'Add Visualizations', 'graphiq-search' )
 			) );
 		}
 	}
@@ -61,8 +62,8 @@ class GraphiqSearch {
 	function add_meta_box() {
 		if( $this->post_type_supported() ) {
 			add_meta_box(
-				'ftb',
-				__( 'Graphiq Search', 'findthebest' ),
+				'graphiq-search-box',
+				__( 'Graphiq Search', 'graphiq-search' ),
 				array( &$this, 'meta_box_shim' ),
 				get_post_type(),
 				'side'
@@ -73,7 +74,7 @@ class GraphiqSearch {
 	private function post_type_supported() {
 		// Add optional support for custom post types. Always add to post_type 'post'.
 		$post_type = get_post_type();
-		return post_type_supports( $post_type, 'findthebest' ) || $post_type == 'post' || $post_type == 'page';
+		return post_type_supports( $post_type, 'graphiq-search' ) || $post_type == 'post' || $post_type == 'page';
 	}
 
 	function admin_menu( $hook ) {
@@ -84,29 +85,30 @@ class GraphiqSearch {
 
 	function post_page_init() {
 		wp_enqueue_script(
-			'ftb_cms_plugin',
+			'graphiq_search_plugin',
 			$this->file_path( '/js/cms-plugin.js' )
 		);
 
 		wp_enqueue_script(
-			'ftb_script',
-			$this->file_path( '/js/ftb.js' ),
-			array( 'jquery', 'ftb_cms_plugin' )
+			'graphiq_search_script',
+			$this->file_path( '/js/graphiq-search.js' ),
+			array( 'jquery', 'graphiq_search_plugin' )
 		);
 
 		global $wp_version;
 		$user = wp_get_current_user();
-		$api_key = $this->get_option( 'findthebest_option_api_key' );
+		$api_key = $this->get_option( 'api_key' );
 
-		wp_localize_script( 'ftb_script', 'ftbData', array(
-			'apiKey' => $api_key ? $api_key : FTB_WP_DEFAULT_KEY,
+		wp_localize_script( 'graphiq_search_script', 'graphiqSearchData', array(
+			'apiKey' => $api_key ? $api_key : GRAPHIQ_WP_DEFAULT_KEY,
+			'shortcodes' => array( GRAPHIQ_OLD_SLUG, 'graphiq' ),
 			'userID' => $user->user_login ? $user->user_login : $user->ID,
 			'userEmail' => $user->user_email,
 			'wpVersion' => floatval($wp_version),
 			'locale' => get_locale()
 		) );
 
-		wp_enqueue_style( 'ftb_style', $this->file_path( '/css/ftb.css' ) );
+		wp_enqueue_style( 'graphiq_search_style', $this->file_path( '/css/graphiq-search.css' ) );
 
 		add_filter( 'tiny_mce_before_init', array( &$this, 'tiny_mce_init' ) );
 		add_filter( 'mce_external_plugins', array( &$this, 'tiny_mce_plugin' ) );
@@ -114,54 +116,63 @@ class GraphiqSearch {
 
 	function options_page_add_menu() {
 		add_options_page(
-			__( 'Graphiq Search Options', 'findthebest' ), // Page title
-			__( 'Graphiq Search', 'findthebest' ),         // Menu title
-			'manage_options',                           // Capability
-			'findthebest-options',                      // Menu slug
-			array( &$this, 'options_page_render' )      // Render callback
+			__( 'Graphiq Search Options', 'graphiq-search' ), // Page title
+			__( 'Graphiq Search', 'graphiq-search' ),         // Menu title
+			'manage_options',                                 // Capability
+			'graphiq-search-options',                         // Menu slug
+			array( &$this, 'options_page_render' )            // Render callback
 		);
 	}
 
 	function options_page_init() {
 		register_setting(
-			'findthebest_options',                   // Option group
-			'findthebest_options',                   // Option name
+			'graphiq_search_options',                // Option group
+			'graphiq_search_options',                // Option name
 			array( &$this, 'options_page_validate' ) // Sanitize
 		);
 
 		add_settings_section(
-			'findthebest_options_plugin', // ID
-			null,                         // Title
-			null,                         // Callback
-			'findthebest-options'         // Page
+			'graphiq_search_options_plugin', // ID
+			null,                            // Title
+			null,                            // Callback
+			'graphiq-search-options'         // Page
 		);
 
 		add_settings_field(
-			'findthebest_option_api_key',        // ID
-			__( 'Your API Key', 'findthebest' ), // Title
-			array( &$this, 'options_api_key' ),  // Callback
-			'findthebest-options',               // Page
-			'findthebest_options_plugin'         // Section
+			'graphiq_search_option_api_key',        // ID
+			__( 'Your API Key', 'graphiq-search' ), // Title
+			array( &$this, 'options_api_key' ),     // Callback
+			'graphiq-search-options',               // Page
+			'graphiq_search_options_plugin'         // Section
 		);
 	}
 
 	function options_api_key() {
 		echo $this->render( 'options-input-text', array(
-			'option' => $this->get_option( 'findthebest_option_api_key' ),
-			'field' => 'findthebest_option_api_key'
+			'option' => $this->get_option( 'api_key' ),
+			'field' => 'api_key'
 		) );
 	}
 
 	protected function get_option( $name ) {
-		$options = get_option('findthebest_options');
-		return isset($options[$name]) ? $options[$name] : null;
+		$options = get_option( 'graphiq_search_options' );
+
+		// Backwards compatibility with old plugin options
+		if ( !$options ) {
+			$options = get_option( GRAPHIQ_OLD_SLUG . '_options' );
+			if ( !isset($options[$name]) ) {
+				$name = GRAPHIQ_OLD_SLUG . '_option_' . $name;
+			}
+		}
+
+		return $options[$name];
 	}
 
 	function options_page_validate( $input ) {
 		$validated_input = array();
 
-		if( isset( $input['findthebest_option_api_key'] ) ) {
-			$validated_input['findthebest_option_api_key'] = sanitize_key($input['findthebest_option_api_key']);
+		if( isset( $input['api_key'] ) ) {
+			$validated_input['api_key'] = sanitize_key($input['api_key']);
 		}
 
 		return $validated_input;
@@ -271,9 +282,9 @@ class GraphiqSearch {
 
 	function tiny_mce_plugin( $plugins ) {
 		if ( $this->get_shortcode_strategy() === 'view' ) {
-			$plugins[ 'findthebest' ] = plugins_url( 'js/tiny-mce-view.js', __FILE__ );
+			$plugins[ 'graphiq-search' ] = plugins_url( 'js/tiny-mce-view.js', __FILE__ );
 		} else {
-			$plugins[ 'findthebest' ] = plugins_url( 'js/tiny-mce-plugin.js', __FILE__ );
+			$plugins[ 'graphiq-search' ] = plugins_url( 'js/tiny-mce-plugin.js', __FILE__ );
 		}
 
 		return $plugins;

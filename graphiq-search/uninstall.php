@@ -5,4 +5,4 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit();
 }
 
-delete_option( 'findthebest_options' );
+delete_option( 'graphiq_search_options' );

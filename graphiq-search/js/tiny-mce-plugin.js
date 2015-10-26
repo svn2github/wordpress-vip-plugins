@@ -1,6 +1,7 @@
 ( function( $ ) {
 
-	$.each( ['findthebest', 'graphiq'], function( i, shortcodeLabel ) {
+	// Include old slug for backwards compatibility
+	$.each( graphiqSearchData.shortcodes, function( i, shortcodeLabel ) {
 		tinyMCE.PluginManager.add( shortcodeLabel, function( editor, url ) {
 			var getAttribute = function( s, n ) {
 				n = new RegExp( n + '=\"([^\"]+)\"', 'g' ).exec( s );
@@ -20,7 +21,7 @@
 					}
 
 					var img = $( '<img/>' )
-						.addClass( 'ftb-tiny-mce-widget mceItem' )
+						.addClass( 'graphiq-tiny-mce-widget mceItem' )
 						.attr( {
 							'data-code': shortcodeLabel + options,
 							'data-id': id ,
@@ -41,7 +42,7 @@
 				var replaceCallback = function( match, options ) {
 					var cls = getAttribute( options, 'class' );
 
-					if ( -1 !== cls.indexOf( 'ftb-tiny-mce-widget' ) ) {
+					if ( -1 !== cls.indexOf( 'graphiq-tiny-mce-widget' ) ) {
 						return '[' + getAttribute( options, 'data-code' ) + ']<br /><br />';
 					}
 

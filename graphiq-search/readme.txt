@@ -1,10 +1,10 @@
 === Graphiq Search ===
 Contributors: Graphiq
 Donate link: https://www.graphiq.com/
-Tags: graphiq, find the best, visualization, infographic, embed, widget, comparison
+Tags: graphiq, data, visualization, infographic, embed, widget, comparison
 Requires at least: 2.7
-Tested up to: 4.2
-Stable tag: 3.0.8
+Tested up to: 4.3
+Stable tag: 3.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -52,6 +52,9 @@ historical approval ratings compared to other presidents).
 
 == Changelog ==
 
+= 3.1.0 =
+* Internal code restructuring for VIP
+
 = 3.0.8 =
 * Fix Graphiq URL references, minify standalone cms integration library
 
@@ -62,7 +65,7 @@ historical approval ratings compared to other presidents).
 * Minor wording change for launch button
 
 = 3.0.5 =
-* FindTheBest is now Graphiq
+* Update plugin branding
 
 = 3.0.4 =
 * Better validation and syntax for Wordpress VIP coding standards
@@ -80,7 +83,7 @@ historical approval ratings compared to other presidents).
 * Add optional API Key support for premium partners
 
 = 2.2.1 =
-* Fix iframe API interface with FTB application
+* Fix iframe API interface with graphiq application
 
 = 2.2 =
 * Add HTTPS/SSL support

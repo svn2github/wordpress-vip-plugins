@@ -1,14 +1,14 @@
 ( function( $ ) {
 
-	var ftbData = window.ftbData || {};
-	var version = +ftbData.wpVersion;
+	var graphiqSearchData = window.graphiqSearchData || {};
+	var version = +graphiqSearchData.wpVersion;
 
-	$.each( ['findthebest', 'graphiq'], function( i, shortcodeLabel ) {
+	$.each( graphiqSearchData.shortcodes, function( i, shortcodeLabel ) {
 		// View API changed significantly in 4.2
 		if (version >= 4.2) {
 
 			wp.mce.views.register( shortcodeLabel, {
-				template: wp.media.template( 'editor-findthebest' ),
+				template: wp.media.template( 'editor-graphiq' ),
 				getContent: function () {
 					return this.template(this.shortcode.attrs.named);
 				}
@@ -19,7 +19,7 @@
 
 			wp.mce.views.register( shortcodeLabel, {
 				View: {
-					template: wp.media.template( 'editor-findthebest' ),
+					template: wp.media.template( 'editor-graphiq' ),
 					postID: $('#post_ID').val(),
 					initialize: function (options) {
 						this.shortcode = options.shortcode;
