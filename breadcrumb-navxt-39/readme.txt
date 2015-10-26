@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=FD5XE
 Tags: breadcrumb, breadcrumbs, trail, navigation, menu, widget
 Requires at least: 3.1
 Tested up to: 3.2
-Stable tag: 3.9.0
+Stable tag: 3.9.1
 Adds breadcrumb navigation showing the visitor's path to their current location.
 
 == Description ==
@@ -33,12 +33,16 @@ Don't see your language on the list? Feel free to translate Breadcrumb NavXT and
 Please visit [Breadcrumb NavXT's](http://mtekk.us/code/breadcrumb-navxt/#installation "Go to Breadcrumb NavXT's project page's installation section.") project page for installation and usage instructions.
 
 == Changelog ==
+
+= 3.9.1 =
+* Added new filter `bcn-post-breadcrumb-category` for altering the category used as the basis for a breadcrumb
+
 = 3.9.0 =
 * Behavior change: Settings can not be saved, imported, or exported until any necessary settings updates and/or installs are completed.
 * New feature: Support for WordPress 3.1 custom post type archives.
 * Bug fix: Displays a warning message in the WordPress dashboard if PHP version is too old rather than trying to deactivate and dieing on all pages.
 * Bug fix: Fixed a potential cause for the "options not saved" error.
-* Bug fix: Fixed bug where the “Blog Breadcrumb” was not obeyed on archives.
+* Bug fix: Fixed bug where the ï¿½Blog Breadcrumbï¿½ was not obeyed on archives.
 = 3.8.1 =
 * Bug fix: Root pages for custom post types should work again.
 * Bug fix: The post_post_root and post_page_root not being saved warning when saving settings should be fixed.
@@ -56,14 +60,14 @@ Please visit [Breadcrumb NavXT's](http://mtekk.us/code/breadcrumb-navxt/#install
 * Bug fix: Fixed multibyte UTF-8 character support for custom taxonomies.
 * Bug fix: Fixed issue where the widget (Appearance > Widgets) would not load the appropriate translations.
 = 3.7.0 =
-* New feature: Support for “global”/network wide breadcrumb trails in networked setups of WordPress 3.0.
+* New feature: Support for ï¿½globalï¿½/network wide breadcrumb trails in networked setups of WordPress 3.0.
 * New feature: Can use any hierarchical post type as a hierarchy for flat post types.
 * New feature: Users are now warned if settings are out of date, allowed to do a one click settings migration.
-* New feature: Users can now control if a post type uses the “posts page” in it's hierarchy or not.
+* New feature: Users can now control if a post type uses the ï¿½posts pageï¿½ in it's hierarchy or not.
 * Bug fix: Breadcrumb trails for attachments work properly now for custom post types.
 * Bug fix: Users can now set custom post types to have a page hierarchy through the settings page.
 * Bug fix: Fixed issues where the PHP version check did not work correctly.
-* Bug fix: Fixed issue where all settings would get reset on “clean” 3.6.0 installs on plugin activation.
+* Bug fix: Fixed issue where all settings would get reset on ï¿½cleanï¿½ 3.6.0 installs on plugin activation.
 * Bug fix: Fixed issue when a static front page is specified but the post page is not.
 = 3.6.0 =
 * New feature: Vastly improved support for WordPress custom post types.

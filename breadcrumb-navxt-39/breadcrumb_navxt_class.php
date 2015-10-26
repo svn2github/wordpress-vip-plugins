@@ -421,6 +421,22 @@ class bcn_breadcrumb_trail
 							break;
 						}
 					}
+
+					/**
+					 * Filter the category to use for the breadcrumb base.
+					 *
+					 * Instead of using the first category, allow for plugins/themes to change to
+					 * use a different category as the base for the breadcrumb.
+					 *
+					 * @since 3.9.1
+					 *
+					 * @param int $bcn_use_term Key of the term from the $bcn_object array we're currently looking at
+					 * @param array $bcn_object Array of term objects returned by get_the_terms
+					 * @param int $id The id of the post to figure out the taxonomy for.
+					 * @param sting $type The post type of the post to figure out the taxonomy for.
+					 */
+					$bcn_use_term = apply_filters( 'bcn-post-breadcrumb-category', $bcn_use_term, $bcn_object, $id, $type );
+
 					//Fill out the term hiearchy
 					$this->term_parents($bcn_object[$bcn_use_term]->term_id, $this->opt['post_' . $type . '_taxonomy_type']);
 				}
