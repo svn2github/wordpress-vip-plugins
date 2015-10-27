@@ -1,0 +1,64 @@
+# Copyright (C) 2015 Graphiq Search
+# This file is distributed under the same license as the Graphiq Search package.
+msgid ""
+msgstr ""
+"Project-Id-Version: Graphiq Search 3.1.0\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/graphiq-search\n"
+"POT-Creation-Date: 2015-10-25 19:24:37+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2015-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+
+#: graphiq-search.php:57
+msgid "Add Visualizations"
+msgstr ""
+
+#. #-#-#-#-#  graphiq-search.pot (Graphiq Search 3.1.0)  #-#-#-#-#
+#. Plugin Name of the plugin/theme
+#: graphiq-search.php:66 graphiq-search.php:120 views/options.php:2
+msgid "Graphiq Search"
+msgstr ""
+
+#: graphiq-search.php:119
+msgid "Graphiq Search Options"
+msgstr ""
+
+#: graphiq-search.php:143
+msgid "Your API Key"
+msgstr ""
+
+#: views/meta-box.php:5
+msgid "Search"
+msgstr ""
+
+#: views/meta-box.php:6
+msgid "Search for content"
+msgstr ""
+
+#: views/options.php:4
+msgid ""
+"Premium partners can enter their API key below. This will give you priority "
+"access to new features and the ability to request custom visuals from our "
+"team of graphics specialists. Interested in becoming a premium partner?"
+msgstr ""
+
+#: views/options.php:5
+msgid "Learn more about our Journalist Solutions"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid ""
+"Discover and embed interactive visualizations on people, organizations, "
+"products, and more."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Graphiq"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://www.graphiq.com"
+msgstr ""
