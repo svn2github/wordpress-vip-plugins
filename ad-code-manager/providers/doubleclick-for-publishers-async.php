@@ -164,15 +164,19 @@ googletag.cmd.push(function() {
 					continue;
 
 				$tt = $tag['url_vars'];
-			$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
-			if ( ! empty( $matching_ad_code ) ) {
-				// @todo There might be a case when there are two tags registered with the same dimensions
-				// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
-				// that tags are unique
+				$matching_ad_code = $ad_code_manager->get_matching_ad_code( $tag['tag'] );
+				if ( ! empty( $matching_ad_code ) ) {
+					// @todo There might be a case when there are two tags registered with the same dimensions
+					// and the same tag id ( which is just a div id ). This confuses DFP Async, so we need to make sure
+					// that tags are unique	
+
+					// Parse ad tags to output flexible unit dimensions
+					$unit_sizes = $this->parse_ad_tag_sizes( $tt );
+
 ?>
-googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', [<?php echo (int)$tt['width'] ?>, <?php echo (int)$tt['height'] ?>], "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
+googletag.defineSlot('/<?php echo esc_attr( $matching_ad_code['url_vars']['dfp_id'] ); ?>/<?php echo esc_attr( $matching_ad_code['url_vars']['tag_name'] ); ?>', <?php echo json_encode( $unit_sizes ); ?>, "acm-ad-tag-<?php echo esc_attr( $matching_ad_code['url_vars']['tag_id'] ); ?>").addService(googletag.pubads());
 <?php
-			}
+				}
 			endforeach;
 ?>
 googletag.pubads().enableSingleRequest();
@@ -204,6 +208,32 @@ googletag.cmd.push(function() { googletag.display('acm-ad-tag-%tag_id%'); });
 		do_action( 'acm_tag', 'dfp_head' );
 	}
 
+	/**
+	 * Allow ad sizes to be defined as arrays or as basic width x height.
+	 * The purpose of this is to solve for flex units, where multiple ad
+	 * sizes may be required to load in the same ad unit.
+	 */
+	public function parse_ad_tag_sizes( $url_vars ) {
+		if ( empty( $url_vars ) ) 
+			return;
+
+		$unit_sizes_output = '';
+		if ( ! empty( $url_vars['sizes'] ) ) {
+			foreach( $url_vars['sizes'] as $unit_size ) {
+				$unit_sizes_output[] = array(
+					(int) $unit_size['width'],
+					(int) $unit_size['height'],
+				);
+			}			
+		} else { // fallback for old style width x height
+			$unit_sizes_output = array(
+				(int) $url_vars['width'],
+				(int) $url_vars['height'],
+			);
+		}
+		return $unit_sizes_output;
+	}
+
 }
 
 class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Table {
@@ -215,12 +245,11 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 			) );
 	}
 
-
 	/**
-	 * This is nuts and bolts of table representation
+	 * @return array The columns that shall be used
 	 */
-	function get_columns( $columns = null ) {
-		$columns = array(
+	function filter_columns() {
+		return array(
 			'cb'             => '<input type="checkbox" />',
 			'id'             => __( 'ID', 'ad-code-manager' ),
 			'tag'            => __( 'Tag', 'ad-code-manager' ),
@@ -231,7 +260,14 @@ class Doubleclick_For_Publishers_Async_ACM_WP_List_Table extends ACM_WP_List_Tab
 			'operator'       => __( 'Logical Operator', 'ad-code-manager' ),
 			'conditionals'   => __( 'Conditionals', 'ad-code-manager' ),
 		);
-		return parent::get_columns( $columns );
+	}
+
+	/**
+	 * This is nuts and bolts of table representation
+	 */
+	function get_columns() {
+		add_filter( 'acm_list_table_columns', array( $this, 'filter_columns' ) );
+		return parent::get_columns();
 	}
 
 	/**
