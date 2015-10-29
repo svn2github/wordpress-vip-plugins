@@ -87,16 +87,16 @@ function sranalytics_insert_js() {
 	// default case of a regular post
 	$title = $post->post_title;
 	$authors = array( get_author_name( $post->post_author ) );
-	$tags = get_the_terms( $post->ID, 'post_tags');
+	$tags = get_the_terms( $post->ID, 'post_tag');
 	if ( is_wp_error($tags) ){
 		$tags = array();
 	}
-	$tags = wp_list_pluck( $tags, 'names' );
+	$tags = wp_list_pluck( $tags, 'name' );
 	$channels = get_the_terms( $post->ID, 'category' );
 	if ( is_wp_error($channels) ){
 		$channels = array();
 	}
-	$channels = wp_list_pluck( $channels, 'slugs' );
+	$channels = wp_list_pluck( $channels, 'slug' );
 	$published_date = $post->post_date_gmt;
 	$canonical_url = get_permalink( $post->ID );
 
