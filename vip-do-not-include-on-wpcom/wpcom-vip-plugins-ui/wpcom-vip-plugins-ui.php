@@ -329,7 +329,11 @@ class WPcom_VIP_Plugins_UI {
 	 */
 	public function include_active_plugins() {
 		foreach ( $this->get_active_plugins_option() as $plugin ) {
-			wpcom_vip_load_plugin( $plugin );
+			if ( has_blog_sticker( 'vip-plugins-ui-rc-plugins' ) ) {
+				wpcom_vip_load_plugin( $plugin, 'plugins', true );
+			} else {
+				wpcom_vip_load_plugin( $plugin );
+			}
 		}
 	}
 
@@ -559,7 +563,7 @@ class WPcom_VIP_Plugins_UI {
 	 * @return bool True if valid, false if not.
 	 */
 	public function validate_plugin( $plugin ) {
-		return ( 0 === validate_file( $plugin ) && file_exists( $this->plugin_folder . '/' . $plugin . '/' . $plugin . '.php' ) );
+		return ( 0 === validate_file( $plugin ) && ( file_exists( $this->plugin_folder . '/' . $plugin . '/' . $plugin . '.php' ) || file_exists( $this->plugin_folder . '/release-candidates/' . $plugin . '/' . $plugin . '.php' ) ) );
 	}
 
 	/**
