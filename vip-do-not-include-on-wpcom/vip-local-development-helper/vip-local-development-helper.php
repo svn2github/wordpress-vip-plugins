@@ -24,7 +24,7 @@ This plugin is enabled automatically on WordPress.com for VIPs.
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_release_candidate = false ) {
 
 	// Force release candidate loading if the site has the correct sticker
-	if ( has_blog_sticker( 'vip-plugins-ui-rc-plugins' ) ) {
+	if ( ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) && has_blog_sticker( 'vip-plugins-ui-rc-plugins' ) ) {
 		$load_release_candidate = true;
 	}
 
