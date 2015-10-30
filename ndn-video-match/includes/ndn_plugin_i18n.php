@@ -6,7 +6,7 @@
  * Loads and defines the internationalization files for this plugin
  * so that it is ready for translation.
  *
- * @author     NDN Inc. <wordpress@newsinc.com>
+ * @author     Inform, Inc. <wordpress@inform.com>
  */
 class NDN_Plugin_i18n
 {

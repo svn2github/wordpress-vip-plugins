@@ -9,8 +9,8 @@
 <div class="wrap">
 
 	<h2>
-    <span style="float:left;"><?php esc_html_e( 'NDN Video Match Settings', 'ndn_admin' ); ?></span>
-    <div style="float:right;"><img src="<?php echo esc_url( NDN_PLUGIN_DIR . '/assets/ndnLogo_116x50.png' ) ?>" /></div>
+    <span style="float:left;"><?php esc_html_e( 'Inform Video Match Settings', 'ndn_admin' ); ?></span>
+    <div style="float:right;"><img src="<?php echo esc_url( NDN_PLUGIN_DIR . '/assets/informLogo_116x50.png' ) ?>" /></div>
     <div style="clear:both"></div>
   </h2>
 
@@ -27,7 +27,7 @@
 							<?php if (!self::$has_token): ?>
 							<div class="postbox">
 
-								<h3><span><?php esc_html_e( 'Login with your NDN Control Room credentials. If you don\'t have an NDN Control Room login, contact your account manager ', 'ndn_admin' ); ?><a href="mailto:wordpress@newsinc.com" class="ndn-email-help" analytics-category="WPSettings" analytics-label="SettingsHelp"><?php esc_html_e('or click here.', 'ndn_admin') ?></a></span></h3>
+								<h3><span><?php esc_html_e( 'Login with your Inform Control Room credentials. If you don\'t have an Inform Control Room login, contact your account manager ', 'ndn_admin' ); ?><a href="mailto:wordpress@inform.com" class="ndn-email-help" analytics-category="WPSettings" analytics-label="SettingsHelp"><?php esc_html_e('or click here.', 'ndn_admin') ?></a></span></h3>
 
 								<fieldset style="margin:10px 0;padding:0 12px;">
 									<select class="ndn-login-form-type" name="login-type">
@@ -46,11 +46,6 @@
 									<fieldset style="margin:10px 0;padding:0 12px;">
 										<label for="password">Password</label><br />
 										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_password'] ) ?>" type="password" value="" class="regular-text" name="password" placeholder="required" required /><br />
-									</fieldset>
-
-									<fieldset style="margin:10px 0;padding:0 12px;">
-										<label for="name">Name</label><br />
-										<input style="min-width:400px;" id="<?php echo esc_attr( self::$login_form_options['ndn_name'] ) ?>" type="text" value="" class="regular-text" name="name" placeholder="required" required /><br />
 									</fieldset>
 
 									<fieldset style="margin:10px 0;padding:0 12px;">
@@ -94,11 +89,12 @@
 								$ndn_settings = array (
 									'ndn_default_tracking_group' => get_option('ndn_default_tracking_group'),
 									'ndn_default_div_class' => get_option('ndn_default_div_class'),
-									'ndn_default_site_section' => get_option('ndn_default_site_section') ? get_option('ndn_default_site_section') : 'ndn_wordpress_plugin',
+									'ndn_default_site_section' => get_option('ndn_default_site_section') ? get_option('ndn_default_site_section') : 'inform_wordpress_plugin',
 									'ndn_default_responsive' => get_option('ndn_default_responsive') == '1',
 									'ndn_default_width' => get_option('ndn_default_width') ? get_option('ndn_default_width') : '425',
 									'ndn_default_video_position' => get_option('ndn_default_video_position'),
-									'ndn_default_start_behavior' => get_option('ndn_default_start_behavior')
+									'ndn_default_start_behavior' => get_option('ndn_default_start_behavior'),
+									'ndn_default_featured_image' => get_option('ndn_default_featured_image') == '1'
 								);
 							?>
 
@@ -159,6 +155,15 @@
 												<option value="<?php echo esc_attr($selection['value']) ?>" <?php echo ( $ndn_settings['ndn_default_start_behavior'] == $selection['value'] ? esc_attr('selected="selected"') : '' ) ?>><?php echo esc_html( $selection['name'] ) ?></option>
 											<?php } ?> <!-- End FOR -->
 										</select><br />
+									</fieldset>
+
+									<fieldset style="margin:10px 0;padding:0 12px;">
+										<legend class="screen-reader-text"><span>Set Featured Image</span></legend>
+										<label for="<?php echo esc_attr( self::$settings_form_options['ndn_default_featured_image'] ) ?>">
+											<input class="ndn-featured-image-checkbox" type="checkbox" name="<?php echo esc_attr( self::$settings_form_options['ndn_default_featured_image'] ) ?>" value="1" <?php echo ( $ndn_settings['ndn_default_featured_image'] ? esc_attr('checked') : '' ) ?> />
+											<input class="ndn-featured-image-checkbox-disabled" type='hidden' name='<?php echo esc_attr( self::$settings_form_options['ndn_default_featured_image'] ) ?>' value="not_checked" />
+											<span><?php esc_html_e( 'Set Featured Image', 'ndn_admin' ); ?></span>
+										</label>
 									</fieldset>
 
 									<input type="hidden" name="ndn-save-settings" value="1" />

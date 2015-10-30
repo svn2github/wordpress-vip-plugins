@@ -6,7 +6,7 @@
  * Defines the plugin name, version, and two hooks for
  * enqueuing the admin-specific stylesheet and JavaScript.
  *
- * @author     NDN Inc. <wordpress@newsinc.com>
+ * @author     Inform, Inc. <wordpress@inform.com>
  */
 class NDN_Plugin_Admin
 {
@@ -48,7 +48,6 @@ class NDN_Plugin_Admin
     public static $login_form_options = array(
         'ndn_username' => 'ndn-plugin-login-username',
         'ndn_password' => 'ndn-plugin-login-password',
-        'ndn_name' => 'ndn-plugin-login-name',
         'ndn_company_name' => 'ndn-plugin-login-company-name',
         'ndn_contact_name' => 'ndn-plugin-login-contact-name',
         'ndn_contact_email' => 'ndn-plugin-login-contact-email'
@@ -66,6 +65,7 @@ class NDN_Plugin_Admin
         'ndn_default_responsive' => 'ndn-default-responsive',
         'ndn_default_video_position' => 'ndn-default-video-position',
         'ndn_default_start_behavior' => 'ndn-plugin-default-start-behavior',
+        'ndn_default_featured_image' => 'ndn-plugin-default-featured-image'
     );
 
     /**
@@ -77,6 +77,7 @@ class NDN_Plugin_Admin
         'ndn_video_width' => 'ndn-video-width',
         'ndn_video_start_behavior' => 'ndn-video-start-behavior',
         'ndn_video_position' => 'ndn-video-position',
+        'ndn_featured_image' => 'ndn-featured-image'
     );
 
     /**
@@ -128,7 +129,7 @@ class NDN_Plugin_Admin
     /**
      * NDN Plugin Shortcode.
      */
-    const shortcode = 'ndn';
+    const shortcode = 'inform';
     const NDN_OAUTH_API = 'https://oauth.newsinc.com';
     const NDN_SEARCH_API = 'https://public-search-api.newsinc.com';
 
@@ -174,9 +175,12 @@ class NDN_Plugin_Admin
      */
     public function enqueue_scripts()
     {
+        global $post;
         wp_enqueue_media();
         wp_enqueue_script( $this->plugin_name, NDN_PLUGIN_DIR . '/js/ndn_plugin_admin.js', array( 'jquery' ), $this->version, false );
-    }
+        if ( $post ) {
+          wp_localize_script( $this->plugin_name, 'NDNAjax', array( 'ajaxUrl' => admin_url( 'admin-ajax.php' ), 'postID' => $post->ID ) );
+        }    }
 
     /**
      * Register the JavaScript for the admin post pages
@@ -196,12 +200,12 @@ class NDN_Plugin_Admin
     public function create_plugin_menu()
     {
         add_menu_page(
-            'NDN Video Match Settings',
-            'NDN Video',
+            'Inform Video Match Settings',
+            'Inform Video',
             'manage_options',
-            'ndn-plugin-settings',
+            'inform-plugin-settings',
             array( $this, 'create_plugin_menu_display' ),
-            NDN_PLUGIN_DIR . '/assets/ndnIcon_17x17.png',
+            NDN_PLUGIN_DIR . '/assets/informIcon_17x17.png',
             '76'
         );
     }
@@ -224,10 +228,10 @@ class NDN_Plugin_Admin
     {
         $page = add_submenu_page(
             'options.php', // Sets it to be underneath no submenu
-            'NDN Video Match',
-            'NDN Video Match',
+            'Inform Video Match',
+            'Inform Video Match',
             'edit_posts',
-            'ndn-video-search?',
+            'inform-video-search?',
             array( $this, 'show_search_modal' )
         );
 
@@ -251,10 +255,10 @@ class NDN_Plugin_Admin
     {
         add_submenu_page(
             'options.php', // Sets it to be underneath no submenu
-            'NDN Video Match',
-            'NDN Video Match',
+            'Inform Video Match',
+            'Inform Video Match',
             'edit_posts',
-            'ndn-video-search-results?',
+            'inform-video-search-results?',
             array( $this, 'show_search_results' )
         );
     }
@@ -277,10 +281,10 @@ class NDN_Plugin_Admin
     {
         add_submenu_page(
             'options.php',
-            'NDN Login Page',
-            'NDN Login Page',
+            'Inform Login Page',
+            'Inform Login Page',
             'manage_options',
-            'ndn-plugin-login?',
+            'inform-plugin-login?',
             array( $this, 'create_plugin_login_display' )
         );
     }
@@ -308,8 +312,8 @@ class NDN_Plugin_Admin
                 'first_time_login' => false
             );
 
-            $redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
-            $error_redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
+            $redirect_location = admin_url( 'admin.php?page=inform-plugin-settings' );
+            $error_redirect_location = admin_url( 'admin.php?page=inform-plugin-settings' );
 
             // After login success, go back to settings page
             $this->login_user( $args, $redirect_location,  $error_redirect_location);
@@ -317,15 +321,15 @@ class NDN_Plugin_Admin
             $args = array(
                 'username' => sanitize_text_field( $_POST['username'] ),
                 'password' => sanitize_text_field( $_POST['password'] ),
-                'name' => sanitize_text_field( $_POST['name'] ),
+                'name' => sanitize_text_field( $_POST['contact_name'] ),
                 'company_name' => sanitize_text_field( $_POST['company_name'] ),
                 'contact_name' => sanitize_text_field( $_POST['contact_name'] ),
                 'contact_email' => sanitize_text_field( $_POST['contact_email'] ),
                 'first_time_login' => true
             );
 
-            $redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
-            $error_redirect_location = admin_url( 'admin.php?page=ndn-plugin-settings' );
+            $redirect_location = admin_url( 'admin.php?page=inform-plugin-settings' );
+            $error_redirect_location = admin_url( 'admin.php?page=inform-plugin-settings' );
 
             // After login success, go back to settings page
             $this->login_user( $args, $redirect_location,  $error_redirect_location);
@@ -336,8 +340,8 @@ class NDN_Plugin_Admin
                 'first_time_login' => false
             );
 
-            $redirect_location = admin_url( 'admin.php?page=ndn-video-search%3F&iframe=true' );
-            $error_redirect_location = admin_url( 'admin.php?page=ndn-plugin-login%3F&iframe=true' );
+            $redirect_location = admin_url( 'admin.php?page=inform-video-search%3F&iframe=true' );
+            $error_redirect_location = admin_url( 'admin.php?page=inform-plugin-login%3F&iframe=true' );
             // After login success, go back to search page
             $this->login_user( $args, $redirect_location,  $error_redirect_location);
         }
@@ -656,7 +660,7 @@ class NDN_Plugin_Admin
      */
     public function notify_user_for_credentials()
     {
-        $url = admin_url( 'admin.php?page=ndn-plugin-settings' );
+        $url = admin_url( 'admin.php?page=inform-plugin-settings' );
         if (self::$has_token || !current_user_can( 'edit_posts' ) ) {
             return;
         }
@@ -664,9 +668,9 @@ class NDN_Plugin_Admin
         <div class="update-nag">
             <?php
             if ( current_user_can( 'manage_options' ) ) {
-                echo wp_kses_post(sprintf(__( 'Your NDN tracking group needs to be entered in <a href="%s" title="NDN Video Match Settings" class="ndn-notify-credentials">NDN Video Match Settings</a>.', 'NDN' ), esc_url( $url ) ));
+                echo wp_kses_post(sprintf(__( 'Your tracking group needs to be entered in <a href="%s" title="Inform Video Match Settings" class="ndn-notify-credentials">Inform Video Match Settings</a>.', 'Inform' ), esc_url( $url ) ));
             } else {
-                echo wp_kses_post(sprintf(__( 'Please contact your administrator to activate the NDN Video Match plugin.', 'NDN' ), esc_url( $url) ));
+                echo wp_kses_post(sprintf(__( 'Please contact your administrator to activate the Inform Video Match plugin.', 'Inform' ), esc_url( $url) ));
             }
             ?>
         </div>
@@ -680,13 +684,13 @@ class NDN_Plugin_Admin
      */
     public function notify_user_for_configuration()
     {
-        $url = admin_url( 'admin.php?page=ndn-plugin-settings' );
+        $url = admin_url( 'admin.php?page=inform-plugin-settings' );
         if (self::$configured || !self::$has_token || !current_user_can( 'edit_posts' ) ) {
             return;
         }
         ?>
         <div class="update-nag">
-            <?php echo wp_kses_post(sprintf(__( 'Your NDN tracking group needs to be entered in <a href="%s" title="NDN Video Match Settings" class="ndn-notify-settings">NDN Video Match Settings</a>.', 'NDN' ), esc_url( $url) ));
+            <?php echo wp_kses_post(sprintf(__( 'Your tracking group needs to be entered in <a href="%s" title="Inform Video Match Settings" class="ndn-notify-settings">Inform Video Match Settings</a>.', 'NDN' ), esc_url( $url) ));
             ?>
         </div>
         <?php
@@ -735,16 +739,27 @@ class NDN_Plugin_Admin
             wp_enqueue_script( 'thickbox' );
         }
 
+        $classes = 'button ndn-plugin-wiz-button';
+
+        if ( !self::$has_token || !self::$configured ) {
+            $classes .= ' disabled';
+            $href = '#';
+        } else {
+            $classes .= ' thickbox';
+            $href = 'admin.php?page=inform-video-search%3F&amp;iframe&amp;TB_iframe=true';
+        }
+
         // Provide media wizard button for a admin posts editor view.
         ?>
-          <a href="admin.php?page=ndn-video-search%3F&amp;iframe&amp;TB_iframe=true"
-            class="button ndn-plugin-wiz-button <?php echo(self::$has_token && self::$configured) ? 'thickbox' : 'disabled' ?>"
+          <a href="<?php echo esc_attr( $href ); ?>"
+            onclick="return false;"
+            class="<?php echo esc_attr( $classes ); ?>"
             id="ndn-plugin-wiz-button"
-            title="NDN Video Match"
+            title="Inform Video Match"
             analytics-category="WPSearch"
             analytics-label="SearchInitiate">
             <span></span>
-            &nbsp;NDN Video
+            &nbsp;Inform Video
           </a>
         <?php
 
@@ -771,14 +786,16 @@ class NDN_Plugin_Admin
             $response = $this->run_text_search( $access_token, $query );
             if ( $response ) {
                 $decoded_response = json_decode( $response['body'] );
-
-                if ( !get_option( 'ndn_refresh_token' ) || !$decoded_response->response->videos ) {
-                    $redirect_location = 'admin.php?page=ndn-plugin-login%3F&iframe=true';
+                if ( !get_option( 'ndn_refresh_token' ) ) {
+                    $redirect_location = admin_url( 'admin.php?page=inform-plugin-login%3F&iframe=true' );
                     wp_safe_redirect( esc_url_raw( $redirect_location ) );
                     exit;
-                } elseif ( $response == false || $response == 'unexpected error' ) {
-                    echo '<h1>Server Error. Go back and try searching again.</h1>';
+                } elseif ( !$decoded_response->response ) {
+                    echo '<p>No Results Found. Go back and try searching again.</p>';
                 } else {
+                    // Saving data in cache, set to expire in 10 minutes
+                    $cache_key = 'ndn_query_' . $query;
+                    wp_cache_add( $cache_key, $response, '', 600 );
                     // Sort Videos by Recency
                     $videos = array();
                     $response_videos = $decoded_response->response->videos;
@@ -786,16 +803,15 @@ class NDN_Plugin_Admin
                         $videos[$key] = $row->publish_date;
                     }
                     array_multisort( $videos, SORT_DESC, $response_videos );
-
                     // Set search_results as response
                     self::save_option( 'ndn_search_results', $response_videos ); // Recency
 
-                    $redirect_location = 'admin.php?page=ndn-video-search-results%3F&iframe=true';
+                    $redirect_location = admin_url( 'admin.php?page=inform-video-search-results%3F&iframe=true' ) ;
                     wp_safe_redirect( esc_url_raw( $redirect_location ) );
                     exit;
                 }
             } else {
-                $redirect_location = 'admin.php?page=ndn-plugin-login%3F&iframe=true';
+                $redirect_location = 'admin.php?page=inform-plugin-login%3F&iframe=true';
                 wp_safe_redirect( esc_url_raw( $redirect_location ) );
                 exit;
             }
@@ -827,7 +843,7 @@ class NDN_Plugin_Admin
               'headers' => $headers
             );
 
-            $response = vip_safe_wp_remote_get( $wp_get_url, '', 3, 3, 20, $wp_get_args );
+            $response = vip_safe_wp_remote_get( $wp_get_url, '', 10, 3, 20, $wp_get_args );
 
             if ( is_array( $response ) ) {
                 if ( array_key_exists( 'response', $response ) ) {
@@ -843,9 +859,6 @@ class NDN_Plugin_Admin
                 }
             } else if ( is_wp_error( $response ) ) {
                 return false;
-            } else {
-                // Saving data in cache, set to expire in 10 minutes
-                wp_cache_add( $cache_key, $response, '', 600 );
             }
         }
         return $response;
@@ -919,5 +932,77 @@ class NDN_Plugin_Admin
         $options['custom_elements']         .= 'img[ndn-config-video-id|ndn-video-element-id|ndn-config-widget-id|ndn-tracking-group|ndn-site-section-id|ndn-video-width|ndn-video-height|ndn-responsive|class|src|border|alt|title|hspace|vspace|width|height|align|onmouseover|onmouseout|name|style]';
 
         return $options;
+    }
+
+    /**
+     * Set featured image from $url
+     */
+    public function set_featured_image()
+    {
+        require_once(ABSPATH . 'wp-admin/includes/media.php');
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+        require_once(ABSPATH . 'wp-admin/includes/image.php');
+        require_once(ABSPATH . 'wp-includes/pluggable.php');
+
+        check_ajax_referer( 'ndn-ajax-nonce', 'security' );
+
+        $url = sanitize_text_field( $_POST['url'] );
+        $post_id = sanitize_text_field( $_POST['postID'] );
+        $desc = sanitize_text_field( $_POST['description'] );
+
+        // Sideload image, returns image src
+        $image_id = $this->sideload_featured_image($url, $post_id, $desc);
+        if ( is_wp_error( $image_id ) ) {
+            wp_die( 0 );
+        } else {
+            // Set featured image
+            set_post_thumbnail( $post_id, $image_id );
+
+            $return = _wp_post_thumbnail_html( $image_id, $post_id );
+            wp_die( $return );
+        }
+    }
+
+    /**
+     * Re-written media_sideload_image function to return attachment ID instead of html
+     * @param  string $file    url of the file
+     * @param  int    $post_id post id of the post being edited
+     * @param  string $desc    description of the image, for alt tags
+     * @return int             attachment id of image
+     */
+    function sideload_featured_image( $file, $post_id, $desc = null ) {
+        if ( ! empty( $file ) ) {
+
+    		// Set variables for storage, fix file filename for query strings.
+    		preg_match( '/[^\?]+\.(jpe?g|jpe|gif|png)\b/i', $file, $matches );
+    		$file_array = array();
+    		$file_array['name'] = basename( $matches[0] );
+
+    		// Download file to temp location.
+    		$file_array['tmp_name'] = download_url( $file );
+
+    		// If error storing temporarily, return the error.
+    		if ( is_wp_error( $file_array['tmp_name'] ) ) {
+    			return $file_array['tmp_name'];
+    		}
+
+    		// Do the validation and storage stuff.
+    		$id = media_handle_sideload( $file_array, $post_id, $desc );
+
+    		// If error storing permanently, unlink.
+    		if ( is_wp_error( $id ) ) {
+    			@unlink( $file_array['tmp_name'] );
+    			return $id;
+    		}
+
+    		$src = wp_get_attachment_url( $id );
+    	}
+
+    	// Finally, check to make sure the file has been saved, then return the id.
+    	if ( ! empty( $src ) ) {
+    		return $id;
+    	} else {
+    		return new WP_Error( 'image_sideload_failed' );
+    	}
     }
 }

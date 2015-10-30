@@ -7,7 +7,7 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @author      NDN Inc. <wordpress@newsinc.com>
+ * @author      Inform, Inc. <wordpress@inform.com>
  */
 class NDN_Plugin_Loader
 {

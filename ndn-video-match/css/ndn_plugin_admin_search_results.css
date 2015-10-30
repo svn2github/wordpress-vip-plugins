@@ -3,7 +3,8 @@
 #adminmenuwrap,
 #wpfooter,
 .updated,
-.update-nag {
+.update-nag,
+#contextual-help-link-wrap {
   display: none;
 }
 .auto-fold #wpcontent,
@@ -32,12 +33,12 @@ html.wp-toolbar {
 .ndn-search-input {
   float: right;
 }
-.ndn-search-query-input, .ndn-config-input {
+.ndn-search-query-input {
   height: 28px;
-  width: 200px;
+  width: 150px;
 }
 .ndn-video-width {
-  width: 150px;
+  width: 110px;
 }
 .ndn-search-form {
   margin-right: 10px;
@@ -127,9 +128,8 @@ html.wp-toolbar {
       flex: 0 1 763px;
   text-align: right;
 }
-.ndn-configuration-exit span {
+.ndn-configuration-exit button {
   color: #666;
-  font-size: 18px;
   cursor: pointer;
 }
 .ndn-video-container {
@@ -138,11 +138,16 @@ html.wp-toolbar {
   -ms-flex: 0 468px;
      flex: 0 468px;
 }
+.ndn-video-insert-settings form {
+  padding-top: 10px;
+  padding-left: 10px;
+}
 fieldset {
   padding: 5px 0;
+  width: 100%;
 }
-fieldset label {
-  font-weight: 600;
+.ndn-video-configuration-header {
+  font-size: 16px;
 }
 .ndn-video-insert-settings {
   -webkit-box-flex: 1;
@@ -150,15 +155,25 @@ fieldset label {
   -ms-flex: 1 150px;
      flex: 1 150px;
 }
-.ndn-video-insert-settings input {
+.ndn-video-settings-player {
+  width: 100%;
   margin: 10px 0;
 }
-
-.ndn-video-size-text {
-  font-size: 10px;
+.ndn-video-settings-player label {
+  width: 100%;
+}
+.ndn-video-settings-width-label {
+  vertical-align: middle;
+}
+.ndn-manual-sizing {
+  padding-left: 24px;
+  margin-top: 10px;
 }
 @media screen and (max-width: 648px) {
   #wpbody {
     padding-top: 0;
+  }
+  .ndn-video-configuration-header {
+    line-height: 40px;
   }
 }

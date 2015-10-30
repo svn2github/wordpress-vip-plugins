@@ -12,8 +12,8 @@
 
   <h3>
     <span>
-      <?php esc_html_e( 'Login with your NDN Control Room credentials. If you don\'t have an NDN Control Room login, contact your account manager ', 'ndn_admin' ); ?>
-      <a href="mailto:wordpress@newsinc.com" title="plugin email address"><?php esc_html_e( 'or click here.', 'ndn_admin' ) ?></a>
+      <?php esc_html_e( 'Login with your Inform Control Room credentials. If you don\'t have an Inform Control Room login, contact your account manager ', 'ndn_admin' ); ?>
+      <a href="mailto:wordpress@inform.com" title="plugin email address"><?php esc_html_e( 'or click here.', 'ndn_admin' ) ?></a>
     </span>
     </h3>
   <form name="ndn-plugin-login-form" action="" method="post" analytics-category="WPSettings" analytics-label="SettingsLogin" novalidate>

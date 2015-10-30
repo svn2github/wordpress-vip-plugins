@@ -11,7 +11,7 @@
 <div id="popup_container" class="ndn-search-container">
 
   <div class="ndn-search-explanation ndn-search-container">
-    <p>Search for content in the NDN video library and embed them in your post or page with just one click.</p>
+    <p>Search for content in the Inform video library and embed them in your post or page with just one click.</p>
   </div>
 
   <div class="ndn-search-input ndn-search-container">

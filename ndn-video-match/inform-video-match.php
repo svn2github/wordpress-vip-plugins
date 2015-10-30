@@ -1,21 +1,21 @@
 <?php
 
 /**
- *  NDN Video Match
+ *  Inform Video Match
  *
- *  Plugin Name: NDN Video Match
+ *  Plugin Name: Inform Video Match
  *  Plugin URI: http://control.newsinc.com/
- *  Description: The NDN Video Match plugin enables you to easily embed videos from the NDN video library into your WordPress post.
- *  Version: 0.1.11
- *  Author: NDN Inc. <wordpress@newsinc.com>
+ *  Description: The Inform Video Match plugin enables you to easily embed videos from the Inform video library into your WordPress post.
+ *  Version: 1.4.2
+ *  Author: Inform, Inc. <wordpress@inform.com>
  *  Author URL: http://www.newsinc.com/
- *  Text Domain: ndn-plugin
+ *  Text Domain: inform-plugin
  *  Domain Path: /languages
  *  License: GPL-2.0+
  *
- * @author    NDN Inc. and its contributors
+ * @author    Inform Inc. and its contributors
  * @license   GPL-2.0+
- * @copyright 2015, NDN Inc.
+ * @copyright 2015, Inform, Inc.
  */
 
  // If this file is called directly, abort.
@@ -28,10 +28,10 @@
   */
  function ndn_define_constants()
  {
-     // Assets Directory for CSS, JS & Images
-     preg_match('/\/wp-content.+$/', dirname(__FILE__), $matches);
-     $ndn_plugin_assets = site_url().$matches[0];
-     define('NDN_PLUGIN_DIR', $ndn_plugin_assets);
+    // Assets Directory for CSS, JS & Images
+    preg_match('/\/wp-content.+$/', dirname(__FILE__), $matches);
+    $ndn_plugin_assets = site_url().$matches[0];
+    define('NDN_PLUGIN_DIR', $ndn_plugin_assets);
  }
 
   /**
@@ -72,7 +72,7 @@
     public function __construct()
     {
         $this->plugin_name = 'ndn_plugin';
-        $this->version = '0.1.11';
+        $this->version = '1.4.2';
 
         $this->load_dependencies();
         $this->set_locale();
@@ -168,6 +168,9 @@
 
             // Media Button
             $this->loader->add_action('media_buttons', $plugin_admin, 'add_media_button_wizard', 12);
+
+            // AJAX requests
+            $this->loader->add_action('wp_ajax_set_featured_image', $plugin_admin, 'set_featured_image');
         }
     }
 

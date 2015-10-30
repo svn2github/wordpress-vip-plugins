@@ -6,7 +6,7 @@
  * Defines the plugin name, version, and two hooks for
  * enqueuing the public-specific stylesheet and JavaScript.
  *
- * @author      NDN Inc. <wordpress@newsinc.com>
+ * @author      Inform, Inc. <wordpress@inform.com>
  */
 class NDN_Plugin_Public
 {

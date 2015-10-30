@@ -1,18 +1,18 @@
-=== ndn-plugin ===
-Contributors: NDN, Inc.
+=== inform-plugin ===
+Contributors: Inform, Inc.
 Donate link: http://www.newsinc.com/
 Tags: video, videos, embed
 Requires at least: 4.2.2
-Tested up to: 4.2.3
+Tested up to: 4.3
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Video player plugin for NDN videos.
+Video player plugin for Inform videos.
 
 == Description ==
 
-Enhance and monetize your content by tapping into NDN's robust library of premium videos from over 400 highly reputable affiliates including AP, E! Online, and Fox Sports -- at absolutely no cost.
+Enhance and monetize your content by tapping into Inform's robust library of premium videos from over 400 highly reputable affiliates including AP, E! Online, and Fox Sports -- at absolutely no cost.
 This plug-in offers a host of benefits:
 
 * Premium video content from top publishers
@@ -23,34 +23,34 @@ This plug-in offers a host of benefits:
 * The ability to preview a video before selecting and publishing
 * Shared revenue model, at no cost to you
 
-More about NDN:
+More about Inform:
 
 * #1 in comScore’s April 2015 ranking of Online News & Information Video Properties
-* NDN partners with the top online publishers, content providers, and advertisers to drive increased revenue while bringing premium, brand-safe videos to millions of viewers.
-* With a robust video technology platform with advanced analytics, full service digital media management and CMS, 24/7 editorial support, and more, NDN is even better than free.
+* Inform partners with the top online publishers, content providers, and advertisers to drive increased revenue while bringing premium, brand-safe videos to millions of viewers.
+* With a robust video technology platform with advanced analytics, full service digital media management and CMS, 24/7 editorial support, and more, Inform is even better than free.
 
-To use the plug-in or to find out more about partnering with NDN, you can request a [demo](http://www.newsinc.com/contact-us), or email us [here](mailto:wordpress@newsinc.com). One of our account managers will be happy to onboard you in the process.
+To use the plug-in or to find out more about partnering with Inform, you can request a [demo](http://www.inform.com/contact-us), or email us [here](mailto:wordpress@inform.com). One of our account managers will be happy to onboard you in the process.
 
 == Installation ==
 
 * Download and extract plugin files to a wp-content/plugin directory.
-* Activate the plugin through the WordPress admin interface with your NDN Control Room credentials.
+* Activate the plugin through the WordPress admin interface with your Inform Control Room credentials.
 * Customize the settings on the options page.
 
-If you have any questions or problems, please email [wordpress@newsinc.com](mailto:wordpress@newsinc.com)
+If you have any questions or problems, please email [wordpress@inform.com](mailto:wordpress@inform.com)
 
 == Frequently Asked Questions ==
 
 = What do the general setting fields mean? =
 
 - Default Tracking Group **(required)**
-The tracking group is a critical config setting for distribution partners.  The value of this setting is responsible for tracking all of a distribution partner's earnings and analytics in the NDN network. This can be obtained from your NDN account manager.
+The tracking group is a critical config setting for distribution partners.  The value of this setting is responsible for tracking all of a distribution partner's earnings and analytics in the Inform network. This can be obtained from your Inform account manager.
 
 - Default DIV Class **(optional)**
 To style the `div` that contains the video, supply your class name selector and modify your CSS stylesheet with that class name selector.
 
 - Default Site Section **(optional)**
-This is the site-section value used for analytics. If this config setting is not provided, the site-section will default to `ndn_wordpress_plugin`. You can override this value with a unique identifier, such as your publication name.
+This is the site-section value used for analytics. If this config setting is not provided, the site-section will default to `inform_wordpress_plugin`. You can override this value with a unique identifier, such as your publication name.
 
 - Responsive
 See the question below, "What does responsive mean?"
@@ -63,9 +63,9 @@ In this release, our embed code is not integrated with the visual editor. As a p
 
 You can change your editor to text mode and edit the attributes within the "img" tag, i.e. within "<img" and "/>"
 
-* ndn-config-video-id: NDN Video ID
+* ndn-config-video-id: Inform Video ID
 * ndn-config-widget-id: Start behavior settings. "1" is Autoplay. "2" is Click to play.
-* ndn-site-section-id: The site section ID, set in the NDN settings page.
+* ndn-site-section-id: The site section ID, set in the Inform settings page.
 * ndn-video-width & ndn-video-height: Fixed video width and height. Only works if ndn-responsive="false". *Important*: needs to have "px" units after the number.
 * ndn-responsive: Handles video width and height for you. Responsive and mobile friendly.
 
@@ -82,8 +82,8 @@ Example:
 
 Required Fields:
 
-* "video_id" -> NDN video id number
-* "tracking_group" -> NDN tracking group number
+* "video_id" -> Inform video id number
+* "tracking_group" -> Inform tracking group number
 
 Optional Fields:
 
@@ -115,10 +115,27 @@ If you have any concerns about this, let Wordpress know on their [support page](
 
 == Screenshots ==
 
-1. NDN button in your add/edit posts editor
-2. Configure video settings and insert videos from NDN
+1. Inform button in your add/edit posts editor
+2. Configure video settings and insert videos from Inform
 
 == Changelog ==
+
+= 1.4.1 =
+* Added Analytics Hook for User Engagement
+* Removed help menu
+
+= 1.3.2 =
+* Featured image bug for not inserting video fixed
+
+= 1.3.0 =
+* Allows user to set any post with a video inserted to use that video's thumbnail as the featured image
+
+= 1.2.0 =
+* Allow user to set video thumbnail as featured image on post
+
+= 1.1.0 =
+* Rebranding Changes
+* Bug fix for no image loaded on the visual editor
 
 = 0.1.12 =
 * Updated i18n domains
@@ -145,6 +162,23 @@ If you have any concerns about this, let Wordpress know on their [support page](
 * Initial Release
 
 == Upgrade Notice ==
+
+= 1.4.1 =
+* Added Analytics Hook for User Engagement
+* Removed Help Menu
+
+= 1.3.2 =
+* Featured image bug for not inserting video fixed
+
+= 1.3.0 =
+* Allows user to set any post with a video inserted to use that video's thumbnail as the featured image
+
+= 1.2.0 =
+* Allow user to set video thumbnail as featured image on post
+
+= 1.1.0 =
+* Rebranding Changes
+* Bug fix for no image loaded on the visual editor
 
 = 0.1.12 =
 * Updated i18n domains

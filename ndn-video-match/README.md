@@ -2,7 +2,7 @@
 
 ## Info
 
-Wordpress Plugin for NDN videos for the admin post editor. Allows user to insert NDN videos in their posts.
+Wordpress Plugin for Inform videos for the admin post editor. Allows user to insert Inform videos in their posts.
 
 MAMP:
 
