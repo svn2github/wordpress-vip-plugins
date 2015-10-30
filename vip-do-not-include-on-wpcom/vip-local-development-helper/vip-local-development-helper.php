@@ -23,6 +23,11 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  */
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_release_candidate = false ) {
 
+	// Force release candidate loading if the site has the correct sticker
+	if ( has_blog_sticker( 'vip-plugins-ui-rc-plugins' ) ) {
+		$load_release_candidate = true;
+	}
+
 	// Make sure there's a plugin to load
 	if ( empty($plugin) ) {
 		// On WordPress.com, use an internal function to message VIP about a bad call to this function
