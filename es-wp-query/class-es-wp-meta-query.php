@@ -46,15 +46,11 @@ class ES_WP_Meta_Query extends WP_Meta_Query {
 				}
 				unset( $this->queries[ $k ] );
 			} else {
-				$queries = array_merge( $queries, $q );
+				$queries[ $k ] = $q;
 			}
 		}
 
 		foreach ( $queries as $k => $q ) {
-			if ( 'relation' === $k ) {
-				continue;
-			}
-			
 			$meta_key = isset( $q['key'] ) ? trim( $q['key'] ) : '*';
 
 			if ( array_key_exists( 'value', $q ) && is_null( $q['value'] ) )
