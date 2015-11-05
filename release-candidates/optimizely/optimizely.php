@@ -45,6 +45,9 @@ if ( is_admin() ) {
  * Enqueues Optimizely scripts required by the admin dashboard.
  */
 function optimizely_enqueue_scripts() {
+
+	$screen = get_current_screen();
+
 	// Core scripts
 	wp_enqueue_script( 'jquery' );
 	wp_enqueue_script( 'underscore' );
@@ -56,7 +59,12 @@ function optimizely_enqueue_scripts() {
 	wp_enqueue_script( 'optimizely_api', plugins_url( 'optimizely.js', __FILE__ ), array( 'jquery' ) );
 	wp_enqueue_script( 'optimizely_editor', plugins_url( 'edit.js', __FILE__ ), array( 'jquery' ) );
 	wp_localize_script( 'optimizely_editor', 'wpAjaxUrl', admin_url( 'admin-ajax.php' ) );
-	wp_enqueue_script( 'optimizely_config', plugins_url( 'config.js', __FILE__ ), array( 'jquery' ) );
+	
+	//VIP: only load config.js on optimizely config screen
+	if ( null !== $screen && true === isset( $screen->id ) && 'toplevel_page_optimizely-config' === $screen->id ) {
+		wp_enqueue_script( 'optimizely_config', plugins_url( 'config.js', __FILE__ ), array( 'jquery' ) );
+	}
+	
 	wp_enqueue_script( 'optimizely_results', plugins_url( 'results.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-tabs','jquery-ui-progressbar','jquery-ui-tooltip', 'underscore' ) );
 	wp_localize_script( 'optimizely_editor', 'optimizelySettings', array(
 		'token' => get_option( 'optimizely_token' ),
