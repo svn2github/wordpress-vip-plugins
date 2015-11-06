@@ -39,6 +39,7 @@ function wpcom_vip_get_ad_busters_array() {
 		'blogads/iframebuster-4.html',       // BlogAds
 		'checkm8/CM8IframeBuster.html',      // CheckM8
 		'comscore/cs-arIframe.htm',          // comScore
+		'contobox/iframebuster.html',	     // Contobox
 		'doubleclick/DARTIframe.html',       // Google - DoubleClick
 		'doubleclick/fif.html',              // Flite
 		'eyeblaster/addineyeV2.html',        // MediaMind - EyeBlaster
@@ -52,6 +53,7 @@ function wpcom_vip_get_ad_busters_array() {
 		'jpd/jpxdm.html',                    // Jetpack Digital
 		'mediamind/MMbuster.html',           // MediaMind - addineye (?)
 		'mixpo/framebust.html',              // Mixpo
+		'netmng/iframeOut.html',	     // NetMng
 		'oggifinogi/oggiPlayerLoader.htm',   // Collective - OggiFinogi
 		'pictela/Pictela_iframeproxy.html',  // AOL - Pictela
 		'pointroll/PointRollAds.htm',        // PointRoll
