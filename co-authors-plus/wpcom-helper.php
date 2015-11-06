@@ -2,14 +2,20 @@
 /**
  * Auto-apply Co-Authors Plus template tags on themes that are properly using the_author()
  * and the_author_posts_link()
+ * Auto-apply Co-Authors Plus in oembed endpoint
  */
 $wpcom_coauthors_plus_auto_apply_themes = array(
 		'premium/portfolio',
 		'premium/zuki',
 		'pub/editor',
 	);
-if ( in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes ) )
+if ( in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes )
+	|| ( true === defined( 'WPCOM_VIP_IS_OEMBED' )
+		&& true === constant( 'WPCOM_VIP_IS_OEMBED' )
+		&& true === apply_filters( 'wpcom_vip_coauthors_replace_oembed', false, 'author_name' )	 
+	) ) {
 	add_filter( 'coauthors_auto_apply_template_tags', '__return_true' );
+}
 
 /**
  * If Co-Authors Plus is enabled on an Enterprise site and hasn't yet been integrated with the theme
@@ -186,3 +192,36 @@ add_filter( 'wpcom_subscriber_text_email_author', function( $author, $post_id ) 
 
 	return $author_text;
 }, 10, 2);
+
+/**
+ * Replace author_url in oembed endpoint response
+ * Since the oembed specification does not allow multiple urls, we'll go with the first coauthor
+ *
+ * The function is meant as a filter for `get_author_posts_url` function, which it is using as well
+ * Recursion is prevented by a simple check agains original attributes passed to the funciton. That
+ * also prevents execution in case the only coauthor is real author.
+ *
+ * This function is hooked only to oembed endpoint and it should stay that way
+ */
+
+function wpcom_vip_cap_replace_author_link( $link, $author_id, $author_nicename ) {
+	
+	//get coauthors and iterate to the first one
+	//in case there are no coauthors, the Iterator returns current author
+	$i = new CoAuthorsIterator();
+	$i->iterate();
+
+	//check if the current $author_id and $author_nicename is not the same as the first coauthor
+	if ( $i->current_author->ID !== $author_id || $i->current_author->user_nicename !== $author_nicename ) {
+		
+		//alter the author_url
+		$link = get_author_posts_url( $i->current_author->ID, $i->current_author->user_nicename );
+
+	}
+
+	return $link;
+}
+//Hook the above callback only on oembed endpoint reply
+if ( true === defined( 'WPCOM_VIP_IS_OEMBED' ) && true === constant( 'WPCOM_VIP_IS_OEMBED' ) && true === apply_filters( 'wpcom_vip_coauthors_replace_oembed', false, 'author_url' ) ) {
+	add_filter( 'author_link', 'wpcom_vip_cap_replace_author_link', 99, 3 );
+}

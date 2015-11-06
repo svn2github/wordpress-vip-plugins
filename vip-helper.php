@@ -915,3 +915,18 @@ function wpcom_vip_https_canonical_url() {
 function wpcom_vip_disable_oembed_link_tag(){
 	remove_action( 'wp_head', 'add_oembed_link_tags' );
 }
+
+/**
+ * Enable Co-Authors-Plus overriding oembed endpoints
+ *
+ * Leaving $location as false will enable overriding both, author_name and author_url
+ * passing either `author_name` or `author_url` will enable overriding only in appropriate key
+ */
+function wpcom_vip_enabled_cap_in_oembed( $location = false ) {
+	add_filter( 'wpcom_vip_coauthors_replace_oembed', function( $enable, $tag ) use ( $location ) {
+		if ( false === $location || $tag === $location ) {
+			$enable = true;
+		}
+		return $enable;
+	}, 10, 2 );
+}
