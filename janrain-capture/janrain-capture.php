@@ -24,7 +24,9 @@ if ( ! class_exists( 'JanrainCapture' ) ) {
 		 * Initializes the plugin.
 		 */
 		function init() {
-			header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+			if ( ! headers_sent() ) {
+				header('P3P:CP="IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT"');
+			}
 
 			$this->path = plugin_dir_path( __FILE__ );
 			$this->url  = plugin_dir_url( __FILE__ );
