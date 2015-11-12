@@ -174,7 +174,6 @@ class WPcom_VIP_Plugins_UI {
 			'scrollkit-wp', // Scroll Kit shut down but still a few people with it activated
 			'search-excerpt', // out-of-date and not widely used
 			'the-attached-image', // Badness - was missing ton of escaping, not using the settings api
-			'uppsite', // Retired from FPP but a couple VIPs still using it
 			'wordtwit-1.3-mod', // use publicize
 			'wpcom-related-posts', // Now part of JP / WP.com
 		);
