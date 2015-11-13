@@ -1,0 +1,34 @@
+.form-table.apple-export input[type=text],
+.form-table.apple-export .select2,
+.form-table.apple-export input[type=password] {
+	display: block;
+	width: 285px;
+	margin-top: 2px;
+}
+
+.form-table.apple-export select,
+.form-table.apple-export input[type=color],
+.form-table.apple-export input[type=number] {
+	display: inline-block;
+	margin-right: 15px;
+	float: left;
+}
+
+.form-table.apple-export input[type=number] {
+	width: 45px;
+}
+
+.form-table.apple-export input.input-float {
+	width: 60px;
+}
+
+.form-table.apple-export .label-name {
+	display: inline-block;
+	padding: 3px;
+}
+
+/* clearfix */
+.form-table.apple-export .setting-container {
+	overflow: auto;
+	zoom: 1;
+}
