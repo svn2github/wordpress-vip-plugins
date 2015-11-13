@@ -12,6 +12,7 @@ require_once plugin_dir_path( __FILE__ ) . 'class-admin-apple-index-page.php';
 require_once plugin_dir_path( __FILE__ ) . 'class-admin-apple-bulk-export-page.php';
 require_once plugin_dir_path( __FILE__ ) . 'class-admin-apple-notice.php';
 require_once plugin_dir_path( __FILE__ ) . 'class-admin-apple-meta-boxes.php';
+require_once plugin_dir_path( __FILE__ ) . 'class-admin-apple-async.php';
 
 /**
  * Entry-point class for the plugin.
@@ -25,9 +26,6 @@ class Admin_Apple_News extends Apple_News {
 		// This is required to download files and setting headers.
 		ob_start();
 
-		// Initialize notice messaging utility
-		new Admin_Apple_Notice;
-
 		// Register hooks
 		add_action( 'admin_print_styles-toplevel_page_apple_news_index', array( $this, 'plugin_styles' ) );
 
@@ -36,6 +34,9 @@ class Admin_Apple_News extends Apple_News {
 		// $settings.
 		$admin_settings = new Admin_Apple_Settings;
 		$settings       = $admin_settings->fetch_settings();
+
+		// Initialize notice messaging utility
+		new Admin_Apple_Notice( $settings );
 
 		// Set up main page
 		new Admin_Apple_Index_Page( $settings );
@@ -48,6 +49,9 @@ class Admin_Apple_News extends Apple_News {
 
 		// Set up the publish meta box if enabled in the settings
 		new Admin_Apple_Meta_Boxes( $settings );
+
+		// Set up asynchronous publishing features
+		new Admin_Apple_Async( $settings );
 	}
 
 	/**

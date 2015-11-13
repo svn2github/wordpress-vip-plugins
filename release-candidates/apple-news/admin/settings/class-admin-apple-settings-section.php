@@ -376,6 +376,11 @@ class Admin_Apple_Settings_Section extends Apple_News {
 			'type' => array(),
 			'required' => array(),
 		),
+		'br' => array(),
+		'b' => array(),
+		'strong' => array(),
+		'i' => array(),
+		'em' => array(),
 	);
 
 	/**
@@ -552,6 +557,12 @@ class Admin_Apple_Settings_Section extends Apple_News {
 			$field = '<input required type="text" name="%s" value="%s">';
 		}
 
+		// Add a description, if set.
+		$description = $this->get_description_for( $name );
+		if ( ! empty( $description ) ) {
+			$field .= apply_filters( 'apple_news_field_description_output_html', '<br/><i>' . $description . '</i>', $name );
+		}
+
 		return sprintf(
 			$field,
 			esc_attr( $name ),
@@ -568,6 +579,17 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 */
 	private function get_type_for( $name ) {
 		return empty( $this->settings[ $name ]['type'] ) ? 'string' : $this->settings[ $name ]['type'];
+	}
+
+	/**
+	 * Get the description for a field.
+	 *
+	 * @param string $name
+	 * @return string
+	 * @access private
+	 */
+	private function get_description_for( $name ) {
+		return empty( $this->settings[ $name ]['description'] ) ? '' : $this->settings[ $name ]['description'];
 	}
 
 	/**
@@ -589,7 +611,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 * @access private
 	 */
 	private function get_default_for( $name ) {
-		return $this->base_settings[ $name ];
+		return isset( $this->base_settings[ $name ] ) ? $this->base_settings[ $name ] : '';
 	}
 
 	/**

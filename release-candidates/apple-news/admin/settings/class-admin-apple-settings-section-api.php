@@ -46,6 +46,11 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 				'label'   => __( 'Automatically update Apple News', 'apple-news' ),
 				'type'    => array( 'yes', 'no' ),
 			),
+			'api_async' => array(
+				'label'   			=> __( 'Asynchronously publish to Apple News', 'apple-news' ),
+				'type'    			=> array( 'yes', 'no' ),
+				'description' 	=> $this->get_async_description(),
+			),
 		);
 
 		// Add the groups
@@ -53,7 +58,7 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 			'apple_news' => array(
 				'label'       => __( 'Apple News API', 'apple-news' ),
 				'description' => __( 'All of these settings are required for publishing to Apple News', 'apple-news' ),
-				'settings'    => array( 'api_key', 'api_secret', 'api_channel', 'api_autosync', 'api_autosync_update' ),
+				'settings'    => array( 'api_key', 'api_secret', 'api_channel', 'api_autosync', 'api_autosync_update', 'api_async' ),
 			),
 		);
 
@@ -72,6 +77,25 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 			__( 'Enter your Apple News credentials below. See', 'apple-news' ),
 			__( 'the Apple News documentation', 'apple-news' ),
 			__( 'for detailed information', 'apple-news' )
+		);
+	}
+
+	/**
+	 * Generates the description for the async field since this varies by environment.
+	 *
+	 * @return string
+	 * @access private
+	 */
+	private function get_async_description() {
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+			$system = __( 'the WordPress VIP jobs system', 'apple-news' );
+		} else {
+			$system = __( 'a single scheduled event', 'apple-news' );
+		}
+
+		return sprintf(
+			__( 'This will cause publishing to happen asynchronously using %s.', 'apple_news' ),
+			$system
 		);
 	}
 

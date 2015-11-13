@@ -57,14 +57,26 @@ class Export extends Action {
 		$date       = date( 'M j, Y | g:i A', strtotime( $post->post_date ) );
 		$byline     = 'by ' . ucfirst( $author ) . ' | ' . $date ;
 
-		$base_content = new Exporter_Content(
-			$post->ID,
-			$post->post_title,
-			// post_content is not raw HTML, as WordPress editor cleans up
+		// Filter each of our items before passing into the exporter class.
+		$title      = apply_filters( 'apple_news_exporter_title', $post->post_title, $post->ID );
+		$excerpt    = apply_filters( 'apple_news_exporter_excerpt', $post->post_excerpt, $post->ID );
+		$post_thumb = apply_filters( 'apple_news_exporter_post_thumb', $post_thumb, $post->ID );
+		$date       = apply_filters( 'apple_news_exporter_date', $date, $post->ID );
+		$byline     = apply_filters( 'apple_news_exporter_byline', $byline, $post->ID );
+
+		// The post_content is not raw HTML, as WordPress editor cleans up
 			// paragraphs and new lines, so we need to transform the content to
 			// HTML. We use 'the_content' filter for that.
-			apply_filters( 'the_content', $post->post_content ),
-			$post->post_excerpt,
+		$content    = apply_filters( 'apple_news_exporter_content_pre', $post->post_content, $post->ID );
+		$content    = apply_filters( 'the_content', $content );
+		$content    = apply_filters( 'apple_news_exporter_content', $content, $post->ID );
+
+		// Now pass all the variables into the Exporter_Content array.
+		$base_content = new Exporter_Content(
+			$post->ID,
+			$title,
+			$content,
+			$excerpt,
 			$post_thumb,
 			$byline,
 			$this->fetch_content_settings()

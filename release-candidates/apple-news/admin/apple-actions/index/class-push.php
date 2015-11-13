@@ -41,10 +41,15 @@ class Push extends API_Action {
 	 * Perform the push action.
 	 *
 	 * @access public
+	 * @param boolean $doing_async
 	 * @return boolean
 	 */
-	public function perform() {
+	public function perform( $doing_async = false ) {
+		if ( 'yes' === $this->settings->get( 'api_async' ) && false === $doing_async ) {
+			wp_schedule_single_event( time(), \Admin_Apple_Async::ASYNC_PUSH_HOOK, array( $this->id, get_current_user_id() ) );
+		} else {
 		return $this->push();
+	}
 	}
 
 	/**
@@ -192,5 +197,4 @@ class Push extends API_Action {
 
 		return array( $this->exporter->get_json(), $this->exporter->get_bundles() );
 	}
-
 }
