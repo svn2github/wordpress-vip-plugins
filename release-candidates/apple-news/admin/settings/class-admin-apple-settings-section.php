@@ -457,7 +457,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 
 		foreach ( $this->settings as $name => $options ) {
 			// Register setting
-			$callback = isset( $options['sanitize'] ) ? array( $this, $options['sanitize'] ) : '';
+			$callback = ( isset( $options['sanitize'] ) && function_exists( $options['sanitize'] ) ) ? $options['sanitize'] : '';
 			register_setting( $this->page, $name, $callback );
 
 			// Add to settings section

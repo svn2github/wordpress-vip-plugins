@@ -45,7 +45,7 @@ class Admin_Apple_Notice {
 			$user_id = get_current_user_id();
 		}
 
-		add_user_meta( $user_id, self::KEY, array(
+		self::add_user_meta( $user_id, self::KEY, array(
 			'message' => sanitize_text_field( $message ),
 			'type' => sanitize_text_field( $type )
 		) );
@@ -96,8 +96,8 @@ class Admin_Apple_Notice {
 	 * @access public
 	 */
 	public static function has_notice() {
-		$message = get_user_meta( get_current_user_id(), self::KEY . 'message', true );
-		return ! empty( $message );
+		$messages = self::get_user_meta( get_current_user_id(), self::KEY );
+		return ! empty( $messages );
 	}
 
 	/**
@@ -116,7 +116,7 @@ class Admin_Apple_Notice {
 		}
 
 		// Check for notices
-		$notices = get_user_meta( get_current_user_id(), self::KEY );
+		$notices = self::get_user_meta( get_current_user_id(), self::KEY );
 		if ( empty( $notices ) ) {
 			return;
 		}
@@ -130,7 +130,7 @@ class Admin_Apple_Notice {
 		}
 
 		// Clear the notice
-		delete_user_meta( get_current_user_id(), self::KEY );
+		self::delete_user_meta( get_current_user_id(), self::KEY );
 	}
 
 	/**
@@ -147,6 +147,67 @@ class Admin_Apple_Notice {
 			<p><strong><?php echo wp_kses_post( apply_filters( 'apple_news_notice_message', $message, $type ) ) ?></strong></p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Handle adding user meta across potential hosting platforms.
+	 *
+	 * @param int $user_id
+	 * @param string $key
+	 * @param mixed $value
+	 * @static
+	 * @access private
+	 */
+	private static function add_user_meta( $user_id, $key, $value ) {
+		// We can't use add_user_meta because there is no equivalent on VIP.
+		// Instead manage values within the same variable for consistency.
+		$values = self::get_user_meta( $user_id, $key );
+		if ( empty( $values ) ) {
+			$values = array();
+		}
+
+		// Add the new value
+		$values[] = $value;
+
+		// Save using the appropriate method
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+			return update_user_attribute( $user_id, $key, $values );
+		} else {
+			return update_user_meta( $user_id, $key, $values );
+		}
+	}
+
+	/**
+	 * Handle getting user meta across potential hosting platforms.
+	 *
+	 * @param int $user_id
+	 * @param string $key
+	 * @static
+	 * @return mixed
+	 * @access private
+	 */
+	private static function get_user_meta( $user_id, $key ) {
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+			return get_user_attribute( $user_id, $key );
+		} else {
+			return get_user_meta( $user_id, $key, true );
+		}
+	}
+
+	/**
+	 * Handle deleting user meta across potential hosting platforms.
+	 *
+	 * @param int $user_id
+	 * @param string $key
+	 * @static
+	 * @access private
+	 */
+	private static function delete_user_meta( $user_id, $key ) {
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+			return delete_user_attribute( $user_id, $key );
+		} else {
+			return delete_user_meta( $user_id, $key );
+		}
 	}
 
 }
