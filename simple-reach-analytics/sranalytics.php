@@ -88,15 +88,17 @@ function sranalytics_insert_js() {
 	$title = $post->post_title;
 	$authors = array( get_author_name( $post->post_author ) );
 	$tags = get_the_terms( $post->ID, 'post_tag');
-	if ( is_wp_error($tags) ){
-		$tags = array();
+	if ( ! empty( $tags ) && ! is_wp_error( $tags ) ) {
+	  $tags = wp_list_pluck( $tags, 'name' );
+	} else {
+	  $tags = array();
 	}
-	$tags = wp_list_pluck( $tags, 'name' );
 	$channels = get_the_terms( $post->ID, 'category' );
-	if ( is_wp_error($channels) ){
-		$channels = array();
+	if ( ! empty( $channels ) && ! is_wp_error( $channels ) ) {
+	  $channels = wp_list_pluck( $channels, 'slug' );
+	} else {
+	  $channels = array();
 	}
-	$channels = wp_list_pluck( $channels, 'slug' );
 	$published_date = $post->post_date_gmt;
 	$canonical_url = get_permalink( $post->ID );
 
