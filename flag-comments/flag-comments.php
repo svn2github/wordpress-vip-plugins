@@ -595,7 +595,12 @@ class Flag_Comments {
 			$user_id = $user->ID;
 		}
 		// use cookies ( to include non-logged-in users )
-		$flagged = (int) $_COOKIE[$wpdb->prefix . 'flaggedcomment' . $comment_id];
+		if ( ! empty( $_COOKIE[$wpdb->prefix . 'flaggedcomment' . $comment_id] )){
+			$flagged = (int) $_COOKIE[$wpdb->prefix . 'flaggedcomment' . $comment_id];
+		} else{
+			$flagged = false;
+		}
+
 		if ( $flagged )
 			return true;
 
