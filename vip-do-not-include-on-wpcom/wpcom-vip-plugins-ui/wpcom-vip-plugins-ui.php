@@ -153,7 +153,7 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-wpcom',
 			'five-min-video-suggest',
 			'stipple',
-			//'brightcove',
+			'brightcove',
 			'lift-search',
 			'msm-sitemap',
 			'zemanta',
@@ -179,105 +179,105 @@ class WPcom_VIP_Plugins_UI {
 		);
 
 		$this->fpp_plugins = array(
-			'brightcove'       => array(
-				'name'        => 'Brightcove',
-				'description' => 'Discover How Video Can Move Your Business.',
+			'brightcove-video-connect' => array(
+				'name'			=> 'Brightcove Video Connect',
+				'description'	=> 'Discover How Video Can Move Your Business.',
 			),
-			'browsi'       => array(
-				'name'        => 'Brow.si',
-				'description' => 'Drive more engagement and better monetization on mobile web with Brow.si on your site.',
+			'browsi' => array(
+				'name'			=> 'Brow.si',
+				'description'	=> 'Drive more engagement and better monetization on mobile web with Brow.si on your site.',
 			),
-			'chartbeat'     => array(
-				'name'        => 'Chartbeat',
-				'description' => 'Get a free trial to see your site\'s real-time data.',
+			'chartbeat' => array(
+				'name'			=> 'Chartbeat',
+				'description'	=> 'Get a free trial to see your site\'s real-time data.',
 			),
-			'co-schedule'     => array(
-				'name'        => 'CoSchedule',
-				'description' => 'Plan awesome content. Save a bunch of time.',
+			'co-schedule' => array(
+				'name'			=> 'CoSchedule',
+				'description'	=> 'Plan awesome content. Save a bunch of time.',
 			),
-			'facebook'       => array(
-				'name'        => 'Facebook',
-				'description' => 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
+			'facebook' => array(
+				'name'			=> 'Facebook',
+				'description'	=> 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
 			),
-			'getty-images'       => array(
-				'name'        => 'Getty Images',
-				'description' => 'Search and use Getty Images photos in your posts without ever leaving WordPress.com.',
+			'getty-images' => array(
+				'name'			=> 'Getty Images',
+				'description'	=> 'Search and use Getty Images photos in your posts without ever leaving WordPress.com.',
 			),
-			'graphiq-search'       => array(
-				'name'        => 'Graphiq Search',
-				'description' => 'Add relevant, interactive visuals to any WordPress VIP post.',
+			'graphiq-search' => array(
+				'name'			=> 'Graphiq Search',
+				'description'	=> 'Add relevant, interactive visuals to any WordPress VIP post.',
 			),
-			'inform-video-match'        => array(
-				'name'        => 'Inform Video Match',
-				'description' => 'Better than free.',
+			'inform-video-match' => array(
+				'name'			=> 'Inform Video Match',
+				'description'	=> 'Better than free.',
 			),
 			'janrain-capture' => array(
-				'name'        => 'Janrain',
-				'description' => 'User Registration and Social Integration for WordPress.com VIP.',
+				'name'			=> 'Janrain',
+				'description'	=> 'User Registration and Social Integration for WordPress.com VIP.',
 			),
 			'jwplayer' => array(
-				'name'        => 'JW Player',
-				'description' => 'The World’s Most Popular Video Player.',
+				'name'			=> 'JW Player',
+				'description'	=> 'The World’s Most Popular Video Player.',
 			),
-			'livefyre-apps'   => array(
-				'name'        => 'Livefyre',
-				'description' => 'Replace comments with live conversations connected to the social web.',
+			'livefyre-apps' => array(
+				'name'			=> 'Livefyre',
+				'description'	=> 'Replace comments with live conversations connected to the social web.',
 			),
-			'mediapass'     => array(
-				'name'        => 'MediaPass Subscriptions',
-				'description' => 'Monetize your content with recurring subscriptions made easy.',
+			'mediapass' => array(
+				'name'			=> 'MediaPass Subscriptions',
+				'description'	=> 'Monetize your content with recurring subscriptions made easy.',
 			),
-			'postrelease-vip'        => array(
-				'name'        => 'Nativo',
-				'description' => 'Unlock a premium revenue stream with native ads.',
+			'postrelease-vip' => array(
+				'name'			=> 'Nativo',
+				'description'	=> 'Unlock a premium revenue stream with native ads.',
 			),
-			'newscred'        => array(
-				'name'        => 'NewsCred',
-				'description' => 'Publish fully licensed, full text articles and images from 4,000+ of the world’s best news sources!',
+			'newscred' => array(
+				'name'			=> 'NewsCred',
+				'description'	=> 'Publish fully licensed, full text articles and images from 4,000+ of the world’s best news sources!',
 			),
-			'ooyala'        => array(
-				'name'        => 'Ooyala',
-				'description' => 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
+			'ooyala' => array(
+				'name'			=> 'Ooyala',
+				'description'	=> 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
 			),
-			'wp-parsely'        => array(
-				'name'        => 'Parsely',
-				'description' => 'Start a trial to finally see your audience clearly.',
+			'wp-parsely' => array(
+				'name'			=> 'Parsely',
+				'description'	=> 'Start a trial to finally see your audience clearly.',
 			),
-			'playbuzz'        => array(
-				'name'        => 'Playbuzz',
-				'description' => 'Embed customized playful content from Playbuzz.com into your WordPress site.',
+			'playbuzz' => array(
+				'name'			=> 'Playbuzz',
+				'description'	=> 'Embed customized playful content from Playbuzz.com into your WordPress site.',
 			),
 			'publishthis'        => array(
-				'name'        => 'PublishThis',
-				'description' => 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
+				'name'			=> 'PublishThis',
+				'description'	=> 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
 			),
-			'sailthru'    => array(
-				'name'        => 'Sailthru for WordPress',
-				'description' => 'Sailthru is the leading provider of personalized marketing communications.',
+			'sailthru' => array(
+				'name'			=> 'Sailthru for WordPress',
+				'description'	=> 'Sailthru is the leading provider of personalized marketing communications.',
 			),
-			'simple-reach-analytics'    => array(
+			'simple-reach-analytics' => array(
 				'name'        => 'SimpleReach',
 				'description' => 'Content ROI made simple.',
 			),
-			'skyword'    => array(
-				'name'        => 'Skyword',
-				'description' => 'Moving Stories. Forward.',
+			'skyword' => array(
+				'name'			=> 'Skyword',
+				'description'	=> 'Moving Stories. Forward.',
 			),
-			'socialflow'    => array(
-				'name'        => 'SocialFlow',
-				'description' => 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
+			'socialflow' => array(
+				'name'			=> 'SocialFlow',
+				'description'	=> 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
 			),
-			'storify'    => array(
-				'name'        => 'Storify',
-				'description' => 'Easily add social media to every blog post with Storify.',
+			'storify' => array(
+				'name'			=> 'Storify',
+				'description'	=> 'Easily add social media to every blog post with Storify.',
 			),
-			'thePlatform'   => array(
-				'name' 		  => 'thePlatform',
-				'description' => 'Easily publish and manage your videos in WordPress using thePlatform’s mpx.',
+			'thePlatform' => array(
+				'name'			=> 'thePlatform',
+				'description'	=> 'Easily publish and manage your videos in WordPress using thePlatform’s mpx.',
 			),
-			'tinypass'   => array(
-				'name' 		  => 'Tinypass',
-				'description' => 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
+			'tinypass' => array(
+				'name'			=> 'Tinypass',
+				'description'	=> 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
 			),
 		);
 	}
