@@ -153,7 +153,7 @@ class WPcom_VIP_Plugins_UI {
 			'share-this-wpcom',
 			'five-min-video-suggest',
 			'stipple',
-			'brightcove',
+			//'brightcove',
 			'lift-search',
 			'msm-sitemap',
 			'zemanta',
@@ -179,6 +179,10 @@ class WPcom_VIP_Plugins_UI {
 		);
 
 		$this->fpp_plugins = array(
+			'brightcove'       => array(
+				'name'        => 'Brightcove',
+				'description' => 'Discover How Video Can Move Your Business.',
+			),
 			'browsi'       => array(
 				'name'        => 'Brow.si',
 				'description' => 'Drive more engagement and better monetization on mobile web with Brow.si on your site.',
