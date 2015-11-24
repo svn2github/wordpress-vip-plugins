@@ -46,6 +46,9 @@ class Push extends API_Action {
 	 */
 	public function perform( $doing_async = false ) {
 		if ( 'yes' === $this->settings->get( 'api_async' ) && false === $doing_async ) {
+			// Track this publish event as pending with the timestamp it was sent
+			update_post_meta( $this->id, 'apple_news_api_pending', time() );
+
 			wp_schedule_single_event( time(), \Admin_Apple_Async::ASYNC_PUSH_HOOK, array( $this->id, get_current_user_id() ) );
 		} else {
 		return $this->push();
@@ -157,6 +160,9 @@ class Push extends API_Action {
 
 			// If it's marked as deleted, remove the mark. Ignore otherwise.
 			delete_post_meta( $this->id, 'apple_news_api_deleted' );
+
+			// Remove the pending designation if it exists
+			delete_post_meta( $this->id, 'apple_news_api_pending' );
 
 			do_action( 'apple_news_after_push', $this->id, $result );
 		} catch ( \Apple_Push_API\Request\Request_Exception $e ) {

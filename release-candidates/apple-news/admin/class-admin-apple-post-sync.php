@@ -60,11 +60,7 @@ class Admin_Apple_Post_Sync {
 		// Also, if the post has been marked as deleted from the API, ignore this update.
 		$updated = get_post_meta( $id, 'apple_news_api_id', true );
 		$deleted = get_post_meta( $id, 'apple_news_api_deleted', true );
-		if (
-			( 'yes' != $this->settings->get( 'api_autosync' ) && ! $updated )
-			|| ( 'yes' != $this->settings->get( 'api_autosync_update' ) && $updated )
-			|| $deleted
-		) {
+		if ( $deleted	) {
 			return;
 		}
 

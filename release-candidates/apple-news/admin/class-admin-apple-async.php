@@ -89,4 +89,3 @@ class Admin_Apple_Async extends Apple_News {
 		return $hooks;
 	}
 }
-
