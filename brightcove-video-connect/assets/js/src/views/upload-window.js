@@ -1,6 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'plupload', 'wp', 'wpbc', 'views/brightcove'], function($, _, Backbone, Plupload, wp, wpbc, BrightcoveView) {
-
-    return BrightcoveView.extend({
+    UploadWindowView = BrightcoveView.extend({
         className: 'uploader-window',
         template: wp.template('brightcove-uploader-window'),
 
@@ -156,4 +154,3 @@ define(['jquery', 'underscore', 'backbone', 'plupload', 'wp', 'wpbc', 'views/bri
             }
         }
     });
-});

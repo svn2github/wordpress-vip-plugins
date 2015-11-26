@@ -1,21 +1,3 @@
-define([
-	'jquery',
-	'underscore',
-	'backbone',
-	'wpbc',
-	'views/brightcove-media-manager',
-	'views/brightcove-modal',
-	'wp'
-], function(
-	$,
-	_,
-	Backbone,
-	wpbc,
-	BrightcoveMediaManagerView,
-	BrightcoveModalView,
-	wp
-) {
-
 	var App = {
 		renderMediaManager: function(mediaType) {
 			var brightcoveMediaContainer = $('.brightcove-media-' + mediaType);
@@ -130,6 +112,6 @@ define([
 		}
 	};
 
-	return App;
-});
-
+	$( document ).ready( function() {
+			App.load();
+	});

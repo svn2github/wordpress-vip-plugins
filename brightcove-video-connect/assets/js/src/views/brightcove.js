@@ -1,4 +1,3 @@
-define(['jquery', 'underscore', 'backbone', 'wp'], function ($, _, Backbone, wp) {
     var BrightcoveView = wp.Backbone.View.extend({
         subviews: null,
 
@@ -32,5 +31,3 @@ define(['jquery', 'underscore', 'backbone', 'wp'], function ($, _, Backbone, wp)
         }
     });
 
-    return BrightcoveView;
-});

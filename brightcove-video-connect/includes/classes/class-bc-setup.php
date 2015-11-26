@@ -109,7 +109,7 @@ class BC_Setup {
 
 		global $pagenow;
 		if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) ) {
-			echo '<div tabindex="0" class="brightcove-modal supports-drag-drop">';
+			echo '<div tabindex="0" class="brightcove-modal supports-drag-drop"></div>';
 		}
 	}
 
@@ -217,11 +217,10 @@ class BC_Setup {
 		wp_enqueue_script( 'tinymce_preview', esc_url( BRIGHTCOVE_URL . 'assets/js/src/tinymce.js' ), array( 'mce-view' ) );
 		wp_localize_script( 'tinymce_preview', 'bctiny', array( 'wp_version' => $wp_version, 'playlistEnabledPlayers' => $playlist_enabled_players_for_accounts  ) );
 
-		wp_register_script( 'require-js', esc_url( BRIGHTCOVE_URL . 'assets/js/vendor/require'.$suffix.'.js' ) );
-		wp_localize_script( 'require-js', 'wpbc', $js_variable );
-
 		$dependencies = array(
+			'jquery',
 			'backbone',
+			'wp-backbone',
 			'media',
 			'media-editor',
 			'media-grid',
@@ -229,23 +228,27 @@ class BC_Setup {
 			'media-upload',
 			'media-views',
 			'plupload-all',
-			'require-js',
 			'brightcove',
 			'wp-mediaelement',
 			'tinymce_preview',
 		);
 
-		wp_enqueue_script( 'setup', esc_url( BRIGHTCOVE_URL . 'assets/js/src/setup.js' ), $dependencies );
+		wp_register_script( 'brightcove-admin', esc_url( BRIGHTCOVE_URL . 'assets/js/brightcove-admin'.$suffix.'.js' ), $dependencies );
+		wp_localize_script( 'brightcove-admin', 'wpbc', $js_variable );
+		wp_enqueue_script( 'brightcove-admin' );
 
 		wp_enqueue_media();
 
-		wp_register_style( 'brightcove-video-connect', esc_url( BRIGHTCOVE_URL . 'assets/css/brightcove_video_connect.css' ), array() );
+		wp_register_style( 'brightcove-video-connect', esc_url( BRIGHTCOVE_URL . 'assets/css/brightcove_video_connect'.$suffix.'.css' ), array() );
 		wp_enqueue_style( 'brightcove-video-connect' );
 	}
 
 	public static function frontend_enqueue_scripts() {
 
-		wp_register_style( 'brightcove-playlist', BRIGHTCOVE_URL . 'assets/css/brightcove_playlist.css', array() );
+		// Use minified libraries if SCRIPT_DEBUG is turned off
+		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		wp_register_style( 'brightcove-playlist', BRIGHTCOVE_URL . 'assets/css/brightcove_playlist'.$suffix.'.css', array() );
 		wp_enqueue_style( 'brightcove-playlist' );
 	}
 

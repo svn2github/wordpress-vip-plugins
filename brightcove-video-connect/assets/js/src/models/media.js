@@ -1,10 +1,8 @@
-define(['jquery', 'underscore', 'backbone'], function( $, _, Backbone) {
-
     /**
      * Media model for Media CPT
      */
 
-    var Media = Backbone.Model.extend({
+    var MediaModel = Backbone.Model.extend({
 
         /**
          * Copied largely from WP Attachment sync function
@@ -204,6 +202,3 @@ define(['jquery', 'underscore', 'backbone'], function( $, _, Backbone) {
             wpbc.broadcast.trigger('spinner:off');
         }
     });
-
-    return Media;
-});

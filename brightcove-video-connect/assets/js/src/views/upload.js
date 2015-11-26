@@ -1,6 +1,4 @@
-define(['jquery', 'underscore', 'backbone', 'wp', 'wpbc', 'views/brightcove'], function($, _, Backbone, wp, wpbc, BrightcoveView) {
-
-    return BrightcoveView.extend({
+    var BrightcoveUpload = BrightcoveView.extend({
         className: 'brightcove-pending-upload',
         tagName: 'tr',
         template: wp.template('brightcove-pending-upload'),
@@ -113,4 +111,3 @@ define(['jquery', 'underscore', 'backbone', 'wp', 'wpbc', 'views/brightcove'], f
             }
         }
     });
-});
