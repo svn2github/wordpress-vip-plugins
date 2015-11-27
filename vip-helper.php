@@ -169,7 +169,7 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 	// The timeout can be 1 to 10 seconds, we strongly recommend no more than 3 seconds
 	$timeout = min( 10, max( 1, (int) $timeout ) );
 
-	if ( $timeout > 3 )
+	if ( $timeout > 3 && ! is_admin() )
 		_doing_it_wrong( __FUNCTION__, 'Using a timeout value of over 3 seconds is strongly discouraged because users have to wait for the remote request to finish before the rest of their page loads.', null );
 
 	$server_up = true;
