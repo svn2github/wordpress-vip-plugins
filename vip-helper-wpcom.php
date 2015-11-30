@@ -970,3 +970,30 @@ function wpcom_vip_set_url_scheme( $scheme = 'https' ) {
 		}
 	});
 }
+
+/**
+ * Conditionally dequeues the geo-location-flair.css
+ *
+ * geo-location-flair.css is by default loaded on every pageload, but may be needed only on single post with visible geo information
+ *
+ * call this function from functions.php to limit the loading of geo-location-flair.css
+ */
+function wpcom_vip_load_geolocation_styles_only_when_needed() {
+	add_action( 'wp_enqueue_scripts', function() {
+		$enqueue = true; //the style is being enqueued by default
+		if ( false === is_single() ) {
+			$enqueue = false; //don't enqueue if not on single
+		} else {
+			$geolocation_class = call_user_func( array( GEO_LOCATION__CLASS, 'init') );
+			$geo = $geolocation_class->get_geo( 'post', get_the_id() );
+			$show_location = is_array( $geo ) && isset( $geo['public'] ) && '1' === $geo['public'];
+			if ( ! $show_location ) {
+				$enqueue = false; //don't enqueue if post does not have visible geo location
+			}
+		}
+		//Dequeue if enqueuing the style is not needed
+		if ( false === $enqueue ) {
+			wp_dequeue_style( 'geo-location-flair' );
+		}
+	}, 9000, 0 );
+}
