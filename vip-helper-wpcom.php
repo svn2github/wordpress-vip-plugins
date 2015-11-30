@@ -997,3 +997,12 @@ function wpcom_vip_load_geolocation_styles_only_when_needed() {
 		}
 	}, 9000, 0 );
 }
+
+/**
+ * Dequeue wp-mediaelement.css for sites which don't use the playlist shortcode and thus don't need the stylesheet
+ */
+function wpcom_vip_remove_playlist_styles() {
+	add_action( 'wp_enqueue_scripts', function() {
+		wp_dequeue_style( 'wpcom-core-compat-playlist-styles' );
+	}, 9000, 0 );
+}
