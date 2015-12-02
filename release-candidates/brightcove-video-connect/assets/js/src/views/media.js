@@ -1,5 +1,4 @@
-define([ 'wp', 'wpbc', 'underscore', 'jquery', 'views/brightcove'], function(wp, wpbc, _, $, BrightcoveView) {
-    var Media = BrightcoveView.extend({
+    var MediaView = BrightcoveView.extend({
         tagName:   'li',
         className: 'attachment brightcove',
 
@@ -94,5 +93,3 @@ define([ 'wp', 'wpbc', 'underscore', 'jquery', 'views/brightcove'], function(wp,
         }
     });
 
-    return Media;
-});

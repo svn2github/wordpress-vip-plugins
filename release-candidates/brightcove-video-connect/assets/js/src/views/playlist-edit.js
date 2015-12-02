@@ -1,4 +1,3 @@
-define(['jquery', 'underscore', 'backbone', 'views/brightcove-media-manager', 'views/playlist-edit-video', 'views/brightcove', 'views/media-collection'], function ($, _, Backbone, BrightcoveMediaManagerView, PlaylistEditVideoView, BrightcoveView, MediaCollectionView) {
     var VideoEditView = BrightcoveView.extend({
         tagName: 'div',
         className: 'playlist-edit brightcove attachment-details',
@@ -90,5 +89,3 @@ define(['jquery', 'underscore', 'backbone', 'views/brightcove-media-manager', 'v
 
     });
 
-    return VideoEditView;
-});

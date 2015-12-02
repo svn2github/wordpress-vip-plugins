@@ -1,4 +1,3 @@
-define(['jquery', 'underscore', 'backbone', 'models/brightcove-media-manager', 'views/video-edit', 'views/playlist-edit', 'views/toolbar', 'views/media-details', 'views/video-preview', 'wpbc', 'views/upload-video-manager', 'views/brightcove'], function ($, _, Backbone, BrightcoveMediaManagerModel, VideoEditView, PlaylistEditView, ToolbarView, MediaDetailsView, VideoPreviewView, wpbc, UploadVideoManagerView, BrightcoveView) {
     var BrightcoveMediaManagerView = BrightcoveView.extend({
         tagName: 'div',
         className: 'brightcove-media',
@@ -309,6 +308,3 @@ define(['jquery', 'underscore', 'backbone', 'models/brightcove-media-manager', '
         }
 
     });
-
-    return BrightcoveMediaManagerView;
-});

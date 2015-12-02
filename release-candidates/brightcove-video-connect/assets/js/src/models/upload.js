@@ -1,5 +1,3 @@
-define(['jquery', 'underscore', 'backbone'], function( $, _, Backbone) {
-
     /**
      * Model to contain pending upload
      */
@@ -21,6 +19,3 @@ define(['jquery', 'underscore', 'backbone'], function( $, _, Backbone) {
         }
 
     });
-
-    return Upload;
-});

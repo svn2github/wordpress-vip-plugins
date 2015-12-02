@@ -1,4 +1,3 @@
-define(['jquery', 'underscore', 'backbone', 'models/media-collection', 'views/media-collection'], function( $, _, Backbone, MediaCollection, MediaCollectionView) {
     var BrightcoveMediaManagerModel = Backbone.Model.extend({
         defaults: {
             view: 'grid',
@@ -27,5 +26,3 @@ define(['jquery', 'underscore', 'backbone', 'models/media-collection', 'views/me
         }
     });
 
-    return BrightcoveMediaManagerModel;
-});
