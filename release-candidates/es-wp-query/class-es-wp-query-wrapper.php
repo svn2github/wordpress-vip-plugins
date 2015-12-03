@@ -773,7 +773,7 @@ abstract class ES_WP_Query_Wrapper extends WP_Query {
 			else
 				$filter[] = $this->dsl_terms( $this->es_map( 'post_type' ), array_values( $in_search_post_types ) );
 		} elseif ( ! empty( $post_type ) ) {
-			$filter[] = $this->dsl_terms( $this->es_map( 'post_type' ), $post_type );
+			$filter[] = $this->dsl_terms( $this->es_map( 'post_type' ), array_values( $post_type ) );
 			if ( ! is_array( $post_type ) ) {
 				$post_type_object = get_post_type_object ( $post_type );
 			}
@@ -1051,6 +1051,7 @@ abstract class ES_WP_Query_Wrapper extends WP_Query {
 		}
 
 		if ( 'ids' == $q['fields'] || 'id=>parent' == $q['fields'] ) {
+			$this->es_args['disable_cache'] = true;
 			$this->es_response = $this->query_es( $this->es_args );
 			$this->set_posts( $q, $this->es_response );
 			$this->post_count = count( $this->posts );
