@@ -60,6 +60,9 @@ class Admin_Apple_Async extends Apple_News {
 		// will automatically use the jobs system which can handle requests up to 12 hours.
 		do_action( 'apple_news_before_async_push' );
 
+		// Ensure that the job can't be picked up twice
+		update_post_meta( $this->id, 'apple_news_api_async_in_progress', time() );
+
 		$action = new Apple_Actions\Index\Push( $this->settings, $post_id );
 		try {
 			$action->perform( true );

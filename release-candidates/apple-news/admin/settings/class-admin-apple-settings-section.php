@@ -394,6 +394,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 		$this->base_settings	= $base_settings->all();
 		$this->settings			= apply_filters( 'apple_news_section_settings', $this->settings, $page );
 		$this->groups			= apply_filters( 'apple_news_section_groups', $this->groups, $page );
+		self::$fonts            = apply_filters( 'apple_news_fonts_list', self::$fonts );
 	}
 
 	/**

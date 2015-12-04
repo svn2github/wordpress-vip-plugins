@@ -164,6 +164,9 @@ class Push extends API_Action {
 			// Remove the pending designation if it exists
 			delete_post_meta( $this->id, 'apple_news_api_pending' );
 
+			// Remove the async in progress flag
+			delete_post_meta( $this->id, 'apple_news_api_async_in_progress' );
+
 			do_action( 'apple_news_after_push', $this->id, $result );
 		} catch ( \Apple_Push_API\Request\Request_Exception $e ) {
 			if ( preg_match( '#WRONG_REVISION#', $e->getMessage() ) ) {
