@@ -61,6 +61,11 @@ class Admin_Apple_Async extends Apple_News {
 		do_action( 'apple_news_before_async_push' );
 
 		// Ensure that the job can't be picked up twice
+		$in_progress = get_post_meta( $this->id, 'apple_news_api_async_in_progress', true );
+		if ( ! empty( $in_progress ) ) {
+			return;
+		}
+
 		update_post_meta( $this->id, 'apple_news_api_async_in_progress', time() );
 
 		$action = new Apple_Actions\Index\Push( $this->settings, $post_id );
