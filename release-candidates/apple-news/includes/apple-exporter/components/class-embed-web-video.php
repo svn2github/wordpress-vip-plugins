@@ -65,7 +65,7 @@ class Embed_Web_Video extends Component {
 				$src = 'https://www.youtube.com/embed/' . $matches[1] ?: $matches[2];
 			} else {
 				preg_match( self::VIMEO_MATCH, $url, $matches );
-				$src = 'https://player.vimeo.com/video/' . $matches[1];
+				$src = 'https://player.vimeo.com/video/' . $matches[2];
 			}
 		} else {
 			preg_match_all( '/(\w+)="([^"]*?)"/im', $text, $matches, PREG_SET_ORDER );

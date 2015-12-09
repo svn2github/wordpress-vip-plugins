@@ -49,6 +49,9 @@ class Export extends Action {
 	 * @access public
 	 */
 	public function fetch_exporter() {
+
+		do_action( 'apple_news_do_fetch_exporter', $this->id );
+
 		// Fetch WP_Post object, and all required post information to fill up the
 		// Exporter_Content instance.
 		$post       = get_post( $this->id );
