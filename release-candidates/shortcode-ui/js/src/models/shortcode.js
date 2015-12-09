@@ -1,13 +1,15 @@
 var Backbone = require('backbone');
 var ShortcodeAttributes = require('sui-collections/shortcode-attributes');
 var InnerContent = require('sui-models/inner-content');
+var $ = require('jquery');
 
 Shortcode = Backbone.Model.extend({
 
 	defaults: {
 		label: '',
 		shortcode_tag: '',
-		attrs: new ShortcodeAttributes,
+		attrs: new ShortcodeAttributes(),
+		attributes_backup: {},
 	},
 
 	/**
@@ -71,22 +73,33 @@ Shortcode = Backbone.Model.extend({
 				return;
 			}
 
+			// Encode textareas incase HTML
+			if ( attr.get( 'encode' ) ) {
+				attr.set( 'value', encodeURIComponent( decodeURIComponent( attr.get( 'value' ) ) ), { silent: true } );
+			}
+
 			attrs.push( attr.get( 'attr' ) + '="' + attr.get( 'value' ) + '"' );
 
 		} );
 
+		$.each( this.get( 'attributes_backup' ), function( key, value){
+			attrs.push( key + '="' + value + '"' );
+		});
+
 		if ( this.get( 'inner_content' ) ) {
 			content = this.get( 'inner_content' ).get( 'value' );
+		} else if ( this.get( 'inner_content_backup' ) ) {
+			content = this.get( 'inner_content_backup' );
 		}
 
 		if ( attrs.length > 0 ) {
-			template = "[{{ shortcode }} {{ attributes }}]"
+			template = "[{{ shortcode }} {{ attributes }}]";
 		} else {
-			template = "[{{ shortcode }}]"
+			template = "[{{ shortcode }}]";
 		}
 
 		if ( content && content.length > 0 ) {
-			template += "{{ content }}[/{{ shortcode }}]"
+			template += "{{ content }}[/{{ shortcode }}]";
 		}
 
 		template = template.replace( /{{ shortcode }}/g, this.get('shortcode_tag') );
@@ -95,8 +108,7 @@ Shortcode = Backbone.Model.extend({
 
 		return template;
 
-	}
-
+	},
 });
 
 module.exports = Shortcode;
