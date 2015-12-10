@@ -432,7 +432,7 @@ class Ooyala {
 				'download' => admin_url( 'admin-ajax.php?action=ooyala_download&nonce=' . wp_create_nonce( 'ooyala' ) ),
 				'imageId' => admin_url( 'admin-ajax.php?action=ooyala_get_image_id&nonce=' . wp_create_nonce( 'ooyala' ) ),
 
-				'playerDefaults' => $this->playerDefaults,
+				'playerDefaults' => apply_filters( 'ooyala_default_query_args_js', $this->playerDefaults ),
 				'tag' => self::shortcode,
 				'chunk_size' => self::chunk_size,
 				'perPage' => self::per_page,
