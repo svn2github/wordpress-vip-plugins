@@ -103,6 +103,11 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 				return __( 'Deleted', 'apple-news' );
 			}
 
+			$pending = get_post_meta( $post->ID, 'apple_news_api_pending', true );
+			if ( $pending ) {
+				return __( 'Pending', 'apple-news' );
+			}
+
 			// No delete mark, this has not been published yet.
 			return __( 'Not published', 'apple-news' );
 		}
@@ -159,12 +164,18 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 				esc_url( Admin_Apple_Index_Page::action_query_params( 'export', $base_url ) ),
 				esc_html__( 'Download', 'apple-news' )
 			),
-			'push' => sprintf(
+		);
+
+		// Only add push if the article is not pending publish
+		$pending = get_post_meta( $item->ID, 'apple_news_api_pending', true );
+		if ( empty( $pending ) ) {
+			$actions['push'] = sprintf(
 				"<a href='%s'>%s</a>",
 				esc_url( Admin_Apple_Index_Page::action_query_params( 'push', $base_url ) ),
 				esc_html__( 'Publish', 'apple-news' )
-			),
 		);
+		}
+
 
 		// Add the delete action, if required
 		if ( get_post_meta( $item->ID, 'apple_news_api_id', true ) ) {
@@ -225,6 +236,12 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 	 * @access public
 	 */
 	public function column_cb( $item ) {
+		// Omit if the article is pending publish
+		$pending = get_post_meta( $item->ID, 'apple_news_api_pending', true );
+		if ( ! empty( $pending ) ) {
+			return '';
+		}
+
 		return sprintf( '<input type="checkbox" name="%1$s[]" value="%2$s">',
 			esc_attr( $this->_args['singular'] ),
 			absint( $item->ID )
@@ -303,6 +320,14 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 					$args['meta_query'] = array(
 						array(
 							'key' => 'apple_news_api_deleted',
+							'compare' => 'EXISTS',
+						)
+					);
+					break;
+				case 'pending':
+					$args['meta_query'] = array(
+						array(
+							'key' => 'apple_news_api_pending',
 							'compare' => 'EXISTS',
 						)
 					);
@@ -428,6 +453,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 			'' => __( 'Show All Statuses', 'apple-news' ),
 			'published' => __( 'Published', 'apple-news' ),
 			'not_published' => __( 'Not Published', 'apple-news' ),
+			'pending' => __( 'Pending', 'apple-news' ),
 			'deleted' => __( 'Deleted', 'apple-news' ),
 		) );
 

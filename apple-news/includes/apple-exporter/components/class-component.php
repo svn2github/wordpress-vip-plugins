@@ -434,7 +434,7 @@ abstract class Component {
 	 * @static
 	 * @access protected
 	 */
-	protected function remote_file_exists( $node ) {
+	protected static function remote_file_exists( $node ) {
 		$html = $node->ownerDocument->saveXML( $node );
 		preg_match( '/src="([^"]*?)"/im', $html, $matches );
 		$path = $matches[1];
@@ -447,7 +447,7 @@ abstract class Component {
 				$result = wp_safe_remote_get( $path );
 			}
 
-			if ( empty( $result['response']['code'] ) || 404 == $result['response']['code'] ) {
+			if ( is_wp_error( $result ) || empty( $result['response']['code'] ) || 404 == $result['response']['code'] ) {
 				return false;
 			} else {
 				return true;

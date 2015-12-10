@@ -14,9 +14,20 @@ class Admin_Apple_Notice {
 	const KEY = 'apple_news_notice';
 
 	/**
+	 * Current plugin settings.
+	 *
+	 * @var array
+	 * @access private
+	 * @static
+	 */
+	private static $settings;
+
+	/**
 	 * Constructor.
 	 */
-	function __construct() {
+	function __construct( $settings ) {
+		self::$settings = $settings;
+
 		add_action( 'admin_notices', array( $this, 'show' ) );
 	}
 
@@ -25,11 +36,16 @@ class Admin_Apple_Notice {
 	 *
 	 * @param string $message
 	 * @param string $type
+	 * @param int $user_id
 	 * @static
 	 * @access public
 	 */
-	public static function message( $message, $type ) {
-		update_user_meta( get_current_user_id(), self::KEY, array(
+	public static function message( $message, $type, $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			$user_id = get_current_user_id();
+		}
+
+		self::add_user_meta( $user_id, self::KEY, array(
 			'message' => sanitize_text_field( $message ),
 			'type' => sanitize_text_field( $type )
 		) );
@@ -39,33 +55,36 @@ class Admin_Apple_Notice {
 	 * Add an info message.
 	 *
 	 * @param string $message
+	 * @param int $user_id
 	 * @static
 	 * @access public
 	 */
-	public static function info( $message ) {
-		self::message( $message, 'updated' );
+	public static function info( $message, $user_id = null ) {
+		self::message( $message, 'updated', $user_id );
 	}
 
 	/**
 	 * Add a success message.
 	 *
 	 * @param string $message
+	 * @param int $user_id
 	 * @static
 	 * @access public
 	 */
-	public static function success( $message ) {
-		self::message( $message, 'updated' );
+	public static function success( $message, $user_id = null ) {
+		self::message( $message, 'updated', $user_id );
 	}
 
 	/**
 	 * Add an error message.
 	 *
 	 * @param string $message
+	 * @param int $user_id
 	 * @static
 	 * @access public
 	 */
-	public static function error( $message ) {
-		self::message( $message, 'error' );
+	public static function error( $message, $user_id = null ) {
+		self::message( $message, 'error', $user_id );
 	}
 
 	/**
@@ -77,8 +96,8 @@ class Admin_Apple_Notice {
 	 * @access public
 	 */
 	public static function has_notice() {
-		$message = get_user_meta( get_current_user_id(), self::KEY . 'message', true );
-		return ! empty( $message );
+		$messages = self::get_user_meta( get_current_user_id(), self::KEY );
+		return ! empty( $messages );
 	}
 
 	/**
@@ -88,24 +107,30 @@ class Admin_Apple_Notice {
 	 * @access public
 	 */
 	public static function show() {
-		// Only execute on Apple admin pages
+		// Only execute on Apple admin pages unless this is in async mode.
+		// In that case, messages should be displayed everywhere since publishing
+		// may complete after the user has navigated away from Apple News.
 		$current_screen = get_current_screen();
-		if ( false === stripos( $current_screen->base, '_apple' ) ) {
+		if ( 'yes' !== self::$settings->get( 'api_async' ) && false === stripos( $current_screen->base, '_apple' ) ) {
 			return;
 		}
 
 		// Check for notices
-		$notice = get_user_meta( get_current_user_id(), self::KEY, true );
-		if ( empty( $notice['message'] ) ) {
+		$notices = self::get_user_meta( get_current_user_id(), self::KEY );
+		if ( empty( $notices ) ) {
 			return;
 		}
 
-		// Show the notice
+		// Show the notices
+		foreach ( $notices as $notice ) {
+			if ( ! empty( $notice['message'] ) ) {
 		$type = isset( $notice['type'] ) ? $notice['type'] : 'updated';
 		self::show_notice( $notice['message'], $type );
+			}
+		}
 
 		// Clear the notice
-		delete_user_meta( get_current_user_id(), self::KEY );
+		self::delete_user_meta( get_current_user_id(), self::KEY );
 	}
 
 	/**
@@ -122,6 +147,67 @@ class Admin_Apple_Notice {
 			<p><strong><?php echo wp_kses_post( apply_filters( 'apple_news_notice_message', $message, $type ) ) ?></strong></p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Handle adding user meta across potential hosting platforms.
+	 *
+	 * @param int $user_id
+	 * @param string $key
+	 * @param mixed $value
+	 * @static
+	 * @access private
+	 */
+	private static function add_user_meta( $user_id, $key, $value ) {
+		// We can't use add_user_meta because there is no equivalent on VIP.
+		// Instead manage values within the same variable for consistency.
+		$values = self::get_user_meta( $user_id, $key );
+		if ( empty( $values ) ) {
+			$values = array();
+		}
+
+		// Add the new value
+		$values[] = $value;
+
+		// Save using the appropriate method
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+			return update_user_attribute( $user_id, $key, $values );
+		} else {
+			return update_user_meta( $user_id, $key, $values );
+		}
+	}
+
+	/**
+	 * Handle getting user meta across potential hosting platforms.
+	 *
+	 * @param int $user_id
+	 * @param string $key
+	 * @static
+	 * @return mixed
+	 * @access private
+	 */
+	private static function get_user_meta( $user_id, $key ) {
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+			return get_user_attribute( $user_id, $key );
+		} else {
+			return get_user_meta( $user_id, $key, true );
+		}
+	}
+
+	/**
+	 * Handle deleting user meta across potential hosting platforms.
+	 *
+	 * @param int $user_id
+	 * @param string $key
+	 * @static
+	 * @access private
+	 */
+	private static function delete_user_meta( $user_id, $key ) {
+		if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+			return delete_user_attribute( $user_id, $key );
+		} else {
+			return delete_user_meta( $user_id, $key );
+		}
 	}
 
 }

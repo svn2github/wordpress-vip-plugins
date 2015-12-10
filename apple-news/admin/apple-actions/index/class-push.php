@@ -41,10 +41,18 @@ class Push extends API_Action {
 	 * Perform the push action.
 	 *
 	 * @access public
+	 * @param boolean $doing_async
 	 * @return boolean
 	 */
-	public function perform() {
+	public function perform( $doing_async = false ) {
+		if ( 'yes' === $this->settings->get( 'api_async' ) && false === $doing_async ) {
+			// Track this publish event as pending with the timestamp it was sent
+			update_post_meta( $this->id, 'apple_news_api_pending', time() );
+
+			wp_schedule_single_event( time(), \Admin_Apple_Async::ASYNC_PUSH_HOOK, array( $this->id, get_current_user_id() ) );
+		} else {
 		return $this->push();
+	}
 	}
 
 	/**
@@ -102,6 +110,15 @@ class Push extends API_Action {
 			throw new \Apple_Actions\Action_Exception( __( 'Your API settings seem to be empty. Please fill in the API key, API secret and API channel fields in the plugin configuration page.', 'apple-news' ) );
 		}
 
+		/**
+		 * Should the post be skipped and not pushed to apple news.
+		 *
+		 * Default is false, but filterable.
+		 */
+		if ( apply_filters( 'apple_news_skip_push', false, $this->id ) ) {
+			return;
+		}
+
 		// Ignore if the post is already in sync
 		if ( $this->is_post_in_sync() ) {
 			return;
@@ -153,6 +170,12 @@ class Push extends API_Action {
 			// If it's marked as deleted, remove the mark. Ignore otherwise.
 			delete_post_meta( $this->id, 'apple_news_api_deleted' );
 
+			// Remove the pending designation if it exists
+			delete_post_meta( $this->id, 'apple_news_api_pending' );
+
+			// Remove the async in progress flag
+			delete_post_meta( $this->id, 'apple_news_api_async_in_progress' );
+
 			do_action( 'apple_news_after_push', $this->id, $result );
 		} catch ( \Apple_Push_API\Request\Request_Exception $e ) {
 			if ( preg_match( '#WRONG_REVISION#', $e->getMessage() ) ) {
@@ -186,11 +209,11 @@ class Push extends API_Action {
 	 * @since 0.6.0
 	 */
 	private function generate_article() {
+
 		$export_action = new Export( $this->settings, $this->id );
 		$this->exporter = $export_action->fetch_exporter();
 		$this->exporter->generate();
 
 		return array( $this->exporter->get_json(), $this->exporter->get_bundles() );
 	}
-
 }

@@ -151,6 +151,11 @@ class Components extends Builder {
 	private function meta_components() {
 		$components = array();
 
+		// Title
+		if ( $this->content_title() ) {
+			$components[] = $this->get_component_from_shortname( 'title', $this->content_title() )->to_array();
+		}
+
 		// The content's cover is optional. In WordPress, it's a post's thumbnail
 		// or featured image.
 		if ( $this->content_cover() ) {

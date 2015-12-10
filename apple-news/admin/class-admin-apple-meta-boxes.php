@@ -116,11 +116,13 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		// Also check if the post has been previously published and/or deleted.
 		$api_id = get_post_meta( $post->ID, 'apple_news_api_id', true );
 		$deleted = get_post_meta( $post->ID, 'apple_news_api_deleted', true );
+		$pending = get_post_meta( $post->ID, 'apple_news_api_pending', true );
 
 		if ( 'yes' != $this->settings->get( 'api_autosync' )
 			&& current_user_can( apply_filters( 'apple_news_publish_capability', 'manage_options' ) )
 			&& empty( $api_id )
-			&& empty( $deleted ) ):
+			&& empty( $deleted )
+			&& empty( $pending ) ):
 		?>
 		<p><?php esc_html_e( 'Click the button below to publish this article to Apple News', 'apple-news' ); ?></p>
 		<div id="apple-news-publish">
@@ -128,6 +130,18 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		<input type="hidden" id="apple-news-publish-nonce" name="apple_news_publish_nonce" value="<?php echo esc_attr( wp_create_nonce( $this->publish_action ) ) ?>" >
 		<input type="button" id="apple-news-publish-submit" name="apple_news_publish_submit" value="<?php esc_attr_e( 'Publish to Apple News', 'apple-news' ) ?>" class="button-primary" />
 		</div>
+		<?php
+		elseif ( 'yes' == $this->settings->get( 'api_autosync' )
+			&& empty( $api_id )
+			&& empty( $deleted )
+			&& empty( $pending ) ):
+		?>
+		<p><?php esc_html_e( 'This post will be automatically sent to Apple News on publish.', 'apple-news' ); ?></p>
+		<?php
+		elseif ( 'yes' == $this->settings->get( 'api_async' )
+			&& ! empty( $pending ) ):
+		?>
+		<p><?php esc_html_e( 'This post is currently pending publishing to Apple News.', 'apple-news' ); ?></p>
 		<?php
 		endif;
 
