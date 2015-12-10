@@ -576,5 +576,5 @@ function wpcom_vip_cache_full_comment_counts( $counts = false , $post_id = 0 ){
 }
 
 function wpcom_vip_enable_cache_full_comment_counts(){
-	apply_filters( 'wp_count_comments', 'wpcom_vip_cache_full_comment_counts', 10, 2);
+	add_filter( 'wp_count_comments', 'wpcom_vip_cache_full_comment_counts', 10, 2 );
 }
