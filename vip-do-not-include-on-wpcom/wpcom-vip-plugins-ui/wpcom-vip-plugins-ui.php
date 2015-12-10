@@ -176,6 +176,7 @@ class WPcom_VIP_Plugins_UI {
 			'the-attached-image', // Badness - was missing ton of escaping, not using the settings api
 			'wordtwit-1.3-mod', // use publicize
 			'wpcom-related-posts', // Now part of JP / WP.com
+			'browsi', // https://keepingtheirblogsgoing.wordpress.com/2015/07/14/browsi-acquired/#comment-72359
 		);
 
 		$this->fpp_plugins = array(
