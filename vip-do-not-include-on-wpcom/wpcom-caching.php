@@ -568,7 +568,8 @@ function wpcom_vip_cache_full_comment_counts( $counts = false , $post_id = 0 ){
 		$stats['moderated'] = $stats['awaiting_moderation'];
 		unset( $stats['awaiting_moderation'] );
 		$stats_object = (object) $stats;
-		wp_cache_set( $cache_key, $stats_object, 30 * MINUTE_IN_SECONDS );
+
+		wp_cache_set( $cache_key, $stats_object, 'default', 30 * MINUTE_IN_SECONDS );
 	}
 
 	return $stats_object;
