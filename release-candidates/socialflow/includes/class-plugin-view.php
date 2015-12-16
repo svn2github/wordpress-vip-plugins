@@ -12,7 +12,7 @@ class SF_Plugin_View {
 	 * @since 1.0
 	 * @param string
 	 */
-	var $filename;
+	public $filename;
 
 	/**
 	 * Associative array of data that will be available in the view
@@ -20,7 +20,7 @@ class SF_Plugin_View {
 	 * @since 1.0
 	 * @param array
 	 */
-	var $data;
+	public $data;
 
 	/**
 	 * Hold plugin abspath
@@ -28,7 +28,7 @@ class SF_Plugin_View {
 	 * @since 1.0
 	 * @param string
 	 */
-	var $abspath;
+	public $abspath;
 
 	/**
 	 * Hold plugin views dirname
@@ -36,7 +36,7 @@ class SF_Plugin_View {
 	 * @since 1.0
 	 * @param string
 	 */
-	var $views_dirname = 'views';
+	public $views_dirname = 'views';
 
 	/**
 	 * Hold debug enabled status
@@ -44,7 +44,7 @@ class SF_Plugin_View {
 	 * @since 1.0
 	 * @param bool
 	 */
-	var $debug = false;
+	public $debug = false;
 
 	/**
 	 * Returns or render view html

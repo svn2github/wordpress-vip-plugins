@@ -101,6 +101,14 @@ class SocialFlow_Admin_Settings_General extends SocialFlow_Admin_Settings_Page {
 			$this->slug,
 			'general_settings_section'
 		);
+
+		add_settings_field( 
+			'global_disable_autocomplete',
+			esc_attr__( 'Disable autocomplete:', 'socialflow' ),
+			array( &$this, 'settings_field_disable_autocomplete_option' ),
+			$this->slug,
+			'general_settings_section'
+		);
 	}
 
 	/**
@@ -185,6 +193,11 @@ class SocialFlow_Admin_Settings_General extends SocialFlow_Admin_Settings_Page {
 			<label for="sf_post_types-<?php echo esc_attr( $type ); ?>"><?php echo esc_attr( $post_type->labels->name ); ?></label>
 			<br>
 		<?php endforeach;
+	}
+
+	public function settings_field_disable_autocomplete_option() {
+		global $socialflow;
+		?><input id="sf_global_disable_autocomplete" type="checkbox" value="1" name="socialflow[global_disable_autocomplete]" <?php checked( 1, $socialflow->options->get( 'global_disable_autocomplete' ) ) ?> /><?php
 	}
 
 	/**
@@ -299,6 +312,7 @@ class SocialFlow_Admin_Settings_General extends SocialFlow_Admin_Settings_Page {
 			$settings['shorten_links'] = isset( $data['shorten_links'] ) ? absint( $data['shorten_links']) : 0;
 			$settings['must_send'] = isset( $data['must_send'] ) ? absint( $data['must_send'] ) : 0;
 			$settings['compose_now'] = isset( $data['compose_now'] ) ? absint( $data['compose_now'] ) : 0;
+			$settings['global_disable_autocomplete'] = isset( $data['global_disable_autocomplete'] ) ? absint( $data['global_disable_autocomplete'] ) : 0;
 		}
 
 		return $settings;

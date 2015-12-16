@@ -242,8 +242,11 @@
 .socialflow-compose .advanced-toggler {
 	text-decoration:none;
 	display:block;
-
 }
+.socialflow-compose .advanced-toggler:focus {
+	box-shadow:none;
+}
+
 .socialflow-compose .advanced-settings-content {
 	border-top:1px dashed #DFDFDF;
 	padding:5px 0 0;
@@ -419,4 +422,10 @@
 /* In attachment mode only shared media panel is visible */
 .sf-compose-attachment .sf-media-attachment {
 	display: block;
+}
+
+.socialflow-compose textarea {
+	resize: vertical;
+	max-height: 350px;
+	min-height: 115px;
 }

@@ -55,7 +55,9 @@ if ( !empty( $form_messages ) ) : ?>
 					<td class="column-status">
 						<span class="status">
 							<?php echo esc_attr( $message['status'] ); ?>
-							<?php echo esc_attr( $queue_status ); ?>
+							<?php if ( $queue_status ): ?>
+								&rarr; <span style="display:inline-block;"><?php echo wp_kses_post( $queue_status ); ?></span>
+							<?php endif ?>
 						</span>
 					</td>
 					<td class="refresh-column">

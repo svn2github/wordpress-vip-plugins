@@ -14,7 +14,7 @@ class SocialFlow_Post {
 	 * @var array
 	 * @since 2.1
 	 */
-	var $js_settings = array();
+	public $js_settings = array();
 
 	/**
 	 * PHP5 constructor
@@ -308,6 +308,9 @@ class SocialFlow_Post {
 		// Compose media feature
 		update_post_meta( $post_id, 'sf_compose_media', absint( isset( $data['compose_media'] ) ) );
 
+		// Post autocomplete
+		update_post_meta( $post_id, 'sf_disable_autcomplete', absint( isset( $data['disable_autcomplete'] ) ) );
+
 		// Collect and save all socialflow messages
 		if ( isset( $data['message'] ) ) {
 			foreach ( $data['message'] as $key => $value ) {
@@ -486,8 +489,9 @@ class SocialFlow_Post {
 
 			// Maybe attach custom image
 			if ( 'linkedin' !== $type && $is_custom_image && $image = get_post_meta( $post_id, 'sf_custom_image_' . $type , true ) ) {
-				$advanced[ $account_id ]['media_thumbnail_url'] = $image;
-				$advanced[ $account_id ]['media_filename'] = get_post_meta( $post_id, 'sf_custom_image_filename_' . $type , true );
+				// $advanced[ $account_id ]['media_thumbnail_url'] = $image;
+				// $advanced[ $account_id ]['media_filename'] = get_post_meta( $post_id, 'sf_custom_image_filename_' . $type , true );
+				$advanced[ $account_id ]['content_attributes']['picture'] = $image;
 			}
 			elseif ( 'linkedin' !== $type && $is_compose_media && $media ) {
 				$advanced[ $account_id ]['media_thumbnail_url'] = $media['medium_thumbnail_url'];
@@ -713,17 +717,25 @@ class SocialFlow_Post {
 		$this->display_messages( get_post( absint( $post_id ) ) );
 		$messages = ob_get_clean();
 
-		if ( $socialflow->get_errors( $post_id ) ) {
+		$errors = $socialflow->get_errors( $post_id );
+
+		if ( $errors ) {
 			$status = 0;
-			$ajax_messages = '<p class="sf-error">' . __( '<b>Errors</b> occurred. View messages block for more information.', 'socialflow' ) . '</p>';
+
+			$ajax_messages = implode( '<br>', $errors->get_error_messages() );
+
+			if ( !$ajax_messages )
+				$ajax_messages =  __( '<b>Errors</b> occurred. View messages block for more information.', 'socialflow' );
+
+			$ajax_messages = '<p class="sf-error">' . $ajax_messages . '</p>';
 		} else {
 			$status = 1;
 			$ajax_messages = '<p class="success">' . __( 'Message was successfully sent. View statistics block for more information.', 'socialflow' ) . '</p>';
 		}
 
 		wp_send_json( array(
-			'messages' => $messages,
-			'status' => $status,
+			'messages'      => $messages,
+			'status'        => $status,
 			'ajax_messages' => $ajax_messages
 		));
 	}
@@ -741,11 +753,11 @@ class SocialFlow_Post {
 
 		// Get arguments
 		$message_id = absint( $_GET['id'] );
-		$post_id = absint( $_GET['post_id'] );
-		$date = esc_attr( $_GET['date'] );
+		$post_id    = absint( $_GET['post_id'] );
 		$account_id = absint( $_GET['account_id'] );
+		$date       = esc_attr( $_GET['date'] );
 
-		$api = $socialflow->get_api();
+		$api     = $socialflow->get_api();
 		$message = $api->view_message( $message_id );
 
 		$status = '';
@@ -773,8 +785,9 @@ class SocialFlow_Post {
 
 				// Update message is_published attr
 				$success[ $date ][ $account_id ]['is_published'] = $message['is_published'];
-				$status .= ' ';
+				$status .= ' &rarr; <span style="display:inline-block">';
 				$status .= ( 0 == $message['is_published'] ) ? __( 'In Queue', 'socialflow' ) : __( 'Published', 'socialflow' );
+				$status .= '</span>';
 
 				update_post_meta( $post_id, 'sf_success', $success );
 			}
@@ -800,6 +813,10 @@ class SocialFlow_Post {
 		$config['setup'] = "function (editor) {
 			editor.on('init', function(event) {
 				parent.window.jQuery('body').trigger('wp-tinymce-loaded');
+			});
+
+			editor.on( 'change keyup', function(event) {
+				parent.window.jQuery('body').trigger('wp-tinymce-change',[editor.getContent()]);
 			});
 		}";
 
@@ -945,6 +962,7 @@ class SocialFlow_Post {
 		global $socialflow;
 
 		$this->js_settings['postType'] = $socialflow->options->get( 'post_type' );
+		$this->js_settings['disableAutoComplete'] = $socialflow->options->get( 'disable_autocomplete', 0 );
 		wp_localize_script( 'socialflow-admin', 'optionsSF', $this->js_settings );
 	}
 }

@@ -50,6 +50,13 @@ update_post_meta( $post->ID, 'socialflow_nonce', $nonce );
 	</p>
 <?php endif; ?>
 
+<?php if ( !absint( $socialflow->options->get( 'global_disable_autocomplete', 0 ) ) ): ?>
+	<p class="sf-media-toggle-container"> 
+		<input id="sf_disable_autcomplete" class="sf_disable_autcomplete" type="checkbox" value="1" name="socialflow[disable_autcomplete]" <?php checked( get_post_meta( $post->ID, 'sf_disable_autcomplete', true ), 1 ); ?> />
+		<label for="sf_disable_autcomplete"><?php esc_html_e( 'Disable autocomplete', 'socialflow' ) ?></label>
+	</p>
+<?php endif ?>
+
 <p class="sf-autofill-button-container"><button id="sf_autofill" class="button"><?php esc_html_e( 'Auto-populate', 'socialflow' ); ?></button></p>
 
 <input id="sf-post-id" type="hidden" value="<?php echo esc_attr( $post->ID ); ?>" />
@@ -209,7 +216,7 @@ foreach ( $grouped_accounts as $group => $group_accounts ) :
 						<input class="must_send" type="hidden" value="<?php echo esc_attr( $advanced_options['must_send'] ); ?>" name="socialflow[<?php echo esc_attr( $user_id ); ?>][must_send]" />
 
 						<select class="optimize-period" name="socialflow[<?php echo esc_attr( $user_id ); ?>][optimize_period]">
-							<option <?php selected( $advanced_options['optimize_period'], '10 minutes' ); ?> value="10 minutes" ><?php esc_html_e( '1 hour', 'socialflow' ); ?>x</option>
+							<option <?php selected( $advanced_options['optimize_period'], '10 minutes' ); ?> value="10 minutes" ><?php esc_html_e( '10 minutes', 'socialflow' ); ?></option>
 							<option <?php selected( $advanced_options['optimize_period'], '1 hour' ); ?> value="1 hour"><?php esc_html_e( '1 hour', 'socialflow' ); ?></option>
 							<option <?php selected( $advanced_options['optimize_period'], '1 day' ); ?> value="1 day"><?php esc_html_e( '1 day', 'socialflow' ); ?></option>
 							<option <?php selected( $advanced_options['optimize_period'], '1 week' ); ?> value="1 week"><?php esc_html_e( '1 week', 'socialflow' ); ?></option>

@@ -13,7 +13,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access private
 	 * @var object SocialFlow api
 	 */
-	var $api;
+	public $api;
 
 	/**
 	 * Holds options object
@@ -22,7 +22,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var object
 	 */
-	var $options;
+	public $options;
 
 	/**
 	 * Holds array of admin page names
@@ -32,7 +32,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var array
 	 */
-	var $pages;
+	public $pages;
 
 	/**
 	 * Holds array of WP_Error objects
@@ -41,7 +41,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var array
 	 */
-	var $errors;
+	public $errors;
 
 	/**
 	 * Holds default plugin options
@@ -50,7 +50,7 @@ class SocialFlow extends SocialFlow_Methods {
 	 * @access public
 	 * @var array
 	 */
-	var $default_options = array(
+	public $default_options = array(
 		'initial_nag' => 1,
 		'accounts' => array(),
 		'shorten_links' => 1,

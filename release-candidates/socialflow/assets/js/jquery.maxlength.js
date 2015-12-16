@@ -130,7 +130,7 @@
 					// Media url always has https://
 					// It's sent to the individual attr,
 					// so there doesn't needed a space-divider
-					settings.maxCharacters -= twttr.txt.getTweetLength( 'https://mediaimage.com' );
+					settings.maxCharacters -= ( twttr.txt.getTweetLength( 'https://mediaimages.com' ) + 1 );
 				}
 
 				return twttr.txt.getTweetLength(message);

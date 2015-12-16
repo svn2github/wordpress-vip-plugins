@@ -13,7 +13,7 @@ class SocialFlow_Accounts {
 	 * @access private
 	 * @var array
 	 */
-	var $active;
+	public $active;
 
 	/**
 	 * Account ids from last query
@@ -22,7 +22,7 @@ class SocialFlow_Accounts {
 	 * @access private
 	 * @var array
 	 */
-	var $last;
+	public $last;
 
 	/**
 	 * Default order for available account types

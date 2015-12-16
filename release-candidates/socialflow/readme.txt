@@ -3,7 +3,7 @@ Contributors: SocialFlow, Dizzain
 Tags: SocialFlow, Facebook, Twitter, Social, Social Optimization, Sharing, Retweets, Social Graph
 Requires at least: 3.2
 Tested up to: 3.9.1
-Stable tag: 2.5.2
+Stable tag: 2.6
 
 SocialFlow's WordPress plugin enhances your WordPress experience by allowing you to utilize the power of SocialFlow from right inside WordPress.
 
@@ -36,6 +36,11 @@ Please find support and FAQ information here:
 http://support.socialflow.com/entries/20573086-wordpress-plugin-faq-help
 
 == Changelog == 
+
+= 2.6 =
+* New logic for autocomplete
+* Updated Twitter counter
+* Minor bug fixes
 
 = 2.5.2 =
 * Minor bug fixes

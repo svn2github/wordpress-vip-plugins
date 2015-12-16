@@ -137,8 +137,11 @@ class SocialFlow_Admin_Settings_Accounts extends SocialFlow_Admin_Settings_Page 
 		$data = $_POST['socialflow'];
 
 		if ( $socialflow->is_page( $this->slug ) ) {
-			$settings['show'] = array_map( 'absint', $data['show'] );
-			$settings['send'] = array_map( 'absint', $data['send'] );
+			if ( isset( $data['show'] ) )
+				$settings['show'] = array_map( 'absint', $data['show'] );
+
+			if ( isset( $data['send'] ) )
+				$settings['send'] = array_map( 'absint', $data['send'] );
 		}
 
 		return $settings;

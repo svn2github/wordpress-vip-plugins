@@ -17,6 +17,10 @@ jQuery(function($){
 			extanded_stat = $( '#sf-statistics' ),
 			update_button = $( '.sf-js-update-multiple-messages' );
 
+		var contentWrap = document.getElementById('wp-content-wrap');
+
+		var postAutocomplete = postAutocompleteMaker();
+
 		stat_toggler.on( 'click', function() {
 			extanded_stat.toggle()
 		})
@@ -36,33 +40,104 @@ jQuery(function($){
 
 			// find all autofill fields and fill them automatically
 			$( '#socialflow-compose .autofill' ).each( function(){
-				var input = $(this),
-					text = '',
-					contentWrap = document.getElementById('wp-content-wrap');
-
-				// Retrieve content either from tinyMCE or from passed selector
-				if (is_ajax) {
-					text = sf_post[ input.attr( 'data-content-selector' ) ];
-					// console.log(sf_post);
-				} else {
-					if ( '#content' == input.attr( 'data-content-selector' ) && tinyMCE.activeEditor && contentWrap.className.indexOf('tmce-active') > -1 ) {
-						text = tinyMCE.activeEditor.getContent();
-					} else {
-						text = $( input.attr( 'data-content-selector' ) ).val();
-					}
-				}
-
-				text = cleanText(text);
-
-				if ( typeof input.attr('value') == 'undefined' )
-					input.html( text ).trigger( 'change' );
-				else
-					input.val( text ).trigger( 'change' );
+				updateContent( $(this) );
 			});
 
 			// update attachements
 			$('.sf-update-attachments').trigger( 'click' );
 		});
+
+		$( '#socialflow-compose .autofill' ).each( function(){
+			if ( is_ajax )
+				return;
+
+			if ( isDisabled() )
+				return;
+
+			var $field = $(this);
+			var cont   = {};
+
+			// var val = $field.val();
+
+			// if ( val.length && postAutocomplete.isEnabled() ) 
+			// 	return;
+
+			$('body').on( 'wp-tinymce-change', function( e, content ) {
+				upd( 'content', content );
+			});
+
+			$('#title').on( 'change keyup', function() {
+				upd( 'title', $(this).val() );
+			});
+
+			// By default autopopulate is enabled
+			function isDisabled() {
+				if ( 'undefined' == typeof optionsSF )
+					return false;
+
+				if ( !optionsSF.hasOwnProperty( 'disableAutoComplete' ) ) 
+					return false;
+
+				return !!( +optionsSF.disableAutoPopulate );
+			}
+
+			function upd( key, text ) {
+				if ( postAutocomplete.isEnabled() )
+					return;
+
+				if ( cont[key] == text )
+					return;
+
+				cont[key] = text;
+
+				updateContent( $field );
+			}
+		});	
+
+		function postAutocompleteMaker() {
+			var $field = $('#sf_disable_autcomplete');
+
+			var enabled = $field.prop( 'checked' );
+
+			$field.on( 'change', function() {
+				enabled = $(this).prop( 'checked' );
+
+				console.log(enabled)
+			});
+
+			function a() {
+				return enabled;
+			}
+
+			a.isEnabled = function() {
+				return enabled;
+			}
+
+			return a;
+		}
+
+		function updateContent( $field ) {
+			var	text = '';
+
+			// Retrieve content either from tinyMCE or from passed selector
+			if ( is_ajax ) {
+				text = sf_post[ $field.attr( 'data-content-selector' ) ];
+				// console.log(sf_post);
+			} else {
+				if ( '#content' == $field.attr( 'data-content-selector' ) && tinyMCE.activeEditor && contentWrap.className.indexOf('tmce-active') > -1 ) {
+					text = tinyMCE.activeEditor.getContent();
+				} else {
+					text = $( $field.attr( 'data-content-selector' ) ).val();
+				}
+			}
+
+			text = cleanText( text );
+
+			if ( typeof $field.attr('value') == 'undefined' )
+				$field.html( text ).trigger( 'change' );
+			else
+				$field.val( text ).trigger( 'change' );
+		}
 
 		/**
 		 * Remove html tags, shortcodes, html special chars and whitespaces from the beginning and end of text
@@ -302,6 +377,8 @@ jQuery(function($){
 
 			// Trigger change to update chars left counter
 			$('#sf_message_twitter').trigger('change');
+
+			$('.js-toggle-custom-image').trigger( 'click', [true] )
 		});
 
 
@@ -341,14 +418,14 @@ jQuery(function($){
 		/**
 		 * Toggle custom image and one of the attachments select
 		 */
-		$('body').on('click', '.js-toggle-custom-image', function(event) {
+		$('body').on('click', '.js-toggle-custom-image', function(event, disableBlock) {
 			var container = $(this).parents('.sf-attachments'),
 				statusInput = container.find('.sf-is-custom-image'),
 				className = 'sf-is-custom-attachment';
 
 			event.preventDefault();
 
-			if ( '1' === statusInput.val() ) {
+			if ( '1' === statusInput.val() || disableBlock ) {
 				container.removeClass(className);
 				statusInput.val('0');
 			} else {

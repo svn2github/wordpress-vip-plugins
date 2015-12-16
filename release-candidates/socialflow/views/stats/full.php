@@ -65,7 +65,9 @@ $i = 0;
 					</td>
 					<td class="status column-status" >
 						<?php echo wp_kses_post( $message['status'] ); ?>
-						<?php echo wp_kses_post( $queue_status ); ?>
+						<?php if ( $queue_status ): ?>
+							- <span style="display:inline-block;"><?php echo wp_kses_post( $queue_status ); ?></span>
+						<?php endif ?>
 					</td>
 					<td>
 						<img class="sf-message-loader" style="display:none;" src="<?php echo plugins_url( 'assets/images/wpspin.gif', SF_FILE ) ?>" alt="">

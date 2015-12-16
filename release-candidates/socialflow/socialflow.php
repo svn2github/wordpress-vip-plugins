@@ -3,7 +3,7 @@
 Plugin Name: SocialFlow
 Description: SocialFlow's WordPress plugin enhances your WordPress experience by allowing you to utilize the power of SocialFlow from right inside WordPress.
 Author: SocialFlow, Dizzain
-Version: 2.5.2
+Version: 2.6
 Author URI: http://socialflow.com/
 Plugin URI: http://wordpress.org/plugins/socialflow/
 License: GPLv2 or later
@@ -20,7 +20,7 @@ Domain Path: /i18n
  * @since 2.1
  */
 if ( !defined( 'SF_VERSION' ) )
-	define( 'SF_VERSION', '2.5.2' );
+	define( 'SF_VERSION', '2.6' );
 
 /**
  * The name of the SocialFlow Core file
