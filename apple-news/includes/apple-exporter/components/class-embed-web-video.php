@@ -12,7 +12,7 @@ class Embed_Web_Video extends Component {
 	/**
 	 * Regex patterns to match supported embed types.
 	 */
-	const YOUTUBE_MATCH = '#^https?://(?:www\.)?(?:youtube\.com/watch\?v=([^&]+)|youtu\.be/([^/]+)).*?$#';
+	const YOUTUBE_MATCH = '#^https?://(?:www\.)?(?:youtube\.com/watch\?v=(\w+)|youtu\.be/(\w+))?$#';
 	const VIMEO_MATCH   = '#^https?://(?:.+\.)?vimeo\.com/(:?.+/)?(\d+)$#';
 
 	/**
@@ -62,19 +62,11 @@ class Embed_Web_Video extends Component {
 			$url = trim( $matches[1] );
 			// The URL is either a YouTube or Vimeo video.
 			if ( preg_match( self::YOUTUBE_MATCH, $url, $matches ) ) {
-				$src = 'https://www.youtube.com/embed/' . $matches[1] ?: $matches[2];
+				$src = 'https://www.youtube.com/embed/' . ( $matches[1] ?: $matches[2] );
 			} else {
 				preg_match( self::VIMEO_MATCH, $url, $matches );
 				$src = 'https://player.vimeo.com/video/' . $matches[2];
 			}
-		} else {
-			preg_match_all( '/(\w+)="([^"]*?)"/im', $text, $matches, PREG_SET_ORDER );
-			$attributes = array();
-			foreach ( $matches as $match ) {
-				$attributes[ $match[1] ] = $match[2];
-			}
-			$aspect_ratio = substr( ( $attributes['width'] / $attributes['height'] ), 0, 5 );
-			$src = $attributes['src'];
 		}
 
 		$this->json = array(
