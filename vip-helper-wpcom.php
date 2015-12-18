@@ -1006,3 +1006,7 @@ function wpcom_vip_remove_playlist_styles() {
 		wp_dequeue_style( 'wpcom-core-compat-playlist-styles' );
 	}, 9000, 0 );
 }
+
+function wpcom_vip_disable_instapost(){
+	remove_action( 'init', array( 'Instapost', 'init' ) );
+}
