@@ -112,6 +112,8 @@ class Markdown {
 		case 'h5':
 		case 'h6':
 			return $this->parse_heading_node( $node );
+		case '#comment':
+			return '';
 		case '#text':
 		default:
 			return $this->parse_text_node( $node );
