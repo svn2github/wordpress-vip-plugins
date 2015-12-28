@@ -78,7 +78,7 @@ class Admin_Apple_Async extends Apple_News {
 				$post->post_title
 			), $user_id );
 		} catch ( Apple_Actions\Action_Exception $e ) {
-			Admin_Apple_Notice::error( $e->getMessage() );
+			Admin_Apple_Notice::error( $e->getMessage(), $user_id );
 		}
 
 		do_action( 'apple_news_after_async_push' );
