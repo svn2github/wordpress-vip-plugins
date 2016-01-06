@@ -26,7 +26,7 @@ if ( ! defined( 'WPINC' ) ) {
 /**
  * Activate the plugin.
  */
-function activate_wp_plugin() {
+function apple_news_activate_wp_plugin() {
 	// Check for PHP version
 	if ( version_compare( PHP_VERSION, '5.3.0' ) < 0 ) {
 		deactivate_plugins( basename( __FILE__ ) );
@@ -39,7 +39,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/apple-exporter/class-settings.ph
 /**
  * Deactivate the plugin.
  */
-function deactivate_wp_plugin() {
+function apple_news_deactivate_wp_plugin() {
 	// Do something
 	$settings = new Apple_Exporter\Settings;
 	foreach ( $settings->all() as $name => $value ) {
@@ -49,8 +49,8 @@ function deactivate_wp_plugin() {
 
 // WordPress VIP plugins do not execute these hooks, so ignore in that environment.
 if ( ! defined( 'WPCOM_IS_VIP_ENV' ) || ! WPCOM_IS_VIP_ENV ) {
-	register_activation_hook( __FILE__,   'activate_wp_plugin' );
-	register_deactivation_hook( __FILE__, 'deactivate_wp_plugin' );
+	register_activation_hook( __FILE__,   'apple_news_activate_wp_plugin' );
+	register_deactivation_hook( __FILE__, 'apple_news_deactivate_wp_plugin' );
 }
 
 // Initialize plugin class

@@ -124,8 +124,8 @@ class Admin_Apple_Notice {
 		// Show the notices
 		foreach ( $notices as $notice ) {
 			if ( ! empty( $notice['message'] ) ) {
-		$type = isset( $notice['type'] ) ? $notice['type'] : 'updated';
-		self::show_notice( $notice['message'], $type );
+				$type = isset( $notice['type'] ) ? $notice['type'] : 'updated';
+				self::show_notice( $notice['message'], $type );
 			}
 		}
 

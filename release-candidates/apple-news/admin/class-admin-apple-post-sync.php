@@ -34,7 +34,7 @@ class Admin_Apple_Post_Sync {
 		}
 
 		// Register update hooks if needed
-		if ( 'yes' == $settings->get( 'api_autosync' ) || 'yes' == $settings->get( 'api_autosync_update' )  ) {
+		if ( 'yes' == $settings->get( 'api_autosync' ) || 'yes' == $settings->get( 'api_autosync_update' ) ) {
 			add_action( 'save_post', array( $this, 'do_publish' ), 10, 2 );
 			add_action( 'before_delete_post', array( $this, 'do_delete' ) );
 		}
@@ -52,7 +52,9 @@ class Admin_Apple_Post_Sync {
 	 * @access public
 	 */
 	public function do_publish( $id, $post ) {
-		if ( 'publish' != $post->post_status || ! current_user_can( apply_filters( 'apple_news_publish_capability', 'manage_options' ) ) ) {
+		if ( 'publish' != $post->post_status
+			|| ! in_array( $post->post_type, $this->settings->get( 'post_types' ) )
+			|| ! current_user_can( apply_filters( 'apple_news_publish_capability', 'manage_options' ) ) ) {
 			return;
 		}
 
