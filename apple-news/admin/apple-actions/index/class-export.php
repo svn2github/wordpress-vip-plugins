@@ -68,8 +68,8 @@ class Export extends Action {
 		$byline     = apply_filters( 'apple_news_exporter_byline', $byline, $post->ID );
 
 		// The post_content is not raw HTML, as WordPress editor cleans up
-			// paragraphs and new lines, so we need to transform the content to
-			// HTML. We use 'the_content' filter for that.
+		// paragraphs and new lines, so we need to transform the content to
+		// HTML. We use 'the_content' filter for that.
 		$content    = apply_filters( 'apple_news_exporter_content_pre', $post->post_content, $post->ID );
 		$content    = apply_filters( 'the_content', $content );
 		$content    = apply_filters( 'apple_news_exporter_content', $content, $post->ID );

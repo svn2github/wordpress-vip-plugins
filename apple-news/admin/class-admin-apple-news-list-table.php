@@ -173,7 +173,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 				"<a href='%s'>%s</a>",
 				esc_url( Admin_Apple_Index_Page::action_query_params( 'push', $base_url ) ),
 				esc_html__( 'Publish', 'apple-news' )
-		);
+			);
 		}
 
 
@@ -420,7 +420,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 	 */
 	protected function get_date_from_filter() {
 		return ( empty( $_GET['apple_news_date_from'] ) ) ? '' : sanitize_text_field( $_GET['apple_news_date_from'] );
-		}
+	}
 
 	/**
 	 * Get the current date to filter value.
