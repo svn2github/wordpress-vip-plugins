@@ -6,7 +6,7 @@
  *  Plugin Name: Inform Video Match
  *  Plugin URI: http://control.newsinc.com/
  *  Description: The Inform Video Match plugin enables you to easily embed videos from the Inform video library into your WordPress post.
- *  Version: 1.4.2
+ *  Version: 1.4.3
  *  Author: Inform, Inc. <wordpress@inform.com>
  *  Author URL: http://www.newsinc.com/
  *  Text Domain: inform-plugin

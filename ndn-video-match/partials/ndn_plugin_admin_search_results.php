@@ -23,7 +23,7 @@
         <input class="ndn-search-query-input" name="query" type="text" placeholder="" />
 
         <input type="hidden" name="search-action" value="1" />
-        <input class="button" name="submit" type="submit" value="<? echo esc_attr( 'Search' ) ?>" />
+        <input class="button" name="submit" type="submit" value="<?php echo esc_attr( 'Search' ) ?>" />
       </form>
     </div>
     <div style="clear:both;"></div>

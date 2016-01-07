@@ -25,7 +25,7 @@
   </div>
 
   <div class="ndn-change-settings ndn-search-container">
-    <span><a href="admin.php?page=ndn-plugin-settings" class="ndn-change-settings" analytics-category="WPSettings" analytics-label="SettingsPage" target="_blank">Change</a>&nbsp;general and embed settings</span>
+    <span><a href="admin.php?page=inform-plugin-settings" class="ndn-change-settings" analytics-category="WPSettings" analytics-label="SettingsPage" target="_blank">Change</a>&nbsp;general and embed settings</span>
   </div>
 
 </div>
