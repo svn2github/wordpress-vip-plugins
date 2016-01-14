@@ -101,3 +101,4 @@ function json_feed_rewrite_rules( $rules ) {
 	return array_merge( $add_rules, (array) $rules );
 }
 add_filter( 'pre_transient_rewrite_rules', 'json_feed_rewrite_rules' );
+add_filter( 'option_rewrite_rules', 'json_feed_rewrite_rules' ); // don't use `pre_option_` otherwise we'll only have the above rules
