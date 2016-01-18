@@ -5,27 +5,23 @@ Donate link:       https://supporters.eff.org/donate
 Tags:              brightcove, 10up, videos, video
 Requires at least: 4.2
 Tested up to:      4.4
-Stable tag:        1.0.6
+Stable tag:        1.1.2
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
-Brightcove integration plugin, manage your Brightcove video cloud from within
-WordPress, using latest APIs
+Brightcove integration plugin, manage your Brightcove video cloud from within WordPress, using the latest APIs
 
 == Description ==
 
-Are you looking to handle your Brightcove Video and Playlist library natively
-from within WordPress?
+Are you looking to handle your Brightcove Video and Playlist library natively from within WordPress?
 
-With this plugin, developed by 10up.com, you have the power to handle
-multiple accounts and video libraries, upload videos and add them to
-playlists, render shortcodes with your videos and all from within the
-WordPress admin interface.
+With this plugin, developed by 10up.com, you have the power to handle multiple accounts and video libraries, upload videos and add them to playlists, render shortcodes with your videos and all from within theWordPress admin interface.
 
-=== Support Notice ===
+== Support Notice ==
 
-Video Connect for Wordpress is an open source plugin. Because customer implementations of Wordpress and their environments vary, Brightcove can not fully support the plugin. However we love our customers and will do our best to help you resolve your issues.
-Brightcove customers experiencing issues with Video Connect for Wordpress may submit a ticket to the Support team.
+Birghtcove Video Connect for WordPress is an open source plugin. Because customer implementations of WordPress and their environments vary, Brightcove can not fully support the plugin. However we love our customers and will do our best to help you resolve your issues.
+
+Brightcove customers experiencing issues with Video Connect for WordPress may submit a ticket to the Support team.
 
 == Installation ==
 
@@ -36,7 +32,7 @@ Brightcove customers experiencing issues with Video Connect for Wordpress may su
 
 == Usage ==
 
-Refer to screenshots for walkthrough of the usage of the plugin.
+Refer to screenshots for a walkthrough of the usage of the plugin.
 
 = I want to put a new video into a post =
 As a writer for my WordPress-powered publication, I  would like to upload a video to Brightcove and render it in an article I am writing.
@@ -88,13 +84,13 @@ While in Visual mode, the video is rendered in the editor.
 Publish!
 
 = I want to put a playlist into a post =
+
 Open Edit Post Page > Brightcove Media button > Playlists Tab.
 Select the playlist which you want to insert into post.
 Click "Insert Into Post" button on the right bottom.
 In order to create a new playlist you need to login to http://videocloud.brightcove.com/.
 
-== I want to edit a video ==
-
+= I want to edit a video =
 
 From your [WordPress dashboard](https://en.support.wordpress.com/dashboard/), click the Brightcove widget from the dashboard menu. You will see the Brightcove dashboard with a list of recent videos.
 Click on a video thumbnail from the videos list. You will see more information and actions for this video.
@@ -104,6 +100,7 @@ Once finished, click the **Save and Sync Changes** button. The video will be upd
 To leave the edit screen, click the **Back** button. You will be returned to the Brightcove dashboard with a list of recent videos.
 
 = I want to edit a playlist =
+
 N.B. If you want to create or delete a playlist, that can only be performed via the studio: http://videocloud.brightcove.com/
 
 Open Brightcove Menu > Playlists or
@@ -118,6 +115,7 @@ Playlist Name can be changed via the text field at the top.
 No need to save anything as all changes are synchronized to Brightcove automatically.
 
 = I want to add an account =
+
 Create your API credentials via http://docs.brightcove.com/en/video-cloud/studio/managing-accounts/managing-api-credentials.html
 Visit the settings page, Brightcove Menu > Settings.
 Input a memorable name to differentiate your source from all other sources.
@@ -128,14 +126,9 @@ We don't recommend adding more than one source for a particular ID.
 == Frequently Asked Questions ==
 
 = Can I run the plugin on a WordPress install that isn't publicly accessible? =
-Yes you can, however video ingestion will NOT work as Brightcove can not reach
-your uploaded video assets to ingest them. Make sure you add this line to your
-wp-config.php
-define( 'BRIGHTCOVE_FORCE_SYNC', true );
+Yes, it will work whether it is public or not however features requiring a call-back to your site such as status updates, etc will be unavailable.
 
 = Are there any filters for plugin/theme developers? =
-brightcove_videos_per_page =  100; // Number of videos to
-fetch at a time when we're performing a sync.
 brightcove_account_actions = [edit, delete]; // What actions are available when manipulating a Brightcove source.
 
 = Will this work on multisite? =
@@ -145,7 +138,7 @@ Yes it will.
 Yes, you can add sources from many Brightcove accounts if you want.
 
 = How does sync work? =
-Brightcove has a notifications API that lets your WordPress site know when a video has been ingested, and also if any video metadata has changed. We use that as a chance to ensure our library matches Brightcove's, so they're both showing the same content.
+The plugin simply pulls information directly from the Brightcove API for display and does not sync videos locally.
 
 = How can I increase Maximum upload file size? =
 Maximum file size is determined by your webserver and PHP configuration. You need to set the value of upload_max_filesize and post_max_size in your php.ini. php_ini_loaded_file() can help you find where your PHP.ini is located.
@@ -192,6 +185,48 @@ http://sample-videos.com/
 
 == Changelog ==
 
+= 1.1.2 =
+* Fix: Remove extra files. This is a holdout from 1.1.1 to remove all the extra files from the repository.
+
+= 1.1.1 =
+* Fixed: playlists and other data saving to Database
+* Fixed: incorrect close icon on media modal
+* Fixed: minimum version check
+* Enhancement: Removed callback subscriptions
+* Fixed videos not consistently deleting
+* Fixed caching issues
+* Fixed editing videos from upload screen
+* Fixed inconsistent player implementation
+* Added responsive playlists and videos
+* Removed GUI option for video width and height (more consistent to add manually)
+* Added ability to bypass cache entirely
+* Removed unnecessary code and other files throughout plugin and consolidated file structure
+* Fixed broken shortcode insertion after changing video size via GUI
+* Fixed inconsistent “Add new” button behavior on Video screen
+* Fixed minimum size for playlist display (no longer only shows video selector when width >= 800px)
+* Added notice upon playlist insertion if no compatible player is available - because you can never let people know enough
+* Numerous other small typo corrections, fixes and enhancements
+
+= 1.1.0 =
+* Enhancement: Brightcove Video Connect will now warn users when a part of the Brightcove API system is down that might affect plugin or video behavior.
+* Enhancement: The playlist page will now display an error if no playlist compatible player exists
+* Fix: Date filters have been removed from playlists and videos as they were unusable
+* Fix: The Brightcove URL has been fixed to better support HTTP and HTTPS operations
+* Fix: Fix row-action issues in playlists introduced since WordPress 4.4
+* Miscellaneous minor fixes and corrections to copy throughout the plugin.
+
+= 1.0.9 =
+* Fix: Fixed fatal error on uninstall
+* Fix: Fixed smart playlist display
+* Fix: Remove an error that could happen when adding an acount with empty playlists
+
+= 1.0.8 =
+* Fix: Default sort for videos is now "newest first" for all screens listing videos.
+* Fix: Playlists now display properly
+
+= 1.0.7 =
+* Fix: Fixed the edit button for playlists
+
 = 1.0.6 =
 * Fix: JavaScript has been greatly cleaned up and should no longer conflict on the post editor or other screens.
 
@@ -216,10 +251,23 @@ http://sample-videos.com/
 
 == Upgrade Notice ==
 
+= 1.1.2 =
+1.1.2 is a major bugfix release and is reccommended for all users
+
+= 1.1.1 =
+1.1.1 is a major bugfix release and is reccommended for all users
+
+= 1.1.0 =
+1.1.0 is a bugfix and new feature update that is recommended for all users
+
+= 1.0.9 =
+1.0.9 is an important bugfix and is recommended for all users
+
+= 1.0.8 =
+1.0.8 is an important bugfix and is recommended for all users
+
 = 1.0.6 =
 1.0.6 is a major bugfix and is recommended for all users
 
 = 1.0.0 =
 First Release
-
-
