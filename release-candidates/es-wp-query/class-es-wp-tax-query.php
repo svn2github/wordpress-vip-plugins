@@ -64,7 +64,7 @@ class ES_WP_Tax_Query extends WP_Tax_Query {
 			switch ( $query['field'] ) {
 				case 'slug' :
 				case 'name' :
-					$terms = array_map( 'sanitize_title_for_query', array_map( 'strtolower', array_values( $query['terms'] ) ) );
+					$terms = array_map( 'sanitize_title_for_query', array_values( $query['terms'] ) );
 					$current_filter = $es_query::dsl_terms( $es_query->tax_map( $query['taxonomy'], 'term_' . $query['field'] ), $terms, $filter_options );
 					break;
 
@@ -75,7 +75,7 @@ class ES_WP_Tax_Query extends WP_Tax_Query {
 					break;
 
 				default :
-					$terms = array_map( 'absint', array_map( 'strtolower', array_values( $query['terms'] ) ) );
+					$terms = array_map( 'absint', array_values( $query['terms'] ) );
 					$current_filter = $es_query::dsl_terms( $es_query->tax_map( $query['taxonomy'], 'term_id' ), $terms, $filter_options );
 					break;
 			}
@@ -106,7 +106,7 @@ class ES_WP_Tax_Query extends WP_Tax_Query {
 	 * @param array &$query The single query
 	 */
 	private function clean_query( &$query ) {
-		if ( ! isset( $query['taxonomy' ] ) || ! taxonomy_exists( $query['taxonomy'] ) ) {
+		if ( empty( $query['taxonomy'] ) || ! taxonomy_exists( $query['taxonomy'] ) ) {
 			$query = new WP_Error( 'Invalid taxonomy' );
 			return;
 		}
