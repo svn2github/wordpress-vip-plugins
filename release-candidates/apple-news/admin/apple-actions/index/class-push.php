@@ -191,6 +191,8 @@ class Push extends API_Action {
 			// Remove the async in progress flag
 			delete_post_meta( $this->id, 'apple_news_api_async_in_progress' );
 			
+			$this->clean_workspace();
+
 			if ( preg_match( '#WRONG_REVISION#', $e->getMessage() ) ) {
 				throw new \Apple_Actions\Action_Exception( __( 'It seems like the article was updated by another call. If the problem persists, try removing and pushing again.', 'apple-news' ) );
 			} else {
