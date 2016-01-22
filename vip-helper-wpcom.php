@@ -983,7 +983,7 @@ function wpcom_vip_load_geolocation_styles_only_when_needed() {
 		$enqueue = true; //the style is being enqueued by default
 		if ( false === is_single() ) {
 			$enqueue = false; //don't enqueue if not on single
-		} else {
+		} else if ( true === defined( 'GEO_LOCATION__CLASS' ) && true === class_exists( GEO_LOCATION__CLASS ) ) {
 			$geolocation_class = call_user_func( array( GEO_LOCATION__CLASS, 'init') );
 			$geo = $geolocation_class->get_geo( 'post', get_the_id() );
 			$show_location = is_array( $geo ) && isset( $geo['public'] ) && '1' === $geo['public'];
