@@ -649,7 +649,15 @@ class Ooyala {
 				if ( count( $js_params ) ) {
 					$params[] = $js_params;
 				}
-				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, ' . json_encode( $params ) .') ); });';
+				?>
+					var config = <? echo json_encode( $params ); ?>;
+					if(config[config.length - 1]["amazon-ads-manager"]){
+						config[config.length - 1]["vpaid-ads-manager"] = {'adTag' : '', 'showInAdControlBar': 'true', 'showAdMarquee': 'true'} ;
+						config[config.length - 1]["vpaid-ads-manager"].adTag = window[config[config.length - 1]["amazon-ads-manager"].adTag];
+						delete config[config.length - 1]["amazon-ads-manager"];
+					}
+				<?
+				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, config) ); });';
 				?>
 			</script>
 			<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>
