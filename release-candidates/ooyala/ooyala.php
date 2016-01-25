@@ -650,7 +650,7 @@ class Ooyala {
 					$params[] = $js_params;
 				}
 				?>
-					var config = <? echo json_encode( $params ); ?>;
+					var config = <?php echo json_encode( $params ); ?>;
 					if(config[config.length - 1]["amazon-ads-manager"]){
 						config[config.length - 1]["vpaid-ads-manager"] = {'adTag' : '', 'showInAdControlBar': 'true', 'showAdMarquee': 'true'} ;
 						config[config.length - 1]["vpaid-ads-manager"].adTag = window[config[config.length - 1]["amazon-ads-manager"].adTag];
