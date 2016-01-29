@@ -650,14 +650,14 @@ class Ooyala {
 					$params[] = $js_params;
 				}
 				?>
-					var config = <?php echo json_encode( $params ); ?>;
-					if(config[config.length - 1]["amazon-ads-manager"]){
-						config[config.length - 1]["vpaid-ads-manager"] = {'adTag' : '', 'showInAdControlBar': 'true', 'showAdMarquee': 'true'} ;
-						config[config.length - 1]["vpaid-ads-manager"].adTag = window[config[config.length - 1]["amazon-ads-manager"].adTag];
-						delete config[config.length - 1]["amazon-ads-manager"];
+					var config<?php echo($num) ?> = <? echo json_encode( $params ); ?>;
+					if(config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["amazon-ads-manager"]){
+						config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["vpaid-ads-manager"] = {'adTag' : '', 'showInAdControlBar': 'true', 'showAdMarquee': 'false'} ;
+						config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["vpaid-ads-manager"].adTag = window[config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["amazon-ads-manager"].adTag];
+						delete config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["amazon-ads-manager"];
 					}
 				<?
-				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, config) ); });';
+				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, config'.$num.') ); });';
 				?>
 			</script>
 			<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>
