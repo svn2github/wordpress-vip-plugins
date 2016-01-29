@@ -644,13 +644,19 @@
 				bottom: 0;
 				width: 40px;
 			}
+		.getty-embed-attachment-details {
+			border-bottom: 1px solid #ddd;
+			padding-bottom: 11px;
+		}
 
 /* Top-level search form */
-.getty-images-toolbar .media-toolbar-primary {
+.getty-browser-container .getty-browser-flex-container .getty-images-toolbar .media-toolbar-primary {
 		float: none;
 		position: relative;
 		padding-top: 50px;
 		overflow: hidden;
+		width: auto;
+		max-width: none;
 }
 	.getty-images-toolbar .getty-search-input-container {
 		position: absolute;
@@ -673,7 +679,7 @@
 	}
 
 	/* "Secondary" toolbar shows as gray bar */
-	.getty-images-toolbar .media-toolbar-secondary {
+	.getty-browser-container .getty-browser-flex-container .getty-images-toolbar .media-toolbar-secondary {
 		float: none;
 		position: relative;
 		background-color: #f0f0f0;
@@ -685,6 +691,7 @@
 		height: 24px;
 		line-height: 24px;
 		margin-bottom: -1px;
+		max-width: none;
 	}
 
 .getty-filter { float: left; margin: .5em; }

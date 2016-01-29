@@ -61,8 +61,9 @@
 			if(this.model) {
 				this.model.on('change', this.select, this);
 
-        if(!getty.user.settings.get(this.prop))
-          getty.user.settings.set(this.prop, this.value);
+				if(typeof getty.user.settings.get(this.prop)==='undefined') {
+					getty.user.settings.set(this.prop, this.value);
+				}
 
 				this.model.set(this.prop, getty.user.settings.get(this.prop));
 				this.select();

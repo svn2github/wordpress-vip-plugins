@@ -152,19 +152,18 @@ else if(gettyImages.user.get('loggedIn') && data.DownloadAuthorizations) { #>
 		<ul class="getty-download-with">
 		<#
 		var attachment = data.attachment;
-
 		for(var po in data.DownloadAuthorizations) {
 			var authorizations = _.sortBy(data.DownloadAuthorizations[po], 'FileSizeInBytes');
 		#>
 			<li class="getty-download-auth" data-productoffering="{{ po }}">
-			<label>
+			<h3>
 			<# if(_.size(data.DownloadAuthorizations) > 1) {
 				var selected = data.ProductOffering == po ? 'checked="checked"' : '';
 		 	#>
 				<input type="radio" name="DownloadProductOffering" value="{{ po }}" {{ selected }} />
 			<# } #>
-				{{ po }}
-			</label>
+				Download Options
+			</h3>
 
 			<select name="DownloadSizeKey">
 			<# for(var i = 0; i < authorizations.length; i++) {
@@ -194,6 +193,7 @@ else if(gettyImages.user.get('loggedIn') && data.DownloadAuthorizations) { #>
 					}
 				} #>
 				<option {{{ attrs }}} data-downloadtoken="{{ auth.DownloadToken }}" value="{{ auth.SizeKey }}">
+					{{ po }}:
 					{{ auth.PixelWidth }} &times; {{ auth.PixelHeight }}
 					<#
 						var size = auth.FileSizeInBytes;
@@ -302,6 +302,15 @@ else if(data.authorizing) { #>
 		</ul>
 	</dd>
 	<# }
+	// Specific for non logged in users (i.e. embedable images)
+	if ( !gettyImages.isWPcom && !gettyImages.user.get('loggedIn') ) { #>
+		<dt class="getty-image-caption"><?php esc_html_e( "Caption: ", 'getty-images' ); ?></dt>
+		<dd class="getty-image-caption"><p class="description">{{ data.Caption }}</p></dd>
+
+		<dt class="getty-image-alt"><?php esc_html_e( "Alt Text: ", 'getty-images' ); ?></dt>
+		<dd class="getty-image-alt"><p class="description">{{ data.Title }}</p></dd>
+	<#
+	}
 } #>
 </dl>
 </script>
@@ -357,60 +366,47 @@ else if(data.authorizing) { #>
 </script>
 
 <script type="text/html" id="tmpl-getty-display-settings">
-<# if(gettyImages.isWPcom || gettyImages.user.get('loggedIn')) { #>
 	<h3><?php esc_html_e( "Display Options", 'getty-images' ); ?></h3>
 
-	<div class="setting align">
-		<span><?php esc_html_e('Align'); ?></span>
-		<select data-setting="align" data-user-setting="getty_align">
-			<# selected = data.model.align == 'none' ? 'selected="selected"' : '' #>
-			<option value="none" {{ selected }}>
-				<?php esc_html_e('None'); ?>
-			</option>
-			<# selected = data.model.align == 'left' ? 'selected="selected"' : '' #>
-			<option value="left" {{ selected }}>
-				<?php esc_html_e('Left'); ?>
-			</option>
-			<# selected = data.model.align == 'center' ? 'selected="selected"' : '' #>
-			<option value="center" {{ selected }}>
-				<?php esc_html_e('Center'); ?>
-			</option>
-			<# selected = data.model.align == 'right' ? 'selected="selected"' : '' #>
-			<option value="right" {{ selected }}>
-				<?php esc_html_e('Right'); ?>
-			</option>
-		</select>
-	</div>
+	<div class="attachment-info">
+		<div class="setting align">
+			<span><?php esc_html_e( 'Align' ); ?></span>
+			<select data-setting="align" data-user-setting="getty_align">
+				<# _(gettyImages.text.alignments).each(function(text,value){ #>
+					<option value="{{ value }}" {{ ( data.model.align === value ) ? 'selected="selected"' : '' }}>
+						{{ text }}
+					</option>
+				<# }); #>
+			</select>
+		</div>
 
-	<label class="setting">
-		<span><?php esc_html_e('Size'); ?></span>
-		<select class="size" name="size" data-setting="size" data-user-setting="getty_imgsize">
-		<# _.each(data.model.sizes, function(size, value) {
-			var selected = data.model.size == size ? 'selected="selected"' : '';
-			#>
-			<option value="{{ value }}" {{{ selected }}}>{{ size.label }} &ndash; {{ parseInt(size.width) }} &times; {{ parseInt(size.height) }}</option>
-		<# }); #>
-		</select>
-	</label>
+		<label class="setting">
+			<span><?php esc_html_e('Size'); ?></span>
+		<# if (data.model.downloadingSizes) { #>
+			<em><?php esc_html_e( 'Downloading sizes...', 'getty-images' ); ?></em>
+		<# } else { #>
+			<select class="size" name="size" data-setting="size" data-user-setting="getty_imgsize">
+			<# _.each(data.model.sizes, function(size, value) {
+				var selected = data.model.size == size ? 'selected="selected"' : '';
+				#>
+				<option value="{{ value }}" {{{ selected }}}>{{ size.label }} &ndash; {{ parseInt(size.width) }} &times; {{ parseInt(size.height) }}</option>
+			<# }); #>
+			</select>
+		<# } #>
+		</label>
 
-	<label class="setting alt-text">
-		<span><?php esc_html_e('Alt Text'); ?></span>
-		<input type="text" data-setting="alt" value="{{ data.model.alt }}" data-user-setting="getty_alt" />
-	</label>
+	<# if(gettyImages.isWPcom || gettyImages.user.get('loggedIn')) { #>
+		<label class="setting alt-text">
+			<span><?php esc_html_e('Alt Text'); ?></span>
+			<input type="text" data-setting="alt" value="{{ data.model.alt }}" data-user-setting="getty_alt" />
+		</label>
 
-	<label class="setting caption">
-		<span><?php esc_html_e('Caption'); ?></span>
-		<textarea data-setting="caption">{{ data.model.caption }}</textarea>
-	</label>
-<# } else { #>
-<dl class="getty-image-details-list">
-	<dt class="getty-image-caption"><?php esc_html_e( "Caption: ", 'getty-images' ); ?></dt>
-	<dd class="getty-image-caption"><p class="description">{{ data.model.caption }}</p></dd>
-
-	<dt class="getty-image-alt"><?php esc_html_e( "Alt Text: ", 'getty-images' ); ?></dt>
-	<dd class="getty-image-alt"><p class="description">{{ data.model.alt }}</p></dd>
-</dl>
-<# } #>
+		<label class="setting caption">
+			<span><?php esc_html_e('Caption'); ?></span>
+			<textarea data-setting="caption">{{ data.model.caption }}</textarea>
+		</label>
+	<# } #>
+	</div><!--// .attachment-info -->
 </script>
 
 <script type="text/html" id="tmpl-getty-result-refinement-category">
@@ -496,7 +492,10 @@ else if(data.authorizing) { #>
 			<div class="getty-panel-content">
 			<h1><?php esc_html_e( "Access Embeddable Images", 'getty-images' ); ?></h1>
 
-				<p><?php esc_html_e( "Choose from over <strong>50 million</strong> high-quality hosted images, available for free, non-commercial use in your WordPress site.", 'getty-images' ); ?></p>
+				<p><?php echo wp_kses_post(
+					__("Choose from over <strong>50 million</strong> high-quality hosted images, available for free, non-commercial use in your WordPress site.", 'getty-images' )
+				);
+				?></p>
 			</div>
 			<span class="getty-icon icon-image"></span>
 		</div>

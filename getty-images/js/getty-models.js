@@ -76,10 +76,10 @@
 					// Even if we have a valid session, providing it as a token
 					// to CreateSession results in an error.
 					if(endpoint != 'CreateSession' && endpoint != 'CreateApplicationSession') {
-						var tokens = session ? session : getty.user.anonymous;
+						var tokens = session ? session : getty.anonymous;
 
 						// Choose correct session token based on request protocol
-						if(url.match(/^https:/)) {
+						if(url.match(/^https:/) || (url.match(/^\/\//) && location.protocol === 'https:') && tokens.secure) {
 							payload.RequestHeader.Token = tokens.secure;
 						}
 						else {
@@ -287,7 +287,7 @@
 
 							var refreshState = function(state) {
 								var lib;
-								
+
 								if(!state) {
 									return;
 								}
@@ -846,13 +846,13 @@
 			// If we couldn't log in, create or restore an anonymous session.
 			// Refresh the session only if it's 1 minute before or any time after
 			// expiration
-			var session = this.anonymous;
+			var session = getty.anonymous;
 
 			if(!session || session.expires < new Date().getTime() / 1000 - 60) {
 				// No session or most definitely timed out session, create a new one
-				var self = this;
+				var self = getty;
 
-				session = this.anonymous = { promise: $.Deferred() };
+				session = getty.anonymous = { promise: $.Deferred() };
 
 				api.request('CreateApplicationSession', {
 					SystemId: api.id,
@@ -1066,9 +1066,14 @@
 				this.fetch();
 			}, this);
 			this.wpAttachment = this.attachment.get('attachment');
-			this.set('caption', this.attachment.get('Caption'));
-			this.set('alt', this.attachment.get('Title'));
 			this.set('sizes', _.clone(getty.sizes));
+			//set defaults for embeds
+			if ( !gettyImages.isWPcom && !gettyImages.user.get('loggedIn') ) {
+				this.set({
+					align: 'none',
+					size: 'full',
+				});
+			}
 			this.fetch();
 		},
 
@@ -1096,6 +1101,7 @@
 				}
 
 				$(this.image).on('load', this.loadImage());
+				this.set('downloadingSizes',true);
 				this.image.src = url;
 			}
 		},
@@ -1110,25 +1116,35 @@
 				var ar = this.width / this.height;
 
 				// Constrain image to image sizes
-				_.each(gettyImages.sizes, function(size, slug) {
-					var cr = size.width / size.height;
-					var s = { label: size.label };
+				if ( gettyImages.isWPcom || gettyImages.user.get('loggedIn') ) {
+					_.each(gettyImages.sizes, function(size, slug) {
+						var cr = size.width / size.height;
+						var s = { label: size.label };
 
-					s.url = this.src;
+						s.url = this.src;
 
-					if(ar > cr) {
-						// Constrain to width
-						s.width = parseInt(size.width);
-						s.height = parseInt(size.width / ar);
-					}
-					else {
-						// Constrain to height (or square!)
-						s.width = parseInt(ar * size.height);
-						s.height = parseInt(size.height);
-					}
+						if(ar > cr) {
+							// Constrain to width
+							s.width = parseInt(size.width);
+							s.height = parseInt(size.width / ar);
+						}
+						else {
+							// Constrain to height (or square!)
+							s.width = parseInt(ar * size.height);
+							s.height = parseInt(size.height);
+						}
 
-					sizes[slug] = s;
-				}, this);
+						sizes[slug] = s;
+					}, this);
+				} else {
+					_.each(gettyImages.embedSizes, function(size, slug) {
+						sizes[slug] = {
+							label: size.label,
+							width: parseInt(size.scale * this.width),
+							height: parseInt(size.scale * this.height),
+						};
+					}, this);
+				}
 
 				sizes.full = {
 					label: getty.text.fullSize,
@@ -1137,6 +1153,7 @@
 					url: this.src
 				}
 
+				self.unset('downloadingSizes');
 				self.set('sizes', sizes);
 			}
 		}

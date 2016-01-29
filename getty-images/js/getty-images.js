@@ -232,30 +232,48 @@
 		},
 
 		insert: function() {
-			var image = this.get('selection').single(), 
+			var image = this.get('selection').single(),
 					embed_code;
 
 			if(!image) {
 				return;
 			}
 
+			// Get display options from user
+			var display = this.display(image)
+				, align = display.get('align') || 'none'
+				, sizeSlug = display.get('size') || 'full'
+				, sizes = display.get('sizes')
+				, size = sizes[sizeSlug]
+			;
+
 			if(this.get('mode') == 'embed') {
 				//Build the Embed code and insert it
 				embed_code = 'http://gty.im/' + image.get('ImageId');
 
+				var attrs = {};
+				if ( align != 'none' ) {
+					attrs.align = align;
+				}
+
+				if ( sizeSlug != 'full' ) {
+					attrs.width = size.width;
+					attrs.height = size.height;
+				}
+
+				if ( _.keys(attrs).length ) {
+					embed_code = wp.shortcode.string({
+						tag: 'embed',
+						content: embed_code,
+						attrs: attrs,
+					});
+				}
+
 				wp.media.editor.insert("\n" + embed_code + "\n");
 			} else {
 
-				// Get display options from user
-				var display = this.display(image);
-
-				var align = display.get('align') || 'none';
 				var alt = display.get('alt');
 				var caption = display.get('caption');
-
-				var sizeSlug = display.get('size');
-				var sizes = display.get('sizes');
-				var size = sizes[sizeSlug];
 
 				if(!size) {
 					return;
@@ -270,7 +288,7 @@
 					$img.attr('alt', alt);
 				}
 
-				if(align != 'none') {
+				if(align != 'none' && ! caption) {
 					$img.addClass('align' + align);
 				}
 
