@@ -650,13 +650,13 @@ class Ooyala {
 					$params[] = $js_params;
 				}
 				?>
-					var config<?php echo($num) ?> = <? echo json_encode( $params ); ?>;
+					var config<?php echo($num) ?> = <?php echo json_encode( $params ); ?>;
 					if(config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["amazon-ads-manager"]){
 						config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["vpaid-ads-manager"] = {'adTag' : '', 'showInAdControlBar': 'true', 'showAdMarquee': 'false'} ;
 						config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["vpaid-ads-manager"].adTag = window[config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["amazon-ads-manager"].adTag];
 						delete config<?php echo($num) ?>[config<?php echo($num) ?>.length - 1]["amazon-ads-manager"];
 					}
-				<?
+				<?php
 				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, config'.$num.') ); });';
 				?>
 			</script>
