@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/getty-images-wordpress-plugin/
 Description: Integrate your site with Getty Images
 Author: gettyImages
 Author URI: http://gettyimages.com/
-Version: 2.3.0
+Version: 2.4.2
 */
 
 /*  Copyright 2014  Getty Images
@@ -78,12 +78,12 @@ class Getty_Images {
 		add_action( 'wp_head', array( $this, 'frontend_style' ) );
 	}
 
-  /**
-   * Register shortcodes
-   */
-  function action_init() {
-    wp_oembed_add_provider( 'http://gty.im/*', 'http://embed.gettyimages.com/oembed' );
-  }
+	/**
+	* Register shortcodes
+	*/
+	function action_init() {
+		wp_oembed_add_provider( 'http://gty.im/*', 'http://embed.gettyimages.com/oembed' );
+	}
 
 	/**
 	 * Filter embed shortcode html

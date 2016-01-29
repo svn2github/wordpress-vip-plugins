@@ -2,15 +2,15 @@
 Contributors: Getty Images
 Tags: image library, media, images, getty
 Requires at least: 3.9
-Tested up to: 4.1
-Stable tag: 2.3.0
+Tested up to: 4.4.1
+Stable tag: 2.4.2
 License: GPLv2 or later
 
 Search and use Getty Images photos in your posts without ever leaving WordPress.
 
 == Description ==
 
-Getty Images is among the world’s leading creators and distributors of award-winning still imagery, video, music and multimedia products, as well as other forms of premium digital content, available through its trusted house of brands, including iStockphoto© and Thinkstock©. Its best-in-class photographers and imagery help customers produce inspiring work which appears every day in the world’s most influential newspapers, magazines, advertising campaigns, films, television programs, books and online media. 
+Getty Images is among the world’s leading creators and distributors of award-winning still imagery, video, music and multimedia products, as well as other forms of premium digital content, available through its trusted house of brands, including iStockphoto© and Thinkstock©. Its best-in-class photographers and imagery help customers produce inspiring work which appears every day in the world’s most influential newspapers, magazines, advertising campaigns, films, television programs, books and online media.
 
 The Getty Images WordPress plugin integrates seamlessly with your Wordpress 3.5+ Media Manager and lets you create posts with photos and illustrations from Getty Images – without ever leaving your WordPress site.
 
@@ -50,6 +50,16 @@ Using the plugin once installed
 
 == Changelog ==
 
+= 2.4.2 =
+* Fix CSS regression introduced by WP 4.4
+
+= 2.4.1 =
+* Fix bug that prevented image embed searches from https sites
+
+= 2.4.0 =
+* Provide align and image size display settings for embeddable images
+* Fix type error so ExcludeNudity setting persists
+
 = 2.3.0 =
 * Only add alignment class to img tag if there is no caption for image, like WP does otherwise.
 * Fix display problems introduced in 4.1 that causes image browser to be squished.
@@ -72,7 +82,7 @@ Fixed compatibility with WordPress 4.0
 = 2.0.1 =
 Tweak embedded mode text
 
-= 2.0 = 
+= 2.0 =
 Major update to give access to Embeddable assets for any Wordpress.org user.
 
 = 1.1.0 =

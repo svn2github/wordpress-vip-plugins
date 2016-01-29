@@ -76,10 +76,10 @@
 					// Even if we have a valid session, providing it as a token
 					// to CreateSession results in an error.
 					if(endpoint != 'CreateSession' && endpoint != 'CreateApplicationSession') {
-						var tokens = session ? session : getty.user.anonymous;
+						var tokens = session ? session : getty.anonymous;
 
 						// Choose correct session token based on request protocol
-						if(url.match(/^https:/) || (url.match(/^\/\//) && location.protocol === 'https:')) {
+						if(url.match(/^https:/) || (url.match(/^\/\//) && location.protocol === 'https:') && tokens.secure) {
 							payload.RequestHeader.Token = tokens.secure;
 						}
 						else {
@@ -846,13 +846,13 @@
 			// If we couldn't log in, create or restore an anonymous session.
 			// Refresh the session only if it's 1 minute before or any time after
 			// expiration
-			var session = this.anonymous;
+			var session = getty.anonymous;
 
 			if(!session || session.expires < new Date().getTime() / 1000 - 60) {
 				// No session or most definitely timed out session, create a new one
-				var self = this;
+				var self = getty;
 
-				session = this.anonymous = { promise: $.Deferred() };
+				session = getty.anonymous = { promise: $.Deferred() };
 
 				api.request('CreateApplicationSession', {
 					SystemId: api.id,
