@@ -1,0 +1,94 @@
+/* Reset */
+@charset 'UTF-8';
+html,body,div,span,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,abbr,address,cite,code,del,dfn,em,img,ins,kbd,q,samp,small,strong,sub,sup,var,b,i,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video{border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent;margin:0;padding:0;}
+body{line-height:1;}
+:focus{outline:1;}
+article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary{display:block;}
+nav ul{list-style:none;}
+blockquote,q{quotes:none;}
+blockquote:before,blockquote:after,q:before,q:after{content:none;}
+a{border:0;font-size:100%;vertical-align:baseline;background:transparent;margin:0;padding:0;}
+ins{background-color:#ff9;color:#000;text-decoration:none;}
+mark{background-color:#ff9;color:#000;font-style:italic;font-weight:700;}
+del{text-decoration:line-through;}
+abbr[title],dfn[title]{border-bottom:1px dotted #000;cursor:help;}
+table{border-collapse:collapse;border-spacing:0;}
+hr{display:block;height:1px;border:0;border-top:1px solid #ccc;margin:1em 0;padding:0;}
+input,select{vertical-align:middle;}
+sup,sub{font-size:smaller;}
+sup{vertical-align:super;}
+sub{vertical-align:sub;}
+*, *:before, *:after {
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+/* Typography */
+body {
+	font: 100%/1.62 'Helvetica Neue', Arial, Helvetica, sans-serif;
+}
+a {
+	
+}
+a:hover {
+	
+}
+a:active {
+	
+}
+h3 {
+	font-size: 1.5em;
+}
+h2 {
+	font-size: 2.2em;
+}
+h1 {
+	font-size: 3em;
+}
+h1, h2, h3 {
+	margin-bottom: 0.2em;
+	line-height: 1.2em;
+}
+p {
+	margin-bottom: 1.62em;
+}
+
+body {
+	background: #efefef;
+}
+/* Structure */
+.wrap {
+	max-width: 48em;
+	height: 100%;
+	margin: 0 auto;
+	padding: 3% 5%;
+	position: relative;
+	background: #ffffff;
+}
+
+/* Misc */
+.clear:before,
+.clear:after,
+[class*="content"]:before,
+[class*="content"]:after,
+[class*="site"]:before,
+[class*="site"]:after {
+	content: '';
+	display: table;
+}
+
+.clear:after,
+[class*="content"]:after,
+[class*="site"]:after {
+	clear: both;
+}
+
+/* Transitions */
+a {
+	-webkit-transition: all 0.15s ease;
+	-moz-transition: all 0.15s ease;
+	-ms-transition: all 0.15s ease;
+	-o-transition: all 0.15s ease;
+	transition: all 0.15s ease;
+}
