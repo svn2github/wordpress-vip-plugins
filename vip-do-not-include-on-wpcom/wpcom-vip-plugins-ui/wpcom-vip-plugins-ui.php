@@ -171,22 +171,16 @@ class WPcom_VIP_Plugins_UI {
 			'google-calendar-events', // https://viprequests.wordpress.com/2015/01/06/update-google-calendar-events-shared-plugin/
 			'ice', // Crazy out-of-date, doesn't work with MCE 4+, still in use by a handful for some reason
 			'livefyre', // use livefyre3 instead
-			'scrollkit-wp', // Scroll Kit shut down but still a few people with it activated
 			'search-excerpt', // out-of-date and not widely used
 			'the-attached-image', // Badness - was missing ton of escaping, not using the settings api
 			'wordtwit-1.3-mod', // use publicize
 			'wpcom-related-posts', // Now part of JP / WP.com
-			'browsi', // https://keepingtheirblogsgoing.wordpress.com/2015/07/14/browsi-acquired/#comment-72359
 		);
 
 		$this->fpp_plugins = array(
 			'brightcove-video-connect' => array(
 				'name'			=> 'Brightcove Video Connect',
 				'description'	=> 'Discover How Video Can Move Your Business.',
-			),
-			'browsi' => array(
-				'name'			=> 'Brow.si',
-				'description'	=> 'Drive more engagement and better monetization on mobile web with Brow.si on your site.',
 			),
 			'chartbeat' => array(
 				'name'			=> 'Chartbeat',
