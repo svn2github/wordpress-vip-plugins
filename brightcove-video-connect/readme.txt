@@ -4,8 +4,8 @@ Contributors:      10up, ivankk, technosailor, ChrisWiegman, tott, eduardmaghaky
 Donate link:       https://supporters.eff.org/donate
 Tags:              brightcove, 10up, videos, video
 Requires at least: 4.2
-Tested up to:      4.4
-Stable tag:        1.1.2
+Tested up to:      4.5
+Stable tag:        1.1.3
 License:           GPLv2 or later
 License URI:       http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -185,6 +185,31 @@ http://sample-videos.com/
 
 == Changelog ==
 
+= 1.1.3 =
+* Fix: Tags should automatically populate drop down on videos page
+* Fix: Clear search results if user empties field or clicks search field `x`
+* Fix: Improve search handling
+* Fix: Improve logic for exit edit mode when closing modal
+* Fix: Ensure this bound properly in returned delete callback
+* Fix: Prevent body/background from scrolling when modal open
+* Fix: Fix a scroll overflow issue in the edit video modal
+* Fix: When re-opening modal, always switch back to video grid view
+* Fix: Activate the spinner only when opening modal, not in template
+* Fix: Ensure close button handler doesn't interfere with other close requests
+* Fix: Fix back button disabled detection
+* Fix: Make the notices dismissable instead of fading
+* Fix: Disable closing modal during sync
+* Fix: Disable all buttons and hide delete link while syncing
+* Fix: Disable all buttons on the edit video screen while syncing
+* Fix: Correct scrollbar on Sync button click, adds some css padding
+* Fix: Start with the spinner active, until the initial ajax request completes
+* Fix: Set default account id for media manager
+* Fix: Correct setting of account on selection
+* Fix: Select default account for initial sync (as default)
+* Fix: Only localize playlist data, get the rest via ajax
+* Fix: Add selected to current account dropdown, remove All option
+* Fix: Various miscellaneous corrections for updated WordPress VIP submission
+
 = 1.1.2 =
 * Fix: Remove extra files. This is a holdout from 1.1.1 to remove all the extra files from the repository.
 
@@ -251,23 +276,5 @@ http://sample-videos.com/
 
 == Upgrade Notice ==
 
-= 1.1.2 =
-1.1.2 is a major bugfix release and is reccommended for all users
-
-= 1.1.1 =
-1.1.1 is a major bugfix release and is reccommended for all users
-
-= 1.1.0 =
-1.1.0 is a bugfix and new feature update that is recommended for all users
-
-= 1.0.9 =
-1.0.9 is an important bugfix and is recommended for all users
-
-= 1.0.8 =
-1.0.8 is an important bugfix and is recommended for all users
-
-= 1.0.6 =
-1.0.6 is a major bugfix and is recommended for all users
-
-= 1.0.0 =
-First Release
+= 1.1.3 =
+1.1.3 solves many JavaScript errors that users have been experiencing and is recommended for all users
