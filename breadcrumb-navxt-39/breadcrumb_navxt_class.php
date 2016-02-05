@@ -84,7 +84,12 @@ class bcn_breadcrumb
 	public function set_prefix($prefix)
 	{
 		//Set the prefix
-		$this->prefix = __($prefix, 'breadcrumb_navxt');
+		// VIP: Fixing issue where translating empty strings turn them to "0", #49494-z
+		if ( $this->prefix ) {
+			$this->prefix = __($prefix, 'breadcrumb_navxt');
+		} else {
+			$this->prefix = $prefix;
+		}
 	}
 	/**
 	 * Function to set the protected suffix member
@@ -94,7 +99,11 @@ class bcn_breadcrumb
 	public function set_suffix($suffix)
 	{
 		//Set the suffix
-		$this->suffix = __($suffix, 'breadcrumb_navxt');
+		if ( $this->suffix ) {
+			$this->suffix = __($suffix, 'breadcrumb_navxt');
+		} else {
+			$this->suffix = $suffix;
+		}
 	}
 	/**
 	 * Function to get the protected title member
