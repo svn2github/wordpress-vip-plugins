@@ -1031,3 +1031,32 @@ function wpcom_vip_enable_performance_tweaks(){
 function wpcom_vip_disable_performance_tweaks(){
 	remove_action('after_setup_theme', 'wpcom_vip_enable_performance_tweaks');
 }
+
+/**
+ * Translate protected embeds to original content for feeds
+ */ 
+function wpcom_vip_protected_embed_to_original( $content ) {
+	
+	global $wp_filter;
+	
+	//Necessary check for non WordPress.com environments (eg.: the vip-qickstart)
+	if ( true === class_exists( 'Protected_Embeds' ) && method_exists( Protected_Embeds::instance(), 'add_shortcode' ) ) {
+
+		//store the_content_export filters
+		$the_content_export_filters = $wp_filter['the_content_export'];
+	
+		//remove all the_content_export filters
+		$wp_filter['the_content_export'] = array();
+
+		//add the_content_export filter back
+		Protected_Embeds::instance()->add_shortcode();
+
+		$content = apply_filters( 'the_content_export', $content );
+
+		//restore the_content_export filters to previous state
+		$wp_filter['the_content_export'] = $the_content_export_filters;	
+
+	}
+
+	return $content;
+}
