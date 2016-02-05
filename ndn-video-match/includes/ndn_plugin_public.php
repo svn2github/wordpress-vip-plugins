@@ -49,7 +49,7 @@ class NDN_Plugin_Public
      */
     public function enqueue_scripts()
     {
-        wp_enqueue_script($this->plugin_name, NDN_PLUGIN_DIR.'/js/ndn_plugin_public.js', array('jquery'), $this->version, false);
+        wp_enqueue_script($this->plugin_name, NDN_PLUGIN_DIR.'/js/ndn_plugin_public.js', array('jquery'), $this->version, true );
     }
 
     /**
