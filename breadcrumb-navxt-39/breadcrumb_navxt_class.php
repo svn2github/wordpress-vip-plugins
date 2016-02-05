@@ -47,10 +47,18 @@ class bcn_breadcrumb
 	{
 		//Set the title
 		$this->title = __($title, 'breadcrumb_navxt');
-		//Set the prefix
-		$this->prefix = __($prefix, 'breadcrumb_navxt');
+		// VIP: Fixing issue where translating empty strings turn them to "0", #49494-z
+		if ( $this->prefix ) {
+			$this->prefix = __($prefix, 'breadcrumb_navxt');
+		} else {
+			$this->prefix = $prefix;
+		}
 		//Set the suffix
-		$this->suffix = __($suffix, 'breadcrumb_navxt');
+		if ( $this->suffix ) {
+			$this->suffix = __($suffix, 'breadcrumb_navxt');
+		} else {
+			$this->suffix = $suffix;
+		}
 		//Default state of unlinked
 		$this->linked = $linked;
 		//Always NULL if unlinked
