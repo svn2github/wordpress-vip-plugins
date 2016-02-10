@@ -113,7 +113,7 @@ class Push extends API_Action {
 	 */
 	private function push() {
 		if ( ! $this->is_api_configuration_valid() ) {
-			throw new \Apple_Actions\Action_Exception( __( 'Your API settings seem to be empty. Please fill in the API key, API secret and API channel fields in the plugin configuration page.', 'apple-news' ) );
+			throw new \Apple_Actions\Action_Exception( __( 'Your Apple News API settings seem to be empty. Please fill in the API key, API secret and API channel fields in the plugin configuration page.', 'apple-news' ) );
 		}
 
 		/**

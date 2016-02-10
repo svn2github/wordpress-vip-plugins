@@ -50,6 +50,15 @@ class Tweet extends Component {
 			'URL'  => $url,
 		);
 
+		$this->set_layout();
+	}
+
+	/**
+	 * Set the layout for the component.
+	 *
+	 * @access private
+	 */
+	private function set_layout() {
 		$this->json['layout'] = 'tweet-layout';
 		$this->register_full_width_layout( 'tweet-layout', array(
 			'margin' => array( 'top' => 30, 'bottom' => 30 )

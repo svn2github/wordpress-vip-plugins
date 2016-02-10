@@ -153,6 +153,9 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		}
 
 		if ( ! empty( $api_id ) ) {
+			$action = new Apple_Actions\Index\Get( $this->settings, $post->ID );
+			$state = $action->get_data( 'state', __( 'N/A', 'apple-news' ) );
+
 			$share_url = get_post_meta( $post->ID, 'apple_news_api_share_url', true );
 			$created_at = get_post_meta( $post->ID, 'apple_news_api_created_at', true );
 			$created_at = empty( $created_at ) ? __( 'None', 'apple-news' ) : get_date_from_gmt( date( 'Y-m-d H:i:s', strtotime( $created_at ) ), 'F j, h:i a' );
@@ -165,6 +168,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 			<br/><?php esc_html_e( 'Modified at', 'apple-news' ) ?>: <?php echo esc_html( $modified_at ) ?>
 			<br/><?php esc_html_e( 'Share URL', 'apple-news' ) ?>: <a href="<?php echo esc_url( $share_url ) ?>" target="_blank"><?php echo esc_html( $share_url ) ?></a>
 			<br/><?php esc_html_e( 'Revision', 'apple-news' ) ?>: <?php echo esc_html( get_post_meta( $post->ID, 'apple_news_api_revision', true ) ) ?>
+			<br/><?php esc_html_e( 'State', 'apple-news' ) ?>: <?php echo esc_html( $state ) ?>
 			<?php
 		}
 

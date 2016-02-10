@@ -157,6 +157,19 @@ class Exporter_Content {
 	}
 
 	/**
+	 * Update a property, useful during content parsing.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @access public
+	 */
+	public function set_property( $name, $value ) {
+		if ( property_exists( $this, $name ) ) {
+			$this->$name = $value;
+		}
+	}
+
+	/**
 	 * Get the DOM nodes.
 	 *
 	 * @return array of DomNodes

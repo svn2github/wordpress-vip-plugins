@@ -137,6 +137,15 @@ abstract class Builder {
 	}
 
 	/**
+	 * Updates a content property.
+	 *
+	 * @access protected
+	 */
+	protected function set_content_property( $name, $value ) {
+		return $this->content->set_property( $name, $value );
+	}
+
+	/**
 	 * Gets a content setting by key.
 	 *
 	 * @access protected

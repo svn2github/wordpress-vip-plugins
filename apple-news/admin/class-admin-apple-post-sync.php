@@ -38,8 +38,6 @@ class Admin_Apple_Post_Sync {
 			add_action( 'save_post', array( $this, 'do_publish' ), 10, 2 );
 			add_action( 'before_delete_post', array( $this, 'do_delete' ) );
 		}
-
-		add_filter( 'redirect_post_location', array( $this, 'do_redirect' ) );
 	}
 
 	/**
@@ -104,21 +102,4 @@ class Admin_Apple_Post_Sync {
 			Admin_Apple_Notice::error( $e->getMessage() );
 		}
 	}
-
-	/**
-	 * Handle redirects.
-	 *
-	 * @since 0.4.0
-	 * @param string $location
-	 * @return string
-	 * @access public
-	 */
-	public function do_redirect( $location ) {
-		if ( Admin_Apple_Notice::has_notice() ) {
-			return admin_url( 'admin.php?page=apple_news_index' );
-		}
-
-		return $location;
-	}
-
 }
