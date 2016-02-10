@@ -4,7 +4,6 @@ window.Shortcode_UI = window.Shortcode_UI || {
 	shortcodes: new Shortcodes(),
 	views: {},
 	controllers: {},
-	utils: {},
 };
 
 module.exports = window.Shortcode_UI;

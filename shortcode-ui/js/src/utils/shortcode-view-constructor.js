@@ -1,63 +1,24 @@
 var sui = require('sui-utils/sui'),
-	fetcher = require('sui-utils/fetcher'),
-	wp = require('wp'),
-	$ = require('jquery');
+    wp = require('wp'),
+    $ = require('jquery');
 
 /**
- * Generic shortcode MCE view constructor.
- *
- * A Backbone-like View constructor intended for use when rendering a TinyMCE View.
- * The main difference is that the TinyMCE View is not tied to a particular DOM node.
+ * Generic shortcode mce view constructor.
  * This is cloned and used by each shortcode when registering a view.
- *
  */
 var shortcodeViewConstructor = {
 
-	/**
-	 * Initialize a shortcode preview View.
-	 *
-	 * Fetches the preview by making a delayed Ajax call, and renders if a preview can be fetched.
-	 *
-	 * @constructor
-	 * @this {Shortcode} Model registered with sui.shortcodes
-	 * @param {Object} options Options
-	 */
 	initialize: function( options ) {
-		var self = this;
-
 		this.shortcodeModel = this.getShortcodeModel( this.shortcode );
-		this.fetching = this.delayedFetch();
-
-		this.fetching.done( function( queryResponse ) {
-			var response = queryResponse.response;
-			if ( '' === response ) {
-				var span = $('<span />').addClass('shortcake-notice shortcake-empty').text( self.shortcodeModel.formatShortcode() );
-				var wrapper = $('<div />').html( span );
-				self.content = wrapper.html();
-			} else {
-				self.content = response;
-			}
-		}).fail( function() {
-			var span = $('<span />').addClass('shortcake-error').text( shortcodeUIData.strings.mce_view_error );
-			var wrapper = $('<div />').html( span );
-			self.content = wrapper.html();
-		} ).always( function() {
-			delete self.fetching;
-			self.render( null, true );
-		} );
+		this.fetch();
 	},
 
 	/**
 	 * Get the shortcode model given the view shortcode options.
-	 *
-	 * If the shortcode found in the view is registered with Shortcake, this
-	 * will clone the shortcode's Model and assign appropriate attribute
-	 * values.
-	 *
-	 * @this {Shortcode}
-	 * @param {Object} options Options formatted as wp.shortcode.
+	 * Must be a registered shortcode (see sui.shortcodes)
 	 */
 	getShortcodeModel: function( options ) {
+
 		var shortcodeModel;
 
 		shortcodeModel = sui.shortcodes.findWhere( { shortcode_tag: options.tag } );
@@ -66,73 +27,42 @@ var shortcodeViewConstructor = {
 			return;
 		}
 
-		currentShortcode = shortcodeModel.clone();
+		shortcodeModel = shortcodeModel.clone();
 
-		var attributes_backup = {};
-		var attributes = options.attrs;
-		for ( var key in attributes.named ) {
-
-			if ( ! attributes.named.hasOwnProperty( key ) ) {
-				continue;
+		shortcodeModel.get('attrs').each(
+			function( attr ) {
+				if ( attr.get('attr') in options.attrs.named ) {
+					attr.set(
+						'value',
+						options.attrs.named[ attr.get('attr') ]
+					);
+				}
 			}
+		);
 
-			value = attributes.named[ key ];
-			attr  = currentShortcode.get( 'attrs' ).findWhere({ attr: key });
-
-			// Reverse the effects of wpautop: https://core.trac.wordpress.org/ticket/34329
-			value = this.unAutoP( value );
-
-			if ( attr && attr.get('encode') ) {
-				value = decodeURIComponent( value );
-			}
-
-			if ( attr ) {
-				attr.set( 'value', value );
-			} else {
-				attributes_backup[ key ] = value;
+		if ( 'content' in options ) {
+			var innerContent = shortcodeModel.get('inner_content');
+			if ( innerContent ) {
+				innerContent.set('value', options.content);
 			}
 		}
 
-		currentShortcode.set( 'attributes_backup', attributes_backup );
+		return shortcodeModel;
 
-		if ( options.content ) {
-			var inner_content = currentShortcode.get( 'inner_content' );
-			// Reverse the effects of wpautop: https://core.trac.wordpress.org/ticket/34329
-			options.content = this.unAutoP( options.content );
-			if ( inner_content ) {
-				inner_content.set( 'value', options.content );
-			} else {
-				currentShortcode.set( 'inner_content_backup', options.content );
-			}
-		}
-
-		return currentShortcode;
 	},
 
 	/**
-	 * Queue a request with Fetcher class, and return a promise.
-	 *
-	 * @return {Promise}
-	 */
-	delayedFetch: function() {
-		return fetcher.queueToFetch({
-			post_id: $( '#post_ID' ).val(),
-			shortcode: this.shortcodeModel.formatShortcode(),
-			nonce: shortcodeUIData.nonces.preview,
-		});
-	},
-
-	/**
-	 * Fetch a preview of a single shortcode.
-	 *
+	 * Fetch preview.
 	 * Async. Sets this.content and calls this.render.
 	 *
 	 * @return undefined
 	 */
-	fetch: function() {
+	fetch : function() {
+
 		var self = this;
 
 		if ( ! this.fetching ) {
+
 			this.fetching = true;
 
 			wp.ajax.post( 'do_shortcode', {
@@ -140,26 +70,31 @@ var shortcodeViewConstructor = {
 				shortcode: this.shortcodeModel.formatShortcode(),
 				nonce: shortcodeUIData.nonces.preview,
 			}).done( function( response ) {
+
 				if ( '' === response ) {
 					self.content = '<span class="shortcake-notice shortcake-empty">' + self.shortcodeModel.formatShortcode() + '</span>';
 				} else {
 					self.content = response;
 				}
+
 			}).fail( function() {
 				self.content = '<span class="shortcake-error">' + shortcodeUIData.strings.mce_view_error + '</span>';
 			} ).always( function() {
 				delete self.fetching;
 				self.render( null, true );
 			} );
+
 		}
+
 	},
 
 	/**
-	 * Get the shortcode model and open modal UI for editing.
+	 * Edit shortcode.
+	 * Get shortcode model and open edit modal.
 	 *
-	 * @param {string} shortcodeString String representation of the shortcode
 	 */
-	edit: function( shortcodeString ) {
+	edit : function( shortcodeString ) {
+
 		var currentShortcode;
 
 		// Backwards compatability for WP pre-4.2
@@ -185,45 +120,84 @@ var shortcodeViewConstructor = {
 
 	/**
 	 * Parse a shortcode string and return shortcode model.
-	 * Must be a shortcode which has UI registered with Shortcake - see
-	 * `window.sui.shortcodes`.
+	 * Must be a registered shortcode - see window.Shortcode_UI.shortcodes.
 	 *
 	 * @todo - I think there must be a cleaner way to get the
 	 * shortcode & args here that doesn't use regex.
 	 *
-	 * @param  {string} shortcodeString
+	 * @param  string shortcodeString
 	 * @return Shortcode
 	 */
 	parseShortcodeString: function( shortcodeString ) {
+
 		var model, attr;
 
-		var shortcode_tags = _.map( sui.shortcodes.pluck( 'shortcode_tag' ), this.pregQuote ).join( '|' );
-		var regexp = wp.shortcode.regexp( shortcode_tags );
-		var matches = regexp.exec( shortcodeString );
+		var megaRegex = /\[([^\s\]]+)([^\]]+)?\]([^\[]*)?(\[\/(\S+?)\])?/;
+		var matches = shortcodeString.match( megaRegex );
 
 		if ( ! matches ) {
 			return;
 		}
 
 		defaultShortcode = sui.shortcodes.findWhere({
-			shortcode_tag : matches[2]
+			shortcode_tag : matches[1]
 		});
 
 		if ( ! defaultShortcode ) {
 			return;
 		}
 
-		var shortcode = wp.shortcode.fromMatch( matches );
-		return this.getShortcodeModel( shortcode );
+		currentShortcode = defaultShortcode.clone();
+
+		if ( matches[2] ) {
+
+			var attributeRegex = /(\w+)\s*=\s*"([^"]*)"(?:\s|$)|(\w+)\s*=\s*\'([^\']*)\'(?:\s|$)|(\w+)\s*=\s*([^\s\'"]+)(?:\s|$)|"([^"]*)"(?:\s|$)|(\S+)(?:\s|$)/gmi;
+			attributeMatches   = matches[2].match( attributeRegex ) || [];
+
+			// Trim whitespace from matches.
+			attributeMatches = attributeMatches.map( function( match ) {
+				return match.replace( /^\s+|\s+$/g, '' );
+			} );
+
+			// convert attribute strings to object.
+			for ( var i = 0; i < attributeMatches.length; i++ ) {
+
+				var bitsRegEx = /(\S+?)=(.*)/g;
+				var bits = bitsRegEx.exec( attributeMatches[i] );
+
+				if ( bits && bits[1] ) {
+
+					attr = currentShortcode.get( 'attrs' ).findWhere({
+						attr : bits[1]
+					});
+
+					// If attribute found - set value.
+					// Trim quotes from beginning and end.
+					if ( attr ) {
+						attr.set( 'value', bits[2].replace( /^"|^'|"$|'$/gmi, "" ) );
+					}
+
+				}
+			}
+
+		}
+
+		if ( matches[3] ) {
+			var inner_content = currentShortcode.get( 'inner_content' );
+			if ( inner_content ) {
+				inner_content.set( 'value', this.unAutoP( matches[3] ) );
+			} else {
+				currentShortcode.set( 'inner_content_backup', this.unAutoP( matches[3] ) );
+			}
+		}
+
+		return currentShortcode;
+
 	},
 
  	/**
 	 * Strip 'p' and 'br' tags, replace with line breaks.
-	 *
-	 * Reverses the effect of the WP editor autop functionality.
-	 *
-	 * @param {string} content Content with `<p>` and `<br>` tags inserted
-	 * @return {string}
+	 * Reverse the effect of the WP editor autop functionality.
 	 */
 	unAutoP: function( content ) {
 		if ( switchEditors && switchEditors.pre_wpautop ) {
@@ -231,24 +205,7 @@ var shortcodeViewConstructor = {
 		}
 
 		return content;
-	},
 
-	/**
-	 * Escape any special characters in a string to be used as a regular expression.
-	 *
-	 * JS version of PHP's preg_quote()
-	 *
-	 * @see http://phpjs.org/functions/preg_quote/
-	 *
-	 * @param {string} str String to parse
-	 * @param {string} delimiter Delimiter character to be also escaped - not used here
-	 * @return {string}
-	 */
-	pregQuote: function( str, delimiter ) {
-		return String(str)
-			.replace(
-				new RegExp( '[.\\\\+*?\\[\\^\\]$(){}=!<>|:\\' + ( delimiter || '' ) + '-]', 'g' ),
-				'\\$&' );
 	},
 
 	// Backwards compatability for Pre WP 4.2.
@@ -363,6 +320,7 @@ var shortcodeViewConstructor = {
 		},
 
 	},
+
 };
 
-module.exports = sui.utils.shortcodeViewConstructor = shortcodeViewConstructor;
+module.exports = shortcodeViewConstructor;
