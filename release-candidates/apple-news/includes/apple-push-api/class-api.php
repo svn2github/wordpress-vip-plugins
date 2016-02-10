@@ -103,7 +103,6 @@ class API {
 		return $this->send_get_request( $url );
 	}
 
-
 	/**
 	 * Deletes an article using a DELETE request.
 	 *

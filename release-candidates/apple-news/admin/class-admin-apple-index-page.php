@@ -6,6 +6,7 @@
  * @since   0.6.0
  */
 
+require_once plugin_dir_path( __FILE__ ) . 'apple-actions/index/class-get.php';
 require_once plugin_dir_path( __FILE__ ) . 'apple-actions/index/class-push.php';
 require_once plugin_dir_path( __FILE__ ) . 'apple-actions/index/class-delete.php';
 require_once plugin_dir_path( __FILE__ ) . 'apple-actions/index/class-export.php';

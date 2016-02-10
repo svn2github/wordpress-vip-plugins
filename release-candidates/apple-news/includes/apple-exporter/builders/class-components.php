@@ -3,6 +3,8 @@ namespace Apple_Exporter\Builders;
 
 use \Apple_Exporter\Component_Factory as Component_Factory;
 use \Apple_Exporter\Components\Component as Component;
+use \Apple_Exporter\Workspace as Workspace;
+use \Apple_News as Apple_News;
 
 /**
  * @since 0.4.0
@@ -16,10 +18,16 @@ class Components extends Builder {
 	 * @access protected
 	 */
 	protected function build() {
-		$components = $this->meta_components();
+		// Handle body components first
 		foreach ( $this->split_into_components() as $component ) {
 			$components[] = $component->to_array();
 		}
+
+		// Meta components are handled after and then prepended since
+		// they could change depending on the above body processing,
+		// such as if a thumbnail was used from the body.
+		$components = array_merge( $this->meta_components(), $components );
+
 		return $this->group_body_components( $components );
 	}
 
@@ -188,6 +196,7 @@ class Components extends Builder {
 		// Process the result some more. It gets passed by reference for efficiency.
 		// It's not like it's a big memory save but still relevant.
 		// FIXME: Maybe this could have been done in a better way?
+		$this->add_thumbnail_if_needed( $result );
 		$this->add_advertisement_if_needed( $result );
 		$this->anchor_components( $result );
 		$this->add_pullquote_if_needed( $result );
@@ -290,6 +299,67 @@ class Components extends Builder {
 		// UIDs are always anchor targets.
 		$target_component->anchor();
 		$component->anchor();
+	}
+
+	/**
+	 * Add a thumbnail if needed.
+	 *
+	 * @param array &$components
+	 * @access private
+	 */
+	private function add_thumbnail_if_needed( &$components ) {
+		// If a thumbnail is already defined, just return.
+		if ( $this->content_cover() ) {
+			return;
+		}
+
+		// Otherwise, iterate over the components and look for the first image.
+		foreach ( $components as $i => $component ) {
+			if ( is_a( $component, 'Apple_Exporter\Components\Image' ) ) {
+				// Get the bundle URL of this class.
+				$json_url = $component->get_json( 'URL' );
+				if ( empty( $json_url ) ) {
+					$json_components = $component->get_json( 'components' );
+					if ( ! empty( $json_components[0]['URL'] ) ) {
+						$json_url = $json_components[0]['URL'];
+					}
+				}
+
+				if ( empty( $json_url ) ) {
+					return;
+				}
+
+				// Isolate the bundle URL basename
+				$bundle_basename = str_replace( 'bundle://', '', $json_url );
+
+				// We need to find the original URL from the bundle meta because it's needed
+				// in order to override the thumbnail.
+				$workspace = new Workspace( $this->content_id() );
+				$bundles = $workspace->get_bundles();
+				if ( empty( $bundles ) ) {
+					// We can't proceed without the original URL and something odd has happened here anyway.
+					return;
+				}
+
+				$original_url = '';
+				foreach ( $bundles as $bundle_url ) {
+					if ( $bundle_basename == Apple_News::get_filename( $bundle_url ) ) {
+						$original_url = $bundle_url;
+						break;
+					}
+				}
+
+				// If we can't find the original URL, we can't proceed.
+				if ( empty( $original_url ) ) {
+					return;
+				}
+
+				// Use this image as the cover and remove it from the body to avoid duplication.
+				$this->set_content_property( 'cover', $original_url );
+				unset( $components[ $i ] );
+				break;
+			}
+		}
 	}
 
 	/**
