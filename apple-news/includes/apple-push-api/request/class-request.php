@@ -176,8 +176,6 @@ class Request {
 		if ( 'yes' === $debugging ) {
 			$admin_email = filter_var( get_option( 'apple_news_admin_email' ), FILTER_VALIDATE_EMAIL );
 			if ( ! empty( $admin_email ) ) {
-				//VIP: do not use as this action is just temporary
-				do_action( 'apple_news_debugging', $response, $json );
 				wp_mail(
 					$admin_email,
 					esc_html__( 'Apple News Notification', 'apple-news' ),
