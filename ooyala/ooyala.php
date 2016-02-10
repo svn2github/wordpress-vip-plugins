@@ -646,10 +646,22 @@ class Ooyala {
 				<?php
 				$player = 'OoyalaPlayer' . $num;
 				$params = array( "ooyalaplayer-$num", $atts['code'] );
+				$js_params = apply_filters( 'ooyala_js_params', $js_params );
 				if ( count( $js_params ) ) {
 					$params[] = $js_params;
 				}
-				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, ' . json_encode( $params ) .') ); });';
+				?>
+					var config<?php echo (int)$num ?> = <?php echo json_encode( $params ); ?>;
+					if(config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"] && window[config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"].adTag]){
+						config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["vpaid-ads-manager"] = {'adTag' : '', 'showInAdControlBar': 'true', 'showAdMarquee': 'false'} ;
+						config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["vpaid-ads-manager"].adTag = window[config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["amazon-ads-manager"].adTag];
+						if(config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"].adSetCode) {
+							config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["adSetCode"] = config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"].adSetCode;
+						}
+						delete config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["amazon-ads-manager"];
+					}
+				<?php
+				echo esc_js( $player ) . '.ready(function() { ooyalaplayers.push(' . esc_js( $player ) . '.Player.create.apply(this, config'.$num.') ); });';
 				?>
 			</script>
 			<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>
