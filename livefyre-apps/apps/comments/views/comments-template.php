@@ -16,7 +16,8 @@ if ( LFAPPS_Comments_Display::livefyre_show_comments() ) {
     $lfHttp = new LFAPPS_Http_Extension();
     $result = $lfHttp->request( $url );
     $cached_html = '';
-    if ( $result['response']['code'] == 200 ){
+    // VIP: Fixing fatal error "Cannot use object of type WP_Error as array"
+    if ( ! is_wp_error( $result ) && $result['response']['code'] == 200 ){
         $cached_html = $result['body'];
         $cached_html = preg_replace( '(<script>[\w\W]*<\/script>)', '', $cached_html );
     }
