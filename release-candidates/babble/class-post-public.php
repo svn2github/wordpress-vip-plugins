@@ -1136,6 +1136,19 @@ class Babble_Post_Public {
 			} else {
 				$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( $query_vars[ 'post_type' ], bbl_get_current_lang_code() );
 			}
+		} elseif ( true === isset( $query_vars[ 'name' ] ) && $query_vars[ 'name' ] ) {
+			$page = get_page_by_path( $query_vars['name'], OBJECT, (array) bbl_get_post_type_in_lang( 'page', bbl_get_current_lang_code() ) );
+			if ( $page ) {
+				$post_status_obj = get_post_status_object( $page->post_status );
+			}
+			if ( $page
+				&& ( $post_status_obj->public || $post_status_obj->protected || $post_status_obj->private )
+				&& ! $post_status_obj->exclude_from_search
+			) {
+				$query_vars['post_type'] = bbl_get_post_type_in_lang( 'page', bbl_get_current_lang_code() );
+			} else {
+				$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
+			}
 		} else {
 			$query_vars[ 'post_type' ] = bbl_get_post_type_in_lang( 'post', bbl_get_current_lang_code() );
 		}
