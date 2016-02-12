@@ -20,6 +20,13 @@ require_once plugin_dir_path( __FILE__ ) . 'class-admin-apple-async.php';
 class Admin_Apple_News extends Apple_News {
 
 	/**
+	 * Current settings.
+	 *
+	 * @var Settings
+	 */
+	public static $settings;
+
+	/**
 	 * Constructor.
 	 */
 	function __construct() {
@@ -33,25 +40,25 @@ class Admin_Apple_News extends Apple_News {
 		// it up, let's get the settings getter and setter object and save it into
 		// $settings.
 		$admin_settings = new Admin_Apple_Settings;
-		$settings       = $admin_settings->fetch_settings();
+		self::$settings = $admin_settings->fetch_settings();
 
 		// Initialize notice messaging utility
-		new Admin_Apple_Notice( $settings );
+		new Admin_Apple_Notice( self::$settings );
 
 		// Set up main page
-		new Admin_Apple_Index_Page( $settings );
+		new Admin_Apple_Index_Page( self::$settings );
 
 		// Set up all sub pages
-		new Admin_Apple_Bulk_Export_Page( $settings );
+		new Admin_Apple_Bulk_Export_Page( self::$settings );
 
 		// Set up posts syncing if enabled in the settings
-		new Admin_Apple_Post_Sync( $settings );
+		new Admin_Apple_Post_Sync( self::$settings );
 
 		// Set up the publish meta box if enabled in the settings
-		new Admin_Apple_Meta_Boxes( $settings );
+		new Admin_Apple_Meta_Boxes( self::$settings );
 
 		// Set up asynchronous publishing features
-		new Admin_Apple_Async( $settings );
+		new Admin_Apple_Async( self::$settings );
 	}
 
 	/**
@@ -65,5 +72,23 @@ class Admin_Apple_News extends Apple_News {
 		// Clipboard fix
 		echo '.row-actions.is-active { visibility: visible }';
 		echo '</style>';
+	}
+
+	/**
+	 * Get post status.
+	 *
+	 * @param int $post_id
+	 * @return string
+	 */
+	public static function get_post_status( $post_id ) {
+		$key = 'apple_news_post_state_' . $post_id;
+		if ( false === ( $state = get_transient( $key ) ) ) {
+				$action = new Apple_Actions\Index\Get( self::$settings, $post_id );
+				$state = $action->get_data( 'state', __( 'N/A', 'apple-news' ) );
+				$cache_expiration = ( 'LIVE' == $state || 'TAKEN_DOWN' == $state ) ? 3600 : 60;
+				set_transient( $key, $state, apply_filters( 'apple_news_post_status_cache_expiration', $cache_expiration, $state ) );
+		}
+
+		return $state;
 	}
 }
