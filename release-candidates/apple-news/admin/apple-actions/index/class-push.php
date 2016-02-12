@@ -182,6 +182,9 @@ class Push extends API_Action {
 			// Remove the async in progress flag
 			delete_post_meta( $this->id, 'apple_news_api_async_in_progress' );
 
+			// Clear the cache for post status
+			delete_transient( 'apple_news_post_state_' . $this->id );
+
 			do_action( 'apple_news_after_push', $this->id, $result );
 		} catch ( \Apple_Push_API\Request\Request_Exception $e ) {
 			

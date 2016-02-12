@@ -99,8 +99,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 	 * @access private
 	 */
 	private function get_status_for( $post ) {
-		$action = new Apple_Actions\Index\Get( $this->settings, $post->ID );
-		return $action->get_data( 'state', __( 'N/A', 'apple-news' ) );
+		return \Admin_Apple_News::get_post_status( $post->ID );
 	}
 
 	/**

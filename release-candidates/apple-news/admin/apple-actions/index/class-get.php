@@ -62,4 +62,3 @@ class Get extends API_Action {
 		return ( ! isset( $article->data->$key ) ) ? $default : $article->data->$key;
 	}
 }
-
