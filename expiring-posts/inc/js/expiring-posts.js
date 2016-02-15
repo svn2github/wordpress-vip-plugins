@@ -7,12 +7,13 @@ jQuery(document).ready( function($) {
 		return;
 
 	var $postStatus = $( document.getElementById( 'post_status' )),
-			saveButton = document.getElementById('save-post');
+		saveButton = document.getElementById('save-post'),
+		originalStatus = $postStatus.val();
 
 	// JS hack to append Expired to the post status editor
 	$postStatus.append( $( document.getElementById( 'expired-status' ) ) );
 	// reset post_status value after appending expired option
-	$postStatus.val( AdminExpiringPosts.post_status );
+	$postStatus.val( originalStatus );
 
 	// Set button text to "Update" instead of "Publish" when post is expired
 	if ( 'expired' == AdminExpiringPosts.post_status ){
