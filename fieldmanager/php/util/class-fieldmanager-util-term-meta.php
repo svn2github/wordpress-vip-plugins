@@ -1,15 +1,10 @@
 <?php
 /**
- * Use fieldmanager to store meta data for taxonomy terms.
- *
- * This is deprecated as of WordPress 4.4, which introduces Term Meta into core.
- * If you were using this feature prior to 4.4, it will continue to operate
- * until probably WordPress 4.8, however it is in your best interest to migrate
- * your data ASAP, as core's term meta is significantly more efficient.
- *
- * @deprecated 1.0.0-beta.3
- *
  * @package Fieldmanager_Util
+ */
+
+/**
+ * Use fieldmanager to store meta data for taxonomy terms
  */
 class Fieldmanager_Util_Term_Meta {
 
@@ -88,6 +83,7 @@ class Fieldmanager_Util_Term_Meta {
 	 * @return string|array @see get_post_meta().
 	 */
 	public function get_term_meta( $term_id, $taxonomy, $meta_key = '', $single = false ) {
+
 		// Check if this term has a post to store meta data
 		$term_meta_post_id = $this->get_term_meta_post_id( $term_id, $taxonomy );
 		if ( false === $term_meta_post_id ) {
@@ -117,6 +113,7 @@ class Fieldmanager_Util_Term_Meta {
 	 * @return boolean|integer @see add_post_meta().
 	 */
 	public function add_term_meta( $term_id, $taxonomy, $meta_key, $meta_value, $unique = false ) {
+
 		// Check if this term already has a post to store meta data
 		$term_meta_post_id = $this->get_term_meta_post_id( $term_id, $taxonomy );
 		if ( false === $term_meta_post_id ) {
@@ -156,6 +153,7 @@ class Fieldmanager_Util_Term_Meta {
 	 * @return mixed @see update_post_meta().
 	 */
 	public function update_term_meta( $term_id, $taxonomy, $meta_key, $meta_value, $meta_prev_value='' ) {
+
 		// Check if this term already has a post to store meta data
 		$term_meta_post_id = $this->get_term_meta_post_id( $term_id, $taxonomy );
 		if ( false === $term_meta_post_id ) {
@@ -190,6 +188,7 @@ class Fieldmanager_Util_Term_Meta {
 	 * @return boolean False for failure. True for success.
 	 */
 	public function delete_term_meta( $term_id, $taxonomy, $meta_key, $meta_value='' ) {
+
 		// Get the post used for this term
 		$term_meta_post_id = $this->get_term_meta_post_id( $term_id, $taxonomy );
 
@@ -326,8 +325,6 @@ class Fieldmanager_Util_Term_Meta {
 /**
  * Singleton helper for Fieldmanager_Util_Term_Meta
  *
- * @deprecated 1.0.0-beta.3
- *
  * @return object
  */
 function Fieldmanager_Util_Term_Meta() {
@@ -339,8 +336,6 @@ Fieldmanager_Util_Term_Meta();
 /**
  * Shortcut helper for Fieldmanager_Util_Term_Meta::get_term_meta().
  *
- * @deprecated 1.0.0-beta.3
- *
  * @see Fieldmanager_Util_Term_Meta::get_term_meta()
  */
 function fm_get_term_meta( $term_id, $taxonomy, $meta_key = '', $single = false ) {
@@ -349,8 +344,6 @@ function fm_get_term_meta( $term_id, $taxonomy, $meta_key = '', $single = false 
 
 /**
  * Shortcut helper for Fieldmanager_Util_Term_Meta::add_term_meta().
- *
- * @deprecated 1.0.0-beta.3
  *
  * @see Fieldmanager_Util_Term_Meta::add_term_meta()
  */
@@ -361,8 +354,6 @@ function fm_add_term_meta( $term_id, $taxonomy, $meta_key, $meta_value, $unique 
 /**
  * Shortcut helper for Fieldmanager_Util_Term_Meta::update_term_meta().
  *
- * @deprecated 1.0.0-beta.3
- *
  * @see Fieldmanager_Util_Term_Meta::update_term_meta()
  */
 function fm_update_term_meta( $term_id, $taxonomy, $meta_key, $meta_value, $meta_prev_value = '' ) {
@@ -371,8 +362,6 @@ function fm_update_term_meta( $term_id, $taxonomy, $meta_key, $meta_value, $meta
 
 /**
  * Shortcut helper for Fieldmanager_Util_Term_Meta::delete_term_meta().
- *
- * @deprecated 1.0.0-beta.3
  *
  * @see Fieldmanager_Util_Term_Meta::delete_term_meta()
  */
