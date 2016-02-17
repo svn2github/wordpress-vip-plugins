@@ -653,11 +653,8 @@ class Ooyala {
 				?>
 					var config<?php echo (int)$num ?> = <?php echo json_encode( $params ); ?>;
 					if(config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"] && window[config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"].adTag]){
-						config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["vpaid-ads-manager"] = {'adTag' : '', 'showInAdControlBar': 'true', 'showAdMarquee': 'false'} ;
-						config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["vpaid-ads-manager"].adTag = window[config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["amazon-ads-manager"].adTag];
-						if(config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"].adSetCode) {
-							config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["adSetCode"] = config<?php echo (int)$num ?>[config<?php echo (int)$num ?>.length - 1]["amazon-ads-manager"].adSetCode;
-						}
+						config<?php echo (int) $num ?>[config<?php echo (int) $num ?>.length - 1]["google-ima-ads-manager"] = {'adTagUrl' : ''} ;
+						config<?php echo (int) $num ?>[config<?php echo (int) $num ?>.length - 1]["google-ima-ads-manager"].adTagUrl = window[config<?php echo (int) $num ?>[config<?php echo (int) $num ?>.length - 1]["amazon-ads-manager"].adTag];
 						delete config<?php echo (int)$num; ?>[config<?php echo (int)$num; ?>.length - 1]["amazon-ads-manager"];
 					}
 				<?php
