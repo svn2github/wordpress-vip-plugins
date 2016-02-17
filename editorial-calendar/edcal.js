@@ -2116,6 +2116,8 @@ var edcal = {
 
              jQuery('#contextual-help-link-wrap').css('visibility', 'hidden');
 
+             jQuery('#screen-meta').show();
+
              jQuery('#contextual-help-wrap').slideDown('normal');
 
              jQuery('#show-edcal-settings-link').css('background-image', 'url(images/screen-options-right-up.gif)');
