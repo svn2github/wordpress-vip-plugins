@@ -5,6 +5,7 @@ if (!defined('LFAPPS__PLUGIN_PATH'))
     die('Bye');
 
 if (!class_exists('LFAPPS_Blog_Admin')) {
+
     class LFAPPS_Blog_Admin {
 
         private static $initiated = false;
@@ -33,8 +34,10 @@ if (!class_exists('LFAPPS_Blog_Admin')) {
         /**
          * Run LiveBlog page
          */
-        public static function menu_blog() {            
+        public static function menu_blog() {
+            
             LFAPPS_View::render('general', array(), 'blog');
         }
     }
+
 }

@@ -25,12 +25,7 @@ class LFAPPS_Http_Extension {
                 $args[ 'body' ] = $args[ 'data' ];
                 unset( $args[ 'data' ] );
             }
-            $result = $http->request( $url, $args );
-            if($result instanceof WP_Error) {
-                return array('response'=>array('code'=>'500'));
-            } else {
-                return $result;
-            }
+            return $http->request( $url, $args );
         }
     }
 }

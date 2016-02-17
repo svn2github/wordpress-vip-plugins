@@ -1,4 +1,5 @@
 <?php
+require_once( LFAPPS__PLUGIN_PATH . "/libs/php/LFAPPS_Http_Extension.php");
 
 class LFAPPS_Comments_Extension {
     
