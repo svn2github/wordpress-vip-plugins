@@ -16,6 +16,10 @@ class Responsive_Images {
 
 	public static function init() {
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_scripts' ) );
+		add_action( 'wp_head', array( __CLASS__, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata, e.g. OG tags
+	}
+
+	public static function setup_filters() {
 		add_filter( 'the_content', array( __CLASS__, 'add_image_placeholders' ), 99 );
 	}
 
