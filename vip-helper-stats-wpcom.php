@@ -347,17 +347,13 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 			// sort by views
 			if ( !is_null( $summarize ) ) {
 				$_head 	= array_shift( $_rows );
-				$_srows = array();
 
-				foreach( $_rows as $key => $vals ) {
-					$_srows[ $vals[2] ] = $vals;
-				}
-
-				$_rows = $_srows;
-
-				unset( $_srows );
-
-				krsort( $_rows );
+				usort( $_rows, function( $a, $b ) {
+					if ( $a[2] === $b[2] ) {
+						return 0;
+					}
+					return ( $a[2] < $b[2] ) ? 1 : -1;
+				} );
 
 				array_unshift( $_rows, $_head );
 			}
