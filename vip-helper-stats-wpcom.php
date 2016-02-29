@@ -319,15 +319,6 @@ function wpcom_vip_stats_csv_print( $rows, $table, $limit, $summarize = NULL, $r
 		case 'postviews' :
 			$posts = array();
 
-			if ( isset( $GLOBALS['post_id'] ) && $GLOBALS['post_id'] ) {
-				$_rows = array( array( 'date', 'views' ) );
-
-				foreach ( $rows as $date => $array )
-					$_rows[] = array( $date, $array[ $GLOBALS['post_id'] ] );
-
-				break;
-			}
-
 			$_rows = array( array( 'date', 'post_id', 'post_title', 'post_permalink', 'views' ) );
 
 			foreach ( $rows as $date => $day_rows ) {
