@@ -28,11 +28,16 @@ function _wpcom_fbia_stats_pixel( $content ) {
 		return $content;
 
 	$web_bug = '<img alt="" border="0" src="' . esc_url( http() . '://pixel.wp.com/b.gif?host=' . $_SERVER[ 'HTTP_HOST' ] . '&blog=' . $current_blog->blog_id . '&post=' . $post->ID . '&subd=' . str_replace( '.wordpress.com', '', $current_blog->domain ) . '&ref=&feed=1' ) . '" width="1" height="1" />';
+	$url = 'https://pixel.wp.com/b.gif?host=' . $_SERVER[ 'HTTP_HOST' ] . '&blog=' . $current_blog->blog_id . '&post=' . $post->ID . '&subd=' . str_replace( '.wordpress.com', '', $current_blog->domain ) . '&ref=&feed=1';
 
-	$fbia_pixel = sprintf(
-		'<figure class="op-tracker"><iframe>%s</iframe></figure>',
-		$web_bug
-	);
+	$fbia_pixel = '
+<figure class="op-tracker">
+	<iframe>
+		<script>
+			var x = new Image(); x.src = "' . esc_js( $url ) . '&rand=" +Math.random();
+		</script>
+	</iframe>
+</figure>';
 
 	return $content . $fbia_pixel;
 
