@@ -25,15 +25,18 @@ add_filter( 'es_field_map', 'travis_es_field_map' );
 
 if ( defined( 'ES_WP_QUERY_TEST_ENV' ) && ES_WP_QUERY_TEST_ENV ) {
 
-	function es_wp_query_index_test_data() {
+	function es_wp_query_verify_es_is_running( $tries = 5, $sleep = 3 ) {
 		// Make sure ES is running and responding
-		$tries = 5;
-		$sleep = 3;
 		do {
 			$response = wp_remote_get( 'http://localhost:9200/' );
 			if ( '200' == wp_remote_retrieve_response_code( $response ) ) {
-				// Looks good!
-				break;
+				$body = json_decode( wp_remote_retrieve_body( $response ), true );
+				if ( ! empty( $body['version']['number'] ) ) {
+					printf( "Elasticsearch is up and running, using version %s.\n", $body['version']['number'] );
+					break;
+				} else {
+					sleep( $sleep );
+				}
 			} else {
 				printf( "\nInvalid response from ES (%s), sleeping %d seconds and trying again...\n", wp_remote_retrieve_response_code( $response ), $sleep );
 				sleep( $sleep );
@@ -42,7 +45,9 @@ if ( defined( 'ES_WP_QUERY_TEST_ENV' ) && ES_WP_QUERY_TEST_ENV ) {
 
 		// If we didn't end with a 200 status code, exit
 		travis_es_verify_response_code( $response );
+	}
 
+	function es_wp_query_index_test_data() {
 		// Ensure the index is empty
 		wp_remote_request( 'http://localhost:9200/es-wp-query-unit-tests/', array( 'method' => 'DELETE' ) );
 
@@ -127,6 +132,7 @@ if ( defined( 'ES_WP_QUERY_TEST_ENV' ) && ES_WP_QUERY_TEST_ENV ) {
 										"properties": {
 											"name": { "type": "string", "index": "not_analyzed" },
 											"term_id": { "type": "long" },
+											"term_taxonomy_id": { "type": "long" },
 											"slug": { "type": "string", "index": "not_analyzed" }
 										}
 									}
@@ -292,8 +298,19 @@ if ( defined( 'ES_WP_QUERY_TEST_ENV' ) && ES_WP_QUERY_TEST_ENV ) {
 			if ( is_wp_error( $response ) ) {
 				printf( "Message: %s\n", $response->get_error_message() );
 			}
+			printf( "Backtrace: %s\n", travis_es_debug_backtrace_summary() );
 			exit( 1 );
 		}
+	}
+
+	function travis_es_debug_backtrace_summary() {
+		$backtrace = wp_debug_backtrace_summary( null, 0, false );
+		foreach ( $backtrace as $k => $call ) {
+			if ( preg_match( '/PHPUnit_(TextUI_(Command|TestRunner)|Framework_(TestSuite|TestCase|TestResult))|ReflectionMethod|travis_es_(verify_response_code|debug_backtrace_summary)/', $call ) ) {
+				unset( $backtrace[ $k ] );
+			}
+		}
+		return join( ', ', array_reverse( $backtrace ) );
 	}
 
 	/**
@@ -434,9 +451,10 @@ if ( defined( 'ES_WP_QUERY_TEST_ENV' ) && ES_WP_QUERY_TEST_ENV ) {
 			$terms = array();
 			foreach ( (array) $object_terms as $term ) {
 				$terms[ $term->taxonomy ][] = array(
-					'term_id' => $term->term_id,
-					'slug'    => $term->slug,
-					'name'    => $term->name,
+					'term_id'          => $term->term_id,
+					'term_taxonomy_id' => $term->term_taxonomy_id,
+					'slug'             => $term->slug,
+					'name'             => $term->name,
 				);
 			}
 
