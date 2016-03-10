@@ -31,3 +31,37 @@ function msm_sitemap_wpcom_queue_cache_invalidation( $sitemap_id, $year, $month,
 
 	queue_async_job( array( 'output_cache' => array( 'url' => $sitemap_urls ) ), 'wpcom_invalidate_output_cache_job', -16 );
 }
+
+//VIP: temporary hack for Google Bot's bug
+//Google Bot is crawling encoded URLs instead of unencoded ones
+add_action( 'parse_request', function( $query ) {
+	if ( true === apply_filters( 'wpcom_vip_redirect_encoded_urls', false ) //filter to turn this on/off
+		 && true === array_key_exists( 'sitemap', $query->query_vars )
+		 && 'true' === $query->query_vars['sitemap'] //checking string intentionally
+	) {
+
+		$args = array(
+			'yyyy' => $_GET['yyyy'],
+		);
+
+		if ( true === array_key_exists( 'amp;mm', $_GET ) ) {
+			$args['mm'] = $_GET['amp;mm'];
+		}
+
+		if ( true === array_key_exists( 'amp;dd', $_GET ) ) {
+			$args['dd'] = $_GET['amp;dd'];
+		}
+
+		if ( true === array_key_exists( 'mm', $args ) || true === array_key_exists( 'dd', $args ) ) {
+			
+			//sanitize query args
+			array_map( 'urlencode', $args );
+
+			$redirect_url = add_query_arg( $args, home_url( '/sitemap.xml' ) );
+			//301 redirect
+			wp_safe_redirect( esc_url_raw( $redirect_url ), 301 );
+			exit;
+		}
+	}
+} );
+
