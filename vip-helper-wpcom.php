@@ -755,17 +755,6 @@ function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
 function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = 'post', $post_stati = array( 'publish', 'draft', 'pending', 'private' ), $limit = 1 ) {
 	global $wpdb;
 
-	if ( strpos( $meta_value, 'http://hello' ) !== false ) {
-		$debug_info = array(
-				'meta_key'   => $meta_key,
-				'meta_value' => $meta_value,
-				'post_type'  => $post_type,
-				'post_stati' => $post_stati,
-				'limit'      => $limit,
-		);
-		wpcom_vip_debug( 'ione_crossposting', $debug_info );
-	}
-
 	if ( empty( $meta_key ) || empty( $meta_value ) || empty( $post_stati ) || !is_array( $post_stati ) || !post_type_exists( $post_type ) )
 		return new WP_Error( 'invalid_arguments', __( "At least one of the arguments of wpcom_uncached_get_post_by_meta is invalid" ) );
 		
@@ -799,11 +788,19 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 	if ( strpos( $meta_value, 'http://hello' ) !== false ) {
 		$debug_info = array(
 			'query' => $query,
+			'backtrace' => debug_backtrace(),
 		);
 		wpcom_vip_debug( 'ione_crossposting', $debug_info );
 	}
 	
 	$posts = $wpdb->get_results( $query, OBJECT );
+
+	if ( strpos( $meta_value, 'http://hello' ) !== false ) {
+		$debug_info = array(
+				'post_found' => $posts,
+		);
+		wpcom_vip_debug( 'ione_crossposting', $debug_info );
+	}
 
 	// send reads back to where they belong to
 	if ( true === $changed_srtm )
