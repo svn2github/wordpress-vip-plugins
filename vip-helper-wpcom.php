@@ -785,22 +785,7 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 					AND $wpdb->posts.post_type = %s AND $wpdb->posts.post_status IN ( " . $post_status_string . " ) LIMIT 0, %d", esc_sql( $meta_key ), esc_sql( $meta_value ), esc_sql( $post_type ), (int) $limit
 	);
 
-	if ( strpos( $meta_value, 'http://hello' ) !== false ) {
-		$debug_info = array(
-			'query' => $query,
-			'backtrace' => debug_backtrace(),
-		);
-		wpcom_vip_debug( 'ione_crossposting', $debug_info );
-	}
-	
 	$posts = $wpdb->get_results( $query, OBJECT );
-
-	if ( strpos( $meta_value, 'http://hello' ) !== false ) {
-		$debug_info = array(
-				'post_found' => $posts,
-		);
-		wpcom_vip_debug( 'ione_crossposting', $debug_info );
-	}
 
 	// send reads back to where they belong to
 	if ( true === $changed_srtm )
