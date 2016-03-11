@@ -784,6 +784,12 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 					AND $wpdb->postmeta.meta_value = %s
 					AND $wpdb->posts.post_type = %s AND $wpdb->posts.post_status IN ( " . $post_status_string . " ) LIMIT 0, %d", esc_sql( $meta_key ), esc_sql( $meta_value ), esc_sql( $post_type ), (int) $limit
 	);
+	if ( false !== strpos( $meta_key, 'http://hellobeautiful.com') ){
+		$debug_info = array(
+			'query' => $query,
+		);
+		wpcom_vip_debug( 'ione_crossposting', $debug_info );
+	}
 	
 	$posts = $wpdb->get_results( $query, OBJECT );
 
