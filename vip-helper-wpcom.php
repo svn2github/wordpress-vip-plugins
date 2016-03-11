@@ -755,16 +755,6 @@ function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
 function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = 'post', $post_stati = array( 'publish', 'draft', 'pending', 'private' ), $limit = 1 ) {
 	global $wpdb;
 
-	$debug_info = array(
-			'query' => $meta_key,
-			'meta_value' => $meta_value,
-			'post_type' => $post_type,
-			'post_stati' => $post_stati,
-			'limit' => $limit,
-	);
-	wpcom_vip_debug( 'ione_crossposting', $debug_info );
-
-
 	if ( empty( $meta_key ) || empty( $meta_value ) || empty( $post_stati ) || !is_array( $post_stati ) || !post_type_exists( $post_type ) )
 		return new WP_Error( 'invalid_arguments', __( "At least one of the arguments of wpcom_uncached_get_post_by_meta is invalid" ) );
 		
@@ -795,11 +785,12 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 					AND $wpdb->posts.post_type = %s AND $wpdb->posts.post_status IN ( " . $post_status_string . " ) LIMIT 0, %d", esc_sql( $meta_key ), esc_sql( $meta_value ), esc_sql( $post_type ), (int) $limit
 	);
 
-	$debug_info = array(
-		'query' => $query,
-	);
-	wpcom_vip_debug( 'ione_crossposting', $debug_info );
-
+	if ( strpos( $meta_value, 'http://hello' )) {
+		$debug_info = array(
+			'query' => $query,
+		);
+		wpcom_vip_debug( 'ione_crossposting', $debug_info );
+	}
 	
 	$posts = $wpdb->get_results( $query, OBJECT );
 
