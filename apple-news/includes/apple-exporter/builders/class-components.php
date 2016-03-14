@@ -232,6 +232,11 @@ class Components extends Builder {
 		$len = count( $components );
 
 		for ( $i = 0; $i < $len; $i++ ) {
+
+			if ( ! isset( $components[ $i ] ) ) {
+				continue;
+			}
+
 			$component = $components[ $i ];
 
 			if ( $component->is_anchor_target() || Component::ANCHOR_NONE == $component->get_anchor_position() ) {
