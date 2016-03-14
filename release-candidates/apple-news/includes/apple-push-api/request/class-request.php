@@ -220,6 +220,9 @@ class Request {
 		$bundles = array_unique( $bundles );
 		$content = '';
 
+		// Add custom meta for request.
+		$meta = apply_filters( 'apple_news_api_post_meta', $meta );
+
 		if ( $meta ) {
 			$content .= $this->mime_builder->add_metadata( $meta );
 		}
