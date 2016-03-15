@@ -1,8 +1,9 @@
 <?php
 
 /**
- * A Javascript date-picker which stores dates as unix timestamps.
- * @package Fieldmanager
+ * A Javascript date-picker which submits dates as unix timestamps.
+ *
+ * @package Fieldmanager_Field
  */
 class Fieldmanager_Datepicker extends Fieldmanager_Field {
 
@@ -59,7 +60,7 @@ class Fieldmanager_Datepicker extends Fieldmanager_Field {
 	 * Construct default attributes and enqueue javascript
 	 * @param array $options
 	 */
-	public function __construct( $label, $options = array() ) {
+	public function __construct( $label = '', $options = array() ) {
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 		fm_add_style( 'fm-jquery-ui', 'css/jquery-ui/jquery-ui-1.10.2.custom.min.css' );
 		fm_add_script( 'fm_datepicker', 'js/fieldmanager-datepicker.js', array( 'fieldmanager_script' ) );

@@ -1,8 +1,10 @@
 <?php
 
 /**
- * Base class for handling option fields, like checkboxes or radios
- * @package Fieldmanager
+ * Abstract base class for handling option fields, like select elements,
+ * checkboxes or radios.
+ *
+ * @package Fieldmanager_Field
  */
 abstract class Fieldmanager_Options extends Fieldmanager_Field {
 
@@ -55,6 +57,7 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 	 * @param mixed $options
 	 */
 	public function __construct( $label = '', $options = array() ) {
+		$this->sanitize = array( $this, 'sanitize' );
 		parent::__construct( $label, $options );
 
 		if ( !empty( $this->options ) ) {
@@ -63,15 +66,19 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 
 		// Add the options CSS
 		fm_add_style( 'fm_options_css', 'css/fieldmanager-options.css' );
+	}
 
-		// Sanitization
-		$this->sanitize = function( $value ) {
-			if ( isset( $value ) && is_array( $value ) && !empty( $value ) ) {
-				return array_map( 'sanitize_text_field', $value );
-			} else {
-				return sanitize_text_field( $value );
-			}
-		};
+	/**
+	 * Sanitize function that can handle arrays as well as string values.
+	 * @param array|string $value
+	 * @return array|string Sanitized $value
+	 */
+	public function sanitize( $value ) {
+		if ( isset( $value ) && is_array( $value ) && ! empty( $value ) ) {
+			return array_map( 'sanitize_text_field', $value );
+		} else {
+			return sanitize_text_field( $value );
+		}
 	}
 
 	/**
@@ -180,6 +187,21 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 	}
 
 	/**
+	 * Override presave_all to handle special cases associated with multiple options fields.
+	 * @input mixed[] $values
+	 * @return mixed[] sanitized values
+	 */
+	public function presave_all( $values, $current_values ) {
+		// Multiple select and radio fields with no values chosen are left out of
+		// the post request altogether, requiring special case handling.
+		if ( 1 !== $this->limit && '' === $values ) {
+			$values = null;
+		}
+
+		return parent::presave_all( $values, $current_values );
+	}
+
+	/**
 	 * Presave function, which handles sanitization and validation
 	 * @param mixed $value If a single field expects to manage an array, it must override presave()
 	 * @return sanitized values.
@@ -217,6 +239,11 @@ abstract class Fieldmanager_Options extends Fieldmanager_Field {
 	 */
 	public function presave_alter_values( $values, $current_values = array() ) {
 		if ( !empty( $this->datasource ) ) {
+			if ( ! empty( $this->datasource->only_save_to_taxonomy ) ) {
+				$this->skip_save = true;
+			} elseif ( ! empty( $this->datasource->only_save_to_post_parent ) ) {
+				$this->skip_save = true;
+			}
 			return $this->datasource->presave_alter_values( $this, $values, $current_values );
 		}
 		return $values;
