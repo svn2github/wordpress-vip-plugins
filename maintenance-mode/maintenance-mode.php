@@ -1,7 +1,11 @@
 <?php
 /**
  * Plugin Name: Maintenance Mode
+ * Plugin URI: https://vip.wordpress.com/plugins/maintenance-mode/
  * Description: Shut down your site for a little while and do some maintenance on it!
+ * Author: Automattic / WordPress.com VIP
+ * Author URI: https://vip.wordpress.com
+ * Version: 0.1.0
  * License: GPLv2
  *
  * Usage:
