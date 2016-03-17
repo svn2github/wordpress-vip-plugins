@@ -1,7 +1,11 @@
 <?php
 /**
  * Plugin Name: Editorize
+ * Plugin URI: https://vip.wordpress.com/plugins/editorize/
  * Description: Give non-editor users the ability to edit posts
+ * Author: Automattic / WordPress.com VIP
+ * Author URI: https://vip.wordpress.com
+ * Version: 0.1.0
  * License: GPLv2
  */
 if ( is_admin() ) {
