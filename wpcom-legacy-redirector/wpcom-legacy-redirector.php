@@ -1,7 +1,11 @@
 <?php
 /**
  * Plugin Name: WPCOM Legacy Redirector
+ * Plugin URI: https://vip.wordpress.com/plugins/wpcom-legacy-redirector/
  * Description: Simple plugin for handling legacy redirects in a scalable manner.
+ * Version: 1.0.0
+ * Author: Automattic / WordPress.com VIP
+ * Author URI: https://vip.wordpress.com
  *
  * This is a no-frills plugin (no UI, for example). Data entry needs to be bulk-loaded via the wp-cli commands provided or custom scripts.
  * 
