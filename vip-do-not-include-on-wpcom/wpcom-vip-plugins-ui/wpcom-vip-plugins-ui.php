@@ -141,6 +141,7 @@ class WPcom_VIP_Plugins_UI {
 			'internacional', // Not ready yet (ever?)
 			'wpcom-profiler', // Used internally to debug sites
 			'wpcom-legacy-redirector', // requires code-level changes
+			'maintenance-mode', // Doesn't work via UI - https://keepingtheirblogsgoing.wordpress.com/2016/03/15/maintenance-mode-should-be-removed-from-vip-dashboard/
 
 			// Premium
 			'new-device-notification',
