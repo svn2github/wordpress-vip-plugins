@@ -188,7 +188,11 @@ function wpcom_vip_get_page_by_path( $page_path, $output = OBJECT, $post_type = 
 	if ( $page_id === false ) {
 		$page = get_page_by_path( $page_path, $output, $post_type );
 		$page_id = $page ? $page->ID : 0;
-		wp_cache_set( $cache_key, $page_id, 'get_page_by_path' ); // We only store the ID to keep our footprint small
+		if ( $page_id ===0 ){
+			wp_cache_set( $cache_key, $page_id, 'get_page_by_path', 15 * MINUTE_IN_SECONDS ); // We only store the ID to keep our footprint small
+		}else{
+			wp_cache_set( $cache_key, $page_id, 'get_page_by_path', 12 * HOUR_IN_SECONDS ); // We only store the ID to keep our footprint small
+		}
 	}
 
 	if ( $page_id )
@@ -543,9 +547,9 @@ function wpcom_vip_attachment_url_to_postid( $url ){
 	if ( false === $id ){
 		$id = attachment_url_to_postid( $url );
 		if ( empty( $id ) ){
-			wp_cache_set( "wpcom_vip_attachment_url_post_id_". md5( $url ) , 'not_found', 'default', 1 * HOUR_IN_SECONDS );
+			wp_cache_set( "wpcom_vip_attachment_url_post_id_". md5( $url ) , 'not_found', 'default', 12 * HOUR_IN_SECONDS + mt_rand(0, 4 * HOUR_IN_SECONDS ) );
 		}else {
-			wp_cache_set( "wpcom_vip_attachment_url_post_id_". md5( $url ) , $id, 'default', 3 * HOUR_IN_SECONDS );
+			wp_cache_set( "wpcom_vip_attachment_url_post_id_". md5( $url ) , $id, 'default', 24 * HOUR_IN_SECONDS + mt_rand(0, 12 * HOUR_IN_SECONDS ) );
 		}
 	} else if( 'not_found' === $id ){
 		return false;
