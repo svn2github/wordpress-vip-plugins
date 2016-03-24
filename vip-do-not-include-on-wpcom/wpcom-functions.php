@@ -483,6 +483,33 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		}
 	endif; // function_exists( 'wpcom_search_api_wp_to_es_args' )
 
+	if ( ! function_exists( 'es_api_get_index_name_by_blog_id' ) ) :
+		function es_api_get_index_name_by_blog_id( $blog_id ) {
+			//We assume that the index name should match the site_url()
+			if ( $blog_id )	{
+				switch_to_blog( $blog_id );
+				$url = site_url();
+				restore_current_blog();
+			} else {
+				//assume it is the current blog_id
+				$url = site_url();
+			}
+		
+			if ( ! $url ) {
+				return new WP_Error( 'Not Found', 'No search index exists for this site', 404 );
+			}
+		
+			//clean up the url to work as an index name
+			$url = str_replace( 'http://', '', $url );
+			$url = str_replace( 'https://', '', $url );
+			$url = str_replace( '/', '-', $url ); //change paths to dashes
+			$url = str_replace( ':', '-', $url ); //change ports to dashes
+
+			//on .com we check for the existence of the index, but bypass that here
+			return $url;
+		}
+	endif; // function_exists( 'es_api_get_index_name_by_blog_id' )
+
 	if ( ! function_exists( 'wp_startswith' ) ) :
 		function wp_startswith( $haystack, $needle ) {
 			return 0 === strpos( $haystack, $needle );
