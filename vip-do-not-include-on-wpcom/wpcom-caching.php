@@ -591,3 +591,36 @@ function wpcom_vip_cache_full_comment_counts( $counts = false , $post_id = 0 ){
 function wpcom_vip_enable_cache_full_comment_counts(){
 	add_filter( 'wp_count_comments', 'wpcom_vip_cache_full_comment_counts', 10, 2 );
 }
+
+
+function wpcom_vip_enable_old_slug_redirect_caching(){
+	add_action('template_redirect', 'wpcom_vip_wp_old_slug_redirect', 8 );
+}
+
+function wpcom_vip_wp_old_slug_redirect(){
+	global $wp_query;
+	if ( is_404() && '' !== $wp_query->query_vars['name'] ) {
+
+		$redirect = wp_cache_get('old_slug'. $wp_query->query_vars['name']  );
+
+		if ( false === $redirect ){
+			add_filter('old_slug_redirect_url', 'wpcom_vip_set_old_slug_redirect_cache');
+		} elseif ( 'not_found' === $redirect ){
+			//wpcom_vip_set_old_slug_redirect_cache() will cache 'not_found' when a url is not found so we don't keep hammering the database
+			remove_action( 'template_redirect', 'wp_old_slug_redirect' );
+			return;
+		} else {
+			wp_redirect( $redirect, 301 ); //this is kept to not safe_redirect to match the functionality of wp_old_slug_redirect
+			exit;
+		}
+	}
+}
+function wpcom_vip_set_old_slug_redirect_cache( $link ){
+	global $wp_query;
+	if ( ! empty( $link ) ){
+		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], $link, 'default', 1 * DAY_IN_SECONDS );
+	} else {
+		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], 'not_found', 'default', 30 * MINUTE_IN_SECONDS ); //cache a value we'll check against if not found
+	}
+	return $link;
+}
