@@ -73,7 +73,7 @@ class WPCOM_elasticsearch {
 		if ( ! function_exists( 'es_api_search_index' ) )
 			return;
 
-		if ( function_exists( 'es_api_is_blog_indexed' ) && is_admin() && ! es_api_is_blog_indexed(  get_current_blog_id() ) ) {
+		if ( function_exists( 'es_api_get_index_name_by_blog_id' ) && is_admin() && is_wp_error( es_api_get_index_name_by_blog_id(  get_current_blog_id() ) ) ) {
 			add_action( 'admin_notices', array( $this, 'admin_notice_no_index' ) );
 			return;
 		}
@@ -314,8 +314,13 @@ class WPCOM_elasticsearch {
 		// This filter is harder to use if you're unfamiliar with ES but it allows complete control over the query
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
 
-		// Do the actual search query!
-		$this->search_result = es_api_search_index( $es_query_args, 'blog-search' );
+		$es_query_args['name'] = es_api_get_index_name_by_blog_id( $es_query_args['blog_id'] );
+		if ( is_wp_error( $es_query_args['name'] ) ) {
+			$this->search_result = $es_query_args['name'];
+		} else {
+			// Do the actual search query!
+			$this->search_result = es_api_search_index( $es_query_args, 'blog-search' );
+		}
 
 		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || empty( $this->search_result['results']['hits'] ) ) {
 			$this->found_posts = 0;
