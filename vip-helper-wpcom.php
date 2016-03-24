@@ -1020,8 +1020,7 @@ function wpcom_vip_enable_performance_tweaks(){
 	wpcom_vip_enable_cache_full_comment_counts(); //improves performance of all the wp-admin pages that load comment counts in the menu. This caches them for 30 minutes. It does not impact the per page comment count, only the total comment count that shows up in the admin menu.
 	remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10, 0); //This disables the adjacent_post links in the header that are almost never beneficial and are very slow to compute.
 }
-//This is what will be activating the tweaks by default later on.
-//add_action('after_setup_theme', 'wpcom_vip_enable_performance_tweaks');
+add_action('after_setup_theme', 'wpcom_vip_enable_performance_tweaks');
 
 
 

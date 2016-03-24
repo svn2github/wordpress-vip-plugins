@@ -109,12 +109,18 @@ class WPCOM_Legacy_Redirector {
 	static function get_redirect_uri( $url ) {
 		$url = urldecode( $url );
 		$url_hash = self::get_url_hash( $url );
+		$from_url = parse_url( $url, PHP_URL_PATH );
 
 		$redirect_post_id = wp_cache_get( $url_hash, self::CACHE_GROUP );
 
 		if ( false === $redirect_post_id ) {
 			$redirect_post_id = self::get_redirect_post_id( $url );
-			wp_cache_add( $url_hash, $redirect_post_id, self::CACHE_GROUP );
+			// If we don't find a post, cache a 0 for 15 minutes so we don't keep querying but also allow for new posts to be added to the redirector and be taken into account "shortly"
+			if ( $redirect_post_id === 0 ){
+				wp_cache_set( $url_hash, $redirect_post_id, self::CACHE_GROUP, 15 * MINUTE_IN_SECONDS );
+			}else{
+				wp_cache_set( $url_hash, $redirect_post_id, self::CACHE_GROUP );
+			}
 		}
 
 		if ( $redirect_post_id ) {
