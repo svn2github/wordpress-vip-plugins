@@ -775,7 +775,18 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 		$srtm_backup = $wpdb->srtm;
 		$wpdb->send_reads_to_masters();
 	}
-	
+	$debug_info = array(
+		"srtm"=> $wpdb->srtm,
+		"meta_key" => $meta_key,
+		"meta_value" => $meta_value,
+		"post_type" => $post_type,
+		'post_stati' => $post_stati,
+		"limit" => $limit,
+
+	);
+	if ( function_exists( 'wpcom_vip_debug' ) ){
+		wpcom_vip_debug('ione_crossposting', $debug_info);
+	}
 	// query all posts matching the post_type and meta key/value pair
 	$query = $wpdb->prepare( 
 					"SELECT $wpdb->posts.*  FROM $wpdb->posts, $wpdb->postmeta 
