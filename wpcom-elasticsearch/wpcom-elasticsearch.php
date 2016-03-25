@@ -474,9 +474,12 @@ class WPCOM_elasticsearch {
 
 		foreach( $domains as $domain ) {
 			$blog_id = (int) get_blog_id_from_url( $domain );
-
-			if ( $blog_id )
-				$this->additional_indices[] = array( 'blog_id' => $blog_id );
+			
+			if ( $blog_id ) {
+				$name = es_api_get_index_name_by_blog_id( $blog_id );
+				if ( !is_wp_error( $name ) )
+					$this->additional_indices[] = array( 'name' => $name );
+			}
 		}
 	}
 
