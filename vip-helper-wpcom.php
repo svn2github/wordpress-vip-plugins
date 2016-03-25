@@ -784,7 +784,8 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 		"limit" => $limit,
 
 	);
-	if ( function_exists( 'wpcom_vip_debug' ) ){
+
+	if ( function_exists( 'wpcom_vip_debug' ) &&  32316310 === get_current_blog_id() ){
 		wpcom_vip_debug('ione_crossposting', $debug_info);
 	}
 	// query all posts matching the post_type and meta key/value pair
