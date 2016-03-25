@@ -89,7 +89,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_rele
 
 		// global each new variable
 		foreach ( $new_variables as $new_variable => $devnull )
-			global $$new_variable;
+			global ${$new_variable};
 
 		// Set the values again on those new globals
 		extract( $new_variables );
