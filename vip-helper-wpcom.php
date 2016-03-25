@@ -777,7 +777,7 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 	}
 
 	// query all posts matching the post_type and meta key/value pair
-	$query = $wpdb->prepare( 
+	$query = $wpdb->prepare(
 					"SELECT $wpdb->posts.*  FROM $wpdb->posts, $wpdb->postmeta 
 					WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id 
 					AND $wpdb->postmeta.meta_key = %s 
@@ -1023,6 +1023,9 @@ function wpcom_vip_enable_performance_tweaks(){
 		wpcom_vip_enable_cache_full_comment_counts(); //improves performance of all the wp-admin pages that load comment counts in the menu. This caches them for 30 minutes. It does not impact the per page comment count, only the total comment count that shows up in the admin menu.
 	}
 	remove_action('wp_head', 'adjacent_posts_rel_link_wp_head', 10, 0); //This disables the adjacent_post links in the header that are almost never beneficial and are very slow to compute.
+	if ( function_exists( 'wpcom_vip_enable_old_slug_redirect_caching' ) ) {
+		wpcom_vip_enable_old_slug_redirect_caching();
+	}
 }
 add_action('after_setup_theme', 'wpcom_vip_enable_performance_tweaks');
 
