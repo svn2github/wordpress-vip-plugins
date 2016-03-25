@@ -605,6 +605,8 @@ function wpcom_vip_wp_old_slug_redirect(){
 
 		if ( false === $redirect ){
 			add_filter('old_slug_redirect_url', 'wpcom_vip_set_old_slug_redirect_cache');
+			//If an old slug is not found the function returns early and does not apply the old_slug_redirect_url filter. so we will set the cache for not found and if it is found it will be overwritten later in wpcom_vip_set_old_slug_redirect_cache()
+			wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], 'not_found', 'default', 4 * HOUR_IN_SECONDS );
 		} elseif ( 'not_found' === $redirect ){
 			//wpcom_vip_set_old_slug_redirect_cache() will cache 'not_found' when a url is not found so we don't keep hammering the database
 			remove_action( 'template_redirect', 'wp_old_slug_redirect' );
@@ -619,8 +621,6 @@ function wpcom_vip_set_old_slug_redirect_cache( $link ){
 	global $wp_query;
 	if ( ! empty( $link ) ){
 		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], $link, 'default', 7 * DAY_IN_SECONDS );
-	} else {
-		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], 'not_found', 'default', 4 * HOUR_IN_SECONDS ); //cache a value we'll check against if not found
 	}
 	return $link;
 }
