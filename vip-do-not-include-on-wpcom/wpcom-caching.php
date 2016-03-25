@@ -618,9 +618,9 @@ function wpcom_vip_wp_old_slug_redirect(){
 function wpcom_vip_set_old_slug_redirect_cache( $link ){
 	global $wp_query;
 	if ( ! empty( $link ) ){
-		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], $link, 'default', 1 * DAY_IN_SECONDS );
+		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], $link, 'default', 7 * DAY_IN_SECONDS );
 	} else {
-		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], 'not_found', 'default', 30 * MINUTE_IN_SECONDS ); //cache a value we'll check against if not found
+		wp_cache_set( 'old_slug'. $wp_query->query_vars['name'], 'not_found', 'default', 4 * HOUR_IN_SECONDS ); //cache a value we'll check against if not found
 	}
 	return $link;
 }
