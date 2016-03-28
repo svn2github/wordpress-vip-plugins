@@ -29,7 +29,7 @@ class JanrainCaptureUi {
 	function head() {
 		$this->widget_js();
 		// are we on the edit page?
-		if ( strstr( $this->current_page_url(), JanrainCapture::get_option( JanrainCapture::$name . '_widget_edit_page' ) ) === false ) {
+		if ( ! empty( JanrainCapture::get_option( JanrainCapture::$name . '_widget_edit_page' ) ) && strstr( $this->current_page_url(), JanrainCapture::get_option( JanrainCapture::$name . '_widget_edit_page' ) ) === false ) {
 			add_action( 'wp_footer', array( $this, 'sign_in_screen' ) );
 			$this->sign_in_screen_js();
 		} else {
