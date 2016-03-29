@@ -26,7 +26,7 @@ if($display_template) {
             if(typeof chatWidget !== "undefined") {
                 var livechatListeners = Livefyre.LFAPPS.getAppEventListeners('livechat');
                 if(livechatListeners.length > 0) {
-                    for(var i=0; i<livechatListeners; i++)) {
+                    for(var i=0; i<livechatListeners; i++) {
                         var livechatListener = livechatListeners[i];
                         chatWidget.on(livechatListener.eventName, livechatListener.callback);
                     }
