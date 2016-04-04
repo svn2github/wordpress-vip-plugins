@@ -99,8 +99,10 @@ class FORMATEGORY {
 			}
 		}
 
-		$post_terms = wp_list_pluck( get_the_terms( $post->ID, 'category' ), 'term_id' );
-		
+		$found_terms = get_the_terms( $post->ID, 'category' );
+		if ( ! empty( $found_terms) ){
+			$post_terms = wp_list_pluck( $found_terms, 'term_id' );
+		}
 		if ( ! empty( $post_terms ) ) {
 			$templates_applied = array();
 			
