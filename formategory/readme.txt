@@ -1,9 +1,9 @@
 === Formategory ===
 Contributors: cfinke
 Tags: category, template, customization
-Requires at least: 3.2
-Tested up to: 3.4.2
-Stable tag: 2.0
+Requires at least: 3.6
+Tested up to: 4.0
+Stable tag: 3.1
 
 Formats posts based on their category.
 
