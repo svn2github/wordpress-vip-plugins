@@ -351,6 +351,7 @@ function fm_calculate_context() {
 				}
 				break;
 			// Context = "term".
+			case 'term.php': // VIP: Adding WordPress 4.5 single term editing support
 			case 'edit-tags.php':
 				if ( !empty( $_POST['taxonomy'] ) ) {
 					$calculated_context = array( 'term', sanitize_text_field( $_POST['taxonomy'] ) );
