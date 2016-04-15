@@ -1155,8 +1155,12 @@ class Zoninator
 		} else {
 			return false;
 		}
-		
-		$zone = get_term_by( $field, $zone, $this->zone_taxonomy );
+		if ( function_exists( 'wpcom_vip_get_term_by' ) ) {
+			$zone = wpcom_vip_get_term_by( $field, $zone, $this->zone_taxonomy );
+		}else{
+			$zone = get_term_by( $field, $zone, $this->zone_taxonomy );
+		}
+
 		
 		if( ! $zone )
 			return false;
