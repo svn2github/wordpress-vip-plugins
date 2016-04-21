@@ -48,6 +48,7 @@ class Admin_Apple_Settings_Section_Post_Types extends Admin_Apple_Settings_Secti
 				'label'   => __( 'Post Types', 'apple-news' ),
 				'type'    => $post_type_options,
 				'multiple' => true,
+				'sanitize'	=> array( $this, 'sanitize_array' ),
 			);
 		}
 
@@ -55,7 +56,6 @@ class Admin_Apple_Settings_Section_Post_Types extends Admin_Apple_Settings_Secti
 		$this->groups = array(
 			'post_type_settings' => array(
 				'label'       => __( 'Post Types', 'apple-news' ),
-				'description' => __( 'Choose the post types that are eligible for publishing to Apple News.', 'apple-news' ),
 				'settings'    => array( 'post_types', 'show_metabox' ),
 			),
 		);
@@ -70,12 +70,7 @@ class Admin_Apple_Settings_Section_Post_Types extends Admin_Apple_Settings_Secti
 	 * @access public
 	 */
 	public function get_section_info() {
-		return sprintf(
-			'%s <a target="_blank" href="https://developer.apple.com/news-publisher/">%s</a> %s.',
-			__( 'Enter your Apple News credentials below. See', 'apple-news' ),
-			__( 'the Apple News documentation', 'apple-news' ),
-			__( 'for detailed information', 'apple-news' )
-		);
+		return __( 'Choose the post types that are eligible for publishing to Apple News.', 'apple-news' );
 	}
 
 }

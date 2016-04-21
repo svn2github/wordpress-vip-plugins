@@ -12,7 +12,7 @@
  * Plugin Name: Publish to Apple News
  * Plugin URI:  http://github.com/alleyinteractive/apple-news
  * Description: Export and sync posts to Apple format.
- * Version:     1.0.5
+ * Version:     1.0.8
  * Author:      Beezwax, Alley Interactive
  * Author URI:  http://beezwax.net, http://alleyinteractive.com
  * Text Domain: apple-news
@@ -39,7 +39,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/apple-exporter/class-settings.ph
 /**
  * Deactivate the plugin.
  */
-function apple_news_deactivate_wp_plugin() {
+function apple_news_uninstall_wp_plugin() {
 	// Do something
 	$settings = new Apple_Exporter\Settings;
 	foreach ( $settings->all() as $name => $value ) {
@@ -50,7 +50,7 @@ function apple_news_deactivate_wp_plugin() {
 // WordPress VIP plugins do not execute these hooks, so ignore in that environment.
 if ( ! defined( 'WPCOM_IS_VIP_ENV' ) || ! WPCOM_IS_VIP_ENV ) {
 	register_activation_hook( __FILE__,   'apple_news_activate_wp_plugin' );
-	register_deactivation_hook( __FILE__, 'apple_news_deactivate_wp_plugin' );
+	register_uninstall_hook( __FILE__, 'apple_news_uninstall_wp_plugin' );
 }
 
 // Initialize plugin class
@@ -76,6 +76,9 @@ add_action( 'plugins_loaded', 'apple_news_load_textdomain' );
  * @since 1.0.4
  */
 function apple_news_get_plugin_data() {
+	if ( ! function_exists( 'get_plugin_data' ) ) {
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+	}
 	return get_plugin_data( plugin_dir_path( __FILE__ ) . '/apple-news.php' );
 }
 

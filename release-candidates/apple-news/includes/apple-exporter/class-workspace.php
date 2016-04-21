@@ -30,6 +30,14 @@ class Workspace {
 	const BUNDLE_META_KEY = 'apple_news_api_bundle';
 
 	/**
+	 * Meta key used to store errors encountered with the post.
+	 *
+	 * @var string
+	 * @since 0.9.0
+	 */
+	const ERRORS_META_KEY = 'apple_news_api_errors';
+
+	/**
 	 * Current ID of the content we are constructing a workspace for.
 	 *
 	 * @var int
@@ -57,6 +65,7 @@ class Workspace {
 		do_action( 'apple_news_before_clean_up' );
 		delete_post_meta( $this->content_id, self::JSON_META_KEY );
 		delete_post_meta( $this->content_id, self::BUNDLE_META_KEY );
+		delete_post_meta( $this->content_id, self::ERRORS_META_KEY );
 		do_action( 'apple_news_after_clean_up' );
 	}
 
@@ -114,5 +123,43 @@ class Workspace {
 	 */
 	public function get_bundles() {
 		return apply_filters( 'apple_news_get_bundles', get_post_meta( $this->content_id, self::BUNDLE_META_KEY ), $this->content_id );
+	}
+
+	/**
+	 * Logs errors encountered during publishing.
+	 *
+	 * @param string $key
+	 * @param string $value
+	 * @since 1.0.6
+	 */
+	public function log_error( $key, $value ) {
+		// Get current errors
+		$errors = get_post_meta( $this->content_id, self::ERRORS_META_KEY, true );
+
+		// Initialize if needed
+		if ( empty( $errors ) ) {
+			$errors = array();
+		}
+
+		// Initialize the key if needed
+		if ( empty( $errors[ $key ] ) ) {
+			$errors[ $key ] = array();
+		}
+
+		// Log the error
+		$errors[ $key ][] = $value;
+
+		// Save the errors
+		update_post_meta( $this->content_id, self::ERRORS_META_KEY, $errors );
+	}
+
+	/**
+	 * Gets errors encountered during publishing.
+	 *
+	 * @return array
+	 * @since 1.0.6
+	 */
+	public function get_errors() {
+		return apply_filters( 'apple_news_get_errors', get_post_meta( $this->content_id, self::ERRORS_META_KEY ), $this->content_id );
 	}
 }

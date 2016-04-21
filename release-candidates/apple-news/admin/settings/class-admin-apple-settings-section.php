@@ -1,5 +1,7 @@
 <?php
 
+use Apple_Exporter\Settings as Settings;
+
 /**
  * Describes a WordPress setting section
  *
@@ -400,6 +402,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 		$this->settings         = apply_filters( 'apple_news_section_settings', $this->settings, $page );
 		$this->groups           = apply_filters( 'apple_news_section_groups', $this->groups, $page );
 		self::$fonts            = apply_filters( 'apple_news_fonts_list', self::$fonts );
+
+		// Save settings if necessary
+		$this->save_settings();
 	}
 
 	/**
@@ -426,6 +431,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 			foreach ( $info['settings'] as $name ) {
 				$settings[ $name ] = $this->settings[ $name ];
 				$settings[ $name ]['default'] = $this->get_default_for( $name );
+				$settings[ $name ]['callback'] = ( ! empty( $this->settings[ $name ]['callback'] ) ) ? $this->settings[ $name ]['callback'] : '';
 			}
 
 			$result[ $name ] = array(
@@ -449,45 +455,23 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	}
 
 	/**
-	 * Register the settings section.
-	 *
-	 * @access public
-	 */
-	public function register() {
-		add_settings_section(
-			$this->id(),
-			$this->name,
-			array( $this, 'print_section_info' ),
-			$this->page
-	 	);
-
-		foreach ( $this->settings as $name => $options ) {
-			// Register setting
-			$callback = ( isset( $options['sanitize'] ) && function_exists( $options['sanitize'] ) ) ? $options['sanitize'] : '';
-			register_setting( $this->page, $name, $callback );
-
-			// Add to settings section
-			add_settings_field(
-				$name,                                          // ID
-				$options['label'],                              // Title
-				array( $this, 'render_field' ),                 // Render calback
-				$this->page,                                    // Page
-				$this->id(),                                    // Section
-				array( $name, $this->get_default_for( $name ) ) // Args passed to the render callback
-		 	);
-		}
-	}
-
-	/**
 	 * Render a settings field.
 	 *
 	 * @param array $args
 	 * @access public
 	 */
 	public function render_field( $args ) {
-		list( $name, $default_value ) = $args;
+		list( $name, $default_value, $callback ) = $args;
+
+		// If the field has it's own render callback, use that here.
+		// This is because the options page doesn't actually use do_settings_section.
+		if ( ! empty( $callback ) ) {
+			return call_user_func( $callback );
+		}
+
 		$type  = $this->get_type_for( $name );
-		$value = get_option( $name ) ?: $default_value;
+		$settings = get_option( self::$option_name );
+		$value = self::get_value( $name, $settings ) ?: $default_value;
 		$field = null;
 
 		// Get the field size
@@ -572,13 +556,22 @@ class Admin_Apple_Settings_Section extends Apple_News {
 			$field .= apply_filters( 'apple_news_field_description_output_html', '<br/><i>' . $description . '</i>', $name );
 		}
 
+		// Use the proper template to build the field
+		if ( is_array( $type ) || 'font' === $type || 'boolean' === $type ) {
+			return sprintf(
+				$field,
+				esc_attr( $name )
+			);
+		} else {
 		return sprintf(
 			$field,
 			esc_attr( $name ),
 			esc_attr( $value ),
 			intval( $size ),
-			$this->is_required( $name )
+				esc_attr( $this->is_required( $name ) )
 		);
+
+		}
 	}
 
 	/**
@@ -586,9 +579,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 *
 	 * @param string $name
 	 * @return string
-	 * @access private
+	 * @access protected
 	 */
-	private function get_type_for( $name ) {
+	protected function get_type_for( $name ) {
 		return empty( $this->settings[ $name ]['type'] ) ? 'string' : $this->settings[ $name ]['type'];
 	}
 
@@ -597,9 +590,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 *
 	 * @param string $name
 	 * @return string
-	 * @access private
+	 * @access protected
 	 */
-	private function get_description_for( $name ) {
+	protected function get_description_for( $name ) {
 		return empty( $this->settings[ $name ]['description'] ) ? '' : $this->settings[ $name ]['description'];
 	}
 
@@ -608,9 +601,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 *
 	 * @param string $name
 	 * @return int
-	 * @access private
+	 * @access protected
 	 */
-	private function get_size_for( $name ) {
+	protected function get_size_for( $name ) {
 		return empty( $this->settings[ $name ]['size'] ) ? 20 : $this->settings[ $name ]['size'];
 	}
 
@@ -619,9 +612,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 *
 	 * @param string $name
 	 * @return int
-	 * @access private
+	 * @access protected
 	 */
-	private function is_required( $name ) {
+	protected function is_required( $name ) {
 		$required = ! isset( $this->settings[ $name ]['required'] ) ? true : $this->settings[ $name ]['required'];
 		return ( $required ) ? 'required' : '';
 	}
@@ -631,9 +624,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 *
 	 * @param string $name
 	 * @return boolean
-	 * @access private
+	 * @access protected
 	 */
-	private function is_multiple( $name ) {
+	protected function is_multiple( $name ) {
 		return ! empty( $this->settings[ $name ]['multiple'] );
 	}
 
@@ -642,9 +635,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 *
 	 * @param string $name
 	 * @return string
-	 * @access private
+	 * @access protected
 	 */
-	private function get_default_for( $name ) {
+	protected function get_default_for( $name ) {
 		return isset( $this->base_settings[ $name ] ) ? $this->base_settings[ $name ] : '';
 	}
 
@@ -656,6 +649,71 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 */
 	public function get_section_info() {
 		return '';
+	}
+
+	/**
+	 * Sanitizes a single dimension array with text values.
+	 *
+	 * @param array $value
+	 * @return array
+	 */
+	public function sanitize_array( $value ) {
+		return array_map( 'sanitize_text_field', $value );
+	}
+
+	/**
+	 * Get the current value for an option.
+	 *
+	 * @param string $key
+	 * @param array $saved_settings
+	 * @return mixed
+	 * @static
+	 */
+	public static function get_value( $key, $saved_settings = null ) {
+		if ( empty( $saved_settings ) ) {
+			$saved_settings = get_option( self::$option_name );
+		}
+		return ( ! empty( $saved_settings[ $key ] ) ) ? $saved_settings[ $key ] : '';
+	}
+
+	/**
+	 * Each section is responsible for saving its own settings
+	 * since only it knows the nature of the fields and sanitization methods.
+	 */
+	public function save_settings() {
+		// Check if we're saving options and that there are settings to svae
+		if ( empty( $_POST['action'] )
+			|| 'apple_news_options' !== $_POST['action']
+			|| empty( $this->settings ) ) {
+			return;
+		}
+
+		// Form nonce check
+		check_admin_referer( 'apple_news_options', 'apple_news_options' );
+
+		// Get the current Apple News settings
+		$settings = get_option( self::$option_name, array() );
+
+		// Iterate over the settings and save each value.
+		// Settings can't be empty unless allowed, so if no value is found
+		// use the default value to be safe.
+		$default_settings = new Settings();
+		foreach ( $this->settings as $key => $attributes ) {
+			if ( ! empty( $_POST[ $key ] ) ) {
+				// Sanitize the value
+				$sanitize = ( empty( $attributes['sanitize'] ) || ! is_callable( $attributes['sanitize'] ) ) ? 'sanitize_text_field' : $attributes['sanitize'];
+				$value = call_user_func( $sanitize, $_POST[ $key ] );
+			} else {
+				// Use the default value
+				$value = $default_settings->get( $key );
+			}
+
+			// Add to the array
+			$settings[ $key ] = $value;
+		}
+
+		// Save to options
+		update_option( self::$option_name, $settings, 'no' );
 	}
 
 }

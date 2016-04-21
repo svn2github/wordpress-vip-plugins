@@ -14,6 +14,14 @@ installing other WordPress plugins. Simply perform these steps:
 Once activated, the "Apple News" menu should appear in your WordPress Admin
 panel.
 
+IMPORTANT NOTE: Apple News format requires that all images are bundled with the content
+when pushed to the API. It is required that web your host enable `allow_url_fopen` in your
+PHP configuration in order for this to function properly. Please ensure this is enabled
+and supported by your web host before reporting any issues with image errors from the
+plugin or API.
+
+[Please read this for more information.](http://php.net/manual/en/filesystem.configuration.php#ini.allow-url-fopen)
+
 ###Troubleshooting: Resolving Potential Permissions Issues
 
 In most cases, the Publish to Apple News plugin should function immediately once
@@ -193,6 +201,10 @@ image. To do this, in the WordPress text editor, click on an image, which will
 display a contextual alignment menu. This will provide you with a series of
 simple granular controls, allowing you to determine more precisely where each
 image will be displayed when your post appears in Apple News.
+
+The featured image on your post will automatically be used as the Apple News cover
+image. If no featured image is found, the first available image in the post will be used
+as the cover and will be automatically removed from the body in order to avoid duplication.
 
 Note that images smaller than the body width (~1024px) will always be aligned.
 If you want to display an image without alignment, make sure it’s big enough.

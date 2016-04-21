@@ -25,12 +25,20 @@ class Apple_News {
 	protected $plugin_domain = 'apple-news';
 
 	/**
+	 * Option name for settings.
+	 *
+	 * @var string
+	 * @access public
+	 */
+	public static $option_name = 'apple_news_settings';
+
+	/**
 	 * Plugin version.
 	 *
 	 * @var string
 	 * @access protected
 	 */
-	protected $version = '1.0.5';
+	protected $version = '1.0.8';
 
 	/**
 	 * Extracts the filename for bundling an asset.
@@ -52,5 +60,30 @@ class Apple_News {
 
 		// Remove any spaces and return the filename
 		return str_replace( ' ', '', $filename );
+	}
+
+	/**
+	 * Attempt to migrate settings from an older version of this plugin
+	 *
+	 * @param Settings $settings
+	 */
+	public function migrate_settings( $settings ) {
+		$migrated_settings = array();
+
+		// For each potential value, see if the WordPress option exists.
+		// If so, migrate its value into the new array format.
+		// If it doesn't exist, just use the default value.
+		foreach ( $settings->all() as $key => $default ) {
+			$value = get_option( $key, $default );
+			$migrated_settings[ $key ] = $value;
+		}
+
+		// Store these settings
+		update_option( self::$option_name, $migrated_settings, 'no' );
+
+		// Delete the options to clean up
+		array_map( 'delete_option', array_keys( $migrated_settings ) );
+
+		return $migrated_settings;
 	}
 }

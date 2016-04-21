@@ -28,12 +28,26 @@ class Metadata extends Builder {
 			$meta['thumbnailURL'] = $thumb_url;
 		}
 
+		// Add date fields.
+		// We need to get the WordPress post for this
+		// since the date functions are inconsistent.
+		$post = get_post( $this->content_id() );
+		if ( ! empty( $post ) ) {
+			$post_date = date( 'c', strtotime( $post->post_date ) );
+			$post_modified = date( 'c', strtotime( $post->post_modified ) );
+
+			$meta['dateCreated'] = $post_date;
+			$meta['dateModified'] = $post_modified;
+			$meta['datePublished'] = $post_date;
+		}
+
 		// Add canonical URL.
 		$meta['canonicalURL'] = get_permalink( $this->content_id() );
 
 		// Add plugin information to the generator metadata
 		$plugin_data = apple_news_get_plugin_data();
 
+		// Add generator information
 		$meta['generatorIdentifier'] = sanitize_title_with_dashes( $plugin_data['Name'] );
 		$meta['generatorName'] = $plugin_data['Name'];
 		$meta['generatorVersion'] = $plugin_data['Version'];
