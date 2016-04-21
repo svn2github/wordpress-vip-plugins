@@ -1,6 +1,8 @@
 <?php
 namespace Apple_Push_API;
 
+use Apple_Push_API\Request\Request_Exception as Request_Exception;
+
 class MIME_Builder {
 
 	/**
@@ -76,7 +78,13 @@ class MIME_Builder {
 	 * @access public
 	 */
 	public function add_json_string( $name, $filename, $content ) {
-		return $this->build_attachment( $name, $filename, $content, 'application/json' );
+		return $this->build_attachment(
+			$name,
+			$filename,
+			$content,
+			'application/json',
+			strlen( $content )
+		);
 	}
 
 	/**
@@ -88,11 +96,26 @@ class MIME_Builder {
 	 * @access public
 	 */
 	public function add_content_from_file( $filepath, $name = 'a_file' ) {
-		$filename     = \Apple_News::get_filename( $filepath );
-		$file_content = file_get_contents( $filepath );
-		$file_mime    = $this->get_mime_type_for( $filepath );
+		// Get the file size
+		$size = 0;
+		if ( filter_var( $filepath, FILTER_VALIDATE_URL ) ) {
+			$headers = get_headers( $filepath );
+			foreach ( $headers as $header ) {
+				if ( preg_match( '/Content-Length: ([0-9]+)/i', $header, $matches ) ) {
+					$size = intval( $matches[1] );
+				}
+			}
+		} else {
+			$size = filesize( $filepath );
+		}
 
-		return $this->build_attachment( $name, $filename, $file_content, $file_mime );
+		return $this->build_attachment(
+			$name,
+			\Apple_News::get_filename( $filepath ),
+			file_get_contents( $filepath ),
+			$this->get_mime_type_for( $filepath ),
+			$size
+		);
 	}
 
 	/**
@@ -112,12 +135,30 @@ class MIME_Builder {
 	 * @param string $filename
 	 * @param string $content
 	 * @param string $mime_type
+	 * @param int $size
 	 * @return string
 	 * @access private
 	 */
-	private function build_attachment( $name, $filename, $content, $mime_type ) {
+	private function build_attachment( $name, $filename, $content, $mime_type, $size ) {
+		// Ensure the file isn't empty
+		if ( empty( $content ) ) {
+			throw new Request_Exception( sprintf(
+				__( 'The attachment %s could not be included in the request because it was empty.', 'apple-news' ),
+				esc_html( $filename )
+			) );
+		}
+
+		// Ensure a valid size was provided
+		if ( 0 >= intval( $size ) ) {
+			throw new Request_Exception( sprintf(
+				__( 'The attachment %s could not be included in the request because its size was %s.', 'apple-news' ),
+				esc_html( $filename ),
+				esc_html( $size )
+			) );
+		}
+
+		// Build the attachment
 		$eol  = "\r\n";
-		$size = strlen( $content );
 
 		$attachment  = '--' . $this->boundary . $eol;
 		$attachment .= 'Content-Type: ' . $mime_type . $eol;

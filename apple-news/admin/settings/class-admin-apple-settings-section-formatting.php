@@ -138,8 +138,22 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 				'type'    => array( 'gallery', 'mosaic' ),
 			),
 			'enable_advertisement' => array(
-				'label'   => __( 'Enable advertisement', 'apple-news' ),
+				'label'   => __( 'Enable advertisements', 'apple-news' ),
 				'type'    => array( 'yes', 'no' ),
+			),
+			'ad_frequency' => array(
+				'label'   		=> __( 'Ad Frequency', 'apple-news' ),
+				'type'    		=> 'integer',
+				'description'	=> __( 'A number between 1 and 10 defining the frequency for automatically inserting Banner Advertisement components into articles. For more information, see the <a href="https://developer.apple.com/library/ios/documentation/General/Conceptual/Apple_News_Format_Ref/AdvertisingSettings.html#//apple_ref/doc/uid/TP40015408-CH93-SW1" target="_blank">Apple News Format Reference</a>.', 'apple-news' ),
+			),
+			'ad_margin' => array(
+				'label'   => __( 'Ad Margin', 'apple-news' ),
+				'type'    => 'integer',
+				'description'	=> __( 'The margin to use above and below inserted ads.', 'apple-news' ),
+			),
+			'meta_component_order' => array(
+				'callback'	=> array( get_class( $this ), 'render_meta_component_order' ),
+				'sanitize' 	=> array( $this, 'sanitize_array' ),
 			),
 		);
 
@@ -185,7 +199,11 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 			),
 			'advertisement' => array(
 				'label'       => __( 'Advertisement', 'apple-news' ),
-				'settings'    => array( 'enable_advertisement' ),
+				'settings'    => array( 'enable_advertisement', 'ad_frequency', 'ad_margin' ),
+			),
+			'component_order' => array(
+				'label'       => __( 'Component Order', 'apple-news' ),
+				'settings'    => array( 'meta_component_order' ),
 			),
 		);
 
@@ -199,7 +217,34 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 	 * @access public
 	 */
 	public function get_section_info() {
-		return __( 'Configuration on the look and feel of the generated articles', 'apple-news' );
+		return __( 'Configuration for the visual appearance of the generated articles', 'apple-news' );
+	}
+
+	/**
+	 * Renders the component order field.
+	 *
+	 * @static
+	 * @access public
+	 */
+	public static function render_meta_component_order() {
+		?>
+		<ul id="meta-component-order-sort" class="component-order ui-sortable">
+			<?php
+				// Get the current order
+				$component_order = self::get_value( 'meta_component_order' ) ?: array( 'title', 'cover', 'byline' );
+				if ( ! empty( $component_order ) && is_array( $component_order ) ) {
+					foreach ( $component_order as $component_name ) {
+						echo sprintf(
+							'<li id="%s" class="ui-sortable-handle">%s</li>',
+							esc_attr( $component_name ),
+							esc_html( ucwords( $component_name ) )
+						);
+					}
+				}
+			?>
+		</ul>
+		<p class="description"><?php esc_html_e( 'Drag to set the order of the meta components at the top of the article. These include the title, the cover (i.e. featured image) and byline which also includes the date.', 'apple-news' ) ?></p>
+		<?php
 	}
 
 }

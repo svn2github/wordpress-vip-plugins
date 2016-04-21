@@ -41,6 +41,11 @@ class Admin_Apple_Settings_Section_Advanced extends Admin_Apple_Settings_Section
 				'type'    => 'float',
 				'sanitize' => 'floatval',
 			),
+			'component_alerts' => array(
+				'label'   => __( 'Component Alerts', 'apple-news' ),
+				'type'    => array( 'none', 'warn', 'fail' ),
+				'description' => __( 'If a post has a component that is unsupported by Apple News, choose "none" to generate no alert, "warn" to provide an admin warning notice, or "fail" to generate a notice and stop publishing.', 'apple-news' ),
+			),
 		);
 
 		// Add the groups
@@ -48,6 +53,10 @@ class Admin_Apple_Settings_Section_Advanced extends Admin_Apple_Settings_Section
 			'line_heights' => array(
 				'label'       => __( 'Line Heights', 'apple-news' ),
 				'settings'    => array( 'body_line_height', 'pullquote_line_height', 'header_line_height' ),
+			),
+			'alerts' => array(
+				'label'       => __( 'Alerts', 'apple-news' ),
+				'settings'    => array( 'component_alerts' ),
 			),
 		);
 

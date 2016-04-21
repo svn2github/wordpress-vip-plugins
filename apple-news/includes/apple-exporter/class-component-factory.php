@@ -164,13 +164,20 @@ class Component_Factory {
 		// Nothing found. Maybe it's a container element?
 		if ( $node->hasChildNodes() ) {
 			foreach ( $node->childNodes as $child ) {
-				$result = array_merge( $result, self::get_components_from_node( $child ) );
+				$result = array_merge( $result, self::get_components_from_node( $child, $node ) );
 			}
 			// Remove all nulls from the array
 			$result = array_filter( $result );
 		}
 
-		// Nothing was found, return null.
+		// If nothing was found, log this as a component error by recording the node name.
+		// Only record components with a tagName since otherwise there is nothing to report.
+		// Others nodes without a match are almost always just stray empty text nodes
+		// that are always safe to remove. Paragraphs should also be ignored for this reason.
+		if ( empty( $result ) && ( ! empty( $node->tagName ) && 'p' !== $node->tagName ) ) {
+			self::$workspace->log_error( 'component_errors', $node->tagName );
+		}
+
 		return $result;
 	}
 

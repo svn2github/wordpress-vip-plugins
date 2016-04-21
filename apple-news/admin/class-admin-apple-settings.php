@@ -68,7 +68,7 @@ class Admin_Apple_Settings extends Apple_News {
 		$this->sections = array();
 		$this->page_name = $this->plugin_domain . '-options';
 
-		add_action( 'admin_init', array( $this, 'register_sections' ) );
+		add_action( 'admin_init', array( $this, 'register_sections' ), 5 );
 		add_action( 'admin_menu', array( $this, 'setup_options_page' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'register_assets' ) );
 	}
@@ -105,9 +105,6 @@ class Admin_Apple_Settings extends Apple_News {
 	public function register_sections() {
 		$this->add_sections();
 		$this->sections = apply_filters( 'apple_news_settings_sections', $this->sections );
-		foreach ( $this->sections as $section ) {
-			$section->register();
-		}
 	}
 
 	/**
@@ -158,7 +155,7 @@ class Admin_Apple_Settings extends Apple_News {
 		wp_enqueue_script( 'apple-news-select2-js', plugin_dir_url( __FILE__ ) .
 			'../vendor/select2/select2.full.min.js', array( 'jquery' ) );
 		wp_enqueue_script( 'apple-news-settings-js', plugin_dir_url( __FILE__ ) .
-			'../assets/js/settings.js', array( 'jquery', 'apple-news-select2-js' )
+			'../assets/js/settings.js', array( 'jquery', 'jquery-ui-draggable', 'jquery-ui-sortable', 'apple-news-select2-js' )
 		);
 	}
 
@@ -169,11 +166,18 @@ class Admin_Apple_Settings extends Apple_News {
 	public function fetch_settings() {
 		if ( is_null( $this->loaded_settings ) ) {
 			$settings = new Settings();
-			foreach ( $settings->all() as $key => $value ) {
-				$wp_value = get_option( $key );
-				if ( empty( $wp_value ) ) {
-					$wp_value = $value;
+			$wp_settings = get_option( self::$option_name );
+
+			// If this option doesn't exist, either the site has never installed this plugin
+			// or they may be using an old version with individual options.
+			// To be safe, attempt to migrate values.
+			// This will happen only once.
+			if ( false === $wp_settings ) {
+				$wp_settings = $this->migrate_settings( $settings );
 				}
+
+			foreach ( $settings->all() as $key => $value ) {
+				$wp_value = ( empty( $wp_settings[ $key ] ) ) ? $value : $wp_settings[ $key ];
 				$settings->set( $key, $wp_value );
 			}
 			$this->loaded_settings = $settings;

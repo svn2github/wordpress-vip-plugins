@@ -26,17 +26,17 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 
 		// Add the settings
 		$this->settings = array(
+			'api_channel' => array(
+				'label'   => __( 'Channel ID', 'apple-news' ),
+				'type'    => 'string',
+			),
 			'api_key' => array(
-				'label'   => __( 'API Key', 'apple-news' ),
+				'label'   => __( 'API Key ID', 'apple-news' ),
 				'type'    => 'string',
 			),
 			'api_secret' => array(
-				'label'   => __( 'API Secret', 'apple-news' ),
+				'label'   => __( 'API Key Secret', 'apple-news' ),
 				'type'    => 'password',
-			),
-			'api_channel' => array(
-				'label'   => __( 'API Channel', 'apple-news' ),
-				'type'    => 'string',
 			),
 			'api_autosync' => array(
 				'label'   => __( 'Automatically publish to Apple News', 'apple-news' ),
@@ -58,7 +58,7 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 			'apple_news' => array(
 				'label'       => __( 'Apple News API', 'apple-news' ),
 				'description' => __( 'All of these settings are required for publishing to Apple News', 'apple-news' ),
-				'settings'    => array( 'api_key', 'api_secret', 'api_channel', 'api_autosync', 'api_autosync_update', 'api_async' ),
+				'settings'    => array( 'api_channel', 'api_key', 'api_secret', 'api_autosync', 'api_autosync_update', 'api_async' ),
 			),
 		);
 

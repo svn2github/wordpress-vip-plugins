@@ -80,7 +80,7 @@ class Admin_Apple_Async extends Apple_News {
 
 		$action = new Apple_Actions\Index\Push( $this->settings, $post_id );
 		try {
-			$action->perform( true );
+			$action->perform( true, $user_id );
 
 			Admin_Apple_Notice::success( sprintf(
 				__( 'Article %s has been pushed successfully to Apple News!', 'apple-news' ),

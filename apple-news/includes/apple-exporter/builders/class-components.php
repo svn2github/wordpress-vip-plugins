@@ -18,6 +18,8 @@ class Components extends Builder {
 	 * @access protected
 	 */
 	protected function build() {
+		$components = array();
+
 		// Handle body components first
 		foreach ( $this->split_into_components() as $component ) {
 			$components[] = $component->to_array();
@@ -149,9 +151,8 @@ class Components extends Builder {
 	}
 
 	/**
-	 * Meta components are those which were not created from HTML, instead, they
-	 * contain only text. This text is normally created from the article
-	 * metadata.
+	 * Meta components are those which were not created from the HTML content.
+	 * These include the title, the cover (i.e. post thumbnail) and the byline.
 	 *
 	 * @return array
 	 * @access private
@@ -159,20 +160,15 @@ class Components extends Builder {
 	private function meta_components() {
 		$components = array();
 
-		// Title
-		if ( $this->content_title() ) {
-			$components[] = $this->get_component_from_shortname( 'title', $this->content_title() )->to_array();
+		// Get the component order
+		$meta_component_order = $this->get_setting( 'meta_component_order' );
+		if ( ! empty( $meta_component_order ) && is_array( $meta_component_order ) ) {
+			foreach ( $meta_component_order as $component ) {
+				$method = 'content_' . $component;
+				if ( method_exists( $this, $method ) && $this->$method() ) {
+					$components[] = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
 		}
-
-		// The content's cover is optional. In WordPress, it's a post's thumbnail
-		// or featured image.
-		if ( $this->content_cover() ) {
-			$components[] = $this->get_component_from_shortname( 'cover', $this->content_cover() )->to_array();
 		}
-
-		// Add byline
-		if ( $this->content_byline() ) {
-			$components[] = $this->get_component_from_shortname( 'byline', $this->content_byline() )->to_array();
 		}
 
 		return $components;
@@ -188,6 +184,7 @@ class Components extends Builder {
 		// Loop though the first-level nodes of the body element. Components
 		// might include child-components, like an Cover and Image.
 		$result = array();
+		$errors = array();
 		foreach ( $this->content_nodes() as $node ) {
 			$components = $this->get_components_from_node( $node );
 			$result     = array_merge( $result, $components );
@@ -197,29 +194,10 @@ class Components extends Builder {
 		// It's not like it's a big memory save but still relevant.
 		// FIXME: Maybe this could have been done in a better way?
 		$this->add_thumbnail_if_needed( $result );
-		$this->add_advertisement_if_needed( $result );
 		$this->anchor_components( $result );
 		$this->add_pullquote_if_needed( $result );
 
 		return $result;
-	}
-
-	/**
-	 * Add an iAd unit if required.
-	 *
-	 * @access private
-	 */
-	private function add_advertisement_if_needed( &$components ) {
-		if ( 'yes' != $this->get_setting( 'enable_advertisement' ) ) {
-			return;
-		}
-
-		// Always position the advertisement in the middle
-		$index     = ceil( count( $components ) / 2 );
-		$component = $this->get_component_from_shortname( 'advertisement' );
-
-		// Add component in position
-		array_splice( $components, $index, 0, array( $component ) );
 	}
 
 	/**

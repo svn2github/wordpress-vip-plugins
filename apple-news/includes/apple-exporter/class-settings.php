@@ -60,9 +60,18 @@ class Settings {
 		'pullquote_transform' => 'uppercase',
 		'pullquote_line_height' => 48,
 
+		'component_alerts' => 'none',
+
 		// This can either be gallery or mosaic.
 		'gallery_type'   => 'gallery',
+
+		// Ad settings
 		'enable_advertisement' => 'yes',
+		'ad_frequency' => 1,
+		'ad_margin' => 15,
+
+		// Default component order
+		'meta_component_order' => array( 'title', 'cover', 'byline' ),
 	);
 
 	/**

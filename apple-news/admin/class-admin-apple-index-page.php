@@ -70,7 +70,6 @@ class Admin_Apple_Index_Page extends Apple_News {
 		$action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : null;
 
 		// Given an action and ID, map the attributes to corresponding actions.
-
 		if ( ! $id ) {
 			switch ( $action ) {
 			case 'push':

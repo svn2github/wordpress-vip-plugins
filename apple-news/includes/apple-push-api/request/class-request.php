@@ -173,9 +173,13 @@ class Request {
 		}
 
 		// If debugging mode is enabled, send an email
+		$settings = get_option( 'apple_news_settings' );
 		$debugging = get_option( 'apple_news_enable_debugging' );
-		if ( 'yes' === $debugging && 'get' != $type ) {
-			$admin_email = filter_var( get_option( 'apple_news_admin_email' ), FILTER_VALIDATE_EMAIL );
+		if ( ! empty( $settings['apple_news_enable_debugging'] )
+			&& ! empty( $settings['apple_news_admin_email'] )
+			&& 'yes' === $settings['apple_news_enable_debugging']
+			&& 'get' != $type ) {
+			$admin_email = filter_var( $settings['apple_news_admin_email'], FILTER_VALIDATE_EMAIL );
 			if ( ! empty( $admin_email ) ) {
 				wp_mail(
 					$admin_email,
