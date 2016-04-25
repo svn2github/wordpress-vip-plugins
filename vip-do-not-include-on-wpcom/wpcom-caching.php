@@ -505,7 +505,10 @@ function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_term = ''
 	$found_post = ''; // blank instead of false so not found is cached.
 	$query_key = 'wpcom_vip_adjacent_post_' . md5( $query );
 	$cached_result = wp_cache_get( $query_key );
-	if ( false !== $cached_result ) {
+
+	if( "not found" === $cached_result){
+		return false;
+	} else if ( false !== $cached_result ) {
 		return get_post( $cached_result );
 	}
 
@@ -529,15 +532,15 @@ function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_term = ''
 		$found_post = $result;
 	}
 
-	$cache_time = 6 * HOUR_IN_SECONDS;
-	if ( $found_post !== ''){
-		$cache_time = 15 * MINUTE_IN_SECONDS;
+	//If the post isn't found lets cache a value we'll check against. Add some variation in the caching so if a site is being crawled all the caches don't get created all the time.
+	if ( empty( $found_post ) ){
+		wp_cache_set( $query_key, "not found", 'default', 15 * MINUTE_IN_SECONDS + rand( 0, 15 * MINUTE_IN_SECONDS ) );
+		return false;
 	}
 
-	wp_cache_set( $query_key, $found_post, '', $cache_time );
-	if ( $found_post !== '' ) {
-		$found_post = get_post( $found_post );
-	}
+	wp_cache_set( $query_key, $found_post, 'default', 6 * HOUR_IN_SECONDS + rand( 0, 2 * HOUR_IN_SECONDS ) );
+	$found_post = get_post( $found_post );
+
 	return $found_post;
 }
 
