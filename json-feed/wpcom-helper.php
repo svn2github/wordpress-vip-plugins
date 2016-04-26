@@ -5,11 +5,16 @@
  * rewrite rules, so we need to make sure they're properly filtered on
  */
 function json_feed_rewrite_rules( $rules ) {
-	global $default_rewrite_rules;
+	global $default_rewrite_rules, $wp_rewrite;
 	
 	if( empty( $rules ) ) {
-		if( empty( $default_rewrite_rules ) )
-			$default_rewrite_rules = array();
+		if( empty( $default_rewrite_rules ) ) {
+			if ( true === defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
+				$default_rewrite_rules = array();
+			} else {
+				$default_rewrite_rules = $wp_rewrite->rewrite_rules();
+			}
+		}
 		$rules = $default_rewrite_rules;
 	}
 	
