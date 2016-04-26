@@ -1066,3 +1066,13 @@ function wpcom_vip_protected_embed_to_original( $content ) {
 
 	return $content;
 }
+
+/**
+ * Dequeue mp6-hacks.css stylesheet which adds backward compatibility for legacy .mp6 body classes
+ */
+function wpcom_vip_remove_mp6_styles() {
+	add_action( 'wp_enqueue_scripts', function() {
+		wp_dequeue_style( 'mp6hacks' );
+	}, 9000, 0 );
+}
+
