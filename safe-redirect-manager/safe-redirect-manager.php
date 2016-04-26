@@ -148,7 +148,8 @@ class SRM_Safe_Redirect_Manager {
 		// we check the meta values against each term in the search
 		foreach ( $terms as $term ) {
 			$search .= $seperator;
-			$search .= sprintf( "( ( m.meta_value LIKE '%s%s%s' AND m.meta_key = '%s') OR ( m.meta_value LIKE '%s%s%s' AND m.meta_key = '%s') )", $n, $term, $n, $this->meta_key_redirect_from, $n, $term, $n, $this->meta_key_redirect_to );
+			// Used esc_sql instead of wpdb->prepare since wpdb->prepare wraps things in quotes 
+			$search .= sprintf( "( ( m.meta_value LIKE '%s%s%s' AND m.meta_key = '%s') OR ( m.meta_value LIKE '%s%s%s' AND m.meta_key = '%s') )", $n, esc_sql( $term ), $n, esc_sql( $this->meta_key_redirect_from ), $n, esc_sql( $term ), $n, esc_sql( $this->meta_key_redirect_to ) );
 			$seperator = ' OR ';
 		}
 
