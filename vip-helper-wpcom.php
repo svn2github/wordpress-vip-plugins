@@ -1076,3 +1076,12 @@ function wpcom_vip_remove_mp6_styles() {
 	}, 9000, 0 );
 }
 
+/**
+ * Dequeue wpcom-bbpress-premium-themes.css which might not be necesary on a WordPress.com VIP site
+ */
+function wpcom_vip_remove_bbpress2_staff_css() {
+	add_action( 'wp_enqueue_scripts', function() {
+		wp_dequeue_style( 'wpcom-bbpress2-staff-css' );
+	}, 9000, 0 );
+}
+
