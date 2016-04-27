@@ -19,14 +19,11 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * @link http://lobby.vip.wordpress.com/plugins/ VIP Shared Plugins
  * @param string $plugin Optional. Plugin folder name (and filename) of the plugin
  * @param string $folder Optional. Folder to include from; defaults to "plugins". Useful for when you have multiple themes and your own shared plugins folder.
+ * @param string|bool $version Optional. Specify which version of the plugin to load. Version should be in the format 1.0.0. Passing true triggers legacy release candidate support.
+ *
  * @return bool True if the include was successful
  */
-function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_release_candidate = false ) {
-
-	// Force release candidate loading if the site has the correct sticker
-	if ( ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) && has_blog_sticker( 'vip-plugins-ui-rc-plugins' ) ) {
-		$load_release_candidate = true;
-	}
+function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version = false ) {
 
 	// Make sure there's a plugin to load
 	if ( empty($plugin) ) {
@@ -47,21 +44,28 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_rele
 		}
 	}
 
-	// Make sure $plugin and $folder are valid
-	$plugin = _wpcom_vip_load_plugin_sanitizer( $plugin );
-	if ( 'plugins' !== $folder )
-		$folder = _wpcom_vip_load_plugin_sanitizer( $folder );
+	$plugin_slug = $plugin; // Unversioned plugin name
 
-	// Shared plugins are located at /wp-content/themes/vip/plugins/example-plugin/
-	// You should keep your local copies of the plugins in the same location
-
-	$includepath 					= WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin.php";
-	$release_candidate_includepath 	= WP_CONTENT_DIR . "/themes/vip/$folder/release-candidates/$plugin/$plugin.php";
-
-	if( true === $load_release_candidate && file_exists( $release_candidate_includepath ) ) {
-		$includepath = $release_candidate_includepath;
+	// Get the version number, if we have one
+	if ( is_string( $version ) && false !== $plugin ) {
+		$plugin = $plugin . '-' . $version; // Versioned plugin name
 	}
 
+	// Make sure $plugin and $folder are valid
+	$plugin = _wpcom_vip_load_plugin_sanitizer( $plugin );
+	if ( 'plugins' !== $folder ) {
+		$folder = _wpcom_vip_load_plugin_sanitizer( $folder );
+	}
+
+	// Set the include path, providing back-compat for release candidates
+	$includepath = false;
+	if ( true === $version ) {
+		$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/release-candidates/$plugin/$plugin_slug.php";
+	} else {
+		$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin_slug.php";
+	}
+
+	// Now test the file path and include the plugin
 	if ( file_exists( $includepath ) ) {
 
 		wpcom_vip_add_loaded_plugin( "$folder/$plugin" );
@@ -102,7 +106,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $load_rele
 				// Use an expiring cache value to avoid spamming messages
 				$cachekey = md5( $folder . '|' . $plugin );
 				if ( ! wp_cache_get( "notfound_$cachekey", 'wpcom_vip_load_plugin' ) ) {
-					send_vip_team_debug_message( "WARNING: wpcom_vip_load_plugin() is trying to load a non-existent file ( /$folder/$plugin/$plugin.php )", 1 );
+					send_vip_team_debug_message( "WARNING: wpcom_vip_load_plugin() is trying to load a non-existent file ( /$folder/$plugin/$plugin_slug.php )", 1 );
 					wp_cache_set( "notfound_$cachekey", 1, 'wpcom_vip_load_plugin', 3600 );
 				}
 			}
