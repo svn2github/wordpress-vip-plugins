@@ -455,7 +455,7 @@ function wpcom_vip_cache_get( $key, $group = '' ) {
  *
  * @return null|string|WP_Post Post object if successful. Null if global $post is not set. Empty string if no corresponding post exists.
  */
-function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_term = '', $previous = true, $taxonomy = 'category', $adjacent = '' ) {
+function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_terms = '', $previous = true, $taxonomy = 'category', $adjacent = '' ) {
 	global $wpdb;
 	if ( ( ! $post = get_post() ) || ! taxonomy_exists( $taxonomy ) ) {
 		return null;
@@ -464,24 +464,24 @@ function wpcom_vip_get_adjacent_post( $in_same_term = false, $excluded_term = ''
 	$where = '';
 	$current_post_date = $post->post_date;
 
-	if ( ! is_int( $excluded_term && ! empty( $excluded_term ) ) ){
-		$term = wpcom_vip_get_term_by( 'name', $excluded_term, $taxonomy );
-		$excluded_term = $term->ID;
-	}
-
 	if ( $in_same_term ) {
 		if ( is_object_in_taxonomy( $post->post_type, $taxonomy ) ) {
 			$term_array = get_the_terms( $post->ID, $taxonomy );
-			$term_array = array_map( 'intval', $term_array );
 			if ( ! empty( $term_array ) && ! is_wp_error( $term_array ) ) {
-				$term_array = get_the_terms( $post->ID, $taxonomy );
 				$term_array_ids = wp_list_pluck( $term_array, 'term_id' );
-
 				// Remove any exclusions from the term array to include.
-				$term_array_ids = array_diff( $term_array_ids, (array) $excluded_term );
-				$term_array_ids = array_map( 'intval', $term_array_ids );
+				$excluded_terms = explode( ',', $excluded_terms );
+				if ( ! empty( $excluded_terms ) ){
+					$term_array_ids = array_diff( $term_array_ids, (array) $excluded_terms );
+				}
+				if ( ! empty ( $term_array_ids ) ){
+					$term_array_ids = array_map( 'intval', $term_array_ids );
+					$term_id_to_search = array_pop( $term_array_ids ); // only allow for a single term to be used. picked pseudo randomly
+				}else{
+					$term_id_to_search = false;
+				}
 
-				$term_id_to_search = apply_filters( 'wpcom_vip_limit_adjacent_post_term_id', array_pop( $term_array_ids ), $term_array_ids, $excluded_term, $taxonomy, $previous );
+				$term_id_to_search = apply_filters( 'wpcom_vip_limit_adjacent_post_term_id', $term_id_to_search, $term_array_ids, $excluded_terms, $taxonomy, $previous );
 
 				if ( ! empty( $term_id_to_search ) ){ //allow filters to short circuit by returning a empty like value
 					$join = " INNER JOIN $wpdb->term_relationships AS tr ON p.ID = tr.object_id INNER JOIN $wpdb->term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id"; //Only join if we are sure there is a term
