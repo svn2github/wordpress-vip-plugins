@@ -30,7 +30,8 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             'comments'=>'LFAPPS_Comments',
             'sidenotes'=>'LFAPPS_Sidenotes',
             'blog'=>'LFAPPS_Blog',
-            'chat'=>'LFAPPS_Chat'
+            'chat'=>'LFAPPS_Chat',
+            'designer'=>'LFAPPS_Designer'
         );
         public static $languages = array(
             'English'=>'English',
@@ -260,17 +261,6 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
         }
         
         /**
-         * Get the Livefyre.require package reference name and version
-         * @param string $name
-         * @return string
-         */
-        public static function get_package_reference() {
-            $enterprise = get_option('livefyre_apps-package_type') == 'enterprise';
-            $uat = get_option('livefyre_apps-livefyre_environment') == 'staging';
-            return (($uat && $enterprise) ? 'uat' : null);       
-        }
-        
-        /**
          * Get list of available package versions for a given package
          * @param string $package name of package
          * @return array list of versions
@@ -282,8 +272,8 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
             $http = new LFAPPS_Http_Extension;
             $resp = $http->request($url, array( 'timeout' => 5 ));
             
-            if (!is_wp_error( $resp ) ) {
-                $body = $resp['body'];
+            if ( isset($resp['code']) && $resp['code'] != 500 ) {
+                $body = isset($resp['body']) ? $resp['body'] : '';
                 $data = json_decode($body, true);
                 if(isset($data[$package]) && isset($data[$package]['versions'])) {
                     return $data[$package]['versions'];
@@ -340,6 +330,47 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
                 return $body;
             }
             return null;
+        }
+        
+        public static function get_package_reference($app) {
+            $version_prefix = 'fyre.conv';
+            $option_version = get_option('livefyre_apps-livefyre_' . $app . '_version');
+            $default_version = '3.0.0';
+            if ($app == 'designer') {
+                $version_prefix = 'app-embed';
+                $default_version = '0.6.6';
+            }
+            if ($app == 'sidenotes') {
+                $version_prefix = 'sidenotes';
+                $default_version = '1.0.0';
+            }
+            $available_versions = Livefyre_Apps::get_available_package_versions($version_prefix);
+            if(empty($available_versions)) {
+                $available_versions = array($default_version);
+            }
+            $apps_with_uat_support = array('comments', 'blog', 'chat', 'sidenotes');
+            $required_version = $option_version;
+            $enterprise = get_option('livefyre_apps-package_type') == 'enterprise';
+            $uat = get_option('livefyre_apps-livefyre_environment') == 'staging';
+            if($uat && $enterprise && in_array($app, $apps_with_uat_support)) {
+                $required_version = 'uat';
+            }
+            else if($option_version == 'latest') {    
+                $latest_version = array_pop($available_versions);
+                if(strpos($latest_version, '.') !== false) {
+                    $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
+                } else {
+                    $required_version = $latest_version;
+                }
+            }
+            return self::json_encode_wrap($version_prefix . '#' . $required_version);
+        }
+        
+        public static function json_encode_wrap($data, $options = 0) {
+            if (function_exists('wp_json_encode')) {
+                return wp_json_encode($data, $options);
+            }
+            return json_encode($data, $options);
         }
     }
 }

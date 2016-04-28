@@ -10,8 +10,8 @@ if ($display_template) {
     $lfHttp = new LFAPPS_Http_Extension();
     $result = $lfHttp->request($url);
     $cached_html = '';
-    if ($result['response']['code'] == 200) {
-        $cached_html = $result['body'];
+    if (isset($result['response']['code']) && $result['response']['code'] == 200) {
+        $cached_html = isset($result['body']) ? $result['body'] : '';
         $cached_html = preg_replace('(<script>[\w\W]*<\/script>)', '', $cached_html);
     }
     echo '<div id="' . esc_attr($livefyre_element) . '">' . wp_kses_post($cached_html) . '</div>';
@@ -20,24 +20,24 @@ if ($display_template) {
 
 <script type="text/javascript">
     var networkConfigComments = {
-<?php echo isset($strings) ? 'strings: ' . json_encode($strings) . ',' : ''; ?>
-        network: "<?php echo esc_js($network->getName()); ?>"
+<?php echo isset($strings) ? 'strings: ' . Livefyre_Apps::json_encode_wrap($strings) . ',' : ''; ?>
+        network: <?php echo Livefyre_Apps::json_encode_wrap($network->getName()); ?>
     };
-    var convConfigComments<?php echo esc_js($articleId); ?> = {
-        siteId: "<?php echo esc_js($siteId); ?>",
-        articleId: "<?php echo esc_js($articleId); ?>",
-        el: "<?php echo esc_js($livefyre_element); ?>",
-        collectionMeta: "<?php echo esc_js($collectionMetaToken); ?>",
-        checksum: "<?php echo esc_js($checksum); ?>"
+    var convConfigComments<?php echo Livefyre_Apps::json_encode_wrap($articleId); ?> = {
+        siteId: <?php echo Livefyre_Apps::json_encode_wrap($siteId); ?>,
+        articleId: <?php echo Livefyre_Apps::json_encode_wrap($articleId); ?>,
+        el: <?php echo Livefyre_Apps::json_encode_wrap($livefyre_element); ?>,
+        collectionMeta: <?php echo Livefyre_Apps::json_encode_wrap($collectionMetaToken); ?>,
+        checksum: <?php echo Livefyre_Apps::json_encode_wrap($checksum); ?>
     };
     if (typeof (liveCommentsConfig) !== 'undefined') {
-        convConfigComments<?php echo esc_js($articleId); ?> = Livefyre.LFAPPS.lfExtend(liveCommentsConfig, convConfigComments<?php echo esc_js($articleId); ?>);
+        convConfigComments<?php echo Livefyre_Apps::json_encode_wrap($articleId); ?> = Livefyre.LFAPPS.lfExtend(liveCommentsConfig, convConfigComments<?php echo Livefyre_Apps::json_encode_wrap($articleId); ?>);
     }
 
-    Livefyre.require(['<?php echo LFAPPS_Comments::get_package_reference(); ?>'], function (ConvComments) {
+    Livefyre.require([<?php echo LFAPPS_Comments::get_package_reference(); ?>], function (ConvComments) {
         load_livefyre_auth();
         new ConvComments(networkConfigComments,
-                [convConfigComments<?php echo esc_js($articleId); ?>],
+                [convConfigComments<?php echo Livefyre_Apps::json_encode_wrap($articleId); ?>],
                 function (commentsWidget) {
                     var livecommentsListeners = Livefyre.LFAPPS.getAppEventListeners('livecomments');
                     if (livecommentsListeners.length > 0) {

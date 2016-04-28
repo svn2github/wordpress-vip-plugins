@@ -40,7 +40,7 @@
                     });
 
             <?php if (is_user_logged_in()): ?>
-                        auth.authenticate({livefyre: "<?php echo esc_js(Livefyre_Apps::generate_wp_user_token()); ?>"});
+                        auth.authenticate({livefyre: <?php echo Livefyre_Apps::json_encode_wrap(Livefyre_Apps::generate_wp_user_token()); ?>});
             <?php endif; ?>
                     window.authDelegate = auth.delegate;
                 });
@@ -53,7 +53,7 @@
         var load_livefyre_auth = function() {
             if(!livefyre_auth_loaded) {         
                 Livefyre.require(['auth'], function(auth) {
-                    auth.delegate(<?php echo esc_js(get_option('livefyre_apps-livefyre_auth_delegate_name')); ?>);
+                    auth.delegate(<?php echo Livefyre_Apps::json_encode_wrap(get_option('livefyre_apps-livefyre_auth_delegate_name')); ?>);
                 });
             }
             livefyre_auth_loaded = true;

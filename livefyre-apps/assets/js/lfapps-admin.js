@@ -53,6 +53,18 @@ jQuery(document).ready(function($) {
             $("#lfapps_blog_icon").attr('src', new_src);
         });
     }
+    if($("#lfapps_designer_enable").length) {
+        $("#lfapps_designer_enable").change(function() {
+            var cur_src = $("#lfapps_designer_icon").attr('src');
+            var new_src = cur_src;
+            if($(this).is(':checked')) {                
+                new_src = cur_src.replace("lf-visualization-icon-grey.png", "lf-visualization-icon.png");                
+            } else {
+                new_src = cur_src.replace("lf-visualization-icon.png", "lf-visualization-icon-grey.png");   
+            }
+            $("#lfapps_designer_icon").attr('src', new_src);
+        });
+    }
     if($("#lfapps_chat_enable").length) {
         $("#lfapps_chat_enable").change(function() {
             var cur_src = $("#lfapps_chat_icon").attr('src');

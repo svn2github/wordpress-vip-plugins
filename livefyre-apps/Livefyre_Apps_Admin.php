@@ -160,6 +160,13 @@ if ( ! class_exists( 'Livefyre_Apps_Admin' ) ) {
             } 
             register_setting('livefyre_apps_settings_blog', 'livefyre_apps-livefyre_blog_version');
             
+            //Designer Apps
+            foreach ($post_types as $post_type ) {
+                $post_type_name = 'livefyre_apps-livefyre_designer_display_' .$post_type;
+                register_setting('livefyre_apps_settings_designer', $post_type_name);
+            } 
+            register_setting('livefyre_apps_settings_designer', 'livefyre_apps-livefyre_designer_version');
+
             //Sidenotes
             foreach ($post_types as $post_type ) {
                 $post_type_name = 'livefyre_apps-livefyre_sidenotes_display_' .$post_type;

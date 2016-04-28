@@ -23,13 +23,13 @@ $conv_config = array(
     'selectors'=>get_option('livefyre_apps-livefyre_sidenotes_selectors'),
 );
 $strings = apply_filters( 'livefyre_custom_sidenotes_strings', null );
-$conv_config_str = json_encode($conv_config);
+$conv_config_str = Livefyre_Apps::json_encode_wrap($conv_config);
 ?>
 <script type="text/javascript">
-Livefyre.require(['<?php echo LFAPPS_Sidenotes::get_package_reference(); ?>'], function (Sidenotes) {
+Livefyre.require([<?php echo LFAPPS_Sidenotes::get_package_reference(); ?>], function (Sidenotes) {
     load_livefyre_auth();
     var convConfigSidenotes = <?php echo $conv_config_str; ?>;
-    convConfigSidenotes['network'] = "<?php echo esc_js($network_name); ?>";
+    convConfigSidenotes['network'] = <?php echo Livefyre_Apps::json_encode_wrap($network_name); ?>;
     <?php echo isset( $strings ) ? "convConfigSidenotes['strings'] = " . json_encode($strings) . ';' : ''; ?>
     if(typeof(livefyreSidenotesConfig) !== 'undefined') {
         convConfigSidenotes = Livefyre.LFAPPS.lfExtend(convConfigSidenotes, livefyreSidenotesConfig);

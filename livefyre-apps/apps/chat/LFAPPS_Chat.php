@@ -257,27 +257,7 @@ if (!class_exists('LFAPPS_Chat')) {
          * @return string
          */
         public static function get_package_reference() {
-            $option_version = get_option('livefyre_apps-livefyre_chat_version');
-            $available_versions = Livefyre_Apps::get_available_package_versions('fyre.conv'); 
-            if(empty($available_versions)) {
-                $available_versions = array(LFAPPS_Chat::$default_package_version);
-            }
-            $required_version = Livefyre_Apps::get_package_reference();
-            if(is_null($required_version)) {
-                if($option_version == 'latest') {
-                    //get latest version
-                    $latest_version = array_pop($available_versions);
-                    if(strpos($latest_version, '.') !== false) {
-                        $required_version = substr($latest_version, 0, strpos($latest_version, '.'));
-                    } else {
-                        $required_version = $latest_version;
-                    }
-                } else {
-                    $required_version = $option_version;
-                }
-            }
-            
-            return 'fyre.conv#'.$required_version;
+            return Livefyre_Apps::get_package_reference('chat');
         }
     }
 

@@ -33,17 +33,13 @@
                                     
                                     foreach ($post_types as $post_type ) {
                                         $post_type_name = 'livefyre_chat_display_' .$post_type;
-                                        $checked = '';
-                                        if(get_option('livefyre_apps-'.$post_type_name)) {
-                                            $checked = 'checked';
-                                        } 
                                         $post_type_name_comments = 'livefyre_apps-livefyre_display_' .$post_type;
                                         $disabled = false;
                                         if(isset($used_types[$post_type_name_comments])) {
                                             $disabled = true;
                                         }
                                         ?>
-                                        <input <?php echo $disabled ? 'disabled' : ''; ?> type="checkbox" id="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" name="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" value="true" <?php echo $checked; ?>/>
+                                        <input <?php disabled($disabled, true); ?> type="checkbox" id="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" name="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>" value="true" <?php checked(get_option('livefyre_apps-'.$post_type_name), "true"); ?>/>
                                         <label for="<?php echo esc_attr('livefyre_apps-'.$post_type_name); ?>"><?php echo esc_html_e($post_type, 'lfapps-chat'); ?><?php echo $disabled ? ' <small><em>(Comments enabled.)</em></small>' : ''; ?></label><br/>
                                         <?php
                                     }
@@ -67,8 +63,7 @@
                                 <td align="left" valign="top">
                                     <select name="livefyre_apps-livefyre_chat_version">
                                         <?php foreach ($available_versions as $available_version): ?>
-                                            <?php $selected_version = get_option('livefyre_apps-livefyre_chat_version', 'latest') == $available_version ? 'selected="selected"' : ''; ?>
-                                            <option value="<?php echo esc_attr($available_version); ?>" <?php echo esc_html($selected_version); ?>>
+                                            <option value="<?php echo esc_attr($available_version); ?>" <?php selected(get_option('livefyre_apps-livefyre_chat_version', 'latest'), $available_version); ?>>
                                                 <?php echo ucfirst(esc_html($available_version)); ?>
                                             </option>
                                         <?php endforeach; ?>
