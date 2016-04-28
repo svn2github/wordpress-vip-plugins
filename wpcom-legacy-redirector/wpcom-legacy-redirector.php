@@ -191,7 +191,12 @@ class WPCOM_Legacy_Redirector {
 		// All we want is path and query strings
 		// Note this strips hashes (#) too
 		// @todo should we destory the query strings and rebuild with `add_query_arg()`?
-		$normalised_url = $components['path'] . '?' . $components['query'];
+		$normalised_url = $components['path'];
+		
+		// Only append '?' and the query if there is one
+		if( ! empty( $components['query'] ) ) {
+			$normalised_url = $components['path'] . '?' . $components['query'];
+		}
 
 		return $normalised_url;
 
