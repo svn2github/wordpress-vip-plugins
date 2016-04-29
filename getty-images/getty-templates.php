@@ -134,11 +134,11 @@
 		<# } #>
 
 		<# if ( data.buttons.close ) { #>
-			<a class="close media-modal-icon" href="#" title="<?php esc_attr_e('Remove'); ?>"></a>
+			<a class="close media-modal-icon" href="#" title="<?php esc_attr_e('Remove', 'getty-images'); ?>"></a>
 		<# } #>
 
 		<# if ( data.buttons.check ) { #>
-			<a class="check" href="#" title="<?php esc_attr_e('Deselect'); ?>"><div class="media-modal-icon"></div></a>
+			<a class="check" href="#" title="<?php esc_attr_e('Deselect', 'getty-images'); ?>"><div class="media-modal-icon"></div></a>
 		<# } #>
 	</div>
 </script>
@@ -352,7 +352,7 @@ else if(data.authorizing) { #>
 <# if(data.ImageId) {
 	var attachment = data.attachment ? data.attachment.attributes : false; #>
 	<h3>
-		<?php esc_html_e('Image Details'); ?>
+		<?php esc_html_e('Image Details', 'getty-images'); ?>
 	</h3>
 
 	<div class="attachment-info getty-attachment-details {{ data.downloading ? 'downloading' : '' }}">
@@ -370,7 +370,7 @@ else if(data.authorizing) { #>
 
 	<div class="attachment-info">
 		<div class="setting align">
-			<span><?php esc_html_e( 'Align' ); ?></span>
+			<span><?php esc_html_e( 'Align', 'getty-images' ); ?></span>
 			<select data-setting="align" data-user-setting="getty_align">
 				<# _(gettyImages.text.alignments).each(function(text,value){ #>
 					<option value="{{ value }}" {{ ( data.model.align === value ) ? 'selected="selected"' : '' }}>
@@ -381,7 +381,7 @@ else if(data.authorizing) { #>
 		</div>
 
 		<label class="setting">
-			<span><?php esc_html_e('Size'); ?></span>
+			<span><?php esc_html_e('Size', 'getty-images'); ?></span>
 		<# if (data.model.downloadingSizes) { #>
 			<em><?php esc_html_e( 'Downloading sizes...', 'getty-images' ); ?></em>
 		<# } else { #>
@@ -397,12 +397,12 @@ else if(data.authorizing) { #>
 
 	<# if(gettyImages.isWPcom || gettyImages.user.get('loggedIn')) { #>
 		<label class="setting alt-text">
-			<span><?php esc_html_e('Alt Text'); ?></span>
+			<span><?php esc_html_e('Alt Text', 'getty-images'); ?></span>
 			<input type="text" data-setting="alt" value="{{ data.model.alt }}" data-user-setting="getty_alt" />
 		</label>
 
 		<label class="setting caption">
-			<span><?php esc_html_e('Caption'); ?></span>
+			<span><?php esc_html_e('Caption', 'getty-images'); ?></span>
 			<textarea data-setting="caption">{{ data.model.caption }}</textarea>
 		</label>
 	<# } #>
@@ -450,7 +450,7 @@ else if(data.authorizing) { #>
 		include( __DIR__ . '/getty-comp-license.html' );
 	?></div>
 	<div class="getty-comp-buttons">
-	<input type="button" class="button-primary" value="<?php esc_attr_e( "Agree" ); ?>" />
+	<input type="button" class="button-primary" value="<?php esc_attr_e( "Agree", 'getty-images' ); ?>" />
 		&nbsp;
 		&nbsp;
 		&nbsp;

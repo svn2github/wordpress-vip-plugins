@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/getty-images-wordpress-plugin/
 Description: Integrate your site with Getty Images
 Author: gettyImages
 Author URI: http://gettyimages.com/
-Version: 2.4.2
+Version: 2.4.3
 */
 
 /*  Copyright 2014  Getty Images
@@ -368,7 +368,7 @@ class Getty_Images {
 	function ajax_download() {
 		$this->ajax_check();
 
-		if( !current_user_can( $this::capability ) ) {
+		if( !current_user_can( self::capability ) ) {
 			$this->ajax_error( __( "User can not download images", 'getty-images' ) );
 		}
 
@@ -457,7 +457,7 @@ class Getty_Images {
 		$existing_image_ids = get_posts( array(
 			'post_type' => 'attachment',
 			'post_status' => 'any',
-			'meta_key' => $this::getty_details_meta_key,
+			'meta_key' => self::getty_details_meta_key,
 			'meta_value' => $getty_id,
 			'fields' => 'ids'
 		) );
@@ -468,10 +468,10 @@ class Getty_Images {
 
 		// Save the getty image details in post meta, but only sanitized top-level
 		// string values
-		update_post_meta( $attachment->ID, $this::getty_details_meta_key, array_map( 'sanitize_text_field', array_filter( $_POST['meta'], 'is_string' ) ) );
+		update_post_meta( $attachment->ID, self::getty_details_meta_key, array_map( 'sanitize_text_field', array_filter( $_POST['meta'], 'is_string' ) ) );
 
 		// Save the image ID in a separate meta key for serchability
-		update_post_meta( $attachment->ID, $this::getty_imageid_meta_key, sanitize_text_field( $_POST['meta']['ImageId'] ) );
+		update_post_meta( $attachment->ID, self::getty_imageid_meta_key, sanitize_text_field( $_POST['meta']['ImageId'] ) );
 
 		// Success! Forward new attachment_id back
 		$this->ajax_success( __( "Image downloaded", 'getty-images' ), wp_prepare_attachment_for_js( $attachment_id ) );
@@ -489,10 +489,10 @@ class Getty_Images {
 
 		$sizes = array();
 		$possible_sizes = apply_filters( 'image_size_names_choose', array(
-			'thumbnail' => __('Thumbnail'),
-			'medium'    => __('Medium'),
-			'large'     => __('Large'),
-			'full'      => __('Full Size'),
+			'thumbnail' => __('Thumbnail', 'getty-images'),
+			'medium'    => __('Medium', 'getty-images'),
+			'large'     => __('Large', 'getty-images'),
+			'full'      => __('Full Size', 'getty-images'),
 		) );
 
 		unset( $possible_sizes['full'] );
@@ -517,7 +517,7 @@ class Getty_Images {
 		$this->ajax_check();
 
 		// User should only be able to read the posts DB to see these details
-		if( !current_user_can( $this::capability ) ) {
+		if( !current_user_can( self::capability ) ) {
 			$this->ajax_error( __( "No access", 'getty-images' ) );
 		}
 
@@ -534,7 +534,7 @@ class Getty_Images {
 
 		$posts = get_posts( array(
 			'post_type' => 'attachment',
-			'meta_key' => $this::getty_imageid_meta_key,
+			'meta_key' => self::getty_imageid_meta_key,
 			'meta_value' => $id,
 			'posts_per_page' => 1
 		) );
