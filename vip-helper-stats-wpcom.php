@@ -43,7 +43,7 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
 			// Trim it down, internal stats function sometimes return more than $limit
 			$arr = array_slice( $arr, 0, $limit );
 
-			wp_cache_set( $cache_id, $arr, 'vip_stats', 600 );
+			wp_cache_set( $cache_id, $arr, 'vip_stats', 15 * MINUTE_IN_SECONDS );
 		}
 
 		return $arr;
