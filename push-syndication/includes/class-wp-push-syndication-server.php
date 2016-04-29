@@ -1236,7 +1236,7 @@ class WP_Push_Syndication_Server {
 		return ( $site_a_pull_date < $site_b_pull_date ) ? -1 : 1;
 	}
 
-	public function pull_content( $sites ) {
+	public function pull_content( $sites = array() ) {
 		do_action( 'syn_before_pull_content' );
 
 		add_filter( 'http_headers_useragent', array( $this, 'syndication_user_agent' ) );
