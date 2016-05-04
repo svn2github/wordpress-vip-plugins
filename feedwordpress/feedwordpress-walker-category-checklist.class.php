@@ -3,13 +3,9 @@
  * FeedWordPress_Walker_Category_Checklist
  *
  * @version 2010.0531
- *
- * This is the fucking stupidest thing ever.
  */
 
-// require_once(ABSPATH.'/wp-admin/includes/template.php');
-// Fucking fuck.
-// Unfuck by extending base Walker instead of Walker_Category_Checklist class by rinatkhaziev
+// Narrow FeedWordPress_Walker_Category_Checklist down by extending base Walker instead of Walker_Category_Checklist class by rinatkhaziev
 class FeedWordPress_Walker_Category_Checklist extends Walker {
 	var $tree_type = 'category';
 	var $prefix = '';
