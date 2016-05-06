@@ -117,14 +117,21 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		 * This functions is defined on WordPress.com and can be a common source of frustration for VIP devs.
 		 * Now they can be frustrated in their local environments as well :)
 		 *
+		 * This function can only be used in frontend code. If is_admin()` returns false, wido will not be defined.
+		 *
 		 * @param string $str Optional. String to operate on.
 		 * @return string
 		 * @link http://www.shauninman.com/post/heap/2006/08/22/widont_wordpress_plugin Typesetting widows
 		 */
-		function wido( $str = '' ) {
-			return str_replace( '&#160;', ' ', $str );
+
+		// Wrapping in a is_admin() check, as wido is defined in blog-plugins and can only be used in frontend
+		if ( ! is_admin() ) {
+			function wido( $str = '' ) {
+				return str_replace( '&#160;', ' ', $str );
+			}
+
+			add_filter( 'the_title_rss', 'wido' );
 		}
-		add_filter( 'the_title_rss', 'wido' );
 	endif;
 
 	if ( ! function_exists( 'wpcom_initiate_flush_rewrite_rules' ) ) :
