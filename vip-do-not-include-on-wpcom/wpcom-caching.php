@@ -441,6 +441,28 @@ function wpcom_vip_cache_get( $key, $group = '' ) {
 }
 
 /**
+ * Drop in replacement for wp_cache_delete().
+ *
+ * Wrapper for WPCOM Stampedeless_Cache class.
+ *
+ * @param string $key Cache key.
+ * @param string $group Optional. Cache group.
+ * @return bool True on successful removal, false on failure.
+ */
+function wpcom_vip_cache_delete( $key, $group = '' ) {
+	//delete cache itself
+	$deleted = wp_cache_delete( $key, $group );
+	
+	if ( class_exists( 'Stampedeless_Cache' ) ) {
+		//delete lock
+		$lock_key = $key . '_lock';
+		wp_cache_delete( $lock_key, $group );
+	}
+
+	return $deleted;
+}
+
+/**
  * Retrieve adjacent post.
  *
  * Can either be next or previous post. The logic for excluding terms is handled within PHP, for performance benefits.
