@@ -117,7 +117,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 		 * This functions is defined on WordPress.com and can be a common source of frustration for VIP devs.
 		 * Now they can be frustrated in their local environments as well :)
 		 *
-		 * This function can only be used in frontend code. If is_admin()` returns false, wido will not be defined.
+		 * This function can only be used in frontend code. If is_admin()` returns true, wido will not be defined.
 		 *
 		 * @param string $str Optional. String to operate on.
 		 * @return string
