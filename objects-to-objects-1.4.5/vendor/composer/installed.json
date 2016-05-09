@@ -1,0 +1,50 @@
+[
+    {
+        "name": "voceconnect/post-selection-ui",
+        "version": "1.1.1",
+        "version_normalized": "1.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/voceconnect/post-selection-ui.git",
+            "reference": "a645e1e86acd410cefbee01fc7fff4286659f19f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/voceconnect/post-selection-ui/zipball/a645e1e86acd410cefbee01fc7fff4286659f19f",
+            "reference": "a645e1e86acd410cefbee01fc7fff4286659f19f",
+            "shasum": ""
+        },
+        "time": "2015-07-22 18:38:14",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "src/Post_Selection_Box.php",
+                "src/Post_Selection_UI.php"
+            ],
+            "files": [
+                "post-selection-ui.php",
+                "src/functions.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "GPLv2+"
+        ],
+        "authors": [
+            {
+                "name": "Gary Smirny",
+                "email": "gary@voceconnect.com"
+            },
+            {
+                "name": "Mat Gargano",
+                "email": "mat@voceconnect.com"
+            },
+            {
+                "name": "Michael Pretty",
+                "email": "mpretty@voceconnect.com"
+            }
+        ],
+        "description": "A WordPress library to display a user interface to easily select posts from any post type"
+    }
+]
