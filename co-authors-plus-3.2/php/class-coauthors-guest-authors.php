@@ -149,6 +149,10 @@ class CoAuthors_Guest_Authors
 	function filter_post_updated_messages( $messages ) {
 		global $post;
 
+		if ( $this->post_type !== $post->post_type ) {
+			return $messages;
+		}
+
 		$guest_author = $this->get_guest_author_by( 'ID', $post->ID );
 		$guest_author_link = $this->filter_author_link( '', $guest_author->ID, $guest_author->user_nicename );
 
@@ -184,11 +188,11 @@ class CoAuthors_Guest_Authors
 		}
 
 		if ( ! wp_verify_nonce( $_GET['nonce'], 'create-guest-author' ) ) {
-			wp_die( __( "Doin' something fishy, huh?", 'co-authors-plus' ) );
+			wp_die( esc_html__( "Doin' something fishy, huh?", 'co-authors-plus' ) );
 		}
 
 		if ( ! current_user_can( $this->list_guest_authors_cap ) ) {
-			wp_die( __( "You don't have permission to perform this action.", 'co-authors-plus' ) );
+			wp_die( esc_html__( "You don't have permission to perform this action.", 'co-authors-plus' ) );
 		}
 
 		$user_id = intval( $_GET['user_id'] );
@@ -196,7 +200,7 @@ class CoAuthors_Guest_Authors
 		// Create the guest author
 		$post_id = $this->create_guest_author_from_user_id( $user_id );
 		if ( is_wp_error( $post_id ) ) {
-			wp_die( $post_id->get_error_message() );
+			wp_die( esc_html( $post_id->get_error_message() ) );
 		}
 
 		// Redirect to the edit Guest Author screen
@@ -221,18 +225,18 @@ class CoAuthors_Guest_Authors
 
 		// Verify the user is who they say they are
 		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'delete-guest-author' ) ) {
-			wp_die( __( "Doin' something fishy, huh?", 'co-authors-plus' ) );
+			wp_die( esc_html__( "Doin' something fishy, huh?", 'co-authors-plus' ) );
 		}
 
 		// Make sure they can perform the action
 		if ( ! current_user_can( $this->list_guest_authors_cap ) ) {
-			wp_die( __( "You don't have permission to perform this action.", 'co-authors-plus' ) );
+			wp_die( esc_html__( "You don't have permission to perform this action.", 'co-authors-plus' ) );
 		}
 
 		// Make sure the guest author actually exists
 		$guest_author = $this->get_guest_author_by( 'ID', (int) $_POST['id'] );
 		if ( ! $guest_author ) {
-			wp_die( __( "Guest author can't be deleted because it doesn't exist.", 'co-authors-plus' ) );
+			wp_die( esc_html( sprintf( __( "%s can't be deleted because it doesn't exist.", 'co-authors-plus' ), $this->labels['singular'] ) ) );
 		}
 
 		// Perform the reassignment if needed
@@ -247,7 +251,7 @@ class CoAuthors_Guest_Authors
 				$user_nicename = sanitize_title( $_POST['leave-assigned-to'] );
 				$reassign_to = $coauthors_plus->get_coauthor_by( 'user_nicename', $user_nicename );
 				if ( ! $reassign_to ) {
-					wp_die( __( 'Co-author does not exists. Try again?', 'co-authors-plus' ) );
+					wp_die( esc_html__( 'Co-author does not exists. Try again?', 'co-authors-plus' ) );
 				}
 				$reassign_to = $reassign_to->user_login;
 				break;
@@ -256,7 +260,7 @@ class CoAuthors_Guest_Authors
 				$reassign_to = false;
 				break;
 			default:
-				wp_die( __( 'Please make sure to pick an option.', 'co-authors-plus' ) );
+				wp_die( esc_html__( 'Please make sure to pick an option.', 'co-authors-plus' ) );
 				break;
 		}
 
@@ -306,7 +310,7 @@ class CoAuthors_Guest_Authors
 					'id'                 => $coauthor->user_nicename,
 				);
 		}
-		echo json_encode( $retval );
+		echo wp_json_encode( $retval );
 		die();
 	}
 
@@ -365,13 +369,13 @@ class CoAuthors_Guest_Authors
 	function action_admin_enqueue_scripts() {
 		global $pagenow;
 		// Enqueue our guest author CSS on the related pages
-		if ( $this->parent_page == $pagenow && isset( $_GET['page'] ) && 'view-guest-authors' === $_GET['page'] ) {
+		if ( $this->parent_page === $pagenow && isset( $_GET['page'] ) && 'view-guest-authors' === $_GET['page'] ) {
 			wp_enqueue_script( 'jquery-select2', plugins_url( 'lib/select2/select2.min.js', dirname( __FILE__ ) ), array( 'jquery' ), COAUTHORS_PLUS_VERSION );
 			wp_enqueue_style( 'cap-jquery-select2-css', plugins_url( 'lib/select2/select2.css', dirname( __FILE__ ) ), false, COAUTHORS_PLUS_VERSION );
 
 			wp_enqueue_style( 'guest-authors-css', plugins_url( 'css/guest-authors.css', dirname( __FILE__ ) ), false, COAUTHORS_PLUS_VERSION );
 			wp_enqueue_script( 'guest-authors-js', plugins_url( 'js/guest-authors.js', dirname( __FILE__ ) ), false, COAUTHORS_PLUS_VERSION );
-		} else if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) && $this->post_type == get_post_type() ) {
+		} else if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) && $this->post_type === get_post_type() ) {
 			add_action( 'admin_head', array( $this, 'change_title_icon' ) );
 		}
 	}
@@ -450,22 +454,22 @@ class CoAuthors_Guest_Authors
 		if ( isset( $_GET['action'], $_GET['id'], $_GET['_wpnonce'] ) && 'delete' == $_GET['action'] ) {
 			// Make sure the user is who they say they are
 			if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'guest-author-delete' ) ) {
-				wp_die( __( "Doin' something fishy, huh?", 'co-authors-plus' ) );
+				wp_die( esc_html__( "Doin' something fishy, huh?", 'co-authors-plus' ) );
 			}
 
 			// Make sure the guest author actually exists
 			$guest_author = $this->get_guest_author_by( 'ID', (int) $_GET['id'] );
 			if ( ! $guest_author ) {
-				wp_die( __( "Guest author can't be deleted because it doesn't exist.", 'co-authors-plus' ) );
+				wp_die( esc_html( sprintf( __( "%s can't be deleted because it doesn't exist.", 'co-authors-plus' ), $this->labels['singular'] ) ) );
 			}
 
 			echo '<div class="wrap">';
 			echo '<div class="icon32" id="icon-users"><br/></div>';
-			echo '<h2>' . sprintf( __( 'Delete %s', 'co-authors-plus ' ), $this->labels['plural'] ) . '</h2>';
-			echo '<p>' . __( 'You have specified this guest author for deletion:', 'co-authors-plus' ) . '</p>';
-			echo '<p>#' . $guest_author->ID . ': ' . esc_html( $guest_author->display_name ) . '</p>';
-			echo '<p>' . __( 'What should be done with posts assigned to this guest author?', 'co-authors-plus' ) . '</p>';
-			echo '<p class="description">' . __( "Note: If you'd like to delete the guest author and all of their posts, you should delete their posts first and then come back to delete the guest author.", 'co-authors-plus' ) . '</p>';
+			echo '<h2>' . esc_html( sprintf( __( 'Delete %s', 'co-authors-plus ' ), $this->labels['plural'] ) ) . '</h2>';
+			echo '<p>' . esc_html(  sprintf( __( 'You have specified this %s for deletion:', 'co-authors-plus' ), strtolower( $this->labels['singular'] ) ) ) . '</p>';
+			echo '<p>#' . esc_html( $guest_author->ID . ': ' . $guest_author->display_name ) . '</p>';
+			echo '<p>' . esc_html(  sprintf( __( 'What should be done with posts assigned to this %s?', 'co-authors-plus' ), strtolower( $this->labels['singular'] ) ) ) . '</p>';
+			echo '<p class="description">' . esc_html( sprintf( __( "Note: If you'd like to delete the %s and all of their posts, you should delete their posts first and then come back to delete the %s.", 'co-authors-plus' ), strtolower( $this->labels['singular'] ), strtolower( $this->labels['singular'] ) ) ) . '</p>';
 			echo '<form method="POST" action="' . esc_url( add_query_arg( 'page', 'view-guest-authors', admin_url( $this->parent_page ) ) ) . '">';
 			// Hidden stuffs
 			echo '<input type="hidden" name="action" value="delete-guest-author" />';
@@ -474,18 +478,18 @@ class CoAuthors_Guest_Authors
 			echo '<fieldset><ul style="list-style-type:none;">';
 			// Reassign to another user
 			echo '<li class="hide-if-no-js"><label for="reassign-another">';
-			echo '<input type="radio" id="reassign-another" name="reassign" class="reassign-option" value="reassign-another" />&nbsp;&nbsp;' . __( 'Reassign to another co-author:', 'co-authors-plus' ) . '&nbsp;&nbsp;</label>';
+			echo '<input type="radio" id="reassign-another" name="reassign" class="reassign-option" value="reassign-another" />&nbsp;&nbsp;' . esc_html__( 'Reassign to another co-author:', 'co-authors-plus' ) . '&nbsp;&nbsp;</label>';
 			echo '<input type="hidden" id="leave-assigned-to" name="leave-assigned-to" style="width:200px;" />';
 			echo '</li>';
 			// Leave mapped to a linked account
 			if ( get_user_by( 'login', $guest_author->linked_account ) ) {
 				echo '<li><label for="leave-assigned">';
-				echo '<input type="radio" id="leave-assigned" class="reassign-option" name="reassign" value="leave-assigned" />&nbsp;&nbsp;' . sprintf( __( 'Leave posts assigned to the mapped user, %s.', 'co-authors-plus' ), $guest_author->linked_account );
+				echo '<input type="radio" id="leave-assigned" class="reassign-option" name="reassign" value="leave-assigned" />&nbsp;&nbsp;' . esc_html( sprintf( __( 'Leave posts assigned to the mapped user, %s.', 'co-authors-plus' ) ), $guest_author->linked_account );
 				echo '</label></li>';
 			}
 			// Remove bylines from the posts
 			echo '<li><label for="remove-byline">';
-			echo '<input type="radio" id="remove-byline" class="reassign-option" name="reassign" value="remove-byline" />&nbsp;&nbsp;' . __( 'Remove byline from posts (but leave each post in its current status).', 'co-authors-plus' );
+			echo '<input type="radio" id="remove-byline" class="reassign-option" name="reassign" value="remove-byline" />&nbsp;&nbsp;' . esc_html__( 'Remove byline from posts (but leave each post in its current status).', 'co-authors-plus' );
 			echo '</label></li>';
 			echo '</ul></fieldset>';
 			submit_button( __( 'Confirm Deletion', 'co-authors-plus' ), 'secondary', 'submit', true, array( 'disabled' => 'disabled' ) );
@@ -494,10 +498,10 @@ class CoAuthors_Guest_Authors
 		} else {
 			echo '<div class="wrap">';
 			echo '<div class="icon32" id="icon-users"><br/></div>';
-			echo '<h2>' . $this->labels['plural'];
+			echo '<h2>' . esc_html( $this->labels['plural'] );
 			// @todo caps check for creating a new user
 			$add_new_link = admin_url( "post-new.php?post_type=$this->post_type" );
-			echo '<a href="' . $add_new_link . '" class="add-new-h2">' . esc_html( __( 'Add New', 'co-authors-plus' ) ) . '</a>';
+			echo '<a href="' . esc_url( $add_new_link ) . '" class="add-new-h2">' . esc_html__( 'Add New', 'co-authors-plus' ) . '</a>';
 			echo '</h2>';
 			$cap_list_table = new CoAuthors_WP_List_Table();
 			$cap_list_table->prepare_items();
@@ -562,7 +566,7 @@ class CoAuthors_Guest_Authors
 			unset( $linked_account_user_ids[ $key ] );
 		}
 
-		echo '<p><label>' . __( 'WordPress User Mapping', 'co-authors-plus' ) . '</label> ';
+		echo '<p><label>' . esc_html__( 'WordPress User Mapping', 'co-authors-plus' ) . '</label> ';
 		wp_dropdown_users( apply_filters( 'coauthors_guest_author_linked_account_args', array(
 			'show_option_none' => __( '-- Not mapped --', 'co-authors-plus' ),
 			'name' => esc_attr( $this->get_post_meta_key( 'linked_account' ) ),
@@ -601,7 +605,7 @@ class CoAuthors_Guest_Authors
 			$pm_key = $this->get_post_meta_key( $field['key'] );
 			$value = get_post_meta( $post->ID, $pm_key, true );
 			echo '<tr><th>';
-			echo '<label for="' . esc_attr( $pm_key ) . '">' . $field['label'] . '</label>';
+			echo '<label for="' . esc_attr( $pm_key ) . '">' . esc_html( $field['label'] ) . '</label>';
 			echo '</th><td>';
 
 			if ( ! isset( $field['input'] ) ) {
@@ -636,7 +640,7 @@ class CoAuthors_Guest_Authors
 			$pm_key = $this->get_post_meta_key( $field['key'] );
 			$value = get_post_meta( $post->ID, $pm_key, true );
 			echo '<tr><th>';
-			echo '<label for="' . esc_attr( $pm_key ) . '">' . $field['label'] . '</label>';
+			echo '<label for="' . esc_attr( $pm_key ) . '">' . esc_html( $field['label'] ) . '</label>';
 			echo '</th><td>';
 
 			if ( ! isset( $field['input'] ) ) {
@@ -672,7 +676,7 @@ class CoAuthors_Guest_Authors
 			$pm_key = $this->get_post_meta_key( $field['key'] );
 			$value = get_post_meta( $post->ID, $pm_key, true );
 			echo '<tr><th>';
-			echo '<label for="' . esc_attr( $pm_key ) . '">' . $field['label'] . '</label>';
+			echo '<label for="' . esc_attr( $pm_key . '">' ) . esc_html( $field['label'] ) . '</label>';
 			echo '</th><td>';
 			echo '<textarea style="width:300px;margin-bottom:6px;" name="' . esc_attr( $pm_key ) . '">' . esc_textarea( $value ) . '</textarea>';
 			echo '</td></tr>';
@@ -700,7 +704,7 @@ class CoAuthors_Guest_Authors
 
 		// Validate the display name
 		if ( empty( $_POST['cap-display_name'] ) ) {
-			wp_die( __( 'Guest authors cannot be created without display names.', 'co-authors-plus' ) );
+			wp_die( esc_html__( 'Guest authors cannot be created without display names.', 'co-authors-plus' ) );
 		}
 		$post_data['post_title'] = sanitize_text_field( $_POST['cap-display_name'] );
 
@@ -711,7 +715,7 @@ class CoAuthors_Guest_Authors
 
 		// Uh oh, no guest authors without slugs
 		if ( ! $slug ) {
-			wp_die( __( 'Guest authors cannot be created without display names.', 'co-authors-plus' ) );
+			wp_die( esc_html__( 'Guest authors cannot be created without display names.', 'co-authors-plus' ) );
 		}
 		$post_data['post_name'] = $this->get_post_meta_key( $slug );
 
@@ -721,13 +725,13 @@ class CoAuthors_Guest_Authors
 		if ( $user
 			&& is_user_member_of_blog( $user->ID, get_current_blog_id() )
 			&& $user->user_login != get_post_meta( $original_args['ID'], $this->get_post_meta_key( 'linked_account' ), true ) ) {
-			wp_die( __( 'Guest authors cannot be created with the same user_login value as a user. Try creating a profile from the user on the Manage Users listing instead.', 'co-authors-plus' ) );
+			wp_die( esc_html__( 'Guest authors cannot be created with the same user_login value as a user. Try creating a profile from the user on the Manage Users listing instead.', 'co-authors-plus' ) );
 		}
 
 		// Guest authors can't have the same post_name value
 		$guest_author = $this->get_guest_author_by( 'post_name', $post_data['post_name'] );
 		if ( $guest_author && $guest_author->ID != $original_args['ID'] ) {
-			wp_die( __( 'Display name conflicts with another guest author display name.', 'co-authors-plus' ) );
+			wp_die( esc_html__( 'Display name conflicts with another guest author display name.', 'co-authors-plus' ) );
 		}
 
 		return $post_data;
@@ -840,7 +844,7 @@ class CoAuthors_Guest_Authors
 				break;
 			case 'user_nicename':
 			case 'post_name':
-				$value = sanitize_title( $this->get_post_meta_key( $value ) );
+				$value = $this->get_post_meta_key( $value );
 				$query = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_name=%s AND post_type = %s", $value, $this->post_type );
 				$post_id = $wpdb->get_var( $query );
 				if ( empty( $post_id ) ) {
@@ -1103,7 +1107,7 @@ class CoAuthors_Guest_Authors
 	function filter_update_post_metadata( $retnull, $object_id, $meta_key, $meta_value, $prev_value ) {
 
 		if ( $this->post_type != get_post_type( $object_id ) ) {
-			return null;
+			return $retnull;
 		}
 
 		// If the linked_account is changing, invalidate the cache of all linked accounts
@@ -1450,5 +1454,4 @@ class CoAuthors_Guest_Authors
 
 		return $link;
 	}
-
 }

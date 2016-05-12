@@ -17,9 +17,9 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 		}
 
 		parent::__construct( array(
-				'plural' => __( 'Co-Authors', 'co-authors-plus' ),
-				'singular' => __( 'Co-Author', 'co-authors-plus' ),
-			) );
+			'plural' => __( 'Co-Authors', 'co-authors-plus' ),
+			'singular' => __( 'Co-Author', 'co-authors-plus' ),
+		) );
 	}
 
 	/**
@@ -124,7 +124,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 		$this->set_pagination_args( array(
 			'total_items' => $author_posts->found_posts,
 			'per_page' => $per_page,
-			) );
+		) );
 	}
 
 	function filter_query_for_search( $where ) {
@@ -138,7 +138,7 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 	 * Either there are no guest authors, or the search doesn't match any
 	 */
 	function no_items() {
-		_e( 'No matching guest authors were found.', 'co-authors-plus' );
+		esc_html_e( 'No matching guest authors were found.', 'co-authors-plus' );
 	}
 
 	/**
@@ -164,10 +164,10 @@ class CoAuthors_WP_List_Table extends WP_List_Table {
 	function single_row( $item ) {
 		static $alternate_class = '';
 		$alternate_class = ( '' === $alternate_class ? ' alternate' : '' );
-		$row_class = ' class="guest-author-static' . $alternate_class . '"';
+		$row_class = 'guest-author-static' . $alternate_class . '"';
 
-		echo '<tr id="guest-author-' . $item->ID . '"' . $row_class . '>';
-		echo $this->single_row_columns( $item );
+		echo '<tr id="' . esc_attr( 'guest-author-' . $item->ID ) . '" class="' . esc_attr( $row_class ) . '">';
+		$this->single_row_columns( $item );
 		echo '</tr>';
 	}
 
@@ -281,5 +281,4 @@ if ( 'top' == $which ) {
 		$this->search_box( $coauthors_plus->guest_authors->labels['search_items'], 'guest-authors' );
 		parent::display();
 	}
-
 }

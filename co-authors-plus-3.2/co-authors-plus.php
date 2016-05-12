@@ -3,7 +3,7 @@
 Plugin Name: Co-Authors Plus
 Plugin URI: http://wordpress.org/extend/plugins/co-authors-plus/
 Description: Allows multiple authors to be assigned to a post. This plugin is an extended version of the Co-Authors plugin developed by Weston Ruter.
-Version: 3.1.2
+Version: 3.2
 Author: Mohammad Jangda, Daniel Bachhuber, Automattic
 Copyright: 2008-2015 Shared and distributed between Mohammad Jangda, Daniel Bachhuber, Weston Ruter
 
@@ -30,12 +30,13 @@ require_once( dirname( __FILE__ ) . '/template-tags.php' );
 require_once( dirname( __FILE__ ) . '/deprecated.php' );
 
 require_once( dirname( __FILE__ ) . '/php/class-coauthors-template-filters.php' );
+require_once( dirname( __FILE__ ) . '/php/integrations/amp.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( dirname( __FILE__ ) . '/php/class-wp-cli.php' );
 }
 
-class coauthors_plus {
+class CoAuthors_Plus {
 
 	// Name for the taxonomy we're using to store relationships
 	// and the post type we're using to store co-authors
@@ -115,10 +116,6 @@ class coauthors_plus {
 		// Support infinite scroll for Guest Authors on author pages
 		add_filter( 'infinite_scroll_js_settings', array( $this, 'filter_infinite_scroll_js_settings' ), 10, 2 );
 
-	}
-
-	function coauthors_plus() {
-		$this->__construct();
 	}
 
 	/**
@@ -315,7 +312,7 @@ class coauthors_plus {
 	public function add_coauthors_box() {
 
 		if ( $this->is_post_type_enabled() && $this->current_user_can_set_authors() ) {
-			add_meta_box( $this->coauthors_meta_box_name, __( 'Authors', 'co-authors-plus' ), array( $this, 'coauthors_meta_box' ), get_post_type(), apply_filters( 'coauthors_meta_box_context', 'normal' ), apply_filters( 'coauthors_meta_box_priority', 'high' ) );
+			add_meta_box( $this->coauthors_meta_box_name, apply_filters( 'coauthors_meta_box_title', __( 'Authors', 'co-authors-plus' ) ), array( $this, 'coauthors_meta_box' ), get_post_type(), apply_filters( 'coauthors_meta_box_context', 'normal' ), apply_filters( 'coauthors_meta_box_priority', 'high' ) );
 		}
 	}
 
@@ -332,7 +329,7 @@ class coauthors_plus {
 		// @daniel, $post_id and $post->post_author are always set when a new post is created due to auto draft,
 		// and the else case below was always able to properly assign users based on wp_posts.post_author,
 		// but that's not possible with force_guest_authors = true.
-		if ( ! $post_id || 0 == $post_id || ( ! $post->post_author && ! $coauthors_plus->force_guest_authors ) || ( 'post' === $current_screen->base && 'add' === $current_screen->action ) ) {
+		if ( ! $post_id || 0 === $post_id || ( ! $post->post_author && ! $coauthors_plus->force_guest_authors ) || ( 'post' === $current_screen->base && 'add' === $current_screen->action ) ) {
 			$coauthors = array();
 			// If guest authors is enabled, try to find a guest author attached to this user ID
 			if ( $this->is_guest_authors_enabled() ) {
@@ -366,7 +363,7 @@ class coauthors_plus {
 					?>
 					<li>
 						<?php echo get_avatar( $coauthor->user_email, $this->gravatar_size ); ?>
-						<span id="coauthor-readonly-<?php echo $count; ?>" class="coauthor-tag">
+						<span id="<?php echo esc_attr( 'coauthor-readonly-' . $count ); ?>" class="coauthor-tag">
 							<input type="text" name="coauthorsinput[]" readonly="readonly" value="<?php echo esc_attr( $coauthor->display_name ); ?>" />
 							<input type="text" name="coauthors[]" value="<?php echo esc_attr( $coauthor->user_login ); ?>" />
 							<input type="text" name="coauthorsemails[]" value="<?php echo esc_attr( $coauthor->user_email ); ?>" />
@@ -378,14 +375,14 @@ class coauthors_plus {
 				?>
 				</ul>
 				<div class="clear"></div>
-				<p><?php _e( '<strong>Note:</strong> To edit post authors, please enable javascript or use a javascript-capable browser', 'co-authors-plus' ); ?></p>
+				<p><?php wp_kses( __( '<strong>Note:</strong> To edit post authors, please enable javascript or use a javascript-capable browser', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
 			</div>
 			<?php
 		endif;
 		?>
 
 		<div id="coauthors-edit" class="hide-if-no-js">
-			<p><?php _e( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ); ?></p>
+			<p><?php wp_kses( __( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
 		</div>
 
 		<?php wp_nonce_field( 'coauthors-edit', 'coauthors-nonce' ); ?>
@@ -507,9 +504,9 @@ class coauthors_plus {
 		}
 		?>
 		<label class="inline-edit-group inline-edit-coauthors">
-			<span class="title"><?php _e( 'Authors', 'co-authors-plus' ) ?></span>
+			<span class="title"><?php esc_html_e( 'Authors', 'co-authors-plus' ) ?></span>
 			<div id="coauthors-edit" class="hide-if-no-js">
-				<p><?php _e( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ); ?></p>
+				<p><?php wp_kses( __( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
 			</div>
 			<?php wp_nonce_field( 'coauthors-edit', 'coauthors-nonce' ); ?>
 		</label>
@@ -600,7 +597,7 @@ class coauthors_plus {
 	/**
 	 * Modify the author query posts SQL to include posts co-authored
 	 */
-	function posts_join_filter( $join, $query ){
+	function posts_join_filter( $join, $query ) {
 		global $wpdb;
 
 		if ( $query->is_author() ) {
@@ -617,10 +614,10 @@ class coauthors_plus {
 			$term_relationship_join = " INNER JOIN {$wpdb->term_relationships} ON ({$wpdb->posts}.ID = {$wpdb->term_relationships}.object_id)";
 			$term_taxonomy_join = " INNER JOIN {$wpdb->term_taxonomy} ON ( {$wpdb->term_relationships}.term_taxonomy_id = {$wpdb->term_taxonomy}.term_taxonomy_id )";
 
-			if ( strpos( $join, trim( $term_relationship_join ) ) === false ) {
+			if ( false === strpos( $join, trim( $term_relationship_join ) ) ) {
 				$join .= str_replace( 'INNER JOIN', 'LEFT JOIN', $term_relationship_join );
 			}
-			if ( strpos( $join, trim( $term_taxonomy_join ) ) === false ) {
+			if ( false === strpos( $join, trim( $term_taxonomy_join ) ) ) {
 				$join .= str_replace( 'INNER JOIN', 'LEFT JOIN', $term_taxonomy_join );
 			}
 		}
@@ -631,7 +628,7 @@ class coauthors_plus {
 	/**
 	 * Modify the author query posts SQL to include posts co-authored
 	 */
-	function posts_where_filter( $where, $query ){
+	function posts_where_filter( $where, $query ) {
 		global $wpdb;
 
 		if ( $query->is_author() ) {
@@ -683,7 +680,7 @@ class coauthors_plus {
 				}
 				$terms_implode = rtrim( $terms_implode, ' OR' );
 				$this->having_terms = rtrim( $this->having_terms, ' OR' );
-				$where = preg_replace( '/(\b(?:' . $wpdb->posts . '\.)?post_author\s*=\s*(\d+))/', '(' . $maybe_both_query . ' ' . $terms_implode . ')', $where, 1 ); #' . $wpdb->postmeta . '.meta_id IS NOT NULL AND
+				$where = preg_replace( '/(\b(?:' . $wpdb->posts . '\.)?post_author\s*=\s*(\d+))/', '(' . $maybe_both_query . ' ' . $terms_implode . ')', $where, -1 ); #' . $wpdb->postmeta . '.meta_id IS NOT NULL AND
 			}
 		}
 		return $where;
@@ -733,7 +730,7 @@ class coauthors_plus {
 				// because it'll be the valid user ID
 				if ( 'guest-author' == $author_data->type && ! empty( $author_data->linked_account ) ) {
 					$data['post_author'] = get_user_by( 'login', $author_data->linked_account )->ID;
-				} else if ( $author_data->type == 'wpuser' ) {
+				} else if ( 'wpuser' === $author_data->type ) {
 					$data['post_author'] = $author_data->ID;
 				}
 			}
@@ -906,7 +903,7 @@ class coauthors_plus {
 		$terms = array();
 		foreach ( $raw_coauthors as $author ) {
 			if ( true === is_array( $args ) && true === isset( $args['fields'] ) ) {
-				switch( $args['fields'] ) {
+				switch ( $args['fields'] ) {
 					case 'names' :
 						$terms[] = $author->name;
 						break;
@@ -1012,6 +1009,7 @@ class coauthors_plus {
 			$authordata = $author;
 			$term = $this->get_author_term( $authordata );
 		}
+
 		if ( ( is_object( $authordata ) )
 			|| ( ! empty( $term ) && $term->count ) ) {
 			$wp_query->queried_object = $authordata;
@@ -1068,7 +1066,7 @@ class coauthors_plus {
 		$authors = $this->search_authors( $search, $ignore );
 
 		foreach ( $authors as $author ) {
-			echo $author->ID . ' | ' . $author->user_login . ' | ' . $author->display_name . ' | ' . $author->user_email . ' | ' . $author->user_nicename . "\n";
+			echo esc_html( $author->ID . ' | ' . $author->user_login . ' | ' . $author->display_name . ' | ' . $author->user_email . ' | ' . $author->user_nicename ) . "\n";
 		}
 
 		die();
@@ -1135,7 +1133,7 @@ class coauthors_plus {
 			// Make sure the user is contributor and above (or a custom cap)
 			if ( in_array( $found_user->user_login, $ignored_authors ) ) {
 				unset( $found_users[ $key ] );
-			} else if ( $found_user->type == 'wpuser' && false === $found_user->has_cap( apply_filters( 'coauthors_edit_author_cap', 'edit_posts' ) ) ) {
+			} else if ( 'wpuser' === $found_user->type && false === $found_user->has_cap( apply_filters( 'coauthors_edit_author_cap', 'edit_posts' ) ) ) {
 				unset( $found_users[ $key ] );
 			}
 		}
@@ -1246,12 +1244,15 @@ class coauthors_plus {
 			<script type="text/javascript">
 				// AJAX link used for the autosuggest
 				var coAuthorsPlus_ajax_suggest_link = <?php
-				echo json_encode( add_query_arg( array(
-						'action' => 'coauthors_ajax_suggest',
-						'post_type' => rawurlencode( get_post_type() ),
-					),
-					wp_nonce_url( 'admin-ajax.php', 'coauthors-search' )
-				) ); ?>;
+				echo wp_json_encode(
+					add_query_arg(
+						array(
+							'action' => 'coauthors_ajax_suggest',
+							'post_type' => rawurlencode( get_post_type() ),
+						),
+						wp_nonce_url( 'admin-ajax.php', 'coauthors-search' )
+					)
+				); ?>;
 			</script>
 		<?php
 	}
@@ -1462,11 +1463,10 @@ class coauthors_plus {
 		// Send back the updated Open Graph Tags
 		return apply_filters( 'coauthors_open_graph_tags', $og_tags );
 	}
-
 }
 
 global $coauthors_plus;
-$coauthors_plus = new coauthors_plus();
+$coauthors_plus = new CoAuthors_Plus();
 
 if ( ! function_exists( 'wp_notify_postauthor' ) ) :
 	/**
