@@ -62,6 +62,8 @@ class Settings {
 
 		'component_alerts' => 'none',
 
+		'use_remote_images' => 'no',
+
 		// This can either be gallery or mosaic.
 		'gallery_type'   => 'gallery',
 

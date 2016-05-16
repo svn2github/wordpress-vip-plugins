@@ -41,12 +41,9 @@ class Image extends Component {
 		$url      = esc_url_raw( apply_filters( 'apple_news_build_image_src', $matches[1], $text ) );
 		$filename = preg_replace( '/\\?.*/', '', \Apple_News::get_filename( $url ) );
 
-		// Save image into bundle
-		$this->bundle_source( $filename, $url );
-
 		$this->json = array(
 			'role' => 'photo',
-			'URL'  => 'bundle://' . $filename,
+			'URL'  => $this->maybe_bundle_source( $url, $filename ),
 		);
 
 		// IMAGE ALIGNMENT is defined as follows:

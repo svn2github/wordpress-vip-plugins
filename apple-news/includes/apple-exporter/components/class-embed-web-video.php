@@ -13,7 +13,7 @@ class Embed_Web_Video extends Component {
 	 * Regex patterns to match supported embed types.
 	 */
 	const YOUTUBE_MATCH = '#^https?://(?:www\.)?(?:youtube\.com/((watch\?v=)|(embed/))([\w\-]+)|youtu\.be/([\w\-]+))[^ ]*$#';
-	const VIMEO_MATCH   = '#^(https?:)?//(?:.+\.)?vimeo\.com/(:?.+/)?(\d+)$#';
+	const VIMEO_MATCH   = '#^(https?:)?//(?:.+\.)?vimeo\.com/(:?.+/)?(\d+)(?:\?.*)*$#';
 
 	/**
 	 * Look for node matches for this component.

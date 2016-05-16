@@ -30,9 +30,6 @@ class Admin_Apple_News extends Apple_News {
 	 * Constructor.
 	 */
 	function __construct() {
-		// This is required to download files and setting headers.
-		ob_start();
-
 		// Register hooks
 		add_action( 'admin_print_styles-toplevel_page_apple_news_index', array( $this, 'plugin_styles' ) );
 

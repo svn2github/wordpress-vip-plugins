@@ -35,14 +35,14 @@ class Admin_Apple_Post_Sync {
 
 		// Register update hooks if needed
 		if ( 'yes' == $settings->get( 'api_autosync' ) || 'yes' == $settings->get( 'api_autosync_update' ) ) {
-			add_action( 'save_post', array( $this, 'do_publish' ), 10, 2 );
+			// This needs to happen after meta boxes save
+			add_action( 'save_post', array( $this, 'do_publish' ), 99, 2 );
 			add_action( 'before_delete_post', array( $this, 'do_delete' ) );
 		}
 	}
 
 	/**
-	 * When a post is published, or a published post updated, trigger this
-	 * function.
+	 * When a post is published, or a published post updated, trigger this function.
 	 *
 	 * @since 0.4.0
 	 * @param int $id

@@ -193,15 +193,32 @@ class Push extends API_Action {
 
 			do_action( 'apple_news_before_push', $this->id );
 
+			// Populate optional metadata
+			$meta = array(
+				'data' => array(),
+			);
+
+			// Get sections
+			$sections = get_post_meta( $this->id, 'apple_news_sections', true );
+			if ( is_array( $sections ) ) {
+				$meta['data']['links'] = array( 'sections' => $sections );
+			}
+
+			// Get the isPreview setting
+			$is_preview = get_post_meta( $this->id, 'apple_news_is_preview', true );
+			if ( isset( $is_preview ) ) {
+				$meta['data']['isPreview'] = (bool) $is_preview;
+			}
+
 			if ( $remote_id ) {
 				// Update the current article from the API in case the revision changed
 				$this->get();
 
 				// Get the current revision
 				$revision = get_post_meta( $this->id, 'apple_news_api_revision', true );
-				$result   = $this->get_api()->update_article( $remote_id, $revision, $json, $bundles );
+				$result   = $this->get_api()->update_article( $remote_id, $revision, $json, $bundles, $meta );
 			} else {
-				$result = $this->get_api()->post_article_to_channel( $json, $this->get_setting( 'api_channel' ), $bundles );
+				$result = $this->get_api()->post_article_to_channel( $json, $this->get_setting( 'api_channel' ), $bundles, $meta );
 			}
 
 			// Save the ID that was assigned to this post in by the API.

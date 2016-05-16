@@ -281,6 +281,27 @@ abstract class Component {
 	}
 
 	/**
+	 * Maybe bundles the source based on current settings.
+	 * Returns the URL to use based on current setings.
+	 *
+	 * @param string $source    The path or URL of the resource which is going to
+	 *                          be bundled
+	 * @param string $filename  The name of the file to be created
+	 * @return string 					The URL to use for this asset in the JSON
+	 */
+	protected function maybe_bundle_source( $source, $filename = null ) {
+		if ( 'yes' === $this->get_setting( 'use_remote_images' ) ) {
+			return $source;
+		} else {
+			if ( null === $filename ) {
+				$filename = \Apple_News::get_filename( $source );
+			}
+			$this->bundle_source( $filename, $source );
+			return 'bundle://' . $filename;
+		}
+	}
+
+	/**
 	 * Calls the current workspace bundle_source method to allow for
 	 * different implementations of the bundling technique.
 	 *

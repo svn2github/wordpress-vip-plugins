@@ -46,6 +46,11 @@ class Admin_Apple_Settings_Section_Advanced extends Admin_Apple_Settings_Section
 				'type'    => array( 'none', 'warn', 'fail' ),
 				'description' => __( 'If a post has a component that is unsupported by Apple News, choose "none" to generate no alert, "warn" to provide an admin warning notice, or "fail" to generate a notice and stop publishing.', 'apple-news' ),
 			),
+			'use_remote_images' => array(
+				'label'   => __( 'Use Remote Images?', 'apple-news' ),
+				'type'    => array( 'yes', 'no' ),
+				'description' => __( 'Allow the Apple News API to retrieve images remotely rather than bundle them. This setting is recommended if you are having any issues with publishing images. If your images are not publicly accessible, such as on a development site, you cannot use this feature.', 'apple-news' ),
+			),
 		);
 
 		// Add the groups
@@ -57,6 +62,10 @@ class Admin_Apple_Settings_Section_Advanced extends Admin_Apple_Settings_Section
 			'alerts' => array(
 				'label'       => __( 'Alerts', 'apple-news' ),
 				'settings'    => array( 'component_alerts' ),
+			),
+			'images' => array(
+				'label'       => __( 'Image Settings', 'apple-news' ),
+				'settings'    => array( 'use_remote_images' ),
 			),
 		);
 

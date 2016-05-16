@@ -23,8 +23,13 @@ class Metadata extends Builder {
 
 		// If the content has a cover, use it as thumb.
 		if ( $this->content_cover() ) {
+			if ( 'yes' === $this->get_setting( 'use_remote_images' ) ) {
+				$thumb_url = $this->content_cover();
+			} else {
 			$filename  = \Apple_News::get_filename( $this->content_cover() );
 			$thumb_url = 'bundle://' . $filename;
+			}
+
 			$meta['thumbnailURL'] = $thumb_url;
 		}
 

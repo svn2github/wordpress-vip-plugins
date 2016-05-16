@@ -33,8 +33,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 
 		// Register hooks if enabled
 		if ( 'yes' == $settings->get( 'show_metabox' ) ) {
-			// Handle a publish action on save.
-			// However, if auto sync is enabled, don't bother.
+			// Handle a publish action and saving fields
 			if ( 'yes' != $settings->get( 'api_autosync' ) ) {
 				add_action( 'save_post', array( $this, 'do_publish' ), 10, 2 );
 			}
@@ -64,20 +63,72 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 	 */
 	public function do_publish( $post_id, $post ) {
 		// Check if the values we want are present in $_REQUEST params.
-		if ( empty( $_POST['apple_news_publish_action'] )
-			|| empty( $_POST['apple_news_publish_nonce'] )
+		if ( empty( $_POST['apple_news_nonce'] )
 			|| empty( $_POST['post_ID'] ) ) {
 			return;
 		}
 
 		// Check the nonce
-		if ( ! wp_verify_nonce( $_POST['apple_news_publish_nonce'], $this->publish_action ) ) {
+		if ( ! wp_verify_nonce( $_POST['apple_news_nonce'], $this->publish_action ) ) {
 			return;
 		}
 
-		// Do the publish
-		$post_sync = new Admin_Apple_Post_Sync( $this->settings );
-		$post_sync->do_publish( $post_id, $post );
+		// Save meta box fields
+		$post_id = absint( $_POST['post_ID'] );
+		self::save_post_meta( $post_id );
+
+		// If this is set to autosync or no action is set, we're done here
+		if ( 'yes' == $this->settings->get( 'api_autosync' )
+			|| empty( $_POST['apple_news_publish_action'] )
+			|| $this->publish_action != $_POST['apple_news_publish_action'] ) {
+			return;
+		}
+
+		// Proceed with the push
+		$action = new Apple_Actions\Index\Push( $this->settings, $post_id );
+		try {
+			$action->perform();
+		} catch ( Apple_Actions\Action_Exception $e ) {
+			Admin_Apple_Notice::error( $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Saves the Apple News meta fields associated with a post
+	 *
+	 * @param int $post_id
+	 * @access public
+	 * @static
+	 */
+	public static function save_post_meta( $post_id ) {
+		// Save fields from the meta box
+		if ( ! empty( $_POST['apple_news_sections'] ) ) {
+			$sections = array_map( 'sanitize_text_field', $_POST['apple_news_sections'] );
+		} else {
+			$sections = array();
+		}
+		update_post_meta( $post_id, 'apple_news_sections', $sections );
+
+		if ( ! empty( $_POST['apple_news_is_preview'] ) && 1 === intval( $_POST['apple_news_is_preview'] ) ) {
+			$is_preview = true;
+		} else {
+			$is_preview = false;
+		}
+		update_post_meta( $post_id, 'apple_news_is_preview', $is_preview );
+
+		if ( ! empty( $_POST['apple_news_pullquote'] ) ) {
+			$pullquote = sanitize_text_field( $_POST['apple_news_pullquote'] );
+		} else {
+			$pullquote = '';
+		}
+		update_post_meta( $post_id, 'apple_news_pullquote', $pullquote );
+
+		if ( ! empty( $_POST['apple_news_pullquote_position'] ) ) {
+			$pullquote_position = sanitize_text_field( $_POST['apple_news_pullquote_position'] );
+		} else {
+			$pullquote_position = 'top';
+		}
+		update_post_meta( $post_id, 'apple_news_pullquote_position', $pullquote_position );
 	}
 
 	/**
@@ -117,19 +168,50 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		$api_id = get_post_meta( $post->ID, 'apple_news_api_id', true );
 		$deleted = get_post_meta( $post->ID, 'apple_news_api_deleted', true );
 		$pending = get_post_meta( $post->ID, 'apple_news_api_pending', true );
+		$is_preview = get_post_meta( $post->ID, 'apple_news_is_preview', true );
+		$pullquote = get_post_meta( $post->ID, 'apple_news_pullquote', true );
+		$pullquote_position = get_post_meta( $post->ID, 'apple_news_pullquote_position', true );
+		?>
+		<div id="apple-news-publish">
+		<?php wp_nonce_field( $this->publish_action, 'apple_news_nonce' ); ?>
+		<?php
+			$section = new Apple_Actions\Index\Section( $this->settings );
+			try {
+				$sections = $section->get_sections();
+			} catch ( Apple_Actions\Action_Exception $e ) {
+				Admin_Apple_Notice::error( $e->getMessage() );
+			}
 
+			if ( ! empty( $sections ) ) :
+				?>
+				<h3><?php esc_html_e( 'Sections', 'apple-news' ) ?></h3>
+				<?php
+				self::build_sections_field( $sections, $post->ID );
+			endif;
+		?>
+		<p class="description"><?php esc_html_e( 'Select the sections in which to publish this article. Uncheck them all for a standalone article.' , 'apple-news' ) ?></p>
+		<h3><?php esc_html_e( 'Preview?', 'apple-news' ) ?></h3>
+		<input id="apple-news-is-preview" name="apple_news_is_preview" type="checkbox" value="1" <?php checked( $is_preview ) ?>>
+		<p class="description"><?php esc_html_e( 'Check this to publish the article as a draft.' , 'apple-news' ) ?></p>
+		<h3><?php esc_html_e( 'Pull quote', 'apple-news' ) ?></h3>
+		<textarea name="apple_news_pullquote" placeholder="<?php esc_attr_e( 'A pull quote is a key phrase, quotation, or excerpt that has been pulled from an article and used as a graphic element, serving to entice readers into the article or to highlight a key topic.', 'apple-news' ) ?>" rows="6" class="large-text"><?php echo esc_textarea( $pullquote ) ?></textarea>
+		<p class="description"><?php esc_html_e( 'This is optional and can be left blank.', 'apple-news' ) ?></p>
+		<h3><?php esc_html_e( 'Pull quote position', 'apple-news' ) ?></h3>
+		<select name="apple_news_pullquote_position">
+			<option <?php selected( $pullquote_position, 'top' ) ?> value="top"><?php esc_html_e( 'top', 'apple-news' ) ?></option>
+			<option <?php selected( $pullquote_position, 'middle' ) ?> value="middle"><?php esc_html_e( 'middle', 'apple-news' ) ?></option>
+			<option <?php selected( $pullquote_position, 'bottom' ) ?> value="bottom"><?php esc_html_e( 'bottom', 'apple-news' ) ?></option>
+		</select>
+		<p class="description"><?php esc_html_e( 'The position in the article where the pull quote will appear.', 'apple-news' ) ?></p>
+		<?php
 		if ( 'yes' != $this->settings->get( 'api_autosync' )
 			&& current_user_can( apply_filters( 'apple_news_publish_capability', 'manage_options' ) )
 			&& empty( $api_id )
 			&& empty( $deleted )
 			&& empty( $pending ) ):
 		?>
-		<p><?php esc_html_e( 'Click the button below to publish this article to Apple News', 'apple-news' ); ?></p>
-		<div id="apple-news-publish">
 		<input type="hidden" id="apple-news-publish-action" name="apple_news_publish_action" value="">
-		<input type="hidden" id="apple-news-publish-nonce" name="apple_news_publish_nonce" value="<?php echo esc_attr( wp_create_nonce( $this->publish_action ) ) ?>" >
 		<input type="button" id="apple-news-publish-submit" name="apple_news_publish_submit" value="<?php esc_attr_e( 'Publish to Apple News', 'apple-news' ) ?>" class="button-primary" />
-		</div>
 		<?php
 		elseif ( 'yes' == $this->settings->get( 'api_autosync' )
 			&& empty( $api_id )
@@ -146,13 +228,13 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		endif;
 
 		// Add data about the article if it exists
-		if ( ! empty( $deleted ) ) {
+		if ( ! empty( $deleted ) ) :
 			?>
 			<p><b><?php esc_html_e( 'This post has been deleted from Apple News', 'apple-news' ) ?></b></p>
 			<?php
-		}
+		endif;
 
-		if ( ! empty( $api_id ) ) {
+		if ( ! empty( $api_id ) ) :
 			$state = \Admin_Apple_News::get_post_status( $post->ID );
 
 			$share_url = get_post_meta( $post->ID, 'apple_news_api_share_url', true );
@@ -169,8 +251,59 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 			<br/><?php esc_html_e( 'Revision', 'apple-news' ) ?>: <?php echo esc_html( get_post_meta( $post->ID, 'apple_news_api_revision', true ) ) ?>
 			<br/><?php esc_html_e( 'State', 'apple-news' ) ?>: <?php echo esc_html( $state ) ?>
 			<?php
+		endif;
+		?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Builds the sections dropdown
+	 *
+	 * @param array $sections
+	 * @param int $post_id
+	 * @access public
+	 * @static
+	 */
+	public static function build_sections_field( $sections, $post_id ) {
+		// Make sure we have sections
+		if ( empty( $sections ) ) {
+			return '';
 		}
 
+		// Get current sections and determine if the article was previously published
+		$apple_news_sections = get_post_meta( $post_id, 'apple_news_sections', true );
+
+		// Iterate over the list of sections.
+		foreach ( $sections as $section ) :
+			?>
+			<div class="section">
+				<input id="apple-news-section-<?php echo esc_attr( $section->id ) ?>" name="apple_news_sections[]" type="checkbox" value="<?php echo esc_attr( $section->links->self ) ?>" <?php checked( self::section_is_checked( $apple_news_sections, $section->links->self, $section->isDefault ) ) ?>>
+				<label for="apple-news-section-<?php echo esc_attr( $section->id ) ?>"><?php echo esc_html( $section->name ) ?></label>
+			</div>
+			<?php
+		endforeach;
+		}
+
+	/**
+	 * Determine if a section is checked
+	 *
+	 * @param array $sections
+	 * @param int $section_id
+	 * @param int $is_default
+	 * @access public
+	 * @static
+	 */
+	public static function section_is_checked( $sections, $section_id, $is_default ) {
+		// If no sections exist, return true if this is the default.
+		// If sections is an empty array, this is intentional though and nothing should be checked.
+		// If sections are provided, then only use those for matching.
+		if ( ( empty( $sections ) && ! is_array( $sections ) && 1 == $is_default )
+			|| ( ! empty( $sections ) && is_array( $sections ) && in_array( $section_id, $sections ) ) ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -183,6 +316,9 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		if ( 'post.php' != $hook ) {
 			return;
 		}
+
+		wp_enqueue_style( $this->plugin_slug . '_meta_boxes_css', plugin_dir_url(
+			__FILE__ ) .  '../assets/css/meta-boxes.css' );
 
 		wp_enqueue_script( $this->plugin_slug . '_meta_boxes_js', plugin_dir_url(
 			__FILE__ ) .  '../assets/js/meta-boxes.js', array( 'jquery' ),

@@ -22,18 +22,13 @@ class Cover extends Component {
 	 * @access protected
 	 */
 	protected function build( $url ) {
-		$filename = \Apple_News::get_filename( $url );
-
-		// Save image into bundle
-		$this->bundle_source( $filename, $url );
-
 		$this->json = array(
 			'role' => 'container',
 			'layout' => 'headerContainerLayout',
 			'style' => array(
 				'fill' => array(
 					'type' => 'image',
-					'URL' => 'bundle://' . $filename,
+					'URL' => $this->maybe_bundle_source( $url ),
 					'fillMode' => 'cover',
 				),
 			),

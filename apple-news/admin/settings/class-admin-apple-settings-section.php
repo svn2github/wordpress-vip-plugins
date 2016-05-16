@@ -712,6 +712,9 @@ class Admin_Apple_Settings_Section extends Apple_News {
 			$settings[ $key ] = $value;
 		}
 
+		// Clear certain caches
+		delete_transient( 'apple_news_sections' );
+
 		// Save to options
 		update_option( self::$option_name, $settings, 'no' );
 	}

@@ -170,11 +170,6 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 
 		// Add common actions
 		$actions = array(
-			'settings' => sprintf(
-				"<a href='%s'>%s</a>",
-				esc_url( Admin_Apple_Index_Page::action_query_params( 'settings', $base_url ) ),
-				esc_html__( 'Options', 'apple-news' )
-			),
 			'export' => sprintf(
 				"<a href='%s'>%s</a>",
 				esc_url( Admin_Apple_Index_Page::action_query_params( 'export', $base_url ) ),
@@ -273,7 +268,7 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 	 */
 	public function get_bulk_actions() {
 		return apply_filters( 'apple_news_bulk_actions', array(
-			'push' => __( 'Publish', 'apple-news' ),
+			Admin_Apple_Index_Page::namespace_action( 'push' ) => __( 'Publish', 'apple-news' ),
 		) );
 	}
 
