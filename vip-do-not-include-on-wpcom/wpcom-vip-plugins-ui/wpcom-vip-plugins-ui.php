@@ -247,6 +247,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'			=> 'PublishThis',
 				'description'	=> 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
 			),
+			'roost-web-push'    => array(
+				'name'			=> 'Roost',
+				'description'	=> 'Engage, Then Re-Engage Your Audience via Web Push Notifications!',
+			),
 			'sailthru' => array(
 				'name'			=> 'Sailthru for WordPress',
 				'description'	=> 'Sailthru is the leading provider of personalized marketing communications.',
