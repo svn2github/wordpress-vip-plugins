@@ -15,6 +15,7 @@ function wpcom_fbia_stats_pixel() {
 
 	// Stop wpcom adding the tracking pixel
 	remove_filter( 'the_content', 'add_bug_to_feed', 100 );
+	remove_filter( 'the_excerpt_rss', 'add_bug_to_feed', 100 );
 
 	add_filter( 'the_content', '_wpcom_fbia_stats_pixel', 100 );
 
