@@ -11,7 +11,7 @@ function optimizely_admin_notices() {
 		?>
 		<div id="optimizely-warning" class="updated fade">
 			<p><strong><?php echo sprintf(
-				'%s <a href="https://www.optimizely.com/tokens" target="_blank">%s</a> %s <a href="admin.php?page=optimizely-config#tabs-2">%s</a>.',
+				'%s <a href="https://app.optimizely.com/tokens" target="_blank">%s</a> %s <a href="admin.php?page=optimizely-config#tabs-2">%s</a>.',
 				esc_html__( 'Optimizely is almost ready. You must first add your', 'optimizely' ),
 				esc_html__( 'API Token', 'optimizely' ),
 				esc_html__( 'in the', 'optimizely' ),
@@ -71,9 +71,13 @@ function optimizely_conf() {
 		$project_id = sanitize_text_field( $_POST['project_id'] );
 		$num_variations = sanitize_text_field( $_POST['optimizely_num_variations'] );
 		$optimizely_post_types = array_map( 'sanitize_text_field', $_POST['optimizely_post_types'] );
-		$optimizely_visitor_count = sanitize_text_field( $_POST['optimizely_visitor_count'] );
+		$optimizely_visitor_count = str_replace( ',', '', sanitize_text_field( $_POST['optimizely_visitor_count'] ) );
 		$project_name = sanitize_text_field( stripcslashes( $_POST['project_name'] ) );
 		$variation_template = sanitize_text_field( stripcslashes( $_POST['variation_template' ] ) );
+		$activation_mode = sanitize_text_field( $_POST['optimizely_activation_mode' ] );
+		$conditional_activation_code = sanitize_text_field( stripcslashes( $_POST['conditional_activation_code' ] ) );
+		$optimizely_url_targeting_type = sanitize_text_field( $_POST['optimizely_url_targeting_type'] );
+		$optimizely_url_targeting = sanitize_text_field( $_POST['optimizely_url_targeting'] );
 
 		// Either save or delete/set a default if empty for each value
 		if ( empty( $token ) ) {
@@ -104,12 +108,6 @@ function optimizely_conf() {
 			update_option( 'optimizely_post_types', trim( $post_type_string, ',' ) );
 		}
 
-		if ( empty( $optimizely_visitor_count ) ) {
-			delete_option( 'optimizely_visitor_count' );
-		} else {
-			update_option( 'optimizely_visitor_count', $optimizely_visitor_count );
-		}
-
 		if ( empty( $project_name ) ) {
 			delete_option( 'optimizely_project_name' );
 		} else {
@@ -120,6 +118,30 @@ function optimizely_conf() {
 			update_option( 'optimizely_variation_template', OPTIMIZELY_DEFAULT_VARIATION_TEMPLATE );
 		} else {
 			update_option( 'optimizely_variation_template', $variation_template );
+		}
+
+		if ( empty( $conditional_activation_code ) ) {
+			update_option( 'optimizely_conditional_activation_code', OPTIMIZELY_DEFAULT_CONDITIONAL_TEMPLATE );
+		} else {
+			update_option( 'optimizely_conditional_activation_code', $conditional_activation_code );
+		}
+
+		if ( empty( $activation_mode ) ) {
+			delete_option( 'optimizely_activation_mode', 'immediate' );
+		} else {
+			update_option( 'optimizely_activation_mode', $activation_mode );
+		}
+
+		if ( empty( $optimizely_url_targeting ) ) {
+			delete_option( 'optimizely_url_targeting', get_site_url() );
+		} else {
+			update_option( 'optimizely_url_targeting', $optimizely_url_targeting );
+		}
+
+		if ( empty( $optimizely_url_targeting_type ) ) {
+			delete_option( 'optimizely_url_targeting_type', 'substring' );
+		} else {
+			update_option( 'optimizely_url_targeting_type', $optimizely_url_targeting_type );
 		}
 
 		?>

@@ -32,6 +32,15 @@
 	background-color: #D9FBD6;
 }
 
+
+#optimizely-tabs .winning {
+	color: #8FB900;
+}
+
+#optimizely-tabs .losing, #optimizely-tabs .loser {
+	color: #e75611;
+}
+
 #optimizely-tabs #winners, #optimizely-tabs #stillwaiting, #optimizely-tabs #ready {
 	display: none;
 }
@@ -137,19 +146,7 @@
 	text-align: center;
 }
 
-#optimizely-tabs .progressbar {
-	border-bottom-right-radius: 15px;
-	border-top-right-radius: 15px;
-	border-top-left-radius: 15px;
-	border-bottom-left-radius: 15px;
-	width: 100%;
-	display: inline-block;
-	height: 20px;
-	margin-top: 5px;
-	margin-right: 50px;
-}
-
-#optimizely-tabs .ready, .not-ready {
+#optimizely-tabs .ready, #optimizely-tabs .not-ready {
 	display: inline-block;
 	height: 20px;
 	width: 140px;
@@ -186,7 +183,7 @@
 	
 }
 
-#optimizely-tabs #stillwaiting > h2 > span, #optimizely-tabs #tabs-1 > h2 > span {
+#optimizely-tabs #stillwaiting > h2 > span, #optimizely-tabs #ready > h2 > span {
 	font-size: 13px;
 	float: right;
 }
@@ -202,4 +199,15 @@
 input.optimizely_variation {
 	width: 100%;
 }
+
+#optimizely-tabs th > div > i.fa.fa-question-circle.fa-fw {
+	display: inline;
+  	padding-left: 3px;
+}
+
+#optimizely_url_targeting {
+	width:500px;
+}
+
+
 

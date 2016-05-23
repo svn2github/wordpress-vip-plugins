@@ -1,13 +1,13 @@
 ( function( $ ) {
 
-	function optimizelyResultsPage( apiToken, projectId, poweredVisitor ) {
+	function optimizelyResultsPage( apiToken, projectId ) {
 		var optly = new OptimizelyAPI( apiToken );	
 
 		// Fetch only Wordpress experiments from project
 		optly.get( 'projects/' + projectId + '/experiments/', function( response ) {
 			optly.wordpressExps = [];
 			var resultsArray = [];
-		
+
 			for ( i = 0; i < response.length; i++ ) {
 				if ( response[ i ].description.indexOf( 'Wordpress' ) > -1 
 					&& 'Archived' != response[ i ].status
@@ -15,7 +15,6 @@
 					&& 'Draft' != response[ i ].status ) {
 					resultsArray.push( response[ i ] );
 				}
-			
 			}
 		
 			if ( resultsArray.length > 0 ) {
@@ -55,12 +54,12 @@
 
 		$( 'html' ).delegate( '.edit', 'click', function() {
 			var expID = $( this ).parents( '.opt_results' ).attr( 'data-exp-id' );
-			window.open( 'https://www.optimizely.com/edit?experiment_id=' + parseInt( expID ) );
+			window.open( 'https://app.optimizely.com/edit?experiment_id=' + parseInt( expID ) );
 		});
 
 		$( 'html' ).delegate( '.fullresults', 'click', function() {
 			var expID = $( this ).parents( '.opt_results' ).attr( 'data-exp-id' );
-			window.open( 'https://www.optimizely.com/results2?experiment_id=' + parseInt( expID ) );
+			window.open( 'https://app.optimizely.com/results2?experiment_id=' + parseInt( expID ) );
 		});
 
 		// Launch winning variation when Launch button is clicked
@@ -94,7 +93,7 @@
 		// Gets the results for the experiment
 		function getWPExpResults( expObj,cb ) {
 			expObj.results = [];
-			optly.get( 'experiments/' + expObj.id + '/results', function( response ) { 
+			optly.get( 'experiments/' + expObj.id + '/stats', function( response ) { 
 				var goalNameArray = [];
 				response.sort( compare );
 				expObj.results = response;
@@ -174,16 +173,13 @@
 			$( '.loading' ).hide();
 			var data = buildResultsModuleData( exp );
 			var tpl = _.template( $( '#optimizely_results' ).html() );
-			
-			if ( exp.avgVisitorCount > poweredVisitor ) {
+			if ( data.isSignificant ) {
 				$( '#ready' ).append( tpl( data ) );
 				$( '#ready' ).show();
 			} else {
 				$( '#stillwaiting' ).append( tpl( data ) );
 				$( '#stillwaiting' ).show();
 			}
-
-			animateProgressBar( exp );
 			cb();
 		}
 
@@ -195,43 +191,6 @@
 			}
 
 			return totalVisitors/results.length;
-		}
-
-		// Uses the average visitor count to create the progress bar
-		function animateProgressBar( exp ) {
-			var progressbar = $( '#exp_' + exp.id ).find( '.progressbar' ),
-			poweredPercentage = Math.round( ( exp.avgVisitorCount/poweredVisitor ) * 100 );
-			progressbar.progressbar({
-				value: exp.avgVisitorCount,
-				max: poweredVisitor
-			});
-
-			var progBarColor;
-			switch( true ) {
-				case ( poweredPercentage < 25 ):
-					progBarColor = '#FF0000';
-					break;
-				case ( poweredPercentage >= 25 && poweredPercentage < 50 ):
-					progBarColor = '#FB7948';
-					break;
-				case ( poweredPercentage >= 50 && poweredPercentage < 75 ):
-					progBarColor = '#FBA92F';
-					break;
-				case ( poweredPercentage >= 75 && poweredPercentage < 100 ):
-					progBarColor = '#CFF43B';
-					break;
-				default:
-					progBarColor = '#90b71c';
-					break;
-			}
-
-			$( progressbar )
-				.find( '.ui-progressbar-value' )
-				.css({
-					'background': progBarColor,
-					'border': '1px solid ' + progBarColor
-				});
-			$( progressbar ).attr( 'title', Math.round( exp.avgVisitorCount ) + ' / ' + poweredVisitor + ' visitors' );
 		}
 
 		// Used to convert the value returned by the results API to a rounded percentage
@@ -247,7 +206,7 @@
 
 		}
 		
-		// Main function that builds the HTNML for each results block
+		// Main function that builds the HTML for each results block
 		function buildResultsModuleData( exp ) {
 			// Set the checkbox html
 			var statusClass = 'play';
@@ -285,27 +244,44 @@
 			}
 			
 			var variations = [];
-			var isWinner = false;
+			var isSignificant = false;
 			for ( i = exp.results.length -1; i >= 0; i-- ) {
 				var result = exp.results[ i ],
 					improvement,
 					conversion_rate,
 					avgVisitors = getAverageVisitor( exp.results ),
-					confidence;
+					confidence,
+					vistitorsRemaining,
+					status,
+					rowColor;
 				
 				if ( 'baseline' == result.status ) {
 					improvement = 'baseline';
 					confidence = '-';
+					vistitorsRemaining = '-';
+					status = 'baseline';
 				} else {
-					confidence = getRoundedPercentage( result.confidence );
+					confidence = getRoundedPercentage( result.statistical_significance );
 					improvement = getRoundedPercentage( result.improvement );
+					vistitorsRemaining = result.visitors_until_statistically_significant;
+					if(result.status == 'inconclusive') {
+						// results are inconclusive determine if the variation is winning or loosing
+						if(result.improvement > 0) {
+							status = 'winning';
+						} else {
+							status = 'losing';
+						}
+					} else {
+						isSignificant = true;
+						status = result.status;
+					}
 				}
 				
 				var conversionRate = getRoundedPercentage( result.conversion_rate );
 				
 				variations.push({
 					expID: exp.id,
-					status: result.status,
+					status: status,
 					goalId: result.goal_id,
 					variationId: result.variation_id,
 					variationName: result.variation_name,
@@ -314,12 +290,14 @@
 					conversions: result.conversions,
 					conversionRate: conversionRate,
 					improvement: improvement,
-					confidence: confidence
+					confidence: confidence,
+					vistitorsRemaining: vistitorsRemaining
 				});
 			}
-			
+
 			data = {
 				id: exp.id,
+				isSignificant: isSignificant,
 				description: exp.description,
 				title: expTitle,
 				goalOptions: goalOptions,
@@ -332,8 +310,8 @@
 	}
 
 	$( document ).ready(function() {
-		if ( 'toplevel_page_optimizely-config' == pagenow && '' != optimizelySettings.token && '' != optimizelySettings.projectId ) {
-			optimizelyResultsPage( optimizelySettings.token, optimizelySettings.projectId, optimizelySettings.visitorCount );
+		if (typeof pagenow != 'undefined' && 'toplevel_page_optimizely-config' == pagenow && '' != optimizelySettings.token && '' != optimizelySettings.projectId ) {
+			optimizelyResultsPage( optimizelySettings.token, optimizelySettings.projectId );
 		} else {
 			$( '#loading' ).hide();
 		}
