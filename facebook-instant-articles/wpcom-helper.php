@@ -17,6 +17,9 @@ function wpcom_fbia_stats_pixel() {
 	remove_filter( 'the_content', 'add_bug_to_feed', 100 );
 	remove_filter( 'the_excerpt_rss', 'add_bug_to_feed', 100 );
 
+	// Remove advanced feeds gumpf from IA feeds
+	remove_filter( 'add_to_feed', 'wpcom_add_enhanced_feed_output' );
+
 	add_filter( 'the_content', '_wpcom_fbia_stats_pixel', 100 );
 
 }
