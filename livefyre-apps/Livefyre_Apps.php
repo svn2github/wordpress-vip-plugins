@@ -81,8 +81,12 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
         public static function init_app($app) {
             if(isset(self::$apps[$app])) {
                 $app_class = self::$apps[$app];
-                require_once ( LFAPPS__PLUGIN_PATH . "apps". DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . $app_class . ".php" );
-                $app_class::init();
+                // VIP: Fixing fatal errors for missing files
+                $filename = LFAPPS__PLUGIN_PATH . "apps". DIRECTORY_SEPARATOR . $app . DIRECTORY_SEPARATOR . $app_class . ".php";
+                if ( 0 === validate_file( $filename ) && file_exists( $filename ) ) {
+                    require_once ( $filename );
+                    $app_class::init();
+                }
             }
         }
         
