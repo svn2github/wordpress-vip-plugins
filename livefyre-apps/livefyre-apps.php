@@ -3,7 +3,7 @@
 Plugin Name: Livefyre Apps
 Plugin URI: http://www.livefyre.com/
 Description: Livefyre Apps combines social media functionality with your Wordpress site in real-time.  
-Version: 1.2
+Version: 1.3
 Author: Livefyre, Inc.
 Author URI: http://www.livefyre.com/
  */
