@@ -1291,7 +1291,7 @@ class Babble_Post_Public {
 	 * @return string The name of the base post type
 	 **/
 	public function get_base_post_type( $post_type ) {
-		if ( ! isset( $this->post_types[ $post_type ] ) )
+		if ( ! empty( $this->post_types ) || ! isset( $this->post_types[ $post_type ] ) )
 			return $post_type;
 		return $this->post_types[ $post_type ];
 	}
