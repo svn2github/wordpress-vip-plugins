@@ -223,7 +223,7 @@
                     <?php
                         $package_type = get_option('livefyre_apps-package_type');
                         $network = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com');
-                        $network_stub = split('\.', $network);
+                        $network_stub = explode('\.', $network);
                         $network_stub = $network_stub[0];
                     ?>
                     <div class='inside'>

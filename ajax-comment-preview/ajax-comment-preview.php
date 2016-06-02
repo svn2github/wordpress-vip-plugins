@@ -130,7 +130,7 @@ EOM
 		);
 		if ( false !== strpos( $preview_vars['template'], '%avatar' ) ) {
 			if ( function_exists( 'get_avatar' ) && preg_match( '/%(avatar[^%]*)%/i', $preview_vars['template'], $matches ) ) {
-				$avatar_args = split( ':', $matches[1] );
+				$avatar_args = explode( ':', $matches[1] );
 				$avatar_args[0] = $user_ID ? $user_ID : $email;
 				$preview_vars['template'] = str_replace( $matches[0], call_user_func_array( 'get_avatar', $avatar_args ), $preview_vars['template'] );
 			}

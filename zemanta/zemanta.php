@@ -867,7 +867,7 @@ class Zemanta {
 	*/
 	protected function check_dependencies() 
 	{
-		return ((function_exists('curl_init') || ini_get('allow_url_fopen')) && (function_exists('preg_match') || function_exists('ereg')));
+		return ((function_exists('curl_init') || ini_get('allow_url_fopen')) && (function_exists('preg_match')));
 	}
 
 	/**
