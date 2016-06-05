@@ -23,8 +23,8 @@ function vip_redirects( $vip_redirects_array = array(), $case_insensitive = fals
 	$redirect_url = '';
 
 	// Sanitize the redirects array
-	$vip_redirects_array = array_map( 'untrailingslashit', $vip_redirects_array );
-
+	$vip_redirects_array = array_map( 'esc_url', $vip_redirects_array );
+	
 	$uri_unslashed = untrailingslashit( $_SERVER['REQUEST_URI'] );
 
 	if ( $case_insensitive ) {
