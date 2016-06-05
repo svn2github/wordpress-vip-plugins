@@ -1,0 +1,57 @@
+Index: ooyala.php
+===================================================================
+--- ooyala.php	(revision 247276)
++++ ooyala.php	(working copy)
+@@ -5,7 +5,7 @@
+ Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in media settings.
+ Author: ooyala
+ Author URI: http://oomphinc.com/
+-Version: 2.2.0
++Version: 2.3.0
+ */
+ 
+ /*  Copyright 2016  Ooyala
+@@ -1150,8 +1150,10 @@
+ 				<div id="<?php echo esc_attr( $player_id ); ?>" class="ooyala-player <?php echo esc_attr( $atts['wrapper_class'] ); ?>" style="<?php echo esc_attr( $player_style ); ?>" ></div>
+ 				<script>
+ 					var ooyalaplayers = ooyalaplayers || [];
++
+ 					OO.ready(function() {
+-						ooyalaplayers.push(OO.Player.create.apply(OO.Player, <?php echo wp_json_encode( $params ); ?>));
++						var op = typeof window.ooyalaParameters === 'function' ? window.ooyalaParameters : function(params) { return params; };
++						ooyalaplayers.push(OO.Player.create.apply(OO.Player, op(<?php echo wp_json_encode( $params ); ?>)));
+ 					});
+ 				</script>
+ 				<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>
+@@ -1167,7 +1169,7 @@
+ 					if( count( $js_params ) ) {
+ 						$params[] = $js_params;
+ 					}
+-					printf( 'window[%1$s].ready(function() { ooyalaplayers.push(window[%1$s].Player.create.apply(this, %2$s)); });', wp_json_encode( $player ), wp_json_encode( $params ) );
++					printf( 'window[%1$s].ready(function() { var op = typeof window.ooyalaParameters === \'function\' ? window.ooyalaParameters : function(params) { return params; }; ooyalaplayers.push(window[%1$s].Player.create.apply(this, op(%2$s))); });', wp_json_encode( $player ), wp_json_encode( $params ) );
+ 					?>
+ 				</script>
+ 				<noscript><div><?php esc_html_e( 'Please enable Javascript to watch this video', 'ooyala' ); ?></div></noscript>
+Index: readme.txt
+===================================================================
+--- readme.txt	(revision 247276)
++++ readme.txt	(working copy)
+@@ -3,7 +3,7 @@
+ Tags: video, media, ooyala
+ Requires at least: 3.9
+ Tested up to: 4.5.0
+-Stable tag: 2.2.0
++Stable tag: 2.3.0
+ License: GPLv2 or later
+ 
+ Connect your Ooyala account to embed and upload assets directly from WordPress.
+@@ -41,6 +41,9 @@
+ 
+ == Changelog ==
+ 
++= 2.3.0 =
++* Allow JavaScript player parameters to be modified by an 'ooyalaParameters' function defined in the global JavaSvcript namespace.
++
+ = 2.2.0 =
+ * Add label management: Users can now add or edit labels on their assets during or after upload.
+ * Break out settings into a separate screen.
