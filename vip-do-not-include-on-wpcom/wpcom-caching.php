@@ -189,9 +189,9 @@ function wpcom_vip_get_page_by_path( $page_path, $output = OBJECT, $post_type = 
 		$page = get_page_by_path( $page_path, $output, $post_type );
 		$page_id = $page ? $page->ID : 0;
 		if ( $page_id ===0 ){
-			wp_cache_set( $cache_key, $page_id, 'get_page_by_path', 15 * MINUTE_IN_SECONDS ); // We only store the ID to keep our footprint small
+			wp_cache_set( $cache_key, $page_id, 'get_page_by_path', ( 1 * HOUR_IN_SECONDS + mt_rand(0, HOUR_IN_SECONDS) )  ); // We only store the ID to keep our footprint small
 		}else{
-			wp_cache_set( $cache_key, $page_id, 'get_page_by_path', 12 * HOUR_IN_SECONDS ); // We only store the ID to keep our footprint small
+			wp_cache_set( $cache_key, $page_id, 'get_page_by_path', ( 12 * HOUR_IN_SECONDS + mt_rand(0, HOUR_IN_SECONDS) )); // We only store the ID to keep our footprint small
 		}
 	}
 
@@ -622,6 +622,10 @@ function wpcom_vip_enable_old_slug_redirect_caching(){
 	add_action('template_redirect', 'wpcom_vip_wp_old_slug_redirect', 8 );
 }
 
+/**
+ * This works by first looking in the cache to see if there is a value saved based on the name query var.
+ * If one is found, redirect immediately. If nothing is found, including that there is no already cache "not_found" value we then add a hook to old_slug_redirect_url so that when the 'rea' wp_old_slug_redirect is run it will store the value in the cache @see wpcom_vip_set_old_slug_redirect_cache(). If we found a not_found we remove the template_redirect so the slow query is not run.
+ */
 function wpcom_vip_wp_old_slug_redirect(){
 	global $wp_query;
 	if ( is_404() && '' !== $wp_query->query_vars['name'] ) {
