@@ -26,7 +26,7 @@ This plugin is enabled automatically on WordPress.com for VIPs.
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version = false ) {
 
 	// Make sure there's a plugin to load
-	if ( empty( $plugin ) ) {
+	if ( empty($plugin) ) {
 		// On WordPress.com, use an internal function to message VIP about a bad call to this function
 		if ( function_exists( 'wpcom_is_vip' ) ) {
 			if ( function_exists( 'send_vip_team_debug_message' ) ) {
@@ -38,6 +38,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
 			}
 			return false;
 		}
+		// die() in non-WordPress.com environments so you know you made a mistake
 		else {
 			die( 'wpcom_vip_load_plugin() was called without a first parameter!' );
 		}
@@ -50,18 +51,23 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
 		$plugin = $plugin . '-' . $version; // Versioned plugin name
 	}
 
-	// Find the plugin
-	$plugin_locations = _wpcom_vip_load_plugin_get_locations( $folder, $version );
-	$include_path = _wpcom_vip_load_plugin_get_include_path( $plugin_locations, $plugin, $plugin_slug );
-
-	// Reset the folder based on where the plugin actually lives, and get the full path for inclusion
-	if ( is_array( $include_path ) ) {
-		$folder = $include_path['folder'];
-		$include_path = $include_path['full_path'];
+	// Make sure $plugin and $folder are valid
+	$plugin = _wpcom_vip_load_plugin_sanitizer( $plugin );
+	if ( 'plugins' !== $folder ) {
+		$folder = _wpcom_vip_load_plugin_sanitizer( $folder );
 	}
 
-	// Now check we have an include path and include the plugin
-	if ( false !== $include_path ) {
+	// Set the include path, providing back-compat for release candidates where needed
+	$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/$plugin_slug.php";
+	if (
+		true === $version &&
+		file_exists( WP_CONTENT_DIR . "/themes/vip/$folder/release-candidates/$plugin/$plugin_slug.php" )
+	) {
+		$includepath = WP_CONTENT_DIR . "/themes/vip/$folder/release-candidates/$plugin/$plugin_slug.php";
+	}
+
+	// Now test the file path and include the plugin
+	if ( file_exists( $includepath ) ) {
 
 		wpcom_vip_add_loaded_plugin( "$folder/$plugin" );
 
@@ -73,13 +79,12 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
 		$pre_include_variables = get_defined_vars();
 
 		// Now include
-		include_once( $include_path );
+		include_once( $includepath );
 
 		// If there's a wpcom-helper file for the plugin, load that too
 		$helper_path = WP_CONTENT_DIR . "/themes/vip/$folder/$plugin/wpcom-helper.php";
-		if ( file_exists( $helper_path ) ) {
+		if ( file_exists( $helper_path ) )
 			require_once( $helper_path );
-		}
 
 		// Blacklist out some variables
 		$blacklist = array( 'blacklist' => 0, 'pre_include_variables' => 0, 'new_variables' => 0 );
@@ -113,86 +118,6 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
 			die( "Unable to load $plugin ({$folder}) using wpcom_vip_load_plugin()!" );
 		}
 	}
-}
-
-/**
- * Get a list of possible plugin locations.
- *
- * Given the details passed to wpcom_vip_load_plugin(), figure out where the plugin could reside and pass that back.
- *
- * @param string $folder The folder we should be looking for
- * @param int $version A version number
- *
- * @return array Returns an array of possible plugin locations
- */
-function _wpcom_vip_load_plugin_get_locations( $folder, $version ) {
-
-	// Make a list of possible plugin locations
-	$plugin_locations = [];
-
-	// Allow VIPs to load plugins bundled in their theme
-	if ( 'theme' === $folder ) {
-		$theme = wp_get_theme();
-
-		// Add the child theme to paths array, if applicable
-		if ( $theme->get_stylesheet() !== $theme->get_template() ) {
-			// Convert "vip/[theme-name]" to "[theme-name]/plugins"
-			$plugin_locations[] = str_replace( 'vip/', '', $theme->get_stylesheet() ) . '/plugins';
-		}
-
-		// Always check the "parent" (which may just be the active theme)
-		// and convert "vip/[theme-name]" to "[theme-name]/plugins"
-		$plugin_locations[] = str_replace( 'vip/', '', $theme->get_template() ) . '/plugins';
-
-	}
-
-	// Provide backwards-compatibility for release candidates
-	if ( true === $version ) {
-		$plugin_locations[] = $folder . '/release-candidates';
-	}
-
-	// Always look for plugins in the standard plugins dir/shared plugins repos
-	$plugin_locations[] = $folder;
-
-	return $plugin_locations;
-	
-}
-
-/**
- * Determine the full include path to the plugin.
- *
- * Gathers all the various bits, puts them together and checks that the plugin path is valid.
- *
- * @param array $plugin_locations A list of possible locations from _wpcom_vip_load_plugin_get_locations()
- * @param string $plugin The versioned plugin name
- * @param string $plugin_slug The unversioned plugin slug
- *
- * @return array|bool An array with the full path, and folder part or false if no valid path was found
- */
-function _wpcom_vip_load_plugin_get_include_path( $plugin_locations = [], $plugin, $plugin_slug ) {
-
-	// Check each possible location, using the first gives a usable plugin path
-	foreach ( $plugin_locations as $plugin_location ) {
-		$path_to_check = sprintf(
-			'%s/themes/vip/%s/%s/%s.php',
-			WP_CONTENT_DIR,
-			$plugin_location,
-			_wpcom_vip_load_plugin_sanitizer( $plugin ),
-			_wpcom_vip_load_plugin_sanitizer( $plugin_slug )
-		);
-
-		if ( file_exists( $path_to_check ) ) { // We've found a valid plugin path
-			// We need to return the full path for the include, but also the location which is used
-			// elsewhere to check what plugins are active on a site.
-			return [
-				'full_path' => $path_to_check,
-				'folder' => $plugin_location,
-			];
-		}
-	}
-
-	// If we don't find the plugin anywhere, return false
-	return false;
 }
 
 /**
