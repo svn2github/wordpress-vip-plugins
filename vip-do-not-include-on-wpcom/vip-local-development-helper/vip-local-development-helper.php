@@ -50,7 +50,19 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
 		$plugin = $plugin . '-' . $version; // Versioned plugin name
 	}
 
-	// Find the plugin
+    // Liveblog is a special flower. We need to check this theme/site can use it
+    // Skip if we're loading 1.3, as that's loaded by vip-friends.php
+    // $plugin will include a version number by this point if it's above 1.3
+    if ( 'liveblog' == $plugin_slug && 'liveblog' != $plugin ) {
+
+        if ( ! wpcom_vip_is_liveblog_enabled() ) {
+            // For now, we'll just bail.
+            // @todo Log to IRC
+            return false;
+        }
+    }
+
+    // Find the plugin
 	$plugin_locations = _wpcom_vip_load_plugin_get_locations( $folder, $version );
 	$include_path = _wpcom_vip_load_plugin_get_include_path( $plugin_locations, $plugin, $plugin_slug );
 
