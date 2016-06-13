@@ -158,22 +158,17 @@ abstract class NCplugin {
      * @param $name
      * @param $url
      * @return array
-     * @throws NC_Plugin_Exception
      */
     protected static function _search_by_url ( $key, $name, $url ) {
 
         if ( empty( $key ) ) {
-
-            throw new NC_Plugin_Exception( 'Class:: ' . __CLASS__ . ' Line:: ' . __LINE__ . ' ' . NC_Plugin_Exception::EXCEPTION_NO_ACCESS_KEY );
             return;
         }
 
         try {
             $xml = self::get( $url );
-
         } catch ( NC_Plugin_Exception $e ) {
-
-            throw new NC_Plugin_Exception( 'Class:: ' . __CLASS__ . ' Line:: ' . __LINE__ . ' ' . $e->getMessage() );
+            return;
         }
 
         if ( $name === 'story' ) {
