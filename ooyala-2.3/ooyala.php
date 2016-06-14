@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/ooyala-wordpress-plugin/
 Description: Easy Embedding of Ooyala Videos based off an Ooyala Account as defined in media settings.
 Author: ooyala
 Author URI: http://oomphinc.com/
-Version: 2.3.0
+Version: 2.3.2
 */
 
 /*  Copyright 2016  Ooyala
@@ -441,12 +441,12 @@ class Ooyala {
 	 * Prefix CSS rules with a selector. Adds a prefix selector before each selector.
 	 */
 	function prefix_css( $css, $prefix ) {
-		return preg_replace_callback( '/([^{]+){/', function( $matches ) use ( $prefix ) {
+		return preg_replace_callback( '/([^{]+)(\{[^}]*}\s*)/', function( $matches ) use ( $prefix ) {
 			// Add the prefix to each selector in a comma-separated group.
 			// This WILL break if a selector has an embedded comma, like [href="foo,bar"]!
 			return implode( ',', array_map( function( $selector ) use ( $prefix ) {
 				return $prefix . ' ' . $selector;
-			}, explode( ',', $matches[1] ) ) ) . ' {';
+			}, explode( ',', $matches[1] ) ) ) . $matches[2];
 		}, $css );
 	}
 
@@ -478,11 +478,11 @@ class Ooyala {
 					if( isset( $this->allowed_values[$key] ) && is_array( $this->allowed_values[$key] ) && in_array( $setting, $this->allowed_values[$key] ) ) {
 						$validated[$key] = $setting;
 					}
-					// For fields named _raw, accept any input without manipulating it.
-					// These values are only ever re-exposed in the settings screen where
-					// they are inputted, and are processed by JavaScript to obtain formatted
-					// objects
-					else if( substr( $key, -4 ) === '_raw' ) {
+					// For JSON raw, formatted, and CSS fields, use verbatim. CSS is only output
+					// to the client in a text/css response so can be safely arbitrary.
+					// The _raw forms of JSON fields are saved verbatim and only exposed in the settings screen.
+					// The _json forms of JSON fields are validated in the following block.
+					else if( substr( $key, -4 ) === '_raw' || substr( $key, -5 ) === '_json' || substr( $key, -4 ) === '_css' ) {
 						$validated[$key] = $setting;
 					}
 					// Otherwise sanitize as plain text
@@ -497,13 +497,17 @@ class Ooyala {
 		// in a hidden element, it should be strictly well-formed JSON. Simply throw out
 		// the value if it can't pass our simple test.
 		foreach( array( 'additional_params', 'pulse_params' ) as $json_field ) {
-			$option = $json_field . '_json';
+			$raw_field = $json_field . '_raw';
+			$json_field = $json_field . '_json';
 
-			if( !empty( $validated[$option] ) ) {
-				$decoded = json_decode( $validated[$option] );
+			if( !empty( $validated[$json_field] ) ) {
+				$decoded = json_decode( $validated[$json_field], true );
 
-				if( !$decoded ) {
-					$validated[$option] = '';
+				if( $decoded ) {
+					$validated[$json_field] = json_encode( $decoded );
+				}
+				else {
+					$validated[$json_field] = '';
 				}
 			}
 		}

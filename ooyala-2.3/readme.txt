@@ -3,51 +3,66 @@ Contributors: ooyala, thinkoomph, balbuf, bendoh
 Tags: video, media, ooyala
 Requires at least: 3.9
 Tested up to: 4.5.0
-Stable tag: 2.3.0
+Stable tag: 2.3.2
 License: GPLv2 or later
 
 Connect your Ooyala account to embed and upload assets directly from WordPress.
 
 == Description ==
 
-Ooyala harnesses the power of big data to help broadcasters, operators and media companies build more engaged audiences and monetize video with personalized, interactive experiences for every screen. We go beyond traditional online video platforms, providing software and services combining best-of-breed technologies with industry-leading video analytics to help our customers optimize and automate video programming, video streaming and video syndication. Ooyala is an independent subsidiary of Telstra.
 
-The Ooyala WordPress plugin integrates seamlessly with your Wordpress 3.5+ Media Manager and lets you create posts with assets from your Ooyala account–-even uploading new videos–-without ever leaving your WordPress site.
+The Ooyala Wordpress Plugin is specifically designed to take advantage of the many new capabilities of the latest versions of Wordpress platform and to give publishers a more updated look and feel. 
 
+The plugin harnesses the existing media manager backbone infrastructure to create a seamless integration of a user's Ooyala assets within the media manager. It lets you create posts with assets from your Ooyala account – even uploading new videos – without ever leaving your WordPress site.
 
-Using the plugin once installed
+Key Features:
 
-1.  Go to a new or existing post.
-
-2.  Select "Embed Ooyala" above the composition area, or access Ooyala from the Media tab.
-
-3.  Search for assets by Title, Description, or Embed Code.
-
-4.  Select your desired Player Display options and insert the embed shortcode.
-
-5.  You can upload new videos straight to your account via the upload tab!
-
+* Easy to embed a specific video into your post/page.
+* Ability to search by Title, Description, embed code and also refine results by labels. 
+* Upload in the background and notify the user when the video is finished processing so the user can embed the video.
+* Easily manage video labels from the video browser.
+* Support for the Ooyala Player V4 as well as additional options for the V4 player on the settings screen.
+* Full backwards compatibility with Player V3.
+* Allow JavaScript player parameters to be modified by an 'ooyalaParameters' function defined in the global JavaSvcript namespace.
 
 == Installation ==
 
-1. Upload ooyala to /wp-content/plugins/.
+1. Install the plugin either by uploading it via FTP or by using the "Add Plugin" function of WordPress.
+2. Activate the plugin at the plugin administration page.
+3. Enter your Ooyala API credentials on the Settings >> Ooyala Options.
+4. Select the player version you wish to use.
 
-2. Activate plugin through the WordPress Plugins menu.
+Using the plugin once installed:
 
-3. Enter your Ooyala API credentials on the Media Settings page.
-
-4. Click on "Embed Ooyala" in edit post screen to browse your asset library.
+1. Go to a new or existing post.
+2. Select "Embed Ooyala" above the composition area, or access Ooyala from the Media tab.
+3. Search for assets by Title, Description, or Embed Code.
+4. Select your desired Player Display options and insert the embed shortcode.
+5. Upload new videos straight to your account via the upload tab.
 
 
 == Changelog ==
+
+= 2.3.2 =
+* Fix bug which would delete markup in JSON text
+* Fix bug in CSS prefixing
+
+= 2.3.1 =
+* Update README
 
 = 2.3.0 =
 * Allow JavaScript player parameters to be modified by an 'ooyalaParameters' function defined in the global JavaSvcript namespace.
 
 = 2.2.0 =
 * Add label management: Users can now add or edit labels on their assets during or after upload.
-* Break out settings into a separate screen.
-* Add support for Ooyala V4 player and related settings.
+* Break out settings into its own screen under "Settings > Ooyala"
+* Add "force-mp4" and "android-enable-hls" options to Player V3.
+* Add "Refresh" button to Ooyala browser screen
+* Add support for Ooyala V4 player and additional options for the V4 player on the settings screen:
+ * Streaming Plugins
+ * Ad Plugins (Including Pulse)
+ * Discovery
+ * JSON and CSS customization
 
 = 2.1.1 =
 * Save references to Ooyala players in 'ooyalaplayers' global JS var.
@@ -83,7 +98,7 @@ Using the plugin once installed
 
 = 1.7 =
 * Auto populate the default player_id for V3 embeds
-# Support for player_id when embedding a video
+* Support for player_id when embedding a video
 * Support for hosted_at
 
 = 1.6 =
