@@ -38,8 +38,8 @@ class Metadata extends Builder {
 		// since the date functions are inconsistent.
 		$post = get_post( $this->content_id() );
 		if ( ! empty( $post ) ) {
-			$post_date = date( 'c', strtotime( $post->post_date ) );
-			$post_modified = date( 'c', strtotime( $post->post_modified ) );
+			$post_date = date( 'c', strtotime( get_gmt_from_date( $post->post_date ) ) );
+			$post_modified = date( 'c', strtotime( get_gmt_from_date( $post->post_modified ) ) );
 
 			$meta['dateCreated'] = $post_date;
 			$meta['dateModified'] = $post_modified;

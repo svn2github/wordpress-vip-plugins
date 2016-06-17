@@ -30,6 +30,7 @@ class Components extends Builder {
 		// such as if a thumbnail was used from the body.
 		$components = array_merge( $this->meta_components(), $components );
 
+		// Group body components to improve text flow at all orientations
 		return $this->group_body_components( $components );
 	}
 
@@ -140,13 +141,17 @@ class Components extends Builder {
 			$new_components[] = $body_collector;
 		}
 
-		// Trim all body components before returning
+		// Trim all body components before returning.
+		// Also set the layout for the final body component.
 		foreach ( $new_components as $i => $component ) {
 			if ( 'body' == $component['role'] ) {
 				$new_components[ $i ]['text'] = trim( $new_components[ $i ]['text'] );
+
+				if ( ( $i + 1 ) === count( $new_components ) ) {
+					$new_components[ $i ]['layout'] = 'body-layout-last';
+				}
 			}
 		}
-
 		return $new_components;
 	}
 
@@ -163,12 +168,40 @@ class Components extends Builder {
 		// Get the component order
 		$meta_component_order = $this->get_setting( 'meta_component_order' );
 		if ( ! empty( $meta_component_order ) && is_array( $meta_component_order ) ) {
+			// If the cover is the first meta components, we want to make it a header
+			if ( 'cover' !== $meta_component_order[0] ) {
 			foreach ( $meta_component_order as $component ) {
 				$method = 'content_' . $component;
 				if ( method_exists( $this, $method ) && $this->$method() ) {
 					$components[] = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
 		}
 		}
+			} else {
+				// Otherwise we want to nest the components a bit differently
+				$nesting = array();
+				foreach ( $meta_component_order as $component ) {
+					$method = 'content_' . $component;
+					if ( method_exists( $this, $method ) && $this->$method() ) {
+						if ( 'cover' === $component ) {
+							$components[] = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
+						} else {
+							$nesting[] = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
+						}
+					}
+				}
+				$components[] = array(
+					'role' => 'container',
+					'layout' => array(
+						'columnStart' => 0,
+						'columnSpan' => 7,
+						'ignoreDocumentMargin' => true,
+					),
+					'style' => array(
+						'backgroundColor' => '#FAFAFA',
+					),
+					'components' => $nesting,
+				);
+			}
 		}
 
 		return $components;
@@ -185,9 +218,9 @@ class Components extends Builder {
 		// might include child-components, like an Cover and Image.
 		$result = array();
 		$errors = array();
+
 		foreach ( $this->content_nodes() as $node ) {
-			$components = $this->get_components_from_node( $node );
-			$result     = array_merge( $result, $components );
+			$result = array_merge( $result, $this->get_components_from_node( $node ) );
 		}
 
 		// Process the result some more. It gets passed by reference for efficiency.
@@ -261,12 +294,25 @@ class Components extends Builder {
 			return;
 		}
 
-		$component->set_json( 'anchor', array(
-			'targetComponentIdentifier' => $target_component->uid(),
+		// Get the component's anchor settings, if set
+		$anchor_json = $component->get_json( 'anchor' );
+
+		// If the component doesn't have it's own anchor settings, use the defaults.
+		if ( empty( $anchor_json ) ) {
+			$anchor_json = array(
 			'targetAnchorPosition'      => 'center',
 			'rangeStart'                => 0,
 			'rangeLength'               => 1,
-		) );
+			);
+		}
+
+		// Regardless of what the component class specifies,
+		// add the targetComponentIdentifier here.
+		// There's no way for the class to know what this is before this point.
+		$anchor_json['targetComponentIdentifier'] = $target_component->uid();
+
+		// Add the JSON back to the component
+		$component->set_json( 'anchor', $anchor_json );
 
 		// Given $component, find out the opposite position.
 		$other_position = null;
@@ -367,9 +413,11 @@ class Components extends Builder {
 
 		// If the position is not top, make some math for middle and bottom
 		if ( 'middle' == $pullquote_position ) {
-			$start = floor( $len / 3 );         // Start looking at the second third
+			// Place it in the middle
+			$start = floor( $len / 2 );
 		} else if ( 'bottom' == $pullquote_position ) {
-			$start = floor( ( $len / 4 ) * 3 ); // Start looking at the third quarter
+			// Start looking at the third quarter
+			$start = floor( ( $len / 4 ) * 3 );
 		}
 
 		for ( $position = $start; $position < $len; $position++ ) {
@@ -386,6 +434,7 @@ class Components extends Builder {
 		// Build a new component and set the anchor position to AUTO
 		$component = $this->get_component_from_shortname( 'blockquote', "<blockquote>$pullquote</blockquote>" );
 		$component->set_anchor_position( Component::ANCHOR_AUTO );
+
 		// Anchor $component to the target component: $components[ $position ]
 		$this->anchor_together( $component, $components[ $position ] );
 

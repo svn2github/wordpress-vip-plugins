@@ -16,6 +16,7 @@ class Title extends Component {
 		);
 
 		$this->set_style();
+		$this->set_layout();
 	}
 
 	/**
@@ -31,6 +32,21 @@ class Title extends Component {
 			'lineHeight'    => intval( $this->get_setting( 'header_line_height' ) ),
 			'textColor'     => $this->get_setting( 'header_color' ),
 			'textAlignment' => $this->find_text_alignment(),
+		) );
+	}
+
+	/**
+	 * Set the layout for the component.
+	 *
+	 * @access private
+	 */
+	private function set_layout() {
+		$this->json[ 'layout' ] = 'title-layout';
+		$this->register_layout( 'title-layout', array(
+      'margin' => array(
+        'top' => 30,
+        'bottom' => 0,
+      ),
 		) );
 	}
 

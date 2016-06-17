@@ -137,12 +137,6 @@ class Component_Layouts extends Builder {
 		}
 
 		$component->set_json( 'layout', $layout_name );
-		// TODO: Use an animation manager
-		$component->set_json( 'animation', array(
-			'type'             => 'fade_in',
-			'userControllable' => true,
-			'initialAlpha'     => 0.0,
-		) );
 	}
 
 }

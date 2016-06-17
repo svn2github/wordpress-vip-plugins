@@ -30,22 +30,22 @@ class Settings {
 
 		'body_font'        => 'AvenirNext-Regular',
 		'body_size'        => 18,
-		'body_color'       => '#000',
+		'body_color'       				=> '#4f4f4f',
 		'body_link_color'  => '#428BCA',
 		'body_orientation' => 'left',
 		'body_line_height' => 24,
 
 		'initial_dropcap' => 'yes',
-		'dropcap_font'    => 'Georgia-Bold',
-		'dropcap_color'   => '#000',
+		'dropcap_font'    				=> 'AvenirNext-Bold',
+		'dropcap_color'   				=> '#4f4f4f',
 
 		'byline_font'     => 'AvenirNext-Medium',
-		'byline_size'     => 17,
-		'byline_color'    => '#53585F',
+		'byline_size'     				=> 13,
+		'byline_color'    				=> '#7c7c7c',
 		'byline_format'		=> 'by #author# | #M j, Y | g:i A#',
 
 		'header_font'     => 'AvenirNext-Bold',
-		'header_color'    => '#000',
+		'header_color'    				=> '#333333',
 		'header1_size'    => 48,
 		'header2_size'    => 32,
 		'header3_size'    => 24,
@@ -57,6 +57,9 @@ class Settings {
 		'pullquote_font'  => 'AvenirNext-Bold',
 		'pullquote_size'  => 48,
 		'pullquote_color' => '#53585F',
+		'pullquote_border_color' 	=> '#53585F',
+		'pullquote_border_style' 	=> 'solid',
+		'pullquote_border_width' 	=> '3',
 		'pullquote_transform' => 'uppercase',
 		'pullquote_line_height' => 48,
 
@@ -73,7 +76,7 @@ class Settings {
 		'ad_margin' => 15,
 
 		// Default component order
-		'meta_component_order' => array( 'title', 'cover', 'byline' ),
+		'meta_component_order' 		=> array( 'cover', 'title', 'byline' ),
 	);
 
 	/**

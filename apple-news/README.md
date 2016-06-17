@@ -6,13 +6,17 @@ Installing the Publish to Apple News plugin is similar to the process of
 installing other WordPress plugins. Simply perform these steps:
 
 1. Download the Publish to Apple News plugin.
-2. Upload the entire “apple-news” folder to the “./wp-content/plugins” directory
+2. Upload the entire “publish-to-apple-news” folder to the “./wp-content/plugins” directory
    on your web server.
 3. Activate the Publish to Apple News plugin using the “Plugins” menu in
    WordPress.
 
 Once activated, the "Apple News" menu should appear in your WordPress Admin
 panel.
+
+NEW IN 1.1.4: We've made some improvements to the default template built into the plugin.
+Although it won't override your current settings, we strongly recommend placing the
+Cover image at the top of the Component Order settings for the best experience.
 
 BREAKING CHANGE IN 1.1: Please note the "Options" page has been merged into a single
 page for setting sections, preview and pull quotes when pushing content to Apple News.

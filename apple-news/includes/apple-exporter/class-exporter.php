@@ -250,7 +250,7 @@ class Exporter {
 	 */
 	private function build_article_style() {
 		return array(
-			'backgroundColor' => '#FFFFFF',
+			'backgroundColor' => '#FAFAFA',
 		);
 	}
 

@@ -122,11 +122,11 @@ class Body extends Component {
 	}
 
 	/**
-	 * Set the default layout for the component.
+	 * Get the start column for the body based on the layout.
 	 *
 	 * @access private
 	 */
-	private function set_default_layout() {
+	private function get_col_start() {
 		// Find out where the body must start according to the body orientation.
 		// Orientation defaults to left, thus, col_start is 0.
 		$col_start = 0;
@@ -139,12 +139,33 @@ class Body extends Component {
 			break;
 		}
 
-		// Now that we have the appropriate col_start, register the layout
+		return $col_start;
+	}
+
+	/**
+	 * Set the default layout for the component.
+	 *
+	 * @access private
+	 */
+	private function set_default_layout() {
 		$this->json[ 'layout' ] = 'body-layout';
 		$this->register_layout( 'body-layout', array(
-			'columnStart' => $col_start,
+			'columnStart' => $this->get_col_start(),
 			'columnSpan'  => $this->get_setting( 'body_column_span' ),
-			'margin'      => array( 'top' => 25, 'bottom' => 25 ),
+			'margin'      => array(
+				'top' => 12,
+				'bottom' => 12
+			),
+		) );
+
+		// Also pre-register the layout that will be used later for the last body component
+		$this->register_layout( 'body-layout-last', array(
+			'columnStart' => $this->get_col_start(),
+			'columnSpan'  => $this->get_setting( 'body_column_span' ),
+			'margin'      => array(
+				'top' => 12,
+				'bottom' => 30
+			),
 		) );
 	}
 
@@ -161,16 +182,20 @@ class Body extends Component {
 			'fontSize'      => intval( $this->get_setting( 'body_size' ) ),
 			'lineHeight'    => intval( $this->get_setting( 'body_line_height' ) ),
 			'textColor'     => $this->get_setting( 'body_color' ),
-			'linkStyle'     => array( 'textColor' => $this->get_setting( 'body_link_color' ) ),
+			'linkStyle'     			=> array(
+				'textColor' => $this->get_setting( 'body_link_color' )
+			),
+			'paragraphSpacingBefore' 	=> 18,
+			'paragraphSpacingAfter'		=> 18,
 		);
 	}
 
 	/**
 	 * Set the default style for the component.
 	 *
-	 * @access private
+	 * @access public
 	 */
-	private function set_default_style() {
+	public function set_default_style() {
 		$this->json[ 'textStyle' ] = 'default-body';
 		$this->register_style( 'default-body', $this->get_default_style() );
 	}
@@ -186,8 +211,9 @@ class Body extends Component {
 			$this->get_default_style(),
 		 	array(
 				'dropCapStyle' => array (
-					'numberOfLines' => 2,
+					'numberOfLines' 		=> 4,
 					'numberOfCharacters' => 1,
+					'padding' 				=> 5,
 					'fontName' => $this->get_setting( 'dropcap_font' ),
 					'textColor' => $this->get_setting( 'dropcap_color' ),
 				),

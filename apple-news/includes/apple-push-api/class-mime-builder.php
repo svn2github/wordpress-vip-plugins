@@ -96,8 +96,14 @@ class MIME_Builder {
 	 * @access public
 	 */
 	public function add_content_from_file( $filepath, $name = 'a_file' ) {
-		// Get the file size
-		$size = 0;
+		// Get the contents of the file
+		$contents = file_get_contents( $filepath );
+
+		// Attempt to get the size
+		$size = strlen( $contents );
+
+		// If this fails for some reason, try alternate methods
+		if ( empty( $size ) ) {
 		if ( filter_var( $filepath, FILTER_VALIDATE_URL ) ) {
 			$headers = get_headers( $filepath );
 			foreach ( $headers as $header ) {
@@ -108,11 +114,12 @@ class MIME_Builder {
 		} else {
 			$size = filesize( $filepath );
 		}
+		}
 
 		return $this->build_attachment(
 			$name,
 			\Apple_News::get_filename( $filepath ),
-			file_get_contents( $filepath ),
+			$contents,
 			$this->get_mime_type_for( $filepath ),
 			$size
 		);

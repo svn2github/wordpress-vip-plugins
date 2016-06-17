@@ -126,7 +126,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		if ( ! empty( $_POST['apple_news_pullquote_position'] ) ) {
 			$pullquote_position = sanitize_text_field( $_POST['apple_news_pullquote_position'] );
 		} else {
-			$pullquote_position = 'top';
+			$pullquote_position = 'middle';
 		}
 		update_post_meta( $post_id, 'apple_news_pullquote_position', $pullquote_position );
 	}

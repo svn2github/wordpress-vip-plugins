@@ -5,16 +5,16 @@
  * This file is read by WordPress to generate the plugin information in the
  * admin panel.
  *
- * @link    http://beezwax.net
+ * @link    http://github.com/alleyinteractive/apple-news
  * @since   0.2.0
  * @package WP_Plugin
  *
  * Plugin Name: Publish to Apple News
  * Plugin URI:  http://github.com/alleyinteractive/apple-news
  * Description: Export and sync posts to Apple format.
- * Version:     1.1.2
+ * Version:     1.1.4
  * Author:      Beezwax, Alley Interactive
- * Author URI:  http://beezwax.net, http://alleyinteractive.com
+ * Author URI:  http://alleyinteractive.com, http://beezwax.net
  * Text Domain: apple-news
  * Domain Path: lang/
  */

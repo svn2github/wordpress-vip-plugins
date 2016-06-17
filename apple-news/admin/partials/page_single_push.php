@@ -38,7 +38,7 @@
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Pull quote position', 'apple-news' ) ?></th>
 				<td>
-					<?php $pullquote_position = ! empty( $post_meta['apple_news_pullquote_position'][0] ) ? $post_meta['apple_news_pullquote_position'][0] : false; ?>
+					<?php $pullquote_position = ! empty( $post_meta['apple_news_pullquote_position'][0] ) ? $post_meta['apple_news_pullquote_position'][0] : 'middle'; ?>
 					<select name="apple_news_pullquote_position">
 						<option <?php selected( $pullquote_position, 'top' ) ?> value="top"><?php esc_html_e( 'top', 'apple-news' ) ?></option>
 						<option <?php selected( $pullquote_position, 'middle' ) ?> value="middle"><?php esc_html_e( 'middle', 'apple-news' ) ?></option>
