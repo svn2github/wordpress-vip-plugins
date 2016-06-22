@@ -373,7 +373,7 @@ class WPcom_Thumbnail_Editor {
 		<input type="hidden" name="action" value="wpcom_thumbnail_edit" />
 		<input type="hidden" name="id" value="<?php echo (int) $attachment->ID; ?>" />
 		<input type="hidden" name="size" value="<?php echo esc_attr( $size ); ?>" />
-		<?php wp_nonce_field( 'wpcom_thumbnail_edit_' . $attachment->ID . '_' . $size ); ?> 
+		<?php wp_nonce_field( 'wpcom_thumbnail_edit_' . $attachment->ID . '_' . $size ); ?>
 
 		<!--
 			Since the fullsize image is possibly scaled down, we need to record at what size it was
@@ -712,6 +712,12 @@ class WPcom_Thumbnail_Editor {
 	 * @return mixed Array of thumbnail details (URL, width, height, is_intermedite) or the previous data.
 	 */
 	public function get_thumbnail_url( $existing_resize, $attachment_id, $size ) {
+
+		//On dev sites, Jetpack is often active but Photon will not work because the content files are not accessible to the public internet.
+		//Right now, a broken image is displayed when this plugin is active and a thumbnail has been edited. This will allow the unmodified image to be displayed.
+		if( ! function_exists( 'jetpack_photon_url' ) ||  defined('JETPACK_DEV_DEBUG') )
+			return $existing_resize;
+
 		// Named sizes only
 		if ( is_array( $size ) )
 			return $existing_resize;
@@ -730,7 +736,7 @@ class WPcom_Thumbnail_Editor {
 			$url = jetpack_photon_url(
 				wp_get_attachment_url( $attachment_id ),
 				array(
-					'crop' => array( 
+					'crop' => array(
 						$selection_x1 . 'px',
 						$selection_y1 . 'px',
 						( $selection_x2 - $selection_x1 ) . 'px',
