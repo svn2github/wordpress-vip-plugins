@@ -184,11 +184,7 @@
 
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_styles');
         $this->loader->add_action('wp_enqueue_scripts', $plugin_public, 'enqueue_scripts');
-        if ( apply_filters( 'load_ndn_plugin_hook_embed_in_footer', false ) ){
-            $this->loader->add_action('wp_footer', $plugin_public, 'ndn_plugin_hook_embed');
-        } else {
-            $this->loader->add_action('wp_head', $plugin_public, 'ndn_plugin_hook_embed');
-        }
+        $this->loader->add_action('wp_footer', $plugin_public, 'ndn_plugin_hook_embed');
     }
 
     /**
