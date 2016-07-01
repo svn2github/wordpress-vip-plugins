@@ -6,7 +6,10 @@ if ( !function_exists( 'wpcom_vip_load_permastruct' ) ):
  *
  * Usage: wpcom_vip_load_permastruct( '/%category%/%postname%/' );
  *
+ * On Quickstart and selfhosted, use the wp rewrite structure command instead
+ *
  * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @link https://wp-cli.org/commands/rewrite/structure/, wp rewrite structure command
  * @param string $new_permastruct
  */
 function wpcom_vip_load_permastruct( $new_permastruct ) {
@@ -39,7 +42,10 @@ if ( !function_exists( 'wpcom_vip_load_category_base' ) ):
  *     wpcom_vip_load_category_base( '' );
  *     wpcom_vip_load_category_base( 'section' );
  *
+ * On Quickstart and selfhosted, use the wp rewrite structure command instead
+ *
  * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @link https://wp-cli.org/commands/rewrite/structure/, wp rewrite structure command
  * @param string $new_category_base New category base prefix
  */
 function wpcom_vip_load_category_base( $new_category_base ) {
@@ -49,7 +55,7 @@ function wpcom_vip_load_category_base( $new_category_base ) {
 	add_filter( 'pre_option_category_base', '_wpcom_vip_filter_category_base', 99 ); // needs to be higher priority so we don't conflict with the WP.com filter
 
 
-	// For empty category base, remove the '/category/' from the base, but include the parent category if it's a child 
+	// For empty category base, remove the '/category/' from the base, but include the parent category if it's a child
 	if ( '' === $new_category_base ) {
 		add_filter( 'category_link', function ( $link, $term_id ) {
 			return '/' . get_category_parents( $term_id, false, '/', true );
@@ -79,7 +85,10 @@ if ( !function_exists( 'wpcom_vip_load_tag_base' ) ):
  * Usage:
  *     wpcom_vip_load_tag_base( 'section' );
  *
+ * On Quickstart and selfhosted, use the wp rewrite structure command instead
+ *
  * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @link https://wp-cli.org/commands/rewrite/structure/, wp rewrite structure command
  * @param string $new_tag_base New tag base prefix
  */
 function wpcom_vip_load_tag_base( $new_tag_base ) {
@@ -107,7 +116,7 @@ endif;
 if ( ! function_exists( 'wpcom_vip_load_custom_cdn' ) ):
 /**
  * Use a custom CDN host for displaying theme images and media library content.
- * 
+ *
  * Please get in touch before using this as it can break your site.
  *
  * @param array $args Array of args
@@ -207,7 +216,7 @@ function _wpcom_vip_cdn_pick_random_host( $hosts, $url ) {
  * Static CDN
  *
  * Private function; do not call directly.
- * 
+ *
  * @internal
  */
 function _wpcom_vip_cdn_load_static( $cdn_host_static ) {
@@ -222,7 +231,7 @@ function _wpcom_vip_cdn_load_static( $cdn_host_static ) {
  * Media CDN
  *
  * Private function; do not call directly.
- * 
+ *
  * @internal
  */
 function _wpcom_vip_cdn_load_media( $cdn_host_media ) {
@@ -269,7 +278,7 @@ function _wpcom_vip_cdn_disable_ssl( $domains ) {
 
 /**
  * Replace the hostname in a URL
- * 
+ *
  * @param string $url Original URL
  * @param string $cdn_host Replacement hostname
  * @return string Updated URL
