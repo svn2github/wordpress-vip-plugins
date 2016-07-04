@@ -671,6 +671,9 @@ class WPCOM_elasticsearch {
 						//continue 2; // switch() is considered a looping structure
 				}
 
+				// Remove any backslash from the GET parameters
+				$_GET = array_map( "stripslashes", $_GET );
+
 				// Need to urlencode param values since add_query_arg doesn't
 				$url_params = urlencode_deep( array_merge( $_GET, $query_vars ) );
 
