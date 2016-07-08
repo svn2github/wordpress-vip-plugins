@@ -123,7 +123,7 @@ abstract class ConfigurationSelectorRule extends Rule
 
         $results = $domXPath->query($xpath);
 
-        if ( is_array( $results ) ) {
+        if ( false !== $results ) {
             foreach ($results as $result) {
                 if ($result === $node) {
                     return true;
