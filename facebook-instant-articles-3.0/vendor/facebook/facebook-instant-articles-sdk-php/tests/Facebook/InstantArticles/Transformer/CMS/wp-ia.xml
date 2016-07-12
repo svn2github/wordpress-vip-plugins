@@ -1,0 +1,40 @@
+<html>
+  <head>
+    <link rel="canonical" href="http://localhost/article"/>
+    <meta charset="utf-8"/>
+    <meta property="op:generator" content="facebook-instant-articles-sdk-php"/>
+    <meta property="op:generator:version" content="1.0.0"/>
+    <meta property="op:generator:transformer" content="facebook-instant-articles-sdk-php"/>
+    <meta property="op:generator:transformer:version" content="1.0.0"/>
+    <meta property="op:markup_version" content="v1.0"/>
+  </head>
+  <body>
+    <article>
+      <header>
+        <h1>Peace on &lt;b&gt;earth&lt;/b&gt;</h1>
+        <time class="op-published" datetime="2016-04-12T19:46:51+00:00">April 12th, 7:46pm</time>
+        <address><a>bill</a></address>
+      </header>
+      <p>Yes, peace is good for everybody!<br/>
+Man kind.</p>
+      <figure>
+        <img src="http://example.com/image0.jpg"/>
+      </figure>
+      <p>Some text after img.</p>
+      <p>Some text before img</p>
+      <figure>
+        <img src="http://example.com/image1.jpg"/>
+      </figure>
+      <p>Some text before img</p>
+      <figure>
+        <img src="http://example.com/image2.jpg"/>
+      </figure>
+      <p> and some after img.</p>
+      <ul>
+        <li>Some text on li before img</li>
+        <li>Some text on li before imgand after img</li>
+        <li>Some text after img</li>
+      </ul>
+    </article>
+  </body>
+</html>
