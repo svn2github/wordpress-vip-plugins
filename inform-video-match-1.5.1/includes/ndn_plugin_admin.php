@@ -365,7 +365,6 @@ class NDN_Plugin_Admin
                 if ( $args['first_time_login'] ) {
                     $create_client_response = $this->create_oauth_client( $username, $password, $args['name'], $args['company_name'], $args['contact_name'], $args['contact_email'] );
                 } else {
-                    write_log('Getting OAuth Client');
                     $create_client_response = $this->get_oauth_client( $username, $password );
                 }
 
@@ -446,10 +445,7 @@ class NDN_Plugin_Admin
         	'body' => $json_data
         );
 
-        write_log( $wp_post_url );
-        write_log( $wp_post_args );
         $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
-        write_log( $response );
 
         // If there is a response, return it. Otherwise, return false.
         if ( is_array( $response ) ) {
@@ -485,7 +481,6 @@ class NDN_Plugin_Admin
       );
 
       $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
-      write_log( $response );
       // If there is a response, return it. Otherwise, return false.
       if ( !is_wp_error( $response ) && is_array( $response ) ) {
           if ( array_key_exists( 'body', $response ) ) {
@@ -506,9 +501,6 @@ class NDN_Plugin_Admin
     {
         if ( $response && $response['body'] ) {
             $client_response = json_decode( $response['body'], $assoc = true );
-
-            write_log( 'Client Response-->' );
-            write_log( $client_response );
 
             if ( array_key_exists( 'client', $client_response ) ) {
               $this->client_id = $client_response['client']['client_id'];
@@ -607,8 +599,6 @@ class NDN_Plugin_Admin
     {
         // Fetch parameters for post data
         $refresh_token = get_option( 'ndn_refresh_token' );
-        write_log('Refresh Token -->');
-        write_log($refresh_token);
         $client_id = get_option( 'ndn_client_id' );
         $client_secret = get_option( 'ndn_client_secret' );
 
@@ -640,7 +630,6 @@ class NDN_Plugin_Admin
         );
 
         $response = wp_safe_remote_post( $wp_post_url, $wp_post_args );
-        write_log( $response );
         // Set oauth_token to the response from API
         $this->set_refresh_token( $response );
         $this->set_access_token( $response );
@@ -716,7 +705,6 @@ class NDN_Plugin_Admin
         if ( isset( $_POST['ndn-save-settings'] ) && '1' == $_POST['ndn-save-settings'] ) {
             foreach (self::$settings_form_options as $option_name => $option) {
                 if ( $_POST[$option] ) {
-                    write_log($_POST[$option]);
                     self::save_option( $option_name, sanitize_text_field( $_POST[$option] ) );
                 } elseif ( $_POST[$option] == '' ) {
                     delete_option( $option_name );
@@ -888,7 +876,6 @@ class NDN_Plugin_Admin
         } else {
             $response = wp_remote_get( $wp_get_url, $wp_get_args );
         }
-        write_log($response);
 
         if ( is_array( $response ) ) {
             if ( array_key_exists( 'response', $response ) ) {
@@ -896,8 +883,6 @@ class NDN_Plugin_Admin
 
                 if ( $info['code'] == '401' ) {
                     // Token is stale. Need user to re-authorize the API
-                    write_log('Error: Status 401 - Unauthorized');
-                    write_log($response);
                     return false;
                 }
             } else if ( array_key_exists( 'errors', $response ) ) {
