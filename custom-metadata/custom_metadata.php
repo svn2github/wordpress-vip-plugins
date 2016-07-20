@@ -51,23 +51,23 @@ class custom_metadata_manager {
 	var $_column_types = array( 'posts', 'pages', 'users', 'comments' );
 
 	// field types
-	var $_field_types = array( 'text', 'textarea', 'password', 'number', 'email', 'telephone', 'checkbox', 'radio', 'select', 'multi_select', 'upload', 'wysiwyg', 'datepicker', 'datetimepicker', 'timepicker', 'taxonomy_select', 'taxonomy_radio',  'taxonomy_checkbox', 'link' );
+	var $_field_types = array( 'text', 'textarea', 'textarea_wysiwyg', 'password', 'number', 'email', 'telephone', 'checkbox', 'radio', 'select', 'multi_select', 'upload', 'wysiwyg', 'datepicker', 'datetimepicker', 'timepicker', 'taxonomy_select', 'taxonomy_radio',  'taxonomy_checkbox', 'link' );
 
 	// field types that are cloneable
-	var $_cloneable_field_types = array( 'text', 'textarea', 'upload', 'password', 'number', 'email', 'tel' );
+	var $_cloneable_field_types = array( 'text', 'textarea', 'textarea_wysiwyg', 'upload', 'password', 'number', 'email', 'tel', 'wysiwyg');
 
 	// field types that support a default value
-	var $_field_types_that_support_default_value = array( 'text', 'textarea', 'password', 'number', 'email', 'telephone', 'upload', 'wysiwyg', 'datepicker', 'datetimepicker', 'timepicker', 'link' );
+	var $_field_types_that_support_default_value = array( 'text', 'textarea', 'textarea_wysiwyg', 'password', 'number', 'email', 'telephone', 'upload', 'wysiwyg', 'datepicker', 'datetimepicker', 'timepicker', 'link' );
 
 	// field types that support the placeholder attribute
-	var $_field_types_that_support_placeholder = array( 'text', 'textarea', 'password', 'number', 'email', 'tel', 'upload', 'datepicker', 'datetimepicker', 'timepicker', 'link' );
+	var $_field_types_that_support_placeholder = array( 'text', 'textarea', 'textarea_wysiwyg', 'password', 'number', 'email', 'tel', 'upload', 'datepicker', 'datetimepicker', 'timepicker', 'link' );
 
 	// field types that are read only by default
 	var $_field_types_that_are_read_only = array( 'upload', 'link', 'datepicker', 'datetimepicker', 'timepicker' );
 
 	// field types that support being part of a multifield group
 	// @todo: workarounds needed for other field types
-	var $_field_types_that_support_multifield = array( 'text', 'textarea', 'password', 'number', 'email', 'tel', 'select' );
+	var $_field_types_that_support_multifield = array( 'text', 'textarea', 'textarea_wysiwyg', 'password', 'number', 'email', 'tel', 'select' , 'wysiwyg' );
 
 	// taxonomy types
 	var $_taxonomy_fields = array( 'taxonomy_select', 'taxonomy_radio', 'taxonomy_checkbox', 'taxonomy_multi_select' );
@@ -160,10 +160,10 @@ class custom_metadata_manager {
 		// Handle actions related to users
 		if ( $object_type == 'user' ) {
 			global $user_id;
-			
+
 			if ( empty( $user_id ) )
 				$user_id = get_current_user_id();
-				
+
 			// Editing another user's profile
 			add_action( 'edit_user_profile', array( $this, 'add_user_metadata_groups' ) );
 			add_action( 'edit_user_profile_update', array( $this, 'save_user_metadata' ) );
@@ -1221,7 +1221,8 @@ class custom_metadata_manager {
 					printf( '<input type="number" id="%s" name="%s" value="%s"%s%s%s%s/>', esc_attr( $field_slug ), esc_attr( $field_id ), esc_attr( $v ), $readonly_str, $placeholder_str, $min, $max );
 					break;
 				case 'textarea' :
-					printf( '<textarea id="%s" name="%s"%s%s>%s</textarea>', esc_attr( $field_slug ), esc_attr( $field_id ), $readonly_str, $placeholder_str, esc_textarea( $v ) );
+				case 'textarea_wysiwyg' :
+					printf( '<textarea class="%s" id="%s" name="%s"%s%s>%s</textarea>', $field->field_type, esc_attr( $field_slug ), esc_attr( $field_id ), $readonly_str, $placeholder_str, esc_textarea( $v ) );
 					break;
 				case 'checkbox' :
 					printf( '<input type="checkbox" id="%s" name="%s" %s/>', esc_attr( $field_slug ), esc_attr( $field_id ), checked( $v, 'on', false ) );
@@ -1260,7 +1261,13 @@ class custom_metadata_manager {
 					break;
 				case 'wysiwyg' :
 					$wysiwyg_args = apply_filters( 'custom_metadata_manager_wysiwyg_args_field_' . $field_id, $this->default_editor_args, $field_slug, $field, $object_type, $object_id );
-					wp_editor( $v, $field_id, $wysiwyg_args );
+					$wysiwyg_args['teeny'] = true;
+					$wysiwyg_args['textarea_name'] = $field_id;
+
+					$editor_id = $field_id;
+					$editor_id = str_replace('[','_',$field_id);
+					$editor_id = str_replace(']','_',$editor_id);
+					wp_editor( $v, $editor_id, $wysiwyg_args );
 					break;
 				case 'upload' :
 					$_attachment_id = $this->get_metadata_field_value( $field_slug . '_attachment_id', $field, $object_type, $object_id );
