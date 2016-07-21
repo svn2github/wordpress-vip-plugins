@@ -152,6 +152,8 @@ class Ooyala {
 
 		// Handle thumbnail lookups
 		add_action( 'wp_ajax_ooyala_get_image_id', array( $this, 'ajax_get_image_id' ) );
+
+		add_filter('ooyala-backlot-get',  array( $this, 'backlotGet' ) );
 	}
 
 	/**
@@ -606,6 +608,53 @@ class Ooyala {
 			'url' => $url
 		) );
 	}
+
+
+	function backlotGet($req){
+		$settings = $this->get_settings();
+		$request = json_decode( file_get_contents( 'php://input' ), true );
+		$request = wp_parse_args( $request, array(
+			'method' => 'GET',
+			'path' => $req['path'],
+			'body' => '',
+			'params' => isset( $req['params'] ) ? $req['params'] : array(),
+		) );
+
+		// Make damn sure $request['params'] is an array even if it
+		// was fed in as the wrong type
+		if( !is_array( $request['params'] ) ) {
+			$request['params'] = array();
+		}
+
+		$request['params']['api_key'] = $settings['api_key'];
+		$request['params']['expires'] = time() + 300;
+
+		$to_sign = $settings['api_secret'] . $request['method'] . $request['path'];
+
+		$param_sorted = array_keys( $request['params'] );
+		sort( $param_sorted );
+
+		foreach( $param_sorted as $key ) {
+			$to_sign .= $key . '=' . $request['params'][$key];
+		}
+
+		$to_sign .= $request['body'];
+		// Sign the payload in $to_sign
+		$hash = hash( "sha256", $to_sign, true );
+
+		$base64_hash = base64_encode( $hash );
+		$request['params']['signature'] = rtrim( substr( $base64_hash, 0, 43 ), '=' );
+
+		$url = self::api_base . $request['path'] . '?' . http_build_query( $request['params'] );
+		$response = wp_remote_get( $url );
+		if( is_array($response) ) {
+			return $response['body'];
+		} else {
+			return array();
+		}
+	}
+
+
 
 	/**
 	 * Process download, return image ID to use as featured image.
@@ -1147,6 +1196,7 @@ class Ooyala {
 
 					// Flag that we've emitted the V4 scripts on this page, and we shouldn't do it again
 					$v4_scripts = true;
+					$params = apply_filters('ooyala_params', $params);
 				}
 
 				?>
