@@ -844,7 +844,9 @@ abstract class ES_WP_Query_Wrapper extends WP_Query {
 					$statuswheres[$index] = "($statuswhere OR ($wpdb->posts.post_status = 'inherit' AND " . str_replace($wpdb->posts, 'p2', $statuswhere) . "))";
 				*/
 			}
-			$filter = array_merge( $filter, $status_ands );
+			if ( isset( $status_ands ) && is_array( $status_ands ) ) {
+				$filter = array_merge( $filter, $status_ands );
+			}
 		} elseif ( !$this->is_singular ) {
 			$singular_states = array( 'publish' );
 
