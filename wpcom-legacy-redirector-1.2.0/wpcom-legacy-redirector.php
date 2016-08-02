@@ -124,6 +124,9 @@ class WPCOM_Legacy_Redirector {
 
 		if ( false === $redirect_post_id ) {
 			$redirect_post_id = self::get_redirect_post_id( $url );
+			if( empty( $redirect_post_id ) ) {
+				$redirect_post_id = self::get_redirect_post_id( trailingslashit( $url ) );
+			}
 			wp_cache_add( $url_hash, $redirect_post_id, self::CACHE_GROUP );
 		}
 
