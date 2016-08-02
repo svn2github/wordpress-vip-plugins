@@ -28,7 +28,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 
 class WPCOM_Legacy_Redirector {
 	const POST_TYPE = 'vip-legacy-redirect';
-	const CACHE_GROUP = 'vip-legacy-redirect-2';
+	const CACHE_GROUP = 'vip-legacy-redirect-3';
 
 	static function start() {
 		add_action( 'init', array( __CLASS__, 'init' ) );
