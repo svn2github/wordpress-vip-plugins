@@ -3,8 +3,8 @@ Contributors: Graphiq
 Donate link: https://www.graphiq.com/
 Tags: graphiq, data, visualization, infographic, embed, widget, comparison
 Requires at least: 2.7
-Tested up to: 4.3
-Stable tag: 3.1.0
+Tested up to: 4.5
+Stable tag: 3.2.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,24 @@ historical approval ratings compared to other presidents).
 3. Once you've found the right visual, add it to your post
 
 == Changelog ==
+
+= 3.2.4 =
+* Removed requirement for title attribute to be present in shortcode
+
+= 3.2.3 =
+* Fix AMP violation, ensure all AMP styles appear in head element
+
+= 3.2.2 =
+* Fix AMP compatibility, remove require_once (Cheers to Stanko Metodiev for reporting!)
+
+= 3.2.1 =
+* Add support for AMP embed code (when using WP-AMP plugin)
+* Default to wordpress shortcodes when embedding a story asset
+
+= 3.2.0 =
+* Add support for inserting stories–a new asset type!
+* Switch to using javascript embed code, to support dynamic resizing of visaulizations
+* Pass plugin version when making requests to Graphiqs search API
 
 = 3.1.0 =
 * Internal code restructuring for VIP

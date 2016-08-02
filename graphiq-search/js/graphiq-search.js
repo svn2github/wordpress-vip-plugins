@@ -71,18 +71,33 @@ GraphiqSearchWP = ( function( $ ) {
 		return tags.join();
 	}
 
-	function insertPressed( options ) {
-		var properties = ['id', 'title', 'width', 'height', 'url', 'link', 'link_text'];
+	function insertPressed( asset ) {
+		if ( asset.type === 'story' ) {
+			insertStory( asset );
+		} else {
+			insertVisualization( asset );
+		}
+	}
+
+	function insertVisualization( asset ) {
+		var properties = ['id', 'title', 'width', 'height', 'url', 'link', 'link_text', 'frozen'];
 
 		var attributes = $.map( properties, function( property, i ) {
-			if ( ! options.hasOwnProperty( property ) ) {
+			if ( ! asset.hasOwnProperty( property ) || asset[ property ] === '' ) {
 				return '';
 			}
-			return property + '="' + sanitizeShortcode( options[property] ) + '"';
+			return property + '="' + sanitizeShortcode( asset[ property ] ) + '"';
 		} );
 
 		var shortcode = '[graphiq ' + attributes.join( ' ' ) + ']\n\n';
 		window.send_to_editor( shortcode );
+	}
+
+	function insertStory( asset ) {
+		if ( asset.title ) {
+			$( 'input[name=post_title]').focus().val( asset.title );
+		}
+		window.send_to_editor( asset.code );
 	}
 
 	function isTinyMCEActive() {
@@ -112,6 +127,9 @@ GraphiqSearchWP = ( function( $ ) {
 				userID: graphiqSearchData.userID,
 				userEmail: graphiqSearchData.userEmail,
 				locale: graphiqSearchData.locale,
+				client: 'wordpress',
+				clientVersion: graphiqSearchData.pluginVersion,
+				embedType: 'wordpress',
 				title: getTitle,
 				text: getText,
 				tags: getTags

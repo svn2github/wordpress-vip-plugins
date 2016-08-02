@@ -24,9 +24,9 @@
 						.addClass( 'graphiq-tiny-mce-widget mceItem' )
 						.attr( {
 							'data-code': shortcodeLabel + options,
-							'data-id': id ,
-							'data-title': title ,
-							'data-mce-resize': 'false' ,
+							'data-id': id,
+							'data-title': title,
+							'data-mce-resize': 'false',
 							'data-mce-placeholder': '1'
 						} )
 						.css( style );

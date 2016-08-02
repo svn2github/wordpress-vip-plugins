@@ -1,8 +1,9 @@
 <?php
 /**
  * Plugin Name: Graphiq Search
+ * Plugin URI: https://wordpress.org/plugins/findthebest-widget-designer/
  * Description: Discover and embed interactive visualizations on people, organizations, products, and more.
- * Version: 3.1.0
+ * Version: 3.2.4
  * Author: Graphiq
  * Author URI: https://www.graphiq.com
  * Text Domain: graphiq-search
@@ -15,17 +16,24 @@ define( 'GRAPHIQ_OLD_SLUG', 'findthebest' );
 class GraphiqSearch {
 
 	/**
+	 * @var GraphiqSearch
+	 */
+	private static $instance;
+
+	/**
 	 * Singleton
 	 */
 	public static function init() {
-		static $instance = false;
-
-		if ( !$instance ) {
+		if ( ! isset( self::$instance ) ) {
 			load_plugin_textdomain( 'graphiq-search', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
-			$instance = new GraphiqSearch;
+			self::$instance = new GraphiqSearch;
 		}
 
-		return $instance;
+		return self::$instance;
+	}
+
+	public static function get_instance() {
+		return self::$instance;
 	}
 
 
@@ -42,6 +50,10 @@ class GraphiqSearch {
 			add_action( 'admin_init',             array( &$this, 'options_page_init'     ) );
 			add_action( 'print_media_templates',  array( &$this, 'print_media_templates' ) );
 		}
+
+		// Add support for our embed in AMP (Accelerated Mobile Pages)
+		add_filter( 'amp_content_embed_handlers', array( &$this, 'amp_add_embed' ), 10, 2 );
+		add_action( 'amp_post_template_css', array( &$this, 'amp_add_styles' ) );
 
 		add_shortcode( GRAPHIQ_OLD_SLUG, array( &$this, 'shortcode_handler' ) );
 		add_shortcode( 'graphiq', array( &$this, 'shortcode_handler' ) );
@@ -105,6 +117,7 @@ class GraphiqSearch {
 			'userID' => $user->user_login ? $user->user_login : $user->ID,
 			'userEmail' => $user->user_email,
 			'wpVersion' => floatval($wp_version),
+			'pluginVersion' => $this->get_version(),
 			'locale' => get_locale()
 		) );
 
@@ -215,6 +228,40 @@ class GraphiqSearch {
 		return ob_get_clean();
 	}
 
+	function parse_shortcode_attributes( $attributes ) {
+		$defaults = array(
+			'id'        => '',
+			'url'       => '',
+			'title'     => '',
+			'width'     => '',
+			'height'    => '',
+			'link'      => '',
+			'link_text' => '',
+			'frozen'    => '',
+		);
+
+		$arguments = wp_parse_args( $attributes, $defaults );
+
+		// Backwards compatibility with "name"
+		if ( !empty( $arguments['name'] ) ) {
+			$arguments['title'] = $arguments['name'];
+		}
+
+		if ( empty( $arguments['id'] ) ||
+			empty( $arguments['url'] ) ) {
+			return null;
+		}
+
+		$arguments['width'] = intval( $arguments['width'] );
+		$arguments['height'] = intval( $arguments['height'] );
+
+		if ( $arguments['width'] <= 0 || $arguments['height'] <= 0 ) {
+			return null;
+		}
+
+		return $arguments;
+	}
+
 	/**
 	 * Converts the Graphiq shortcode into an HTML embed code.
 	 *
@@ -226,36 +273,32 @@ class GraphiqSearch {
 			return null;
 		}
 
-		$defaults = array(
-			'id'        => '',
-			'url'       => '',
-			'title'     => '',
-			'width'     => '',
-			'height'    => '',
-			'link'      => '',
-			'link_text' => ''
+		$arguments = $this->parse_shortcode_attributes( $attributes );
+		if ( empty( $arguments ) ) {
+			return null;
+		}
+
+		wp_enqueue_script(
+			'graphiq_search_widgets',
+			$this->file_path( '/js/widgets.js' )
 		);
 
-		$arguments = wp_parse_args( $attributes, $defaults );
+		return $this->render( 'embed-code-script', $arguments );
+	}
 
-		// Backwards compatibility with "name"
-		if ( !empty( $arguments['name'] ) ) {
-			$arguments['title'] = $arguments['name'];
-		}
+	function amp_add_embed( $embed_handler_classes, $post ) {
+		require_once( dirname( __FILE__ ) . '/classes/class-graphiq-search-amp-embed.php' );
+		$embed_handler_classes[ 'GraphiqSearch_AMP_Embed' ] = array();
+		return $embed_handler_classes;
+	}
 
-		if ( empty( $arguments['id'] ) || empty( $arguments['link'] ) ||
-			empty( $arguments['title'] ) || empty( $arguments['url'] ) ) {
-			return null;
-		}
+	function amp_add_styles( $amp_template ) {
+		echo $this->render( 'embed-code-amp-styles' );
+	}
 
-		$arguments['width'] = intval( $arguments['width'] );
-		$arguments['height'] = intval( $arguments['height'] );
-
-		if ( $arguments['width'] <= 0 || $arguments['height'] <= 0 ) {
-			return null;
-		}
-
-		return $this->render( 'embed-code', $arguments );
+	function get_version() {
+		$plugin_data = get_plugin_data( __FILE__ );
+		return $plugin_data[ 'Version' ];
 	}
 
 	function get_shortcode_strategy() {
