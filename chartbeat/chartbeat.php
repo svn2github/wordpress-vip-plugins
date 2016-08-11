@@ -278,9 +278,15 @@ function add_chartbeat_footer() {
 			$enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 			$domain = apply_filters( 'chartbeat_config_domain', chartbeat_get_display_url (get_option('home')) );
 			$title  = apply_filters( 'chartbeat_config_title', false );
+			$path  = apply_filters( 'chartbeat_config_path', false );
 			if( $title ) {
 			?>
-			_sf_async_config.title = '<?php echo esc_js( $title ); ?>';
+			_sf_async_config.title = <?php echo esc_js( $title ); ?>;
+			<?php
+			}
+			if( $path ) {
+			?>
+			_sf_async_config.path = <?php echo esc_js( $path ); ?>;
 			<?php
 			}
 			if ($enable_newsbeat) { ?>
