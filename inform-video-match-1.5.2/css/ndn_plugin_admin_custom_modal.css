@@ -1,0 +1,24 @@
+#wpadminbar,
+#adminmenuback,
+#adminmenuwrap,
+#wpfooter,
+.updated,
+.update-nag,
+#wpbody-content div:not(.ndn-search-container) {
+  display: none;
+}
+#wpcontent {
+  margin: 0;
+}
+.ndn-search-container {
+  margin: 5px;
+}
+.ndn-search-query-input {
+  height: 28px;
+  width: 300px;
+}
+.ndn-search-input {
+  margin: 50px 10px;
+  display: block;
+  text-align: center;
+}
