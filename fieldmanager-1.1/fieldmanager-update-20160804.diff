@@ -1,0 +1,961 @@
+Index: VERSION
+===================================================================
+--- VERSION	(revision 255483)
++++ VERSION	(nonexistent)
+@@ -1 +0,0 @@
+-WordPress FieldManager ae1450ece126e74da80dba499ae7a82e3ef628bb
+Index: css/fieldmanager.css
+===================================================================
+--- css/fieldmanager.css	(revision 255483)
++++ css/fieldmanager.css	(working copy)
+@@ -84,6 +84,16 @@
+ 	vertical-align: middle;
+ }
+ 
++.fm-item .fmjs-collapsible-handle .toggle-indicator:before {
++	content: "\f142";
++	display: inline-block;
++	font: normal 20px/1 dashicons;
++	speak: none;
++	-webkit-font-smoothing: antialiased;
++	-moz-osx-font-smoothing: grayscale;
++	text-decoration: none !important;
++}
++
+ .fm-item .fmjs-collapsible-handle.closed .toggle-indicator:before {
+ 	content: "\f140";
+ }
+Index: fieldmanager.php
+===================================================================
+--- fieldmanager.php	(revision 255483)
++++ fieldmanager.php	(working copy)
+@@ -3,7 +3,7 @@
+  * Fieldmanager Base Plugin File.
+  *
+  * @package Fieldmanager
+- * @version 1.0.0
++ * @version 1.1.0-beta.1
+  */
+ 
+ /*
+@@ -10,8 +10,8 @@
+ Plugin Name: Fieldmanager
+ Plugin URI: https://github.com/alleyinteractive/wordpress-fieldmanager
+ Description: Add fields to content types programatically.
+-Author: Austin Smith
+-Version: 1.0.0
++Author: Austin Smith, Matthew Boynes
++Version: 1.1.0-beta.1
+ Author URI: http://www.alleyinteractive.com/
+ */
+ 
+@@ -18,7 +18,7 @@
+ /**
+  * Current version of Fieldmanager.
+  */
+-define( 'FM_VERSION', '1.0.0' );
++define( 'FM_VERSION', '1.1.0-beta.1' );
+ 
+ /**
+  * Filesystem path to Fieldmanager.
+@@ -69,6 +69,11 @@
+ 		}
+ 		return fieldmanager_load_file( 'datasource/class-fieldmanager-datasource-' . $class_id . '.php' );
+ 	}
++
++	if ( 0 === strpos( $class, 'Fieldmanager_Util' ) ) {
++		return fieldmanager_load_file( 'util/class-fieldmanager-util-' . $class_id . '.php' );
++	}
++
+ 	return fieldmanager_load_file( 'class-fieldmanager-' . $class_id . '.php', $class );
+ }
+ 
+@@ -92,21 +97,11 @@
+ 	require_once( $file );
+ }
+ 
+-// Load utility classes with helper functions.
++// Load utility classes with helper functions. These can't be autoloaded.
+ fieldmanager_load_file( 'util/class-fieldmanager-util-term-meta.php' );
+ fieldmanager_load_file( 'util/class-fieldmanager-util-validation.php' );
+ 
+ /**
+- * Enqueue CSS and JS in the Dashboard.
+- */
+-function fieldmanager_enqueue_scripts() {
+-	wp_enqueue_script( 'fieldmanager_script', fieldmanager_get_baseurl() . 'js/fieldmanager.js', array( 'jquery' ), '1.0.7' );
+-	wp_enqueue_style( 'fieldmanager_style', fieldmanager_get_baseurl() . 'css/fieldmanager.css', array(), '1.0.4' );
+-	wp_enqueue_script( 'jquery-ui-sortable' );
+-}
+-add_action( 'admin_enqueue_scripts', 'fieldmanager_enqueue_scripts' );
+-
+-/**
+  * Tell Fieldmanager that it has a base URL somewhere other than the plugins URL.
+  *
+  * @param string $path The URL to Fieldmanager, excluding "fieldmanager/", but
+@@ -145,72 +140,44 @@
+ }
+ 
+ /**
+- * Enqueue a script with a closure, optionally localizing data to it.
++ * Enqueue a script, optionally localizing data to it.
+  *
+- * @see wp_enqueue_script() for detail about $handle, $deps, $ver, and $in_footer.
+- * @see wp_localize_script() for detail about $data_object and $data.
+- * @see FM_GLOBAL_ASSET_VERSION for detail about the fallback value of $ver.
+- * @see fieldmanager_get_baseurl() for detail about the fallback value of $plugin_dir.
++ * @see Fieldmanager_Util_Assets::add_script().
+  *
+- * @param string $handle Script name.
+- * @param string $path The path to the file inside $plugin_dir.
+- * @param array $deps Script dependencies. Default empty array.
+- * @param string|bool $ver Script version. Default none.
+- * @param bool $in_footer Whether to render the script in the footer. Default false.
+- * @param string $data_object The $object_name in wp_localize_script(). Default none.
+- * @param array $data The $l10n in wp_localize_script(). Default empty array.
+- * @param string $plugin_dir The base URL to the directory with the script. Default none.
+- * @param bool $admin Unused.
++ * @param string $handle Script handle.
++ * @param string|bool $path Optional. The path to the file inside $plugin_dir.
++ *                          Default false.
++ * @param array $deps Optional. Script dependencies. Default empty array.
++ * @param string|bool $ver Optional. Script version. Default none.
++ * @param bool $in_footer Optional. Whether to render the script in the footer.
++ *                        Default false.
++ * @param string $data_object Optional. The $object_name in wp_localize_script().
++ *                            Default none.
++ * @param array $data Optional. The $l10n in wp_localize_script(). Default empty
++ *                    array.
++ * @param string $plugin_dir The base URL to the directory with the script.
++ *                           Default none.
++ * @param bool $admin Deprecated.
+  */
+-function fm_add_script( $handle, $path, $deps = array(), $ver = false, $in_footer = false, $data_object = '', $data = array(), $plugin_dir = '', $admin = true ) {
+-	if ( !is_admin() ) {
+-		return;
+-	}
+-	if ( !$ver ) {
+-		$ver = FM_GLOBAL_ASSET_VERSION;
+-	}
+-	if ( '' == $plugin_dir ) {
+-		$plugin_dir = fieldmanager_get_baseurl(); // allow overrides for child plugins
+-	}
+-	$add_script = function() use ( $handle, $path, $deps, $ver, $in_footer, $data_object, $data, $plugin_dir ) {
+-		wp_enqueue_script( $handle, $plugin_dir . $path, $deps, $ver, $in_footer );
+-		if ( !empty( $data_object ) && !empty( $data ) ) {
+-			wp_localize_script( $handle, $data_object, $data );
+-		}
+-	};
+-
+-	add_action( 'admin_enqueue_scripts', $add_script );
+-	add_action( 'wp_enqueue_scripts', $add_script );
++function fm_add_script( $handle, $path = false, $deps = array(), $ver = false, $in_footer = false, $data_object = '', $data = array(), $plugin_dir = '', $admin = true ) {
++	Fieldmanager_Util_Assets::instance()->add_script( compact( 'handle', 'path', 'deps', 'ver', 'in_footer', 'data_object', 'data', 'plugin_dir' ) );
+ }
+ 
+ /**
+- * Register and enqueue a style with a closure.
++ * Register and enqueue a style.
+  *
+- * @see wp_enqueue_script() for detail about $handle, $path, $deps, $ver, and $media.
+- * @see FM_GLOBAL_ASSET_VERSION for detail about the fallback value of $ver.
+- * @see fieldmanager_get_baseurl() for detail about base URL.
++ * @see Fieldmanager_Util_Assets::add_style().
+  *
+  * @param string $handle Stylesheet name.
+- * @param string $path Path to the file inside of the Fieldmanager base URL.
+- * @param array $deps Stylesheet dependencies. Default empty array.
+- * @param string|bool Stylesheet version. Default none.
+- * @param string $media Media for this stylesheet. Default 'all'.
+- * @param bool $admin Unused.
++ * @param string|bool $path Optional. Path to the file inside of the Fieldmanager
++ *                          base URL. Default false.
++ * @param array $deps Optional. Stylesheet dependencies. Default empty array.
++ * @param string|bool Optional. Stylesheet version. Default none.
++ * @param string $media Optional. Media for this stylesheet. Default 'all'.
++ * @param bool $admin Deprecated.
+  */
+-function fm_add_style( $handle, $path, $deps = array(), $ver = false, $media = 'all', $admin = true ) {
+-	if( !is_admin() ) {
+-		return;
+-	}
+-	if ( !$ver ) {
+-		$ver = FM_GLOBAL_ASSET_VERSION;
+-	}
+-	$add_script = function() use ( $handle, $path, $deps, $ver, $media ) {
+-		wp_register_style( $handle, fieldmanager_get_baseurl() . $path, $deps, $ver, $media );
+-        wp_enqueue_style( $handle );
+-	};
+-
+-	add_action( 'admin_enqueue_scripts', $add_script );
+-	add_action( 'wp_enqueue_scripts', $add_script );
++function fm_add_style( $handle, $path = false, $deps = array(), $ver = false, $media = 'all', $admin = true ) {
++	Fieldmanager_Util_Assets::instance()->add_style( compact( 'handle', 'path', 'deps', 'ver', 'media' ) );
+ }
+ 
+ /**
+@@ -281,6 +248,8 @@
+  * }
+  */
+ function fm_calculate_context() {
++	$calculated_context = array( null, null );
++
+ 	// Safe to use at any point in the load process, and better than URL matching.
+ 	if ( is_admin() ) {
+ 		$script = substr( $_SERVER['PHP_SELF'], strrpos( $_SERVER['PHP_SELF'], '/' ) + 1 );
+@@ -309,67 +278,65 @@
+ 			if ( $submenus ) {
+ 				foreach ( $submenus as $submenu ) {
+ 					if ( $script == $submenu[0] || ( 'admin.php' == $script && $page == $submenu[4] ) ) {
+-						return array( 'submenu', $page );
++						$calculated_context = array( 'submenu', $page );
+ 					}
+ 				}
+ 			}
+ 		}
+ 
+-		switch ( $script ) {
+-			// Context = "post".
+-			case 'post.php':
+-				if ( !empty( $_POST['action'] ) && ( 'editpost' === $_POST['action'] || 'newpost' === $_POST['action'] ) ) {
+-					$calculated_context = array( 'post', sanitize_text_field( $_POST['post_type'] ) );
+-				} elseif ( !empty( $_GET['post'] ) ) {
+-					$calculated_context = array( 'post', get_post_type( intval( $_GET['post'] ) ) );
+-				}
+-				break;
+-			case 'post-new.php':
+-				$calculated_context = array( 'post', !empty( $_GET['post_type'] ) ? sanitize_text_field( $_GET['post_type'] ) : 'post' );
+-				break;
+-			// Context = "user".
+-			case 'profile.php':
+-			case 'user-edit.php':
+-				$calculated_context = array( 'user', null );
+-				break;
+-			// Context = "quickedit".
+-			case 'edit.php':
+-				$calculated_context = array( 'quickedit', !empty( $_GET['post_type'] ) ? sanitize_text_field( $_GET['post_type'] ) : 'post' );
+-				break;
+-			case 'admin-ajax.php':
+-				// Passed in via an Ajax form.
+-				if ( !empty( $_POST['fm_context'] ) ) {
+-					$subcontext = !empty( $_POST['fm_subcontext'] ) ? sanitize_text_field( $_POST['fm_subcontext'] ) : null;
+-					$calculated_context = array( sanitize_text_field( $_POST['fm_context'] ), $subcontext );
+-				} elseif ( !empty( $_POST['screen'] ) && !empty( $_POST['action'] ) ) {
+-					if ( 'edit-post' === $_POST['screen'] && 'inline-save' === $_POST['action'] ) {
+-						$calculated_context = array( 'quickedit', sanitize_text_field( $_POST['post_type'] ) );
+-					// Context = "term".
+-					} elseif ( 'add-tag' === $_POST['action'] && !empty( $_POST['taxonomy'] ) ) {
++		if ( empty( $calculated_context[0] ) ) {
++			switch ( $script ) {
++				// Context = "post".
++				case 'post.php':
++					if ( !empty( $_POST['action'] ) && ( 'editpost' === $_POST['action'] || 'newpost' === $_POST['action'] ) ) {
++						$calculated_context = array( 'post', sanitize_text_field( $_POST['post_type'] ) );
++					} elseif ( !empty( $_GET['post'] ) ) {
++						$calculated_context = array( 'post', get_post_type( intval( $_GET['post'] ) ) );
++					}
++					break;
++				case 'post-new.php':
++					$calculated_context = array( 'post', !empty( $_GET['post_type'] ) ? sanitize_text_field( $_GET['post_type'] ) : 'post' );
++					break;
++				// Context = "user".
++				case 'profile.php':
++				case 'user-edit.php':
++					$calculated_context = array( 'user', null );
++					break;
++				// Context = "quickedit".
++				case 'edit.php':
++					$calculated_context = array( 'quickedit', !empty( $_GET['post_type'] ) ? sanitize_text_field( $_GET['post_type'] ) : 'post' );
++					break;
++				case 'admin-ajax.php':
++					// Passed in via an Ajax form.
++					if ( !empty( $_POST['fm_context'] ) ) {
++						$subcontext = !empty( $_POST['fm_subcontext'] ) ? sanitize_text_field( $_POST['fm_subcontext'] ) : null;
++						$calculated_context = array( sanitize_text_field( $_POST['fm_context'] ), $subcontext );
++					} elseif ( !empty( $_POST['screen'] ) && !empty( $_POST['action'] ) ) {
++						if ( 'edit-post' === $_POST['screen'] && 'inline-save' === $_POST['action'] ) {
++							$calculated_context = array( 'quickedit', sanitize_text_field( $_POST['post_type'] ) );
++						// Context = "term".
++						} elseif ( 'add-tag' === $_POST['action'] && !empty( $_POST['taxonomy'] ) ) {
++							$calculated_context = array( 'term', sanitize_text_field( $_POST['taxonomy'] ) );
++						}
++					// Context = "quickedit".
++					} elseif ( !empty( $_GET['action'] ) && 'fm_quickedit_render' === $_GET['action'] ) {
++						$calculated_context = array( 'quickedit', sanitize_text_field( $_GET['post_type'] ) );
++					}
++					break;
++				// Context = "term".
++				case 'edit-tags.php':
++				case 'term.php': // As of 4.5-alpha; see https://core.trac.wordpress.org/changeset/36308
++					if ( !empty( $_POST['taxonomy'] ) ) {
+ 						$calculated_context = array( 'term', sanitize_text_field( $_POST['taxonomy'] ) );
++					} elseif ( !empty( $_GET['taxonomy'] ) ) {
++						$calculated_context = array( 'term', sanitize_text_field( $_GET['taxonomy'] ) );
+ 					}
+-				// Context = "quickedit".
+-				} elseif ( !empty( $_GET['action'] ) && 'fm_quickedit_render' === $_GET['action'] ) {
+-					$calculated_context = array( 'quickedit', sanitize_text_field( $_GET['post_type'] ) );
+-				}
+-				break;
+-			// Context = "term".
+-			case 'edit-tags.php':
+-			case 'term.php': // As of 4.5-alpha; see https://core.trac.wordpress.org/changeset/36308
+-				if ( !empty( $_POST['taxonomy'] ) ) {
+-					$calculated_context = array( 'term', sanitize_text_field( $_POST['taxonomy'] ) );
+-				} elseif ( !empty( $_GET['taxonomy'] ) ) {
+-					$calculated_context = array( 'term', sanitize_text_field( $_GET['taxonomy'] ) );
+-				}
+-				break;
++					break;
++			}
+ 		}
+ 	}
+ 
+-	if ( empty( $calculated_context ) ) {
+-		$calculated_context = array( null, null );
+-	}
+-
+-	return $calculated_context;
++	return apply_filters( 'fm_calculated_context', $calculated_context );
+ }
+ 
+ /**
+Index: images/draggable.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = image/png
+Index: images/draggable.png
+===================================================================
+--- images/draggable.png	(revision 255483)
++++ images/draggable.png	(nonexistent)
+
+Property changes on: images/draggable.png
+___________________________________________________________________
+Deleted: svn:mime-type
+## -1 +0,0 ##
+-image/png
+\ No newline at end of property
+Index: images/grid.png
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = image/png
+Index: images/grid.png
+===================================================================
+--- images/grid.png	(revision 255483)
++++ images/grid.png	(nonexistent)
+
+Property changes on: images/grid.png
+___________________________________________________________________
+Deleted: svn:mime-type
+## -1 +0,0 ##
+-image/png
+\ No newline at end of property
+Index: images/xit.gif
+===================================================================
+Cannot display: file marked as a binary type.
+svn:mime-type = application/octet-stream
+Index: images/xit.gif
+===================================================================
+--- images/xit.gif	(revision 255483)
++++ images/xit.gif	(nonexistent)
+
+Property changes on: images/xit.gif
+___________________________________________________________________
+Deleted: svn:mime-type
+## -1 +0,0 ##
+-application/octet-stream
+\ No newline at end of property
+Index: js/fieldmanager.js
+===================================================================
+--- js/fieldmanager.js	(revision 255483)
++++ js/fieldmanager.js	(working copy)
+@@ -199,7 +199,7 @@
+ 	$( '.fm-collapsed > .fm-group:not(.fmjs-proto) > .fm-group-inner' ).hide();
+ 
+ 	// Initializes triggers to conditionally hide or show fields
+-	$( '.display-if' ).each( function() {
++	fm.init_display_if = function() {
+ 		var val;
+ 		var src = $( this ).data( 'display-src' );
+ 		var values = getCompareValues( this );
+@@ -229,10 +229,11 @@
+ 		if ( ! match_value( values, val ) ) {
+ 			$( this ).hide();
+ 		}
+-	} );
++	};
++	$( '.display-if' ).each( fm.init_display_if );
+ 
+ 	// Controls the trigger to show or hide fields
+-	$( document ).on( 'change', '.display-trigger', function() {
++	fm.trigger_display_if = function() {
+ 		var val;
+ 		var $this = $( this );
+ 		var name = $this.attr( 'name' );
+@@ -259,7 +260,8 @@
+ 				}
+ 			}
+ 		} );
+-	} );
++	};
++	$( document ).on( 'change', '.display-trigger', fm.trigger_display_if );
+ 
+ 	init_label_macros();
+ 	init_sortable();
+Index: php/class-fieldmanager-autocomplete.php
+===================================================================
+--- php/class-fieldmanager-autocomplete.php	(revision 255483)
++++ php/class-fieldmanager-autocomplete.php	(working copy)
+@@ -61,12 +61,8 @@
+ 		);
+ 		parent::__construct( $label, $options );
+ 
+-		// Enqueue required scripts in the proper context
+-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+-		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
++		fm_add_script( 'fm_autocomplete_js', 'js/fieldmanager-autocomplete.js', array( 'fieldmanager_script', 'jquery-ui-autocomplete' ), '1.0.6', false, 'fm_search', array( 'nonce' => wp_create_nonce( 'fm_search_nonce' ) ) );
+ 
+-		fm_add_script( 'fm_autocomplete_js', 'js/fieldmanager-autocomplete.js', array( 'fieldmanager_script' ), '1.0.6', false, 'fm_search', array( 'nonce' => wp_create_nonce( 'fm_search_nonce' ) ) );
+-
+ 		if ( empty( $this->datasource ) ) {
+ 			$message = esc_html__( 'You must supply a datasource for the autocomplete field', 'fieldmanager' );
+ 			if ( Fieldmanager_Field::$debug ) {
+@@ -79,14 +75,6 @@
+ 	}
+ 
+ 	/**
+-	 * Handle enqueuing built-in scripts required for autocomplete
+-	 * @return void
+-	 */
+-	public function enqueue_scripts() {
+-		wp_enqueue_script( 'jquery-ui-autocomplete' );
+-	}
+-
+-	/**
+ 	 * Alter values before rendering
+ 	 * @param array $values
+ 	 */
+Index: php/class-fieldmanager-colorpicker.php
+===================================================================
+--- php/class-fieldmanager-colorpicker.php	(revision 255483)
++++ php/class-fieldmanager-colorpicker.php	(working copy)
+@@ -20,11 +20,11 @@
+ 	public $field_class = 'colorpicker';
+ 
+ 	/**
+-	 * Static variable so we only load static assets once.
++	 * The default color for the color picker.
+ 	 *
+-	 * @var boolean
++	 * @var string
+ 	 */
+-	public static $has_registered_statics = false;
++	public $default_color = null;
+ 
+ 	/**
+ 	 * Build the colorpicker object and enqueue assets.
+@@ -33,17 +33,18 @@
+ 	 * @param array $options
+ 	 */
+ 	public function __construct( $label = '', $options = array() ) {
+-		if ( ! self::$has_registered_statics ) {
+-			add_action( 'admin_enqueue_scripts', function() {
+-				wp_enqueue_style( 'wp-color-picker' );
+-			} );
+-			fm_add_script( 'fm_colorpicker', 'js/fieldmanager-colorpicker.js', array( 'jquery', 'wp-color-picker' ), '1.0', true );
+-			self::$has_registered_statics = true;
+-		}
++		fm_add_script( 'fm_colorpicker', 'js/fieldmanager-colorpicker.js', array( 'jquery', 'wp-color-picker' ), '1.0', true );
++		fm_add_style( 'wp-color-picker' );
+ 
+ 		$this->sanitize = array( $this, 'sanitize_hex_color' );
+ 
+ 		parent::__construct( $label, $options );
++
++		// If we have a default_value and default_color was not explicitly set
++		// to be empty, set default_color to default_value.
++		if ( ! isset( $this->default_color ) && ! empty( $this->default_value ) ) {
++			$this->default_color = $this->default_value;
++		}
+ 	}
+ 
+ 	/**
+@@ -54,9 +55,10 @@
+ 	 */
+ 	public function form_element( $value = '' ) {
+ 		return sprintf(
+-			'<input class="fm-element fm-colorpicker-popup" name="%1$s" id="%2$s" value="%3$s" %4$s />',
++			'<input class="fm-element fm-colorpicker-popup" name="%1$s" id="%2$s" data-default-color="%3$s" value="%4$s" %5$s />',
+ 			esc_attr( $this->get_form_name() ),
+ 			esc_attr( $this->get_element_id() ),
++			esc_attr( $this->default_color ),
+ 			esc_attr( $value ),
+ 			$this->get_element_attributes()
+ 		);
+Index: php/class-fieldmanager-datepicker.php
+===================================================================
+--- php/class-fieldmanager-datepicker.php	(revision 255483)
++++ php/class-fieldmanager-datepicker.php	(working copy)
+@@ -61,9 +61,8 @@
+ 	 * @param array $options
+ 	 */
+ 	public function __construct( $label = '', $options = array() ) {
+-		wp_enqueue_script( 'jquery-ui-datepicker' );
+ 		fm_add_style( 'fm-jquery-ui', 'css/jquery-ui/jquery-ui-1.10.2.custom.min.css' );
+-		fm_add_script( 'fm_datepicker', 'js/fieldmanager-datepicker.js', array( 'fieldmanager_script' ) );
++		fm_add_script( 'fm_datepicker', 'js/fieldmanager-datepicker.js', array( 'fieldmanager_script', 'jquery-ui-datepicker' ) );
+ 		parent::__construct( $label, $options );
+ 
+ 		if ( empty( $this->js_opts ) ) {
+Index: php/class-fieldmanager-draggablepost.php
+===================================================================
+--- php/class-fieldmanager-draggablepost.php	(revision 255483)
++++ php/class-fieldmanager-draggablepost.php	(working copy)
+@@ -49,10 +49,7 @@
+ 		// Refuse to allow more than one instance of this field type.
+ 		$this->limit = 1;
+ 
+-		wp_enqueue_script( 'jquery-ui-draggable' );
+-		wp_enqueue_script( 'jquery-ui-droppable' );
+-		wp_enqueue_script( 'jquery-ui-sortable' );
+-		fm_add_script( 'fm_draggablepost_js', 'js/fieldmanager-draggablepost.js' );
++		fm_add_script( 'fm_draggablepost_js', 'js/fieldmanager-draggablepost.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable' ) );
+ 		fm_add_style( 'fm_draggablepost_css', 'css/fieldmanager-draggablepost.css' );
+ 	}
+ 
+Index: php/class-fieldmanager-field.php
+===================================================================
+--- php/class-fieldmanager-field.php	(revision 255483)
++++ php/class-fieldmanager-field.php	(working copy)
+@@ -16,6 +16,13 @@
+ 	public static $debug = FM_DEBUG;
+ 
+ 	/**
++	 * Indicate that the base FM assets have been enqueued so we only do it once.
++	 *
++	 * @var boolean
++	 */
++	public static $enqueued_base_assets = false;
++
++	/**
+ 	 * @var int
+ 	 * How many of these fields to display, 0 for no limit
+ 	 */
+@@ -331,6 +338,13 @@
+ 			$this->datasource->save_to_post_parent = false;
+ 			$this->datasource->only_save_to_post_parent = false;
+ 		}
++
++		// Only enqueue base assets once, and only when we have a field.
++		if ( ! self::$enqueued_base_assets ) {
++			fm_add_script( 'fieldmanager_script', 'js/fieldmanager.js', array( 'jquery', 'jquery-ui-sortable' ), '1.0.8' );
++			fm_add_style( 'fieldmanager_style', 'css/fieldmanager.css', array(), '1.0.4' );
++			self::$enqueued_base_assets = true;
++		}
+ 	}
+ 
+ 	/**
+@@ -760,8 +774,16 @@
+ 		}
+ 
+ 		if ( ! $this->save_empty ) {
++			// Remove empty values
++			$values = array_filter( $values, function( $value ) {
++				if ( is_array( $value ) ) {
++					return ! empty( $value );
++				} else {
++					return strlen( $value );
++				}
++			} );
+ 			// reindex the array after removing empty values
+-			$values = array_values( array_filter( $values ) );
++			$values = array_values( $values );
+ 		}
+ 
+ 		if ( ! empty( $this->index ) ) {
+Index: php/class-fieldmanager-group.php
+===================================================================
+--- php/class-fieldmanager-group.php	(revision 255483)
++++ php/class-fieldmanager-group.php	(working copy)
+@@ -321,7 +321,7 @@
+ 			$element->data_id = $this->data_id;
+ 			$element->data_type = $this->data_type;
+ 			if ( ! isset( $values[ $element->name ] ) ) {
+-				$values[ $element->name ] = NULL;
++				$values[ $element->name ] = null;
+ 			}
+ 
+ 			if ( $element->skip_save ) {
+@@ -329,12 +329,17 @@
+ 				continue;
+ 			}
+ 
+-			$child_value = empty( $values[ $element->name ] ) ? Null : $values[ $element->name ];
++			$child_value = empty( $values[ $element->name ] ) ? null : $values[ $element->name ];
+ 			$current_child_value = ! isset( $current_values[ $element->name ] ) ? array() : $current_values[ $element->name ];
+ 			$values[ $element->name ] = $element->presave_all( $values[ $element->name ], $current_child_value );
+ 			if ( ! $this->save_empty && $this->limit != 1 ) {
+-				if ( is_array( $values[ $element->name ] ) && empty( $values[ $element->name ] ) ) unset( $values[ $element->name ] );
+-				elseif ( empty( $values[ $element->name ] ) ) unset( $values[ $element->name ] );
++				if ( is_array( $values[ $element->name ] ) ) {
++					if ( empty( $values[ $element->name ] ) ) {
++						unset( $values[ $element->name ] );
++					}
++				} elseif ( ! strlen( $values[ $element->name ] ) ) {
++					unset( $values[ $element->name ] );
++				}
+ 			}
+ 
+ 			if ( ! empty( $element->datasource->only_save_to_taxonomy ) || ! empty( $element->datasource->only_save_to_post_parent ) ) {
+@@ -379,6 +384,9 @@
+ 			$wrapper_classes[] = 'fmjs-collapsible-handle';
+ 			$collapse_handle = $this->get_collapse_handle();
+ 		}
++		if ( $this->collapsed ) {
++			$wrapper_classes[] = 'closed';
++		}
+ 
+ 		$extra_attrs = '';
+ 		if ( $this->label_macro ) {
+Index: php/class-fieldmanager-media.php
+===================================================================
+--- php/class-fieldmanager-media.php	(revision 255483)
++++ php/class-fieldmanager-media.php	(working copy)
+@@ -71,9 +71,13 @@
+ 		$this->modal_button_label = __( 'Select Attachment', 'fieldmanager' );
+ 		$this->modal_title        = __( 'Choose an Attachment', 'fieldmanager' );
+ 
+-		add_action( 'admin_print_scripts', array( $this, 'admin_print_scripts' ) );
+ 		if ( ! self::$has_registered_media ) {
+ 			fm_add_script( 'fm_media', 'js/media/fieldmanager-media.js', array( 'jquery' ), '1.0.4' );
++			if ( did_action( 'admin_print_scripts' ) ) {
++				$this->admin_print_scripts();
++			} else {
++				add_action( 'admin_print_scripts', array( $this, 'admin_print_scripts' ) );
++			}
+ 			self::$has_registered_media = true;
+ 		}
+ 		parent::__construct( $label, $options );
+@@ -86,7 +90,7 @@
+ 	public function admin_print_scripts() {
+ 		$post = get_post();
+ 		$args = array();
+-		if ( isset( $post ) && $post->ID ) {
++		if ( ! empty( $post->ID ) ) {
+ 			$args['post'] = $post->ID;
+ 		}
+ 		wp_enqueue_media( $args ); // generally on post pages this will not have an impact.
+Index: php/class-fieldmanager-options.php
+===================================================================
+--- php/class-fieldmanager-options.php	(revision 255483)
++++ php/class-fieldmanager-options.php	(working copy)
+@@ -91,7 +91,7 @@
+ 		if ( isset( $values[0] ) && is_array( $values[0] ) ) {
+ 			foreach ( $options as $group => $data ) {
+ 				foreach ( $data as $value => $label ) {
+-					$this->add_option_data( $value, $label, $group, $group );
++					$this->add_option_data( $label, $value, $group, $group );
+ 				}
+ 			}
+ 		} else {
+Index: php/util/class-fieldmanager-util-assets.php
+===================================================================
+--- php/util/class-fieldmanager-util-assets.php	(nonexistent)
++++ php/util/class-fieldmanager-util-assets.php	(working copy)
+@@ -0,0 +1,259 @@
++<?php
++/**
++ * Fieldmanager Assets
++ */
++
++class Fieldmanager_Util_Assets {
++
++	/**
++	 * Singleton instance
++	 *
++	 * @var Fieldmanager_Util_Assets
++	 */
++	private static $instance;
++
++	/**
++	 * Array of scripts to enqueue during *_enqueue_scripts
++	 *
++	 * @var array
++	 */
++	protected $scripts = array();
++
++	/**
++	 * Array of scripts to enqueue during *_enqueue_styles
++	 *
++	 * @var array
++	 */
++	protected $styles = array();
++
++	/**
++	 * Ensure that the enqueue method only gets hooked once.
++	 *
++	 * @var boolean
++	 */
++	public $hooked = false;
++
++	private function __construct() {
++		/* Don't do anything, needs to be initialized via instance() method */
++	}
++
++	/**
++	 * Get the singleton instance.
++	 *
++	 * @return Fieldmanager_Util_Assets
++	 */
++	public static function instance() {
++		if ( ! isset( self::$instance ) ) {
++			self::$instance = new Fieldmanager_Util_Assets;
++		}
++		return self::$instance;
++	}
++
++	/**
++	 * Enqueue all assets during the correct action.
++	 */
++	public function enqueue_assets() {
++		$enqueue_scripts = apply_filters( 'fm_enqueue_scripts', array_values( $this->scripts ) );
++		foreach ( $enqueue_scripts as $args ) {
++			$this->enqueue_script( $args );
++		}
++		$this->scripts = array();
++
++		$enqueue_styles = apply_filters( 'fm_enqueue_styles', array_values( $this->styles ) );
++		foreach ( $enqueue_styles as $args ) {
++			$this->enqueue_style( $args );
++		}
++		$this->styles = array();
++	}
++
++	/**
++	 * Enqueue or output a script.
++	 *
++	 * Checks if the *_enqueue_scripts action has already fired and if so, outputs
++	 * the script immediately. If not, the handle gets added to an array to
++	 * enqueue later.
++	 *
++	 * @param  string $handle The script to enqueue/output.
++	 */
++	protected function pre_enqueue_script( $args ) {
++		if ( did_action( 'admin_enqueue_scripts' ) || did_action( 'wp_enqueue_scripts' ) ) {
++			$this->enqueue_script( $args );
++		} else {
++			$this->scripts[ $args['handle'] ] = $args;
++			$this->hook_enqueue();
++		}
++	}
++
++	/**
++	 * Enqueue a script.
++	 *
++	 * @param  array $args {@see Fieldmanager_Util_Assets::add_script()}
++	 */
++	protected function enqueue_script( $args ) {
++		// Register the script and localize data if applicable
++		wp_enqueue_script( $args['handle'], $args['path'], $args['deps'], $args['ver'], $args['in_footer'] );
++		if ( ! empty( $args['data_object'] ) && ! empty( $args['data'] ) ) {
++			wp_localize_script( $args['handle'], $args['data_object'], $args['data'] );
++		}
++	}
++
++	/**
++	 * Enqueue or output a style.
++	 *
++	 * Checks if the *_enqueue_scripts action has already fired and if so, outputs
++	 * the style immediately. If not, the handle gets added to an array to
++	 * enqueue later.
++	 *
++	 * @param  string $handle The style to enqueue/output.
++	 */
++	protected function pre_enqueue_style( $args ) {
++		if ( did_action( 'admin_enqueue_scripts' ) || did_action( 'wp_enqueue_scripts' ) ) {
++			$this->enqueue_style( $args );
++		} else {
++			$this->styles[ $args['handle'] ] = $args;
++			$this->hook_enqueue();
++		}
++	}
++
++	/**
++	 * Enqueue a style.
++	 *
++	 * @param  array $args {@see Fieldmanager_Util_Assets::add_style()}
++	 */
++	protected function enqueue_style( $args ) {
++		// Register the style
++		wp_enqueue_style( $args['handle'], $args['path'], $args['deps'], $args['ver'], $args['media'] );
++	}
++
++	/**
++	 * Hook into admin_enqueue_scripts and wp_enqueue_scripts if we haven't
++	 * already.
++	 */
++	protected function hook_enqueue() {
++		if ( ! $this->hooked ) {
++			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_assets' ) );
++			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
++			$this->hooked = true;
++		}
++	}
++
++	/**
++	 * Enqueue a script, optionally localizing data to it.
++	 *
++	 * @see wp_enqueue_script() for detail about $handle, $deps, $ver, and $in_footer.
++	 * @see wp_localize_script() for detail about $data_object and $data.
++	 * @see FM_GLOBAL_ASSET_VERSION for detail about the fallback value of $ver.
++	 * @see fieldmanager_get_baseurl() for detail about the fallback value of $plugin_dir.
++	 *
++	 * @param array $args {
++	 *     Script arguments.
++	 *
++	 *     @type string $handle Script handle.
++	 *     @type string|bool $path Optional. The path to the file inside $plugin_dir.
++	 *                             If absent, the script will only be enqueued
++	 *                             and not registered. Default false.
++	 *     @type array $deps Optional. Script dependencies. Default empty array.
++	 *     @type string|bool $ver Optional. Script version. Default false.
++	 *     @type bool $in_footer Optional. Whether to render the script in the
++	 *                           footer. Default false.
++	 *     @type string $data_object Optional. The $object_name in
++	 *                               wp_localize_script(). Default none.
++	 *     @type array $data Optional. The $l10n in wp_localize_script().
++	 *                       Default empty array.
++	 *     @type string $plugin_dir The base URL to the directory with the
++	 *                              script. Default none.
++	 * }
++	 */
++	public function add_script( $args ) {
++		if ( ! is_admin() ) {
++			return;
++		}
++
++		$args = wp_parse_args( $args, array(
++			'path'        => false,
++			'deps'        => array(),
++			'ver'         => false,
++			'in_footer'   => false,
++			'data_object' => '',
++			'data'        => array(),
++			'plugin_dir'  => '',
++		) );
++
++		// Bail if we don't have a handle and a path.
++		if ( ! isset( $args['handle'] ) ) {
++			return;
++		}
++
++		if ( $args['path'] ) {
++			// Set the default version
++			if ( ! $args['ver'] ) {
++				$args['ver'] = FM_GLOBAL_ASSET_VERSION;
++			}
++
++			// Set the default directory
++			if ( '' == $args['plugin_dir'] ) {
++				$args['plugin_dir'] = fieldmanager_get_baseurl(); // allow overrides for child plugins
++			}
++			$args['path'] = $args['plugin_dir'] . $args['path'];
++		}
++
++		// Enqueue or output the script
++		$this->pre_enqueue_script( $args );
++	}
++
++	/**
++	 * Register and enqueue a style.
++	 *
++	 * @see wp_enqueue_script() for detail about $handle, $path, $deps, $ver, and $media.
++	 * @see FM_GLOBAL_ASSET_VERSION for detail about the fallback value of $ver.
++	 * @see fieldmanager_get_baseurl() for detail about base URL.
++	 *
++	 * @param array $args {
++	 *     Stylesheet arguments.
++	 *
++	 *     @type string $handle Stylesheet name.
++	 *     @type string $path Optional. Path to the file inside of the Fieldmanager
++	 *                        base URL. If absent, the style will only be enqueued
++	 *                        and not registered. Default false.
++	 *     @type array $deps Optional. Stylesheet dependencies. Default empty array.
++	 *     @type string|bool Optional. Stylesheet version. Default none.
++	 *     @type string $media Optional. Media for this stylesheet. Default 'all'.
++	 *     @type string $plugin_dir The base URL for the directory with the style.
++	 *                              Default none.
++	 * }
++	 */
++	public function add_style( $args ) {
++		if ( ! is_admin() ) {
++			return;
++		}
++
++		$args = wp_parse_args( $args, array(
++			'path'       => false,
++			'deps'       => array(),
++			'ver'        => false,
++			'media'      => 'all',
++			'plugin_dir' => '',
++		) );
++
++		// Bail if we don't have a handle and a path.
++		if ( ! isset( $args['handle'] ) ) {
++			return;
++		}
++
++		if ( $args['path'] ) {
++			// Set the default version
++			if ( ! $args['ver'] ) {
++				$args['ver'] = FM_GLOBAL_ASSET_VERSION;
++			}
++
++			// Set the default directory
++			if ( '' == $args['plugin_dir'] ) {
++				$args['plugin_dir'] = fieldmanager_get_baseurl(); // allow overrides for child plugins
++			}
++			$args['path'] = $args['plugin_dir'] . $args['path'];
++		}
++
++		// Enqueue or output hte style
++		$this->pre_enqueue_style( $args );
++	}
++}
+Index: todo.txt
+===================================================================
+--- todo.txt	(revision 255483)
++++ todo.txt	(nonexistent)
+@@ -1,5 +0,0 @@
+-* Validation
+-* Rich Text
+-* File Upload
+-* Unit Tests
+-* Alpha Release
+\ No newline at end of file
+
+Property changes on: todo.txt
+___________________________________________________________________
+Deleted: svn:eol-style
+## -1 +0,0 ##
+-native
+\ No newline at end of property
+Index: .
+===================================================================
+--- .	(revision 255483)
++++ .	(working copy)
+
+Property changes on: .
+___________________________________________________________________
+Modified: svn:ignore
+## -6,3 +6,10 ##
+ docs-src
+ report
+ tests
++.editorconfig
++bin
++composer.json
++Gruntfile.js
++multisite.xml
++package.json
++phpcs.ruleset.xml
