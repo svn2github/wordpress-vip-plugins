@@ -1,0 +1,8 @@
+#qmerce_challenges .inside {
+    margin: 0;
+    padding: 0;
+}
+
+#qmerce_challenges .inside iframe {
+    height: 135px;
+}
