@@ -233,7 +233,7 @@ class WPcom_Thumbnail_Editor {
 		wp_enqueue_script( 'imgareaselect' );
 		wp_enqueue_style( 'imgareaselect' );
 
-		require( ABSPATH . '/wp-admin/admin-header.php' );
+		require_once( ABSPATH . '/wp-admin/admin-header.php' );
 
 
 		$original_aspect_ratio  = $image[1] / $image[2];
