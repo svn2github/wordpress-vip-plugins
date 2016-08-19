@@ -126,7 +126,7 @@ function x_init_custom_fields() {
 	// adds a wysiwyg (full editor) field to the 2nd group
 	x_add_metadata_field( 'x_fieldWysiwyg1', array( 'x_test', 'user' ), array(
 			'group' => 'x_metaBox2',
-			'field_type' => 'textarea_wysiwyg',
+			'field_type' => 'wysiwyg',
 			'label' => 'TinyMCE / Wysiwyg field',
 		) );
 
