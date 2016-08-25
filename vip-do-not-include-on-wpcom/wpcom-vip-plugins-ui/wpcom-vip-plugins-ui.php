@@ -344,6 +344,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'			=> 'Tinypass',
 				'description'	=> 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
 			),
+			'webdam-asset-chooser' => array(
+				'name'			=> 'WebDAM Asset Chooser',
+				'description'	=> 'Import WebDAM assets into WordPress.',
+			),
 		);
 	}
 
