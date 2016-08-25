@@ -244,6 +244,10 @@ class WPcom_VIP_Plugins_UI {
 		);
 
 		$this->fpp_plugins = array(
+			'apester-interactive-content' => array(
+				'name'			=> 'Apester Interactive Content',
+				'description'	=> 'The Apester Interactive Content plugin allows anyone to easily and freely create, embed and share interactive, playful and related content items (polls, trivia, etc.) into posts and articles, in a matter of seconds.',
+			),
 			'brightcove-video-connect' => array(
 				'name'			=> 'Brightcove Video Connect',
 				'description'	=> 'Discover How Video Can Move Your Business.',
