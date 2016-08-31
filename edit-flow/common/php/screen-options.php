@@ -23,13 +23,17 @@ class wsScreenOptions10 {
 	 * 
 	 * @return void
 	 */
-	function wsScreenOptions10(){
+	function __construct(){
 		$this->registered_panels = array();
 		$this->page_panels = array();
 		
 		add_filter('screen_settings', array( $this, 'append_screen_settings' ), 10, 2);
 		add_action('admin_print_scripts', array( $this, 'add_autosave_script' ) );
 	} 
+
+	function wsScreenOptions10() {
+		self::__construct();
+	}
 
 	/**
 	 * Add a new settings panel to the "Screen Options" box.
