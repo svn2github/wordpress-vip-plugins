@@ -509,7 +509,7 @@ Author URI: http://intensedebate.com
 		// generic constructor. You can pass in an array/stdClass of
 		// values for $props and prepopulate your object either using
 		// local or remote names
-		function id_data_wrapper( $props = null, $bRemoteLabels = false ) {
+		function __construct( $props = null, $bRemoteLabels = false ) {
 			if ( isset( $props ) ) {
 				if ( $bRemoteLabels ) {
 					$this->loadFromRemote( $props );
@@ -517,6 +517,10 @@ Author URI: http://intensedebate.com
 					$this->loadFromLocal( $props );
 				}
 			}
+		}
+
+		function id_data_wrapper( $props = null, $bRemoteLabels = false ) {
+			self::__construct( $props, $bRemoteLabels );
 		}
 		
 		// registers a property with the object. $localname is the WordPress column
@@ -592,7 +596,7 @@ Author URI: http://intensedebate.com
 		
 		var $post = null;
 		
-		function id_comment( $props = null, $bRemoteLabels = false ) {
+		function __construct( $props = null, $bRemoteLabels = false ) {
 			$this->addProp( 'intensedebate_id' );
 			$this->addProp( 'comment_ID', 'comment_id' );
 			$this->addProp( 'comment_post_ID', 'comment_post_id' );
@@ -612,6 +616,9 @@ Author URI: http://intensedebate.com
 			$this->id_data_wrapper( $props, $bRemoteLabels );
 		}
 		
+		function id_comment( $props = null, $bRemoteLabels = false ) {
+			self::__construct( $props, $bRemoteLabels );
+		}
 		
 		// loadFromWP
 		// loads comment from WP database
@@ -701,7 +708,7 @@ Author URI: http://intensedebate.com
 
 	class id_post extends id_data_wrapper {
 
-		function id_post( $props = null, $bRemoteLabels = false ) { 
+		function __construct( $props = null, $bRemoteLabels = false ) { 
 			$this->addProp( 'ID', 'postid' );
 			$this->addProp( 'post_title', 'title' );
 			$this->addProp( 'guid' );
@@ -717,6 +724,10 @@ Author URI: http://intensedebate.com
 			
 			// load up inferred props
 			$this->loadProprietaryProps();
+		}
+
+		function id_post( $props = null, $bRemoteLabels = false ) {
+			self::__construct( $props, $bRemoteLabels );
 		}
 		
 		function loadProprietaryProps() {
@@ -798,7 +809,7 @@ Author URI: http://intensedebate.com
 
 		var $action, $callback, $operation_id, $time_gmt, $data, $response, $success;
 		
-		function id_queue_operation( $action, $data, $callback = null ) {
+		function __construct( $action, $data, $callback = null ) {
 			$this->action = $action;
 			$this->callback = $callback;
 			$this->data = $data;
@@ -807,6 +818,10 @@ Author URI: http://intensedebate.com
 			$this->success = false;
 			$this->wp_version = get_bloginfo( 'version' );
 			$this->id_plugin_version = ID_PLUGIN_VERSION;
+		}
+
+		function id_queue_operation( $action, $data, $callback = null ) {
+			self::__construct( $action, $data, $callback );
 		}
 
 		function id() {
@@ -821,8 +836,12 @@ Author URI: http://intensedebate.com
 		var $operations = array();
 		var $needs_save = false;
 
-		function id_queue() {
+		function __construct() {
 			$this->load();
+		}
+
+		function id_queue() {
+			self::__construct();
 		}
 
 		function load() {
