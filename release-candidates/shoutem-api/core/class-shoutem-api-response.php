@@ -19,8 +19,12 @@
 
 class ShoutemApiResponse {
 
-	function ShoutemApiResponse($base_url) {
+	function __construct( $base_url ) {
 		$this->base_url = $base_url;
+	}
+
+	function ShoutemApiResponse( $base_url ) {
+		self::__construct( $base_url );
 	}
 
 	function send_json_ok($data) {

@@ -18,7 +18,7 @@
 */
 class ShoutemController {
 
-	public function ShoutemController($shoutem_api, $request, $response, $dao_factory, $authentication, $caching) {
+	public function __construct( $shoutem_api, $request, $response, $dao_factory, $authentication, $caching ) {
 		$this->shoutem_api = $shoutem_api;
 		$this->request = $request;
 		$this->response = $response;
@@ -26,6 +26,10 @@ class ShoutemController {
 		$this->authentication = $authentication;
 		$this->caching = $caching;
 		$this->view = new ShoutemControllerView($request, $response);
+	}
+
+	public function ShoutemController( $shoutem_api, $request, $response, $dao_factory, $authentication, $caching ) {
+		self::__construct( $shoutem_api, $request, $response, $dao_factory, $authentication, $caching );
 	}
 
 	protected function default_paging_params() {

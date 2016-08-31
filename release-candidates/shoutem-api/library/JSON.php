@@ -129,9 +129,13 @@ class SEServices_JSON
     *                                   bubble up with an error, so all return values
     *                                   from encode() should be checked with isError()
     */
-    function SEServices_JSON($use = 0)
+    function __construct( $use = 0 )
     {
         $this->use = $use;
+    }
+
+    function SEServices_JSON( $use = 0 ) {
+        self::__construct( $use );
     }
 
    /**
@@ -836,10 +840,14 @@ if (class_exists('PEAR_Error')) {
 
     class SEServices_JSON_Error extends PEAR_Error
     {
-        function SEServices_JSON_Error($message = 'unknown error', $code = null,
-                                     $mode = null, $options = null, $userinfo = null)
+        function __construct( $message = 'unknown error', $code = null,
+                                     $mode = null, $options = null, $userinfo = null )
         {
             parent::PEAR_Error($message, $code, $mode, $options, $userinfo);
+        }
+
+        function SEServices_JSON_Error( $message = 'unknown error', $code = null, $mode = null, $options = null, $userinfo = null ) {
+            self::__construct( $message, $code, $mode, $options, $userinfo );
         }
     }
 
@@ -850,10 +858,14 @@ if (class_exists('PEAR_Error')) {
      */
     class SEServices_JSON_Error
     {
-        function SEServices_JSON_Error($message = 'unknown error', $code = null,
+        function __construct($message = 'unknown error', $code = null,
                                      $mode = null, $options = null, $userinfo = null)
         {
 
+        }
+
+        function SEServices_JSON_Error( $message = 'unknown error', $code = null, $mode = null, $options = null, $userinfo = null ) {
+            self::__construct( $message, $code, $mode, $options, $userinfo );
         }
     }
 

@@ -17,13 +17,17 @@
     Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 class ShoutemApiRequest {
-	function ShoutemApiRequest($dao_factory) {
+	function __construct( $dao_factory ) {
 		$this->dao_factory = $dao_factory;
 		// Fetching all the params, it can be GET/POST request depends on API client app
 		// For that reason we use $_REQUEST
 		$this->params = $_REQUEST; 
 		$this->credentials = null;
 	}
+
+	function ShoutemApiRequest( $dao_factory ) {
+		self::__construct( $dao_factory );
+	} 
 
 	function get_validated_user($params) {
 		if(!isset($params['session_id'])) {

@@ -18,9 +18,13 @@
 */
 class ShoutemControllerView {
 
-	public function ShoutemControllerView($request, $response) {
+	public function __construct( $request, $response ) {
 		$this->request = $request;
 		$this->response = $response;
+	}
+
+	public function ShoutemControllerView( $request, $response ) {
+		self::__construct( $request, $response );
 	}
 
 	function get_avatar_url( $email, $size = '48') {
