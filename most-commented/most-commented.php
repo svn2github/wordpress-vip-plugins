@@ -11,9 +11,13 @@ Author URI: http://nickmomrik.com/
 class Most_Commented_Widget extends WP_Widget {
 	var $duration_choices = array();
 
-	function Most_Commented_Widget() {
+	function __construct() {
 		parent::WP_Widget( false, $name = 'Most Commented' );
 		$this->duration_choices = apply_filters( 'most_commented_duration_choices', array( 1 => __( '1 Day' ), 7 => __( '7 Days' ), 30 => __( '30 Days' ), 365 => __( '365 Days' ), 0 => __( 'All Time' ) ) );
+	}
+
+	function Most_Commented_Widget() {
+		self::__construct();
 	}
 
 	function widget( $args, $instance ) {
