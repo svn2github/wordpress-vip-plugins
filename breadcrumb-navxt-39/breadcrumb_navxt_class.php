@@ -43,7 +43,7 @@ class bcn_breadcrumb
 	 * @param string $anchor[optional]
 	 * @param bool $linked[optional]
 	 */
-	public function bcn_breadcrumb($title = '', $prefix = '', $suffix = '', $anchor = NULL, $linked = false)
+	public function __construct( $title = '', $prefix = '', $suffix = '', $anchor = NULL, $linked = false )
 	{
 		//Set the title
 		$this->title = __($title, 'breadcrumb_navxt');
@@ -66,6 +66,11 @@ class bcn_breadcrumb
 		//null out the type, it's not fully used yet
 		$this->type = NULL;
 	}
+
+	public function bcn_breadcrumb( $title = '', $prefix = '', $suffix = '', $anchor = NULL, $linked = false ) {
+		self::__construct( $title, $prefix, $suffix, $anchor, $linked );
+	}
+
 	/**
 	 * Function to set the protected title member
 	 * 
@@ -214,7 +219,7 @@ class bcn_breadcrumb_trail
 	//The options
 	public $opt;
 	//Default constructor
-	function bcn_breadcrumb_trail()
+	function __construct()
 	{
 		//Load the translation domain as the next part needs it		
 		load_plugin_textdomain($domain = 'breadcrumb_navxt', false, 'breadcrumb-navxt/languages');
@@ -345,6 +350,11 @@ class bcn_breadcrumb_trail
 			'archive_date_suffix' => ''
 		);
 	}
+
+	function bcn_breadcrumb_trail() {
+		self::__construct();
+	}
+	
 	/**
 	 * Adds a breadcrumb to the breadcrumb trail
 	 * 

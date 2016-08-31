@@ -75,7 +75,7 @@ class bcn_admin extends mtekk_admin
 	/**
 	 * Administrative interface class default constructor
 	 */
-	function bcn_admin()
+	function __construct()
 	{
 		//We'll let it fail fataly if the class isn't there as we depend on it
 		$this->breadcrumb_trail = new bcn_breadcrumb_trail;
@@ -88,6 +88,11 @@ class bcn_admin extends mtekk_admin
 		//We're going to make sure we load the parent's constructor
 		parent::__construct();
 	}
+
+	function bcn_admin() {
+		self::__construct();
+	}
+	
 	/**
 	 * admin initialization callback function
 	 * 
