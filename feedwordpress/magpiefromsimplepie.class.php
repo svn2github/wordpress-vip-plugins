@@ -62,7 +62,7 @@ class MagpieFromSimplePie {
 	 * @uses MagpieFromSimplePie::processItemData
 	 * @uses MagpieFromSimplePie::normalize 
 	 */
-	function MagpieFromSimplePie ($pie) {
+	function __construct( $pie ) {
 		$this->pie = $pie;
 		$this->originals = $this->pie->get_items();
 
@@ -78,6 +78,10 @@ class MagpieFromSimplePie {
 		$this->feed_version = $this->feed_version();
 		$this->encoding = $pie->get_encoding();
 	} /* MagpieFromSimplePie constructor */
+
+	function MagpieFromSimplePie( $pie ) {
+		self::__construct();
+	}
 	
 	/**
 	 * MagpieFromSimplePie::get_item: returns a MagpieRSS format array

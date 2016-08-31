@@ -52,7 +52,7 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 	 *
 	 * @param mixed $link An object of class {@link SyndicatedLink} if created for one feed's settings, NULL if created for global default settings
 	 */
-	function FeedWordPressFeedsPage ($link = -1) {
+	function __construct( $link = -1 ) {
 		if (is_numeric($link) and -1 == $link) :
 			$link = FeedWordPressAdminPage::submitted_link();
 		endif;
@@ -63,6 +63,10 @@ class FeedWordPressFeedsPage extends FeedWordPressAdminPage {
 		$this->filename = FWP_FEEDS_PAGE_SLUG;
 		$this->updatedPosts = new UpdatedPostsControl($this);
 	} /* FeedWordPressFeedsPage constructor */
+
+	function FeedWordPressFeedsPage( $link = -1 ) {
+		self::__construct( $link );
+	}
 
 	var $special_settings = array ( /* Regular expression syntax is OK here */
 		'cats',

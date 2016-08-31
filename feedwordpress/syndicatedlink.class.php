@@ -42,7 +42,7 @@ class SyndicatedLink {
 	var $simplepie = null;
 	var $magpie = null;
 
-	function SyndicatedLink ($link) {
+	function __construct( $link ) {
 		if (is_object($link)) :
 			$this->link = $link;
 			$this->id = $link->link_id;
@@ -116,6 +116,10 @@ class SyndicatedLink {
 			endif;
 		endif;
 	} /* SyndicatedLink::SyndicatedLink () */
+
+	function SyndicatedLink( $link ) {
+		self::__construct( $link );
+	}
 	
 	function found () {
 		return is_object($this->link) and !is_wp_error($this->link);

@@ -36,7 +36,7 @@ class SyndicatedPost {
 	 * @param array $item The item syndicated from the feed.
 	 * @param SyndicatedLink $source The feed it was syndicated from.
 	 */
-	function SyndicatedPost ($item, $source) {
+	function __construct( $item, $source ) {
 		if (is_array($item)
 		and isset($item['simplepie'])
 		and isset($item['magpie'])) :
@@ -301,6 +301,10 @@ class SyndicatedPost {
 
 		endif;
 	} /* SyndicatedPost::SyndicatedPost() */
+
+	function SyndicatedPost( $item, $source ) {
+		self::__construct( $item, $source );
+	}
 
 	#####################################
 	#### EXTRACT DATA FROM FEED ITEM ####

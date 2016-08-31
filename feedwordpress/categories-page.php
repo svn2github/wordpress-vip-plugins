@@ -2,10 +2,14 @@
 require_once(dirname(__FILE__) . '/admin-ui.php');
 
 class FeedWordPressCategoriesPage extends FeedWordPressAdminPage {
-	function FeedWordPressCategoriesPage ($link) {
+	function __construct( $link ) {
 		FeedWordPressAdminPage::FeedWordPressAdminPage('feedwordpresscategories', $link);
 		$this->dispatch = 'feedwordpress_categories_settings';
 		$this->filename = FWP_CATEGORIES_PAGE_SLUG;
+	}
+
+	function FeedWordPressCategoriesPage( $link ) {
+		self::__construct( $link );
 	}
 	
 	/*static*/ function feed_categories_box ($page, $box = NULL) {

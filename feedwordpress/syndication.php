@@ -12,13 +12,17 @@ define('FWP_RESUB_CHECKED', 'Re-subscribe');
 define('FWP_SYNDICATE_NEW', 'Add →');
 
 class FeedWordPressSyndicationPage extends FeedWordPressAdminPage {
-	function FeedWordPressSyndicationPage () {
+	function __construct () {
 		FeedWordPressAdminPage::FeedWordPressAdminPage('feedwordpresssyndication', /*link=*/ NULL);
 
 		// No over-arching form element
 		$this->dispatch = NULL;
 		$this->filename = FWP_SYNDICATION_PAGE_SLUG;
 	} /* FeedWordPressSyndicationPage constructor */
+
+	function FeedWordPressSyndicationPage() {
+		self::__construct();
+	}
 
 	function has_link () { return false; }
 
@@ -648,7 +652,7 @@ has been added as a contributing site, using the feed at
 &lt;<a href="<?php print $fwp_post['feed']; ?>"><?php print esc_html($fwp_post['feed']); ?></a>&gt;.
 | <a href="admin.php?page=<?php echo FWP_FEEDS_PAGE_SLUG; ?>&amp;link_id=<?php print $link_id; ?>">Configure settings</a>.</p></div>
 <?php			else: ?>
-<div class="updated"><p>There was a problem adding the feed. [SQL: <?php echo esc_html(mysql_error()); ?>]</p></div>
+<div class="updated"><p>There was a problem adding the feed. [SQL: <?php echo esc_html(mysqli_error()); ?>]</p></div>
 <?php			endif;
 		elseif (isset($fwp_post['save_link_id'])):
 			$existingLink = new SyndicatedLink($fwp_post['save_link_id']);

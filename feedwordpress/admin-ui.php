@@ -11,7 +11,7 @@ class FeedWordPressAdminPage {
 	 *
 	 * @param mixed $link An object of class {@link SyndicatedLink} if created for one feed's settings, NULL if created for global default settings
 	 */
-	function FeedWordPressAdminPage ($page = 'feedwordpressadmin', $link = NULL) {
+	function __construct( $page = 'feedwordpressadmin', $link = NULL ) {
 		$this->link = $link;
 
 		// Set meta-box context name
@@ -20,6 +20,10 @@ class FeedWordPressAdminPage {
 			$this->context .= 'forfeed';
 		endif;
 	} /* FeedWordPressAdminPage constructor */
+
+	function FeedWordPressAdminPage( $page = 'feedwordpressadmin', $link = NULL ) {
+		self::__construct( $page, $link );
+	}
 
 	function for_feed_settings () { 
 		return (is_object($this->link) and method_exists($this->link, 'found') and $this->link->found());

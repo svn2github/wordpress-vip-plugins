@@ -5,11 +5,15 @@ class FeedWordPressAuthorsPage extends FeedWordPressAdminPage {
 	var $authorlist = NULL;
 	var $rule_count = 0;
 	
-	function FeedWordPressAuthorsPage ($link) {
+	function __construct ( $link ) {
 		FeedWordPressAdminPage::FeedWordPressAdminPage('feedwordpressauthors', $link);
 		$this->refresh_author_list();
 		$this->dispatch = 'feedwordpress_author_settings';
 		$this->filename = FWP_AUTHORS_PAGE_SLUG;
+	}
+	
+	function FeedWordPressAuthorsPage( $link ) {
+		self::__construct( $link );
 	}
 	
 	function refresh_author_list () {

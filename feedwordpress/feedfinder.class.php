@@ -31,9 +31,13 @@ class FeedFinder {
 	var $_obvious_feed_url = array('[./]rss', '[./]rdf', '[./]atom', '[./]feed', '\.xml');
 	var $_maybe_feed_url = array ('rss', 'rdf', 'atom', 'feed', 'xml');
 
-	function FeedFinder ($uri = NULL, $verify = TRUE) {
+	function __construct( $uri = NULL, $verify = TRUE ) {
 		$this->uri = $uri; $this->verify = $verify;
 	} /* FeedFinder::FeedFinder () */
+
+	function FeedFinder( $uri = NULL, $verify = TRUE ) {
+		self::__construct( $uri, $verify );
+	}
 
 	function find ($uri = NULL) {
 		$ret = array ();

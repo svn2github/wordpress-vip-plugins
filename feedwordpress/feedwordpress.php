@@ -998,13 +998,19 @@ class FeedWordPress {
 	var $feeds = NULL;
 
 	# function FeedWordPress (): Contructor; retrieve a list of feeds 
-	function FeedWordPress () {
+	function __construct() {
 		$this->feeds = array ();
 		$links = FeedWordPress::syndicated_links();
 		if ($links): foreach ($links as $link):
 			$this->feeds[] = new SyndicatedLink($link);
 		endforeach; endif;
-	} // FeedWordPress::FeedWordPress ()
+	} 
+
+	function FeedWordPress() {
+		self::__construct();
+	}
+
+	// FeedWordPress::FeedWordPress ()
 
 	# function update (): polls for updates on one or more Contributor feeds
 	#
@@ -1495,7 +1501,7 @@ class FeedWordPress {
 } // class FeedWordPress
 
 class FeedWordPress_File extends WP_SimplePie_File {
-	function FeedWordPress_File ($url, $timeout = 10, $redirects = 5, $headers = null, $useragent = null, $force_fsockopen = false) {
+	function __construct( $url, $timeout = 10, $redirects = 5, $headers = null, $useragent = null, $force_fsockopen = false ) {
 		$useragent = 'WordPress.com VIP/FeedWordPress';
 		parent::__construct($url, $timeout, $redirects, $headers, $useragent, $force_fsockopen);
 
@@ -1506,6 +1512,10 @@ class FeedWordPress_File extends WP_SimplePie_File {
 		$this->status_code = (int) $this->status_code;
 	}
 } /* class FeedWordPress_File () */
+
+function FeedWordPress_File( $url, $timeout = 10, $redirects = 5, $headers = null, $useragent = null, $force_fsockopen = false ) {
+	self::__construct( $url, $timeout, $redirects, $headers, $useragent, $force_fsockopen );
+}
 
 $feedwordpress_admin_footer = array();
 

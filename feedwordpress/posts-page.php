@@ -11,12 +11,16 @@ class FeedWordPressPostsPage extends FeedWordPressAdminPage {
 	 *
 	 * @param mixed $link An object of class {@link SyndicatedLink} if created for one feed's settings, NULL if created for global default settings
 	 */
-	function FeedWordPressPostsPage ($link = NULL) {
+	function __construct( $link = NULL ) {
 		FeedWordPressAdminPage::FeedWordPressAdminPage('feedwordpresspostspage', $link);
 		$this->dispatch = 'feedwordpress_posts_settings';
 		$this->filename = FWP_POSTS_PAGE_SLUG;
 		$this->updatedPosts = new UpdatedPostsControl($this);
 	} /* FeedWordPressPostsPage constructor */
+
+	function FeedWordPressPostsPage( $link = NULL ) {
+		self::__construct( $link );
+	}
 
 	function accept_POST ($post) {
 		// User mashed a Save Changes button
