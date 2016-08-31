@@ -33,11 +33,15 @@ class DisqusWordPressAPI {
 	var $short_name;
 	var $forum_api_key;
 
-	function DisqusWordPressAPI($short_name=null, $forum_api_key=null, $user_api_key=null) {
+	function __construct( $short_name=null, $forum_api_key=null, $user_api_key=null ) {
 		$this->short_name = $short_name;
 		$this->forum_api_key = $forum_api_key;
 		$this->user_api_key = $user_api_key;
 		$this->api = new DisqusAPI($user_api_key, $forum_api_key, DISQUS_API_URL);
+	}
+
+	function DisqusWordPressAPI( $short_name=null, $forum_api_key=null, $user_api_key=null ) {
+		self::__construct( $short_name, $forum_api_key, $user_api_key );
 	}
 
 	function get_last_error() {
