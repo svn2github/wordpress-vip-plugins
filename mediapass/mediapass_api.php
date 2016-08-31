@@ -55,7 +55,7 @@ class MediaPass {
 	
 	public $membership_duration_increments;
 	
-	public function MediaPass( $access_token, $asset_id, $env = 'default' ) {
+	public function __construct( $access_token, $asset_id, $env = 'default' ) {
 		$this->access_token = $access_token;
 		$this->asset_id     = $asset_id;
 		
@@ -82,6 +82,10 @@ class MediaPass {
 		$this->deauth_url   = $p . 'oauth/unauthorize?client_id='		. $c . $s;
 		
 		$this->membership_duration_increments = $this->produceMembershipIncrements();
+	}
+
+	public function MediaPass( $access_token, $asset_id, $env = 'default' ) {
+		self::__construct( $access_token, $asset_id, $env );
 	}
 	
 	// Increment: 2592000 for month, 31104000 for year, 86400 for day.
