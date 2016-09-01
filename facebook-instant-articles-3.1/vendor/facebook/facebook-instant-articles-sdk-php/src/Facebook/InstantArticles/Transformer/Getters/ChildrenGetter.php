@@ -8,6 +8,9 @@
  */
 namespace Facebook\InstantArticles\Transformer\Getters;
 
+use Facebook\InstantArticles\Validators\Type;
+use Facebook\InstantArticles\Transformer\Transformer;
+
 class ChildrenGetter extends ElementGetter
 {
     public function get($node)
@@ -16,7 +19,8 @@ class ChildrenGetter extends ElementGetter
         if ($element) {
             $fragment = $element->ownerDocument->createDocumentFragment();
             foreach ($element->childNodes as $child) {
-                $fragment->appendChild($child->cloneNode(true));
+                Transformer::markAsProcessed($child);
+                $fragment->appendChild(Transformer::cloneNode($child));
             }
             if ($fragment->hasChildNodes()) {
                 return $fragment;

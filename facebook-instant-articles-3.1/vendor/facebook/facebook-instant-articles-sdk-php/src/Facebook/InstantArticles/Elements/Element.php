@@ -37,11 +37,28 @@ abstract class Element
         $document->formatOutput = $formatted;
         $element = $this->toDOMElement($document);
         $document->appendChild($element);
-        $rendered = $doctype.$document->saveXML($element);
+        $rendered = $doctype.$document->saveXML($element, LIBXML_NOEMPTYTAG);
 
         // We can't currently use DOMDocument::saveHTML, because it doesn't produce proper HTML5 markup, so we have to strip CDATA enclosures
         // TODO Consider replacing this workaround with a parent class for elements that will be rendered and in this class use the `srcdoc` attribute to output the (escaped) markup
         $rendered = preg_replace('/<!\[CDATA\[(.*?)\]\]>/is', '$1', $rendered);
+        // Fix void HTML5 elements (these can't be closed like in XML)
+        $rendered = str_replace('></area>', '/>', $rendered);
+        $rendered = str_replace('></base>', '/>', $rendered);
+        $rendered = str_replace('></br>', '/>', $rendered);
+        $rendered = str_replace('></col>', '/>', $rendered);
+        $rendered = str_replace('></command>', '/>', $rendered);
+        $rendered = str_replace('></embed>', '/>', $rendered);
+        $rendered = str_replace('></hr>', '/>', $rendered);
+        $rendered = str_replace('></img>', '/>', $rendered);
+        $rendered = str_replace('></input>', '/>', $rendered);
+        $rendered = str_replace('></keygen>', '/>', $rendered);
+        $rendered = str_replace('></link>', '/>', $rendered);
+        $rendered = str_replace('></meta>', '/>', $rendered);
+        $rendered = str_replace('></param>', '/>', $rendered);
+        $rendered = str_replace('></source>', '/>', $rendered);
+        $rendered = str_replace('></track>', '/>', $rendered);
+        $rendered = str_replace('></wbr>', '/>', $rendered);
 
         return $rendered;
     }

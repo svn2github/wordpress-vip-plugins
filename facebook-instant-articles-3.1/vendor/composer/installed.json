@@ -148,17 +148,17 @@
     },
     {
         "name": "facebook/facebook-instant-articles-sdk-php",
-        "version": "v1.4.0",
-        "version_normalized": "1.4.0.0",
+        "version": "v1.5.0",
+        "version_normalized": "1.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/facebook/facebook-instant-articles-sdk-php.git",
-            "reference": "c46c25b2d1c4100885383667cde1a863440aff2a"
+            "reference": "e7ba342acea3106a83210196c952fbbed0f0fe30"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/facebook/facebook-instant-articles-sdk-php/zipball/c46c25b2d1c4100885383667cde1a863440aff2a",
-            "reference": "c46c25b2d1c4100885383667cde1a863440aff2a",
+            "url": "https://api.github.com/repos/facebook/facebook-instant-articles-sdk-php/zipball/e7ba342acea3106a83210196c952fbbed0f0fe30",
+            "reference": "e7ba342acea3106a83210196c952fbbed0f0fe30",
             "shasum": ""
         },
         "require": {
@@ -172,7 +172,7 @@
             "phpunit/phpunit": "^4.8",
             "squizlabs/php_codesniffer": "^2.6.0"
         },
-        "time": "2016-08-13 06:34:04",
+        "time": "2016-08-26 13:55:03",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

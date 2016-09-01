@@ -73,6 +73,26 @@ class WPTransformerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $result);
         // there must be 3 warnings related to <img> inside <li> that is not supported by IA
-        $this->assertEquals(3, count($transformer->getWarnings()));
+        // And 1 warning related to the getter
+        $this->assertEquals(4, count($transformer->getWarnings()));
+    }
+
+    public function testTitleTransformedWithBold()
+    {
+        $transformer = new Transformer();
+        $json_file = file_get_contents(__DIR__ . '/wp-rules.json');
+        $transformer->loadRules($json_file);
+
+        $title_html_string = '<?xml encoding="utf-8" ?><h1>Title <b>in bold</b></h1>';
+
+        libxml_use_internal_errors(true);
+        $document = new \DOMDocument();
+        $document->loadHtml($title_html_string);
+        libxml_use_internal_errors(false);
+
+        $header = Header::create();
+        $transformer->transform($header, $document);
+
+        $this->assertEquals('<h1>Title <b>in bold</b></h1>', $header->getTitle()->render());
     }
 }

@@ -47,6 +47,50 @@ class Transformer
     private $instantArticle;
 
     /**
+     * Flag attribute added to elements processed by a getter, so they
+     * are not processed again by other rules.
+     */
+    const INSTANT_ARTICLES_PARSED_FLAG = 'data-instant-articles-element-processed';
+
+    /**
+     * Clones a node for appending to raw-html containing Elements like Interactive.
+     *
+     * @param DOMNode $node The node to clone
+     * @return DOMNode The cloned node.
+     */
+    public static function cloneNode($node)
+    {
+        $clone = $node->cloneNode(true);
+        if (Type::is($clone, 'DOMElement') && $clone->hasAttribute(self::INSTANT_ARTICLES_PARSED_FLAG)) {
+            $clone->removeAttribute(self::INSTANT_ARTICLES_PARSED_FLAG);
+        }
+        return $clone;
+    }
+
+    /**
+     * Marks a node as processed.
+     *
+     * @param DOMElement $node The node to clone
+     */
+    public static function markAsProcessed($node)
+    {
+        if (Type::is($node, 'DOMElement')) {
+            $node->setAttribute(self::INSTANT_ARTICLES_PARSED_FLAG, true);
+        }
+    }
+
+    /**
+     * Returns whether a node is processed
+     *
+     * @param DOMNode $node The node to clone
+     */
+    protected static function isProcessed($node)
+    {
+        return Type::is($node, 'DOMElement') && $node->getAttribute(self::INSTANT_ARTICLES_PARSED_FLAG);
+    }
+
+
+    /**
      * Gets all types a given class is, including itself, parent classes and interfaces.
      *
      * @param string $className - the name of the className
@@ -122,6 +166,36 @@ class Transformer
 
     /**
      * @param InstantArticle $context
+     * @param string $content
+     *
+     * @return mixed
+     */
+    public function transformString($context, $content, $encoding = "utf-8")
+    {
+        $libxml_previous_state = libxml_use_internal_errors(true);
+        $document = new \DOMDocument('1.0');
+        if (function_exists('mb_convert_encoding')) {
+            $document->loadHTML(mb_convert_encoding($content, 'HTML-ENTITIES', $encoding));
+        } else {
+            $log = \Logger::getLogger('facebook-instantarticles-transformer');
+            $log->debug(
+                'Your content encoding is "' . $encoding . '" ' .
+                'but your PHP environment does not have mbstring. Trying to load your content with using meta tags.'
+            );
+            // wrap the content with charset meta tags
+            $document->loadHTML(
+                '<html><head>' .
+                '<meta http-equiv="Content-Type" content="text/html; charset=' . $encoding . '">' .
+                '</head><body>' . $content . '</body></html>'
+            );
+        }
+        libxml_clear_errors();
+        libxml_use_internal_errors($libxml_previous_state);
+        return $this->transform($context, $document);
+    }
+
+    /**
+     * @param InstantArticle $context
      * @param \DOMNode $node
      *
      * @return mixed
@@ -147,6 +221,9 @@ class Transformer
         $current_context = $context;
         if ($node->hasChildNodes()) {
             foreach ($node->childNodes as $child) {
+                if (self::isProcessed($child)) {
+                    continue;
+                }
                 $matched = false;
                 $log->debug("===========================");
                 $log->debug($child->ownerDocument->saveHtml($child));

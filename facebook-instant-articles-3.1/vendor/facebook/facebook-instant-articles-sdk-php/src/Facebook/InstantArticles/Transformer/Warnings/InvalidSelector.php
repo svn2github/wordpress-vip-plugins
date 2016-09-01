@@ -55,11 +55,19 @@ class InvalidSelector
      */
     public function __toString()
     {
-        $reflection = new \ReflectionClass(get_class($this->context));
-        $class_name = $reflection->getShortName();
+        if (isset($this->context)) {
+            $reflection = new \ReflectionClass(get_class($this->context));
+            $class_name = $reflection->getShortName();
+        } else {
+            $class_name = 'no context provided';
+        }
 
-        $reflection = new \ReflectionClass(get_class($this->rule));
-        $rule_name = $reflection->getShortName();
+        if (isset($this->rule)) {
+            $reflection = new \ReflectionClass(get_class($this->rule));
+            $rule_name = $reflection->getShortName();
+        } else {
+            $rule_name = 'no rule provided';
+        }
 
         $has_properties = false;
         $str_properties = '';
