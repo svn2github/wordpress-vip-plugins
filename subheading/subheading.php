@@ -38,7 +38,7 @@ if ( ! class_exists( 'SubHeading' ) ) {
 		 * Initiate the plugin by setting the default values and assigning any
 		 * required actions and filters.
 		 */
-		function SubHeading()
+		function __construct()
 		{
 			$this->options = apply_filters('subheading_options', $this->get_options() );
 			$this->meta_key = '_' . $this->tag;
@@ -61,6 +61,10 @@ if ( ! class_exists( 'SubHeading' ) ) {
 					// searching. This can only be re-enabled if ES is enabled on a site.
 				}
 			}
+		}
+
+		function SubHeading() {
+			self::__construct();
 		}
 		
 		/**
