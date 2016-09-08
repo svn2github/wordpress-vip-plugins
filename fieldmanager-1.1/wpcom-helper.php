@@ -1,6 +1,6 @@
 <?php
 
-fieldmanager_set_baseurl( wpcom_vip_themes_root_uri() . '/plugins/release-candidates/fieldmanager-1.1/' );
+fieldmanager_set_baseurl( wpcom_vip_themes_root_uri() . '/plugins/release-candidates/fieldmanager/' );
 
 /**
  * Patch for get_user_attribute to work with Field Manager.
