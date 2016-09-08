@@ -55,7 +55,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
     // $plugin will include a version number by this point if it's above 1.3
     if ( 'liveblog' == $plugin_slug && 'liveblog' != $plugin ) {
 
-        if ( ! wpcom_vip_is_liveblog_enabled() ) {
+        if ( function_exists( 'wpcom_vip_is_liveblog_enabled' ) && ! wpcom_vip_is_liveblog_enabled() ) {
             // For now, we'll just bail.
             // @todo Log to IRC
             return false;
