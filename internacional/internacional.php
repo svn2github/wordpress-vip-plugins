@@ -925,7 +925,7 @@ class Internacional {
 	}
 }
 
-$internacional = & new Internacional();
+$internacional = new Internacional();
 
 
 /**
@@ -936,9 +936,13 @@ class Internacional_Language_Selection_Widget extends WP_Widget {
 	/**
 	 * Register the widget with WordPress
 	 */
-	public function Internacional_Language_Selection_Widget() {
+	public function __construct() {
 		$widget_ops = array( 'classname' => 'internacional_language_selection_widget', 'description' => __( 'Allow users to pick their language.', 'internacional' ) );
 		$this->WP_Widget( 'internacional_language_selection_widget', __( 'Post Language Selection', 'internacional' ), $widget_ops );
+	}
+
+	function Internacional_Language_Selection_Widget() {
+		self::__construct();
 	}
 
 	/**
