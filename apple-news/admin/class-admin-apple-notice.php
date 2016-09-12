@@ -134,6 +134,22 @@ class Admin_Apple_Notice {
 	 * @access private
 	 */
 	private static function show_notice( $message, $type ) {
+		// Format messages a little nicer
+		$message_array = explode( ':', $message );
+		if ( 2 === count( $message_array ) ) {
+			// If it's not 2, it's too unclear how to proceed.
+			// Try to split the second param on commas
+			$errors = explode( ',', $message_array[1] );
+			if ( count( $errors ) > 1 ) {
+				// If there isn't more than one error, this isn't worth it
+				$errors_formatted = implode( '<br />', array_map( 'trim', $errors ) );
+				$message = sprintf(
+					'%s:<br />%s',
+					$message_array[0],
+					$errors_formatted
+				);
+			}
+		}
 		?>
 		<div class="notice <?php echo esc_attr( $type ) ?> is-dismissible">
 			<p><strong><?php echo wp_kses_post( apply_filters( 'apple_news_notice_message', $message, $type ) ) ?></strong></p>

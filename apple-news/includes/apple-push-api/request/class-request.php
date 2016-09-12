@@ -98,7 +98,7 @@ class Request {
 		$response = wp_safe_remote_post( esc_url_raw( $url ), $args );
 
 		// Parse and return the response
-		return $this->parse_response( $response, true, 'post', $meta );
+		return $this->parse_response( $response, true, 'post', $meta, $bundles, $article );
 	}
 
 	/**
@@ -164,10 +164,12 @@ class Request {
 	 * @param boolean $json
 	 * @param string $type
 	 * @param array $meta
+	 * @param array $bundles
+	 * @param string $article
 	 * @return mixed
 	 * @since 0.2.0
 	 */
-	private function parse_response( $response, $json = true, $type = 'post', $meta = null ) {
+	private function parse_response( $response, $json = true, $type = 'post', $meta = null, $bundles = null, $article = '' ) {
 		// Ensure we have an expected response type
 		if ( ( ! is_array( $response ) || ! isset( $response['body'] ) ) && ! is_wp_error( $response ) ) {
 			throw new Request_Exception( __( 'Invalid response:', 'apple-news' ) . $response );
@@ -175,17 +177,45 @@ class Request {
 
 		// If debugging mode is enabled, send an email
 		$settings = get_option( 'apple_news_settings' );
-		$debugging = get_option( 'apple_news_enable_debugging' );
+
 		if ( ! empty( $settings['apple_news_enable_debugging'] )
 			&& ! empty( $settings['apple_news_admin_email'] )
 			&& 'yes' === $settings['apple_news_enable_debugging']
 			&& 'get' != $type ) {
+
+			// Get the admin email
 			$admin_email = filter_var( $settings['apple_news_admin_email'], FILTER_VALIDATE_EMAIL );
-			$body = print_r( $response, true );
-			if ( ! empty( $meta ) ) {
-				$body .= "\n\n" . esc_html__( 'request meta', 'apple-news' ) . ":\n\n" . print_r( $meta, true );
+			if ( empty( $admin_email ) ) {
+				return;
 			}
-			if ( ! empty( $admin_email ) ) {
+
+			// Add the API response
+			$body = esc_html__( 'API Response', 'apple-news' ) . ":\n";
+			$body .= print_r( $response, true );
+
+			// Add the meta sent with the API request, if set
+			if ( ! empty( $meta ) ) {
+				$body .= "\n\n" . esc_html__( 'Request Meta', 'apple-news' ) . ":\n\n" . print_r( $meta, true );
+			}
+
+			// Note image settings
+			$body .= "\n\n"  . esc_html__( 'Image Settings', 'apple-news' ) . ":\n";
+			if ( 'yes' === $settings['use_remote_images'] ) {
+				$body .= esc_html__( 'Use Remote images enabled ', 'apple-news' );
+			} else {
+				if ( ! empty( $bundles ) ) {
+					$body .= "\n"  . esc_html__( 'Bundled images', 'apple-news' ) . ":\n";
+					$body .= implode( "\n", $bundles );
+				} else {
+					$body .= esc_html__( 'No bundled images found.', 'apple-news' );
+				}
+			}
+
+			// Add the JSON for the post
+			$body .= "\n\n" . esc_html__( 'JSON', 'apple-news' ) . ":\n" . $article . "\n";
+
+			// Send the email
+			if ( ! empty( $body ) ) {
 				wp_mail(
 					$admin_email,
 					esc_html__( 'Apple News Notification', 'apple-news' ),
@@ -197,17 +227,48 @@ class Request {
 		// Check for errors with the request itself
 		if ( is_wp_error( $response ) ) {
 			$string_errors = '';
-			foreach ( $response->get_error_messages() as $error ) {
-				$string_errors .= $error . "\n";
+			$error_messages = $response->get_error_messages();
+			if ( is_array( $error_messages ) && ! empty( $error_messages ) ) {
+				$string_errors = implode( ', ', $error_messages );
 			}
-			throw new Request_Exception( __( 'There has been an error with your request:', 'apple-news' ) . "\n$string_errors" );
+			throw new Request_Exception( __( 'There has been an error with your request:', 'apple-news' ) . " $string_errors" );
 		}
 
 		// Check for errors from the API
 		$response_decoded = json_decode( $response['body'] );
-		if ( ! empty( $response_decoded->errors ) ) {
-			$messages = implode( ', ', wp_list_pluck( $response_decoded->errors, 'code' ) );
-			throw new Request_Exception( $messages );
+		if ( ! empty( $response_decoded->errors ) && is_array( $response_decoded->errors ) ) {
+			$message = '';
+			$messages = array();
+			foreach ( $response_decoded->errors as $error ) {
+				// If there is a keyPath, build it into a string
+				$key_path = '';
+				if ( ! empty( $error->keyPath ) && is_array( $error->keyPath ) ) {
+					foreach ( $error->keyPath as $i => $path ) {
+						if ( $i > 0 ) {
+							$key_path .= "->$path";
+						} else {
+							$key_path .= $path;
+						}
+					}
+
+					$key_path = " (keyPath $key_path)";
+				}
+
+				// Add the code, message and keyPath
+				$messages[] = sprintf(
+					'%s%s%s%s',
+					$error->code,
+					( ! empty( $error->message ) ) ? ' - ' : '',
+					$error->message,
+					$key_path
+				);
+			}
+
+			if ( ! empty( $messages ) ) {
+				$message = implode( ', ', $messages );
+			}
+
+			throw new Request_Exception( $message );
 		}
 
 		// Return the response in the desired format

@@ -34,9 +34,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		// Register hooks if enabled
 		if ( 'yes' == $settings->get( 'show_metabox' ) ) {
 			// Handle a publish action and saving fields
-			if ( 'yes' != $settings->get( 'api_autosync' ) ) {
 				add_action( 'save_post', array( $this, 'do_publish' ), 10, 2 );
-			}
 
 			// Add the custom meta boxes to each post type
 			$post_types = $settings->get( 'post_types' );
@@ -79,6 +77,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 
 		// If this is set to autosync or no action is set, we're done here
 		if ( 'yes' == $this->settings->get( 'api_autosync' )
+			|| 'publish' != $post->post_status
 			|| empty( $_POST['apple_news_publish_action'] )
 			|| $this->publish_action != $_POST['apple_news_publish_action'] ) {
 			return;
@@ -88,6 +87,13 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		$action = new Apple_Actions\Index\Push( $this->settings, $post_id );
 		try {
 			$action->perform();
+
+			// In async mode, success or failure will be displayed later
+			if ( 'yes' !== $this->settings->get( 'api_async' ) ) {
+				Admin_Apple_Notice::success( __( 'Your article has been pushed successfully to Apple News!', 'apple-news' ) );
+			} else {
+				Admin_Apple_Notice::success( __( 'Your article will be pushed shortly to Apple News.', 'apple-news' ) );
+			}
 		} catch ( Apple_Actions\Action_Exception $e ) {
 			Admin_Apple_Notice::error( $e->getMessage() );
 		}
@@ -139,11 +145,6 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 	 * @access public
 	 */
 	public function add_meta_boxes( $post ) {
-		// Only add if this post is published
-		if ( 'auto-draft' == $post->post_status ) {
-			return;
-		}
-
 		// Add the publish meta box
 		add_meta_box(
 			'apple_news_publish',
@@ -171,6 +172,11 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		$is_preview = get_post_meta( $post->ID, 'apple_news_is_preview', true );
 		$pullquote = get_post_meta( $post->ID, 'apple_news_pullquote', true );
 		$pullquote_position = get_post_meta( $post->ID, 'apple_news_pullquote_position', true );
+
+		// Set the default value
+		if ( empty( $pullquote_position ) ) {
+			$pullquote_position = 'middle';
+		}
 		?>
 		<div id="apple-news-publish">
 		<?php wp_nonce_field( $this->publish_action, 'apple_news_nonce' ); ?>
@@ -206,6 +212,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		<?php
 		if ( 'yes' != $this->settings->get( 'api_autosync' )
 			&& current_user_can( apply_filters( 'apple_news_publish_capability', 'manage_options' ) )
+			&& 'publish' === $post->post_status
 			&& empty( $api_id )
 			&& empty( $deleted )
 			&& empty( $pending ) ):
@@ -313,7 +320,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 	 * @access public
 	 */
 	public function register_assets( $hook ) {
-		if ( 'post.php' != $hook ) {
+		if ( 'post.php' !== $hook && 'post-new.php' !== $hook ) {
 			return;
 		}
 

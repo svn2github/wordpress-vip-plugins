@@ -75,8 +75,10 @@ class Export extends Action {
 		// Check for a custom byline format
 		$byline_format = $this->get_setting( 'byline_format' );
 		if ( ! empty( $byline_format ) ) {
-			// Find and replace the author format placeholder the name, if set
-			$byline = str_replace( '#author#', $author, $byline_format );
+			// Find and replace the author format placeholder name with a temporary placeholder
+			// This is because some bylines could contain hashtags!
+			$temp_byline_placeholder = 'AUTHOR' . time();
+			$byline = str_replace( '#author#', $temp_byline_placeholder, $byline_format );
 
 			// Attempt to parse the date format from the remaining string
 			$matches = array();
@@ -85,6 +87,9 @@ class Export extends Action {
 				// Set the date using the custom format
 				$byline = str_replace( $matches[0], date( $matches[1], strtotime( $post->post_date ) ), $byline );
 			}
+
+			// Replace the temporary placeholder with the actual byline
+			$byline = str_replace( $temp_byline_placeholder, $author, $byline );
 
 		} else {
 			// Use the default format

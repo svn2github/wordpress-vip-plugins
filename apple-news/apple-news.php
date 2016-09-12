@@ -12,9 +12,9 @@
  * Plugin Name: Publish to Apple News
  * Plugin URI:  http://github.com/alleyinteractive/apple-news
  * Description: Export and sync posts to Apple format.
- * Version:     1.1.4
- * Author:      Beezwax, Alley Interactive
- * Author URI:  http://alleyinteractive.com, http://beezwax.net
+ * Version:     1.1.8
+ * Author:      Alley Interactive
+ * Author URI:  https://www.alleyinteractive.com
  * Text Domain: apple-news
  * Domain Path: lang/
  */
@@ -28,9 +28,9 @@ if ( ! defined( 'WPINC' ) ) {
  */
 function apple_news_activate_wp_plugin() {
 	// Check for PHP version
-	if ( version_compare( PHP_VERSION, '5.3.0' ) < 0 ) {
+	if ( version_compare( PHP_VERSION, '5.3.6' ) < 0 ) {
 		deactivate_plugins( basename( __FILE__ ) );
-		wp_die( __( 'This plugin requires at least PHP 5.3.0', 'apple-news' ) );
+		wp_die( __( 'This plugin requires at least PHP 5.3.6', 'apple-news' ) );
 	}
 }
 

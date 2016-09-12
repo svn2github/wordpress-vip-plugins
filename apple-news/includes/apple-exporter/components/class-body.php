@@ -220,5 +220,30 @@ class Body extends Component {
 			)
 	 	) );
 	}
+
+	/**
+	 * This component needs to ensure it didn't end up with empty content.
+	 * This will go through sanitize_text_field later as part of the assembled JSON.
+	 * Therefore, tags aren't valid but we need to catch them now
+	 * or we could encounter a parsing error when it's already too late.
+	 *
+	 * We also can't do this sooner, such as in build, because at that point
+	 * the component could still contain nested, valid tags.
+	 *
+	 * We don't want to modify the JSON since it will still undergo further processing.
+	 * We only want to check if, on its own, this component would end up empty.
+	 *
+	 * @access public
+	 * @return array
+	 */
+	public function to_array() {
+		$sanitized_text = sanitize_text_field( $this->json['text'] );
+
+		if ( empty( $sanitized_text ) ) {
+			return new \WP_Error( 'invalid', __( 'empty body component', 'apple-news' ) );
+		} else {
+			return parent::to_array();
+		}
+	}
 }
 

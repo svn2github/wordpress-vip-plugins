@@ -250,7 +250,7 @@ class Exporter {
 	 */
 	private function build_article_style() {
 		return array(
-			'backgroundColor' => '#FAFAFA',
+			'backgroundColor' => $this->settings->get( 'body_background_color' ),
 		);
 	}
 

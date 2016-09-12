@@ -52,7 +52,8 @@ class Admin_Apple_Post_Sync {
 	public function do_publish( $id, $post ) {
 		if ( 'publish' != $post->post_status
 			|| ! in_array( $post->post_type, $this->settings->get( 'post_types' ) )
-			|| ! current_user_can( apply_filters( 'apple_news_publish_capability', 'manage_options' ) ) ) {
+			|| ( ! current_user_can( apply_filters( 'apple_news_publish_capability', 'manage_options' ) )
+				&& ! ( defined( 'DOING_CRON' ) && DOING_CRON ) ) ) {
 			return;
 		}
 

@@ -206,7 +206,7 @@ abstract class Component {
 	 * @access public
 	 */
 	public function get_json( $name ) {
-		return $this->json[ $name ];
+		return ( isset( $this->json[ $name ] ) ) ? $this->json[ $name ] : null;
 	}
 
 	/**
@@ -273,7 +273,7 @@ abstract class Component {
 	 */
 	public function uid() {
 		if ( is_null( $this->uid ) ) {
-			$this->uid = 'component-' . uniqid();
+			$this->uid = 'component-' . md5( uniqid( $this->text, true ) );
 			$this->set_json( 'identifier', $this->uid );
 		}
 

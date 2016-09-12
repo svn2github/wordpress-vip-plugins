@@ -205,9 +205,9 @@ class Push extends API_Action {
 			}
 
 			// Get the isPreview setting
-			$is_preview = get_post_meta( $this->id, 'apple_news_is_preview', true );
-			if ( isset( $is_preview ) ) {
-				$meta['data']['isPreview'] = (bool) $is_preview;
+			$is_preview = (bool) get_post_meta( $this->id, 'apple_news_is_preview', true );
+			if ( true === $is_preview ) {
+				$meta['data']['isPreview'] = $is_preview;
 			}
 
 			if ( $remote_id ) {
@@ -254,7 +254,7 @@ class Push extends API_Action {
 			if ( preg_match( '#WRONG_REVISION#', $e->getMessage() ) ) {
 				throw new \Apple_Actions\Action_Exception( __( 'It seems like the article was updated by another call. If the problem persists, try removing and pushing again.', 'apple-news' ) );
 			} else {
-				throw new \Apple_Actions\Action_Exception( __( 'There has been an error with the API. Please make sure your API settings are correct and try again: ', 'apple-news' ) .  $e->getMessage() );
+				throw new \Apple_Actions\Action_Exception( __( 'There has been an error with the API: ', 'apple-news' ) .  $e->getMessage() );
 			}
 		}
 

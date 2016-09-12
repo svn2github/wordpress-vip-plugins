@@ -50,6 +50,16 @@ class Cover extends Component {
 			'columnStart' => 0,
 			'columnSpan' => 7,
 		) );
+
+		$this->register_full_width_layout( 'headerBelowTextPhotoLayout', array(
+			'ignoreDocumentMargin' => true,
+			'columnStart' => 0,
+			'columnSpan' => 7,
+			'margin' => array(
+				'top' => 30,
+				'bottom' => 0,
+			),
+		) );
 	}
 
 }

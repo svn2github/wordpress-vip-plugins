@@ -69,8 +69,13 @@ class Section extends API_Action {
 			$sections = array();
 			$channel = $this->get_setting( 'api_channel' );
 			if ( ! empty( $channel ) ) {
+				try {
 				$apple_news_sections = $this->get_api()->get_sections( $channel );
 				$sections = ( ! empty( $apple_news_sections->data ) ) ? $apple_news_sections->data : array();
+				} catch ( \Apple_Push_API\Request\Request_Exception $e ) {
+					$sections = array();
+				}
+
 				set_transient( 'apple_news_sections', $sections, 300 );
 			}
 		}

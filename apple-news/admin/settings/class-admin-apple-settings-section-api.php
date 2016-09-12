@@ -57,7 +57,6 @@ class Admin_Apple_Settings_Section_API extends Admin_Apple_Settings_Section {
 		$this->groups = array(
 			'apple_news' => array(
 				'label'       => __( 'Apple News API', 'apple-news' ),
-				'description' => __( 'All of these settings are required for publishing to Apple News', 'apple-news' ),
 				'settings'    => array( 'api_channel', 'api_key', 'api_secret', 'api_autosync', 'api_autosync_update', 'api_async' ),
 			),
 		);

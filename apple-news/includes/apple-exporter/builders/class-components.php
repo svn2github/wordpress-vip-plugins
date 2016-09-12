@@ -19,10 +19,17 @@ class Components extends Builder {
 	 */
 	protected function build() {
 		$components = array();
+		$workspace = new Workspace( $this->content_id() );
 
 		// Handle body components first
 		foreach ( $this->split_into_components() as $component ) {
-			$components[] = $component->to_array();
+			// Check if the component is valid
+			$component_array = $component->to_array();
+			if ( is_wp_error( $component_array ) ) {
+				$workspace->log_error( 'component_errors', $component_array->get_error_message() );
+			} else {
+				$components[] = $component_array;
+			}
 		}
 
 		// Meta components are handled after and then prepended since
@@ -143,6 +150,7 @@ class Components extends Builder {
 
 		// Trim all body components before returning.
 		// Also set the layout for the final body component.
+		$cover_index = null;
 		foreach ( $new_components as $i => $component ) {
 			if ( 'body' == $component['role'] ) {
 				$new_components[ $i ]['text'] = trim( $new_components[ $i ]['text'] );
@@ -151,8 +159,39 @@ class Components extends Builder {
 					$new_components[ $i ]['layout'] = 'body-layout-last';
 				}
 			}
+
+			// Find the location of the cover for later
+			if ( 'header' == $component['role'] ) {
+				$cover_index = $i;
+			}
 		}
-		return $new_components;
+
+		// Finally, all components after the cover must be grouped
+		// to avoid issues with parallax text scroll.
+		//
+		// If no cover was found, this is unnecessary.
+		if ( null !== $cover_index ) {
+			$regrouped_components = array_slice( $new_components, 0, $cover_index + 1 );
+
+			if ( count( $new_components ) > $cover_index + 1 ) {
+				$regrouped_components[] = array(
+					'role' => 'container',
+					'layout' => array(
+						'columnStart' => 0,
+						'columnSpan' => 7,
+						'ignoreDocumentMargin' => true,
+					),
+					'style' => array(
+						'backgroundColor' => $this->get_setting( 'body_background_color' ),
+					),
+					'components' => array_slice( $new_components, $cover_index + 1 ),
+				);
+			}
+		} else {
+			$regrouped_components = $new_components;
+		}
+
+		return $regrouped_components;
 	}
 
 	/**
@@ -168,39 +207,18 @@ class Components extends Builder {
 		// Get the component order
 		$meta_component_order = $this->get_setting( 'meta_component_order' );
 		if ( ! empty( $meta_component_order ) && is_array( $meta_component_order ) ) {
-			// If the cover is the first meta components, we want to make it a header
-			if ( 'cover' !== $meta_component_order[0] ) {
-			foreach ( $meta_component_order as $component ) {
-				$method = 'content_' . $component;
-				if ( method_exists( $this, $method ) && $this->$method() ) {
-					$components[] = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
-		}
-		}
-			} else {
-				// Otherwise we want to nest the components a bit differently
-				$nesting = array();
-				foreach ( $meta_component_order as $component ) {
+			foreach ( $meta_component_order as $i => $component ) {
 					$method = 'content_' . $component;
 					if ( method_exists( $this, $method ) && $this->$method() ) {
-						if ( 'cover' === $component ) {
-							$components[] = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
-						} else {
-							$nesting[] = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
-						}
+					$component = $this->get_component_from_shortname( $component, $this->$method() )->to_array();
+
+					// Cover needs different margins when it's not first
+					if ( 'header' === $component['role'] && 0 !== $i ) {
+						$component['layout'] = 'headerBelowTextPhotoLayout';
 					}
+
+					$components[] = $component;
 				}
-				$components[] = array(
-					'role' => 'container',
-					'layout' => array(
-						'columnStart' => 0,
-						'columnSpan' => 7,
-						'ignoreDocumentMargin' => true,
-					),
-					'style' => array(
-						'backgroundColor' => '#FAFAFA',
-					),
-					'components' => $nesting,
-				);
 			}
 		}
 

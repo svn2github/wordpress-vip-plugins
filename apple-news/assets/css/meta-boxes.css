@@ -6,6 +6,10 @@
     display: block;
 }
 
+#apple-news-publish a {
+	word-wrap: break-word;
+}
+
 #apple-news-publish .section {
 	display: block;
 }

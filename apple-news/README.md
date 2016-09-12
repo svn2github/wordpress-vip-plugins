@@ -14,6 +14,9 @@ installing other WordPress plugins. Simply perform these steps:
 Once activated, the "Apple News" menu should appear in your WordPress Admin
 panel.
 
+NEW IN 1.1.6: More descriptive errors messages to allow for easier troubleshooting,
+especially for those without access to the News Preview tool.
+
 NEW IN 1.1.4: We've made some improvements to the default template built into the plugin.
 Although it won't override your current settings, we strongly recommend placing the
 Cover image at the top of the Component Order settings for the best experience.
@@ -263,7 +266,7 @@ use the same formatting.
 
 ## Requirements
 In order to work with the plugin, you'll need a webserver such as Apache with
-PHP 5.3+ and MySQL 5+.
+PHP 5.3.6+ and MySQL 5+.
 
 It's recommended to create a symbolic link for better code organization.
 
