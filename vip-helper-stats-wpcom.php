@@ -57,7 +57,7 @@ function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = fal
 			$posts[] = array(
 				'post_id' 			=> $i,
 				'post_title' 		=> ucfirst( implode( ' ', array_slice( $words, 2, mt_rand( 2, 5 ) ) ) ),
-				'post_permalink' 	=> add_query_arg( 'p', $i, home_url() ),
+				'post_permalink' 	=> add_query_arg( 'p', $i, home_url( '/' ) ),
 				'views' 			=> mt_rand( 0, 20000 ),
 			);
 		}
