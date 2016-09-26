@@ -4,18 +4,20 @@
  * and the_author_posts_link()
  * Auto-apply Co-Authors Plus in oembed endpoint
  */
-$wpcom_coauthors_plus_auto_apply_themes = array(
+add_action( 'init', function() {
+	$wpcom_coauthors_plus_auto_apply_themes = array(
 		'premium/portfolio',
 		'premium/zuki',
 		'pub/editor',
 	);
-if ( in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes )
-	|| ( true === defined( 'WPCOM_VIP_IS_OEMBED' )
-		&& true === constant( 'WPCOM_VIP_IS_OEMBED' )
-		&& true === apply_filters( 'wpcom_vip_coauthors_replace_oembed', false, 'author_name' )	 
-	) ) {
-	add_filter( 'coauthors_auto_apply_template_tags', '__return_true' );
-}
+	if ( in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes )
+	     || ( true === defined( 'WPCOM_VIP_IS_OEMBED' )
+	          && true === constant( 'WPCOM_VIP_IS_OEMBED' )
+	          && true === apply_filters( 'wpcom_vip_coauthors_replace_oembed', false, 'author_name' )
+	     ) ) {
+		add_filter( 'coauthors_auto_apply_template_tags', '__return_true' );
+	}
+}, 9 );
 
 /**
  * If Co-Authors Plus is enabled on an Enterprise site and hasn't yet been integrated with the theme
@@ -221,7 +223,10 @@ function wpcom_vip_cap_replace_author_link( $link, $author_id, $author_nicename 
 
 	return $link;
 }
-//Hook the above callback only on oembed endpoint reply
-if ( true === defined( 'WPCOM_VIP_IS_OEMBED' ) && true === constant( 'WPCOM_VIP_IS_OEMBED' ) && true === apply_filters( 'wpcom_vip_coauthors_replace_oembed', false, 'author_url' ) ) {
-	add_filter( 'author_link', 'wpcom_vip_cap_replace_author_link', 99, 3 );
-}
+
+add_action( 'init', function() {
+	//Hook the above callback only on oembed endpoint reply
+	if ( true === defined( 'WPCOM_VIP_IS_OEMBED' ) && true === constant( 'WPCOM_VIP_IS_OEMBED' ) && true === apply_filters( 'wpcom_vip_coauthors_replace_oembed', false, 'author_url' ) ) {
+		add_filter( 'author_link', 'wpcom_vip_cap_replace_author_link', 99, 3 );
+	}
+}, 9 );
