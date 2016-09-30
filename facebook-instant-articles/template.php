@@ -105,6 +105,15 @@
 			<?php echo $this->get_the_content(); ?>
 
 			<footer>
+				<?php
+				/**
+		        * Fires in the footer element of each article
+		        *
+		        *
+		        * @param Instant_Articles_Post  $ia_post  The current article object
+		        */
+				do_action( 'instant_articles_article_footer', $this );
+				?>
 				<?php if ( $footer_credits = $this->get_the_footer_credits( ) ) : ?>
 					<!-- Credits for your article -->
 					<aside><?php echo esc_html( $footer_credits ); ?></aside>
