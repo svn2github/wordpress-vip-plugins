@@ -176,8 +176,9 @@ class WPcom_VIP_Plugins_UI {
 			'the-attached-image', // Badness - was missing ton of escaping, not using the settings api
 			'wordtwit-1.3-mod', // use publicize
 			'wpcom-related-posts', // Now part of JP / WP.com
+			'livefyre-apps', 'livefyre3', // http://wp.me/poqVs-eiD
 
-			// The great deprecated of 2016 https://keepingtheirblogsgoing.wordpress.com/2016/04/29/whats-the-status-of-roost/#comment-79726
+			// The great deprecation of 2016 https://keepingtheirblogsgoing.wordpress.com/2016/04/29/whats-the-status-of-roost/#comment-79726
 			'postrelease-vip',
 			'breadcrumb-navxt-39',
 			'wp-frontend-uploader',
