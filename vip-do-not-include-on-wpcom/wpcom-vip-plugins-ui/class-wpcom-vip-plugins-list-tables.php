@@ -25,8 +25,23 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 			$plugin_folder = basename( dirname( $plugin_file ) );
 
 			// FPP is listed separately
+			// Do exact matching before messing with versioned plugins.
 			if ( isset( WPcom_VIP_Plugins_UI()->fpp_plugins[ $plugin_folder ] ) )
 				continue;
+
+			// Loop through and match versioned plugins.
+			foreach ( array_keys( WPcom_VIP_Plugins_UI()->fpp_plugins ) as $fpp_plugin ) {
+				// Facebook's FPP plugin is called 'facebook'.  Gotta be special.
+				if ( 0 === strpos( $plugin_folder, 'facebook-' ) ) {
+					// Show the non-FPP Facebook plugins (ex: FBIA)
+					continue;
+				}
+
+				if ( 0 === strpos( $plugin_folder, $fpp_plugin ) ) {
+					// Skip the current plugin, continue the outer loop.
+					continue 2;
+				}
+			}
 
 			$plugin_file = 'plugins/' . $plugin_file;
 

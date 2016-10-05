@@ -599,12 +599,35 @@ class WPcom_VIP_Plugins_UI {
 	 * @return string|bool "option" if the plugin was activated via UI, "manual" if activated via code, and false if not activated.
 	 */
 	public function is_plugin_active( $plugin ) {
+		// Do exact matching before messing with versioned plugins.
 		if ( in_array( $plugin, $this->get_active_plugins_option() ) )
 			return 'option';
 		elseif ( in_array( 'plugins/' . $plugin, wpcom_vip_get_loaded_plugins() ) )
 			return 'manual';
-		else
-			return false;
+
+		/*
+		 Dirty check for versioned plugins.  Not all plugins will
+		 have a '-' in their slug, but ALL versioned plugins do.
+		 This should fix some outliers that are hidden and have 
+		 multiple plugins that have slugs that start with the same
+		 string. ex: brightcove (hidden) and brightcove-video-connect
+		 */
+		if ( false !== strpos( $plugin, '-' ) ) {
+			// Loop through and match versioned plugins.
+			foreach ( $this->get_active_plugins_option() as $active_plugin ) {
+				if ( 0 === strpos( $active_plugin, $plugin ) ) {
+					return 'option';
+				}
+			}
+
+			foreach ( wpcom_vip_get_loaded_plugins() as $active_plugin ) {
+				if ( 0 === strpos( $active_plugin, 'plugins/' . $plugin ) ) {
+					return 'manual';
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**
