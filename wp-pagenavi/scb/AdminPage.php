@@ -132,7 +132,7 @@ abstract class scbAdminPage {
 	}
 
 	// This is where the form data should be validated
-	function validate( $new_data, $old_data ) {
+	function validate( $new_data ) {
 		return $new_data;
 	}
 
