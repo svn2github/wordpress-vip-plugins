@@ -83,8 +83,8 @@ class Admin_Apple_News extends Apple_News {
 				// Get the state from the API.
 				// If this causes an error, display that message instead of the state.
 				try {
-				$action = new Apple_Actions\Index\Get( self::$settings, $post_id );
-				$state = $action->get_data( 'state', __( 'N/A', 'apple-news' ) );
+					$action = new Apple_Actions\Index\Get( self::$settings, $post_id );
+					$state = $action->get_data( 'state', __( 'N/A', 'apple-news' ) );
 				} catch ( \Apple_Push_API\Request\Request_Exception $e ) {
 					$state = $e->getMessage();
 				}

@@ -28,9 +28,9 @@ class Cover extends Component {
 			'components' 	=> array( array(
 				'role' 			=> 'photo',
 				'layout' 		=> 'headerPhotoLayout',
-					'URL' => $this->maybe_bundle_source( $url ),
+				'URL' 			=> $this->maybe_bundle_source( $url ),
 			) ),
-			'behavior' => array(
+			'behavior' 		=> array(
 				'type' 			=> 'parallax',
 				'factor' 		=> 0.8,
 			),

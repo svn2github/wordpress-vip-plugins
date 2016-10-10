@@ -106,7 +106,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 */
 	public function page_router() {
 		$id				= isset( $_GET['post_id'] ) ? absint( $_GET['post_id'] ) : null;
-		$action = isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : null;
+		$action		= isset( $_GET['action'] ) ? sanitize_text_field( $_GET['action'] ) : null;
 		$action2	= isset( $_GET['action2'] ) ? sanitize_text_field( $_GET['action2'] ) : null;
 
 		// Allow for bulk actions from top or bottom
@@ -115,23 +115,23 @@ class Admin_Apple_Index_Page extends Apple_News {
 		}
 
 		// Given an action and ID, map the attributes to corresponding actions.
-			switch ( $action ) {
+		switch ( $action ) {
 			case self::namespace_action( 'export' ):
 				return $this->export_action( $id );
 			case self::namespace_action( 'push' ):
 				if ( ! $id ) {
-				$url  = menu_page_url( $this->plugin_slug . '_bulk_export', false );
-				if ( isset( $_GET['article'] ) ) {
-					$ids = is_array( $_GET['article'] ) ? array_map( 'absint', $_GET['article'] ) : absint( $_GET['article'] );
-					$url .= '&ids=' . implode( '.', $ids );
-				}
-				wp_safe_redirect( esc_url_raw( $url ) );
-				exit;
+					$url = menu_page_url( $this->plugin_slug . '_bulk_export', false );
+					if ( isset( $_GET['article'] ) ) {
+						$ids = is_array( $_GET['article'] ) ? array_map( 'absint', $_GET['article'] ) : absint( $_GET['article'] );
+						$url .= '&ids=' . implode( '.', $ids );
+					}
+					wp_safe_redirect( esc_url_raw( $url ) );
+					exit;
 				} else {
-			return $this->push_action( $id );
+					return $this->push_action( $id );
 				}
 			case self::namespace_action( 'delete' ):
-			return $this->delete_action( $id );
+				return $this->delete_action( $id );
 		}
 	}
 

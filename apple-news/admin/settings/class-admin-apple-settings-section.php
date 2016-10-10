@@ -563,13 +563,13 @@ class Admin_Apple_Settings_Section extends Apple_News {
 				esc_attr( $name )
 			);
 		} else {
-		return sprintf(
-			$field,
-			esc_attr( $name ),
-			esc_attr( $value ),
-			intval( $size ),
+			return sprintf(
+				$field,
+				esc_attr( $name ),
+				esc_attr( $value ),
+				intval( $size ),
 				esc_attr( $this->is_required( $name ) )
-		);
+			);
 
 		}
 	}

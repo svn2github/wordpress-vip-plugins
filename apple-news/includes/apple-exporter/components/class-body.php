@@ -177,11 +177,11 @@ class Body extends Component {
 	 */
 	private function get_default_style() {
 		return array(
-			'textAlignment' => 'left',
-			'fontName'      => $this->get_setting( 'body_font' ),
-			'fontSize'      => intval( $this->get_setting( 'body_size' ) ),
-			'lineHeight'    => intval( $this->get_setting( 'body_line_height' ) ),
-			'textColor'     => $this->get_setting( 'body_color' ),
+			'textAlignment' 			=> 'left',
+			'fontName'      			=> $this->get_setting( 'body_font' ),
+			'fontSize'      			=> intval( $this->get_setting( 'body_size' ) ),
+			'lineHeight'    			=> intval( $this->get_setting( 'body_line_height' ) ),
+			'textColor'     			=> $this->get_setting( 'body_color' ),
 			'linkStyle'     			=> array(
 				'textColor' => $this->get_setting( 'body_link_color' )
 			),
@@ -212,10 +212,10 @@ class Body extends Component {
 		 	array(
 				'dropCapStyle' => array (
 					'numberOfLines' 		=> 4,
-					'numberOfCharacters' => 1,
+					'numberOfCharacters' 	=> 1,
 					'padding' 				=> 5,
-					'fontName' => $this->get_setting( 'dropcap_font' ),
-					'textColor' => $this->get_setting( 'dropcap_color' ),
+					'fontName' 				=> $this->get_setting( 'dropcap_font' ),
+					'textColor'				=> $this->get_setting( 'dropcap_color' ),
 				),
 			)
 	 	) );

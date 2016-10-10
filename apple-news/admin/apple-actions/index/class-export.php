@@ -54,7 +54,7 @@ class Export extends Action {
 
 		// Fetch WP_Post object, and all required post information to fill up the
 		// Exporter_Content instance.
-		$post       = get_post( $this->id );
+		$post = get_post( $this->id );
 
 		// Build the excerpt if required
 		if ( empty( $post->post_excerpt ) ) {

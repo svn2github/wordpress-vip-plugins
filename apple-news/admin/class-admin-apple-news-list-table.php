@@ -230,9 +230,9 @@ class Admin_Apple_News_List_Table extends WP_List_Table {
 	 */
 	public function get_columns() {
 		return apply_filters( 'apple_news_export_list_columns', array(
-			'cb'         => '<input type="checkbox">',
-			'title'      => __( 'Title', 'apple-news' ),
-			'updated_at' => __( 'Last updated at', 'apple-news' ),
+			'cb'					=> '<input type="checkbox">',
+			'title'				=> __( 'Title', 'apple-news' ),
+			'updated_at'	=> __( 'Last updated at', 'apple-news' ),
 			'status'			=> __( 'Apple News Status', 'apple-news' ),
 			'sync'				=> __( 'Sync Status', 'apple-news' ),
 		) );

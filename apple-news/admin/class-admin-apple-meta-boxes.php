@@ -34,7 +34,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 		// Register hooks if enabled
 		if ( 'yes' == $settings->get( 'show_metabox' ) ) {
 			// Handle a publish action and saving fields
-				add_action( 'save_post', array( $this, 'do_publish' ), 10, 2 );
+			add_action( 'save_post', array( $this, 'do_publish' ), 10, 2 );
 
 			// Add the custom meta boxes to each post type
 			$post_types = $settings->get( 'post_types' );
@@ -290,7 +290,7 @@ class Admin_Apple_Meta_Boxes extends Apple_News {
 			</div>
 			<?php
 		endforeach;
-		}
+	}
 
 	/**
 	 * Determine if a section is checked

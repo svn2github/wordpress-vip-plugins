@@ -26,8 +26,8 @@ class Metadata extends Builder {
 			if ( 'yes' === $this->get_setting( 'use_remote_images' ) ) {
 				$thumb_url = $this->content_cover();
 			} else {
-			$filename  = \Apple_News::get_filename( $this->content_cover() );
-			$thumb_url = 'bundle://' . $filename;
+				$filename = \Apple_News::get_filename( $this->content_cover() );
+				$thumb_url = 'bundle://' . $filename;
 			}
 
 			$meta['thumbnailURL'] = $thumb_url;

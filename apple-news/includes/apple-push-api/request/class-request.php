@@ -97,8 +97,11 @@ class Request {
 		// Perform the request
 		$response = wp_safe_remote_post( esc_url_raw( $url ), $args );
 
+		// Build a debug version of the MIME content for the debug email
+		$debug_mime_request = $this->mime_builder->get_debug_content( $args );
+
 		// Parse and return the response
-		return $this->parse_response( $response, true, 'post', $meta, $bundles, $article );
+		return $this->parse_response( $response, true, 'post', $meta, $bundles, $article, $debug_mime_request );
 	}
 
 	/**
@@ -166,10 +169,11 @@ class Request {
 	 * @param array $meta
 	 * @param array $bundles
 	 * @param string $article
+	 * @param array $debug_mime
 	 * @return mixed
 	 * @since 0.2.0
 	 */
-	private function parse_response( $response, $json = true, $type = 'post', $meta = null, $bundles = null, $article = '' ) {
+	private function parse_response( $response, $json = true, $type = 'post', $meta = null, $bundles = null, $article = '', $debug_mime_request = '' ) {
 		// Ensure we have an expected response type
 		if ( ( ! is_array( $response ) || ! isset( $response['body'] ) ) && ! is_wp_error( $response ) ) {
 			throw new Request_Exception( __( 'Invalid response:', 'apple-news' ) . $response );
@@ -213,6 +217,9 @@ class Request {
 
 			// Add the JSON for the post
 			$body .= "\n\n" . esc_html__( 'JSON', 'apple-news' ) . ":\n" . $article . "\n";
+
+			// Add the MIME request
+			$body .= "\n\n" . esc_html__( 'MIME request', 'apple-news' ) . ":\n" . $debug_mime_request . "\n";
 
 			// Send the email
 			if ( ! empty( $body ) ) {

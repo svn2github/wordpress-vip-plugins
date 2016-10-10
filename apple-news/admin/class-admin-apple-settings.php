@@ -174,7 +174,7 @@ class Admin_Apple_Settings extends Apple_News {
 			// This will happen only once.
 			if ( false === $wp_settings ) {
 				$wp_settings = $this->migrate_settings( $settings );
-				}
+			}
 
 			foreach ( $settings->all() as $key => $value ) {
 				$wp_value = ( empty( $wp_settings[ $key ] ) ) ? $value : $wp_settings[ $key ];
