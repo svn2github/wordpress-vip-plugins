@@ -26,4 +26,18 @@ class WPCOM_VIP_CLI_Command extends WP_CLI_Command {
 		}
 	}
 
+	protected function start_bulk_operation(){
+		// Do not send notification when post is updated to 'published'
+		add_filter( 'wpcom_pushpress_should_send_ping', '__return false' );
+		// Disable term count updates for speed
+		wp_defer_term_counting( true );
+		ES_WP_Indexing_Trigger::get_instance()->disable(); //disconnects the wp action hooks that trigger indexing jobs
+	}
+
+	protected function end_bulk_operation(){
+		remove_filter( 'wpcom_pushpress_should_send_ping', '__return false' ); //This shouldn't be required but it's nice to clean up all the settings we changed so they are back to their defaults.
+		wp_defer_term_counting( false ); // This will also trigger a term count.
+		ES_WP_Indexing_Trigger::get_instance()->enable(); //reenable the hooks
+		ES_WP_Indexing_Trigger::get_instance()->trigger_bulk_index( get_current_blog_id(), 'wp_cli' ); //queues async indexing job to be sent on wp shutdown hook, this will re-index the site inside Elasticsearch
+	}
 }
