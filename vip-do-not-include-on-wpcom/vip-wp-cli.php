@@ -26,6 +26,11 @@ class WPCOM_VIP_CLI_Command extends WP_CLI_Command {
 		}
 	}
 
+	/**
+	 * Stop WordPress.com from creating jobs that send pings via pushpress for every post that is updated.
+	 * Disable term counting so that terms are not all recounted after every term operation
+	 * Disable ES indexing so that there are not hundreds to thousands of Elasticsearch index jobs created.
+	 */
 	protected function start_bulk_operation(){
 		// Do not send notification when post is updated to 'published'
 		add_filter( 'wpcom_pushpress_should_send_ping', '__return false' );
@@ -34,6 +39,11 @@ class WPCOM_VIP_CLI_Command extends WP_CLI_Command {
 		ES_WP_Indexing_Trigger::get_instance()->disable(); //disconnects the wp action hooks that trigger indexing jobs
 	}
 
+	/**
+	 * Re-enable PushPress
+	 * Re-enable Term counting and trigger a term counting operation to update all term counts
+	 * Re-enable Elasticsearch indexing and trigger a bulk re-index of the site
+	 */
 	protected function end_bulk_operation(){
 		remove_filter( 'wpcom_pushpress_should_send_ping', '__return false' ); //This shouldn't be required but it's nice to clean up all the settings we changed so they are back to their defaults.
 		wp_defer_term_counting( false ); // This will also trigger a term count.
