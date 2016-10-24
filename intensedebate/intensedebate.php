@@ -687,7 +687,7 @@ Author URI: http://intensedebate.com
 			return $this->post;
 		}
 		
-		function export() {
+		function export( $bRemote = true ) {
 			$o = parent::export();
 			$p = $this->post();
 			$o['post'] = $p->export();
@@ -761,7 +761,7 @@ Author URI: http://intensedebate.com
 			return null;
 		}
 		
-		function export() {
+		function export( $bRemote = true ) {
 			$me = parent::export();
 			$me['comments'] = $this->comments();
 			$me['categories'] = $this->categories();
