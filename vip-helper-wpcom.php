@@ -1026,6 +1026,10 @@ function wpcom_vip_enable_performance_tweaks(){
 	if ( function_exists( 'wpcom_vip_enable_old_slug_redirect_caching' ) ) {
 		wpcom_vip_enable_old_slug_redirect_caching();
 	}
+
+	if ( function_exists( 'wpcom_vip_enable_maybe_skip_old_slug_redirect' ) ) {
+		wpcom_vip_enable_maybe_skip_old_slug_redirect();
+	}
 }
 add_action('after_setup_theme', 'wpcom_vip_enable_performance_tweaks');
 
