@@ -56,6 +56,7 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
  * Properly clear wpcom_vip_get_term_by() cache when a term is updated
  */
 add_action( 'edit_terms', 'wp_flush_get_term_by_cache', 10, 2 );
+add_action( 'create_term', 'wp_flush_get_term_by_cache', 10, 2 );
 function wp_flush_get_term_by_cache( $term_id, $taxonomy ){
 	$term = get_term_by( 'id', $term_id, $taxonomy );
 	if ( ! $term ) {
@@ -100,7 +101,7 @@ function wpcom_vip_term_exists( $term, $taxonomy = '', $parent = null ) {
 	//term_exists frequently returns null, but (happily) never false
 	if ( false  === $cache_value ) {
 		$term_exists = term_exists( $term, $taxonomy );
-		wp_cache_set( $cache_key, $term_exists, 'term_exists' );
+		wp_cache_set( $cache_key, $term_exists, 'term_exists', 3 * HOUR_IN_SECONDS );
 	}else{
 		$term_exists = $cache_value;
 	}
@@ -159,7 +160,7 @@ function wpcom_vip_get_page_by_title( $title, $output = OBJECT, $post_type = 'pa
 	if ( $page_id === false ) {
 		$page = get_page_by_title( $title, OBJECT, $post_type );
 		$page_id = $page ? $page->ID : 0;
-		wp_cache_set( $cache_key, $page_id, 'get_page_by_title' ); // We only store the ID to keep our footprint small
+		wp_cache_set( $cache_key, $page_id, 'get_page_by_title', 3 * HOUR_IN_SECONDS ); // We only store the ID to keep our footprint small
 	}
 
 	if ( $page_id )
