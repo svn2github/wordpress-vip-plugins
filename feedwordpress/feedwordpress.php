@@ -1511,11 +1511,12 @@ class FeedWordPress_File extends WP_SimplePie_File {
 		// but doesn't realize it because this member is "304" instead.
 		$this->status_code = (int) $this->status_code;
 	}
-} /* class FeedWordPress_File () */
 
-function FeedWordPress_File( $url, $timeout = 10, $redirects = 5, $headers = null, $useragent = null, $force_fsockopen = false ) {
-	self::__construct( $url, $timeout, $redirects, $headers, $useragent, $force_fsockopen );
-}
+	function FeedWordPress_File( $url, $timeout = 10, $redirects = 5, $headers = null, $useragent = null, $force_fsockopen = false ) {
+		self::__construct( $url, $timeout, $redirects, $headers, $useragent, $force_fsockopen );
+	}
+
+} /* class FeedWordPress_File () */
 
 $feedwordpress_admin_footer = array();
 
