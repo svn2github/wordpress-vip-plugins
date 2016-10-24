@@ -568,7 +568,7 @@ Author URI: http://intensedebate.com
 		}
 		
 		// exports object properties into remote property names
-		function export( $bRemote = true ) {
+		function export() {
 			$o = array();
 			foreach ( $this->properties as $local => $remote ) {
 				if ( $remote == "comment_text" )
