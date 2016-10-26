@@ -3,9 +3,9 @@
 Plugin Name: Adbusters
 Plugin URI: https://github.com/Automattic/Adbusters
 Description: Iframe busters for popular ad networks.
-Version: 1.0
+Version: 1.0.1
 Requires at least: 3.7
-Tested up to: 3.7.20
+Tested up to: 4.6.1
 License: GPLv3
 Author: Paul Gibbs, Mohammad Jangda, Automattic
 Author URI: http://automattic.com/
@@ -32,39 +32,45 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 
 function wpcom_vip_get_ad_busters_array() {
 	return array(
-		'adcade/adcadebuster.html',          // Adcade
-		'adcentric/ifr_b.html',              // AdCentric
-		'adinterax/adx-iframe-v2.html',      // AdInterax
-		'atlas/atlas_rm.htm',                // Atlas
-		'blogads/iframebuster-4.html',       // BlogAds
-		'checkm8/CM8IframeBuster.html',      // CheckM8
-		'comscore/cs-arIframe.htm',          // comScore
-		'contobox/iframebuster.html',	     // Contobox
-		'doubleclick/DARTIframe.html',       // Google - DoubleClick
-		'doubleclick/fif.html',              // Flite
-		'eyeblaster/addineyeV2.html',        // MediaMind - EyeBlaster
-		'eyewonder/interim.html',            // EyeWonder
-		'f3-iframeout/f3-iframeout.html',    // F Sharp
-		'flashtalking/ftlocal.html',         // Flashtalking
-		'flite/fif.html',                    // Flite
-		'gumgum/iframe_buster.html',         // gumgum
-		'interpolls/pub_interpolls.html',    // Interpolls
-		'jivox/jivoxIBuster.html',           // Jivox
-		'jpd/jpxdm.html',                    // Jetpack Digital
-		'mediamind/MMbuster.html',           // MediaMind - addineye (?)
-		'mixpo/framebust.html',              // Mixpo
-		'netmng/iframeOut.html',	     // NetMng
-		'oggifinogi/oggiPlayerLoader.htm',   // Collective - OggiFinogi
-		'pictela/Pictela_iframeproxy.html',  // AOL - Pictela
-		'pointroll/PointRollAds.htm',        // PointRoll
-		'rubicon/rp-smartfile.html',		 // Rubicon
-		'saymedia/iframebuster.html',        // Say Media
-		'smartadserver/iframeout.html',      // SmartAdserver
-		'undertone/iframe-buster.html',      // Intercept Interactive - Undertone
-		'undertone/UT_iframe_buster.html',   // Intercept Interactive - Undertone
-		'xaxis/InfinityIframe.html',         // Xaxis
-		'_uac/adpage.html',                  // AOL - atwola.com
-		'adcom/aceFIF.html',                 // Advertising.com (ad.com)
+		'_uac/adpage.html',                   // AOL - atwola.com
+		'adcade/adcadebuster.html',           // Adcade
+		'adcentric/ifr_b.html',               // AdCentric
+		'adcom/aceFIF.html',                  // Advertising.com (ad.com)
+		'adform/IFrameManager.html',          // Adform
+		'adinterax/adx-iframe-v2.html',       // AdInterax
+		'adrime/adrime_burst_2.0.0.htm',      // Adrime
+		'atlas/atlas_rm.htm',                 // Atlas
+		'blogads/iframebuster-4.html',        // BlogAds
+		'checkm8/CM8IframeBuster.html',       // CheckM8
+		'comscore/cs-arIframe.htm',           // comScore
+		'contobox/iframebuster.html',         // Contobox
+		'doubleclick/DARTIframe.html',        // Google - DoubleClick
+		'doubleclick/fif.html',               // Flite
+		'doubleclick/TLIframe.html',          // TripleLift
+		'eyeblaster/addineyeV2.html',         // MediaMind - EyeBlaster
+		'eyewonder/interim.html',             // EyeWonder
+		'f3-iframeout/f3-iframeout.html',     // F Sharp
+		'flashtalking/ftlocal.html',          // Flashtalking
+		'flite/fif.html',                     // Flite
+		'gumgum/iframe_buster.html',          // gumgum
+		'interpolls/pub_interpolls.html',     // Interpolls
+		'jivox/jivoxIBuster.html',            // Jivox
+		'jpd/jpxdm.html',                     // Jetpack Digital
+		'knorex/knorex_psf.html',             // Knorex
+		'kpsule/iframebuster.html',           // Kpsule
+		'linkstorm/linkstorm_certified.html', // Linkstorm
+		'mediamind/MMbuster.html',            // MediaMind - addineye (?)
+		'mediaplex/mojofb_v9.html',           // Mediaplex
+		'mixpo/framebust.html',               // Mixpo
+		'oggifinogi/oggiPlayerLoader.htm',    // Collective - OggiFinogi
+		'pictela/Pictela_iframeproxy.html',   // AOL - Pictela
+		'pointroll/PointRollAds.htm',         // PointRoll
+		'rubicon/rp-smartfile.html',		  // Rubicon
+		'saymedia/iframebuster.html',         // Say Media
+		'smartadserver/iframeout.html',       // SmartAdserver
+		'undertone/iframe-buster.html',       // Intercept Interactive - Undertone
+		'undertone/UT_iframe_buster.html',    // Intercept Interactive - Undertone
+		'xaxis/InfinityIframe.html',          // Xaxis
 	);
 }
 
