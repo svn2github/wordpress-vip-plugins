@@ -33,7 +33,7 @@ class Instant_Articles_Settings {
 	 */
 	public static function init() {
 		add_action( 'admin_menu', array( 'Instant_Articles_Settings', 'menu_items' ) );
-l(__LINE__);
+
 		add_filter( 'plugin_action_links_' . IA_PLUGIN_PATH, array( 'Instant_Articles_Settings', 'add_settings_link_to_plugin_actions' ) );
 
 		add_action( 'admin_init', function () {
@@ -127,7 +127,7 @@ l(__LINE__);
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_die( esc_html( 'You do not have sufficient permissions to access this page.' ) );
 		}
-l(__LINE__);
+
 		settings_errors();
 
 		$fb_page_settings = Instant_Articles_Option_FB_Page::get_option_decoded();
