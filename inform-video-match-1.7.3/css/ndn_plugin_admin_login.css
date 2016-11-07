@@ -1,0 +1,11 @@
+#wpadminbar,
+#adminmenuback,
+#adminmenuwrap,
+#wpfooter,
+.update-nag,
+.updated {
+  display: none;
+}
+#wpcontent {
+  margin: 0;
+}
