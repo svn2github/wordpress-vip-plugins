@@ -662,7 +662,7 @@ function wpcom_vip_set_old_slug_redirect_cache( $link ){
 function wpcom_vip_maybe_skip_old_slug_redirect(){
 
 	//We look to see if a malformed url (represented by 'http:' ) is right after the starting / in DOCUMENT_URI hence position 1
-	if ( is_404() && ( 1 === strpos( $_SERVER['DOCUMENT_URI'], 'http:') || 1 === strpos( $_SERVER['DOCUMENT_URI'], 'https:') ) ){
+	if ( is_404() && ( 1 === strpos( $_SERVER['DOCUMENT_URI'], 'http:') || 1 === strpos( $_SERVER['DOCUMENT_URI'], 'https:') || false !== strpos( $_SERVER['DOCUMENT_URI'], 'https:/' ) || false !== strpos( $_SERVER['DOCUMENT_URI'], 'http:/' ) ) ){
 		remove_action( 'template_redirect', 'wp_old_slug_redirect' );
 		remove_action( 'template_redirect', 'wpcom_vip_wp_old_slug_redirect', 8 );
 	}
