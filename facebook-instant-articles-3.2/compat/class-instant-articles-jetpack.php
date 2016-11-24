@@ -39,8 +39,13 @@ class Instant_Articles_Jetpack {
 	 */
 	private function _fix_facebook_embed() {
 
-		// All of these are registered in jetpack/modules/shortcodes/facebook.php
+		// Don't try to fix facebook embeds unless we're in Instant Articles context.
+		// This prevents mangled output on frontend.
+		if ( ! doing_action( 'instant_articles_before_transform_post' ) ) {
+			return;
+		}
 
+		// All of these are registered in jetpack/modules/shortcodes/facebook.php
 		if ( defined( 'JETPACK_FACEBOOK_EMBED_REGEX' ) ) {
 			wp_embed_unregister_handler( 'facebook' );
 			wp_embed_register_handler( 'facebook', JETPACK_FACEBOOK_EMBED_REGEX, array( __CLASS__, 'facebook_embed_handler' ) );
@@ -79,7 +84,7 @@ class Instant_Articles_Jetpack {
 			$locale = 'en_US';
 		}
 
-		return '<figure class="op-social"><iframe><script src="https://connect.facebook.net/' . $locale . '/sdk.js#xfbml=1&amp;version=v2.6" async></script><div class="fb-post" data-href="' . esc_url( $url ) . '"></div></iframe></figure>';
+		return '<figure class="op-interactive"><iframe><script src="https://connect.facebook.net/' . rawurlencode( $locale ) . '/sdk.js#xfbml=1&amp;version=v2.6" async></script><div class="fb-post" data-href="' . esc_url( $url ) . '"></div></iframe></figure>';
 	}
 
 	public static function transformer_loaded( $transformer ) {
