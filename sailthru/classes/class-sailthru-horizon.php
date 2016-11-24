@@ -438,7 +438,7 @@ class Sailthru_Horizon {
 
     		// tags
     		$post_tags = get_the_tags();
-		if ( $post_tags ) {
+		if ( !empty( $post_tags ) && ! is_wp_error( $post_tags ) ) {
 			$horizon_tags['sailthru.tags'] = esc_attr(implode( ', ', wp_list_pluck( $post_tags, 'name' )) );
 		}
 
