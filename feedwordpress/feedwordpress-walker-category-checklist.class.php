@@ -11,17 +11,17 @@ class FeedWordPress_Walker_Category_Checklist extends Walker {
 	var $prefix = '';
 	var $db_fields = array ('parent' => 'parent', 'id' => 'term_id'); //TODO: decouple this
 
-	function start_lvl(&$output, $depth, $args) {
+	function start_lvl(&$output, $depth = 0, $args = []) {
 		$indent = str_repeat("\t", $depth);
 		$output .= "$indent<ul class='children'>\n";
 	}
 
-	function end_lvl(&$output, $depth, $args) {
+	function end_lvl(&$output, $depth = 0, $args = []) {
 		$indent = str_repeat("\t", $depth);
 		$output .= "$indent</ul>\n";
 	}
 
-	function end_el(&$output, $category, $depth, $args) {
+	function end_el(&$output, $object, $depth = 0, $args = []) {
 		$output .= "</li>\n";
 	}
 
@@ -29,7 +29,7 @@ class FeedWordPress_Walker_Category_Checklist extends Walker {
 		$this->prefix = $prefix;
 	}
 
-	function start_el (&$output, $category, $depth, $args) {
+	function start_el (&$output, $object, $depth = 0, $args = [], $current_object_id = 0) {
 		extract($args);
                 if ( empty($taxonomy) ) :
                 	$taxonomy = 'category';
@@ -46,10 +46,10 @@ class FeedWordPress_Walker_Category_Checklist extends Walker {
                 	$unit[] = $this->prefix;
 		endif;
 		$unit[] = $taxonomy;
-		$unit[] = $category->term_id;
+		$unit[] = $object->term_id;
 		$unitId = implode("-", $unit);
 
-		$class = in_array( $category->term_id, $popular_cats ) ? ' class="popular-category category-checkbox"' : ' class="category-checkbox"';
-		$output .= "\n<li id='{$unitId}'$class>" . '<label class="selectit"><input value="' . $category->term_id . '" type="checkbox" name="'.$name.'[]" id="in-'.$unitId. '"' . checked( in_array( $category->term_id, $selected_cats ), true, false ) . disabled( empty( $args['disabled'] ), false, false ) . ' /> ' . esc_html( apply_filters('the_category', $category->name )) . '</label>';
+		$class = in_array( $object->term_id, $popular_cats ) ? ' class="popular-category category-checkbox"' : ' class="category-checkbox"';
+		$output .= "\n<li id='{$unitId}'$class>" . '<label class="selectit"><input value="' . $object->term_id . '" type="checkbox" name="'.$name.'[]" id="in-'.$unitId. '"' . checked( in_array( $object->term_id, $selected_cats ), true, false ) . disabled( empty( $args['disabled'] ), false, false ) . ' /> ' . esc_html( apply_filters('the_category', $object->name )) . '</label>';
 	} /* FeedWordPress_Walker_Category_Checklist::start_el() */
 } /* FeedWordPress_Walker_Category_Checklist */
