@@ -1053,10 +1053,10 @@ function wpcom_vip_protected_embed_to_original( $content ) {
 	if ( true === class_exists( 'Protected_Embeds' ) && method_exists( Protected_Embeds::instance(), 'add_shortcode' ) ) {
 
 		//store the_content_export filters
-		$the_content_export_filters = $wp_filter['the_content_export'];
+		$the_content_export_filters = $wp_filter['the_content_export']->callbacks;
 	
 		//remove all the_content_export filters
-		$wp_filter['the_content_export'] = array();
+		$wp_filter['the_content_export']->callbacks = array();
 
 		//add the_content_export filter back
 		Protected_Embeds::instance()->add_shortcode();
@@ -1064,7 +1064,7 @@ function wpcom_vip_protected_embed_to_original( $content ) {
 		$content = apply_filters( 'the_content_export', $content );
 
 		//restore the_content_export filters to previous state
-		$wp_filter['the_content_export'] = $the_content_export_filters;	
+		$wp_filter['the_content_export']->callbacks = $the_content_export_filters;	
 
 	}
 
