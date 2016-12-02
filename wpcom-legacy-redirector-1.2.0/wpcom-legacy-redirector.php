@@ -152,7 +152,7 @@ class WPCOM_Legacy_Redirector {
 
 		$url_hash = self::get_url_hash( $url );
 
-		$redirect_post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_name = %s LIMIT 1", self::POST_TYPE, $url_hash ) );
+		$redirect_post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_name = %s ORDER BY ID DESC LIMIT 1", self::POST_TYPE, $url_hash ) );
 
 		if ( ! $redirect_post_id )
 			$redirect_post_id = 0;
