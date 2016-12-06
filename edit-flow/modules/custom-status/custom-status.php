@@ -1384,6 +1384,21 @@ class EF_Custom_Status extends EF_Module {
 
 		global $wpdb;
 
+		// Adding debugging to hopefully find clues about #60045-z
+		$nypost_sites = array(
+			56757169, // nypost
+			96994771, // thenypostpreprod
+			15797879, // VIP test site 1
+			16567234, // VIP test site 2
+		);
+
+		if ( in_array( get_current_blog_id(), $nypost_sites, true ) ) {
+			$msg = 'Potential Blank Slug from Edit Flow' . PHP_EOL;
+			$msg .= wp_json_encode( array( $post->post_status, $post->post_type, $_POST['post_name'], $post->post_name ) );
+			wp_debug_mail( 'derrick.tennant@automattic.com', 'NYPOST: ' . $post_id, $msg, null, 60 );
+		}
+		// End debugging for #60045-z
+
 		$wpdb->update( $wpdb->posts, array( 'post_name' => '' ), array( 'ID' => $post_id ) );
 		clean_post_cache( $post_id );
 	}
