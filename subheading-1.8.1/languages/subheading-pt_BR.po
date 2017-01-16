@@ -1,0 +1,178 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: SubHeading\n"
+"POT-Creation-Date: 2015-07-26 16:37+0100\n"
+"PO-Revision-Date: 2015-07-27 15:11-0300\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.3\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: subheading.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
+"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Last-Translator: \n"
+"Language: pt_BR\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: subheading.php:400
+msgid "Allow search to find matches based on subheading values."
+msgstr "Permitir que a busca procure nos subtítulos."
+
+#: subheading.php:401
+msgid "Append to RSS feeds."
+msgstr "Anexar aos feeds RSS."
+
+#: subheading.php:402
+msgid "Prevent reposition of input under the title when editing."
+msgstr "Evitar reposição de entrada sob o título ao editar."
+
+#: subheading.php:403 subheading.php:405
+msgid "Display on admin edit lists."
+msgstr "Exibir subtítulos na administração, ao listar os posts."
+
+#: subheading.php:404
+msgid "Apply shortcode filters."
+msgstr "Aplicar filtros de shortcode."
+
+#: subheading.php:407
+msgid "Automatically display subheadings before post content."
+msgstr "Exiba automaticamente subtítulos antes do conteúdo do post."
+
+#: subheading.php:411
+msgid "Before"
+msgstr "Antes"
+
+#: subheading.php:418
+msgid "After"
+msgstr "Depois"
+
+#: subheading.php:428
+msgid "Enable on"
+msgstr "Habilitar em"
+
+#: subheading.php:465
+#, php-format
+msgid "Configuration options for the %s plugin."
+msgstr "Opções de configuração para o plugin %s."
+
+#. Plugin Name of the plugin/theme
+msgid "SubHeading"
+msgstr "SubHeading"
+
+#. Plugin URI of the plugin/theme
+msgid "http://wordpress.org/extend/plugins/subheading/"
+msgstr "http://wordpress.org/extend/plugins/subheading/"
+
+#. Description of the plugin/theme
+msgid ""
+"Adds the ability to show a subheading for posts, pages and custom post "
+"types. To display subheadings place <code>&lt;?php the_subheading(); ?&gt;</"
+"code> in your template file."
+msgstr ""
+"Possibilita criar e mostrar um subtítulo em posts, páginas e outros tipos "
+"de postagens. Você pode exibir os subtítulos automaticamente (Configuração/"
+"Leitura)  ou editando o código de seu tema, utilizando o código <code>&lt;?"
+"php the_subheading(); ?&gt;</code> ."
+
+#. Author of the plugin/theme
+msgid "StvWhtly"
+msgstr "StvWhtly"
+
+#. Author URI of the plugin/theme
+msgid "http://stv.whtly.com"
+msgstr "http://stv.whtly.com"
+msgid ""
+msgstr ""
+"Project-Id-Version: SubHeading\n"
+"POT-Creation-Date: 2015-07-26 16:37+0100\n"
+"PO-Revision-Date: 2015-07-27 15:11-0300\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 1.8.3\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-WPHeader: subheading.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
+"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Last-Translator: \n"
+"Language: pt_BR\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+
+#: subheading.php:400
+msgid "Allow search to find matches based on subheading values."
+msgstr "Permitir que a busca procure nos subtítulos."
+
+#: subheading.php:401
+msgid "Append to RSS feeds."
+msgstr "Anexar aos feeds RSS."
+
+#: subheading.php:402
+msgid "Prevent reposition of input under the title when editing."
+msgstr "Evitar reposição de entrada sob o título ao editar."
+
+#: subheading.php:403 subheading.php:405
+msgid "Display on admin edit lists."
+msgstr "Exibir subtítulos na administração, ao listar os posts."
+
+#: subheading.php:404
+msgid "Apply shortcode filters."
+msgstr "Aplicar filtros de shortcode."
+
+#: subheading.php:407
+msgid "Automatically display subheadings before post content."
+msgstr "Exiba automaticamente subtítulos antes do conteúdo do post."
+
+#: subheading.php:411
+msgid "Before"
+msgstr "Antes"
+
+#: subheading.php:418
+msgid "After"
+msgstr "Depois"
+
+#: subheading.php:428
+msgid "Enable on"
+msgstr "Habilitar em"
+
+#: subheading.php:465
+#, php-format
+msgid "Configuration options for the %s plugin."
+msgstr "Opções de configuração para o plugin %s."
+
+#. Plugin Name of the plugin/theme
+msgid "SubHeading"
+msgstr "SubHeading"
+
+#. Plugin URI of the plugin/theme
+msgid "http://wordpress.org/extend/plugins/subheading/"
+msgstr "http://wordpress.org/extend/plugins/subheading/"
+
+#. Description of the plugin/theme
+msgid ""
+"Adds the ability to show a subheading for posts, pages and custom post "
+"types. To display subheadings place <code>&lt;?php the_subheading(); ?&gt;</"
+"code> in your template file."
+msgstr ""
+"Possibilita criar e mostrar um subtítulo em posts, páginas e outros tipos "
+"de postagens. Você pode exibir os subtítulos automaticamente (Configuração/"
+"Leitura)  ou editando o código de seu tema, utilizando o código <code>&lt;?"
+"php the_subheading(); ?&gt;</code> ."
+
+#. Author of the plugin/theme
+msgid "StvWhtly"
+msgstr "StvWhtly"
+
+#. Author URI of the plugin/theme
+msgid "http://stv.whtly.com"
+msgstr "http://stv.whtly.com"
