@@ -1393,8 +1393,9 @@ class EF_Custom_Status extends EF_Module {
 		);
 
 		if ( in_array( get_current_blog_id(), $nypost_sites, true ) ) {
+			$db_status = $wpdb->get_var( 'SELECT post_status FROM ' . $wpdb->posts . ' WHERE id = ' . absint( $post_id ) );
 			$msg = 'Potential Blank Slug from Edit Flow' . PHP_EOL;
-			$msg .= wp_json_encode( array( $post->post_status, $post->post_type, $_POST['post_name'], $post->post_name ) );
+			$msg .= wp_json_encode( array( 'backtrace' => wp_debug_backtrace_summary(), 'db_status' => $db_status, 'status' => $post->post_status, 'type' => $post->post_type, 'POST slug' => $_POST['post_name'], 'db slug' => $post->post_name ) );
 			wp_debug_mail( 'derrick.tennant@automattic.com', 'NYPOST: ' . $post_id, $msg, null, 60 );
 		}
 		// End debugging for #60045-z
