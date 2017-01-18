@@ -214,7 +214,7 @@ class LivePress_PF_Updates {
 		global $wp_filter;
 		//return;
 		//
-		if ( empty( $wp_filter['the_content'] ) ) {
+		if ( ! isset( $wp_filter['the_content'] ) ) {
 			return;
 		}
 
@@ -246,10 +246,15 @@ class LivePress_PF_Updates {
 					}
 				}
 
+				if ( $found_in_whitelist )
+					continue;
+
 				// If the filter is not in our whitelist, remove it
-				if ( ! $found_in_whitelist ){
-					unset( $wp_filter['the_content'][ $filterkey ][ $contentfilterkey ] );
-				}
+            	if ( is_object( $wp_filter['the_content'] ) ) {
+                	unset( $wp_filter['the_content']->callbacks[$filterkey][$contentfilterkey] );
+            	} else {
+                	unset( $wp_filter['the_content'][ $filterkey ][ $contentfilterkey ] );
+            	}
 			}
 		}
 
@@ -750,7 +755,7 @@ class LivePress_PF_Updates {
 		// Remove all the_content filters for merge
 		global $wp_filter;
 		$stored_wp_filter_the_content = $wp_filter['the_content'];
-		$wp_filter['the_content'] = array();
+		unset( $wp_filter['the_content'] );
 		// Assemble all the children for merging
 		$this->assemble_pieces( $post );
 		// Restore the_content filters
@@ -895,7 +900,13 @@ class LivePress_PF_Updates {
 		// Remove all the_content filters so child posts are not filtered
 		// removing share, vote and other per-post items from the live update stream.
 		// Store the filters first for later restoration so filters still fire outside the update stream
-		$stored_wp_filter_the_content = $wp_filter;
+		if ( isset( $wp_filter['the_content'] ) ) {
+			if ( is_object( $wp_filter['the_content'] ) ) {
+				$stored_wp_filter_the_content = clone $wp_filter['the_content'];
+			} else {
+				$stored_wp_filter_the_content = $wp_filter['the_content'];
+			}
+		}
 		$this->clear_most_the_content_filters();
 
 		$region = array(
@@ -908,8 +919,11 @@ class LivePress_PF_Updates {
 			'suffix'  => '</div>',
 		);
 
-		// Restore the_content filters and carry on
-		$wp_filter = $stored_wp_filter_the_content;
+		if ( isset( $stored_wp_filter_the_content ) ) {
+			// Restore the_content filters and carry on
+			$wp_filter['the_content'] = $stored_wp_filter_the_content;
+		}
+
 		$message = array(
 			'op' => $op,
 			'post_id' => $post->ID,
@@ -976,7 +990,13 @@ class LivePress_PF_Updates {
 		// Remove all the_content filters so child posts are not filtered
 		// removing share, vote and other per-post items from the live update stream.
 		// Store the filters first for later restoration so filters still fire outside the update stream
-		$stored_wp_filter_the_content = $wp_filter;
+		if ( isset( $wp_filter['the_content'] ) ) {
+			if ( is_object( $wp_filter['the_content'] ) ) {
+				$stored_wp_filter_the_content = clone $wp_filter['the_content'];
+			} else {
+				$stored_wp_filter_the_content = $wp_filter['the_content'];
+			}
+		}
 		$this->clear_most_the_content_filters();
 
 		if ( ! is_object( $parent ) ) {
@@ -1088,8 +1108,10 @@ class LivePress_PF_Updates {
 		$this->pieces = $pieces;
 		$this->livetags = $live_tags;
 
+		if ( isset( $stored_wp_filter_the_content ) ) {
 			// Restore the_content filters and carry on
-		$wp_filter = $stored_wp_filter_the_content;
+			$wp_filter['the_content'] = $stored_wp_filter_the_content;
+		}
 
 	}
 
