@@ -5,6 +5,12 @@
  */
 define( 'LIVEBLOG_USE_SOCKETIO', false );
 
+function wpcom_vip_liveblog_bump_stats_extras( $stat, $extra ) {
+	if ( function_exists( 'bump_stats_extras' ) ) {
+		bump_stats_extras( $stat, $extra );
+	}
+}
+
 // Use an AJAX URL, which is easier to match in server configs
 // Using an endpoint can be ambiguous
 add_action( 'after_liveblog_init', function() {
@@ -42,41 +48,45 @@ add_action( 'wp_enqueue_scripts', function() {
 
 // Stats tracking for liveblog
 add_action( 'liveblog_enable_post', function( $post_id ) {
-	bump_stats_extras( 'liveblog', 'enable' );
-	bump_stats_extras( 'liveblog-enable-by-theme', str_replace( '/', '-', get_stylesheet() ) );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog', 'enable' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog-enable-by-theme', str_replace( '/', '-', get_stylesheet() ) );
 
-	send_vip_team_irc_alert( '[VIP Liveblog] Enabled on post '. get_permalink( $post_id ) . ' by ' . get_current_user_id() );
+	if ( function_exists( 'send_vip_team_irc_alert' ) ) {
+		send_vip_team_irc_alert( '[VIP Liveblog] Enabled on post '. get_permalink( $post_id ) . ' by ' . get_current_user_id() );
+	}
 } );
 
 add_action( 'liveblog_disable_post', function( $post_id ) {
-	bump_stats_extras( 'liveblog', 'disable' );
-	bump_stats_extras( 'liveblog-disable-by-theme', str_replace( '/', '-', get_stylesheet() ) );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog', 'disable' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog-disable-by-theme', str_replace( '/', '-', get_stylesheet() ) );
 
-	send_vip_team_irc_alert( '[VIP Liveblog] Disabled on post '. get_permalink( $post_id ) . ' by ' . get_current_user_id() );
+	if ( function_exists( 'send_vip_team_irc_alert' ) ) {
+		send_vip_team_irc_alert( '[VIP Liveblog] Disabled on post '. get_permalink( $post_id ) . ' by ' . get_current_user_id() );
+	}
 } );
 
 add_action( 'liveblog_entry_request_empty', function() {
-	bump_stats_extras( 'liveblog_entry_request', 'miss' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog_entry_request', 'miss' );
 } );
 
 add_action( 'liveblog_entry_request', function() {
-	bump_stats_extras( 'liveblog_entry_request', 'hit' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog_entry_request', 'hit' );
 } );
 
 add_action( 'liveblog_preview_entry', function() {
-	bump_stats_extras( 'liveblog_entry_action', 'preview' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog_entry_action', 'preview' );
 } );
 
 add_action( 'liveblog_insert_entry', function( $comment_id ) {
-	bump_stats_extras( 'liveblog_entry_action', 'insert' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog_entry_action', 'insert' );
 } );
 
 add_action( 'liveblog_update_entry', function( $new_comment_id, $replaces_comment_id ) {
-	bump_stats_extras( 'liveblog_entry_action', 'update' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog_entry_action', 'update' );
 }, 10, 2 );
 
 add_action( 'liveblog_delete_entry', function( $comment_id ) {
-	bump_stats_extras( 'liveblog_entry_action', 'delete' );
+	wpcom_vip_liveblog_bump_stats_extras( 'liveblog_entry_action', 'delete' );
 } );
 
 /**
@@ -101,7 +111,7 @@ add_filter( 'liveblog_current_user_can_edit_liveblog', function( $can_edit ) {
  * The liveblog's native behaviour results in oembed cache being stored in post meta which may result in huge number of such
  * post metas stored and eventually exceed the 1M limit for memcache (all post metas are stored in a single key).
  *
- * Discussion: https://keepingtheirblogsgoing.wordpress.com/2016/01/25/liveblog-and-oembed-cache-in-post-meta/
+ * Discussion: http://wp.me/poqVs-caP
  *
  * We'll use a custom class for storing the oembed meta in comment meta
  * @see wpcom_liveblog_autoembed
@@ -121,7 +131,7 @@ add_filter( 'liveblog_entry_enable_embeds', 'wpcom_liveblog_disable_embeds', 100
  * Filters the comment_text for liveblog entries only with custom implementation of autoembed
  * which is taking advantage of comment meta (vs. post meta) for storing oembed cache
  *
- * Discussion: https://keepingtheirblogsgoing.wordpress.com/2016/01/25/liveblog-and-oembed-cache-in-post-meta/
+ * Discussion: http://wp.me/poqVs-caP
  *
  * @param string $comment_text Text of the current comment.
  * @param WP_Comment $comment Optional. WP_Comment object.
@@ -146,7 +156,7 @@ function wpcom_liveblog_autoembed( $comment_text, $comment = null ) {
 				 * The WPCOM_Comments_Embed class does not store oembeds meta cache in post meta, but
 				 * in comment meta and thus preventing the memcache entry storing all post's meta
 				 * exceeding 1M limit.
-				 * See https://keepingtheirblogsgoing.wordpress.com/2016/01/25/liveblog-and-oembed-cache-in-post-meta/
+				 * See http://wp.me/poqVs-caP
 				 */
 				if ( true === class_exists( 'WPCOM_Comments_Embed' )
 					 && true === isset( $GLOBALS['wpcom_comments_embed'] )

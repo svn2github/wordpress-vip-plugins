@@ -21,3 +21,4 @@ foreach( $buttons as $button ):
 foreach( $extra_fields as $fields ):
 	echo $fields;
 endforeach;
+
