@@ -1396,7 +1396,11 @@ class EF_Custom_Status extends EF_Module {
 			$db_status = $wpdb->get_var( 'SELECT post_status FROM ' . $wpdb->posts . ' WHERE id = ' . absint( $post_id ) );
 			$msg = 'Potential Blank Slug from Edit Flow' . PHP_EOL;
 			$msg .= wp_json_encode( array( 'backtrace' => wp_debug_backtrace_summary(), 'db_status' => $db_status, 'status' => $post->post_status, 'type' => $post->post_type, 'POST slug' => $_POST['post_name'], 'db slug' => $post->post_name ) );
-			wp_debug_mail( 'derrick.tennant@automattic.com', 'NYPOST: ' . $post_id, $msg, null, 60 );
+			if ( $db_status !== $post->post_status ) {
+				wp_debug_mail( 'derrick.tennant@automattic.com', 'NYPOST NEQ: ' . $post_id, $msg, null, 60 );
+			} else {
+				wp_debug_mail( 'derrick.tennant@automattic.com', 'NYPOST EQ: ' . $post_id, $msg, null, 60 );
+			}
 		}
 		// End debugging for #60045-z
 
