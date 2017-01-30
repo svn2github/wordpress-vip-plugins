@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ruleset name="civil-comments">
+	<description>Sniffs for the coding standards of the Civil Comments plugin.</description>
+
+	<arg value="sp"/>
+	<arg name="extensions" value="php"/>
+	<arg name="report" value="full"/>
+	<arg name="report" value="summary"/>
+
+	<file>./</file>
+	<exclude-pattern>assets/*</exclude-pattern>
+	<exclude-pattern>bin/*</exclude-pattern>
+	<exclude-pattern>vendor/*</exclude-pattern>
+	<exclude-pattern>includes/vendor/*</exclude-pattern>
+	<exclude-pattern>node_modules/*</exclude-pattern>
+	<exclude-pattern>tests/*</exclude-pattern>
+
+	<rule ref="WordPress"></rule>
+</ruleset>
