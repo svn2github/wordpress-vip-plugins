@@ -208,7 +208,7 @@ if ( ! function_exists( 'wpcom_is_vip' ) ) : // Do not load these on WP.com
 
 			$args['blog_id'] = absint( $args['blog_id'] );
 
-			$service_url = 'http://public-api.wordpress.com/rest/v1/sites/' . $args['blog_id'] . '/search';
+			$service_url = 'https://public-api.wordpress.com/rest/v1/sites/' . $args['blog_id'] . '/search';
 
 			unset( $args['blog_id'] );
 
