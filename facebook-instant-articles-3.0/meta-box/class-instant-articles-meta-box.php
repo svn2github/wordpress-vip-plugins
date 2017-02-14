@@ -50,6 +50,10 @@ class Instant_Articles_Meta_Box {
 	 * @param Post $post the post request content.
 	 */
 	public static function render_meta_box_loader( $post ) {
+		if ( ! current_user_can( 'edit_post', $post->ID ) ) {
+			return;
+		}
+
 		include( dirname( __FILE__ ) . '/meta-box-loader-template.php' );
 	}
 
@@ -58,6 +62,11 @@ class Instant_Articles_Meta_Box {
 	 */
 	public static function render_meta_box() {
 		$post_id = intval( filter_input( INPUT_POST, 'post_ID' ) );
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			wp_die( -1, 403 );
+		}
+
 		$post = get_post( $post_id );
 		$adapter = new Instant_Articles_Post( $post );
 		$article = $adapter->to_instant_article();
