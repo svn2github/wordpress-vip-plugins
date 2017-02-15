@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<ruleset name="facebook/facebook-instant-articles-sdk-php">
-    <file>.</file>
-    <exclude-pattern>vendor/</exclude-pattern>
-    <arg name="colors" />
-    <arg value="sn" />
-    <rule ref="PSR2"  />
-</ruleset>
