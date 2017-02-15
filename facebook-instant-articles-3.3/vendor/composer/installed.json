@@ -6,7 +6,7 @@
         "source": {
             "type": "git",
             "url": "https://git-wip-us.apache.org/repos/asf/logging-log4php.git",
-            "reference": "cac428b6f67d2035af39784da1d1a299ef42fcf2"
+            "reference": "8c6df2481cd68d0d211d38f700406c5f0a9de0c2"
         },
         "require": {
             "php": ">=5.2.7"
@@ -93,8 +93,8 @@
     },
     {
         "name": "symfony/css-selector",
-        "version": "v3.2.2",
-        "version_normalized": "3.2.2.0",
+        "version": "v3.2.3",
+        "version_normalized": "3.2.3.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/css-selector.git",
@@ -148,17 +148,17 @@
     },
     {
         "name": "facebook/facebook-instant-articles-sdk-php",
-        "version": "v1.5.4",
-        "version_normalized": "1.5.4.0",
+        "version": "v1.5.5",
+        "version_normalized": "1.5.5.0",
         "source": {
             "type": "git",
             "url": "https://github.com/facebook/facebook-instant-articles-sdk-php.git",
-            "reference": "886d024eac5c3adf90bcd03b4b62ff4dc9771229"
+            "reference": "3d7782850625ab4025d6c1a1bb5fc8a6cf2fc682"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/facebook/facebook-instant-articles-sdk-php/zipball/886d024eac5c3adf90bcd03b4b62ff4dc9771229",
-            "reference": "886d024eac5c3adf90bcd03b4b62ff4dc9771229",
+            "url": "https://api.github.com/repos/facebook/facebook-instant-articles-sdk-php/zipball/3d7782850625ab4025d6c1a1bb5fc8a6cf2fc682",
+            "reference": "3d7782850625ab4025d6c1a1bb5fc8a6cf2fc682",
             "shasum": ""
         },
         "require": {
@@ -172,7 +172,7 @@
             "phpunit/phpunit": "^4.8",
             "squizlabs/php_codesniffer": "^2.6.0"
         },
-        "time": "2016-12-07 14:32:14",
+        "time": "2017-02-13 18:28:26",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

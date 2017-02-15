@@ -595,6 +595,8 @@ class Instant_Articles_Post {
 		 */
 		do_action( 'instant_articles_before_transform_post', $this );
 
+		is_transforming_instant_article( true );
+
 		// Get time zone configured in WordPress. Default to UTC if no time zone configured.
 		$date_time_zone = get_option( 'timezone_string' ) ? new DateTimeZone( get_option( 'timezone_string' ) ) : new DateTimeZone( 'UTC' );
 
@@ -683,12 +685,18 @@ class Instant_Articles_Post {
 			$this->instant_article->withStyle( 'default' );
 		}
 
+		if ( isset( $settings_style['rtl_enabled'] ) ) {
+			$this->instant_article->enableRTL();
+		}
+
 		$transformer->transformString( $this->instant_article, $this->get_the_content(), get_option( 'blog_charset' ) );
 
 		$this->add_ads_from_settings();
 		$this->add_analytics_from_settings();
 
 		$this->instant_article = apply_filters( 'instant_articles_transformed_element', $this->instant_article );
+
+		is_transforming_instant_article( false );
 
 		/**
 		 * Fires after the instant article is rendered.

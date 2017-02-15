@@ -39,8 +39,12 @@ function instant_articles_embed_oembed_html( $html, $url, $attr, $post_id ) {
 		$provider_name = 'twitter';
 	} elseif ( false !== strpos( $provider_url, 'youtube.com' ) ) {
 		$provider_name = 'youtube';
-	} elseif ( false !== strpos( $provider_url, 'vine.co' ) ) {
+	} elseif( false !== strpos( $provider_url, 'vimeo.com' ) ) {
+		$provider_name = 'vimeo';
+	} elseif( false !== strpos( $provider_url, 'vine.co' ) ) {
 		$provider_name = 'vine';
+	} elseif( false !== strpos( $provider_url, 'facebook.com' ) ) {
+		$provider_name = 'facebook';
 	}
 
 	$provider_name = apply_filters( 'instant_articles_social_embed_type', $provider_name, $url );
@@ -67,6 +71,12 @@ add_filter( 'embed_oembed_html', 'instant_articles_embed_oembed_html', 10, 4 );
  * @return string The filtered HTML.
  */
 function instant_articles_embed_get_html( $provider_name, $html, $url, $attr, $post_id ) {
+
+	// Don't try to fix embeds unless we're in Instant Articles context.
+	// This prevents mangled output on frontend.
+	if ( ! is_transforming_instant_article() ) {
+			return $html;
+	}
 
 	/**
 	 * Filter the HTML that will go into the Instant Article Social Embed markup.

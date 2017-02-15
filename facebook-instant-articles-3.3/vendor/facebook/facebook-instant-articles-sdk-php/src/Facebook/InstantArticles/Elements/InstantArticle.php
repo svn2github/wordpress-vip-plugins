@@ -34,7 +34,7 @@ use Facebook\InstantArticles\Validators\Type;
 
 class InstantArticle extends Element implements Container, InstantArticleInterface
 {
-    const CURRENT_VERSION = '1.5.4';
+    const CURRENT_VERSION = '1.5.5';
 
     /**
      * The meta properties that are used on <head>
@@ -214,6 +214,64 @@ class InstantArticle extends Element implements Container, InstantArticleInterfa
     {
         Type::enforce($footer, Footer::getClassName());
         $this->footer = $footer;
+
+        return $this;
+    }
+
+    /**
+     * Replace all the children within this InstantArticle
+     *
+     * @param Element[] $children Array of elements replacing the original.
+     *
+     * @return $this
+     */
+    public function withChildren($children)
+    {
+        Type::enforceArrayOf(
+            $children,
+            [
+                Ad::getClassName(),
+                Analytics::getClassName(),
+                AnimatedGIF::getClassName(),
+                Audio::getClassName(),
+                Blockquote::getClassName(),
+                Image::getClassName(),
+                H1::getClassName(),
+                H2::getClassName(),
+                Interactive::getClassName(),
+                ListElement::getClassName(),
+                Map::getClassName(),
+                Paragraph::getClassName(),
+                Pullquote::getClassName(),
+                RelatedArticles::getClassName(),
+                Slideshow::getClassName(),
+                SocialEmbed::getClassName(),
+                Video::getClassName()
+            ]
+        );
+        $this->children = $children;
+
+        return $this;
+    }
+
+    /**
+     * Replace all the children within this InstantArticle
+     *
+     * @param Type::INTEGER $index The index of the element to be deleted
+     *                             in the array of children.
+     *
+     * @return $this
+     */
+    public function deleteChild($index)
+    {
+        Type::enforce($index, Type::INTEGER);
+        $children = [];
+        foreach ($this->children as $childIndex => $child) {
+            if ($childIndex != $index) {
+                $children[] = $child;
+            }
+        }
+        $this->children = $children;
 
         return $this;
     }

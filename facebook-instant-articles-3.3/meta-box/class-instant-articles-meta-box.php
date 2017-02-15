@@ -85,7 +85,7 @@ class Instant_Articles_Meta_Box {
 	public static function render_meta_box() {
 		$post_id = intval( $_POST[ 'post_ID' ] );
 
-		if ( !current_user_can( 'edit_post', $post_id ) ) {
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
 			wp_die( -1, 403 );
 		}
 

@@ -275,4 +275,3 @@ class LoggerConfigurationAdapterXML implements LoggerConfigurationAdapter
 		trigger_error("log4php: " . $message, E_USER_WARNING);
 	}
 }
-

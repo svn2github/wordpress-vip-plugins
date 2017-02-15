@@ -4,7 +4,7 @@
  * Description: Add support for Instant Articles for Facebook to your WordPress site.
  * Author: Automattic, Dekode, Facebook
  * Author URI: https://vip.wordpress.com/plugins/instant-articles/
- * Version: 3.3
+ * Version: 3.3.3
  * Text Domain: instant-articles
  * License: GPLv2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -61,7 +61,7 @@ if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
 
 	defined( 'ABSPATH' ) || die( 'Shame on you' );
 
-	define( 'IA_PLUGIN_VERSION', '3.3' );
+	define( 'IA_PLUGIN_VERSION', '3.3.3' );
 	define( 'IA_PLUGIN_PATH_FULL', __FILE__ );
 	define( 'IA_PLUGIN_PATH', plugin_basename( __FILE__ ) );
 	define( 'IA_PLUGIN_FILE_BASENAME', pathinfo( __FILE__, PATHINFO_FILENAME ) );
@@ -157,6 +157,21 @@ if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
 
 	}
 
+	/**
+	 * Whether currently processing an instant article.
+	 *
+	 * @param bool Set the status
+	 * @return bool
+	 */
+	function is_transforming_instant_article( $set_status = null ) {
+		static $is_instant_article = false;
+
+		if ( isset( $set_status ) ) {
+			$is_instant_article = (bool) $set_status;
+		}
+
+		return $is_instant_article;
+	}
 
 	/**
 	 * Modify the main query for our feed.
