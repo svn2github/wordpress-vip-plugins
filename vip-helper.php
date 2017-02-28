@@ -657,6 +657,8 @@ function vip_safe_wp_remote_get( $url, $fallback_value='', $threshold=3, $timeou
 		do_action( 'wpcom_vip_remote_request_error', $url, $response );
 
 		return ( $fallback_value ) ? $fallback_value : $response;
+	} else {
+		do_action( 'wpcom_vip_remote_request_success', $url, $response );
 	}
 
 	return $response;
