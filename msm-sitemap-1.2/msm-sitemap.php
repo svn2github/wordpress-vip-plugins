@@ -420,10 +420,11 @@ class Metro_Sitemap {
 		// SimpleXML doesn't allow us to define namespaces using addAttribute, so we need to specify them in the construction instead.
 		$namespaces = apply_filters( 'msm_sitemap_namespace', array(
 			'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance',
+			'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd http://www.google.com/schemas/sitemap-image/1.1 http://www.google.com/schemas/sitemap-image/1.1/sitemap-image.xsd',
 			'xmlns' => 'http://www.sitemaps.org/schemas/sitemap/0.9',
 			'xmlns:n' => 'http://www.google.com/schemas/sitemap-news/0.9',
 			'xmlns:image' => 'http://www.google.com/schemas/sitemap-image/1.1',
-			'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
+
 		) );
 
 		$namespace_str = '<?xml version="1.0" encoding="utf-8"?><urlset';
