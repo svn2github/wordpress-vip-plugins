@@ -336,11 +336,6 @@ function fm_calculate_context() {
 		}
 	}
 
-	/**
-	 * Filters the Fieldmanager context calculated for the current request.
-	 *
-	 * @param array $calculated_context Array of context and 'type' information.
-	 */
 	return apply_filters( 'fm_calculated_context', $calculated_context );
 }
 
