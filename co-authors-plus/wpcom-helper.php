@@ -1,16 +1,22 @@
 <?php
 /**
+ * Helper for themes where CAP should be auto-activated.
+ */
+function wpcom_vip_get_coauthors_plus_auto_apply_themes() {
+	return array(
+		'premium/portfolio',
+		'premium/zuki',
+		'pub/editor',
+	);
+}
+
+/**
  * Auto-apply Co-Authors Plus template tags on themes that are properly using the_author()
  * and the_author_posts_link()
  * Auto-apply Co-Authors Plus in oembed endpoint
  */
 add_action( 'init', function() {
-	$wpcom_coauthors_plus_auto_apply_themes = array(
-		'premium/portfolio',
-		'premium/zuki',
-		'pub/editor',
-	);
-	if ( in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes )
+	if ( in_array( get_option( 'template' ), wpcom_vip_get_coauthors_plus_auto_apply_themes() )
 	     || ( true === defined( 'WPCOM_VIP_IS_OEMBED' )
 	          && true === constant( 'WPCOM_VIP_IS_OEMBED' )
 	          && true === apply_filters( 'wpcom_vip_coauthors_replace_oembed', false, 'author_name' )
@@ -24,7 +30,7 @@ add_action( 'init', function() {
  * show an admin notice
  */
 if ( function_exists( 'Enterprise' ) ) {
-	if ( Enterprise()->is_enabled() && ! in_array( get_option( 'template' ), $wpcom_coauthors_plus_auto_apply_themes ) )
+	if ( Enterprise()->is_enabled() && ! in_array( get_option( 'template' ), wpcom_vip_get_coauthors_plus_auto_apply_themes() ) )
 		add_action( 'admin_notices', function() {
 
 			// Allow this to be short-circuted in mu-plugins
