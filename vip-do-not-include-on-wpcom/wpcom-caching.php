@@ -671,3 +671,20 @@ function wpcom_vip_maybe_skip_old_slug_redirect(){
 function wpcom_vip_enable_maybe_skip_old_slug_redirect(){
 	add_action('template_redirect', 'wpcom_vip_maybe_skip_old_slug_redirect', 7 ); //Run this before wpcom_vip_wp_old_slug_redirect so we can also remove our caching helper
 }
+
+/**
+ * Disable filename search on media search queries to prevent killed queries
+ *
+ * 4.7 introduces filename searching into media search queries. This unfortunately
+ * makes those queries even less performant than they already were.
+ *
+ * @see https://core.trac.wordpress.org/changeset/38625
+ *
+ * @param  array $query The query arguments.
+ * @return array        Altered query arguments.
+ */
+function wpcom_vip_disable_query_attachment_filenames( $clauses ) {
+		remove_filter( 'posts_clauses', '_filter_query_attachment_filenames' );
+		return $clauses;
+}
+add_filter( 'posts_clauses', 'wpcom_vip_disable_query_attachment_filenames', -999, 1 );
