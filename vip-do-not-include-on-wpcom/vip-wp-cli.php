@@ -33,7 +33,7 @@ class WPCOM_VIP_CLI_Command extends WP_CLI_Command {
 	 */
 	protected function start_bulk_operation(){
 		// Do not send notification when post is updated to 'published'
-		add_filter( 'wpcom_pushpress_should_send_ping', '__return false' );
+		add_filter( 'wpcom_pushpress_should_send_ping', '__return_false' );
 		// Disable term count updates for speed
 		wp_defer_term_counting( true );
 		if ( class_exists( 'ES_WP_Indexing_Trigger' ) ){
@@ -48,7 +48,7 @@ class WPCOM_VIP_CLI_Command extends WP_CLI_Command {
 	 * Re-enable Elasticsearch indexing and trigger a bulk re-index of the site
 	 */
 	protected function end_bulk_operation(){
-		remove_filter( 'wpcom_pushpress_should_send_ping', '__return false' ); //This shouldn't be required but it's nice to clean up all the settings we changed so they are back to their defaults.
+		remove_filter( 'wpcom_pushpress_should_send_ping', '__return_false' ); //This shouldn't be required but it's nice to clean up all the settings we changed so they are back to their defaults.
 		wp_defer_term_counting( false ); // This will also trigger a term count.
 		if ( class_exists( 'ES_WP_Indexing_Trigger' ) ){
 			ES_WP_Indexing_Trigger::get_instance()->enable(); //reenable the hooks
