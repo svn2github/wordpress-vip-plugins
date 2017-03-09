@@ -12,7 +12,7 @@
 */
 
 function tmmsq_enqueu_scripts( $screen ) {
-	if ( 'post-new.php' !== $screen && 'post.php' !== $screen ) {
+	if ( 'post-new.php' !== $screen && 'post.php' !== $screen && 'upload.php' !== $screen ) {
 		return;
 	}
 	wp_register_script( 'tmmsq_script', plugin_dir_url( __FILE__ ) . 'js/script.js', array( 'media-views' ), '0.0.1', true );
