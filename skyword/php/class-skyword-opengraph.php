@@ -31,22 +31,22 @@ class Skyword_Opengraph {
 				if ( $options['skyword_enable_ogtags'] ) {
 					$image = $this->get_image( $current_post );
 					echo '<meta property="og:title" content="'.esc_attr( $title ).'"/>';
-					echo '<meta property="og:description" content="' .esc_attr( $description ).'"/>\n';
-					echo '<meta property="og:url" content="' .esc_html( get_permalink( $current_post->ID ) ).'"/>\n';
-					echo '<meta property="og:site_name" content="' .esc_html (get_option( 'blogname' ) ). '"/>\n';
-					echo '<meta property="og:type" content="article"/>\n';
+					echo '<meta property="og:description" content="' .esc_attr( $description ).'"/>';
+					echo '<meta property="og:url" content="' .esc_html( get_permalink( $current_post->ID ) ).'"/>';
+					echo '<meta property="og:site_name" content="' .esc_html (get_option( 'blogname' ) ). '"/>';
+					echo '<meta property="og:type" content="article"/>';
 					if ( isset( $image ) ) {
-						echo '<meta property="og:image" content="'.esc_attr($image).'"/>\n';
+						echo '<meta property="og:image" content="'.esc_attr($image).'"/>';
 					}
 				}
 				if ( $options['skyword_enable_metatags'] ) {
-					echo '<meta name="description" content="' .esc_attr($description).'"/>\n';
+					echo '<meta name="description" content="' .esc_attr($description).'"/>';
 				}
 				if ( $options['skyword_enable_googlenewstag'] ) {
 					if ( null != get_post_meta( $current_post->ID, 'skyword_publication_keywords', true ) ) {
-						echo '<meta name="news_keywords" content="' . esc_html( get_post_meta( $current_post->ID, 'skyword_publication_keywords', true ) ).'"/>\n';
+						echo '<meta name="news_keywords" content="' . esc_html( get_post_meta( $current_post->ID, 'skyword_publication_keywords', true ) ).'"/>';
 					} else if ( null != get_post_meta(  $current_post->ID, 'skyword_tags', true ) ) {
-						echo '<meta name="news_keywords" content="' . esc_html (get_post_meta( $current_post->ID, 'skyword_tags', true ) ).'"/>\n';
+						echo '<meta name="news_keywords" content="' . esc_html (get_post_meta( $current_post->ID, 'skyword_tags', true ) ).'"/>';
 					}
 				}
 
