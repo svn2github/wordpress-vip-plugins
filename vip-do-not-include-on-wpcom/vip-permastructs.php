@@ -36,15 +36,15 @@ endif;
 
 if ( !function_exists( 'wpcom_vip_load_category_base' ) ):
 /**
- * Enables a custom or no category base, if the site wants to use one that's not the WP.com default (/category/)
+ * Enables a custom category base, if the site wants to use one that's not the WP.com default (/category/)
  *
  * Usage:
- *     wpcom_vip_load_category_base( '' );
  *     wpcom_vip_load_category_base( 'section' );
  *
- * On Quickstart and selfhosted, use the wp rewrite structure command instead
+ * On Quickstart and self-hosted, use the wp rewrite structure command instead
  *
- * @link http://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @link https://vip.wordpress.com/documentation/change-your-pretty-permalinks-or-add-custom-rewrite-rules/ Change Your Pretty Permalinks
+ * @link https://vip.wordpress.com/documentation/remove-the-category-base-from-your-category-permastructs/ Remove The ‘category’ Base From Your Category Permastructs
  * @link https://wp-cli.org/commands/rewrite/structure/, wp rewrite structure command
  * @param string $new_category_base New category base prefix
  */
