@@ -124,6 +124,33 @@ function wp_flush_term_exists( $term, $tt_id, $taxonomy, $deleted_term ){
 	}
 }
 
+
+/**
+ * When a term is split we need to delete the caches we have put in place.
+ */
+add_action( 'split_shared_term', function( $term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
+	$term = wpcom_vip_get_term_by( 'id', $term_id, $taxonomy );
+	/**
+	 * When 'id' is passed as the $field to wpcom_vip_get_term_by(),
+	 * get_term_by() is used bypassing this caching
+	 */
+	foreach ( array( 'slug', 'name', 'term_taxonomy_id' ) as $field ) {
+		$cache_key = $field . '|' . $taxonomy . '|' . md5( $term->$field );
+		wp_cache_delete( $cache_key, 'get_term_by' );
+	}
+	/**
+	 * While the term still exists after being split, term_exists returns the ID of the term which might be used in some circumstances and would now have potentially changed.
+	 * The Taxonomy might not be part of the cache key so lets bust both.
+	 */
+	foreach ( array( 'term_id', 'name', 'slug' ) as $field ) {
+		$cache_key = $term->$field . '|' . $taxonomy ;
+		wp_cache_delete( $cache_key, 'term_exists' );
+		$cache_key = $term->$field ;
+		wp_cache_delete( $cache_key, 'term_exists' );
+	}
+}, 10, 4 );
+
+
 /**
  * Optimized version of get_term_link that adds caching for slug-based lookups.
  *
