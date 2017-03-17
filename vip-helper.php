@@ -569,7 +569,7 @@ function wpcom_vip_get_meta_desc() {
  * @return array
  */
 function vip_get_random_posts( $number = 1, $post_type = 'post', $return_ids = false ) {
-	$query = new WP_Query( array( 'posts_per_page' => 100, 'fields' => 'ids', 'post_type' => $post_type ) );
+	$query = new WP_Query( array( 'posts_per_page' => 100, 'fields' => 'ids', 'post_type' => $post_type, 'no_found_rows' => true, 'post_status' => 'publish', 'ignore_sticky_posts' => true ) );
 
 	$post_ids = $query->posts;
 	shuffle( $post_ids );
@@ -578,7 +578,7 @@ function vip_get_random_posts( $number = 1, $post_type = 'post', $return_ids = f
 	if ( $return_ids )
 		return $post_ids;
 
-	$random_posts = get_posts( array( 'post__in' => $post_ids, 'numberposts' => count( $post_ids ), 'post_type' => $post_type ) );
+	$random_posts = get_posts( array( 'post__in' => $post_ids, 'numberposts' => count( $post_ids ), 'post_type' => $post_type, 'post_status' => 'publish' ) );
 
 	return $random_posts;
 }
