@@ -741,10 +741,10 @@ class WPCOM_elasticsearch {
 				} // End switch().
 
 				// Remove any backslash from the GET parameters
-				$_GET = array_map( 'stripslashes', $_GET );
+				$unslashed = wp_unslash( $_GET );
 
 				// Need to urlencode param values since add_query_arg doesn't
-				$url_params = urlencode_deep( array_merge( $_GET, $query_vars ) );
+				$url_params = urlencode_deep( array_merge( $unslashed, $query_vars ) );
 
 				$facets_data[ $label ]['items'][] = array(
 					'url'        => add_query_arg( $url_params, home_url() ),
