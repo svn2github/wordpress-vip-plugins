@@ -31,10 +31,6 @@ class wsScreenOptions10 {
 		add_action('admin_print_scripts', array( $this, 'add_autosave_script' ) );
 	} 
 
-	function wsScreenOptions10() {
-		self::__construct();
-	}
-
 	/**
 	 * Add a new settings panel to the "Screen Options" box.
 	 * 

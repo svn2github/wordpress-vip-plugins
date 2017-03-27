@@ -344,7 +344,7 @@ class EF_User_Groups extends EF_Module {
 			wp_die( $this->module->messages['invalid-permissions'] );
 			
 		if ( !$existing_usergroup = $this->get_usergroup_by( 'id', (int)$_POST['usergroup_id'] ) )
-			wp_die( $this->module->messsage['usergroup-error'] );			
+			wp_die( $this->module->messages['usergroup-missing'] );			
 		
 		// Sanitize all of the user-entered values
 		$name = strip_tags( trim( $_POST['name'] ) );
@@ -439,7 +439,7 @@ class EF_User_Groups extends EF_Module {
 		
 		$usergroup_id = (int) $_POST['usergroup_id'];
 		if ( !$existing_term = $this->get_usergroup_by( 'id', $usergroup_id ) )
-			die( $this->module->messsage['usergroup-error'] );
+			die( $this->module->messages['usergroup-missing'] );
 		
 		$name = strip_tags( trim( $_POST['name'] ) );
 		$description = stripslashes( strip_tags( trim( $_POST['description'] ) ) );
@@ -641,7 +641,7 @@ class EF_User_Groups extends EF_Module {
 			return;
 
 		//Don't allow display of user groups from network
-		if( get_current_screen()->is_network )
+		if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
 			return;
 		
 		// Assemble all necessary data
@@ -688,7 +688,7 @@ class EF_User_Groups extends EF_Module {
 			return array( &$errors, $update, &$user );
 
 		//Don't allow update of user groups from network
-		if( get_current_screen()->is_network )
+		if ( ( !is_null( get_current_screen() ) ) && ( get_current_screen()->is_network ) )
 			return;
 
 		if ( current_user_can( $this->manage_usergroups_cap ) && wp_verify_nonce( $_POST['ef_edit_profile_usergroups_nonce'], 'ef_edit_profile_usergroups_nonce' ) ) {

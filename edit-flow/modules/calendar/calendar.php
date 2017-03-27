@@ -33,7 +33,7 @@ class EF_Calendar extends EF_Module {
 		$args = array(
 			'title' => __( 'Calendar', 'edit-flow' ),
 			'short_description' => sprintf( __( 'View upcoming content in a <a href="%s">customizable calendar</a>.', 'edit-flow' ), admin_url( 'index.php?page=calendar' ) ),
-			'extended_description' => __( 'Edit Flow’s calendar lets you see your posts over a customizable date range. Filter by status or click on the post title to see its details. Drag and drop posts between days to change their publication date date.', 'edit-flow' ),
+			'extended_description' => __( 'Edit Flow’s calendar lets you see your posts over a customizable date range. Filter by status or click on the post title to see its details. Drag and drop posts between days to change their publication date.', 'edit-flow' ),
 			'module_url' => $this->module_url,
 			'img_url' => $this->module_url . 'lib/calendar_s128.png',
 			'slug' => 'calendar',
@@ -767,7 +767,7 @@ class EF_Calendar extends EF_Module {
 						<a class="show-more" href="#"><?php printf( __( 'Show %d more', 'edit-flow' ), $this->hidden ); ?></a>
 					<?php endif; ?>
 
-					<?php if( current_user_can('publish_posts') ) : 
+					<?php if( current_user_can( $this->create_post_cap ) ) :
 						$date_formatted = date( 'D, M jS, Y', strtotime( $week_single_date ) );
 					?>
 
@@ -928,7 +928,7 @@ class EF_Calendar extends EF_Module {
 					$item_actions['trash'] = '<a href="'. get_delete_post_link( $post->ID) . '" title="' . esc_attr( __( 'Trash this item' ), 'edit-flow' ) . '">' . __( 'Trash', 'edit-flow' ) . '</a>';
 					// Preview/view this post
 					if ( !in_array( $post->post_status, $this->published_statuses ) ) {
-						$item_actions['view'] = '<a href="' . esc_url( apply_filters( 'preview_post_link', add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
+						$item_actions['view'] = '<a href="' . esc_url( apply_filters( 'preview_post_link', add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ), $post ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'Preview', 'edit-flow' ) . '</a>';
 					} elseif ( 'trash' != $post->post_status ) {
 						$item_actions['view'] = '<a href="' . get_permalink( $post->ID ) . '" title="' . esc_attr( sprintf( __( 'View &#8220;%s&#8221;', 'edit-flow' ), $post->post_title ) ) . '" rel="permalink">' . __( 'View', 'edit-flow' ) . '</a>';
 					}
@@ -1339,7 +1339,7 @@ class EF_Calendar extends EF_Module {
 			$last_date = date( 'F jS, Y', $last_datetime );
 		else
 			$last_date = date( 'F jS', $last_datetime );
-		echo sprintf( __( 'for %1$s through %2$s'), $first_date, $last_date );
+		echo sprintf( __( 'for %1$s through %2$s', 'edit-flow' ), $first_date, $last_date );
 	}
 	
 	/**
