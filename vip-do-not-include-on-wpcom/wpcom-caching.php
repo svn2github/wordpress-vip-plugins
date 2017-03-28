@@ -148,6 +148,36 @@ add_action( 'split_shared_term', function( $term_id, $new_term_id, $term_taxonom
 		$cache_key = $term->$field ;
 		wp_cache_delete( $cache_key, 'term_exists' );
 	}
+	/**
+	 * There's a period of time during term-splitting and before the cache clear happens that WP_Errors could be thrown as a result of stale cache data.
+	 * Clear the taxonomy relationships cache to prevent this.
+	 */
+	$posts_per_page = 100;
+	$paged = 1;
+
+	do {
+		$args = array(
+			'posts_per_page' => $posts_per_page,
+			'fields' => 'ids',
+			'paged' => $paged,
+			'tax_query' => array(
+				array(
+					'taxonomy' => $taxonomy,
+					'field' => 'term_id',
+					'terms' => $new_term_id,
+				)
+			)
+		);
+
+		$posts = get_posts( $args );
+
+		foreach ( $posts as $post ) {
+			wp_cache_delete( $post, 'category_relationships' );
+		}
+
+		$paged++;
+		sleep(2);
+	} while ( count( $posts ) );
 }, 10, 4 );
 
 
