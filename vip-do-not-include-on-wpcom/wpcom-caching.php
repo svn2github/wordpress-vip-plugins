@@ -172,7 +172,7 @@ add_action( 'split_shared_term', function( $term_id, $new_term_id, $term_taxonom
 		$posts = get_posts( $args );
 
 		foreach ( $posts as $post ) {
-			wp_cache_delete( $post, 'category_relationships' );
+			wp_cache_delete( $post, $taxonomy . '_relationships' );
 		}
 
 		$paged++;
