@@ -25,3 +25,28 @@ add_filter( 'fm_user_context_get_data', function() { return 'wpcom_fieldmanager_
 add_filter( 'fm_user_context_add_data', function() { return 'add_user_attribute'; } );
 add_filter( 'fm_user_context_update_data', function() { return 'update_user_attribute'; } );
 add_filter( 'fm_user_context_delete_data', function() { return 'delete_user_attribute'; } );
+
+/**
+ * Patch to make WPCOM grofiles page trigger 'user' context
+ *
+ * @param array $calculated_context Array of context and 'type' information.
+ * @return array {
+ *     Array of context information.
+ *
+ *     @type  string|null A Fieldmanager context of "post", "quickedit", "term",
+ *                        "submenu", or "user", or null if one isn't found.
+ *     @type  string|null A "type" dependent on the context. For "post" and
+ *                        "quickedit", the post type. For "term", the taxonomy.
+ *                        For "submenu", the group name. For all others, null.
+ * }
+ */
+add_filter( 'fm_calculated_context', function( $calculated_context ) {
+
+    $script = substr( $_SERVER['PHP_SELF'], strrpos( $_SERVER['PHP_SELF'], '/' ) + 1 );
+    if ( 'users.php' === $script ) {
+        $calculated_context[0] = 'user';
+    }
+
+    return $calculated_context;
+});
+ 
