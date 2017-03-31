@@ -309,7 +309,7 @@ function wpcom_vip_get_loaded_plugins() {
 	if ( ! isset( $vip_loaded_plugins ) )
 		$vip_loaded_plugins = array();
 
-	return $vip_loaded_plugins;
+	return array_unique( $vip_loaded_plugins );
 }
 
 /**
