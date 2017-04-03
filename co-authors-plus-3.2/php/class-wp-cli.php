@@ -76,9 +76,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 				$count++;
 
-				$terms = wp_get_post_terms( $single_post->ID, $coauthors_plus->coauthor_taxonomy );
-				if ( is_wp_error( $terms ) ) {
-					WP_CLI::error( $terms->get_error_message() );
+				$terms = cap_get_coauthor_terms_for_post( $single_post->ID );
+				if ( empty( $terms ) ) {
+					WP_CLI::error( sprintf( 'No co-authors found for post #%d.', $single_post->ID ) );
 				}
 
 				if ( ! empty( $terms ) ) {
@@ -235,16 +235,21 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_author=%d AND post_type IN ('$post_types')", $user->ID ) );
 		$affected = 0;
 		foreach ( $posts as $post_id ) {
-			if ( $coauthors = wp_get_post_terms( $post_id, $coauthors_plus->coauthor_taxonomy ) ) {
-				WP_CLI::line( sprintf( __( 'Skipping - Post #%d already has co-authors assigned: %s', 'co-authors-plus' ), $post_id, implode( ', ', wp_list_pluck( $coauthors, 'slug' ) ) ) );
+			$coauthors = cap_get_coauthor_terms_for_post( $post_id );
+			if ( ! empty( $coauthors ) ) {
+				WP_CLI::line( sprintf(
+					__( 'Skipping - Post #%d already has co-authors assigned: %s', 'co-authors-plus' ),
+					$post_id,
+					implode( ', ', wp_list_pluck( $coauthors, 'slug' ) )
+				) );
 				continue;
 			}
 
 			$coauthors_plus->add_coauthors( $post_id, array( $coauthor->user_login ) );
 			WP_CLI::line( sprintf( __( "Updating - Adding %s's byline to post #%d", 'co-authors-plus' ), $coauthor->user_login, $post_id ) );
 			$affected++;
-			if ( $affected && 0 === $affected % 100 ) {
-				sleep( 1 );
+			if ( $affected && 0 === $affected % 20 ) {
+				sleep( 5 );
 			}
 		}
 		WP_CLI::success( sprintf( __( 'All done! %d posts were affected.', 'co-authors-plus' ), $affected ) );
@@ -545,7 +550,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 			foreach ( $posts->posts as $single_post ) {
 
-				$terms = wp_get_post_terms( $single_post->ID, $coauthors_plus->coauthor_taxonomy );
+				$terms = cap_get_coauthor_terms_for_post( $single_post->ID );
 				if ( empty( $terms ) ) {
 					$saved = array(
 							$single_post->ID,
@@ -698,8 +703,8 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		$affected = 0;
 		foreach ( $ids as $post_id ) {
 
-			$terms = wp_get_post_terms( $post_id, 'author' );
-			if ( ! $terms ) {
+			$terms = cap_get_coauthor_terms_for_post( $post_id );
+			if ( empty( $terms ) ) {
 				continue;
 			}
 

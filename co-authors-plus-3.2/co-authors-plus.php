@@ -3,7 +3,7 @@
 Plugin Name: Co-Authors Plus
 Plugin URI: http://wordpress.org/extend/plugins/co-authors-plus/
 Description: Allows multiple authors to be assigned to a post. This plugin is an extended version of the Co-Authors plugin developed by Weston Ruter.
-Version: 3.2.1
+Version: 3.2.2
 Author: Mohammad Jangda, Daniel Bachhuber, Automattic
 Copyright: 2008-2015 Shared and distributed between Mohammad Jangda, Daniel Bachhuber, Weston Ruter
 
@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-define( 'COAUTHORS_PLUS_VERSION', '3.2.1' );
+define( 'COAUTHORS_PLUS_VERSION', '3.2.2' );
 
 require_once( dirname( __FILE__ ) . '/template-tags.php' );
 require_once( dirname( __FILE__ ) . '/deprecated.php' );
@@ -116,6 +116,10 @@ class CoAuthors_Plus {
 		// Support infinite scroll for Guest Authors on author pages
 		add_filter( 'infinite_scroll_js_settings', array( $this, 'filter_infinite_scroll_js_settings' ), 10, 2 );
 
+		// Delete CoAuthor Cache on Post Save & Post Delete
+		add_action( 'save_post', array( $this, 'clear_cache') );
+		add_action( 'delete_post', array( $this, 'clear_cache') );
+		add_action( 'set_object_terms', array( $this, 'clear_cache_on_terms_set' ), 10, 6 );
 	}
 
 	/**
@@ -375,14 +379,14 @@ class CoAuthors_Plus {
 				?>
 				</ul>
 				<div class="clear"></div>
-				<p><?php wp_kses( __( '<strong>Note:</strong> To edit post authors, please enable javascript or use a javascript-capable browser', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
+				<p><?php echo wp_kses( __( '<strong>Note:</strong> To edit post authors, please enable javascript or use a javascript-capable browser', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
 			</div>
 			<?php
 		endif;
 		?>
 
 		<div id="coauthors-edit" class="hide-if-no-js">
-			<p><?php wp_kses( __( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
+			<p><?php echo wp_kses( __( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
 		</div>
 
 		<?php wp_nonce_field( 'coauthors-edit', 'coauthors-nonce' ); ?>
@@ -506,7 +510,7 @@ class CoAuthors_Plus {
 		<label class="inline-edit-group inline-edit-coauthors">
 			<span class="title"><?php esc_html_e( 'Authors', 'co-authors-plus' ) ?></span>
 			<div id="coauthors-edit" class="hide-if-no-js">
-				<p><?php wp_kses( __( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
+				<p><?php echo wp_kses( __( 'Click on an author to change them. Drag to change their order. Click on <strong>Remove</strong> to remove them.', 'co-authors-plus' ), array( 'strong' => array() ) ); ?></p>
 			</div>
 			<?php wp_nonce_field( 'coauthors-edit', 'coauthors-nonce' ); ?>
 		</label>
@@ -613,7 +617,9 @@ class CoAuthors_Plus {
 			// Check to see that JOIN hasn't already been added. Props michaelingp and nbaxley
 			$term_relationship_inner_join = " INNER JOIN {$wpdb->term_relationships} ON ({$wpdb->posts}.ID = {$wpdb->term_relationships}.object_id)";
 			$term_relationship_left_join = " LEFT JOIN {$wpdb->term_relationships} ON ({$wpdb->posts}.ID = {$wpdb->term_relationships}.object_id)";
-			$term_taxonomy_join = " INNER JOIN {$wpdb->term_taxonomy} ON ( {$wpdb->term_relationships}.term_taxonomy_id = {$wpdb->term_taxonomy}.term_taxonomy_id )";
+
+			$term_taxonomy_join  = " INNER JOIN {$wpdb->term_relationships} AS tr1 ON ({$wpdb->posts}.ID = tr1.object_id)";
+			$term_taxonomy_join .= " INNER JOIN {$wpdb->term_taxonomy} ON ( tr1.term_taxonomy_id = {$wpdb->term_taxonomy}.term_taxonomy_id )";
 
 			// 4.6+ uses a LEFT JOIN for tax queries so we need to check for both
 			if ( false === strpos( $join, trim( $term_relationship_inner_join ) )
@@ -1467,6 +1473,68 @@ class CoAuthors_Plus {
 		// Send back the updated Open Graph Tags
 		return apply_filters( 'coauthors_open_graph_tags', $og_tags );
 	}
+
+	/**
+	 * Retrieve a list of coauthor terms for a single post.
+	 *
+	 * Grabs a correctly ordered list of authors for a single post, appropriately
+	 * cached because it requires `wp_get_object_terms()` to succeed.
+	 *
+	 * @param int $post_id ID of the post for which to retrieve authors.
+	 * @return array Array of coauthor WP_Term objects
+	 */
+	public function get_coauthor_terms_for_post( $post_id ) {
+
+		if ( ! $post_id ) {
+			return array();
+		}
+
+		$cache_key = 'coauthors_post_' . $post_id;
+		$coauthor_terms = wp_cache_get( $cache_key, 'co-authors-plus' );
+
+		if ( false === $coauthor_terms ) {
+			$coauthor_terms = wp_get_object_terms( $post_id, $this->coauthor_taxonomy, array(
+				'orderby' => 'term_order',
+				'order' => 'ASC',
+			) );
+
+			// This usually happens if the taxonomy doesn't exist, which should never happen, but you never know.
+			if ( is_wp_error( $coauthor_terms ) ) {
+				return array();
+			}
+
+			wp_cache_set( $cache_key, $coauthor_terms, 'co-authors-plus' );
+		}
+
+		return $coauthor_terms;
+
+	}
+
+	/**
+	 * Callback to clear the cache on post save and post delete.
+	 *
+	 * @param $post_id The Post ID.
+	 */
+	public function clear_cache( $post_id ) {
+		wp_cache_delete( 'coauthors_post_' . $post_id, 'co-authors-plus' );
+	}
+
+	/**
+	 * Callback to clear the cache when an object's terms are changed.
+	 *
+	 * @param $post_id The Post ID.
+	 */
+	public function clear_cache_on_terms_set( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+
+		// We only care about the coauthors taxonomy
+		if ( $this->coauthor_taxonomy !== $taxonomy ) {
+			return;
+		}
+
+		wp_cache_delete( 'coauthors_post_' . $object_id, 'co-authors-plus' );
+
+	}
+
 }
 
 global $coauthors_plus;
@@ -1599,6 +1667,7 @@ function cap_filter_comment_moderation_email_recipients( $recipients, $comment_i
 
 	if ( isset( $post_id ) ) {
 		$coauthors = get_coauthors( $post_id );
+		$extra_recipients = array();
 		foreach ( $coauthors as $user ) {
 			if ( ! empty( $user->user_email ) ) {
 				$extra_recipients[] = $user->user_email;
@@ -1608,4 +1677,18 @@ function cap_filter_comment_moderation_email_recipients( $recipients, $comment_i
 		return array_unique( array_merge( $recipients, $extra_recipients ) );
 	}
 	return $recipients;
+}
+
+/**
+ * Retrieve a list of coauthor terms for a single post.
+ *
+ * Grabs a correctly ordered list of authors for a single post, appropriately
+ * cached because it requires `wp_get_object_terms()` to succeed.
+ *
+ * @param int $post_id ID of the post for which to retrieve authors.
+ * @return array Array of coauthor WP_Term objects
+ */
+function cap_get_coauthor_terms_for_post( $post_id ) {
+	global $coauthors_plus;
+	return $coauthors_plus->get_coauthor_terms_for_post( $post_id );
 }
