@@ -76,9 +76,9 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 
 				$count++;
 
-				$terms = cap_get_coauthor_terms_for_post( $single_post->ID );
-				if ( empty( $terms ) ) {
-					WP_CLI::error( sprintf( 'No co-authors found for post #%d.', $single_post->ID ) );
+				$terms = get_the_terms( $single_post->ID, $coauthors_plus->coauthor_taxonomy );
+				if ( is_wp_error( $terms ) ) {
+					WP_CLI::error( $terms->get_error_message() );
 				}
 
 				if ( ! empty( $terms ) ) {
