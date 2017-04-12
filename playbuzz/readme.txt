@@ -1,50 +1,36 @@
 ﻿=== Playbuzz ===
 Contributors: playbuzz
-Tags: Playbuzz, Story, feed, feeds, embed, oembed, content, viral, related, syndication, related content, tinymce, content management, creation, storytelling, editorial, editor, journalism, video, cms, engagement, interactive, embedded content, poll, writing, blog, creativity, easy, edit, simple, responsive, wordpress
+Tags: Playbuzz, playful content, feed, feeds, embed, oembed, content, viral, related, syndication, related content, quiz, quizzes, test yourself, list, poll, Personality Quiz, personality, entertainment, celebs, celebrities, celebrity, animals
 Requires at least: 3.9
-Tested up to: 4.7.1
-Stable tag: 1.0.2
+Tested up to: 4.2
+Stable tag: 0.9.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Enhance your WordPress content with Playbuzz’s innovative storytelling tools.
+Embed customized playful content from Playbuzz.com into your WordPress site
 
 == Description ==
 
-The Playbuzz plugin transforms your WordPress editor into an engaging, interactive content toolkit. The plugin provides WordPress site owners with an easy and user-friendly way to quickly create and embed interactive content without ever leaving your WordPress editor. Seamlessly build an interactive item, embed the captivating items you create with your Playbuzz account, as well as public items from the Playbuzz network.
+The Playbuzz plugin enables WordPress users to easily embed Playful Content items like trivia and personality quizzes, surveys, lists and polls, publishing these items as content fully integrated into your WordPress site.
 
-All content available through the Playbuzz plugin appears natively within your site and is optimized for both mobile and web.
-
-Playbuzz-powered content is known to significantly boost user engagement and time spent on site. With the Playbuzz Plugin, it’s never been easier to feature interactive storytelling tools, and provide readers with content they will want to consume and share.
+Take your site to new heights of audience engagement and shareability when you include the viral content of the Playbuzz publishing platform. You can get starting adding our syndication-ready content to your site in just minutes!
 
 = Features =
 
-* Easily create Playbuzz items directly from your edit screen.
-* Enrich your storytelling capabilities with countless new ways for sharing your message.
-* Form a meaningful dialogue with readers and get their point of view.
-* Engage your audience with interactive items that boost completion rates, dwell-time and social shares.
-* Browse your own published items or search the Playbuzz network for content created by other authors, brands and publishers. Easily embed the items on your site.
+* Quickly find the most relevant Playbuzz items to embed in the content you're working on, without leaving your edit screen.
+* Browse your own published items or search for content by the entire user community.
+* Refine results by content category, format, popularity and creation date.
+* Automate the plugin to display only the content relevant to your site, using tag filters.
 
-= How to Create Playbuzz items in WordPress =
+= How to Embed Playbuzz Items =
 
-* Only registered Playbuzz users are able to create interactive items in WordPress. If you haven’t done so yet, open your very own Playbuzz account [here](https://www.playbuzz.com/Signup).
-* In WordPress, click “Posts” and choose “Add New Story”.
-* Select a cover image or GIF for your item. When adding images to various elements, you can either upload an image from a file or a link.
-* You can choose a number of Playbuzz’s storytelling tools to make your item interactive and bring your narratives to life. Follow the instructions [here](https://publishers.playbuzz.com/academy/how_to/story).
-* To feature Playbuzz storytelling tools that are not yet included in the WordPress plugin creator, simply head to [the Playbuzz create page](https://www.playbuzz.com/create) and login to your account.
-* The engaging items you create within the plugin will also appear on your Playbuzz.com account. Any change you make to the items on either WordPress or Playbuzz.com will be automatically updated on both platforms.
-
-= How to Embed Playbuzz Items in WordPress =
-* You can seamlessly embed Playbuzz items you create, and public items created by others, with the Playbuzz Plugin.
-* Use Playbuzz’s instant search panel to search and browse content from the Playbuzz network. Simply find an item that you like and embed it directly in your post without leaving the editor.
-* Choose any item (or create your own!) from Playbuzz.com, copy the embed code, and paste it into your HTML editor. Then simply click over the visual editor to confirm that the item loads properly.
+* New! Use Playbuzz’s instant search panel to search and browse content from Playbuzz. Simply find an item that you like and embed it directly in your post without leaving the editor.
+* Choose any item (or create your own!) from [Playbuzz.com](https://www.playbuzz.com), copy the item’s URL, and paste it into your text editor. Then simply click over to the visual editor to confirm that the item loads properly.
 * For advanced customization, the plugin supports shortcodes.
-
 
 = More Information =
 
-For more information, please feel free to [contact us](https://www.playbuzz.com/contact), and we’ll do our best to reply within 2 business days.
-
+For any questions or more information, please [contact us](https://www.playbuzz.com/contact).
 
 == Installation ==
 
@@ -70,77 +56,39 @@ For more information, please feel free to [contact us](https://www.playbuzz.com/
 
 == Frequently Asked Questions ==
 
-= How can I use the Playbuzz Plugin? =
-You can create, embed and publish Playbuzz items directly within your WordPress site.
-
-1. Create interactive items directly in your WordPress site by clicking “Add New Story.”
-2. Embed items you created on Playbuzz.com, including content types that are not yet included in the WordPress Playbuzz creator.
-3. Embed public content items from the Playbuzz network created by other Playbuzz authors, publishers and brands.
-
-= Why should I create interactive items in the Playbuzz Plugin? =
-Creating items in WordPress is a seamless authoring experience that enables you to create and publish interactive items in one place to increase audience engagement and provide visually-stunning narratives to your readers - no design or coding skills required.
-
-= I don’t have a Playbuzz user account  - can I still use the plugin? =
-In order to create an item within WordPress, or embed an item you’ve created on Playbuzz.com, you must have a Playbuzz account. Register for your own free Playbuzz account right here, and start creating in minutes!  If you do not have a Playbuzz account, you can use the plugin to embed publicly created items.
-
-= How can I change the items’ instructional text language? Example: “Click to Flip” or “Vote.” =
-After publishing, some text like “Click to Flip” or “Vote” can be presented in other languages.
-Your choice of language can be adjusted through the plugin language settings, and may require contacting your WordPress admin.
-
-= I would like to show/hide the item’s share buttons =
-To do so,  please set the default specifications for items created within WordPress, which may require contacting your WordPress admin to configure the plugin settings accordingly. When embedding an item, you can also customize the embed code settings for that specific item. Please visit [the screenshot tab](https://wordpress.org/plugins/playbuzz/screenshots) for a detailed how-to.
-
 = Why should I embed content from the Playbuzz network? =
-Interactive, visual content is a proven way to increase engagement on your blog or website. You can create your own Playbuzz item or select an item from our network of world-class publishing partners and community creators. We feature engaging items that address many popular topics, including sports, entertainment, news and politics. Creating or embedding a Playbuzz item on your WordPress site can increase your site’s engagement and performance, including page views, ad impressions, time on page, time on site, pages per visit, social media share rates and more.
+Our content is created by our network of partners, our community of users and our editorial staff. We feature highly engaging items around many popular topics. Embedding these items on your site is likely to boost all of your engagement and performance metrics: page views, ad impressions, time on page, time on site, pages per visit, social media share rates and more. Above all, these items enhance your site’s content offering an extremely engaging and viral way.
 
-= I would like to embed items from my Playbuzz account. =
-If you need assistance configuring the plugin settings accordingly, please contact your WordPress admin. Note that your account name should match the name on your Playbuzz.com account.
+= Can Playbuzz help my site to go viral? =
+Absolutely! We obviously can’t guarantee that you’ll get millions of page views, but our content platform is optimized to encourage maximum sharing. Embeds powered by our plugin include the option to share each content item on social networks such as Facebook and Twitter. Any click on these share buttons will create a share link directing users to your website.
 
-= Does Playbuzz work on mobile and tablet devices? =
-Playbuzz items can be viewed and interacted with on all platforms. Creating and embedding items is currently available only on desktop.
+= Does Playbuzz work on mobile and tablet versions of my site? =
+Yes. Playbuzz's UI is responsive and mobile compatible.
 
+= Can I create my own content? =
+For sure. And the plugin makes it super easy to find your own creations in a dedicated tab interface. We encourage you to use our free platform to create original Playful Content here: https://www.playbuzz.com/create
+
+= Might this plugin slow down my website? =
+Nope. Test it and see for yourself. Playbuzz uses a large content delivery network to ensure super-fast load times.
+
+= How do I embed Playbuzz content? =
+The WordPress plugin supports two ways to embed Playbuzz content: For basic use, you can search for content from within the plugin, or embed content you’ve already found simply by pasting its [Playbuzz.com](https://www.playbuzz.com) URL into the text editor. Advanced users can use Playbuzz shortcodes using attributes to customize embed settings.
+
+= I’m using an older version of WordPress, and I have a lot of plugins installed. I’ve upgraded the Playbuzz plugin, but some of the features seem to not be working. What should I do? =
+To work around this issue, go to the Plugins panel, click “Deactivate” under the Playbuzz plugin, re-activate the plugin, and you should be all set.
+
+= Wait – I've got more questions! =
+For more information, please feel free to [contact us](https://www.playbuzz.com/contact), and we’ll do our best to reply within one business day. You can also sign up for product and updates and tips via email [here](http://eepurl.com/bc3LRn).
 
 == Screenshots ==
-1. Start creating by clicking the new post shortcut in your WordPress editor and choosing “Story.”
-2. You can also click “Posts” and choose “Add New Story.”
-3. Craft your item by combining different interactive textual and visual elements, as you wish.
-4. Use Playbuzz’s instant search panel to find content and embed it directly in your post.
-5. Select one of Playbuzz’s featured items or search for an item relevant to your audience.
-6. The embedded item will appear in your WordPress visual editor.
-7. Switching to the text-editor will present the simple shortcode in use.
+1. Plugin "Getting Started" screen.
+2. Click the blue Playbuzz button in the visual-editor to discover Playful content.
+3. Select one of our featured items or search for an item you want.
+4. Embedding Playbuzz item will be presented in the visual-editor with rest of the content.
+5. Click the item to customize the item settings (e.g item info ; sharing  ; comments).
+6. Switching to the text-editor will present the simple shortcode in use.
 
 == Changelog ==
-
-= 1.0.2 (2017-03-28) =
-* Added the new Playbuzz Creator feature
-* Bug fix in the Embed feature
-* Update the Settings page
-
-= 1.0.1 (2017-01-22) =
-* Playbuzz story creator
-
-= 0.9.6 (2017-01-03) =
-* Bug fixes
-* Loading time performance improvments
-
-= 0.9.5 (2016-12-05) =
-* Support for Instant Article plugin
-
-= 0.9.4 (2016-10-26) =
-* Deprecated embedding of recommendations widget
-
-= 0.9.3 (2016-07-17) =
-* Fixed a bug which preventing items to be fetched correctly in https
-* Added the ability to search for items by pasting the full URL
-* Rebranded the plugin with new logo and screenshots
-
-= 0.9.2 (2016-06-05) =
-* Fixed a bug which prevented items from applying customized settings to individual items
-* Added the new Convo format
-
-= 0.9.1 (2016-03-28) =
-* Added Playbuzz's new formats to the filtering options
-* Switched to a new discovery API
 
 = 0.9.0  (2015-06-dd) =
 * Security: Harden JS code using dom construction instead of string construction to prevent possible XSS
