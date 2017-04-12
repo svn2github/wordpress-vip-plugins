@@ -63,7 +63,6 @@
 }
 #playbuzz-admin .playbuzz_start,
 #playbuzz-admin .playbuzz_embed,
-#playbuzz-admin .playbuzz_shortcodes,
 #playbuzz-admin .playbuzz_feedback {
 	clear: both;
 	margin: 1em 0;
@@ -381,6 +380,7 @@ i.mce-i-playbuzz:hover,
 	text-align: center;
 	line-height: 1em;
 	white-space: nowrap;
+	display: none;
 }
 #playbuzz_item_preview .playbuzz_item_views:before {
 	font-family: dashicons;
@@ -549,7 +549,7 @@ i.mce-i-playbuzz:hover,
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background-color: #2F3338;
+	background-color: #25282c;
 }
 #playbuzz_search_header .playbuzz_search_logo {
 	float: left;
@@ -700,7 +700,7 @@ i.mce-i-playbuzz:hover,
 	float: right;
 	padding: 7px 20px;
 	border-radius: 3px;
-	background-color: #f64040;
+	background-color: #bc49ff;
 	box-sizing: border-box;
 	color: #fff;
 	font-size: 16px;
@@ -710,7 +710,7 @@ i.mce-i-playbuzz:hover,
 }
 #playbuzz_search_input_form .playbuzz_create_button:hover,
 #playbuzz_search_input_form .playbuzz_create_button:focus {
-	background-color: #dd3a3a;
+	opacity: 0.85;
 }
 
 /* Search popup sub-header */
@@ -732,7 +732,6 @@ i.mce-i-playbuzz:hover,
 #playbuzz_search_sub_header .playbuzz_search_fields select {
 	height: 25px;
 	line-height: 25px;
-	font-size: 1em;
 	text-transform: uppercase;
 	box-shadow: none;
 }
@@ -741,16 +740,7 @@ i.mce-i-playbuzz:hover,
 	font-size: 1.4em;
 	font-weight: bold;
 }
-#playbuzz_search_sub_header #playbuzz_search_for .playbuzz_search_title_user_img:before {
-	content: ' ';
-	float: left;
-	display: inline-block;
-	width: 20px;
-	height: 25px;
-	padding-right: 10px;
-	background: url('./../img/user-icon.png') left 4px no-repeat;
-	background-size: 20px 20px;
-}
+
 #playbuzz_search_sub_header #playbuzz_search_for .playbuzz_search_title_pagination {
 	color: #bbb;
 	font-size: 0.8em;
@@ -778,7 +768,7 @@ i.mce-i-playbuzz:hover,
 
 #playbuzz_search_results {
 	position: absolute;
-	top: 175px;
+	top: 190px;
 	left: 0;
 	right: 0;
 	bottom: 20px;
@@ -908,6 +898,7 @@ i.mce-i-playbuzz:hover,
 	line-height: 1em;
 	vertical-align: top;
 	white-space: nowrap;
+	display: none;
 }
 #playbuzz_search_results .playbuzz_grid_view div.playbuzz_present_item_views span:before {
 	font-family: dashicons;
@@ -956,12 +947,14 @@ i.mce-i-playbuzz:hover,
 	background-color: #009CFF;
 	border: 1px solid #009CFF;
 	color: #fff;
+	text-shadow: none;
 }
 #playbuzz_search_results .playbuzz_grid_view div.playbuzz_present_item_buttons .button-primary:hover,
 #playbuzz_search_results .playbuzz_grid_view div.playbuzz_present_item_buttons .button-primary:focus {
 	background-color: #fff;
 	border: 1px solid #fff;
 	color: #009CFF;
+	text-shadow: none;
 }
 #playbuzz_search_results .playbuzz_grid_view div.playbuzz_present_item_buttons .button-secondary {
 	background-color: #aaa;
@@ -1080,12 +1073,14 @@ i.mce-i-playbuzz:hover,
 	background-color: #fff;
 	border: 1px solid #009CFF;
 	color: #009CFF;
+	text-shadow: none;
 }
 #playbuzz_search_results .playbuzz_list_view div.playbuzz_present_item_buttons .button-primary:hover,
 #playbuzz_search_results .playbuzz_list_view div.playbuzz_present_item_buttons .button-primary:focus {
 	background-color: #009CFF;
 	border: 1px solid #009CFF;
 	color: #fff;
+	text-shadow: none;
 }
 #playbuzz_search_results .playbuzz_list_view div.playbuzz_present_item_buttons .button-secondary {
 	background-color: #fff;

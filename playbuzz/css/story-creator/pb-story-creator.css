@@ -1,0 +1,94 @@
+
+#pb-story-creator-page #pb-save-post{
+    float: left;
+}
+
+/*
+    ========================
+        hide title and title placeholder until changing the text
+    ========================
+*/
+
+.wp-heading-inline,
+#title-prompt-text{
+    opacity: 0;
+}
+
+.wp-heading-inline.show,
+#title-prompt-text.show{
+    opacity: 1;
+}
+
+
+
+
+/*
+    ========================
+        hide wp editor
+    ========================
+*/
+
+#postdivrich{
+    display: none;
+}
+
+
+#pb-story-creator{
+    min-height: 500px;
+    background: white;
+    border: 1px solid #e5e5e5;
+    margin-top: 10px;
+}
+
+
+/*
+    ========================
+        hide toggle button
+    ========================
+*/
+#pb-story-creator .toggle-indicator{
+    display: none;
+}
+
+/*
+    ========================
+        hide meta box header
+    ========================
+*/
+
+#pb-story-creator > h2{
+    display: none;
+}
+
+/*
+    ========================
+       action buttons
+    ========================
+*/
+
+#save-post,
+#post-preview,
+#publish,
+.page-title-action{
+    display: none !important;
+}
+
+.page-title-action.show{
+    display: initial !important;
+    margin-left: 10px;
+}
+
+/**
+   prevent clicks when click when buttons are disabled
+ */
+#pb-post-preview[disabled="disabled"],
+#pb-save-post[disabled="disabled"]
+#pb-publish[disabled="disabled"]
+{
+    pointer-events: none;
+}
+
+
+
+
+
