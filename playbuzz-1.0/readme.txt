@@ -1,9 +1,9 @@
 ﻿=== Playbuzz ===
 Contributors: playbuzz
-Tags: Playbuzz, Story, feed, feeds, embed, oembed, content, viral, related, syndication, related content, tinymce, content management, creation, storytelling, editorial, editor, journalism, video, cms, engagement, interactive, embedded content, poll, writing, blog, creativity, easy, edit, simple, responsive, wordpress
+Tags: Interactive poll, Interactive article, Interactive content, Blog, Creative Writing
 Requires at least: 3.9
 Tested up to: 4.7.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -110,6 +110,9 @@ Playbuzz items can be viewed and interacted with on all platforms. Creating and 
 7. Switching to the text-editor will present the simple shortcode in use.
 
 == Changelog ==
+
+= 1.0.3 (2017-04-13) =
+* Bug fixes in the Story feature
 
 = 1.0.2 (2017-03-28) =
 * Added the new Playbuzz Creator feature

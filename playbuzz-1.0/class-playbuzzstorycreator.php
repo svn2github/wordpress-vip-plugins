@@ -60,10 +60,6 @@ class PlaybuzzStoryCreator {
 		//add the new story link to admin menu.
 		add_action( 'admin_menu', array( $this, 'add_story_links_admin_menu' ) );
 
-		//position story links at the admin menu
-		add_filter( 'custom_menu_order', '__return_true' );
-		add_filter( 'menu_order', array( $this, 'change_admin_links_order' ) );
-
 		//initialize Playbuzz story creator on admin
 		// note - using admin_enqueue_scripts - only hook where we can inject scripts to the header
 		// and we have access to the global $post param.
@@ -435,28 +431,6 @@ class PlaybuzzStoryCreator {
 		);
 
 	}
-
-
-	/**
-	 * position story link right after the 'new post' item at the posts menu.
-	 * @param $menu
-	 * @return mixed
-	 */
-	function change_admin_links_order( $menu ) {
-
-		global $submenu;
-		$arr = array();
-		$arr[] = $submenu['edit.php'][5];
-		$arr[] = $submenu['edit.php'][10];
-		$arr[] = $submenu['edit.php'][17];
-		$arr[] = $submenu['edit.php'][15];
-		$arr[] = $submenu['edit.php'][16];
-		$submenu['edit.php'] = $arr;
-
-		return $menu;
-	}
-
-
 
 
 }
