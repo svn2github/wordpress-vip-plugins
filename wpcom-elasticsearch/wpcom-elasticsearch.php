@@ -649,6 +649,11 @@ class WPCOM_elasticsearch {
 
 			// Some facet types like date_histogram don't support the max results parameter
 			if ( count( $items ) > $this->facets[ $label ]['count'] ) {
+ 				if ( 'date_histogram' === $this->facets[ $label ]['type'] ) {
+					if ( ! empty( $this->facets[ $label ]['order'] ) && ( 'desc' === strtolower( $this->facets[ $label ]['order'] ) ) ) {
+						$items = array_reverse( $items );
+					}
+				}
 				$items = array_slice( $items, 0, $this->facets[ $label ]['count'] );
 			}
 
