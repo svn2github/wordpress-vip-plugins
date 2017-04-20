@@ -932,3 +932,17 @@ function wpcom_vip_enabled_cap_in_oembed( $location = false ) {
 		return $enable;
 	}, 10, 2 );
 }
+
+/**
+ * By default HTTP is forced to be the cannonical version of URLs.
+ * This is done because switching the protocol breaks things such as share counts
+ */
+function wpcom_vip_enable_https_canonical(){
+    // rel_canonical is an undocumented filter that is a core hack on WordPress.com
+	remove_filter( 'rel_canonical', 'wpcom_vip_force_http_canonical' );
+	add_filter( 'rel_canonical', 'wpcom_vip_force_https_canonical' );
+}
+
+function wpcom_vip_force_https_canonical( $canonical_url ) {
+	return  str_replace( 'http://', 'https://', $canonical_url );
+};
