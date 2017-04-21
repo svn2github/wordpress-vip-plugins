@@ -13,8 +13,6 @@ require_once plugin_dir_path( __FILE__ ) . 'apple-actions/index/class-export.php
 require_once plugin_dir_path( __FILE__ ) . 'apple-actions/index/class-section.php';
 require_once plugin_dir_path( __FILE__ ) . 'class-admin-apple-news-list-table.php';
 
-use \Apple_Exporter\Workspace as Workspace;
-
 class Admin_Apple_Index_Page extends Apple_News {
 
 	/**
@@ -38,7 +36,6 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 * Constructor.
 	 */
 	function __construct( $settings ) {
-		parent::__construct();
 		$this->settings = $settings;
 
 		// Handle routing to various admin pages
@@ -64,15 +61,6 @@ class Admin_Apple_Index_Page extends Apple_News {
 			$this->plugin_slug . '_index',
 			array( $this, 'admin_page' ),
 			'dashicons-format-aside'
-		);
-
-		add_submenu_page(
-			$this->plugin_slug . '_index',
-			__( 'Articles', 'apple-news' ),
-			__( 'Articles', 'apple-news' ),
-			apply_filters( 'apple_news_list_capability', 'manage_options' ),
-			$this->plugin_slug . '_index',
-			array( $this, 'admin_page' )
 		);
 	}
 
@@ -122,7 +110,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 		$action2	= isset( $_GET['action2'] ) ? sanitize_text_field( $_GET['action2'] ) : null;
 
 		// Allow for bulk actions from top or bottom
-		if ( ( empty( $action ) || '-1' === $action ) && ! empty( $action2 ) ) {
+		if ( ( empty( $action ) || -1 == $action ) && ! empty( $action2 ) ) {
 			$action = $action2;
 		}
 
@@ -130,8 +118,6 @@ class Admin_Apple_Index_Page extends Apple_News {
 		switch ( $action ) {
 			case self::namespace_action( 'export' ):
 				return $this->export_action( $id );
-			case self::namespace_action( 'reset' ):
-				return $this->reset_action( $id );
 			case self::namespace_action( 'push' ):
 				if ( ! $id ) {
 					$url = menu_page_url( $this->plugin_slug . '_bulk_export', false );
@@ -140,9 +126,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 						$url .= '&ids=' . implode( '.', $ids );
 					}
 					wp_safe_redirect( esc_url_raw( $url ) );
-					if ( ! defined( 'APPLE_NEWS_UNIT_TESTS' ) || ! APPLE_NEWS_UNIT_TESTS ) {
-						exit;
-					}
+					exit;
 				} else {
 					return $this->push_action( $id );
 				}
@@ -182,9 +166,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 	private function do_redirect() {
 		// Perform the redirect
 		wp_safe_redirect( esc_url_raw( self::action_query_params( '', menu_page_url( $this->plugin_slug . '_index', false ) ) ) );
-		if ( ! defined( 'APPLE_NEWS_UNIT_TESTS' ) || ! APPLE_NEWS_UNIT_TESTS ) {
-			exit;
-		}
+		exit;
 	}
 
 	/**
@@ -193,6 +175,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 * @param string $action
 	 * @return string
 	 * @access public
+	 * @static
 	 */
 	public static function namespace_action( $action ) {
 		return 'apple_news_' . $action;
@@ -205,6 +188,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 * @param string $url
 	 * @return string
 	 * @access public
+	 * @static
 	 */
 	public static function action_query_params( $action, $url ) {
 		// Set the keys we need to pay attention to
@@ -267,7 +251,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 * @access public
 	 */
 	public function setup_assets( $hook ) {
-		if ( 'toplevel_page_apple_news_index' !== $hook ) {
+		if ( 'toplevel_page_apple_news_index' != $hook ) {
 			return;
 		}
 
@@ -275,32 +259,10 @@ class Admin_Apple_Index_Page extends Apple_News {
 		wp_enqueue_script( 'jquery-ui-datepicker' );
 
 		// Add the export table script and style
-		wp_enqueue_style(
-			$this->plugin_slug . '_export_table_css',
-			plugin_dir_url( __FILE__ ) .  '../assets/css/export-table.css',
-			array(),
-			self::$version
-		);
-		wp_enqueue_script(
-			$this->plugin_slug . '_export_table_js',
-			plugin_dir_url( __FILE__ ) .  '../assets/js/export-table.js',
-			array( 'jquery', 'jquery-ui-datepicker' ),
-			self::$version,
-			true
-		);
-		wp_enqueue_script(
-			$this->plugin_slug . '_single_push_js',
-			plugin_dir_url( __FILE__ ) .  '../assets/js/single-push.js',
-			array( 'jquery' ),
-			self::$version,
-			true
-		);
-
-		// Localize strings
-		wp_localize_script( $this->plugin_slug . '_export_table_js', 'apple_news_export_table', array(
-			'reset_confirmation' => __( "Are you sure you want to reset status? Please only proceed if you're certain the post is stuck or this could reset in duplicate posts in Apple News.", 'apple-news' ),
-			'delete_confirmation' => __( 'Are you sure you want to delete this post from Apple News?', 'apple-news' ),
-		) );
+		wp_enqueue_style( $this->plugin_slug . '_export_table_css', plugin_dir_url(
+			__FILE__ ) .  '../assets/css/export-table.css' );
+		wp_enqueue_script( $this->plugin_slug . '_export_table_js', plugin_dir_url(
+			__FILE__ ) .  '../assets/js/export-table.js', array( 'jquery', 'jquery-ui-datepicker' ), self::$version, true );
 	}
 
 	/**
@@ -321,12 +283,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 * @access public
 	 */
 	public function export_action( $id ) {
-		$export = new Apple_Actions\Index\Export(
-			$this->settings,
-			$id,
-			\Admin_Apple_Sections::get_sections_for_post( $id )
-		);
-
+		$export = new Apple_Actions\Index\Export( $this->settings, $id );
 		try {
 			$json = $export->perform();
 			$this->download_json( $json, $id );
@@ -343,7 +300,7 @@ class Admin_Apple_Index_Page extends Apple_News {
 	 */
 	private function push_action( $id ) {
 		// Ensure the post is published
-		if ( 'publish' !== get_post_status( $id ) ) {
+		if ( 'publish' != get_post_status( $id ) ) {
 			$this->notice_error( sprintf(
 				__( 'Article %s is not published and cannot be pushed to Apple News.', 'apple-news' ),
 				$id
@@ -397,27 +354,6 @@ class Admin_Apple_Index_Page extends Apple_News {
 		} catch ( Apple_Actions\Action_Exception $e ) {
 			$this->notice_error( $e->getMessage() );
 		}
-	}
-
-	/**
-	 * Handles a reset action.
-	 *
-	 * @param int $id
-	 * @access private
-	 */
-	private function reset_action( $id ) {
-		// Remove the pending designation if it exists
-		delete_post_meta( $id, 'apple_news_api_pending' );
-
-		// Remove the async in progress flag
-		delete_post_meta( $id, 'apple_news_api_async_in_progress' );
-
-		// Manually clean the workspace
-		$workspace = new Workspace( $id );
-		$workspace->clean_up();
-
-		// This can only succeed
-		$this->notice_success( __( 'Your article status has been successfully reset!', 'apple-news' ) );
 	}
 
 }

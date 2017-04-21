@@ -330,44 +330,13 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	protected $page;
 
 	/**
-	 * Allow for a settings section to be hidden.
-	 *
-	 * @var boolean
-	 * @access protected
-	 */
-	protected $hidden = false;
-
-	/**
-	 * Option name used for the section.
-	 *
-	 * @var string
-	 * @access protected
-	 */
-	protected static $section_option_name;
-
-	/**
-	 * Action used for saving the section.
-	 *
-	 * @var string
-	 * @access protected
-	 */
-	protected $save_action;
-
-	/**
 	 * Base settings.
 	 *
 	 * @var Settings
 	 * @access protected
+	 * @static
 	 */
 	protected static $base_settings;
-
-	/**
-	 * Loaded settings.
-	 *
-	 * @var Settings
-	 * @access protected
-	 */
-	protected static $loaded_settings;
 
 	/**
 	 * Settings for the section.
@@ -449,21 +418,14 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 * Constructor.
 	 *
 	 * @param string $page
-	 * @param boolean $hidden
-	 * @param string $save_action
-	 * @param string $section_option_name
 	 */
-	function __construct( $page, $hidden = false, $save_action = 'apple_news_options', $section_option_name = null ) {
-		$this->page									= $page;
-		self::$section_option_name	= ( ! empty( $section_option_name ) ) ? $section_option_name : self::$option_name;
-		$this->save_action					= $save_action;
-		$base_settings							= new \Apple_Exporter\Settings;
-		self::$base_settings				= $base_settings->all();
-		self::$loaded_settings			= get_option( self::$section_option_name );
-		$this->settings							= apply_filters( 'apple_news_section_settings', $this->settings, $page );
-		$this->groups								= apply_filters( 'apple_news_section_groups', $this->groups, $page );
-		self::$fonts								= apply_filters( 'apple_news_fonts_list', self::$fonts );
-		$this->hidden								= $hidden;
+	function __construct( $page ) {
+		$this->page             = $page;
+		$base_settings          = new \Apple_Exporter\Settings;
+		self::$base_settings    = $base_settings->all();
+		$this->settings         = apply_filters( 'apple_news_section_settings', $this->settings, $page );
+		$this->groups           = apply_filters( 'apple_news_section_groups', $this->groups, $page );
+		self::$fonts            = apply_filters( 'apple_news_fonts_list', self::$fonts );
 
 		// Save settings if necessary
 		$this->save_settings();
@@ -525,15 +487,15 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	public function render_field( $args ) {
 		list( $name, $default_value, $callback ) = $args;
 
-		$type  = $this->get_type_for( $name );
-
 		// If the field has it's own render callback, use that here.
 		// This is because the options page doesn't actually use do_settings_section.
 		if ( ! empty( $callback ) ) {
-			return call_user_func( $callback, $type );
+			return call_user_func( $callback );
 		}
 
-		$value = self::get_value( $name, self::$loaded_settings );
+		$type  = $this->get_type_for( $name );
+		$settings = get_option( self::$option_name );
+		$value = self::get_value( $name, $settings );
 		$field = null;
 
 		// Get the field size
@@ -564,7 +526,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 				$store_value = $use_name_as_value ? $option : $key;
 				$field .= "<option value='" . esc_attr( $store_value ) . "' ";
 				if ( $this->is_multiple( $name ) ) {
-					if ( in_array( $store_value, $value, true ) ) {
+					if ( in_array( $store_value, $value ) ) {
 						$field .= 'selected="selected"';
 					}
 				} else {
@@ -573,50 +535,48 @@ class Admin_Apple_Settings_Section extends Apple_News {
 				$field .= ">" . esc_html( $option ) . "</option>";
 			}
 			$field .= '</select>';
-		} elseif ( 'font' === $type ) {
+		} else if ( 'font' == $type ) {
 			$field = '<select class="select2 font" id="%s" name="%s">';
 			foreach ( self::$fonts as $option ) {
 				$field .= "<option value='" . esc_attr( $option ) . "'";
-				if ( $option === $value ) {
+				if ( $option == $value ) {
 					$field .= ' selected ';
 				}
 				$field .= ">" . esc_html( $option ) . "</option>";
 			}
 			$field .= '</select>';
-		} elseif ( 'boolean' === $type ) {
+		} else if ( 'boolean' == $type ) {
 			$field = '<select name="%s">';
 
 			$field .= '<option value="yes"';
-			if ( 'yes' === $value ) {
+			if ( 'yes' == $value ) {
 				$field .= ' selected ';
 			}
 			$field .= '>Yes</option>';
 
 			$field .= '<option value="no"';
-			if ( 'yes' !== $value ) {
+			if ( 'yes' != $value ) {
 				$field .= ' selected ';
 			}
 			$field .= '>No</option>';
 
 			$field .= '</select>';
-		} elseif ( 'integer' === $type ) {
+		} else if ( 'integer' == $type ) {
 			$field = '<input type="number" id="%s" name="%s" value="%s" size="%s" %s>';
-		} elseif ( 'float' === $type ) {
+		} else if ( 'float' == $type ) {
 			$field = '<input class="input-float" placeholder="' . esc_attr( $default_value ) . '" type="text" step="any" id="%s" name="%s" value="%s" size="%s">';
-		} elseif ( 'color' === $type ) {
+		} else if ( 'color' == $type ) {
 			$field = '<input type="text" id="%s" name="%s" value="%s" class="apple-news-color-picker" %s>';
-		} elseif ( 'password' === $type ) {
+		} else if ( 'password' == $type ) {
 			$field = '<input type="password" id="%s" name="%s" value="%s" size="%s" %s>';
-		} elseif ( 'hidden' === $type ) {
-			$field = '<input type="hidden" id="%s" name="%s" value="%s">';
-		}  else {
+		} else {
 			// If nothing else matches, it's a string.
 			$field = '<input type="text" id="%s" name="%s" value="%s" size="%s" %s>';
 		}
 
 		// Add a description, if set.
 		$description = $this->get_description_for( $name );
-		if ( ! empty( $description ) && 'hidden' !== $type ) {
+		if ( ! empty( $description ) ) {
 			$field .= apply_filters( 'apple_news_field_description_output_html', '<br/><i>' . $description . '</i>', $name );
 		}
 
@@ -626,13 +586,6 @@ class Admin_Apple_Settings_Section extends Apple_News {
 				$field,
 				esc_attr( $name ),
 				esc_attr( $name )
-			);
-		} elseif ( 'hidden' === $type ) {
-			return sprintf(
-				$field,
-				esc_attr( $name ),
-				esc_attr( $name ),
-				esc_attr( $value )
 			);
 		} else {
 			return sprintf(
@@ -655,11 +608,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 * @access protected
 	 */
 	protected function get_type_for( $name ) {
-		if ( $this->hidden ) {
-			return 'hidden';
-		} else {
-			return empty( $this->settings[ $name ]['type'] ) ? 'string' : $this->settings[ $name ]['type'];
-		}
+		return empty( $this->settings[ $name ]['type'] ) ? 'string' : $this->settings[ $name ]['type'];
 	}
 
 	/**
@@ -713,6 +662,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 * @param string $name
 	 * @return string
 	 * @access protected
+	 * @static
 	 */
 	protected static function get_default_for( $name ) {
 		return isset( self::$base_settings[ $name ] ) ? self::$base_settings[ $name ] : '';
@@ -749,36 +699,6 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	}
 
 	/**
-	 * Get settings.
-	 *
-	 * @return array
-	 * @access public
-	 */
-	public function get_settings() {
-		return $this->settings;
-	}
-
-	/**
-	 * Get loaded settings.
-	 *
-	 * @return array
-	 * @access public
-	 */
-	public function get_loaded_settings() {
-		return $this->loaded_settings;
-	}
-
-	/**
-	 * Check if the section is hidden on the settings page.
-	 *
-	 * @return boolean
-	 * @access public
-	 */
-	public function is_hidden() {
-		return $this->hidden;
-	}
-
-	/**
 	 * Sanitizes a single dimension array with text values.
 	 *
 	 * @param array $value
@@ -794,10 +714,11 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 * @param string $key
 	 * @param array $saved_settings
 	 * @return mixed
+	 * @static
 	 */
 	public static function get_value( $key, $saved_settings = null ) {
 		if ( empty( $saved_settings ) ) {
-			$saved_settings = get_option( self::$section_option_name );
+			$saved_settings = get_option( self::$option_name );
 		}
 		return ( isset( $saved_settings[ $key ] ) ) ? $saved_settings[ $key ] : self::get_default_for( $key );
 	}
@@ -807,35 +728,31 @@ class Admin_Apple_Settings_Section extends Apple_News {
 	 * since only it knows the nature of the fields and sanitization methods.
 	 */
 	public function save_settings() {
-		// Check if we're saving options and that there are settings to save
+		// Check if we're saving options and that there are settings to svae
 		if ( empty( $_POST['action'] )
-			|| $this->save_action !== $_POST['action']
+			|| 'apple_news_options' !== $_POST['action']
 			|| empty( $this->settings ) ) {
 			return;
 		}
 
 		// Form nonce check
-		check_admin_referer( $this->save_action );
+		check_admin_referer( 'apple_news_options', 'apple_news_options' );
 
 		// Get the current Apple News settings
-		$settings = get_option( self::$section_option_name, array() );
+		$settings = get_option( self::$option_name, array() );
 
 		// Iterate over the settings and save each value.
 		// Settings can't be empty unless allowed, so if no value is found
 		// use the default value to be safe.
 		$default_settings = new Settings();
 		foreach ( $this->settings as $key => $attributes ) {
-			if ( ! empty( $_POST[ $key ] )
-				|| ( isset( $_POST[ $key ] )
-					&& in_array( $_POST[ $key ], array( 0, '0' ), true )
-				)
-			) {
+			if ( ! empty( $_POST[ $key ] ) ) {
 				// Sanitize the value
 				$sanitize = ( empty( $attributes['sanitize'] ) || ! is_callable( $attributes['sanitize'] ) ) ? 'sanitize_text_field' : $attributes['sanitize'];
 				$value = call_user_func( $sanitize, $_POST[ $key ] );
 			} else {
 				// Use the default value
-				$value = $default_settings->$key;
+				$value = $default_settings->get( $key );
 			}
 
 			// Add to the array
@@ -846,16 +763,7 @@ class Admin_Apple_Settings_Section extends Apple_News {
 		delete_transient( 'apple_news_sections' );
 
 		// Save to options
-		update_option( self::$section_option_name, $settings, 'no' );
+		update_option( self::$option_name, $settings, 'no' );
 	}
 
-	/**
-	 * Get all available fonts.
-	 *
-	 * @return array
-	 * @access public
-	 */
-	public static function list_fonts() {
-		return self::$fonts;
-	}
 }

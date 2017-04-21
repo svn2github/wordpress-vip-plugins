@@ -21,6 +21,7 @@ class Admin_Apple_Notice {
 	 *
 	 * @var array
 	 * @access private
+	 * @static
 	 */
 	private static $settings;
 
@@ -39,6 +40,7 @@ class Admin_Apple_Notice {
 	 * @param string $message
 	 * @param string $type
 	 * @param int $user_id
+	 * @static
 	 * @access public
 	 */
 	public static function message( $message, $type, $user_id = null ) {
@@ -47,7 +49,7 @@ class Admin_Apple_Notice {
 		}
 
 		self::add_user_meta( $user_id, self::KEY, array(
-			'message' => wp_kses( $message, array( 'a' => array( 'href' => array(), ), ) ),
+			'message' => sanitize_text_field( $message ),
 			'type' => sanitize_text_field( $type )
 		) );
 	}
@@ -57,10 +59,11 @@ class Admin_Apple_Notice {
 	 *
 	 * @param string $message
 	 * @param int $user_id
+	 * @static
 	 * @access public
 	 */
 	public static function info( $message, $user_id = null ) {
-		self::message( $message, 'warning', $user_id );
+		self::message( $message, 'updated', $user_id );
 	}
 
 	/**
@@ -68,10 +71,11 @@ class Admin_Apple_Notice {
 	 *
 	 * @param string $message
 	 * @param int $user_id
+	 * @static
 	 * @access public
 	 */
 	public static function success( $message, $user_id = null ) {
-		self::message( $message, 'success', $user_id );
+		self::message( $message, 'updated', $user_id );
 	}
 
 	/**
@@ -79,6 +83,7 @@ class Admin_Apple_Notice {
 	 *
 	 * @param string $message
 	 * @param int $user_id
+	 * @static
 	 * @access public
 	 */
 	public static function error( $message, $user_id = null ) {
@@ -90,6 +95,7 @@ class Admin_Apple_Notice {
 	 *
 	 * @param string $message
 	 * @param string $type
+	 * @static
 	 * @access public
 	 */
 	public static function has_notice() {
@@ -100,6 +106,7 @@ class Admin_Apple_Notice {
 	/**
 	 * Show the admin notice.
 	 *
+	 * @static
 	 * @access public
 	 */
 	public static function show() {
@@ -126,6 +133,7 @@ class Admin_Apple_Notice {
 	 *
 	 * @param string $message
 	 * @param string $type
+	 * @static
 	 * @access private
 	 */
 	private static function show_notice( $message, $type ) {
@@ -152,7 +160,7 @@ class Admin_Apple_Notice {
 			$message .= Apple_News::get_support_info();
 		}
 		?>
-		<div class="notice notice-<?php echo esc_attr( $type ) ?> is-dismissible">
+		<div class="notice <?php echo esc_attr( $type ) ?> is-dismissible">
 			<p><strong><?php echo wp_kses_post( apply_filters( 'apple_news_notice_message', $message, $type ) ) ?></strong></p>
 		</div>
 		<?php
@@ -164,6 +172,7 @@ class Admin_Apple_Notice {
 	 * @param int $user_id
 	 * @param string $key
 	 * @param mixed $value
+	 * @static
 	 * @access private
 	 */
 	private static function add_user_meta( $user_id, $key, $value ) {
@@ -190,6 +199,7 @@ class Admin_Apple_Notice {
 	 *
 	 * @param int $user_id
 	 * @param string $key
+	 * @static
 	 * @return mixed
 	 * @access private
 	 */
@@ -206,6 +216,7 @@ class Admin_Apple_Notice {
 	 *
 	 * @param int $user_id
 	 * @param string $key
+	 * @static
 	 * @access private
 	 */
 	private static function delete_user_meta( $user_id, $key ) {

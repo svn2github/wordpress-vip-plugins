@@ -16,14 +16,6 @@ use Apple_Exporter\Settings as Settings;
 class Admin_Apple_Settings extends Apple_News {
 
 	/**
-	 * Keeps track of whether functionality has been initialized or not.
-	 *
-	 * @access private
-	 * @var bool
-	 */
-	private static $initialized = false;
-
-	/**
 	 * Associative array of fields and types. If not present, defaults to string.
 	 * Possible types are: integer, color, boolean, string and options.
 	 * If options, use an array instead of a string.
@@ -76,13 +68,9 @@ class Admin_Apple_Settings extends Apple_News {
 		$this->sections = array();
 		$this->page_name = $this->plugin_domain . '-options';
 
-		if ( ! self::$initialized ) {
-			add_action( 'admin_init', array( $this, 'register_sections' ), 5 );
-			add_action( 'admin_head', array( $this, 'update_message' ) );
-			add_action( 'admin_menu', array( $this, 'setup_options_page' ), 99 );
-			add_action( 'admin_enqueue_scripts', array( $this, 'register_assets' ) );
-			self::$initialized = true;
-		}
+		add_action( 'admin_init', array( $this, 'register_sections' ), 5 );
+		add_action( 'admin_menu', array( $this, 'setup_options_page' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'register_assets' ) );
 	}
 
 	/**
@@ -93,7 +81,7 @@ class Admin_Apple_Settings extends Apple_News {
 	private function add_sections() {
 		$this->add_section( new Admin_Apple_Settings_Section_API( $this->page_name ) );
 		$this->add_section( new Admin_Apple_Settings_Section_Post_Types( $this->page_name ) );
-		$this->add_section( new Admin_Apple_Settings_Section_Formatting( $this->page_name, true ) );
+		$this->add_section( new Admin_Apple_Settings_Section_Formatting( $this->page_name ) );
 		$this->add_section( new Admin_Apple_Settings_Section_Advanced( $this->page_name ) );
 		$this->add_section( new Admin_Apple_Settings_Section_Developer_Tools( $this->page_name ) );
 	}
@@ -120,36 +108,14 @@ class Admin_Apple_Settings extends Apple_News {
 	}
 
 	/**
-	 * Add a message to direct users to the new themes page.
-	 *
-	 * @since 1.2.2
-	 * @access public
-	 */
-	public function update_message() {
-		$screen = get_current_screen();
-		if ( 'apple-news_page_' . $this->page_name !== $screen->base ) {
-			return;
-		}
-
-		$themes = new Admin_Apple_Themes();
-		\Admin_Apple_Notice::info( sprintf(
-			'%s <a href="%s">%s</a>',
-			__( 'Formatting settings have moved to', 'apple-news' ),
-			$themes->theme_admin_url(),
-			__( 'Apple News Themes', 'apple-news' )
-		) );
-	}
-
-	/**
 	 * Options page setup.
 	 *
 	 * @access public
 	 */
 	public function setup_options_page() {
-		add_submenu_page(
-			'apple_news_index',
+		add_options_page(
 			__( 'Apple News Options', 'apple-news' ),
-			__( 'Settings', 'apple-news' ),
+			__( 'Apple News', 'apple-news' ),
 			apply_filters( 'apple_news_settings_capability', 'manage_options' ),
 			$this->page_name,
 			array( $this, 'page_options_render' )
@@ -163,7 +129,7 @@ class Admin_Apple_Settings extends Apple_News {
 	 */
 	public function page_options_render() {
 		if ( ! current_user_can( apply_filters( 'apple_news_settings_capability', 'manage_options' ) ) ) {
-			wp_die( esc_html__( 'You do not have permissions to access this page.', 'apple-news' ) );
+			wp_die( __( 'You do not have permissions to access this page.', 'apple-news' ) );
 		}
 
 		$sections = $this->sections;
@@ -177,31 +143,25 @@ class Admin_Apple_Settings extends Apple_News {
 	 * @access public
 	 */
 	public function register_assets( $hook ) {
-		if ( 'apple-news_page_apple-news-options' !== $hook ) {
+		if ( 'settings_page_apple-news-options' != $hook ) {
 			return;
 		}
 
-		wp_enqueue_style(
-			'apple-news-select2-css',
-			plugin_dir_url( __FILE__ ) . '../vendor/select2/select2.min.css',
-			array(),
-			self::$version
+		wp_enqueue_style( 'apple-news-select2-css', plugin_dir_url( __FILE__ ) .
+			'../vendor/select2/select2.min.css', array() );
+		wp_enqueue_style( 'apple-news-settings-css', plugin_dir_url( __FILE__ ) .
+			'../assets/css/settings.css', array() );
+
+		wp_enqueue_script( 'iris' );
+		wp_enqueue_script( 'apple-news-select2-js', plugin_dir_url( __FILE__ ) .
+			'../vendor/select2/select2.full.min.js', array( 'jquery' ) );
+		wp_enqueue_script( 'apple-news-settings-js', plugin_dir_url( __FILE__ ) .
+			'../assets/js/settings.js', array( 'jquery', 'jquery-ui-draggable', 'jquery-ui-sortable', 'apple-news-select2-js', 'iris' )
 		);
 
-		wp_enqueue_script(
-			'apple-news-select2-js',
-			plugin_dir_url( __FILE__ ) . '../vendor/select2/select2.full.min.js',
-			array( 'jquery' ),
-			self::$version
-		);
-
-		wp_enqueue_script(
-			'apple-news-settings',
-			plugin_dir_url( __FILE__ ) . '../assets/js/settings.js',
-			array( 'jquery' ),
-			self::$version,
-			true
-		);
+		wp_localize_script( 'apple-news-settings-js', 'appleNewsSettings', array(
+			'fontNotice' => __( 'Font preview is only available on macOS', 'apple-news' ),
+		) );
 	}
 
 	/**
@@ -219,7 +179,18 @@ class Admin_Apple_Settings extends Apple_News {
 
 			// Initialize.
 			$settings = new Settings();
-			$wp_settings = $this->validate_settings( get_option( self::$option_name ) );
+			$wp_settings = get_option( self::$option_name );
+
+			// If this option doesn't exist, either the site has never installed
+			// this plugin or they may be using an old version with individual
+			// options. To be safe, attempt to migrate values. This will happen only
+			// once.
+			if ( false === $wp_settings ) {
+				$wp_settings = $this->migrate_settings( $settings );
+			}
+
+			// Check for presence of legacy header settings and migrate to new.
+			$wp_settings = $this->migrate_header_settings( $wp_settings );
 
 			// Merge settings in the option with defaults.
 			foreach ( $settings->all() as $key => $value ) {
@@ -241,16 +212,5 @@ class Admin_Apple_Settings extends Apple_News {
 		 * @param Settings $settings The settings to be filtered.
 		 */
 		return apply_filters( 'apple_news_loaded_settings', $this->loaded_settings );
-	}
-
-	/**
-	 * Replaces the current settings.
-	 *
-	 * @access public
-	 * @param array $settings
-	 */
-	public function save_settings( $settings ) {
-		update_option( self::$option_name, $settings );
-		$this->loaded_settings = $settings;
 	}
 }

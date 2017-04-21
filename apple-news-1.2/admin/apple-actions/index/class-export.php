@@ -10,7 +10,6 @@ use Apple_Actions\Action as Action;
 use Apple_Exporter\Exporter as Exporter;
 use Apple_Exporter\Exporter_Content as Exporter_Content;
 use Apple_Exporter\Exporter_Content_Settings as Exporter_Content_Settings;
-use \Admin_Apple_Sections;
 
 class Export extends Action {
 
@@ -28,8 +27,8 @@ class Export extends Action {
 	 * @param Settings $settings
 	 * @param int $id
 	 */
-	function __construct( $settings, $id = null, $sections = null ) {
-		parent::__construct( $this->set_theme( $settings, $sections ) );
+	function __construct( $settings, $id = null ) {
+		parent::__construct( $settings );
 		$this->id = $id;
 	}
 
@@ -170,35 +169,6 @@ class Export extends Action {
 			}
 		}
 		return apply_filters( 'apple_news_content_settings', $settings );
-	}
-
-	/**
-	 * Overrides settings if a theme is explicitly mapped to the section for this post.
-	 *
-	 * @since 1.2.3
-	 * @param Settings $settings
-	 * @param array $sections
-	 * @return Settings
-	 * @access private
-	 */
-	private function set_theme( $settings, $sections ) {
-		// This can only work if there is explicitly one section
-		if ( ! is_array( $sections ) || 1 !== count( $sections ) ) {
-			return $settings;
-		}
-
-		// Check if there is a custom theme mapping
-		$theme_settings = Admin_Apple_Sections::get_theme_for_section( basename( $sections[0] ) );
-		if ( empty( $theme_settings ) || ! is_array( $theme_settings ) ) {
-			return $settings;
-		}
-
-		// Replace all settings with the theme settings
-		foreach ( $theme_settings as $key => $value ) {
-			$settings->$key = $value;
-		}
-
-		return $settings;
 	}
 
 }

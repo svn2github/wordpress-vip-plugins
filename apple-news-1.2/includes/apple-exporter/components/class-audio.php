@@ -1,8 +1,6 @@
 <?php
 namespace Apple_Exporter\Components;
 
-use \Apple_Exporter\Exporter_Content;
-
 /**
  * An HTML audio tag.
  *
@@ -15,31 +13,16 @@ class Audio extends Component {
 	 *
 	 * @param DomNode $node
 	 * @return mixed
+	 * @static
 	 * @access public
 	 */
 	public static function node_matches( $node ) {
 		// Is this an audio node?
-		if ( 'audio' === $node->nodeName && self::remote_file_exists( $node ) ) {
+		if ( 'audio' == $node->nodeName && self::remote_file_exists( $node ) ) {
 			return $node;
 		}
 
 		return null;
-	}
-
-	/**
-	 * Register all specs for the component.
-	 *
-	 * @access public
-	 */
-	public function register_specs() {
-		$this->register_spec(
-			'json',
-			__( 'JSON', 'apple-news' ),
-			array(
-				'role' => 'audio',
-				'URL' => '#url#',
-			)
-		);
 	}
 
 	/**
@@ -54,18 +37,12 @@ class Audio extends Component {
 			return null;
 		}
 
-		// Ensure the URL is valid.
-		$url = Exporter_Content::format_src_url( $match[1] );
-		if ( empty( $url ) ) {
-			return;
-		}
+		$url = $match[1];
 
-		$this->register_json(
-			'json',
-			array(
-				'#url#' => esc_url_raw( $url ),
-			)
-	 	);
+		$this->json = array(
+			'role' => 'audio',
+			'URL'  => $url,
+		);
 	}
 
 }

@@ -4,8 +4,7 @@ namespace Apple_Actions\Index;
 
 require_once plugin_dir_path( __FILE__ ) . '../class-api-action.php';
 
-use Apple_Actions\API_Action;
-use Apple_Exporter\Settings;
+use Apple_Actions\API_Action as API_Action;
 
 class Section extends API_Action {
 
