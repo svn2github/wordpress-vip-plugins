@@ -37,6 +37,7 @@ class Settings {
 		'api_channel' => '',
 		'api_autosync' => 'yes',
 		'api_autosync_update' => 'yes',
+		'api_autosync_delete' => 'yes',
 		'api_async' => 'no',
 
 		'post_types' => array( 'post' ),
@@ -56,8 +57,13 @@ class Settings {
 		'body_tracking' => 0,
 
 		'initial_dropcap' => 'yes',
-		'dropcap_font' => 'AvenirNext-Bold',
+		'dropcap_background_color' => '',
 		'dropcap_color' => '#4f4f4f',
+		'dropcap_font' => 'AvenirNext-Bold',
+		'dropcap_number_of_characters' => 1,
+		'dropcap_number_of_lines' => 4,
+		'dropcap_number_of_raised_lines' => 0,
+		'dropcap_padding' => 5,
 
 		'byline_font' => 'AvenirNext-Medium',
 		'byline_size' => 13,
@@ -97,15 +103,32 @@ class Settings {
 		'header5_tracking' => 0,
 		'header6_tracking' => 0,
 
+		'caption_font' => 'AvenirNext-Italic',
+		'caption_size' => 16,
+		'caption_color' => '#4f4f4f',
+		'caption_line_height' => 24,
+		'caption_tracking' => 0,
+
 		'pullquote_font' => 'AvenirNext-Bold',
 		'pullquote_size' => 48,
 		'pullquote_color' => '#53585f',
+		'pullquote_hanging_punctuation' => 'no',
 		'pullquote_border_color' => '#53585f',
 		'pullquote_border_style' => 'solid',
 		'pullquote_border_width' => '3',
 		'pullquote_transform' => 'uppercase',
 		'pullquote_line_height' => 48,
 		'pullquote_tracking' => 0,
+
+		'blockquote_font' => 'AvenirNext-Regular',
+		'blockquote_size' => 18,
+		'blockquote_color' => '#4f4f4f',
+		'blockquote_border_color' => '#4f4f4f',
+		'blockquote_border_style' => 'solid',
+		'blockquote_border_width' => '3',
+		'blockquote_line_height' => 24,
+		'blockquote_tracking' => 0,
+		'blockquote_background_color' => '#e1e1e1',
 
 		'monospaced_font' => 'Menlo-Regular',
 		'monospaced_size' => 16,
@@ -130,6 +153,10 @@ class Settings {
 
 		// Default component order
 		'meta_component_order' => array( 'cover', 'title', 'byline' ),
+
+		// Developer tools
+		'apple_news_enable_debugging' => 'no',
+		'apple_news_admin_email' => '',
 	);
 
 	/**

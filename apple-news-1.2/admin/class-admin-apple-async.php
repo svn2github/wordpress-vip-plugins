@@ -70,7 +70,7 @@ class Admin_Apple_Async extends Apple_News {
 
 		// Ensure that the post is still published
 		$post = get_post( $post_id );
-		if ( 'publish' != $post->post_status ) {
+		if ( 'publish' !== $post->post_status ) {
 			Admin_Apple_Notice::error( sprintf(
 				__( 'Article %s is no longer published and cannot be pushed to Apple News.', 'apple-news' ),
 				$post->post_title
@@ -81,11 +81,6 @@ class Admin_Apple_Async extends Apple_News {
 		$action = new Apple_Actions\Index\Push( $this->settings, $post_id );
 		try {
 			$action->perform( true, $user_id );
-
-			Admin_Apple_Notice::success( sprintf(
-				__( 'Article %s has been pushed successfully to Apple News!', 'apple-news' ),
-				$post->post_title
-			), $user_id );
 		} catch ( Apple_Actions\Action_Exception $e ) {
 			Admin_Apple_Notice::error( $e->getMessage(), $user_id );
 		}

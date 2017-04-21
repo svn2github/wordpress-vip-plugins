@@ -5,7 +5,9 @@ namespace Apple_Actions\Index;
 require_once plugin_dir_path( __FILE__ ) . '../class-api-action.php';
 require_once plugin_dir_path( __FILE__ ) . 'class-export.php';
 
-use Apple_Actions\API_Action as API_Action;
+use \Admin_Apple_Notice;
+use \Admin_Apple_Sections;
+use \Apple_Actions\API_Action;
 
 class Push extends API_Action {
 
@@ -16,6 +18,14 @@ class Push extends API_Action {
 	 * @access private
 	 */
 	private $id;
+
+	/**
+	 * Sections for the content being exported.
+	 *
+	 * @var array
+	 * @access private
+	 */
+	private $sections;
 
 	/**
 	 * Current instance of the Exporter.
@@ -134,6 +144,11 @@ class Push extends API_Action {
 		// generate_article uses Exporter->generate, so we MUST clean the workspace
 		// before and after its usage.
 		$this->clean_workspace();
+
+		// Get sections
+		$this->sections = Admin_Apple_Sections::get_sections_for_post( $this->id );
+
+		// Generate the JSON for the article
 		list( $json, $bundles, $errors ) = $this->generate_article();
 
 		// Process errors
@@ -164,10 +179,9 @@ class Push extends API_Action {
 				'data' => array(),
 			);
 
-			// Get sections
-			$sections = get_post_meta( $this->id, 'apple_news_sections', true );
-			if ( is_array( $sections ) ) {
-				$meta['data']['links'] = array( 'sections' => $sections );
+			// Set sections.
+			if ( ! empty( $this->sections ) ) {
+				$meta['data']['links'] = array( 'sections' => $this->sections );
 			}
 
 			// Get the isPreview setting
@@ -176,15 +190,27 @@ class Push extends API_Action {
 				$meta['data']['isPreview'] = $is_preview;
 			}
 
+			// Get the isSponsored setting
+			$is_sponsored = (bool) get_post_meta( $this->id, 'apple_news_is_sponsored', true );
+			if ( true === $is_sponsored ) {
+				$meta['data']['isSponsored'] = $is_sponsored;
+			}
+
+			// Get the maturity rating setting
+			$maturity_rating = get_post_meta( $this->id, 'apple_news_maturity_rating', true );
+			if ( ! empty( $maturity_rating ) ) {
+				$meta['data']['maturityRating'] = $maturity_rating;
+			}
+
 			if ( $remote_id ) {
 				// Update the current article from the API in case the revision changed
 				$this->get();
 
 				// Get the current revision
 				$revision = get_post_meta( $this->id, 'apple_news_api_revision', true );
-				$result   = $this->get_api()->update_article( $remote_id, $revision, $json, $bundles, $meta );
+				$result   = $this->get_api()->update_article( $remote_id, $revision, $json, $bundles, $meta, $this->id );
 			} else {
-				$result = $this->get_api()->post_article_to_channel( $json, $this->get_setting( 'api_channel' ), $bundles, $meta );
+				$result = $this->get_api()->post_article_to_channel( $json, $this->get_setting( 'api_channel' ), $bundles, $meta, $this->id );
 			}
 
 			// Save the ID that was assigned to this post in by the API.
@@ -222,6 +248,26 @@ class Push extends API_Action {
 			} else {
 				throw new \Apple_Actions\Action_Exception( __( 'There has been an error with the API: ', 'apple-news' ) .  $e->getMessage() );
 			}
+		}
+
+		// Print success message.
+		$post = get_post( $this->id );
+		if ( $remote_id ) {
+			Admin_Apple_Notice::success(
+				sprintf(
+					__( 'Article %s has been successfully updated on Apple News!', 'apple-news' ),
+					$post->post_title
+				),
+				$user_id
+			);
+		} else {
+			Admin_Apple_Notice::success(
+				sprintf(
+					__( 'Article %s has been pushed successfully to Apple News!', 'apple-news' ),
+					$post->post_title
+				),
+				$user_id
+			);
 		}
 
 		$this->clean_workspace();
@@ -334,7 +380,7 @@ class Push extends API_Action {
 	 */
 	private function generate_article() {
 
-		$export_action = new Export( $this->settings, $this->id );
+		$export_action = new Export( $this->settings, $this->id, $this->sections );
 		$this->exporter = $export_action->fetch_exporter();
 		$this->exporter->generate();
 

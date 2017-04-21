@@ -16,25 +16,69 @@ use \Apple_Exporter\Exporter as Exporter;
 class Cover extends Component {
 
 	/**
+	 * Register all specs for the component.
+	 *
+	 * @access public
+	 */
+	public function register_specs() {
+		$this->register_spec(
+			'json',
+			__( 'JSON', 'apple-news' ),
+			array(
+				'role' => 'header',
+				'layout' => 'headerPhotoLayout',
+				'components' => array(
+					array(
+						'role' => 'photo',
+						'layout' => 'headerPhotoLayout',
+						'URL' => '#url#',
+					)
+				),
+				'behavior' => array(
+					'type' => 'parallax',
+					'factor' => 0.8,
+				),
+			)
+		);
+
+		$this->register_spec(
+			'headerPhotoLayout',
+			__( 'Layout', 'apple-news' ),
+			array(
+				'ignoreDocumentMargin' => true,
+				'columnStart' => 0,
+				'columnSpan' => '#layout_columns#',
+			)
+		);
+
+		$this->register_spec(
+			'headerBelowTextPhotoLayout',
+			__( 'Below Text Layout', 'apple-news' ),
+			array(
+				'ignoreDocumentMargin' => true,
+				'columnStart' => 0,
+				'columnSpan' => '#layout_columns#',
+				'margin' => array(
+					'top' => 30,
+					'bottom' => 0,
+				),
+			)
+		);
+	}
+
+	/**
 	 * Build the component.
 	 *
-	 * @param string $text
+	 * @param string $url
 	 * @access protected
 	 */
 	protected function build( $url ) {
-		$this->json = array(
-			'role' 			=> 'header',
-			'layout' 		=> 'headerPhotoLayout',
-			'components' 	=> array( array(
-				'role' 			=> 'photo',
-				'layout' 		=> 'headerPhotoLayout',
-				'URL' 			=> $this->maybe_bundle_source( $url ),
-			) ),
-			'behavior' 		=> array(
-				'type' 			=> 'parallax',
-				'factor' 		=> 0.8,
-			),
-		);
+		$this->register_json(
+			'json',
+			array(
+				'#url#' => $this->maybe_bundle_source( $url ),
+			)
+	 	);
 
 		$this->set_default_layout();
 	}
@@ -45,21 +89,21 @@ class Cover extends Component {
 	 * @access private
 	 */
 	private function set_default_layout() {
-		$this->register_full_width_layout( 'headerPhotoLayout', array(
-			'ignoreDocumentMargin' => true,
-			'columnStart' => 0,
-			'columnSpan' => $this->get_setting( 'layout_columns' ),
-		) );
+		$this->register_full_width_layout(
+			'headerPhotoLayout',
+			'headerPhotoLayout',
+			array(
+				'#layout_columns#' => $this->get_setting( 'layout_columns' ),
+			)
+		);
 
-		$this->register_full_width_layout( 'headerBelowTextPhotoLayout', array(
-			'ignoreDocumentMargin' => true,
-			'columnStart' => 0,
-			'columnSpan' => $this->get_setting( 'layout_columns' ),
-			'margin' => array(
-				'top' => 30,
-				'bottom' => 0,
-			),
-		) );
+		$this->register_full_width_layout(
+			'headerBelowTextPhotoLayout',
+			'headerBelowTextPhotoLayout',
+			array(
+				'#layout_columns#' => $this->get_setting( 'layout_columns' ),
+			)
+		);
 	}
 
 }

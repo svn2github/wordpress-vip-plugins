@@ -3,11 +3,15 @@
  * Publish to Apple News Includes: Apple_Exporter\Settings class
  *
  * Contains a class which is used to manage user-defined and computed settings.
+ * Since version 1.2.2, formatting settings have been moved into themes.
+ * A future plugin version may refactor this further, so use this class at your own risk.
  *
  * @package Apple_News
  * @subpackage Apple_Exporter
  * @since 0.6.0
  */
+
+use \Apple_Exporter\Settings;
 
 /**
  * Describes a WordPress setting section
@@ -28,10 +32,13 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 	 * Constructor.
 	 *
 	 * @param string $page
+	 * @param boolean $hidden
+	 * @param string $save_action
+	 * @param string $section_option_name
 	 */
-	function __construct( $page ) {
+	function __construct( $page, $hidden = false, $save_action = 'apple_news_options', $section_option_name = null ) {
 		// Set the name
-		$this->name =  __( 'Formatting', 'apple-news' );
+		$this->name =  __( 'Theme Settings', 'apple-news' );
 
 		// Add the settings
 		$this->settings = array(
@@ -82,13 +89,34 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 				'label' => __( 'Use initial drop cap', 'apple-news' ),
 				'type' => array( 'yes', 'no' ),
 			),
-			'dropcap_font' => array(
-				'label' => __( 'Dropcap font face', 'apple-news' ),
-				'type' => 'font',
+			'dropcap_background_color' => array(
+				'label' => __( 'Drop cap background color', 'apple-news' ),
+				'type' => 'color',
 			),
 			'dropcap_color' => array(
 				'label' => __( 'Drop cap font color', 'apple-news' ),
 				'type' => 'color',
+			),
+			'dropcap_font' => array(
+				'label' => __( 'Dropcap font face', 'apple-news' ),
+				'type' => 'font',
+			),
+			'dropcap_number_of_characters' => array(
+				'label' => __( 'Drop cap number of characters', 'apple-news' ),
+				'type' => 'integer',
+			),
+			'dropcap_number_of_lines' => array(
+				'label' => __( 'Drop cap number of lines', 'apple-news' ),
+				'type' => 'integer',
+				'description' => __( 'Must be an integer between 2 and 10. Actual number of lines occupied will vary based on device size.', 'apple-news' ),
+			),
+			'dropcap_number_of_raised_lines' => array(
+				'label' => __( 'Drop cap number of raised lines', 'apple-news' ),
+				'type' => 'integer',
+			),
+			'dropcap_padding' => array(
+				'label' => __( 'Drop cap padding', 'apple-news' ),
+				'type' => 'integer',
 			),
 			'byline_font' => array(
 				'label' => __( 'Byline font face', 'apple-news' ),
@@ -251,6 +279,28 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 				'label' => __( 'Header 6 font size', 'apple-news' ),
 				'type' => 'integer',
 			),
+			'caption_font' => array(
+				'label' => __( 'Caption font face', 'apple-news' ),
+				'type' => 'font',
+			),
+			'caption_size' => array(
+				'label' => __( 'Caption font size', 'apple-news' ),
+				'type' => 'integer',
+			),
+			'caption_color' => array(
+				'label' => __( 'Caption font color', 'apple-news' ),
+				'type' => 'color',
+			),
+			'caption_line_height' => array(
+				'label' => __( 'Caption line height', 'apple-news' ),
+				'type' => 'float',
+				'sanitize' => 'floatval',
+			),
+			'caption_tracking' => array(
+				'label' => __( 'Caption tracking', 'apple-news' ),
+				'type' => 'integer',
+				'description' => __( '(Percentage of font size)', 'apple-news' ),
+			),
 			'pullquote_font' => array(
 				'label' => __( 'Pullquote font face', 'apple-news' ),
 				'type' => 'font',
@@ -269,7 +319,7 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 			),
 			'pullquote_border_style' => array(
 				'label' => __( 'Pull quote border style', 'apple-news' ),
-				'type' => array( 'solid', 'dashed', 'dotted' ),
+				'type' => array( 'solid', 'dashed', 'dotted', 'none' ),
 			),
 			'pullquote_border_width' => array(
 				'label' => __( 'Pull quote border width', 'apple-news' ),
@@ -288,6 +338,49 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 			'pullquote_transform' => array(
 				'label' => __( 'Pull quote transformation', 'apple-news' ),
 				'type' => array( 'none', 'uppercase' ),
+			),
+			'pullquote_hanging_punctuation' => array(
+				'label' => __( 'Pullquote hanging punctuation', 'apple-news' ),
+				'type' => array( 'no', 'yes' ),
+				'description' => __( 'If set to "yes," adds smart quotes (if not already present) and sets the hanging punctuation option to true.', 'apple-news' ),
+			),
+			'blockquote_font' => array(
+				'label' => __( 'Blockquote font face', 'apple-news' ),
+				'type' => 'font',
+			),
+			'blockquote_size' => array(
+				'label' => __( 'Blockquote font size', 'apple-news' ),
+				'type' => 'integer',
+			),
+			'blockquote_color' => array(
+				'label' => __( 'Blockquote color', 'apple-news' ),
+				'type' => 'color',
+			),
+			'blockquote_border_color' => array(
+				'label' => __( 'Blockquote border color', 'apple-news' ),
+				'type' => 'color',
+			),
+			'blockquote_border_style' => array(
+				'label' => __( 'Blockquote border style', 'apple-news' ),
+				'type' => array( 'solid', 'dashed', 'dotted', 'none' ),
+			),
+			'blockquote_border_width' => array(
+				'label' => __( 'Blockquote border width', 'apple-news' ),
+				'type' => 'integer',
+			),
+			'blockquote_line_height' => array(
+				'label' => __( 'Blockquote line height', 'apple-news' ),
+				'type' => 'float',
+				'sanitize' => 'floatval',
+			),
+			'blockquote_tracking' => array(
+				'label' => __( 'Blockquote tracking', 'apple-news' ),
+				'type' => 'integer',
+				'description' => __( '(Percentage of font size)', 'apple-news' ),
+			),
+			'blockquote_background_color' => array(
+				'label' => __( 'Blockquote background color', 'apple-news' ),
+				'type' => 'color',
 			),
 			'monospaced_font' => array(
 				'label' => __( 'Monospaced font face', 'apple-news' ),
@@ -361,9 +454,14 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 			'dropcap' => array(
 				'label' => __( 'Drop Cap', 'apple-news' ),
 				'settings' => array(
-					'dropcap_font',
 					'initial_dropcap',
-					'dropcap_color'
+					'dropcap_background_color',
+					'dropcap_color',
+					'dropcap_font',
+					'dropcap_number_of_characters',
+					'dropcap_number_of_lines',
+					'dropcap_number_of_raised_lines',
+					'dropcap_padding',
 				),
 			),
 			'byline' => array(
@@ -438,6 +536,16 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 					'header6_tracking',
 				),
 			),
+			'caption' => array(
+				'label' => __( 'Image caption', 'apple-news' ),
+				'settings' => array(
+					'caption_font',
+					'caption_size',
+					'caption_line_height',
+					'caption_tracking',
+					'caption_color',
+				),
+			),
 			'pullquote' => array(
 				'label' => __( 'Pull quote', 'apple-news' ),
 				'description' => sprintf(
@@ -451,10 +559,25 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 					'pullquote_line_height',
 					'pullquote_tracking',
 					'pullquote_color',
-					'pullquote_border_color',
+					'pullquote_hanging_punctuation',
 					'pullquote_border_style',
+					'pullquote_border_color',
 					'pullquote_border_width',
 					'pullquote_transform'
+				),
+			),
+			'blockquote' => array(
+				'label' => __( 'Blockquote', 'apple-news' ),
+				'settings' => array(
+					'blockquote_font',
+					'blockquote_size',
+					'blockquote_line_height',
+					'blockquote_tracking',
+					'blockquote_color',
+					'blockquote_border_style',
+					'blockquote_border_color',
+					'blockquote_border_width',
+					'blockquote_background_color',
 				),
 			),
 			'monospaced' => array(
@@ -486,7 +609,7 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 			),
 		);
 
-		parent::__construct( $page );
+		parent::__construct( $page, $hidden, $save_action, $section_option_name );
 	}
 
 	/**
@@ -496,7 +619,7 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 	 * @access public
 	 */
 	public function get_section_info() {
-		return __( 'Configuration for the visual appearance of the generated articles. Updates to these settings will not change the appearance of any articles previously published to your channel in Apple News unless you republish them.', 'apple-news' );
+		return __( 'Configuration for the visual appearance of the theme. Updates to these settings will not change the appearance of any articles previously published to your channel in Apple News using this theme unless you republish them.', 'apple-news' );
 	}
 
 	/**
@@ -506,6 +629,9 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 	 * @access public
 	 */
 	public function before_section() {
+		if ( $this->hidden ) {
+			return;
+		}
 		?>
 		<div id="apple-news-formatting">
 			<div class="apple-news-settings-left">
@@ -519,60 +645,15 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 	 * @access public
 	 */
 	public function after_section() {
+		if ( $this->hidden ) {
+			return;
+		}
 		?>
 			</div>
-			<div class="apple-news-settings-preview">
-				<?php
-					// Build sample content
-					$settings = new Admin_Apple_Settings();
-
-					$title = sprintf(
-						'<h1 class="apple-news-title apple-news-component apple-news-meta-component">%s</h1>',
-						__( 'Sample Article', 'apple-news' )
-					);
-
-					$cover = sprintf(
-						'<div class="apple-news-cover apple-news-meta-component">%s</div>',
-						__( 'Cover', 'apple-news' )
-					);
-
-					// Build the byline
-					$author = __( 'John Doe', 'apple-news' );
-					$date = date( 'M j, Y g:i A' );
-					$export = new Apple_Actions\Index\Export( $settings->fetch_settings() );
-					$byline = sprintf(
-						'<div class="apple-news-byline apple-news-component apple-news-meta-component">%s</div>',
-						$export->format_byline( null, $author, $date )
-					);
-
-					// Get the order of the top components
-					$component_order = self::get_value( 'meta_component_order' );
-					foreach ( $component_order as $component ) {
-						echo wp_kses( $$component, self::$allowed_html );
-					}
-				?>
-				<div class="apple-news-component">
-				<p><span class="apple-news-dropcap">L</span>orem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sagittis, <a href="#">augue vitae iaculis euismod</a>, libero nulla pellentesque quam, non venenatis massa odio id dolor.</p>
-				<p>Praesent eget odio vel sapien scelerisque euismod. Phasellus eros sapien, rutrum ac nibh nec, tristique commodo neque.</p>
-				<?php printf(
-						'<div class="apple-news-image">%s</div>',
-						esc_html__( 'Image', 'apple-news' )
-					);
-				?>
-				<p>Maecenas tortor dui, pellentesque ac ullamcorper quis, malesuada sit amet turpis. Nunc in tellus et justo dapibus sollicitudin.</p>
-				<h2>Quisque efficitur</h2>
-				<p>Quisque efficitur sit amet ex et venenatis. Morbi nisi nisi, ornare id iaculis eget, pulvinar ac dolor.</p>
-				<p>In eu la	cus porttitor, pellentesque diam et, tristique elit. Mauris justo odio, efficitur sit amet aliquet id, aliquam placerat turpis.</p>
-				<div class="apple-news-pull-quote">Lorem ipsum dolor sit amet.</div>
-				<p>Sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Pellentesque ipsum mi, sagittis eget sodales et, volutpat at felis.</p>
-                <pre>
-.code-sample {
-    font-family: monospace;
-    white-space: pre;
-}
-                </pre>
-				</div>
-			</div>
+			<?php
+				$preview = new Admin_Apple_Preview();
+				$preview->get_preview_html();
+			?>
 		</div>
 		<?php
 	}
@@ -580,28 +661,68 @@ class Admin_Apple_Settings_Section_Formatting extends Admin_Apple_Settings_Secti
 	/**
 	 * Renders the component order field.
 	 *
-	 * @static
+	 * @param string $type
+	 *
 	 * @access public
 	 */
-	public static function render_meta_component_order() {
-		?>
-		<ul id="meta-component-order-sort" class="component-order ui-sortable">
-			<?php
-				// Get the current order
-				$component_order = self::get_value( 'meta_component_order' );
-				if ( ! empty( $component_order ) && is_array( $component_order ) ) {
-					foreach ( $component_order as $component_name ) {
-						echo sprintf(
+	public static function render_meta_component_order( $type ) {
+
+		// Get the current order.
+		$component_order = self::get_value( 'meta_component_order' );
+		if ( empty( $component_order ) || ! is_array( $component_order ) ) {
+			$component_order = array();
+		}
+
+		// Get inactive components.
+		$default_settings = new Settings;
+		$inactive_components = array_diff(
+			$default_settings->meta_component_order,
+			$component_order
+		);
+
+		// Use the correct output format.
+		if ( 'hidden' === $type ) {
+			foreach ( $component_order as $component_name ) {
+				echo sprintf(
+					'<input type="hidden" name="meta_component_order[]" value="%s">',
+					esc_attr( $component_name )
+				);
+			}
+			foreach ( $inactive_components as $component_name ) {
+				echo sprintf(
+					'<input type="hidden" name="meta_component_inactive[]" value="%s">',
+					esc_attr( $component_name )
+				);
+			}
+		} else {
+			?>
+			<div class="apple-news-sortable-list">
+				<h4><?php esc_html_e( 'Active', 'apple-news' ); ?></h4>
+				<ul id="meta-component-order-sort"
+				    class="component-order ui-sortable">
+					<?php foreach ( $component_order as $component_name ) : ?>
+						<?php echo sprintf(
 							'<li id="%s" class="ui-sortable-handle">%s</li>',
 							esc_attr( $component_name ),
 							esc_html( ucwords( $component_name ) )
-						);
-					}
-				}
-			?>
-		</ul>
-		<p class="description"><?php esc_html_e( 'Drag to set the order of the meta components at the top of the article. These include the title, the cover (i.e. featured image) and byline which also includes the date.', 'apple-news' ) ?></p>
-		<?php
+						); ?>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<div class="apple-news-sortable-list">
+				<h4><?php esc_html_e( 'Inactive', 'apple-news' ); ?></h4>
+				<ul id="meta-component-inactive" class="component-order ui-sortable">
+					<?php foreach ( $inactive_components as $component_name ) : ?>
+						<?php echo sprintf(
+							'<li id="%s" class="ui-sortable-handle">%s</li>',
+							esc_attr( $component_name ),
+							esc_html( ucwords( $component_name ) )
+						); ?>
+					<?php endforeach; ?>
+				</ul>
+			</div>
+			<p class="description"><?php esc_html_e( 'Drag to set the order of the meta components at the top of the article. These include the title, the cover (i.e. featured image) and byline which also includes the date. Drag elements into the "Inactive" column to prevent them from being included in your articles.', 'apple-news' ) ?></p>
+			<?php
+		}
 	}
-
 }

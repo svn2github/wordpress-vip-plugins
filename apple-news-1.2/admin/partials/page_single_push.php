@@ -16,16 +16,42 @@
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Sections', 'apple-news' ) ?></th>
 				<td>
-					<?php \Admin_Apple_Meta_Boxes::build_sections_field( $sections, $post->ID ); ?>
-					<p class="description"><?php esc_html_e( 'Select the sections in which to publish this article. Uncheck them all for a standalone article.' , 'apple-news' ) ?></p>
+					<?php \Admin_Apple_Meta_Boxes::build_sections_override( $post->ID ); ?>
+					<div class="apple-news-sections">
+						<?php \Admin_Apple_Meta_Boxes::build_sections_field( $post->ID ); ?>
+						<p class="description"><?php esc_html_e( 'Select the sections in which to publish this article. Uncheck them all for a standalone article.' , 'apple-news' ) ?></p>
+					</div>
 				</td>
 			</tr>
 			<?php endif; ?>
 			<tr>
 				<th scope="row"><?php esc_html_e( 'Preview?', 'apple-news' ) ?></th>
 				<td>
-					<input id="apple-news-is-preview" name="apple_news_is_preview" type="checkbox" value="1" <?php checked( $post_meta['apple_news_is_preview'][0] ) ?>>
-					<p class="description"><?php esc_html_e( 'Check this to publish the article as a draft.' , 'apple-news' ) ?></p>
+					<label for="apple-news-is-preview">
+						<input id="apple-news-is-preview" name="apple_news_is_preview" type="checkbox" value="1" <?php checked( $post_meta['apple_news_is_preview'][0] ) ?>>
+						<?php esc_html_e( 'Check this to publish the article as a draft.' , 'apple-news' ) ?>
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Sponsored?', 'apple-news' ) ?></th>
+				<td>
+					<label for="apple-news-is-sponsored">
+						<input id="apple-news-is-sponsored" name="apple_news_is_sponsored" type="checkbox" value="1" <?php checked( $post_meta['apple_news_is_sponsored'][0] ) ?>>
+						<?php esc_html_e( 'Check this to indicate this article is sponsored content.' , 'apple-news' ) ?>
+					</label>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Maturity Rating', 'apple-news' ) ?></th>
+				<td>
+					<select id="apple-news-maturity-rating" name="apple_news_maturity_rating">
+						<option value=""></option>
+						<?php foreach ( \Apple_News::$maturity_ratings as $rating ) : ?>
+							<option value="<?php echo esc_attr( $rating ) ?>" <?php selected( $post_meta['apple_news_maturity_rating'][0], $rating ) ?>><?php echo esc_html( ucwords( strtolower( $rating ) ) ) ?></option>
+						<?php endforeach; ?>
+					</select>
+					<p class="description"><?php esc_html_e( 'Select the optional maturity rating for this post.' , 'apple-news' ) ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -45,6 +71,12 @@
 						<option <?php selected( $pullquote_position, 'bottom' ) ?> value="bottom"><?php esc_html_e( 'bottom', 'apple-news' ) ?></option>
 					</select>
 					<p class="description"><?php esc_html_e( 'The position in the article where the pull quote will appear.', 'apple-news' ) ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Cover art', 'apple-news' ) ?></th>
+				<td>
+					<?php include plugin_dir_path( __FILE__ ) . 'cover_art.php'; ?>
 				</td>
 			</tr>
 		</table>
