@@ -38,10 +38,17 @@ function wpcom_vip_get_term_by( $field, $value, $taxonomy, $output = OBJECT, $fi
 
 	if ( false === $term_id ) {
 		$term = get_term_by( $field, $value, $taxonomy );
-		if ( $term && ! is_wp_error( $term ) )
+
+		if ( $term && ! is_wp_error( $term ) ) {
 			wp_cache_set( $cache_key, $term->term_id, 'get_term_by', 4 * HOUR_IN_SECONDS );
-		else
+		} else {
 			wp_cache_set( $cache_key, 0, 'get_term_by', 15 * MINUTE_IN_SECONDS ); // if we get an invalid value, let's cache it anyway but for a shorter period of time
+		}
+
+		if ( OBJECT !== $output && $term && ! is_wp_error( $term ) ) {  //Previously we'd ignore the $output parameter the first time this function was called, always returning an object, this lead to unexpected behaviour. This line could go in the previous conditional a few lines up but it feels more readable and logical to separate it from the caching conditional
+			$term = get_term( $term->term_id, $taxonomy, $output, $filter );
+		}
+
 	} else {
 		$term = get_term( $term_id, $taxonomy, $output, $filter );
 	}
