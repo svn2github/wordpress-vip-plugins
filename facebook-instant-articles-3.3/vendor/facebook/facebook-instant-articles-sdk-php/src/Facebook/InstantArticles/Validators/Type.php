@@ -412,4 +412,33 @@ class Type
           // stringify the $object parameter
           return var_export($object, true);
     }
+
+    /**
+     * Checks if tag is a DOMElement and also to have the $tagName informed.
+     * @param $tag DOMElement the tag element that will be validated
+     * @param $tagName string Tag name to be validated
+     * @return boolean true if it is Element and from same tagName.
+     * @throws InvalidArgumentException in case $tag is not DOMElement.
+     */
+    public static function isElementTag($tag, $tagName)
+    {
+        $element = new \DOMElement('dummy'); // This is just for retro-compatibility for 5.4 ::class placeholder
+        self::enforce($tag, get_class($element));
+        return $tag->tagName === $tagName;
+    }
+
+    /**
+     * Enforces tag to be an DOMElement and also to have the $tagName informed.
+     * @param $tag DOMElement the tag element that will be validated
+     * @param $tagName string Tag name to be validated
+     * @throws InvalidArgumentException in case $tag is not DOMElement or same tagName.
+     */
+    public static function enforceElementTag($tag, $tagName)
+    {
+        if (!self::isElementTag($tag, $tagName)) {
+            throw new \InvalidArgumentException(
+                "Tag <".$tagName."> expected, <".$tag->tagName."> informed."
+            );
+        }
+    }
 }

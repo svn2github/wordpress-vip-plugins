@@ -34,7 +34,7 @@ use Facebook\InstantArticles\Validators\Type;
 
 class InstantArticle extends Element implements Container, InstantArticleInterface
 {
-    const CURRENT_VERSION = '1.5.5';
+    const CURRENT_VERSION = '1.5.7';
 
     /**
      * The meta properties that are used on <head>
@@ -357,6 +357,14 @@ class InstantArticle extends Element implements Container, InstantArticleInterfa
     }
 
     /**
+     * @return string style from the InstantArticle
+     */
+    public function getStyle()
+    {
+        return $this->style;
+    }
+
+    /**
      * @return Header header element from the InstantArticle
      */
     public function getHeader()
@@ -381,6 +389,22 @@ class InstantArticle extends Element implements Container, InstantArticleInterfa
     }
 
     /**
+     * @return boolean if this article is Right-to-left(RTL).
+     */
+    public function isRTLEnabled()
+    {
+        return $this->isRTLEnabled;
+    }
+
+    /**
+     * @return string The article charset.
+     */
+    public function getCharset()
+    {
+        return $this->charset;
+    }
+
+    /**
      * Adds a meta property for the <head> of Instant Article.
      *
      * @param string $property_name name of meta attribute
@@ -396,6 +420,7 @@ class InstantArticle extends Element implements Container, InstantArticleInterfa
 
     public function render($doctype = '<!doctype html>', $format = false)
     {
+        $doctype = is_null($doctype) ? '<!doctype html>' : $doctype;
         return parent::render($doctype, $format);
     }
 
@@ -538,5 +563,19 @@ class InstantArticle extends Element implements Container, InstantArticleInterfa
         }
 
         return $children;
+    }
+
+    public function getFirstParagraph()
+    {
+        $items = $this->getChildren();
+        if ($items) {
+            foreach ($items as $item) {
+                if (Type::is($item, Paragraph::getClassName())) {
+                    return $item;
+                }
+            }
+        }
+        // Case no paragraph exists, we return an empty paragraph
+        return Paragraph::create();
     }
 }

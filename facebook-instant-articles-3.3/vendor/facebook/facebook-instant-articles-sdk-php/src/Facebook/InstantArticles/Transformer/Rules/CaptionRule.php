@@ -53,6 +53,7 @@ class CaptionRule extends ConfigurationSelectorRule
                 Caption::ALIGN_CENTER,
                 Caption::ALIGN_RIGHT,
 
+                Caption::SIZE_SMALL,
                 Caption::SIZE_MEDIUM,
                 Caption::SIZE_LARGE,
                 Caption::SIZE_XLARGE,
@@ -90,6 +91,9 @@ class CaptionRule extends ConfigurationSelectorRule
             $caption->withTextAlignment(Caption::ALIGN_RIGHT);
         }
 
+        if ($this->getProperty(Caption::SIZE_SMALL, $node)) {
+            $caption->withFontsize(Caption::SIZE_SMALL);
+        }
         if ($this->getProperty(Caption::SIZE_MEDIUM, $node)) {
             $caption->withFontsize(Caption::SIZE_MEDIUM);
         }

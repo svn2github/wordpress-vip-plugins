@@ -81,6 +81,27 @@ abstract class TextContainer extends Element implements Container
     }
 
     /**
+     * Build up a string with the content from children text container
+     *
+     * @return string the unformated plain text content from children
+     */
+    public function getPlainText()
+    {
+        $text = '';
+
+        // Generate markup
+        foreach ($this->textChildren as $content) {
+            if (Type::is($content, Type::STRING)) {
+                $text .= $content;
+            } else {
+                $text .= $content->getPlainText();
+            }
+        }
+
+        return $text;
+    }
+
+    /**
      * Overrides the Element::isValid().
      *
      * @see Element::isValid().

@@ -4,7 +4,7 @@
  * Description: Add support for Instant Articles for Facebook to your WordPress site.
  * Author: Automattic, Dekode, Facebook
  * Author URI: https://vip.wordpress.com/plugins/instant-articles/
- * Version: 3.3.3
+ * Version: 3.3.5
  * Text Domain: instant-articles
  * License: GPLv2
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -12,13 +12,19 @@
  * @package default
  */
 
+/**
+* Prints error about incompatible version. Extracted as function issue: #390
+*
+* @since 3.3.4
+*/
+function show_version_incompatible_warning() {
+	echo '<div class="error"><p>' .
+		esc_html__( 'Instant Articles for WP requires PHP 5.4 to function properly. Please upgrade PHP or deactivate Instant Articles for WP.', 'instant-articles' ) . '</p></div>';
+}
 if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
 	add_action(
 		'admin_notices',
-		function () {
-			echo '<div class="error"><p>' .
-				esc_html__( 'Instant Articles for WP requires PHP 5.4 to function properly. Please upgrade PHP or deactivate Instant Articles for WP.', 'instant-articles' ) . '</p></div>';
-		}
+		'show_version_incompatible_warning'
 	);
 	return;
 } else {
@@ -61,7 +67,7 @@ if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
 
 	defined( 'ABSPATH' ) || die( 'Shame on you' );
 
-	define( 'IA_PLUGIN_VERSION', '3.3.3' );
+	define( 'IA_PLUGIN_VERSION', '3.3.5' );
 	define( 'IA_PLUGIN_PATH_FULL', __FILE__ );
 	define( 'IA_PLUGIN_PATH', plugin_basename( __FILE__ ) );
 	define( 'IA_PLUGIN_FILE_BASENAME', pathinfo( __FILE__, PATHINFO_FILENAME ) );
@@ -253,55 +259,67 @@ if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
 	function instant_articles_register_scripts() {
 		wp_register_style(
 			'instant-articles-meta-box',
-			plugins_url( '/css/instant-articles-meta-box.css', __FILE__ )
+			plugins_url( '/css/instant-articles-meta-box.css', __FILE__ ),
+			null,
+			IA_PLUGIN_VERSION,
+			false
 		);
 		wp_register_style(
 			'instant-articles-settings',
-			plugins_url( '/css/instant-articles-settings.css', __FILE__ )
+			plugins_url( '/css/instant-articles-settings.css', __FILE__ ),
+			null,
+			IA_PLUGIN_VERSION,
+			false
 		);
 		wp_register_style(
 			'instant-articles-wizard',
-			plugins_url( '/css/instant-articles-wizard.css', __FILE__ )
+			plugins_url( '/css/instant-articles-wizard.css', __FILE__ ),
+			null,
+			IA_PLUGIN_VERSION,
+			false
 		);
 
 		wp_register_script(
 			'instant-articles-meta-box',
-			plugins_url( '/js/instant-articles-meta-box.js', __FILE__ )
+			plugins_url( '/js/instant-articles-meta-box.js', __FILE__ ),
+			null,
+			IA_PLUGIN_VERSION,
+			false
 		);
 		wp_register_script(
 			'instant-articles-option-ads',
 			plugins_url( '/js/instant-articles-option-ads.js', __FILE__ ),
 			null,
-			null,
-			true
+			IA_PLUGIN_VERSION,
+			false
 		);
 		wp_register_script(
 			'instant-articles-option-analytics',
 			plugins_url( '/js/instant-articles-option-analytics.js', __FILE__ ),
 			null,
-			null,
-			true
+			IA_PLUGIN_VERSION,
+			false
 		);
 		wp_register_script(
 			'instant-articles-option-publishing',
 			plugins_url( '/js/instant-articles-option-publishing.js', __FILE__ ),
 			null,
-			null,
-			true
+			IA_PLUGIN_VERSION,
+			false
 		);
 		wp_register_script(
 			'instant-articles-settings',
 			plugins_url( '/js/instant-articles-settings.js', __FILE__ ),
 			null,
-			null,
-			true
+			IA_PLUGIN_VERSION,
+			false
 		);
 		wp_register_script(
 			'instant-articles-wizard',
 			plugins_url( '/js/instant-articles-wizard.js', __FILE__ ),
 			null,
-			null,
-			true
+			IA_PLUGIN_VERSION,
+			false
 		);
 	}
 	add_action( 'init', 'instant_articles_register_scripts' );

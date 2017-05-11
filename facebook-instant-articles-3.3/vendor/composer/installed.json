@@ -33,17 +33,17 @@
     },
     {
         "name": "facebook/graph-sdk",
-        "version": "5.4.4",
-        "version_normalized": "5.4.4.0",
+        "version": "5.5.0",
+        "version_normalized": "5.5.0.0",
         "source": {
             "type": "git",
             "url": "https://github.com/facebook/php-graph-sdk.git",
-            "reference": "5d0c4865e80e231d48a4571841bd018828fe58e1"
+            "reference": "93d7dc87e55a541d2e27d38f3aed40abbffdf6e1"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/facebook/php-graph-sdk/zipball/5d0c4865e80e231d48a4571841bd018828fe58e1",
-            "reference": "5d0c4865e80e231d48a4571841bd018828fe58e1",
+            "url": "https://api.github.com/repos/facebook/php-graph-sdk/zipball/93d7dc87e55a541d2e27d38f3aed40abbffdf6e1",
+            "reference": "93d7dc87e55a541d2e27d38f3aed40abbffdf6e1",
             "shasum": ""
         },
         "require": {
@@ -58,7 +58,7 @@
             "guzzlehttp/guzzle": "Allows for implementation of the Guzzle HTTP client",
             "paragonie/random_compat": "Provides a better CSPRNG option in PHP 5"
         },
-        "time": "2017-01-19 15:42:20",
+        "time": "2017-04-20 14:15:02",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -93,23 +93,23 @@
     },
     {
         "name": "symfony/css-selector",
-        "version": "v3.2.3",
-        "version_normalized": "3.2.3.0",
+        "version": "v3.2.8",
+        "version_normalized": "3.2.8.0",
         "source": {
             "type": "git",
             "url": "https://github.com/symfony/css-selector.git",
-            "reference": "f0e628f04fc055c934b3211cfabdb1c59eefbfaa"
+            "reference": "02983c144038e697c959e6b06ef6666de759ccbc"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/symfony/css-selector/zipball/f0e628f04fc055c934b3211cfabdb1c59eefbfaa",
-            "reference": "f0e628f04fc055c934b3211cfabdb1c59eefbfaa",
+            "url": "https://api.github.com/repos/symfony/css-selector/zipball/02983c144038e697c959e6b06ef6666de759ccbc",
+            "reference": "02983c144038e697c959e6b06ef6666de759ccbc",
             "shasum": ""
         },
         "require": {
             "php": ">=5.5.9"
         },
-        "time": "2017-01-02 20:32:22",
+        "time": "2017-05-01 14:55:58",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -148,17 +148,17 @@
     },
     {
         "name": "facebook/facebook-instant-articles-sdk-php",
-        "version": "v1.5.5",
-        "version_normalized": "1.5.5.0",
+        "version": "v1.5.7",
+        "version_normalized": "1.5.7.0",
         "source": {
             "type": "git",
             "url": "https://github.com/facebook/facebook-instant-articles-sdk-php.git",
-            "reference": "3d7782850625ab4025d6c1a1bb5fc8a6cf2fc682"
+            "reference": "540cfcf1df49ce98d1942c34672ac10bf8888bd7"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/facebook/facebook-instant-articles-sdk-php/zipball/3d7782850625ab4025d6c1a1bb5fc8a6cf2fc682",
-            "reference": "3d7782850625ab4025d6c1a1bb5fc8a6cf2fc682",
+            "url": "https://api.github.com/repos/facebook/facebook-instant-articles-sdk-php/zipball/540cfcf1df49ce98d1942c34672ac10bf8888bd7",
+            "reference": "540cfcf1df49ce98d1942c34672ac10bf8888bd7",
             "shasum": ""
         },
         "require": {
@@ -172,7 +172,7 @@
             "phpunit/phpunit": "^4.8",
             "squizlabs/php_codesniffer": "^2.6.0"
         },
-        "time": "2017-02-13 18:28:26",
+        "time": "2017-04-27 18:49:03",
         "type": "library",
         "installation-source": "dist",
         "autoload": {

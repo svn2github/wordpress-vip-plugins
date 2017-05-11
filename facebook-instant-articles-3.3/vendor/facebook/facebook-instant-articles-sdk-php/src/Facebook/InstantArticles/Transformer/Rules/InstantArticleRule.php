@@ -17,6 +17,7 @@ class InstantArticleRule extends ConfigurationSelectorRule
     const PROPERTY_CHARSET = 'article.charset';
     const PROPERTY_MARKUP_VERSION = 'article.markup.version';
     const PROPERTY_AUTO_AD_PLACEMENT = 'article.auto.ad';
+    const PROPERTY_STYLE = 'article.style';
 
     public function getContextClass()
     {
@@ -38,7 +39,8 @@ class InstantArticleRule extends ConfigurationSelectorRule
                 self::PROPERTY_CANONICAL,
                 self::PROPERTY_CHARSET,
                 self::PROPERTY_MARKUP_VERSION,
-                self::PROPERTY_AUTO_AD_PLACEMENT
+                self::PROPERTY_AUTO_AD_PLACEMENT,
+                self::PROPERTY_STYLE
             ],
             $configuration
         );
@@ -76,6 +78,11 @@ class InstantArticleRule extends ConfigurationSelectorRule
         $auto_ad_placement = $this->getProperty(self::PROPERTY_AUTO_AD_PLACEMENT, $node);
         if ($auto_ad_placement === 'false') {
             $instant_article->disableAutomaticAdPlacement();
+        }
+
+        $style = $this->getProperty(self::PROPERTY_STYLE, $node);
+        if ($style) {
+            $instant_article->withStyle($style);
         }
 
         return $instant_article;

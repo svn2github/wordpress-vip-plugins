@@ -130,6 +130,10 @@
                 "selector" : "header"
             },
             {
+                "class": "FooterSmallRule",
+                "selector": "small"
+            },
+            {
                 "class": "FooterRule",
                 "selector" : "footer"
             },
@@ -186,6 +190,11 @@
                     "article.auto.ad" : {
                         "type" : "xpath",
                         "selector" : "//meta[@property='fb:use_automatic_ad_placement']",
+                        "attribute": "content"
+                    },
+                    "article.style" : {
+                        "type" : "xpath",
+                        "selector": "//meta[@property='fb:article_style']",
                         "attribute": "content"
                     }
 

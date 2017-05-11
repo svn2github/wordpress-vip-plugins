@@ -41,6 +41,7 @@ class H1Rule extends ConfigurationSelectorRule
                 Caption::ALIGN_CENTER,
                 Caption::ALIGN_RIGHT,
 
+                Caption::SIZE_SMALL,
                 Caption::SIZE_MEDIUM,
                 Caption::SIZE_LARGE,
                 Caption::SIZE_XLARGE

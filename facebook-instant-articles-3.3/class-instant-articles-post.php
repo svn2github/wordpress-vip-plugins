@@ -345,8 +345,9 @@ class Instant_Articles_Post {
 		 *
 		 * @since 0.1
 		 * @param string  $content  The post content.
+		 * @param int     $post_id  The instant article post.
 		 */
-		$content = apply_filters( 'instant_articles_content', $content );
+		$content = apply_filters( 'instant_articles_content', $content, $this->_post->ID );
 
 		// Cache the content.
 		set_transient( 'instantarticles_mod_' . $this->_post->ID, get_post_modified_time( 'Y-m-d H:i:s', true, $this->_post->ID ), WEEK_IN_SECONDS );
@@ -602,6 +603,7 @@ class Instant_Articles_Post {
 
 		// Initialize transformer
 		$file_path = plugin_dir_path( __FILE__ ) . 'rules-configuration.json';
+		$file_path = apply_filters( 'instant_articles_transformer_rules_configuration_json_file_path', $file_path );
 		$configuration = file_get_contents( $file_path );
 
 		$transformer = new Transformer();
@@ -636,11 +638,7 @@ class Instant_Articles_Post {
 
 		$title = $this->get_the_title();
 		if ( $title ) {
-			$document = new DOMDocument();
-			libxml_use_internal_errors(true);
-			$document->loadHTML( '<?xml encoding="' . $blog_charset . '" ?><h1>' . $title . '</h1>' );
-			libxml_use_internal_errors(false);
-			$transformer->transform( $header, $document );
+			$transformer->transformString( $header, '<h1>' . $title . '</h1>', $blog_charset );
 		}
 
 		if ( $this->has_subtitle() ) {
@@ -678,15 +676,19 @@ class Instant_Articles_Post {
 				->addMetaProperty( 'op:generator:application', 'facebook-instant-articles-wp' )
 				->addMetaProperty( 'op:generator:application:version', IA_PLUGIN_VERSION );
 
-		$settings_style = Instant_Articles_Option_Styles::get_option_decoded();
-		if ( isset( $settings_style['article_style'] ) && ! empty( $settings_style['article_style'] ) ) {
-			$this->instant_article->withStyle( $settings_style['article_style'] );
-		} else {
-			$this->instant_article->withStyle( 'default' );
-		}
+		$this->set_appearance_from_settings();
 
-		if ( isset( $settings_style['rtl_enabled'] ) ) {
-			$this->instant_article->enableRTL();
+		// This block sets as default likes and/or comments based on the configuration setup,
+		// and call $transformer->transform will consider the defaults before building the Elements
+		//
+		// Warning: if you are using pthreads or any other multithreaded engine, consider replicating this to all processes.
+		if ( isset( $settings_publishing[ 'likes_on_media' ] ) ) {
+			Image::setDefaultLikeEnabled( $settings_publishing[ 'likes_on_media' ] );
+			Video::setDefaultLikeEnabled( $settings_publishing[ 'likes_on_media' ] );
+		}
+		if ( isset( $settings_publishing[ 'comments_on_media' ] ) ) {
+			Image::setDefaultCommentEnabled( $settings_publishing[ 'comments_on_media' ] );
+			Video::setDefaultCommentEnabled( $settings_publishing[ 'comments_on_media' ] );
 		}
 
 		$transformer->transformString( $this->instant_article, $this->get_the_content(), get_option( 'blog_charset' ) );
@@ -860,6 +862,31 @@ class Instant_Articles_Post {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Apply appearance settings for an InstantArticle.
+	 *
+	 * @since 3.3
+	 */
+	public function set_appearance_from_settings() {
+		$settings = Instant_Articles_Option_Styles::get_option_decoded();
+
+		if ( isset( $settings['article_style'] ) && ! empty( $settings['article_style'] ) ) {
+			$this->instant_article->withStyle( $settings['article_style'] );
+		} else {
+			$this->instant_article->withStyle( 'default' );
+		}
+
+		if ( isset( $settings['copyright'] ) && ! empty( $settings['copyright'] ) ) {
+			$this->instant_article->withFooter(
+				Footer::create()->withCopyright( $settings['copyright'] )
+			);
+		}
+
+		if ( isset( $settings['rtl_enabled'] ) ) {
+			$this->instant_article->enableRTL();
 		}
 	}
 

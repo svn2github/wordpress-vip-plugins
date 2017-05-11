@@ -37,6 +37,7 @@ use Facebook\InstantArticles\Validators\Type;
 class Caption extends FormattedText
 {
     // Font size
+    const SIZE_SMALL = 'op-small';
     const SIZE_MEDIUM = 'op-medium';
     const SIZE_LARGE = 'op-large';
     const SIZE_XLARGE = 'op-extra-large';
@@ -72,7 +73,7 @@ class Caption extends FormattedText
     private $credit;
 
     /**
-     * @var string text Size. Values: "op-medium"|"op-large"|"op-extra-large"
+     * @var string text Size. Values: "op-small"|"op-medium"|"op-large"|"op-extra-large"
      */
     private $fontSize;
 
@@ -161,6 +162,7 @@ class Caption extends FormattedText
     /**
      * The Fontsize that will be used.
      *
+     * @see Caption::SIZE_SMALL
      * @see Caption::SIZE_MEDIUM
      * @see Caption::SIZE_LARGE
      * @see Caption::SIZE_XLARGE
@@ -176,7 +178,8 @@ class Caption extends FormattedText
             [
                 Caption::SIZE_XLARGE,
                 Caption::SIZE_LARGE,
-                Caption::SIZE_MEDIUM
+                Caption::SIZE_MEDIUM,
+                Caption::SIZE_SMALL
             ]
         );
         $this->fontSize = $font_size;
@@ -301,6 +304,7 @@ class Caption extends FormattedText
     /**
      * @return string the Font size.
      *
+     * @see Caption::SIZE_SMALL
      * @see Caption::SIZE_MEDIUM
      * @see Caption::SIZE_LARGE
      * @see Caption::SIZE_XLARGE
@@ -332,6 +336,18 @@ class Caption extends FormattedText
     public function getPosition()
     {
         return $this->position;
+    }
+
+    /**
+     * @return string the Vertical Alignment.
+     *
+     * @see Caption::VERTICAL_TOP
+     * @see Caption::VERTICAL_BOTTOM
+     * @see Caption::VERTICAL_CENTER
+     */
+    public function getVerticalAlignment()
+    {
+        return $this->verticalAlignment;
     }
 
     /**
