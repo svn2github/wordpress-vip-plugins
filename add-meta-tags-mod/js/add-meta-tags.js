@@ -1,6 +1,6 @@
 (function($) {
 
-counter = {
+var counter = {
 	init : function() {
 		var t = this,
 		    $title = $('#mt_seo_title'),
