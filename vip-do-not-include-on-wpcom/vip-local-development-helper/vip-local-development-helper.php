@@ -595,6 +595,9 @@ function wpcom_vip_plugin_double_load_alert( $folder, $plugin, $plugin_slug ) {
  */
 function wpcom_vip_plugin_double_load_client_notice( $folder, $plugin_slug, $version = false ) {
 
+	// Silence for now, while we double-check the alerts are legit.
+	return;
+
 	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
