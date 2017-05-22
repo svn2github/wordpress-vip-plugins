@@ -570,7 +570,8 @@ function wpcom_vip_plugin_double_load_alert( $folder, $plugin, $plugin_slug ) {
 
 			// Use an expiring cache value to avoid spamming messages.
 			$cachekey = md5( $folder . '|' . $plugin );
-			if ( ! wp_cache_get( "doubleload_$cachekey", 'wpcom_vip_load_plugin' ) ) {
+			if ( false ) { // Silence until we can double-check these warnings aren't false.
+			//if ( ! wp_cache_get( "doubleload_$cachekey", 'wpcom_vip_load_plugin' ) ) {
 				send_vip_team_debug_message( "WARNING: wpcom_vip_load_plugin() is trying to double load a plugin ( /$folder/$plugin/$plugin_slug.php )", 1 );
 				wp_cache_set( "doubleload_$cachekey", 1, 'wpcom_vip_load_plugin', 3600 );
 			}
