@@ -17,7 +17,6 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * Loads a plugin out of our shared plugins directory.
  *
  * @link http://lobby.vip.wordpress.com/plugins/ VIP Shared Plugins
- *
  * @param string $plugin Optional. Plugin folder name (and filename) of the plugin
  * @param string $folder Optional. Folder to include from; defaults to "plugins". Useful for when you have multiple themes and your own shared plugins folder.
  * @param string|bool $version Optional. Specify which version of the plugin to load. Version should be in the format 1.0.0. Passing true triggers legacy release candidate support.
@@ -25,7 +24,6 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * @return bool True if the include was successful
  */
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version = false ) {
-	static $loaded_plugin_slugs = array();
 
 	// Make sure there's a plugin to load
 	if ( empty( $plugin ) ) {
@@ -64,28 +62,7 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
         }
     }
 
-	// Prevent double-loading of plugins.
-	// Check if we've already loaded the plugin, by looking for it in our `$loaded_plugin_slugs` array and if found,
-	// warn VIP and the client and halt the attempt to load the plugin, preventing fatals.
-	$local_plugin_key = sprintf( '%s__%s', $folder, $plugin_slug );
-	if ( isset( $loaded_plugin_slugs[ $local_plugin_key ] ) ) {
-
-		// Alert VIP.
-		wpcom_vip_plugin_double_load_alert( $folder, $plugin, $plugin_slug );
-
-		// Alert the client.
-		add_action( 'admin_notices', function() use ( $folder, $plugin_slug, $version ) {
-			wpcom_vip_plugin_double_load_client_notice( $folder, $plugin_slug, $version );
-		} );
-
-		// Bail now to prevent fatals from double loading.
-		return false;
-	}
-
-	// Record this plugin as loaded to prevent double-loading.
-	$loaded_plugin_slugs[ $local_plugin_key ] = true;
-
-	// Find the plugin
+    // Find the plugin
 	$plugin_locations = _wpcom_vip_load_plugin_get_locations( $folder, $version );
 	$include_path = _wpcom_vip_load_plugin_get_include_path( $plugin_locations, $plugin, $plugin_slug );
 
@@ -551,85 +528,6 @@ function wpcom_vip_plugins_ui_disable_activation() {
 	if ( class_exists( "WPcom_VIP_Plugins_UI" )){
 		WPcom_VIP_Plugins_UI()->activation_disabled = true;
 	}
-}
-
-/**
- * On WordPress.com, alert VIP to double-loading attempts.
- *
- * @param string $folder      Folder where the plugin resides.
- * @param string $plugin      Name of the plugin we're attempting to load, including version where applicable.
- * @param string $plugin_slug Slug of the plugin, excluding version, we're attempting to load.
- *
- * @return void
- */
-function wpcom_vip_plugin_double_load_alert( $folder, $plugin, $plugin_slug ) {
-
-	if ( function_exists( 'wpcom_is_vip' ) ) {
-
-		if ( function_exists( 'send_vip_team_debug_message' ) ) {
-
-			// Use an expiring cache value to avoid spamming messages.
-			$cachekey = md5( $folder . '|' . $plugin );
-			if ( false ) { // Silence until we can double-check these warnings aren't false.
-			//if ( ! wp_cache_get( "doubleload_$cachekey", 'wpcom_vip_load_plugin' ) ) {
-				send_vip_team_debug_message( "WARNING: wpcom_vip_load_plugin() is trying to double load a plugin ( /$folder/$plugin/$plugin_slug.php )", 1 );
-				wp_cache_set( "doubleload_$cachekey", 1, 'wpcom_vip_load_plugin', 3600 );
-			}
-		}
-
-	} else {
-		// die() in non-WordPress.com environments so you know you made a mistake.
-		die( "Attempting to load $plugin ({$folder}) via wpcom_vip_load_plugin() already activated via UI!" );
-	}
-
-}
-
-/**
- * Notify clients of plugin double-loading.
- *
- * @param string $folder  Folder where the plugin resides.
- * @param string $plugin  Slug of the plugin we're attempting to load.
- * @param string $version The plugin version, if specified.
- *
- * @return void
- */
-function wpcom_vip_plugin_double_load_client_notice( $folder, $plugin_slug, $version = false ) {
-
-	// Silence for now, while we double-check the alerts are legit.
-	return;
-
-	if ( ! current_user_can( 'manage_options' ) ) {
-		return;
-	}
-
-	require_once( __dir__ . '/../wpcom-vip-plugins-ui/wpcom-vip-plugins-ui.php' );
-
-	$plugin = $plugin_slug;
-	if ( 'plugins' !== $folder ) {
-		$plugin = $folder . '/' . $plugin;
-	}
-
-	if ( false !== $version ) {
-		if ( true === $version ) {
-			$plugin .= " RC";
-		} else {
-			$plugin .= " v" . $version;
-		}
-	}
-
-	if ( 'plugins.php' === WPcom_VIP_Plugins_UI()->parent_menu_slug ) {
-		$page_title = __( 'WordPress.com VIP Plugins', 'wpcom-vip-plugins-ui' );
-	} else {
-		$page_title = __( 'WordPress.com VIP Plugins & Services', 'wpcom-vip-plugins-ui' );
-	}
-
-	printf(
-		'<div class=notice notice-error><p>Whoops, it looks like plugin %s is being activated simultaneously via two different means - wp-admin\'s Plugin UI and from the theme code. In order to not introduce any errors, we have blocked activation of the plugin initialised from the theme code. If you want to load the version of the plugin used in the theme code, please, deactivate the plugin in <a href="%s">%s</a>.</p></div>',
-		esc_html( $plugin ),
-		esc_url( WPcom_VIP_Plugins_UI()->get_menu_url() ),
-		esc_html( $page_title )
-	);
-
 }
 
 /** 
