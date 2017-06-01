@@ -236,3 +236,17 @@ function es_disable_advanced_post_cache( &$query ) {
 
 add_action( 'pre_get_posts', 'es_disable_advanced_post_cache', -100 );
 
+/**
+ * Normalise term name to lowercase as we are mapping that agains raw_lc field.
+ *
+ * @param $term string|mixed Term's name which should be normalised to lowercase.
+ * @param $taxonomy string Taxonomy of the term.
+ * @return mixed If $term is a string, lowercased string is returned. Otherwise original value is return unchanged.
+ */
+function vip_es_term_name_slug_tolower( $term, $taxonomy ) {
+	    if ( ! is_string( $term ) || empty( $term ) ) {
+	    	return $term;
+	    }
+	    return strtolower( $term );
+}
+add_filter( 'es_tax_query_term_name', 'vip_es_term_name_slug_tolower', 10, 2 );
