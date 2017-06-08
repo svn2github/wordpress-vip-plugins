@@ -1,0 +1,30 @@
+/* About screen */
+.getty-about-text {
+	position: relative;
+	padding: 1em 2.5em;
+}
+	.getty-about-text h2 {
+		color: #444;
+	}
+	.getty-about-text .getty-about-close-x {
+		width: 11px;
+		height: 11px;
+		position: absolute;
+		right: 20px;
+		top: 20px;
+		background: url(../images/x.png) no-repeat right;
+		text-indent: 11px;
+		overflow: hidden;
+		cursor: pointer;
+	}
+	.getty-about-text p {
+		text-indent: .5em;
+	}
+	.getty-about-text dt {
+		font-weight: bold;
+		font-size: 1.2em;
+	}
+	.getty-about-text dd {
+		padding: .5em;
+		margin: .5em;
+	}
