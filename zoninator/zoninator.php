@@ -1155,11 +1155,12 @@ class Zoninator
 		} else {
 			return false;
 		}
-		if ( function_exists( 'wpcom_vip_get_term_by' ) ) {
-			$zone = wpcom_vip_get_term_by( $field, $zone, $this->zone_taxonomy );
-		}else{
+		// Removing call to wpcom_vip_get_term_by due to #66499-z
+		//if ( function_exists( 'wpcom_vip_get_term_by' ) ) {
+		//	$zone = wpcom_vip_get_term_by( $field, $zone, $this->zone_taxonomy );
+		//}else{
 			$zone = get_term_by( $field, $zone, $this->zone_taxonomy );
-		}
+		//}
 
 		
 		if( ! $zone )
