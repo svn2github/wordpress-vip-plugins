@@ -1,0 +1,51 @@
+/**
+ * Optimizely admin stylesheet
+ *
+ * Styles for Optimizely controls present in wp-admin.
+ */
+
+/**
+ * 1.0 General Styles
+ *
+ * Reusable styles for Optimizely controls in various locations.
+ */
+
+.optimizely-error-message {
+	color: #f00;
+}
+
+.optimizely-loading {
+	text-align: center;
+}
+
+/**
+ * 2.0 Config Page Styles
+ *
+ * Styles specific to the configuration page.
+ */
+
+.optimizely-admin .code {
+	width: 100%;
+}
+
+#optimizely-url-targeting {
+	width: 50%;
+}
+
+/**
+ * 3.0 Metabox Styles
+ *
+ * Styles specific to the Optimizely metabox on the post edit screen.
+ */
+
+.optimizely-variation {
+	margin-bottom: .5em;
+}
+
+.optimizely-variation input {
+	width: 100%;
+}
+
+#optimizely-not-created {
+	margin-top: 1em;
+}
