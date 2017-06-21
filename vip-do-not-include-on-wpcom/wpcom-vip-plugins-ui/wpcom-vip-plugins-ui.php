@@ -261,9 +261,9 @@ class WPcom_VIP_Plugins_UI {
 				'name'			=> 'CoSchedule',
 				'description'	=> 'Plan awesome content. Save a bunch of time.',
 			),
-			'facebook' => array(
-				'name'			=> 'Facebook',
-				'description'	=> 'Make your WordPress site social in a couple of clicks, powered by Facebook.',
+			'facebook-instant-articles' => array(
+				'name'			=> 'Facebook Instant Articles',
+				'description'	=> 'Add support for Instant Articles for Facebook to your WordPress site.',
 			),
 			'getty-images' => array(
 				'name'			=> 'Getty Images',
@@ -608,7 +608,7 @@ class WPcom_VIP_Plugins_UI {
 		/*
 		 Dirty check for versioned plugins.  Not all plugins will
 		 have a '-' in their slug, but ALL versioned plugins do.
-		 This should fix some outliers that are hidden and have 
+		 This should fix some outliers that are hidden and have
 		 multiple plugins that have slugs that start with the same
 		 string. ex: brightcove (hidden) and brightcove-video-connect
 		 */
