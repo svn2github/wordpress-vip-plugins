@@ -10,18 +10,18 @@
 if ( ! class_exists( 'Table_Of_Contents' ) ):
 
 class Table_Of_Contents {
-	function init() {
+	public static function init() {
 		add_action( 'template_redirect', array( __CLASS__, 'load_filters' ) );
 	}
 
-	function load_filters() {
+	public static function load_filters() {
 		if ( is_singular() ) {
 			add_filter( 'the_content', array( __CLASS__, 'add_overview_h3' ) );
 			add_filter( 'the_content', array( __CLASS__, 'add_toc' ) );
 		}
 	}
 
-	function add_toc( $content ) {
+	public static function add_toc( $content ) {
 		// only affect the main post and not post in custom queries
 		if ( get_the_ID() != get_queried_object_id() || ! in_array( get_post_type(), apply_filters( 'toc_post_types', array( 'page' ) ) ) )
 			return $content;
@@ -40,7 +40,7 @@ class Table_Of_Contents {
 				if ( ! empty( $subtags ) ) {
 					$toc .= '<ul>';
 					foreach ( $subtags as $subtag ) {
-						$toc .= '<li><a href="#' . sanitize_title_with_dashes( $subtag )  . '">' . $subtag  . '</a>'; 
+						$toc .= '<li><a href="#' . sanitize_title_with_dashes( $subtag )  . '">' . $subtag  . '</a>';
 					}
 					$toc .= '</ul>';
 				}
@@ -54,7 +54,7 @@ class Table_Of_Contents {
 		return $toc . $content;
 	}
 
-	function add_overview_h3( $content ) {
+	public static function add_overview_h3( $content ) {
 		// only affect the main post and not post in custom queries
 		if ( get_the_ID() != get_queried_object_id() || ! in_array( get_post_type(), apply_filters( 'toc_post_types', array( 'page' ) ) ) )
 			return $content;
