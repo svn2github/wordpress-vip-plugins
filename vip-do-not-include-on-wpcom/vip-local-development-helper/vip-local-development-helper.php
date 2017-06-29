@@ -545,3 +545,32 @@ if ( ! function_exists( 'get_blog_lang_code' ) ) {
 		return 'en'; 
 	}
 }
+
+/**
+ * Loads the built-in WP REST API endpoints in WordPress.com VIP context.
+ */
+function wpcom_vip_load_wp_rest_api() {
+	if ( class_exists( 'WP_REST_Posts_Controller' ) ) {
+		// It looks like this has already been done.
+		return;
+	}
+
+	add_action( 'rest_api_init', 'register_initial_settings',  10 );
+	add_action( 'rest_api_init', 'create_initial_rest_routes', 99 );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-posts-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-attachments-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-post-types-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-post-statuses-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-revisions-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-taxonomies-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-terms-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-users-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-comments-controller.php' );
+	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-settings-controller.php' );
+
+	if ( did_action( 'init' ) ) {
+		// TODO: this probably shouldn't happen.
+		do_action( 'rest_api_init' );
+	}
+}
