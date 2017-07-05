@@ -555,6 +555,11 @@ function wpcom_vip_load_wp_rest_api() {
 		return;
 	}
 
+	global $wp_rest_server;
+	if ( ! is_a( $wp_rest_server, 'WP_REST_Server' ) ){
+		$wp_rest_server = new WP_REST_Server;
+	}
+
 	add_action( 'rest_api_init', 'register_initial_settings',  10 );
 	add_action( 'rest_api_init', 'create_initial_rest_routes', 99 );
 	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-controller.php' );
