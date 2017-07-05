@@ -569,6 +569,11 @@ function wpcom_vip_load_wp_rest_api() {
 	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-comments-controller.php' );
 	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-settings-controller.php' );
 
+	global $wp_rest_server;
+	if ( ! is_a( $wp_rest_server, 'WP_REST_Server' ) ){
+		rest_get_server();
+	}
+
 	if ( did_action( 'init' ) ) {
 		// TODO: this probably shouldn't happen.
 		do_action( 'rest_api_init' );
