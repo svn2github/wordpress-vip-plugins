@@ -202,9 +202,35 @@ class WP_REST_Users_Controller extends WP_REST_Controller {
 			return true;
 		}
 
+		// WPCOM hack: don't use CAP authors detection.  See #67421-z.
+		global $coauthors_plus;
+		$restore_cap_filter = false;
+		if (
+			isset( $coauthors_plus ) &&
+			has_filter(
+				'get_usernumposts',
+				array( $coauthors_plus, 'filter_count_user_posts' )
+			)
+		) {
+			$restore_cap_filter = true;
+			remove_filter(
+				'get_usernumposts',
+				array( $coauthors_plus, 'filter_count_user_posts' ),
+				10, 2
+			);
+		}
+		$count = count_user_posts( $id, $types );
+		if ( $restore_cap_filter ) {
+			add_filter(
+				'get_usernumposts',
+				array( $coauthors_plus, 'filter_count_user_posts' ),
+				10, 2
+			);
+		}
+
 		if ( 'edit' === $request['context'] && ! current_user_can( 'list_users' ) ) {
 			return new WP_Error( 'rest_user_cannot_view', __( 'Sorry, you cannot view this resource with edit context.' ), array( 'status' => rest_authorization_required_code() ) );
-		} else if ( ! count_user_posts( $id, $types ) && ! current_user_can( 'edit_user', $id ) && ! current_user_can( 'list_users' ) ) {
+		} else if ( ! $count /* WPCOM hack */ && ! current_user_can( 'edit_user', $id ) && ! current_user_can( 'list_users' ) ) {
 			return new WP_Error( 'rest_user_cannot_view', __( 'Sorry, you cannot view this resource.' ), array( 'status' => rest_authorization_required_code() ) );
 		}
 
