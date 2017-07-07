@@ -364,7 +364,6 @@ class WPcom_VIP_Plugins_UI {
 	 * @uses add_action() To add various actions
 	 */
 	private function setup_actions() {
-		add_option( self::OPTION_ACTIVE_PLUGINS, array() );
 
 		// Loaded at priority 5 because all plugins are typically loaded before 'plugins_loaded'
 		add_action( 'plugins_loaded', array( $this, 'include_active_plugins' ), 5 );
