@@ -235,9 +235,10 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 		// If a remote request failed, log why it did
 		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
 			if ( $response && ! is_wp_error( $response ) ) {
-				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response['response']['code'] . ' ' . $response['response']['message'] );
+				trigger_error ( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response['response']['code'] . ' ' . $response['response']['message'], E_USER_WARNING );
+
 			} elseif ( $response ) { // is WP_Error object
-				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response->get_error_message() );
+				trigger_error( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response->get_error_message() , E_USER_WARNING );
 			}
 		}
 	}
@@ -246,9 +247,9 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 		// If a remote request failed, log why it did
 		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
 			if ( $response && ! is_wp_error( $response ) ) {
-				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response['response']['code'] . ' ' . $response['response']['message'] );
+				trigger_error( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response['response']['code'] . ' ' . $response['response']['message'], E_USER_WARNING );
 			} elseif ( $response ) { // is WP_Error object
-				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response->get_error_message() );
+				trigger_error( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response->get_error_message(), E_USER_WARNING );
 			}
 		}
 	}
@@ -259,9 +260,9 @@ function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $ex
 		// If a remote request failed, log why it did
 		if ( ! defined( 'WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING' ) || ! WPCOM_VIP_DISABLE_REMOTE_REQUEST_ERROR_REPORTING ) {
 			if ( $response && ! is_wp_error( $response ) ) {
-				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response['response']['code'] . ' ' . $response['response']['message'] );
+				trigger_error( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response['response']['code'] . ' ' . $response['response']['message'], E_USER_WARNING );
 			} elseif ( $response ) { // is WP_Error object
-				error_log( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response->get_error_message() );
+				trigger_error( "wpcom_vip_file_get_contents: Blog ID {$blog_id}: Failure for $url and the result was: " . $response->get_error_message(), E_USER_WARNING );
 			}
 		}
 		// So we can hook in other places and do stuff
