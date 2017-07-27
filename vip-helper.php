@@ -828,8 +828,8 @@ function wpcom_vip_wp_oembed_get( $url, $args = array() ) {
 
 	if ( false === $html = wp_cache_get( $cache_key, 'wpcom_vip_wp_oembed' ) ) {
 		$html = wp_oembed_get( $url, $args );
-
-		wp_cache_set( $cache_key, $html, 'wpcom_vip_wp_oembed', 6 * HOUR_IN_SECONDS );
+        $ttl = rand( 5 * HOUR_IN_SECONDS, 6 * HOUR_IN_SECONDS ); //let's get a bit of variation in here to prevent stampedes.
+		wp_cache_set( $cache_key, $html, 'wpcom_vip_wp_oembed', $ttl );
 	}
 
 	return $html;
