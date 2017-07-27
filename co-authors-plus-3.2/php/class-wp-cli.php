@@ -8,7 +8,7 @@
  */
 WP_CLI::add_command( 'co-authors-plus', 'CoAuthorsPlus_Command' );
 
-class CoAuthorsPlus_Command extends WP_CLI_Command {
+class CoAuthorsPlus_Command extends WPCOM_VIP_CLI_Command {
 
 	/**
 	 * Subcommand to create guest authors based on users
@@ -51,6 +51,10 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	 */
 	public function create_terms_for_posts() {
 		global $coauthors_plus, $wp_post_types;
+
+		if ( method_exists( $this, 'start_bulk_operation' ) ) {
+			$this->start_bulk_operation();
+		}
 
 		// Cache these to prevent repeated lookups
 		$authors = array();
@@ -108,6 +112,10 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 		WP_CLI::line( 'Updating author terms with new counts' );
 		foreach ( $authors as $author ) {
 			$coauthors_plus->update_author_term( $author );
+		}
+
+		if ( method_exists( $this, 'end_bulk_operation' ) ) {
+			$this->end_bulk_operation();
 		}
 
 		WP_CLI::success( "Done! Of {$total_posts} posts, {$affected} now have author terms." );
@@ -881,7 +889,7 @@ class CoAuthorsPlus_Command extends WP_CLI_Command {
 	/**
 	 * Clear all of the caches for memory management
 	 */
-	private function stop_the_insanity() {
+	protected function stop_the_insanity() {
 		global $wpdb, $wp_object_cache;
 
 		$wpdb->queries = array(); // or define( 'WP_IMPORTING', true );
