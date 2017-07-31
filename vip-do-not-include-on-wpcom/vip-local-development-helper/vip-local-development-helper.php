@@ -570,7 +570,7 @@ function wpcom_vip_load_wp_rest_api() {
 	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-settings-controller.php' );
 
 	global $wpcom_json_api_production_versions;
-	if ( isset( $wpcom_json_api_production_versions ) || defined( 'WPCOM_JOBS' ) ) {
+	if ( isset( $wpcom_json_api_production_versions ) || defined( 'WPCOM_OEMBED_CACHE_GROUP' ) || defined( 'WPCOM_JOBS' ) ) {
 		rest_get_server();
 	}
 
