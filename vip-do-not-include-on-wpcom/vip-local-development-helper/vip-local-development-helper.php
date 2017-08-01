@@ -574,6 +574,8 @@ function wpcom_vip_load_wp_rest_api() {
 		rest_get_server();
 	}
 
+	define( 'WPCOM_VIP_WP_REST_API_LOADED', true );
+
 	if ( did_action( 'init' ) ) {
 		// TODO: this probably shouldn't happen.
 		do_action( 'rest_api_init' );
