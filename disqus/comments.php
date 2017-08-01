@@ -85,21 +85,23 @@ if ( ! function_exists( 'dsq_render_single_comment' ) ) {
 		'trackbacks': [
 <?php
 	$count = 0;
-	foreach ($comments as $comment) {
-		$comment_type = get_comment_type();
-		if ( $comment_type != 'comment' ) {
-			if( $count ) { echo ','; }
-?>
-			{
-				'author_name':	<?php echo wp_json_encode(get_comment_author() ); ?>,
-				'author_url':	<?php echo wp_json_encode(get_comment_author_url() ); ?>,
-				'date':			<?php echo wp_json_encode(get_comment_date('m/d/Y h:i A') ); ?>,
-				'excerpt':		<?php echo wp_json_encode( str_replace(array("\r\n", "\n", "\r"), '<br />', get_comment_excerpt() ) ); ?>,
-				'type':			<?php echo wp_json_encode( $comment_type ); ?>
-			}
-<?php
-			$count++;
-		}
+	if ( ! empty( $comments ) ){
+        foreach ($comments as $comment) {
+            $comment_type = get_comment_type();
+            if ( $comment_type != 'comment' ) {
+                if( $count ) { echo ','; }
+    ?>
+                {
+                    'author_name':	<?php echo wp_json_encode(get_comment_author() ); ?>,
+                    'author_url':	<?php echo wp_json_encode(get_comment_author_url() ); ?>,
+                    'date':			<?php echo wp_json_encode(get_comment_date('m/d/Y h:i A') ); ?>,
+                    'excerpt':		<?php echo wp_json_encode( str_replace(array("\r\n", "\n", "\r"), '<br />', get_comment_excerpt() ) ); ?>,
+                    'type':			<?php echo wp_json_encode( $comment_type ); ?>
+                }
+    <?php
+                $count++;
+            }
+        }
 	}
 ?>
 		],
