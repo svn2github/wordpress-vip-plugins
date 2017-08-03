@@ -574,6 +574,8 @@ function wpcom_vip_load_wp_rest_api() {
 		rest_get_server();
 	}
 
+	// Tell the rest of the WPCOM code base that we are loading the
+	// WP REST API on the domain of a VIP client at /wp-json
 	define( 'WPCOM_VIP_WP_REST_API_LOADED', true );
 
 	if ( did_action( 'init' ) ) {
