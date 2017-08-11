@@ -929,3 +929,32 @@ function wpcom_vip_force_https_canonical( $canonical_url ) {
 	return  str_replace( 'http://', 'https://', $canonical_url );
 };
 
+
+/**
+ * Stop WordPress.com from creating jobs that send pings via pushpress for every post that is updated.
+ * Disable term counting so that terms are not all recounted after every term operation
+ * Disable ES indexing so that there are not hundreds to thousands of Elasticsearch index jobs created.
+ */
+function wpcom_vip_start_bulk_operation(){
+	// Do not send notification when post is updated to 'published'
+	add_filter( 'wpcom_pushpress_should_send_ping', '__return_false' );
+	// Disable term count updates for speed
+	wp_defer_term_counting( true );
+	if ( class_exists( 'ES_WP_Indexing_Trigger' ) ){
+		ES_WP_Indexing_Trigger::get_instance()->disable(); //disconnects the wp action hooks that trigger indexing jobs
+	}
+}
+
+/**
+ * Re-enable PushPress
+ * Re-enable Term counting and trigger a term counting operation to update all term counts
+ * Re-enable Elasticsearch indexing and trigger a bulk re-index of the site
+ */
+function wpcom_vip_end_bulk_operation(){
+	remove_filter( 'wpcom_pushpress_should_send_ping', '__return_false' ); //This shouldn't be required but it's nice to clean up all the settings we changed so they are back to their defaults.
+	wp_defer_term_counting( false ); // This will also trigger a term count.
+	if ( class_exists( 'ES_WP_Indexing_Trigger' ) ){
+		ES_WP_Indexing_Trigger::get_instance()->enable(); //reenable the hooks
+		ES_WP_Indexing_Trigger::get_instance()->trigger_bulk_index( get_current_blog_id(), 'bulk_operation' ); //queues async indexing job to be sent on wp shutdown hook, this will re-index the site inside Elasticsearch
+	}
+}
