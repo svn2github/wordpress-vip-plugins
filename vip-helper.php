@@ -958,3 +958,19 @@ function wpcom_vip_end_bulk_operation(){
 		ES_WP_Indexing_Trigger::get_instance()->trigger_bulk_index( get_current_blog_id(), 'bulk_operation' ); //queues async indexing job to be sent on wp shutdown hook, this will re-index the site inside Elasticsearch
 	}
 }
+
+/**
+ * Do not modify user counts during REST API requests pending CAP support for the API
+ * Temporary fix until this PR is merged: https://github.com/Automattic/Co-Authors-Plus/pull/448
+ * See more background on this issue here: https://github.com/Automattic/Co-Authors-Plus/issues/447
+ */
+function wpcom_vip_fix_cap_in_rest_api() {
+	add_action( 'init', function() {
+		add_action( 'rest_api_init', function() {
+			global $coauthors_plus;
+			if ( isset( $coauthors_plus ) && has_filter( 'get_usernumposts', array( $coauthors_plus, 'filter_count_user_posts' ) ) && defined( 'REST_REQUEST' ) && REST_REQUEST ) {
+				remove_filter( 'get_usernumposts', array( $coauthors_plus, 'filter_count_user_posts' ), 10, 2 );
+			}
+		}, 10 );
+	}, 10 );
+}
