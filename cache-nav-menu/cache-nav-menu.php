@@ -7,7 +7,7 @@
  */
 
 function cache_nav_menu_parse_query( &$query ) {
-	if ( !isset( $query->query_vars['post_type'] ) || 'nav_menu_item' !== $query->query_vars['post_type'] ) {
+	if ( is_admin() || !isset( $query->query_vars['post_type'] ) || 'nav_menu_item' !== $query->query_vars['post_type'] ) {
 		return;
 	}
 
