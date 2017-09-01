@@ -168,7 +168,7 @@ function _wpcom_vip_load_plugin_get_locations( $folder, $version ) {
 	$plugin_locations[] = $folder;
 
 	return $plugin_locations;
-	
+
 }
 
 /**
@@ -226,7 +226,7 @@ function _wpcom_vip_load_plugin_sanitizer( $folder ) {
 /**
  * Require a library in the VIP shared code library.
  *
- * @param string $slug 
+ * @param string $slug
  */
 function wpcom_vip_require_lib( $slug ) {
 	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
@@ -508,7 +508,7 @@ function wpcom_vip_local_development_refresh_wp_rewrite() {
 		foreach( $custom_rules as $key ) {
 			$wp_rewrite->$key = array_merge( $old_values[$key], $wp_rewrite->$key );
 		}
-	
+
 		flush_rewrite_rules( false );
 	}
 }
@@ -530,19 +530,162 @@ function wpcom_vip_plugins_ui_disable_activation() {
 	}
 }
 
-/** 
- * Return the language code. 
+/**
+ * Check if a plugin is versioned or not.
+ *
+ * @param string $plugin_slug A plugin slug. Can also be a file path.
+ *
+ * @return bool True if there is more than one version, false otherwise.
+ */
+function wpcom_vip_is_plugin_versioned( $plugin_slug ) {
+
+	// Strip everything but the unversioned plugin slug.
+	$plugin_slug = str_replace( '.php', '', end( explode( '/', $plugin_slug ) ) );
+
+	// Get plugin versions.
+	$plugins = wpcom_vip_get_plugin_versions();
+
+	return ( 1 < $plugins[ $plugin_slug ] ) ? true : false;
+
+}
+
+/**
+ * Get the latest version of a plugin.
+ *
+ * @param string $plugin_slug A plugin slug. Can also be a file path.
+ *
+ * @return bool|string Latest available version number, or false if it's not versioned.
+ */
+function wpcom_vip_get_plugin_latest_version( $plugin_slug ) {
+
+	// Strip everything but the unversioned plugin slug.
+	$plugin_slug = explode( '/', $plugin_slug );
+	if ( is_array( $plugin_slug ) ) {
+		$plugin_slug = end( $plugin_slug );
+	}
+	$plugin_slug = str_replace( '.php', '', $plugin_slug );
+
+	// Get plugin version numbers.
+	$plugin_versions = wpcom_vip_get_plugin_version_numbers();
+
+	// Is this plugin versioned?
+	if ( ! array_key_exists( $plugin_slug, $plugin_versions ) ) {
+		return false;
+	}
+
+	// Sort the array, and return the last element, which will be the latest version.
+	asort( $plugin_versions[ $plugin_slug ] );
+	return end( $plugin_versions[ $plugin_slug ] );
+
+}
+
+/**
+ * Get an array of plugins with multiple available versions, along with the
+ * number of versions available.
+ *
+ * @return array An array of plugin slugs and number of versions. E.g.;
+ *                  array(
+ *                  	'facebook-instant-articles'=> 6,
+ *                  	'brightcove-video-connect' => 5,
+ *                  )
+ */
+function wpcom_vip_get_plugin_versions() {
+
+	// for non-admin page use
+	if ( ! function_exists( 'get_plugins' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+
+	// Get a simple array of available plugins.
+	$plugins = array_keys( get_plugins( '/../themes/vip/plugins' ) );
+
+	// Strip down to plugin slug.
+	$plugins = array_map( function ( $plugin ) {
+		return str_replace( '.php', '', end( explode( '/', $plugin ) ) );
+	}, $plugins );
+
+	// Count the number of versions we have for each plugin.
+	$plugins = array_count_values( $plugins );
+
+	return $plugins;
+
+}
+
+/**
+ * Get a list of versioned plugins and the available versions.
+ *
+ * @return array List of plugins, with a list of versions for each. E.g.;
+ *                    array(
+ *                    	'facebook-instant-articles' => array(
+ *                    		'2.11', '3.0', '3.1', '3.2', '3.3',
+ *                    	),
+ *                    	'apple-news' => array(
+ *                    		'1.2', '1.2.6',
+ *                    	),
+ *                    )
+ */
+function wpcom_vip_get_plugin_version_numbers() {
+
+	// for non-admin page use
+	if ( ! function_exists( 'get_plugins' ) ) {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+	}
+
+	// Get a simple array of available plugins.
+	$plugins = array_keys( get_plugins( '/../themes/vip/plugins' ) );
+
+	// Strip down to plugin slug, with version.
+	$plugins = array_map( function ( $plugin ) {
+		// Strip to the plugin folder, which includes the version number.
+		return explode( '/', $plugin )[0];
+	}, $plugins );
+
+	// sort plugins
+	sort( $plugins );
+
+	// Now create a list of plugins and the versions we have.
+	$plugin_versions = [];
+	foreach ( $plugins as $plugin ) {
+		$version = end( explode( '-', $plugin ) );
+
+		// get rid of . for digit check
+		$digits = str_replace( '.', '', $version );
+
+		// check to see if it is a valid version
+		$is_version = is_numeric( $digits );
+		if ( ! $is_version ) {
+			continue; // Not a versioned plugin.
+		}
+
+		// Remove the version to get the plugin slug.
+		$plugin_slug = str_replace( '-' . $version, '', $plugin );
+
+		// Add the version to the array.
+		if ( ! isset( $plugin_versions[ $plugin_slug ] ) ) {
+			$plugin_versions[ $plugin_slug ] = [ $version ];
+		} else {
+			$plugin_versions[ $plugin_slug ][] = $version;
+		}
+
+	}
+
+	return $plugin_versions;
+
+}
+
+/**
+ * Return the language code.
  *
  * Internal wpcom function that's used by the wpcom-sitemap plugin
  *
  * Note: Not overrideable in production - this function exists solely for dev environment
  * compatibility. To set blog language, use the Dashboard UI.
- * 
- * @return string 
+ *
+ * @return string
  */
 if ( ! function_exists( 'get_blog_lang_code' ) ) {
-	function get_blog_lang_code() { 
-		return 'en'; 
+	function get_blog_lang_code() {
+		return 'en';
 	}
 }
 
