@@ -1,0 +1,39 @@
+/**
+ * Welcome screen with opt-in
+ */
+.getty-welcome {
+	position: absolute;
+	top: 20%;
+	bottom: 20%;
+	left: 20%;
+	right: 20%;
+}
+@media only screen and (max-width: 640px), screen and (max-height: 400px) {
+	.getty-welcome {
+		top: 80px;
+		bottom: 5px;
+	}
+}
+@media only screen and (max-height: 400px) {
+	.getty-welcome {
+		top: 5px;
+	}
+}
+@media screen and (max-width: 640px) {
+	.getty-welcome {
+		left: 5px;
+		right: 5px;
+	}
+}
+	.getty-welcome-opt-in,
+	.getty-welcome-continue {
+		position: absolute;
+		bottom: 0;
+	}
+	.getty-welcome-opt-in {
+		left: 0;
+	}
+	.getty-welcome-continue {
+		right: 0;
+	}
+

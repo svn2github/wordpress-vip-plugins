@@ -1,0 +1,107 @@
+/* Title bar */
+.getty-title-bar {
+	position: relative;
+	height: 100%;
+	background-color: white;
+}
+	.getty-title-bar .getty-images-title {
+		overflow: hidden;
+		background: url(../images/getty-logo.png) no-repeat center;
+		padding: 0 8px;
+		position: absolute;
+		left: 0;
+		top: 0;
+		width: 180px;
+		height: 100%;
+		text-indent: -99999px;
+		cursor: pointer;
+	}
+		@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+			.getty-title-bar h1 {
+				background-image: url(../images/getty-logo-2x.png);
+				background-size: auto 30px;
+			}
+		}
+
+	.getty-title-bar .getty-title-links {
+		position: relative;
+		line-height: 45px;
+		float: right;
+		margin-right: 40px;
+	}
+		.getty-title-links .getty-title-link {
+			text-decoration: none;
+			cursor: pointer;
+			display: inline-block;
+			position: relative;
+			margin: 0 .5em;
+			font-size: 13px;
+		}
+		a.getty-title-link:hover {
+			color: #4cb7ff;
+		}
+		.getty-title-links .getty-login-toggle.getty-logged-in {
+			font-weight: bold;
+		}
+
+		/* Hide log in for unsupported browsers */
+		.getty-unsupported-browser .getty-login-toggle {
+			display: none;
+		}
+
+/* The user session display - Shown when clicking on the username in the menu bar */
+.getty-user-panel {
+	padding: 0;
+	z-index: 76;
+	position: absolute;
+	top: 100%;
+	margin-top: 5px;
+	min-width: 240px;
+	overflow: hidden;
+	display: none;
+}
+	.getty-title-link .getty-prompt-login.getty-user-panel {
+		padding: 0 1em;
+		display: block;
+		overflow: visible;
+		max-height: 300px;
+		box-shadow: 1px 2px 5px #ddd;
+		box-shadow: 1px 4px 12px rgba(0,0,0,.1);
+		border: 1px solid #ddd;
+		background-color: #f5f5f5;
+		-webkit-transform: translate(-50%, 0);
+	}
+@media only screen and (max-width: 900px) {
+	.getty-title-link .getty-prompt-login.getty-user-panel {
+		left: -50%;
+	}
+}
+	.getty-prompt-login .getty-user-chevron {
+		border-left: 15px solid transparent;
+		border-right: 15px solid transparent;
+		border-bottom: 15px solid #ddd;
+		position: absolute;
+		right: 10em;
+		top: -15px;
+	}
+@media only screen and (max-width: 900px) {
+	.getty-prompt-login .getty-user-chevron {
+		right: 13em;
+	}
+}
+		.getty-user-chevron span {
+			border-left: 14px solid transparent;
+			border-right: 14px solid transparent;
+			border-bottom: 14px solid #f5f5f5;
+			position: absolute;
+			left: -14px;
+			top: 1px;
+		}
+.getty-user-session {
+}
+	.getty-user-session input {
+		max-width: 100%;
+	}
+	.getty-user-session .getty-images-logout {
+		font-weight: bold;
+	}

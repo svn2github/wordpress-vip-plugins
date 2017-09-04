@@ -1,0 +1,133 @@
+@font-face {
+    font-family: 'GettyIcons';
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/GettyIcons.eot');
+    /* IE9 Compat Modes */
+    src: url('../fonts/GettyIcons.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+    url('../fonts/GettyIcons.woff') format('woff'), /* Pretty Modern Browsers */
+    url('../fonts/GettyIcons.ttf') format('truetype'), /* Safari, Android, iOS */
+    url('../fonts/GettyIcons.svg#svgFontName') format('svg');
+    /* Legacy iOS */
+}
+
+@font-face {
+    font-family: 'Helvetica Neue';
+    font-style: normal;
+    font-weight: 200;
+    src: url('../fonts/helveticaneue-thin-webfont.eot');
+    src: url('../fonts/helveticaneue-thin-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/helveticaneue-thin-webfont.woff') format('woff'), url('../fonts/helveticaneue-thin-webfont.ttf') format('truetype'), url('../fonts/helveticaneue-thin-webfont.svg#HelveticaNeueW01-Thin') format('svg')
+}
+
+@font-face {
+    font-family: 'Helvetica Neue';
+    font-style: normal;
+    font-weight: 400;
+    src: url('../fonts/helveticaneue-normal-webfont.eot');
+    src: url('../fonts/helveticaneue-normal-webfont.eot?#iefix') format('embedded-opentype'), url('../fonts/helveticaneue-normal-webfont.woff') format('woff'), url('../fonts/helveticaneue-normal-webfont.ttf') format('truetype'), url('../fonts/helveticaneue-normal-webfont.svg#HelveticaNeueW01-55Roma') format('svg')
+}
+
+/* Overriding base WP styles only in main Getty containers (otherwise it overrides also main WP UI */
+
+/* Getty font */
+.getty-title-bar,
+.getty-attachments-browser,
+.getty-toolbar {
+    font-family: Helvetica Neue, Helvetica, Arial, sans-serif;
+    font-style: normal;
+    font-weight: 400;
+}
+
+/* Getty link color */
+.getty-title-bar a,
+.getty-attachments-browser a,
+.getty-toolbar a {
+    color: #4cb7ff;
+}
+
+/* Remove glow from search input fields on focus */
+.media-modal-content .attachments-browser .getty-browser-container .search:focus {
+    border-color: #ddd;
+    box-shadow: none;
+}
+
+/* Disabled buttons show as dark grey */
+.wp-core-ui .media-modal-content .attachments-browser .getty-browser-container .button[disabled] {
+    background-color: #cccccc !important;
+}
+
+/* Using CSS checkboxes and radios for cross-browser support */
+	.getty-filter label {
+		margin-right: 1em;
+        display: inline-block;
+        min-width: 16px;
+        min-height: 16px;
+        font-size: 12px;       
+	}
+
+    .getty-filter input[type=checkbox] {
+		display:none; 
+	}
+    .getty-filter label:before {
+		color: transparent;
+        line-height: 16px;
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin-right: .5em;
+	}
+    .getty-filter input[type=checkbox]+label:before {
+		font-family: GettyIcons;
+        font-style: normal;
+        font-size: 12px;
+        line-height: 16px;
+        text-align: center;
+        border: 1px solid #ddd;
+        content: "1";
+	}
+    .getty-filter input[type=checkbox]:checked+label:before {
+		color: white;
+        background-color: #3dcd58;
+	}
+    
+    .getty-filter input[type=radio] {
+		display:none; 
+	}
+    .getty-filter input[type=radio]+label:before {
+        color: #ddd;
+		font-family: GettyIcons;
+        font-style: normal;
+        font-size: 32px;
+        text-align: center;
+        vertical-align: top;
+        margin-left: -10px;
+        content: "6";
+	}
+    .getty-filter input[type=radio]:checked+label:before {
+        color: #3dcd58;
+        content: "2";
+	}
+
+
+.ui-dialog {
+    z-index: 999999999 !important; 
+    
+}
+
+ .ui-dialog .ui-dialog-content {
+    
+    overflow: scroll;
+    max-height: 500px !important;
+}
+
+.getty-image-accordion .accordion-header {
+    cursor: pointer;
+}
+
+.getty-image-accordion .accordion-closed {
+    display: none;
+}
+
+.getty-image-accordion .collapse-icon {
+    float: right;
+}
