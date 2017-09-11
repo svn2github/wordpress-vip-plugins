@@ -135,6 +135,7 @@ function jwplayer_media_menu( $tabs ) {
 		$newtab = array( 'jwplayer' => 'JW Player' );
 		return array_merge( $tabs, $newtab );
 	}
+	return $tabs;
 }
 
 // output the contents of the JW Player tab in the "Add media" page
