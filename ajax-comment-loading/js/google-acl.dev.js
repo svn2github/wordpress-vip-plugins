@@ -16,6 +16,9 @@
 						postid: gpid,
 						cpage: page
 					},
+					xhrFields: {
+						withCredentials: true
+					},
 					complete: function() {
 						gcl.lock = false; // Regardess of success, release the lock
 					},
