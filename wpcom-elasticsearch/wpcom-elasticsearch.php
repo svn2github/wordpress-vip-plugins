@@ -8,6 +8,7 @@ Plugin Name: WordPress.com VIP Search Add-On
 Description: Super-charged search with faceting, powered by Elasticsearch technology.
 Author:      Automattic
 Author URI:  http://automattic.com/
+Version:     1.0
 
 **************************************************************************
 

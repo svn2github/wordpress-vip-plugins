@@ -7,6 +7,7 @@
  * Description: Applies a watermark image of your choosing to all uploaded images.
  * Author:      Alex Mills, Automattic
  * Author URI:  http://automattic.com/
+ * Version:     1.0
  */
 
 class WPcom_Watermark_Uploads {

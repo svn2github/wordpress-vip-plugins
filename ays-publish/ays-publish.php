@@ -4,6 +4,7 @@
 
 Plugin Name:  AYS Publish
 Description:  When publishing a post, a prompt will pop up to confirm that you actually meant to publish the post.
+Version:      1.0
 
 **************************************************************************
 

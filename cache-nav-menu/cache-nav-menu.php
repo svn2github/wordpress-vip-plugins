@@ -4,6 +4,7 @@
  * Plugin Name: Cache Nav Menus
  * Description: Allows Core Nave Menus to be cached using WP.com's Advanced Post Cache
  * Author: Automattic
+ * Version: 1.0
  */
 
 function cache_nav_menu_parse_query( &$query ) {
