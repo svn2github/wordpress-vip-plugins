@@ -105,7 +105,7 @@ class WPcom_VIP_Plugins_UI_List_Table extends WP_List_Table {
 		$actions = array();
 		$actions = WPcom_VIP_Plugins_UI()->add_activate_or_deactive_action_link( $actions, $plugin );
 
-		$plugin_name = $plugin_data['Name'];
+		$plugin_name = sprintf( '%s (%s)', $plugin_data['Name'], $plugin_data['Version'] );
 		$description = '<p>' . ( $plugin_data['Description'] ? $plugin_data['Description'] : '&nbsp;' ) . '</p>';
 
 		echo '<tr class="' . esc_attr( $class ) . '">';
