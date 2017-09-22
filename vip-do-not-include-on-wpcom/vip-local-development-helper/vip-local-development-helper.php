@@ -12,11 +12,13 @@ For help with this plugin, please see http://wp.me/PPtWC-2T or contact VIP suppo
 This plugin is enabled automatically on WordPress.com for VIPs.
 */
 
+$vip_plugin_load_count = array();
 
 /**
  * Loads a plugin out of our shared plugins directory.
  *
  * @link http://lobby.vip.wordpress.com/plugins/ VIP Shared Plugins
+ *
  * @param string $plugin Optional. Plugin folder name (and filename) of the plugin
  * @param string $folder Optional. Folder to include from; defaults to "plugins". Useful for when you have multiple themes and your own shared plugins folder.
  * @param string|bool $version Optional. Specify which version of the plugin to load. Version should be in the format 1.0.0. Passing true triggers legacy release candidate support.
@@ -24,6 +26,8 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * @return bool True if the include was successful
  */
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version = false ) {
+	static $loaded_plugin_slugs = array();
+	global $vip_plugin_load_count;
 
 	// Make sure there's a plugin to load
 	if ( empty( $plugin ) ) {
@@ -62,7 +66,34 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
         }
     }
 
-    // Find the plugin
+	// Prevent double-loading of plugins.
+	// Check if we've already loaded the plugin, by looking for it in our `$loaded_plugin_slugs` array and if found,
+	// warn VIP and the client and halt the attempt to load the plugin, preventing fatals.
+	$local_plugin_key = sprintf( '%s__%s', $folder, $plugin_slug );
+
+	if ( isset( $loaded_plugin_slugs[ $local_plugin_key ] ) ) {
+
+		// Count the number of extra times each plugin is loaded.
+		if ( ! isset( $vip_plugin_load_count[ $local_plugin_key ] ) ) {
+			$vip_plugin_load_count[ $local_plugin_key ] = 2;
+		} else {
+			$vip_plugin_load_count[ $local_plugin_key ]++;
+		}
+
+		// Alert VIP.
+		add_action( 'shutdown', 'wpcom_vip_plugin_double_load_alert' );
+
+		// Alert the client.
+		add_action( 'admin_notices', 'wpcom_vip_plugin_double_load_client_notice' );
+
+		// Bail now to prevent fatals from double loading.
+		return false;
+	}
+
+	// Record this plugin as loaded to prevent double-loading.
+	$loaded_plugin_slugs[ $local_plugin_key ] = true;
+
+	// Find the plugin
 	$plugin_locations = _wpcom_vip_load_plugin_get_locations( $folder, $version );
 	$include_path = _wpcom_vip_load_plugin_get_include_path( $plugin_locations, $plugin, $plugin_slug );
 
@@ -528,6 +559,119 @@ function wpcom_vip_plugins_ui_disable_activation() {
 	if ( class_exists( "WPcom_VIP_Plugins_UI" )){
 		WPcom_VIP_Plugins_UI()->activation_disabled = true;
 	}
+}
+
+/**
+ * On WordPress.com, alert VIP to double-loading attempts.
+ *
+ * @param string $folder      Folder where the plugin resides.
+ * @param string $plugin      Name of the plugin we're attempting to load, including version where applicable.
+ * @param string $plugin_slug Slug of the plugin, excluding version, we're attempting to load.
+ *
+ * @return void
+ */
+function wpcom_vip_plugin_double_load_alert() {
+
+  if ( function_exists( 'wpcom_is_vip' ) ) {
+
+    if ( function_exists( 'send_vip_team_debug_message' ) ) {
+
+      // Allow disabling of alerts for some sites/clients.
+      if ( apply_filters( 'wpcom_vip_disable_plugin_double_loading_alert', false ) ) {
+        return;
+      }
+
+      // We get double alerts because AJAX requests are apparently quicker than the cache.
+      if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
+        return;
+      }
+
+      global $vip_plugin_load_count;
+
+      // Construct message.
+      $message = "WARNING: wpcom_vip_load_plugin() is trying to double load plugin(s);\n";
+      foreach ( $vip_plugin_load_count as $plugin_key => $count ) {
+        list( $folder, $plugin ) = explode( '__', $plugin_key );
+        $message .= sprintf(
+          "* %s from folder %s is loaded %d times\n",
+          esc_html( $plugin ),
+          esc_html( $folder ),
+          absint( $count )
+        );
+      }
+      $message .= "\n";
+
+      // Use an expiring cache value to avoid spamming messages.
+      $cachekey = 'doubleload_' . md5( wp_json_encode( $vip_plugin_load_count ) );
+      if ( ! wp_cache_get( $cachekey, 'wpcom_vip_load_plugin' ) ) {
+        send_vip_team_debug_message( $message, 1 );
+        wp_cache_set( $cachekey, 1, 'wpcom_vip_load_plugin', HOUR_IN_SECONDS * 2 );
+      }
+    }
+
+  } else {
+
+    require_once( __DIR__ . '/../wpcom-vip-plugins-ui/wpcom-vip-plugins-ui.php' );
+
+    // Warn in non-WordPress.com environments so you know you made a mistake.
+    $message = sprintf(
+      'Whoops! It looks like plugins are being activated more than once. Please review the list on the Plugins page for more information: %s',
+      esc_url( WPcom_VIP_Plugins_UI()->get_menu_url() )
+    );
+    _doing_it_wrong(
+      'wpcom_vip_load_plugin',
+      esc_html( $message ),
+      '4.8-wpcom'
+    );
+  }
+
+}
+
+/**
+ * Notify clients of plugin double-loading.
+ *
+ * @param string $folder  Folder where the plugin resides.
+ * @param string $plugin  Slug of the plugin we're attempting to load.
+ * @param string $version The plugin version, if specified.
+ *
+ * @return void
+ */
+function wpcom_vip_plugin_double_load_client_notice() {
+  if ( ! current_user_can( 'manage_options' ) ) {
+    return;
+  }
+
+  global $vip_plugin_load_count;
+
+  // Construct message.
+  $screen = get_current_screen();
+  if ( 'vip_page_wpcom-vip-plugins' === $screen->id ) {
+
+    $message = sprintf(
+      '<div class="notice notice-error"><p>%s</p><ul>',
+      'Whoops! It looks like plugins are being activated more than once. Please review the list below and ensure they are only activated once, preferrably only in code or alternatively via this page.'
+    );
+    foreach ( $vip_plugin_load_count as $plugin_key => $count ) {
+      list( $folder, $plugin ) = explode( '__', $plugin_key );
+      $message .= sprintf(
+        '<li><code>%s</code> from folder <code>%s</code> is loaded <em>%d</em> times</li>',
+        esc_html( $plugin ),
+        esc_html( $folder ),
+        absint( $count )
+      );
+    }
+    $message .= '</ul></div>';
+
+  } else {
+    require_once( __DIR__ . '/../wpcom-vip-plugins-ui/wpcom-vip-plugins-ui.php' );
+
+    $message = sprintf(
+      '<div class="notice notice-error"><p>Whoops! It looks like plugins are being activated more than once. Please review the list on the <a href="%s">Plugins page</a> for more information.</p></div>',
+      esc_url( WPcom_VIP_Plugins_UI()->get_menu_url() )
+    );
+  }
+
+  echo wp_kses_post( $message );
 }
 
 /**
