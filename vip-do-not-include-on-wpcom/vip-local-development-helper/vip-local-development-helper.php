@@ -24,6 +24,7 @@ This plugin is enabled automatically on WordPress.com for VIPs.
  * @return bool True if the include was successful
  */
 function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version = false ) {
+	static $loaded_plugin_slugs = array();
 
 	// Make sure there's a plugin to load
 	if ( empty( $plugin ) ) {
@@ -61,6 +62,15 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
             return false;
         }
     }
+
+	// Prevent double-loading of different versions of the same plugin.
+	$local_plugin_key = sprintf( '%s__%s', $folder, $plugin_slug );
+	if ( isset( $loaded_plugin_slugs[ $local_plugin_key ] ) ) {
+		// TODO: send alert when `$loaded_plugin_slugs[ $local_plugin_key ] !== $version`
+
+		return false;
+	}
+	$loaded_plugin_slugs[ $local_plugin_key ] = $version;
 
     // Find the plugin
 	$plugin_locations = _wpcom_vip_load_plugin_get_locations( $folder, $version );
