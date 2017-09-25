@@ -1101,3 +1101,61 @@ function wpcom_vip_remove_bbpress2_staff_css() {
 	}, 9000, 0 );
 }
 
+/**
+ * Sets r-login Javascript to be async
+ */
+function wpcom_vip_async_rlogin() {
+	add_action( 'init', 'wpcom_vip_remove_remote_login', 15 ); // r39621-wpcom
+	add_action( 'wp_enqueue_scripts', 'wpcom_vip_add_remote_login' );
+	add_filter( 'clean_url', 'wpcom_vip_defer_remote_login', 11, 1 );
+}
+
+// Add custom r-login script.
+function wpcom_vip_add_remote_login() {
+	// Bail early if we don't need this script.
+	if ( '.wordpress.com' === substr( $_SERVER['HTTP_HOST'], -14 ) || 0 === strpos( $_SERVER['REQUEST_URI'], '/remote-login.php' ) ) {
+		return;
+	}
+
+	global $wpdb, $current_user, $current_blog;
+	get_currentuserinfo();
+
+	// Don't display script if user is logged in or if this isn't the primary domain.
+	if ( $current_user->ID || $current_blog->primary_redirect !== $_SERVER['HTTP_HOST'] ) {
+		return;
+	}
+
+	// Build the JS URL.
+	$host = preg_replace( '/[^-.a-zA-Z0-9]/', '', $_SERVER['HTTP_HOST'] );
+	$url = add_query_arg( array(
+		'action' => 'js',
+		'host' => rawurlencode( $host ),
+		'id' => rawurlencode( (int) $wpdb->blogid ),
+		't' => rawurlencode( time() ),
+		'back' => rawurlencode( esc_url_raw( http() . '://' . $host . $_SERVER['REQUEST_URI'] ) ),
+	), 'https://r-login.wordpress.com/remote-login.php' );
+
+	// Enqueue JS.
+	wp_enqueue_script( 'r-login', $url, array(), filemtime( __FILE__ ) );
+
+	// Load inline script that will do the login redirect.
+	$r_login_inline_script =  <<<EOD
+function check_remote_login() {
+	if ( 'function' === typeof WPRemoteLogin ) {
+		document.cookie = "%s=test; path=/";
+		if ( document.cookie.match( /(;|^)\s*%s\=/ ) ) {
+			WPRemoteLogin();
+		}
+	}
+}
+EOD;
+	wp_add_inline_script( 'r-login', sprintf( $r_login_inline_script, TEST_COOKIE, TEST_COOKIE ) );
+}
+
+// Change r-login to be defered/async.
+function wpcom_vip_defer_remote_login( $url ) {
+	if ( false === strpos( $url, 'https://r-login.wordpress.com/remote-login.php' ) ) {
+		return $url;
+	}
+	return "$url' async defer onload='check_remote_login()";
+}
