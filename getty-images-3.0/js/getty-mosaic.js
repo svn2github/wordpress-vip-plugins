@@ -44,7 +44,7 @@ var mosaic = {
         return memo;
     },
     buildMosaicRows: function(containerWidth, padding, imageList, targetHeight) {
-        var rows = imageList.reduce(this.splitImageSequence.bind(this, containerWidth, padding, targetHeight), 
+        var rows = imageList.reduce(this.splitImageSequence.bind(this, containerWidth, padding, targetHeight),
             [{ width: 0, images: [] }]);
         return rows;
     }

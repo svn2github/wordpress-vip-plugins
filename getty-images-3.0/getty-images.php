@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/getty-images-wordpress-plugin/
 Description: Integrate your site with Getty Images
 Author: gettyImages
 Author URI: http://gettyimages.com/
-Version: 3.0.0
+Version: 3.0.2
 */
 
 /*  Copyright 2014  Getty Images
@@ -112,9 +112,12 @@ class Getty_Images {
 	 * @param  string $args     additional arguments
 	 **/
 	function add_caller_oembed( $provider, $url, $args ) {
-		// check that this is a getty embed
+		$domain = home_url(); 
+		$caller = rawurlencode($domain . '#wp-plugin');
+
+	        // check that this is a getty embed
 		if ( strpos( $url, 'http://gty.im/' ) === 0 ) {
-			$provider = add_query_arg('caller', 'wp-plugin', $provider);
+			$provider = add_query_arg('caller', $caller, $provider);
 		}
 		return $provider;
 	}
@@ -235,8 +238,8 @@ class Getty_Images {
 		wp_enqueue_script( 'firebase-database-js', plugins_url( '/js/vendor/firebase-database.js', __FILE__ ), array( 'firebase-app-js' ), 1, true );
 		wp_enqueue_script( 'firebase-messaging-js', plugins_url( '/js/vendor/firebase-messaging.js', __FILE__ ), array( 'firebase-app-js' ), 1, true );
 		wp_enqueue_script( 'getty-mosaic', plugins_url( '/js/getty-mosaic.js', __FILE__ ), array(), 1, true );
-		wp_enqueue_script( 'getty-images-filters', plugins_url( '/js/getty-filters-2-5.js', __FILE__ ), array(), 1, true );
-		wp_enqueue_script( 'getty-images-views', plugins_url( '/js/getty-views-2-5.js', __FILE__ ), array( 'getty-images-filters', 'spin-js' ), 1, true );
+		wp_enqueue_script( 'getty-images-filters', plugins_url( '/js/getty-filters-3-0.js', __FILE__ ), array(), 1, true );
+		wp_enqueue_script( 'getty-images-views', plugins_url( '/js/getty-views-3-0.js', __FILE__ ), array( 'getty-images-filters', 'spin-js' ), 1, true );
 		wp_enqueue_script( 'getty-images-firebase', plugins_url( '/js/getty-firebase.js', __FILE__ ), array( 'firebase-app-js' ), 1, true );
 
 		// Register specific Omniture version of s_code for VIP or .org
@@ -247,8 +250,8 @@ class Getty_Images {
 		}
 		
 
-		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models-2-5.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $this->__plugin_get_version(), true );
-		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images-2-5.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $this->__plugin_get_version(), true );
+		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models-3-0.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $this->__plugin_get_version(), true );
+		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images-3-0.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $this->__plugin_get_version(), true );
 
 		wp_enqueue_style( 'getty-base-styles', plugins_url( '/css/getty-base-styles.css', __FILE__ ) );
 		wp_enqueue_style( 'getty-about-text', plugins_url( '/css/getty-about-text.css', __FILE__ ) );

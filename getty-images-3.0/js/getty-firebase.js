@@ -19,16 +19,16 @@
   var database = firebase.database();
 
   getty.firebase.content = {};
-  
+
   getty.firebase.get = function (key) {
         var dayInMs = 1000 * 60 * 60 * 24;
         var contentFresh = this.content[key] && new Date() - this.content[key].lastFetched < dayInMs;
         if (contentFresh) return Promise.resolve(this.content[key].data);
-        
+
         return database.ref(key).once('value').then(function(response) {
             var results = response.val();
             return results;
         });
     };
-    
+
 })(jQuery);
