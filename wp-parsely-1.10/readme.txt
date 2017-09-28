@@ -2,7 +2,7 @@
 Contributors: parsely_mike
 Tags: analytics, post, page
 Requires at least: 4.0
-Tested up to: 4.6
+Tested up to: 4.8
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -55,6 +55,8 @@ Dash code will only be placed on pages and posts which have been published in Wo
 You can use the 'after_set_parsely_page' filter which sends 3 arguments: the array of metadata, the post object, and the parselyOptions array:
 
         $parselyPage = apply_filters('after_set_parsely_page', $parselyPage, $post, $parselyOptions);
+
+This filter can go anywhere in your codebase, provided it always gets loaded. We recommend putting it in your header file, so that it gets loaded with wp_head.
 
 = Is the plugin Google AMP / Facebook Instant ready? =
 

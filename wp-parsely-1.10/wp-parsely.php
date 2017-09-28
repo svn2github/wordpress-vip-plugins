@@ -4,7 +4,7 @@ Plugin Name: Parse.ly
 Plugin URI: http://www.parsely.com/
 Description: This plugin makes it a snap to add Parse.ly tracking code to your WordPress blog.
 Author: Mike Sukmanowsky (mike@parsely.com)
-Version: 1.10.2
+Version: 1.10.3
 Requires at least: 4.0.0
 Author URI: http://www.parsely.com/
 License: GPL2
@@ -37,7 +37,7 @@ class Parsely {
     /**
      * @codeCoverageIgnoreStart
      */
-    const VERSION             = '1.10.2';
+    const VERSION             = '1.10.3';
     const MENU_SLUG           = 'parsely';             // Defines the page param passed to options-general.php
     const MENU_TITLE          = 'Parse.ly';            // Text to be used for the menu as seen in Settings sub-menu
     const MENU_PAGE_TITLE     = 'Parse.ly > Settings'; // Text shown in <title></title> when the settings screen is viewed
@@ -367,7 +367,7 @@ class Parsely {
         $parselyOptions = $this->get_options();
 
         // If we don't have an API key or if we aren't supposed to show to logged in users, there's no need to proceed.
-        if ( empty($parselyOptions['apikey']) || (!$parselyOptions['track_authenticated_users'] && is_user_logged_in()) ) {
+        if ( empty($parselyOptions['apikey']) || (!$parselyOptions['track_authenticated_users'] && $this->parsely_is_user_logged_in()) ) {
             return '';
         }
 
@@ -499,6 +499,9 @@ class Parsely {
         $display = TRUE;
 
         if ( is_single() && $post->post_status != 'publish' ) {
+            $display = FALSE;
+        }
+        if (!$parselyOptions['track_authenticated_users'] && $this->parsely_is_user_logged_in()) {
             $display = FALSE;
         }
         if ( $display ) {
@@ -947,6 +950,13 @@ class Parsely {
         );
 
         return $analytics;
+    }
+
+    public function parsely_is_user_logged_in() {
+        // can't use $blog_id here because it futzes with the global $blog_id
+        $current_blog_id = get_current_blog_id();
+        $current_user_id = get_current_user_id();
+        return is_user_member_of_blog($current_user_id, $current_blog_id);
     }
 }
 
