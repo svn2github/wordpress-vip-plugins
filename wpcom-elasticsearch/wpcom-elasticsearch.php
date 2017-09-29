@@ -5,10 +5,10 @@
 **************************************************************************
 
 Plugin Name: WordPress.com VIP Search Add-On
-Description: Super-charged search with faceting, powered by Elasticsearch technology.
+Description: Super-charged search with aggregation (faceting) support, powered by Elasticsearch technology.
 Author:      Automattic
 Author URI:  http://automattic.com/
-Version:     1.0
+Version:     1.1
 
 **************************************************************************
 
@@ -292,7 +292,7 @@ class WPCOM_elasticsearch {
 
 		// Facets
 		if ( ! empty( $this->facets ) ) {
-			$es_wp_query_args['facets'] = $this->facets;
+			$es_wp_query_args['aggregations'] = $this->facets;
 		}
 
 		// You can use this filter to modify the search query parameters, such as controlling the post_type.
@@ -348,6 +348,12 @@ class WPCOM_elasticsearch {
 		if ( is_wp_error( $this->search_result ) || ! is_array( $this->search_result ) || empty( $this->search_result['results'] ) || empty( $this->search_result['results']['hits'] ) ) {
 			$this->found_posts = 0;
 			return '';
+		}
+
+		// If we have aggregations, fix the ordering to match the input order (Facets used to return in the same order as input,
+		// aggregations seem to be unordered.) Can't find a way to do this in ES itself
+		if ( $this->search_result['results']['aggregations'] ) {
+			$this->search_result['results']['aggregations'] = $this->fix_aggregation_ordering( $this->search_result['results']['aggregations'], $this->facets );
 		}
 
 		// Allow filtering of entire result set to modify it or to add / remove results
@@ -594,7 +600,7 @@ class WPCOM_elasticsearch {
 
 	public function get_search_facets() {
 		$search_result = $this->get_search_result();
-		return ( ! empty( $search_result ) && ! empty( $search_result['facets'] ) ) ? $search_result['facets'] : array();
+		return ( ! empty( $search_result ) && ! empty( $search_result['aggregations'] ) ) ? $search_result['aggregations'] : array();
 	}
 
 	// Turns raw ES facet data into data that is more useful in a WordPress setting
@@ -644,17 +650,18 @@ class WPCOM_elasticsearch {
 
 			if ( ! empty( $facet['terms'] ) ) {
 				$items = (array) $facet['terms'];
-			} elseif ( ! empty( $facet['entries'] ) ) {
-				$items = (array) $facet['entries'];
+			} elseif ( ! empty( $facet['buckets'] ) ) {
+				$items = (array) $facet['buckets'];
 			}
 
 			// Some facet types like date_histogram don't support the max results parameter
-			if ( count( $items ) > $this->facets[ $label ]['count'] ) {
- 				if ( 'date_histogram' === $this->facets[ $label ]['type'] ) {
+			if ( is_int( $this->facets[ $label ]['count'] ) && count( $items ) > $this->facets[ $label ]['count'] ) {
+				if ( 'date_histogram' === $this->facets[ $label ]['type'] ) {
 					if ( ! empty( $this->facets[ $label ]['order'] ) && ( 'desc' === strtolower( $this->facets[ $label ]['order'] ) ) ) {
 						$items = array_reverse( $items );
-					}
+ 					}
 				}
+
 				$items = array_slice( $items, 0, $this->facets[ $label ]['count'] );
 			}
 
@@ -663,7 +670,7 @@ class WPCOM_elasticsearch {
 
 				switch ( $this->facets[ $label ]['type'] ) {
 					case 'taxonomy':
-						$term = get_term_by( 'slug', $item['term'], $this->facets[ $label ]['taxonomy'] );
+						$term = get_term_by( 'slug', $item['key'], $this->facets[ $label ]['taxonomy'] );
 
 						if ( ! $term ) {
 							continue 2; // switch() is considered a looping structure
@@ -685,14 +692,14 @@ class WPCOM_elasticsearch {
 						break;
 
 					case 'post_type':
-						$post_type = get_post_type_object( $item['term'] );
+						$post_type = get_post_type_object( $item['key'] );
 
 						if ( ! $post_type || $post_type->exclude_from_search ) {
 							continue 2;  // switch() is considered a looping structure
 						}
 
 						$query_vars = array(
-							'post_type' => $item['term'],
+							'post_type' => $item['key'],
 						);
 
 						$name = $post_type->labels->singular_name;
@@ -700,7 +707,7 @@ class WPCOM_elasticsearch {
 						break;
 
 					case 'date_histogram':
-						$timestamp = $item['time'] / 1000;
+						$timestamp = $item['key'] / 1000;
 
 						switch ( $this->facets[ $label ]['interval'] ) {
 							case 'year':
@@ -756,7 +763,7 @@ class WPCOM_elasticsearch {
 					'url'        => add_query_arg( $url_params, home_url() ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
-					'count'      => $item['count'],
+					'count'      => $item['doc_count'],
 				);
 			} // End foreach().
 		} // End foreach().
@@ -893,6 +900,33 @@ class WPCOM_elasticsearch {
 
 		// Some taxonomies do not have a query_var allow custom filtering
 		return apply_filters( 'wpcom_elasticsearch_taxonomy_query_var', $taxonomy->query_var, $taxonomy_name );
+	}
+
+	/**
+	 * Takes an array of aggregation results, and ensures the array key ordering matches the key order in $desired
+	 * which is the input order
+	 *
+	 * Necessary because ES does not always return Aggs in the same order that you put them in (it used to in Facets)
+	 *
+	 * @param array $aggregations Agg results to be reordered
+	 * @param array $desired Array with keys representing the desired ordering
+	 *
+	 * @return array A new array with reordered keys, matching those in $desired
+	 */
+	public function fix_aggregation_ordering( array $aggregations, array $desired ) {
+		if ( empty( $aggregations ) || empty( $desired ) ) {
+			return $aggregations;
+		}
+
+		$reordered = array();
+
+		foreach( array_keys( $desired ) as $agg_name ) {
+			if ( isset( $aggregations[ $agg_name ] ) ) {
+				$reordered[ $agg_name ] = $aggregations[ $agg_name ];
+			}
+		}
+
+		return $reordered;
 	}
 }
 
