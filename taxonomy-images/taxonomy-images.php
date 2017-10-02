@@ -1,12 +1,14 @@
 <?php
+
 /*
 Plugin Name:          Taxonomy Images
-Plugin URI:           http://wordpress.mfields.org/plugins/taxonomy-images/
+Plugin URI:           https://github.com/benhuson/Taxonomy-Images
 Description:          Associate images from your media library to categories, tags and custom taxonomies.
-Version:              0.7.3
-Author:               Michael Fields
-Author URI:           http://wordpress.mfields.org/
-License:              GPLv2
+Version:              0.9.6
+Author:               Michael Fields, Ben Huson
+Author URI:           https://github.com/benhuson
+License:              GNU General Public License v2 or later
+License URI:          http://www.gnu.org/licenses/gpl-2.0.html
 
 Copyright 2010-2011  Michael Fields  michael@mfields.org
 
@@ -35,10 +37,10 @@ require_once( trailingslashit( dirname( __FILE__ ) ) . 'public-filters.php' );
  * @return    string    The plugin's version number.
  * @access    private
  * @since     0.7
- * @alter     0.7.3
+ * @alter     0.7.4
  */
 function taxonomy_image_plugin_version() {
-	return '0.7.3';
+	return '0.9.6';
 }
 
 
@@ -68,8 +70,8 @@ function taxonomy_image_plugin_url( $file = '' ) {
 function taxonomy_image_plugin_detail_image_size() {
 	return array(
 		'name' => 'detail',
-		'size' => array( 75, 75, true )
-		);
+		'size' => array( 150, 150, true )
+	);
 }
 
 
@@ -86,7 +88,7 @@ function taxonomy_image_plugin_add_image_size() {
 		$detail['size'][0],
 		$detail['size'][1],
 		$detail['size'][2]
-		);
+	);
 }
 add_action( 'init', 'taxonomy_image_plugin_add_image_size' );
 
@@ -117,23 +119,16 @@ add_action( 'init', 'taxonomy_image_plugin_text_domain' );
  * @alter     0.7
  */
 function taxonomy_image_plugin_modal_button( $fields, $post ) {
-	$request_post_id = isset($_REQUEST['post_id']) ? $_REQUEST['post_id'] : 0;
-	if ( isset( $fields['image-size'] ) && isset( $post->ID ) && ( 0 == $request_post_id ) ) {
+	if ( isset( $fields['image-size'] ) && isset( $post->ID ) ) {
 		$image_id = (int) $post->ID;
 
-		$o = '<div class="taxonomy-image-modal-control" id="' . esc_attr( 'taxonomy-image-modal-control-' . $image_id ) . '">';
-
-		$o.= '<span class="button create-association">' . sprintf( esc_html__( 'Associate with %1$s', 'taxonomy-images' ), '<span class="term-name">' . esc_html__( 'this term', 'taxonomy-images' ) . '</span>' ) . '</span>';
-
-		$o.= '<span class="remove-association">' . sprintf( esc_html__( 'Remove association with %1$s', 'taxonomy-images' ), '<span class="term-name">' . esc_html__( 'this term', 'taxonomy-images' ) . '</span>' ) . '</span>';
-
-		$o.= '<input class="taxonomy-image-button-image-id" name="' . esc_attr( 'taxonomy-image-button-image-id-' . $image_id ) . '" type="hidden" value="' . esc_attr( $image_id ) . '" />';
-
-		$o.= '<input class="taxonomy-image-button-nonce-create" name="' . esc_attr( 'taxonomy-image-button-nonce-create-' . $image_id ) . '" type="hidden" value="' . esc_attr( wp_create_nonce( 'taxonomy-image-plugin-create-association' ) ) . '" />';
-
-		$o.= '<input class="taxonomy-image-button-nonce-remove" name="' . esc_attr( 'taxonomy-image-button-nonce-remove-' . $image_id ) . '" type="hidden" value="' . esc_attr( wp_create_nonce( 'taxonomy-image-plugin-remove-association' ) ) . '" />';
-
-		$o.= '</div>';
+		$o  = '<div class="taxonomy-image-modal-control" id="' . esc_attr( 'taxonomy-image-modal-control-' . $image_id ) . '">';
+		$o .= '<span class="button create-association">' . sprintf( esc_html__( 'Associate with %1$s', 'taxonomy-images' ), '<span class="term-name">' . esc_html__( 'this term', 'taxonomy-images' ) . '</span>' ) . '</span>';
+		$o .= '<span class="remove-association">' . sprintf( esc_html__( 'Remove association with %1$s', 'taxonomy-images' ), '<span class="term-name">' . esc_html__( 'this term', 'taxonomy-images' ) . '</span>' ) . '</span>';
+		$o .= '<input class="taxonomy-image-button-image-id" name="' . esc_attr( 'taxonomy-image-button-image-id-' . $image_id ) . '" type="hidden" value="' . esc_attr( $image_id ) . '" />';
+		$o .= '<input class="taxonomy-image-button-nonce-create" name="' . esc_attr( 'taxonomy-image-button-nonce-create-' . $image_id ) . '" type="hidden" value="' . esc_attr( wp_create_nonce( 'taxonomy-image-plugin-create-association' ) ) . '" />';
+		$o .= '<input class="taxonomy-image-button-nonce-remove" name="' . esc_attr( 'taxonomy-image-button-nonce-remove-' . $image_id ) . '" type="hidden" value="' . esc_attr( wp_create_nonce( 'taxonomy-image-plugin-remove-association' ) ) . '" />';
+		$o .= '</div>';
 
 		$fields['image-size']['extra_rows']['taxonomy-image-plugin-button']['html'] = $o;
 	}
@@ -166,25 +161,31 @@ function taxonomy_image_plugin_get_image_src( $id ) {
 	}
 
 	/* Detail image does not exist, attempt to create it. */
-	$fullsizepath = get_attached_file( $id );
+	$wp_upload_dir = wp_upload_dir();
+	if ( isset( $wp_upload_dir['basedir'] ) ) {
 
-	if ( false != $fullsizepath && file_exists( $fullsizepath ) ) {
-		$metadata = wp_generate_attachment_metadata( $id, $fullsizepath );
-		if ( !is_wp_error( $metadata ) && !empty ( $metadata) ) {
-			wp_update_attachment_metadata( $id, $metadata );
-		}
+		/* Create path to original uploaded image. */
+		$path = trailingslashit( $wp_upload_dir['basedir'] ) . get_post_meta( $id, '_wp_attached_file', true );
+		if ( is_file( $path ) ) {
 
-		/* Let's try the custom intermediate size again after the regeneration */
-		$img = image_get_intermediate_size( $id, $detail['name'] );
-		if ( isset( $img['url'] ) ) {
-			return $img['url'];
+			/* Attempt to create a new downsized version of the original image. */
+			$new = image_resize( $path,
+				$detail['size'][0],
+				$detail['size'][1],
+				$detail['size'][2]
+			);
+
+			/* Image creation successful. Generate and cache image metadata. Return url. */
+			if ( ! is_wp_error( $new ) ) {
+				$meta = wp_generate_attachment_metadata( $id, $path );
+				wp_update_attachment_metadata( $id, $meta );
+				$img = image_get_intermediate_size( $id, $detail['name'] );
+				if ( isset( $img['url'] ) ) {
+					return $img['url'];
+				}
+			}
 		}
 	}
-
-	/* Allow third party code to provide a proper detail image url */
-	$url = apply_filters('taxonomy_image_detail_image_url', '', $id );
-	if ( !empty( $url) )
-		return $url;
 
 	/* Custom intermediate size cannot be created, try for thumbnail. */
 	$img = image_get_intermediate_size( $id, 'thumbnail' );
@@ -198,7 +199,7 @@ function taxonomy_image_plugin_get_image_src( $id ) {
 		return $url;
 	}
 
-	/*
+	/**
 	 * No image can be found.
 	 * This is most likely caused by a user deleting an attachment before deleting it's association with a taxonomy.
 	 * If we are in the administration panels:
@@ -209,7 +210,7 @@ function taxonomy_image_plugin_get_image_src( $id ) {
 		$assoc = taxonomy_image_plugin_get_associations();
 		foreach ( $assoc as $term => $img ) {
 			if ( $img === $id ) {
-				unset( $assoc[$term] );
+				unset( $assoc[ $term ] );
 			}
 		}
 		update_option( 'taxonomy_image_plugin', $assoc );
@@ -240,9 +241,8 @@ function taxonomy_image_plugin_sanitize_associations( $associations ) {
 	foreach ( (array) $associations as $tt_id => $im_id ) {
 		$tt_id = absint( $tt_id );
 		$im_id = absint( $im_id );
-		if ( 0 < $tt_id && 0 < $im_id ) {
-			$o[$tt_id] = $im_id;
-		}
+		if ( 0 < $tt_id && 0 < $im_id )
+			$o[ $tt_id ] = $im_id;
 	}
 	return $o;
 }
@@ -266,9 +266,8 @@ function taxonomy_image_plugin_settings_sanitize( $dirty ) {
 	if ( isset( $dirty['taxonomies'] ) ) {
 		$taxonomies = get_taxonomies();
 		foreach ( (array) $dirty['taxonomies'] as $taxonomy ) {
-			if ( in_array( $taxonomy, $taxonomies ) ) {
+			if ( in_array( $taxonomy, $taxonomies ) )
 				$clean['taxonomies'][] = $taxonomy;
-			}
 		}
 	}
 
@@ -308,25 +307,25 @@ function taxonomy_image_plugin_register_settings() {
 		'taxonomy_image_plugin',
 		'taxonomy_image_plugin',
 		'taxonomy_image_plugin_sanitize_associations'
-		);
+	);
 	register_setting(
 		'taxonomy_image_plugin_settings',
 		'taxonomy_image_plugin_settings',
 		'taxonomy_image_plugin_settings_sanitize'
-		);
+	);
 	add_settings_section(
 		'taxonomy_image_plugin_settings',
 		esc_html__( 'Settings', 'taxonomy-images' ),
 		'__return_false',
 		'taxonomy_image_plugin_settings'
-		);
+	);
 	add_settings_field(
 		'taxonomy-images',
 		esc_html__( 'Taxonomies', 'taxonomy-images' ),
 		'taxonomy_image_plugin_control_taxonomies',
 		'taxonomy_image_plugin_settings',
 		'taxonomy_image_plugin_settings'
-		);
+	);
 }
 add_action( 'admin_init', 'taxonomy_image_plugin_register_settings' );
 
@@ -341,12 +340,12 @@ add_action( 'admin_init', 'taxonomy_image_plugin_register_settings' );
  */
 function taxonomy_images_settings_menu() {
 	add_options_page(
-		esc_html__( 'Taxonomy Images', 'taxonomy-images' ), /* HTML <title> tag. */
-		esc_html__( 'Taxonomy Images', 'taxonomy-images' ), /* Link text in admin menu. */
+		esc_html__( 'Taxonomy Images', 'taxonomy-images' ), // HTML <title> tag.
+		esc_html__( 'Taxonomy Images', 'taxonomy-images' ), // Link text in admin menu.
 		'manage_options',
 		'taxonomy_image_plugin_settings',
 		'taxonomy_image_plugin_settings_page'
-		);
+	);
 }
 add_action( 'admin_menu', 'taxonomy_images_settings_menu' );
 
@@ -366,7 +365,6 @@ add_action( 'admin_menu', 'taxonomy_images_settings_menu' );
  */
 function taxonomy_image_plugin_settings_page() {
 	print "\n" . '<div class="wrap">';
-	screen_icon();
 
 	/* translators: Heading of the custom administration page. */
 	print "\n" . '<h2>' . esc_html__( 'Taxonomy Images Plugin Settings', 'taxonomy-images' ) . '</h2>';
@@ -377,7 +375,7 @@ function taxonomy_image_plugin_settings_page() {
 	do_settings_sections( 'taxonomy_image_plugin_settings' );
 
 	/* translators: Button on the custom administration page. */
-	print "\n" . '<div class="button-holder"><input name="submit" type="submit" value="' . esc_attr__( 'Save Changes', 'taxonomy-images' ) . '" /></div>';
+	print "\n" . '<div class="button-holder"><input class="button-primary" name="submit" type="submit" value="' . esc_attr__( 'Save Changes', 'taxonomy-images' ) . '" /></div>';
 	print "\n" . '</div></form></div>';
 }
 
@@ -394,19 +392,24 @@ function taxonomy_image_plugin_control_taxonomies() {
 		if ( ! isset( $taxonomy->name ) ) {
 			continue;
 		}
+
 		if ( ! isset( $taxonomy->label ) ) {
 			continue;
 		}
+
 		if ( ! isset( $taxonomy->show_ui ) || empty( $taxonomy->show_ui ) ) {
 			continue;
 		}
+
 		$id = 'taxonomy-images-' . $taxonomy->name;
+
 		$checked = '';
 		if ( isset( $settings['taxonomies'] ) && in_array( $taxonomy->name, (array) $settings['taxonomies'] ) ) {
 			$checked = ' checked="checked"';
 		}
+
 		print "\n" . '<p><label for="' . esc_attr( $id ) . '">';
-		print '<input' . $checked . ' id="' . esc_attr( $id ) . '" type="checkbox" name="taxonomy_image_plugin_settings[taxonomies][]" value="' . esc_attr( $taxonomy->name ) . '">';
+		print '<input' . wp_kses_post( $checked ) . ' id="' . esc_attr( $id ) . '" type="checkbox" name="taxonomy_image_plugin_settings[taxonomies][]" value="' . esc_attr( $taxonomy->name ) . '" />';
 		print ' ' . esc_html( $taxonomy->label ) . '</label></p>';
 	}
 }
@@ -427,7 +430,7 @@ function taxonomy_image_plugin_json_response( $args ) {
 		'why'    => esc_html__( 'Unknown error encountered', 'taxonomy-images' )
 	) );
 	header( 'Content-type: application/jsonrequest' );
-	print json_encode( $response );
+	print wp_json_encode( $response );
 	exit;
 }
 
@@ -444,20 +447,25 @@ function taxonomy_image_plugin_json_response( $args ) {
  */
 function taxonomy_image_plugin_get_term_info( $tt_id ) {
 	static $cache = array();
-	if ( isset( $cache[$tt_id] ) ) {
-		return $cache[$tt_id];
+	if ( isset( $cache[ $tt_id ] ) ) {
+		return $cache[ $tt_id ];
 	}
+
 	global $wpdb;
+
 	$data = $wpdb->get_results( $wpdb->prepare( "SELECT term_id, taxonomy FROM $wpdb->term_taxonomy WHERE term_taxonomy_id = %d LIMIT 1", $tt_id ) );
 	if ( isset( $data[0]->term_id ) ) {
-		$cache[$tt_id]['term_id'] = absint( $data[0]->term_id );
+		$cache[ $tt_id ]['term_id'] = absint( $data[0]->term_id );
 	}
+
 	if ( isset( $data[0]->taxonomy ) ) {
-		$cache[$tt_id]['taxonomy'] = sanitize_title_with_dashes( $data[0]->taxonomy );
+		$cache[ $tt_id ]['taxonomy'] = $data[0]->taxonomy;
 	}
-	if ( isset( $cache[$tt_id] ) ) {
-		return $cache[$tt_id];
+
+	if ( isset( $cache[ $tt_id ] ) ) {
+		return $cache[ $tt_id ];
 	}
+
 	return array();
 }
 
@@ -548,15 +556,14 @@ function taxonomy_image_plugin_create_association() {
 	}
 
 	$assoc = taxonomy_image_plugin_get_associations();
-	$assoc[$tt_id] = $image_id;
+	$assoc[ $tt_id ] = $image_id;
 	if ( update_option( 'taxonomy_image_plugin', taxonomy_image_plugin_sanitize_associations( $assoc ) ) ) {
 		taxonomy_image_plugin_json_response( array(
 			'status' => 'good',
 			'why'    => esc_html__( 'Image successfully associated', 'taxonomy-images' ),
 			'attachment_thumb_src' => taxonomy_image_plugin_get_image_src( $image_id )
 		) );
-	}
-	else {
+	} else {
 		taxonomy_image_plugin_json_response( array(
 			'status' => 'bad',
 			'why'    => esc_html__( 'Association could not be created', 'taxonomy-images' )
@@ -615,22 +622,21 @@ function taxonomy_image_plugin_remove_association() {
 	}
 
 	$assoc = taxonomy_image_plugin_get_associations();
-	if ( ! isset( $assoc[$tt_id] ) ) {
+	if ( ! isset( $assoc[ $tt_id ] ) ) {
 		taxonomy_image_plugin_json_response( array(
 			'status' => 'good',
 			'why'    => esc_html__( 'Nothing to remove', 'taxonomy-images' )
 		) );
 	}
 
-	unset( $assoc[$tt_id] );
+	unset( $assoc[ $tt_id ] );
 
 	if ( update_option( 'taxonomy_image_plugin', $assoc ) ) {
 		taxonomy_image_plugin_json_response( array(
 			'status' => 'good',
 			'why'    => esc_html__( 'Association successfully removed', 'taxonomy-images' )
 		) );
-	}
-	else {
+	} else {
 		taxonomy_image_plugin_json_response( array(
 			'status' => 'bad',
 			'why'    => esc_html__( 'Association could not be removed', 'taxonomy-images' )
@@ -657,6 +663,7 @@ function taxonomy_image_plugin_get_associations( $refresh = false ) {
 	if ( empty( $associations ) || $refresh ) {
 		$associations = taxonomy_image_plugin_sanitize_associations( get_option( 'taxonomy_image_plugin' ) );
 	}
+
 	return $associations;
 }
 add_action( 'init', 'taxonomy_image_plugin_get_associations' );
@@ -678,6 +685,7 @@ function taxonomy_image_plugin_add_dynamic_hooks() {
 	if ( ! isset( $settings['taxonomies'] ) ) {
 		return;
 	}
+
 	foreach ( $settings['taxonomies'] as $taxonomy ) {
 		add_filter( 'manage_' . $taxonomy . '_custom_column', 'taxonomy_image_plugin_taxonomy_rows', 15, 3 );
 		add_filter( 'manage_edit-' . $taxonomy . '_columns',  'taxonomy_image_plugin_taxonomy_columns' );
@@ -747,9 +755,8 @@ function taxonomy_image_plugin_taxonomy_rows( $row, $column_name, $term_id ) {
 function taxonomy_image_plugin_edit_tag_form( $term, $taxonomy ) {
 	$taxonomy = get_taxonomy( $taxonomy );
 	$name = __( 'term', 'taxonomy-images' );
-	if ( isset( $taxonomy->labels->singular_name ) ) {
+	if ( isset( $taxonomy->labels->singular_name ) )
 		$name = strtolower( $taxonomy->labels->singular_name );
-	}
 	?>
 	<tr class="form-field hide-if-no-js">
 		<th scope="row" valign="top"><label for="description"><?php print esc_html__( 'Image', 'taxonomy-images' ) ?></label></th>
@@ -799,19 +806,23 @@ function taxonomy_image_plugin_control_image( $term_id, $taxonomy ) {
 
 	$term = get_term( $term_id, $taxonomy->name );
 
-	$o = "\n" . '<div id="' . esc_attr( 'taxonomy-image-control-' . $tt_id ) . '" class="taxonomy-image-control hide-if-no-js">';
-	$o.= "\n" . '<a class="thickbox taxonomy-image-thumbnail" href="' . esc_url( admin_url( 'media-upload.php' ) . '?type=image&tab=library&post_id=0&TB_iframe=true' ) . '" title="' . esc_attr( sprintf( __( 'Associate an image with the %1$s named &#8220;%2$s&#8221;.', 'taxonomy-images' ), $name, $term->name ) ) . '"><img id="' . esc_attr( 'taxonomy_image_plugin_' . $tt_id ) . '" src="' . esc_url( $img ) . '" alt="" /></a>';
-	$o.= "\n" . '<a class="control upload thickbox" href="' . esc_url( admin_url( 'media-upload.php' ) . '?type=image&tab=type&post_id=0&TB_iframe=true' ) . '" title="' . esc_attr( sprintf( __( 'Upload a new image for this %s.', 'taxonomy-images' ), $name ) ) . '">' . esc_html__( 'Upload.', 'taxonomy-images' ) . '</a>';
-	$o.= "\n" . '<a class="control remove' . $hide . '" href="#" id="' . esc_attr( 'remove-' . $tt_id ) . '" rel="' . esc_attr( $tt_id ) . '" title="' . esc_attr( sprintf( __( 'Remove image from this %s.', 'taxonomy-images' ), $name ) ) . '">' . esc_html__( 'Delete', 'taxonomy-images' ) . '</a>';
-	$o.= "\n" . '<input type="hidden" class="tt_id" name="' . esc_attr( 'tt_id-' . $tt_id ) . '" value="' . esc_attr( $tt_id ) . '" />';
+	$nonce = wp_create_nonce( 'taxonomy-image-plugin-create-association' );
+	$nonce_remove = wp_create_nonce( 'taxonomy-image-plugin-remove-association' );
 
-	$o.= "\n" . '<input type="hidden" class="image_id" name="' . esc_attr( 'image_id-' . $tt_id ) . '" value="' . esc_attr( $attachment_id ) . '" />';
+	$thickbox_class = version_compare( get_bloginfo( 'version' ), 3.5 ) >= 0 ? '' : 'thickbox';
+
+	$o  = "\n" . '<div id="' . esc_attr( 'taxonomy-image-control-' . $tt_id ) . '" class="taxonomy-image-control hide-if-no-js">';
+	$o .= "\n" . '<a class="' . esc_attr( $thickbox_class ) . ' taxonomy-image-thumbnail" data-tt-id="' . esc_attr( $tt_id ) . '" data-attachment-id="' . esc_attr( $attachment_id ) . '" data-nonce="' . esc_attr( $nonce ) . '" href="' . esc_url( admin_url( 'media-upload.php' ) . '?type=image&tab=library&post_id=0&TB_iframe=true' ) . '" title="' . esc_attr( sprintf( __( 'Associate an image with the %1$s named &#8220;%2$s&#8221;.', 'taxonomy-images' ), $name, $term->name ) ) . '"><img id="' . esc_attr( 'taxonomy_image_plugin_' . $tt_id ) . '" src="' . esc_url( $img ) . '" alt="" /></a>';
+	$o .= "\n" . '<a class="control upload ' . esc_attr( $thickbox_class ) . '" data-tt-id="' . esc_attr( $tt_id ) . '" data-attachment-id="' . esc_attr( $attachment_id ) . '" data-nonce="' . esc_attr( $nonce ) . '" href="' . esc_url( admin_url( 'media-upload.php' ) . '?type=image&tab=type&post_id=0&TB_iframe=true' ) . '" title="' . esc_attr( sprintf( __( 'Upload a new image for this %s.', 'taxonomy-images' ), $name ) ) . '">' . esc_html__( 'Upload.', 'taxonomy-images' ) . '</a>';
+	$o .= "\n" . '<a class="control remove' . esc_attr( $hide ) . '" data-tt-id="' . esc_attr( $tt_id ) . '" data-nonce="' . esc_attr( $nonce_remove ) . '" href="#" id="' . esc_attr( 'remove-' . $tt_id ) . '" rel="' . esc_attr( $tt_id ) . '" title="' . esc_attr( sprintf( __( 'Remove image from this %s.', 'taxonomy-images' ), $name ) ) . '">' . esc_html__( 'Delete', 'taxonomy-images' ) . '</a>';
+	$o .= "\n" . '<input type="hidden" class="tt_id" name="' . esc_attr( 'tt_id-' . $tt_id ) . '" value="' . esc_attr( $tt_id ) . '" />';
+	$o .= "\n" . '<input type="hidden" class="image_id" name="' . esc_attr( 'image_id-' . $tt_id ) . '" value="' . esc_attr( $attachment_id ) . '" />';
 
 	if ( isset( $term->name ) && isset( $term->slug ) ) {
-		$o.= "\n" . '<input type="hidden" class="term_name" name="' . esc_attr( 'term_name-' . $term->slug ) . '" value="' . esc_attr( $term->name ) . '" />';
+		$o .= "\n" . '<input type="hidden" class="term_name" name="' . esc_attr( 'term_name-' . $term->slug ) . '" value="' . esc_attr( $term->name ) . '" />';
 	}
 
-	$o.= "\n" . '</div>';
+	$o .= "\n" . '</div>';
 	return $o;
 }
 
@@ -824,20 +835,25 @@ function taxonomy_image_plugin_control_image( $term_id, $taxonomy ) {
  * @access    private
  */
 function taxonomy_image_plugin_media_upload_popup_js() {
+
+	if ( version_compare( get_bloginfo( 'version' ), 3.5 ) >= 0 ) {
+		return;
+	}
+
 	wp_enqueue_script(
 		'taxonomy-images-media-upload-popup',
-		taxonomy_image_plugin_url( 'media-upload-popup.js' ),
+		taxonomy_image_plugin_url( 'js/media-upload-popup.js' ),
 		array( 'jquery' ),
 		taxonomy_image_plugin_version()
-		);
-	wp_localize_script( 'taxonomy-images-media-upload-popup', 'TaxonomyImagesModal', array (
+	);
+	wp_localize_script( 'taxonomy-images-media-upload-popup', 'TaxonomyImagesModal', array(
 		'termBefore'  => esc_html__( '&#8220;', 'taxonomy-images' ),
 		'termAfter'   => esc_html__( '&#8221;', 'taxonomy-images' ),
 		'associating' => esc_html__( 'Associating &#8230;', 'taxonomy-images' ),
 		'success'     => esc_html__( 'Successfully Associated', 'taxonomy-images' ),
 		'removing'    => esc_html__( 'Removing &#8230;', 'taxonomy-images' ),
 		'removed'     => esc_html__( 'Successfully Removed', 'taxonomy-images' )
-		) );
+	) );
 }
 add_action( 'admin_print_scripts-media-upload-popup', 'taxonomy_image_plugin_media_upload_popup_js' );
 
@@ -851,18 +867,23 @@ function taxonomy_image_plugin_edit_tags_js() {
 	if ( false == taxonomy_image_plugin_is_screen_active() ) {
 		return;
 	}
+
+	if ( version_compare( get_bloginfo( 'version' ), 3.5 ) >= 0 ) {
+		return;
+	}
+
 	wp_enqueue_script(
 		'taxonomy-image-plugin-edit-tags',
-		taxonomy_image_plugin_url( 'edit-tags.js' ),
+		taxonomy_image_plugin_url( 'js/edit-tags.js' ),
 		array( 'jquery', 'thickbox' ),
 		taxonomy_image_plugin_version()
-		);
-	wp_localize_script( 'taxonomy-image-plugin-edit-tags', 'taxonomyImagesPlugin', array (
+	);
+	wp_localize_script( 'taxonomy-image-plugin-edit-tags', 'taxonomyImagesPlugin', array(
 		'nonce'    => wp_create_nonce( 'taxonomy-image-plugin-remove-association' ),
 		'img_src'  => taxonomy_image_plugin_url( 'default.png' ),
 		'tt_id'    => 0,
 		'image_id' => 0,
-		) );
+	) );
 }
 add_action( 'admin_print_scripts-edit-tags.php', 'taxonomy_image_plugin_edit_tags_js' );
 
@@ -874,18 +895,20 @@ add_action( 'admin_print_scripts-edit-tags.php', 'taxonomy_image_plugin_edit_tag
  * @access    private
  */
 function taxonomy_image_plugin_css_admin() {
-	if ( false == taxonomy_image_plugin_is_screen_active() && 'admin_print_styles-media-upload-popup' != current_filter() ) {
+	if ( false == taxonomy_image_plugin_is_screen_active() && current_filter() != 'admin_print_styles-media-upload-popup' ) {
 		return;
 	}
+
 	wp_enqueue_style(
 		'taxonomy-image-plugin-edit-tags',
-		taxonomy_image_plugin_url( 'admin.css' ),
+		taxonomy_image_plugin_url( 'css/admin.css' ),
 		array(),
 		taxonomy_image_plugin_version(),
 		'screen'
-		);
+	);
 }
-add_action( 'admin_print_styles-edit-tags.php', 'taxonomy_image_plugin_css_admin' );
+add_action( 'admin_print_styles-edit-tags.php', 'taxonomy_image_plugin_css_admin' );  // Pre WordPress 4.5
+add_action( 'admin_print_styles-term.php', 'taxonomy_image_plugin_css_admin' );       // WordPress 4.5+
 add_action( 'admin_print_styles-media-upload-popup', 'taxonomy_image_plugin_css_admin' );
 
 
@@ -899,6 +922,7 @@ function taxonomy_image_plugin_css_thickbox() {
 	if ( false == taxonomy_image_plugin_is_screen_active() ) {
 		return;
 	}
+
 	wp_enqueue_style( 'thickbox' );
 }
 add_action( 'admin_print_styles-edit-tags.php', 'taxonomy_image_plugin_css_thickbox' );
@@ -921,13 +945,14 @@ function taxonomy_image_plugin_css_public() {
 	if ( apply_filters( 'taxonomy-images-disable-public-css', false ) ) {
 		return;
 	}
+
 	wp_enqueue_style(
 		'taxonomy-image-plugin-public',
-		taxonomy_image_plugin_url( 'style.css' ),
+		taxonomy_image_plugin_url( 'css/style.css' ),
 		array(),
 		taxonomy_image_plugin_version(),
 		'screen'
-		);
+	);
 }
 add_action( 'wp_enqueue_scripts', 'taxonomy_image_plugin_css_public' );
 
@@ -956,11 +981,12 @@ function taxonomy_image_plugin_activate() {
 	if ( false === $associations ) {
 		add_option( 'taxonomy_image_plugin', array() );
 	}
+
 	$settings = get_option( 'taxonomy_image_plugin_settings' );
 	if ( false === $settings ) {
 		add_option( 'taxonomy_image_plugin_settings', array(
 			'taxonomies' => array()
-			) );
+		) );
 	}
 }
 register_activation_hook( __FILE__, 'taxonomy_image_plugin_activate' );
@@ -988,6 +1014,7 @@ function taxonomy_image_plugin_is_screen_active() {
 	if ( in_array( $screen->taxonomy, $settings['taxonomies'] ) ) {
 		return true;
 	}
+
 	return false;
 }
 
@@ -1036,23 +1063,26 @@ function taxonomy_image_plugin_cache_images( $posts ) {
 
 	$image_ids = array();
 	foreach ( $tt_ids as $tt_id ) {
-		if ( ! isset( $assoc[$tt_id] ) ) {
+		if ( ! isset( $assoc[ $tt_id ] ) ) {
 			continue;
 		}
-		if ( in_array( $assoc[$tt_id], $image_ids ) ) {
+
+		if ( in_array( $assoc[ $tt_id ], $image_ids ) ) {
 			continue;
 		}
-		$image_ids[] = $assoc[$tt_id];
+
+		$image_ids[] = $assoc[ $tt_id ];
 	}
 
 	if ( empty( $image_ids ) ) {
 		return;
 	}
 
-	get_posts( array(
+	$images = get_posts( array(
 		'include'   => $image_ids,
-		'post_type' => 'attachment'
-		) );
+		'post_type' => 'attachment',
+		'suppress_filters' => false,
+	) );
 }
 
 
@@ -1090,26 +1120,16 @@ add_action( 'template_redirect', 'taxonomy_image_plugin_cache_queried_images' );
  */
 function taxonomy_image_plugin_check_taxonomy( $taxonomy, $filter ) {
 	if ( ! taxonomy_exists( $taxonomy ) ) {
-		trigger_error( sprintf( esc_html__( 'The %1$s argument for %2$s is set to %3$s which is not a registered taxonomy. Please check the spelling and update the argument.', 'taxonomy-images' ),
-		'<var>' . esc_html__( 'taxonomy', 'taxonomy-images' ) . '</var>',
-		'<code>' . esc_html( $filter ) . '</code>',
-		'<strong>' . esc_html( $taxonomy ) . '</strong>'
-		) );
 		return false;
 	}
 
 	$settings = get_option( 'taxonomy_image_plugin_settings' );
 
 	if ( ! isset( $settings['taxonomies'] ) ) {
-		trigger_error( sprintf( esc_html__( 'No taxonomies have image support. %1$s', 'taxonomy-images' ), taxonomy_images_plugin_settings_page_link() ) );
 		return false;
 	}
 
 	if ( ! in_array( $taxonomy, (array) $settings['taxonomies'] ) ) {
-		trigger_error( sprintf( esc_html__( 'The %1$s taxonomy does not have image support. %2$s', 'taxonomy-images' ),
-		'<strong>' . esc_html( $taxonomy ) . '</strong>',
-		taxonomy_images_plugin_settings_page_link()
-		) );
 		return false;
 	}
 
@@ -1131,10 +1151,7 @@ function taxonomy_image_plugin_check_taxonomy( $taxonomy, $filter ) {
  * @since     0.7
  */
 function taxonomy_image_plugin_please_use_filter( $function, $filter ) {
-	trigger_error( sprintf( esc_html__( 'The %1$s has been called directly. Please use the %2$s filter instead.', 'taxonomy-images' ),
-	'<code>' . esc_html( $function . '()' ) . '</code>',
-	'<code>' . esc_html( $filter ) . '</code>'
-	) );
+	return false;
 }
 
 
@@ -1162,12 +1179,12 @@ function taxonomy_images_plugin_row_meta( $links, $file ) {
 		return $links;
 	}
 
-	$link = taxonomy_images_plugin_settings_page_link( __( 'Settings', 'taxonomy-images' ) );
+	$link = taxonomy_images_plugin_settings_page_link( esc_html__( 'Settings', 'taxonomy-images' ) );
 	if ( ! empty( $link ) ) {
 		$links[] = $link;
 	}
 
-	$links[] = '<a href="http://wordpress.mfields.org/donate/">' . __( 'Donate', 'taxonomy-images' ) . '</a>';
+	$links[] = '<a href="http://wordpress.mfields.org/donate/">' . esc_html__( 'Donate', 'taxonomy-images' ) . '</a>';
 
 	return $links;
 }
@@ -1195,3 +1212,38 @@ function taxonomy_images_plugin_settings_page_link( $link_text = '' ) {
 
 	return $link;
 }
+
+/**
+ * Enqueue Admin Scripts
+ *
+ * @since  0.9
+ */
+function taxonomy_images_admin_enqueue_scripts() {
+
+	if ( false == taxonomy_image_plugin_is_screen_active() ) {
+		return;
+	}
+
+	if ( version_compare( get_bloginfo( 'version' ), 3.5 ) < 0 ) {
+		return;
+	}
+
+	wp_enqueue_media();
+
+	wp_enqueue_script(
+		'taxonomy-images-media-modal',
+		taxonomy_image_plugin_url( 'js/media-modal.js' ),
+		array( 'jquery' ),
+		taxonomy_image_plugin_version()
+	);
+
+	wp_localize_script( 'taxonomy-images-media-modal', 'TaxonomyImagesMediaModal', array(
+		'wp_media_post_id'     => 0,
+		'attachment_id'        => 0,
+		'uploader_title'       => __( 'Set featured image', 'taxonomy-images' ),
+		'uploader_button_text' => __( 'Set featured image', 'taxonomy-images' ),
+		'default_img_src'      => taxonomy_image_plugin_url( 'default.png' )
+	) );
+
+}
+add_action( 'admin_enqueue_scripts', 'taxonomy_images_admin_enqueue_scripts' );

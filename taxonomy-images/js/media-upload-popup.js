@@ -69,9 +69,10 @@ jQuery( document ).ready( function( $ ) {
 				}
 			}
 		} );
+		return false;
 	} );
 
-	$( '.taxonomy-images-modal' ).on( 'click', ' .create-association', function () {
+	$( '.taxonomy-images-modal' ).on( 'click', '.create-association', function () {
 		var button, selector, originalText;
 		if ( 0 == ID ) {
 			return;
@@ -130,5 +131,6 @@ jQuery( document ).ready( function( $ ) {
 				}
 			}
 		} );
+		return false;
 	} );
 } );

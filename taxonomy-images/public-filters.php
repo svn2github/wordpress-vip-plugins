@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Interface.
  *
@@ -7,8 +8,8 @@
  * WordPress extension including plugins and themes. Direct
  * use of functions defined herein constitutes unsupported use
  * and is strongly discouraged. This file contains custom filters
- * have been added which enable extension authors to interact with
- * this plugin in a responsible manner.
+ * which enable extension authors to interact with this plugin in
+ * a responsible manner.
  *
  * @package      Taxonomy Images
  * @author       Michael Fields <michael@mfields.org>
@@ -40,23 +41,24 @@ add_filter( 'taxonomy-images-queried-term-image-url',    'taxonomy_images_plugin
  * no image has been associated, this property will contain
  * integer with the value of zero.
  *
+ * @see http://codex.wordpress.org/Function_Reference/get_terms
+ *
  * Recognized Arguments:
  *
- * cache_images (bool) A non-empty value will trigger
- * this function to query for and cache all associated
- * images. An empty value disables caching. Defaults to
- * boolean true.
+ * cache_images (bool) If true, all images will be added to
+ * WordPress object cache. If false, caching will not occur.
+ * Defaults to true. Optional.
  *
- * having_images (bool) A non-empty value will trigger
- * this function to only return terms that have associated
- * images. If an empty value is passed all terms of the 
- * taxonomy will be returned.
+ * having_images (bool) If true, the returned array will contain
+ * only terms that have associated images. If false, all terms
+ * of the taxonomy will be returned. Defaults to true. Optional.
  *
  * taxonomy (string) Name of a registered taxonomy to
- * return terms from. Defaults to "category".
+ * return terms from. Defaults to "category". Optional.
  *
  * term_args (array) Arguments to pass as the second
  * parameter of get_terms(). Defaults to an empty array.
+ * Optional.
  *
  * @param     mixed     Default value for apply_filters() to return. Unused.
  * @param     array     Named arguments. Please see above for explantion.
@@ -67,7 +69,7 @@ add_filter( 'taxonomy-images-queried-term-image-url',    'taxonomy_images_plugin
  */
 function taxonomy_images_plugin_get_terms( $default, $args = array() ) {
 	$filter = 'taxonomy-images-get-terms';
-	if ( $filter !== current_filter() ) {
+	if ( current_filter() !== $filter ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
 	}
 
@@ -76,7 +78,7 @@ function taxonomy_images_plugin_get_terms( $default, $args = array() ) {
 		'having_images' => true,
 		'taxonomy'      => 'category',
 		'term_args'     => array(),
-		) );
+	) );
 
 	$args['taxonomy'] = explode( ',', $args['taxonomy'] );
 	$args['taxonomy'] = array_map( 'trim', $args['taxonomy'] );
@@ -88,7 +90,7 @@ function taxonomy_images_plugin_get_terms( $default, $args = array() ) {
 	}
 
 	$assoc = taxonomy_image_plugin_get_associations();
-	if ( empty( $assoc ) ) {
+	if ( ! empty( $args['having_images'] ) && empty( $assoc ) ) {
 		return array();
 	}
 
@@ -100,12 +102,12 @@ function taxonomy_images_plugin_get_terms( $default, $args = array() ) {
 	$image_ids = array();
 	$terms_with_images = array();
 	foreach ( (array) $terms as $key => $term ) {
-		$terms[$key]->image_id = 0;
+		$terms[ $key ]->image_id = 0;
 		if ( array_key_exists( $term->term_taxonomy_id, $assoc ) ) {
-			$terms[$key]->image_id = $assoc[$term->term_taxonomy_id];
-			$image_ids[] = $assoc[$term->term_taxonomy_id];
+			$terms[ $key ]->image_id = $assoc[ $term->term_taxonomy_id ];
+			$image_ids[] = $assoc[ $term->term_taxonomy_id ];
 			if ( ! empty( $args['having_images'] ) ) {
-				$terms_with_images[] = $terms[$key];
+				$terms_with_images[] = $terms[ $key ];
 			}
 		}
 	}
@@ -114,7 +116,7 @@ function taxonomy_images_plugin_get_terms( $default, $args = array() ) {
 	if ( ! empty( $args['cache_images'] ) ) {
 		$images = array();
 		if ( ! empty( $image_ids ) ) {
-			$images = get_children( array( 'include' => implode( ',', $image_ids ) ) );
+			$images = get_children( array( 'posts_per_page' => 100, 'include' => implode( ',', $image_ids ) ) );
 		}
 	}
 
@@ -136,12 +138,13 @@ function taxonomy_images_plugin_get_terms( $default, $args = array() ) {
  * no image has been associated, this property will contain
  * integer with the value of zero.
  *
+ * @see http://codex.wordpress.org/Function_Reference/get_the_terms
+ *
  * Recognized Arguments:
  *
- * having_images (bool) A non-empty value will trigger
- * this function to only return terms that have associated
- * images. If an empty value is passed all terms of the
- * taxonomy will be returned. Optional.
+ * having_images (bool) If true, the returned array will contain
+ * only terms that have associated images. If false, all terms
+ * of the taxonomy will be returned. Defaults to true. Optional.
  *
  * post_id (int) The post to retrieve terms from. Defaults
  * to the ID property of the global $post object. Optional.
@@ -156,7 +159,7 @@ function taxonomy_images_plugin_get_terms( $default, $args = array() ) {
  * @access    private   Use the 'taxonomy-images-get-the-terms' filter.
  * @since     0.7
  */
-function taxonomy_images_plugin_get_the_terms( $default, $args ) {
+function taxonomy_images_plugin_get_the_terms( $default, $args = array() ) {
 	$filter = 'taxonomy-images-get-the-terms';
 	if ( $filter !== current_filter() ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
@@ -166,7 +169,7 @@ function taxonomy_images_plugin_get_the_terms( $default, $args ) {
 		'having_images' => true,
 		'post_id'       => 0,
 		'taxonomy'      => 'category',
-		) );
+	) );
 
 	if ( ! taxonomy_image_plugin_check_taxonomy( $args['taxonomy'], $filter ) ) {
 		return array();
@@ -190,11 +193,11 @@ function taxonomy_images_plugin_get_the_terms( $default, $args ) {
 
 	$terms_with_images = array();
 	foreach ( (array) $terms as $key => $term ) {
-		$terms[$key]->image_id = 0;
+		$terms[ $key ]->image_id = 0;
 		if ( array_key_exists( $term->term_taxonomy_id, $assoc ) ) {
-			$terms[$key]->image_id = $assoc[$term->term_taxonomy_id];
+			$terms[ $key ]->image_id = $assoc[ $term->term_taxonomy_id ];
 			if ( ! empty( $args['having_images'] ) ) {
-				$terms_with_images[] = $terms[$key];
+				$terms_with_images[] = $terms[ $key ];
 			}
 		}
 	}
@@ -214,16 +217,23 @@ function taxonomy_images_plugin_get_the_terms( $default, $args ) {
  *
  * Recognized Arguments:
  *
- * after (string) Text to append to the output. Optional.
- * Defaults to an empty string.
+ * after (string) Text to append to the output.
+ * Defaults to: '</ul>'. Optional.
  *
- * before (string) Text to preppend to the output. Optional.
- * Defaults to an empty string.
+ * after_image (string) Text to append to each image in the
+ * list. Defaults to: '</li>'. Optional.
+ *
+ * before (string) Text to preppend to the output.
+ * Defaults to: '<ul class="taxonomy-images-the-terms">'.
+ * Optional.
+ *
+ * before_image (string) Text to prepend to each image in the
+ * list. Defaults to: '<li>'. Optional.
  *
  * image_size (string) Any registered image size. Values will
  * vary from installation to installation. Image sizes defined
- * in core include: "thumbnail", "medium" and "large". "Fullsize"
- * may also be used to get the un modified image that was uploaded.
+ * in core include: "thumbnail", "medium" and "large". "fullsize"
+ * may also be used to get the unmodified image that was uploaded.
  * Optional. Defaults to "thumbnail".
  *
  * post_id (int) The post to retrieve terms from. Defaults
@@ -239,9 +249,9 @@ function taxonomy_images_plugin_get_the_terms( $default, $args ) {
  * @access    private   Use the 'taxonomy-images-list-the-terms' filter.
  * @since     0.7
  */
-function taxonomy_images_plugin_list_the_terms( $default, $args ) {
+function taxonomy_images_plugin_list_the_terms( $default, $args = array() ) {
 	$filter = 'taxonomy-images-list-the-terms';
-	if ( $filter !== current_filter() ) {
+	if ( current_filter() !== $filter ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
 	}
 
@@ -253,7 +263,7 @@ function taxonomy_images_plugin_list_the_terms( $default, $args ) {
 		'image_size'   => 'thumbnail',
 		'post_id'      => 0,
 		'taxonomy'     => 'category',
-		) );
+	) );
 
 	$args['having_images'] = true;
 
@@ -274,12 +284,16 @@ function taxonomy_images_plugin_list_the_terms( $default, $args ) {
 		}
 		$image = wp_get_attachment_image( $term->image_id, $args['image_size'] );
 		if ( ! empty( $image ) ) {
-			$output .= $args['before_image'] . '<a href="' . esc_url( get_term_link( $term, $term->taxonomy ) ) . '">' . $image .'</a>' . $args['after_image'];
+			$term_link = get_term_link( $term, $term->taxonomy );
+			if ( is_wp_error( $term_link ) ) {
+				$term_link = '';
+			}
+			$output .= wp_kses_post( $args['before_image'] ) . '<a href="' . esc_url( $term_link ) . '">' . wp_kses_post( $image ) .'</a>' . wp_kses_post( $args['after_image'] );
 		}
 	}
 
 	if ( ! empty( $output ) ) {
-		return $args['before'] . $output . $args['after'];
+		return wp_kses_post ($args['before'] ) . $output . wp_kses_post( $args['after'] );
 	}
 	return '';
 }
@@ -288,7 +302,7 @@ function taxonomy_images_plugin_list_the_terms( $default, $args ) {
 /**
  * Queried Term Image.
  *
- * Prints html marking up the images associated with
+ * Prints html markup for the image associated with
  * the current queried term.
  *
  * Recognized Arguments:
@@ -315,7 +329,7 @@ function taxonomy_images_plugin_list_the_terms( $default, $args ) {
  */
 function taxonomy_images_plugin_get_queried_term_image( $default, $args = array() ) {
 	$filter = 'taxonomy-images-queried-term-image';
-	if ( $filter !== current_filter() ) {
+	if ( current_filter() !== $filter ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
 	}
 
@@ -324,7 +338,7 @@ function taxonomy_images_plugin_get_queried_term_image( $default, $args = array(
 		'attr'       => array(),
 		'before'     => '',
 		'image_size' => 'thumbnail',
-		) );
+	) );
 
 	$ID = apply_filters( 'taxonomy-images-queried-term-image-id', 0 );
 
@@ -338,7 +352,7 @@ function taxonomy_images_plugin_get_queried_term_image( $default, $args = array(
 		return '';
 	}
 
-	return $args['before'] . $html . $args['after'];
+	return wp_kses_post( $args['before']  . $html . $args['after'] );
 }
 
 
@@ -365,7 +379,7 @@ function taxonomy_images_plugin_get_queried_term_image( $default, $args = array(
  */
 function taxonomy_images_plugin_get_queried_term_image_id( $default ) {
 	$filter = 'taxonomy-images-queried-term-image-id';
-	if ( $filter !== current_filter() ) {
+	if ( current_filter() !== $filter ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
 	}
 
@@ -373,11 +387,6 @@ function taxonomy_images_plugin_get_queried_term_image_id( $default ) {
 
 	/* Return early is we are not in a term archive. */
 	if ( ! isset( $obj->term_taxonomy_id ) ) {
-		trigger_error( sprintf( esc_html__( '%1$s is not a property of the current queried object. This usually happens when the %2$s filter is used in an unsupported template file. This filter has been designed to work in taxonomy archives which are traditionally served by one of the following template files: category.php, tag.php or taxonomy.php. Learn more about %3$s.', 'taxonomy-images' ),
-			'<code>' . esc_html__( 'term_taxonomy_id', 'taxonomy-images' ) . '</code>',
-			'<code>' . esc_html( $filter ) . '</code>',
-			'<a href="http://codex.wordpress.org/Template_Hierarchy">' . esc_html( 'template hierarchy', 'taxonomy-images' ) . '</a>'
-			) );
 		return 0;
 	}
 
@@ -420,7 +429,7 @@ function taxonomy_images_plugin_get_queried_term_image_id( $default ) {
  */
 function taxonomy_images_plugin_get_queried_term_image_object( $default ) {
 	$filter = 'taxonomy-images-queried-term-image-object';
-	if ( $filter !== current_filter() ) {
+	if ( current_filter() !== $filter ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
 	}
 
@@ -460,13 +469,13 @@ function taxonomy_images_plugin_get_queried_term_image_object( $default ) {
  */
 function taxonomy_images_plugin_get_queried_term_image_url( $default, $args = array() ) {
 	$filter = 'taxonomy-images-queried-term-image-url';
-	if ( $filter !== current_filter() ) {
+	if ( current_filter() !== $filter ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
 	}
 
 	$args = wp_parse_args( $args, array(
 		'image_size' => 'thumbnail',
-		) );
+	) );
 
 	$data = apply_filters( 'taxonomy-images-queried-term-image-data', array(), $args );
 
@@ -506,13 +515,13 @@ function taxonomy_images_plugin_get_queried_term_image_url( $default, $args = ar
  */
 function taxonomy_images_plugin_get_queried_term_image_data( $default, $args = array() ) {
 	$filter = 'taxonomy-images-queried-term-image-data';
-	if ( $filter !== current_filter() ) {
+	if ( current_filter() !== $filter ) {
 		taxonomy_image_plugin_please_use_filter( __FUNCTION__, $filter );
 	}
 
 	$args = wp_parse_args( $args, array(
 		'image_size' => 'thumbnail',
-		) );
+	) );
 
 	$ID = apply_filters( 'taxonomy-images-queried-term-image-id', 0 );
 
@@ -534,8 +543,7 @@ function taxonomy_images_plugin_get_queried_term_image_data( $default, $args = a
 		if ( isset( $src[2] ) ) {
 			$data['height'] = $src[2];
 		}
-	}
-	else {
+	} else {
 		$data = image_get_intermediate_size( $ID, $args['image_size'] );
 	}
 
