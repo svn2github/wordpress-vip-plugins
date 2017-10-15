@@ -474,8 +474,15 @@ if ( version_compare( PHP_VERSION, '5.4', '<' ) ) {
 
             //VIP: This is causing massive spikes database writes on the front end, bringing down sites
             // See https://a8c.slack.com/archives/C029H6R8C/p1507912033000131
-			//delete_post_meta_by_key( '_has_warnings_after_transformation' );
-			//delete_post_meta_by_key( '_is_empty_after_transformation' );
+
+			/* This may have broken FBIA, at least for some sites (#70624-z).
+			   I'm not sure how the frontend writes are triggered, but I couldn't reproduce.
+			   Going to re-enable for some sites and watch the db graphs to make sure everything is ok.
+			   Will revert if things look broken. - DT */
+			if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'vip-client-tribune-broadcasting' ) ) {
+				delete_post_meta_by_key( '_has_warnings_after_transformation' );
+				delete_post_meta_by_key( '_is_empty_after_transformation' );
+			}
 		}
 	}
 	add_action( 'updated_option', 'invalidate_all_posts_transformation_info_cache', 10, 1 );
