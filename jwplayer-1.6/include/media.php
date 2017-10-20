@@ -21,8 +21,8 @@ function jwplayer_media_sync_form_html( $media ) {
 		$html .= 'Disabling sync is currently not possible, because it would break your media embeds. ';
 		$html .= '</p>';
 	} else {
-		$html .= '<label for="'.esc_attr( 'attachments['.$media->ID.'][jwplayer_media_sync]').'">';
-		$html .= '<input type="checkbox" value="sync" name="'.esc_attr( 'attachments['.$media->ID.'][jwplayer_media_sync]' ).'" />';
+		$html .= "<label for='attachments[$media->ID][jwplayer_media_sync]'>";
+		$html .= "<input type='checkbox' value='sync' name='attachments[$media->ID][jwplayer_media_sync]' />";
 		$html .= '&nbsp;&nbsp;Sync to JW Player';
 		$html .= '</label>';
 		$html .= '<p class="description">';

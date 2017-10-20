@@ -89,7 +89,8 @@ function jwplayer_login_form() {
 			</p>
 			<p>
 				Insert your JW Player API Credentials below. These are located in the
-				<strong>Account > Properties > Choose property </strong> section of your dashboard.
+				<strong>Account > API Credentials </strong> section of your dashboard.
+				Then choose property and click <strong>Show Credentials</strong>.
 			</p>
 			<table class="form-table">
 

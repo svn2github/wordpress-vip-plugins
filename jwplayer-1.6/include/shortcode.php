@@ -270,7 +270,7 @@ function jwplayer_shortcode_create_js_embed( $media_hash, $player_hash = null, $
 		// no fitvids script here.
 		if ( $player_script ) {
 			return "
-		<script type='text/javascript' src='" . esc_url( $js_lib ) . "></script>
+		<script type='text/javascript' src='" . esc_url( $js_lib ) . "'></script>
 			<div id='" . esc_attr( $element_id ) . "'></div>
 		<script type='text/javascript'>
 				jwplayer('" . esc_attr( $element_id ) . "').setup(
