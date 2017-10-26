@@ -4,7 +4,7 @@
  * Plugin Name: Liveblog
  * Plugin URI: http://wordpress.org/extend/plugins/liveblog/
  * Description: Blogging: at the speed of live.
- * Version:     1.6
+ * Version:     1.6.1
  * Author:      WordPress.com VIP, Automattic
  * Author URI: http://vip.wordpress.com/
  * Text Domain: liveblog
@@ -26,7 +26,7 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 final class WPCOM_Liveblog {
 
 	/** Constants *************************************************************/
-	const version          			= '1.6';
+	const version          			= '1.6.1';
 	const rewrites_version 			= 1;
 	const min_wp_version   			= '3.5';
 	const min_wp_rest_api_version 	= '4.4';
@@ -560,7 +560,6 @@ final class WPCOM_Liveblog {
 			// Do not send latest_timestamp. If we send it the client won't get
 			// older entries. Since we send only the new one, we don't know if there
 			// weren't any entries in between.
-
 			self::json_return( array(
 				'entries'          => array( $entry->for_json() ),
 				'latest_timestamp' => null
@@ -934,13 +933,10 @@ final class WPCOM_Liveblog {
 		global $wp_scripts;
 
 		$defaults = array(
-			'runtimes'            => 'html5,silverlight,flash,html4',
 			'file_data_name'      => 'async-upload',
 			'multiple_queues'     => true,
 			'max_file_size'       => wp_max_upload_size() . 'b',
 			'url'                 => admin_url( 'admin-ajax.php', 'relative' ),
-			'flash_swf_url'       => includes_url( 'js/plupload/plupload.flash.swf' ),
-			'silverlight_xap_url' => includes_url( 'js/plupload/plupload.silverlight.xap' ),
 			'filters'             => array( array( 'title' => __( 'Allowed Files', 'liveblog' ), 'extensions' => '*') ),
 			'multipart'           => true,
 			'urlstream_upload'    => true,
