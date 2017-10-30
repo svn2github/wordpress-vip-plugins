@@ -4,11 +4,6 @@
 // ensure that follow-up is performed to have the subdomains added to client
 // themes. Also log domains that aren't white-listed.
 function wpcom_legacy_redirector_allow_subdomain( $hosts, $loc_host ) {
-	// Redirecting to an absolute URL, e.g. `/path/to-file`
-	if ( empty( $loc_host ) ) {
-		return $hosts;
-	}
-
 	// Bail if location already in allowed hosts
 	if ( ! in_array( $loc_host, $hosts, true ) ) {
 		$http_host = wpcom_vip_get_home_host();
