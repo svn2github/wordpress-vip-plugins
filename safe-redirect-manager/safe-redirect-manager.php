@@ -832,7 +832,7 @@ multi-site). Appending a (*) wildcard character at the end of the string will ma
 
 					// mark as match if requested path matches the base of the redirect from
 					$matched_path = (substr( $requested_path, 0, strlen( $wildcard_base ) ) == $wildcard_base);
-					if ( (strrpos( $redirect_to, '*' ) == strlen( $redirect_to ) - 1 ) ) {
+					if ( (strrpos( $redirect_to, '*' ) === strlen( $redirect_to ) - 1 ) ) {
 						$redirect_to = rtrim( $redirect_to, '*' ) . ltrim( substr( $requested_path, strlen( $wildcard_base ) ), '/' );
 					}
 				}
