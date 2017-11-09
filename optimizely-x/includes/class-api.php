@@ -222,6 +222,7 @@ class API {
 
 		// Add authentication header to the request object.
 		$request = array(
+			'timeout' => 60,
 			'headers' => array(
 				'Authorization' => 'Bearer ' . sanitize_text_field( $token ),
 			),
@@ -241,18 +242,7 @@ class API {
 				$response = wp_safe_remote_request( $url, $request );
 				break;
 			case 'GET':
-				if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
-					$response = vip_safe_wp_remote_get(
-						$url,
-						array(),
-						3,
-						3,
-						20,
-						$request
-					);
-				} else {
-					$response = wp_safe_remote_get( $url, $request );
-				}
+				$response = wp_safe_remote_get( $url, $request );
 				break;
 			case 'PATCH':
 				$request['method'] = 'PATCH';

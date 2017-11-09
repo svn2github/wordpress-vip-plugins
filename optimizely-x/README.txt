@@ -3,13 +3,16 @@ Contributors: arthuracs, jonslaught, bradtaylorsf, lucasoptimizely
 Tags: optimizely, ab testing, split testing, website optimization
 Requires at least: 3.0
 Tested up to: 4.4
-Stable tag: 1.0.0
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Donate link: N/A
+Stable tag: 1.1.0
+License: BSD 3-Clause
+License URI: https://opensource.org/licenses/BSD-3-Clause
 
-This plugin helps you configure your WordPress website to use Optimizely, a dramatically easier way to improve your website through A/B testing.
+This plugin helps you configure your WordPress website to use Optimizely X, a dramatically easier way to improve your website through A/B testing.
 
 == Description ==
+
+This plugin helps you configure your WordPress website to use Optimizely X. If you are new to Optimizely or have started using Optimizely Classic (not X), then please use the [Optimizely Classic plugin](https://wordpress.org/plugins/optimizely/).
 
 Optimizely is a dramatically easier way for you to improve your website through A/B testing. Create an experiment in minutes with our easy-to-use visual interface with absolutely no coding or engineering required. Convert your website visitors into customers and earn more revenue today!
 
@@ -20,11 +23,20 @@ You'll need an [Optimizely.com](http://www.optimizely.com) account to use it.
 == Installation ==
 Sign up at [Optimizely.com](http://www.optimizely.com).
 
-1. Upload the Optimizely WordPress plugin to your blog
-2. Activate the plugin through the Optimizely menu in WordPress
-3. Enter your Optimizely API token in the plugin's settings page, choose a project to use, then save.
+1. If you have the Optimizely Classic plugin installed, uninstall the Classic plugin
+2. Upload the Optimizely WordPress plugin to your blog
+3. Activate the plugin through the Optimizely menu in WordPress
+4. Enter your Optimizely API token in the plugin's settings page, choose a project to use, then save.
 
 You're ready to start using Optimizely!
 
+== Changelog ==
+
+= 1.1.0 =
+* Increased the timeout of all requests to the Optimizely API to 60 seconds
+
 = 1.0.0 =
 * Introducing the Optimizely X WordPress plugin. Now it's even easier to start improving your website.
+
+== Upgrade Notice ==
+There are no upgrade notices
