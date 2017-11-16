@@ -14,7 +14,7 @@
  * Plugin Name: Optimizely X
  * Plugin URI: https://wordpress.org/plugins/optimizely-x/
  * Description: Simple, fast, and powerful. <a href="https://www.optimizely.com">Optimizely</a> is a dramatically easier way for you to improve your website through A/B testing. Create an experiment in minutes with our easy-to-use visual interface with absolutely no coding or engineering required. Convert your website visitors into customers and earn more revenue today! To get started: 1) Click the "Activate" link to the left of this description, 2) Sign up for an <a href="https://www.optimizely.com">Optimizely account</a>, and 3) Create an API Token here: <a href="https://www.optimizely.com/tokens">API Tokens</a>, and enter your API token in the Configuration Tab of the Plugin, then select a project to start testing!
- * Version: 1.1.0
+ * Version: 1.1.1
  * Author: Optimizely
  * Author URI: https://www.optimizely.com
  * License: GPL-2.0+

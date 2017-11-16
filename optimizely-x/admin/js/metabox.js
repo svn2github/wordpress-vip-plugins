@@ -100,6 +100,7 @@
 				// Swap the new experiment block for the loading block.
 				$( '.optimizely-loading' ).removeClass( 'hidden' );
 				$( '.optimizely-new-experiment' ).addClass( 'hidden' );
+				$( '.optimizely-variation input' ).removeAttr( 'required' );
 
 				// Send the variation data via AJAX.
 				$.ajax( {
@@ -121,6 +122,7 @@
 					if ( ! response.success ) {
 						OptimizelyMetabox.showError( optimizely_metabox_strings.experiment_error );
 						$( '.optimizely-new-experiment' ).removeClass( 'hidden' );
+						$( '.optimizely-variation input' ).attr( 'required', true );
 						return;
 					}
 

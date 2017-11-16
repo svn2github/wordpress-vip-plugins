@@ -4,7 +4,7 @@ Tags: optimizely, ab testing, split testing, website optimization
 Requires at least: 3.0
 Tested up to: 4.4
 Donate link: N/A
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: BSD 3-Clause
 License URI: https://opensource.org/licenses/BSD-3-Clause
 
@@ -31,6 +31,9 @@ Sign up at [Optimizely.com](http://www.optimizely.com).
 You're ready to start using Optimizely!
 
 == Changelog ==
+
+= 1.1.1 =
+* Fixed a bug where some required fields were hidden.
 
 = 1.1.0 =
 * Increased the timeout of all requests to the Optimizely API to 60 seconds

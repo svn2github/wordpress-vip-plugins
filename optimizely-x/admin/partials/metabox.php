@@ -42,7 +42,7 @@ if ( empty( $post_num_variations ) ) {
 						name="<?php echo esc_attr( $meta_key ); ?>"
 						placeholder="<?php esc_attr_e( 'Title', 'optimizely-x' ); ?> <?php echo absint( $i ); ?>"
 						type="text"
-						required
+						<?php echo empty( $experiment_id ) ? 'required' : ''; ?>
 					/>
 				</div>
 			<?php endfor; ?>
