@@ -135,7 +135,7 @@ function vip_regex_redirects( $vip_redirects_array = array(), $with_querystring 
  * @param int $timeout Optional. The timeout limit in seconds; valid values are 1-10. Defaults to 3.
  * @param int $cache_time Optional. The minimum cache time in seconds. Valid values are >= 60. Defaults to 900.
  * @param array $extra_args Optional. Advanced arguments: "obey_cache_control_header" and "http_api_args".
- * @return string The remote file's contents (cached)
+ * @return string|bool The remote file's contents (cached). False in case of failure.
  */
 function wpcom_vip_file_get_contents( $url, $timeout = 3, $cache_time = 900, $extra_args = array() ) {
 	global $blog_id;
