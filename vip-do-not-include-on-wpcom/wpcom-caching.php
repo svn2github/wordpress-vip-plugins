@@ -798,3 +798,15 @@ function wpcom_vip_disable_query_attachment_filenames( $clauses ) {
 		return $clauses;
 }
 add_filter( 'posts_clauses', 'wpcom_vip_disable_query_attachment_filenames', -999, 1 );
+
+
+/**
+ * By default co-authors will query in a sort of compatibility mode.
+ * Making the SQL queries work for posts with the old author style (as in the built in post-author
+ * Or by using the co-authors taxonomy.
+ * To enable the following filter wp co-authors-plus create-terms-for-posts must be run on the sites.
+ * Without running the backfill for terms this could lead to author's posts created before co-authors was enabled (or from an import) to not show up in that author's posts
+ * The CLI command has been run for all sites on WordPress.com. If you're having trouble with your local install please run the wp cli command, this should solve the problem.
+ * See https://lobby.vip.wordpress.com/2017/11/07/co-authors-plus-global-filter/ for more information
+ */
+add_filter( 'coauthors_plus_should_query_post_author', '__return_false' );
