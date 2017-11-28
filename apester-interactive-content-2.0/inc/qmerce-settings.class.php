@@ -6,6 +6,12 @@ class Qmerce_Settings
      * Holds the values to be used in the fields callbacks
      */
     private $options;
+    
+    // not using const to support PHP < 5.6
+    private $allowed_positions = array('bottom', 'top', 'middle');
+
+    const MAX_TAGS = 6;
+    const MAX_TAG_LENGTH = 20;
 
     /**
      * Start up
@@ -37,7 +43,7 @@ class Qmerce_Settings
         // This page will be under "Settings"
         add_options_page(
             'Apester Settings',
-            'Apester Settings',
+            'Apester',
             'manage_options',
             'qmerce-settings-admin',
             array( $this, 'createAdminPage' )
@@ -151,7 +157,8 @@ class Qmerce_Settings
             }
 
             printf(
-                '<input type="checkbox" name="qmerce-settings-admin[automation_post_types][]" value="%s" ' . $checked . '/> ' . $postType->label . ' ',
+                '<li>' .
+                '<input id="cbx-' . $postType->name . '" type="checkbox" name="qmerce-settings-admin[automation_post_types][]" value="%s" ' . $checked . '/> <label for="cbx-' . $postType->name . '">' . $postType->label . ' </label> </li> ',
                 $postType->name
             );
         }
@@ -227,6 +234,62 @@ class Qmerce_Settings
     }
 
     /**
+     * Update the tokens list with the playlist enabled state of each token
+     * @param $current_apester_tokens - all tokens available at the server
+     * @param $playlist_tokens - the list of playlist enabled tokens from the client UI
+     *
+     * @return array - the updated state of the channel tokens list
+     */
+    private function sanitizePlaylistTokens($current_apester_tokens, $playlist_tokens)
+    {
+        // in case the array is not passed just ignore that and return the value as it was before the current function call
+        if (!isset( $playlist_tokens )) {
+            return $current_apester_tokens;
+        }
+
+        $new_tokens = array();
+
+        foreach ( $playlist_tokens as $playlist_token => $isTokenChecked ) {
+            // only update if the token exists in the tokens list
+            if (isset($current_apester_tokens) && array_key_exists($playlist_token, $current_apester_tokens)) {
+                // the value passed for the  'isPlaylistEnabled' property can only be either '0' or '1'
+                $new_tokens[$playlist_token]['isPlaylistEnabled'] = ($isTokenChecked == '1' || $isTokenChecked == '0') ? $isTokenChecked : '0';
+            }
+        }
+
+        return $new_tokens;
+    }
+
+    private function sanitizeTags($tags) {
+        $sanitizedTags = array();
+
+        if ( ! empty( $tags ) && is_array( $tags ) ) {
+            foreach ( $tags as $tag ) {
+                $trimmedTag = trim( $tag );
+
+                if ( count($sanitizedTags) == self::MAX_TAGS
+                     || $trimmedTag === ''
+                     || in_array($trimmedTag, $sanitizedTags)
+                     || strlen($trimmedTag) > self::MAX_TAG_LENGTH ) {
+                    continue;
+                }
+
+                $sanitizedTags[] = sanitize_text_field( $trimmedTag );
+            }
+        }
+
+        return $sanitizedTags;
+    }
+
+    public function sanitizePlaylistPosition( $playlistPosition ) {
+        if ( ! isset($playlistPosition) || ! in_array($playlistPosition, $this->allowed_positions) ){
+            return 'bottom';
+        }
+
+        return $playlistPosition;
+    }
+
+    /**
      * Sanitize each setting field as needed
      *
      * @param array $input Contains all settings fields as array keys
@@ -234,6 +297,8 @@ class Qmerce_Settings
      */
     public function sanitize( $input ) {
         $new_input = array();
+        $apester_options = get_option( 'qmerce-settings-admin' );
+        $apester_tokens = $apester_options['apester_tokens'];
 
         if ( isset( $input['post_types'] ) ) {
             $new_input['post_types'] = $this->sanitizePostTypes( $input['post_types'] );
@@ -245,28 +310,62 @@ class Qmerce_Settings
 
         // Delete the unused user-id value.
         delete_option( 'qmerce-user-id' );
-        
+
+        if ( isset( $input['apester_tags'] ) ) {
+            $new_input['apester_tags'] = $this->sanitizeTags( $input['apester_tags'] );
+        }
+
+        if ( isset( $input['context'] ) ) {
+            $new_input['context'] = sanitize_text_field( $input['context'] );
+        }
+
+        if ( isset( $input['fallback'] ) ) {
+            $new_input['fallback'] = sanitize_text_field( $input['fallback'] );
+        }
+
+        $new_input['playlist_position'] = $this->sanitizePlaylistPosition($input['playlist_position']);
+
+        // cache the full token data for later
+        $manipulatedPlaylistTokens = $this->sanitizePlaylistTokens($apester_tokens, $input['playlist_enabled_tokens']);
+
+        // init the full token data so we can check for token existence
+        $new_input['apester_tokens'] = array();
+
         $tokens = $input['auth_token'];
         if (isset( $tokens )) {
             $tokens = is_array( $tokens ) ? $tokens : array( $tokens );
             $new_input['auth_token'] = array();
         }
+
         foreach ( $tokens as $token ) {
             if ( trim($token) === '' || ! $this->validateToken( $token ) ) {
                 continue;
             }
 
+            // we keep the old token list updated in case the plugin will be downgraded in the future
             $new_input['auth_token'][] = sanitize_text_field( $token );
-        }
 
+            // convert '<' OR '>' into thier respective html entities
+            $sanitizedToken = sanitize_text_field( $token );
+            
+            // if the token already exists use the existing data of it
+            if (isset($apester_tokens) && array_key_exists($sanitizedToken, $apester_tokens) ) {
+                $new_input['apester_tokens'][$sanitizedToken] = $manipulatedPlaylistTokens[$sanitizedToken];
+            }
+            // if the token is new - add it to the new list
+            else {
+                $new_input['apester_tokens'][$sanitizedToken] = array(
+                    'isPlaylistEnabled' => '0'
+                );
+            }
+        }
         return $new_input;
     }
 
     /**
      * Print the Section text
      */
-    public function printSectionInfo()
-    {
+    public function printSectionInfo() {
         print 'Enter your settings below:';
     }
 

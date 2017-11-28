@@ -1922,6 +1922,86 @@
 #apesterWpApp .affix {
   position: fixed;
 }
+#apesterWpApp .toggle-switch-button {
+  float: left;
+  margin: 0 20px 0 0;
+}
+#apesterWpApp .toggle-switch-button .tgl {
+  display: none;
+}
+#apesterWpApp .toggle-switch-button .tgl:after, #apesterWpApp .toggle-switch-button .tgl:before, #apesterWpApp .toggle-switch-button .tgl *, #apesterWpApp .toggle-switch-button .tgl *:after, #apesterWpApp .toggle-switch-button .tgl *:before, #apesterWpApp .toggle-switch-button .tgl + .tgl-btn {
+  box-sizing: border-box;
+}
+#apesterWpApp .toggle-switch-button .tgl:after::selection, #apesterWpApp .toggle-switch-button .tgl:before::selection, #apesterWpApp .toggle-switch-button .tgl *::selection, #apesterWpApp .toggle-switch-button .tgl *:after::selection, #apesterWpApp .toggle-switch-button .tgl *:before::selection, #apesterWpApp .toggle-switch-button .tgl + .tgl-btn::selection {
+  background: none;
+}
+#apesterWpApp .toggle-switch-button .tgl + .tgl-btn {
+  outline: 0;
+  display: inline-block;
+  width: 4em;
+  height: 2em;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+#apesterWpApp .toggle-switch-button .tgl + .tgl-btn:after, #apesterWpApp .toggle-switch-button .tgl + .tgl-btn:before {
+  content: "";
+  width: 50%;
+  height: 100%;
+  position: relative;
+  display: block;
+}
+#apesterWpApp .toggle-switch-button .tgl + .tgl-btn:after {
+  left: 0;
+}
+#apesterWpApp .toggle-switch-button .tgl + .tgl-btn:before {
+  display: none;
+}
+#apesterWpApp .toggle-switch-button .tgl:checked + .tgl-btn:after {
+  left: 50%;
+}
+#apesterWpApp .toggle-switch-button .tgl-light + .tgl-btn {
+  padding: 2px;
+  background: #ede9e9;
+  -moz-border-radius: 2em;
+  -webkit-border-radius: 2em;
+  border-radius: 2em;
+  -webkit-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+}
+#apesterWpApp .toggle-switch-button .tgl-light + .tgl-btn:after {
+  background: white;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+  -webkit-transition: all 0.2s;
+  -o-transition: all 0.2s;
+  transition: all 0.2s;
+}
+#apesterWpApp .toggle-switch-button .tgl-light:checked + .tgl-btn {
+  background: #ee9802;
+}
+#apesterWpApp .toggle-switch-button.settings {
+  padding-right: 0;
+  margin: 0;
+}
+#apesterWpApp .toggle-switch-button.settings .tgl-light + .tgl-btn {
+  width: 35px;
+  height: 20px;
+  padding: 0;
+  background: rgba(244, 243, 243, 0.3);
+  -webkit-box-shadow: 0px 0px 0px 1px #ccc;
+  box-shadow: 0px 0px 0px 1px #ccc;
+}
+#apesterWpApp .toggle-switch-button.settings .tgl-light + .tgl-btn:after {
+  background: rgba(168, 167, 167, 0.3);
+  width: 60%;
+}
+#apesterWpApp .toggle-switch-button.settings .tgl-light:checked + .tgl-btn:after {
+  background: #1edd8e;
+  left: 40%;
+}
 #apesterWpApp .apester-modal-overlay {
   display: none;
   position: fixed;
@@ -1960,6 +2040,28 @@
   font-family: 'LatoLatin', "Almoni", sans-serif;
   font-weight: 300;
   font-size: 12px;
+}
+#apesterWpApp .apester-modal-window .ic {
+  font-family: 'Apester-Font' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+#apesterWpApp .apester-modal-window .ic:before {
+  font-family: 'Apester-Font' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 #apesterWpApp .navbar-fixed-top {
   top: 50px;
@@ -2065,7 +2167,7 @@
   width: 100%;
   bottom: 0px;
   top: 129px;
-  overflow: scroll;
+  overflow-Y: scroll;
   margin-bottom: 20px;
   margin-top: 20px;
 }
@@ -2431,6 +2533,25 @@
 #apesterWpApp .channel-filter-container:hover .btn-embed-random, #apesterWpApp .channel-filter-container:hover .channel-filter .ui-select-placeholder {
   opacity: 0.7;
 }
+#apesterWpApp .playlist-status {
+  float: left;
+  margin: 10px 0 0 50px;
+}
+#apesterWpApp .playlist-status .tgl-btn {
+  margin-top: 5px;
+}
+#apesterWpApp .playlist-status label.toggle-text {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 10px;
+  margin-bottom: 0;
+  font-size: 14px;
+  font-family: 'LatoLatin', "Almoni", sans-serif;
+  font-weight: 300;
+}
+#apesterWpApp .playlist-status .tooltip-wrapper {
+  padding-top: 7px;
+}
 #apesterWpApp .ape-select-arrow ul.dropdown-menu {
   position: relative;
   opacity: 0;
@@ -2603,10 +2724,10 @@
   right: 5px;
 }
 #apesterWpApp .ape-filter.channel-filter {
-  width: 270px;
+  width: 170px;
 }
 #apesterWpApp .ape-filter.channel-filter:after {
-  left: 250px;
+  left: 160px;
 }
 #apesterWpApp .ape-counter {
   position: relative;
@@ -2800,6 +2921,7 @@
   text-transform: none;
   font-weight: 400;
   line-height: 16px;
+  text-align: center;
 }
 #apesterWpApp .tooltip::after {
   content: "";

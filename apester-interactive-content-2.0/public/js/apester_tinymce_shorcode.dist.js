@@ -1,8 +1,10 @@
 (function($) {
   tinymce.PluginManager.add( 'apester_shortcode_handler', function( editor, url ) {
 
+    var PROTOCOL = 'https:';
+
     var CONST = {
-      displayUrlPrefix: 'http://display.apester.com/interactions/',
+      displayUrlPrefix: PROTOCOL + '//display.apester.com/interactions/',
       displayUrlSufffix: '/display',
       imagesPath:'public/img/'
     };
@@ -25,7 +27,7 @@
       }
       return result;
     };
-  
+
     /**
      * returns the properties object for event sending
      * @param node - the html element that has the id/token property on it
@@ -51,12 +53,14 @@
     };
 
     var sendEvent = function(eventDataObject) {
-      var baseUrl = 'http://gcp-events.apester.com/event';
+      var baseUrl = PROTOCOL + '//events.apester.com/event';
       var payload = {
         event: '',
         properties: {
           pluginProvider: 'WordPress',
-          pluginVersion: window.apester_plugin_version
+          pluginVersion: window.apester_plugin_version,
+          phpVersion: window.php_version,
+          wpVersion: window.wp_version
         },
         metadata: {
           referrer: encodeURIComponent(document.referrer),
@@ -67,7 +71,7 @@
         }};
 
       var eventData = $.extend(true, {}, payload, eventDataObject);
-  
+
       $.ajax({
         type: 'POST',
         url: baseUrl,
@@ -130,7 +134,7 @@
             "contenteditable": false,
             "id": "apester-media-" + mediaId,
             "data-apester-media-id": mediaId,
-            "src": "http://preview.qmerce.com/interaction/"+ mediaId,
+            "src": PROTOCOL + "//renderer.apester.com/interaction/"+ mediaId,
             "data-mce-placeholder": "1"
           });
         mediaOverlay = $("<div>").addClass("apester-media-overlay");
@@ -175,7 +179,7 @@
             "id": "apester-playlist-" + channelToken,
             "data-mce-placeholder": "1"
           });
-        randomInnerText = $("<div>Random Unit</div>")
+        randomInnerText = $("<div>Random Unit</div>");
         closeBtn = $('<button class="ic icon-cross apester-shorcode-remove-btn">');
 
         // combine into final element
@@ -188,6 +192,48 @@
 
       });
 
+
+      // playlist exclude handler
+      event.content = event.content.replace( /\[apester-exclude-playlist([^\]]*)\]/g, function( all, attr, con ) {
+
+        var idAttr = 'channelToken="',
+          idAttrIndex = attr.indexOf(idAttr);
+        var channelToken = attr.slice(idAttrIndex + idAttr.length, -1);
+        var apesterIcon = apesterPluginPath + CONST.imagesPath + 'ape-icon.svg';
+
+        // create the shortcode-replacement HTML elements
+        var wrapper, mediaWrapper, contentWrapper, img, randomInnerText, closeBtn;
+        wrapper = $("<div>").addClass("apester-shortcode-replacement-exclude-playlist").attr("contenteditable", false);
+        mediaWrapper = $("<div>").addClass("apester-media-wrapper")
+          .attr({
+            "data-apester-exclude-playlist": true,
+            "data-mce-resize": "false",
+            "data-mce-placeholder": "1"
+          });
+        contentWrapper = $("<div>").addClass("apester-content-wrapper")
+          .attr({
+            "data-mce-resize": "false",
+            "data-mce-placeholder": "1"
+          });
+        img = $("<img>").addClass("apester-shortcode-iframe")
+          .attr({
+            "contenteditable": false,
+            "src": apesterIcon,
+            "data-mce-placeholder": "1"
+          });
+        randomInnerText = $("<div>Your Apester playlist has been excluded from this article. </div>");
+        closeBtn = $('<button class="apester-shorcode-remove-btn text-button">Undo</button>');
+
+        // combine into final element
+        randomInnerText.append(closeBtn);
+        contentWrapper.append(img, randomInnerText);
+        mediaWrapper.append(contentWrapper);
+        wrapper.append(mediaWrapper);
+
+        // this will come in place of the shortcode
+        return wrapper.prop("outerHTML");
+
+      });
     });
 
     editor.on('click', function(e) {
@@ -199,8 +245,11 @@
           //write something else, instead of having an empty editor
           $(node).after('<p><br/></p>');
 
-          var props = getEventPropsFromElement(node);
-          sendEvent($.extend(true, {}, { event: 'wordpress_remove_interaction_clicked', properties: props }));
+          // TODO: figure out what to send for removing exclude if at all
+          if (node.className.indexOf('exclude') === -1) {
+            var props = getEventPropsFromElement(node);
+            sendEvent($.extend(true, {}, { event: 'wordpress_remove_interaction_clicked', properties: props }));
+          }
 
           $(node).remove();
         }
@@ -231,6 +280,16 @@
           return '<p>[apester-playlist channelToken="' + mediaId + '"]</p>';
         }
 
+        return match;
+      });
+
+      // playlist exclude handler
+      event.content = event.content.replace( /((<div class="apester-shortcode-replacement-exclude-playlist"[^<>]*>)(.*?)(?:<\/div><\/div><\/div><\/div>))*/g, function( match, contents ) {
+        var isExclude = getAttrValueInString('data-apester-exclude-playlist', match);
+
+        if ( isExclude ) {
+          return '[apester-exclude-playlist]';
+        }
         return match;
       });
     });

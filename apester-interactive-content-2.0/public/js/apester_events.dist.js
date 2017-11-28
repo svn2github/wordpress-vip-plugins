@@ -1,5 +1,6 @@
 jQuery(function($) {
-  
+  var PROTOCOL = 'https:';
+
   var existingTokensSent = window.existing_tokens_sent || false;
   var wp_option_apester_tokens = window.apester_tokens || [];
 
@@ -25,13 +26,15 @@ jQuery(function($) {
   };
 
   var sendEvent = function(eventName, token) {
-    var baseUrl = 'http://gcp-events.apester.com/event';
+    var baseUrl = PROTOCOL + '//events.apester.com/event';
     var payload = {
       event: eventName,
       properties: {
         pluginProvider: 'WordPress',
         pluginVersion: window.apester_plugin_version,
-        channelToken: token
+        channelToken: token,
+        phpVersion: window.php_version,
+        wpVersion: window.wp_version
       },
       metadata: {
         referrer: encodeURIComponent(document.referrer),
@@ -50,7 +53,7 @@ jQuery(function($) {
   };
 
   var updateSingleTokenToWP = function(channelToken) {
-    var baseUrl = 'http://users.apester.com/publisher/token/',
+    var baseUrl = PROTOCOL + '//users.apester.com/publisher/token/',
       urlSuffix = '/publish-settings';
 
     $.ajax({
@@ -88,7 +91,7 @@ jQuery(function($) {
     }
     existingTokensSent = true;
   };
-  
+
   var applySavedTokensFlag = function() {
     var data = {
       action: 'apester_events',

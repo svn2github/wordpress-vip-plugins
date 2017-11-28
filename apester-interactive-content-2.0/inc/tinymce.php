@@ -39,13 +39,20 @@ class tinyMce {
 
 		// get plugin settings
 		$options = get_option( 'qmerce-settings-admin' );
-		$js_exposed_data = $options['auth_token'];
+		$js_exposed_data = $options['apester_tokens'];
+		$apester_tags = $options['apester_tags'];
 
 		// register vendor libraries js
 		wp_register_script( 'apester_tiny_mce_vendor_js', plugins_url( '/public/js/apester_tinymce.vendor.dist.js', QMERCE__PLUGIN_FILE ) );
 
+		// register localized scripts - expose WordPress version into global window parameter
+		wp_localize_script( 'apester_tiny_mce_vendor_js', 'wp_version', $wp_version );
+		// register localized scripts - expose php version into global window parameter
+		wp_localize_script( 'apester_tiny_mce_vendor_js', 'php_version', phpversion() );
 		// register localized scripts - expose data from plugins options into global window parameter
 		wp_localize_script( 'apester_tiny_mce_vendor_js', 'apester_tokens', $js_exposed_data );
+		// register localized scripts - expose data from plugins options into global window parameter
+		wp_localize_script( 'apester_tiny_mce_vendor_js', 'apester_tags', $apester_tags );
 		// register localized scripts - expose plugin version into global window parameter
 		wp_localize_script( 'apester_tiny_mce_vendor_js', 'apester_plugin_version', QMERCE_VERSION );
 		// register localized scripts - expose plugin path into global window parameter (for usage angular template's images)
@@ -59,6 +66,10 @@ class tinyMce {
 		// register apester font CSS
 		wp_register_style( 'apester_font_css', APESTER_FONT_URL );
 		wp_enqueue_style( 'apester_font_css' );
+
+		// register Lora font CSS
+		wp_register_style( 'lora_font_css', LORA_FONT_URL );
+		wp_enqueue_style( 'lora_font_css' );
 
 		// register vendor libraries css
 		wp_register_style( 'apester_tiny_mce_vendor_css', plugins_url( '/public/css/apester-tiny-mce.vendor.dist.css', QMERCE__PLUGIN_FILE ) );

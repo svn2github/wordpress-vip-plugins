@@ -3,8 +3,8 @@
 Contributors: benkalsky, tomarad, shushu.i, oraricha
 Tags: Interactive, Interactive Content, Content, Related Content, Embedded Content, Test Yourself, Viral, Circulation, Engagement, Monetization, Playful Content, Interactive Platform, Playful Platform
 Requires at least: 2.8
-Tested up to: 4.7.2
-Stable tag: 2.0.5
+Tested up to: 4.8.1
+Stable tag: 2.0.16
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -36,7 +36,7 @@ Head to our [Help Centre](http://help.apester.com/hc/en-us/sections/201673111-Ap
 == Installation ==
 
 = Minimum Requirements =
-* PHP Version 5.2.
+* PHP Version 5.3.6.
 * WordPress version 3.9 or greater.
 
 = Installation =
@@ -82,6 +82,43 @@ If you haven’t found what you are looking for, contact us or send us an email 
 5. Interactive Trivia Results
 
 == Changelog ==
+= 2.0.15 =
+* Changed requests URLS
+
+= 2.0.15 =
+* Bug fixes
+
+= 2.0.14 =
+* Support Wordpress version 4.8.1
+* Bug fixes
+
+= 2.0.13 =
+* Bug fixes
+
+= 2.0.12 =
+* Bug fixes
+
+= 2.0.11 =
+* Apester playlist: now you can exclude a page/post from a playlist
+* Bug fixes
+
+= 2.0.10 =
+* **Advanced Playlist Settings**: Choose where to place apester playlist: top / middle / bottom of the article
+* **Advanced Playlist Settings**: Add smart matching to your playlist based on inserted tag and your page's content
+
+= 2.0.9 =
+* Bug fixes
+
+= 2.0.8 =
+* Bug fixes
+
+= 2.0.7 =
+* Bug fixes
+
+= 2.0.6 =
+* Added enhanced support for apester playlist
+* Fit for WordPress 4.7.4
+* Bug fixes
 
 = 2.0.5 =
 * Bug fixes

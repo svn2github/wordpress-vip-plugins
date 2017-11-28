@@ -6,7 +6,7 @@
   ])
     // config interaction box bg image
     .config(['abg_configProvider', function (abg_configProvider) {
-      abg_configProvider.setImgixMediaFilterUrl('http://images.apester.com/');
+      abg_configProvider.setImgixMediaFilterUrl('https://images.apester.com/');
     }])
     .filter('filterInteractionTitle', function() {
       return function (items, searchTerm) {
@@ -42,13 +42,14 @@
 (function() {
     angular.module('apesterWpApp')
       .constant('configuration', {
-        displayBaseUrl: 'http://display.apester.com/',
-        tokenBaseUrl: 'http://users.apester.com/publisher/token/',
-        interactionBaseUrl: 'https://interaction.apester.com/',
-        interactionsByTokenUrl: 'interaction/all/token?',
-        eventsBaseUrl: 'http://gcp-events.apester.com/event',
+        displayBaseUrl: 'https://display.apester.com/',
+        tokenBaseUrl: 'https://users.apester.com/publisher/token/',
+        interactionBaseUrl: 'https://interaction.apester.com',
+        interactionsByTokenUrl: '/interaction/all/token?',
+        eventsBaseUrl: 'https://events.apester.com/event',
       });
 })();
+
 (function() {
   angular.module('apesterWpApp')
     .directive('dashboard', ['InteractionStatsService', 'InteractionService', 'TokensService', 'EventsService', '$window', function(InteractionStatsService, InteractionService, TokensService, EventsService, $window){
@@ -173,7 +174,9 @@
         properties: {
           pluginProvider: 'WordPress',
           pluginVersion: $window.apester_plugin_version,
-          channelToken: TokensService.getPureTokens()[0] || ''
+          channelToken: TokensService.getPureTokens()[0] || '',
+          phpVersion: window.php_version,
+          wpVersion: window.wp_version
         },
         metadata: {
           referrer: encodeURIComponent(document.referrer),
@@ -362,8 +365,8 @@
       var tokensFullData = [];
       
       // get the apester channels tokens from Wordpress db (after we put them into global window variable 'apester_tokens' in 'tinymce.php' file
-      var pureTokens = $window.apester_tokens || [];
-  
+      var pureTokens = Object.keys($window.apester_tokens) || [];
+
       // make sure we convert a value that is not an array (e.g. just one token string from older version of the plugin)
       // into an array with that one value it contains
       pureTokens = $.isArray(pureTokens) ? pureTokens : [pureTokens];
@@ -473,10 +476,10 @@
           var isJourney = scope.interaction.layout === JOURNEY_LAYOUT_ID;
           scope.boxTitle = $sce.trustAsHtml($filter('apeEmphasis')($filter('apePlainText')(scope.interaction.title, ' '), 50));
 
-          scope.playerPreviewUrl = 'https://preview.qmerce.com/interaction/' + scope.interaction.interactionId + '?iframe_preview=true';
-          
+          scope.playerPreviewUrl = 'https://renderer.apester.com/interaction/' + scope.interaction.interactionId + '?iframe_preview=true';
+
           scope.duplicatInteractionUrl = 'https://app.apester.com/editor/new?duplicate=' + scope.interaction.interactionId + '&isJourney=' + isJourney;
-          
+
           // watch the modal open state - when opened, make sure to update the background image so the ape.background
           // library will update according to the view, otherwise it won't know the dimensions since modal is closed
           scope.$watch('isOpen', function(oldVal, newVal) {
@@ -491,6 +494,7 @@
     }]);
 
 })();
+
 (function() {
     angular.module('apesterWpApp')
       .directive('interactionStats', ['$filter', function($filter){
@@ -506,12 +510,12 @@
 })();
 (function() {
   angular.module('apesterWpApp')
-    .service('InteractionStatsService', ['$q', '$http', function($q, $http){
+    .service('InteractionStatsService', ['$q', '$http', '$window', function($q, $http, $window){
       /**
        * BI base URL
        * @type {string}
        */
-      var baseUrl = 'https://analytics.apester.com/media/all/metrics/all';
+      var baseUrl = ($window.location.protocol) + '//gcp-analytics.apester.com/api/interaction/';
       var factors = [
           'views',
           'ctr',
@@ -545,7 +549,6 @@
         var ret = {};
 
         ret.metrics = ['clicked_social', 'clicked_other_interaction','interaction_loaded', 'interaction_started', 'interaction_vote_stage'];
-        ret.groupBy = 'event';
         ret.interactionIds = interactions.map(function(interaction){ return interaction.interactionId;});
         ret.to = (new Date()).getTime();
         ret.from = extractMinDate(interactions);
@@ -554,10 +557,9 @@
       };
 
       var getStatisticsData = function(configObject) {
-        var query = '?' + 'from=' + configObject.from + '&to=' + configObject.to + '&mediaId=' + configObject.interactionIds +
-          '&metric=' + configObject.metrics + '&groupBy=' + configObject.groupBy;
+        var query = '?' + 'from=' + configObject.from + '&to=' + configObject.to + '&ids=' + configObject.interactionIds;
 
-        return $http.get(baseUrl + query).then(function(res){
+        return $http.get(baseUrl + configObject.metrics.join(',') + query).then(function(res){
           return res;
         });
       };
@@ -697,21 +699,9 @@
       }
 
       var changeDataFormatFromApesterToMixpanel = function(data, existObject , eventName) {
-        /*jshint camelcase: false */
-        data.data.aggregations.interaction_id.buckets.forEach(function(interactionNodeData){
-          var interactionId = interactionNodeData.key;
-          /*jshint camelcase: false */
-          var relevantData = interactionNodeData.event.buckets.filter(function(eventNode){return eventNode.key === eventName ;});
-          var sum ;
-          try{
-            sum = relevantData[0].doc_count;
-          }
-          catch(e){
-            sum = 0;
-          }
-
-          existObject[interactionId] =  {'2015-12-01': sum };
-
+        data = data.data.payload.data;
+        Object.keys(data).forEach( function(interactionId) {
+          existObject[interactionId] = {'2015-12-01': data[interactionId][eventName]};
         });
       };
 
@@ -830,18 +820,26 @@
     
 })();
 (function() {
-    angular.module('apesterWpApp')
-      .directive('apeNavbar', [function(){
-          return {
-              restrict: 'E',
-              replace: true,
-              templateUrl: 'ape-navbar.html',
-              link: function(scope, element, attrs) {
-                  scope.currentStateProduct = "dataroom";
-              }
-          }
-      }]);
-    
+  angular.module('apesterWpApp')
+    .directive('apeNavbar', ['TokensService', 'RandomService', function(TokensService, RandomService){
+      return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'ape-navbar.html',
+        link: function(scope, element, attrs) {
+          scope.tokensWithPlaylist = [];
+
+          // get channel names for each token
+          TokensService.getTokensFullData().then(function(response){
+            // filter only tokens that have items in playlist
+            RandomService.getTokensPlaylistData(response).then(function(randomResponse) {
+              scope.tokensWithPlaylist = randomResponse;
+            });
+          });
+        }
+      }
+    }]);
+  
 })();
 (function() {
     angular.module('apesterWpApp')
@@ -851,18 +849,7 @@
               replace: true,
               templateUrl: 'channel-selector.html',
               link: function(scope, element, attrs) {
-                scope.placeholder = 'Embed a random unit from channel';
-                var tokensList = [];
-                scope.tokensWithPlaylist = [];
-                
-                // get channel names for each token
-                TokensService.getTokensFullData().then(function(response){
-                  tokensList = response;
-                  // filter only tokens that have items in playlist
-                  RandomService.getTokensPlaylistData(response).then(function(randomResponse) {
-                    scope.tokensWithPlaylist = randomResponse;
-                  });
-                });
+                scope.placeholder = 'Embed manual playlist';
 
                 scope.embedRandomMedia = function() {
                   scope.insertRandomShortCode(scope.tokensWithPlaylist[0].token);
@@ -977,6 +964,64 @@
     }]);
 
 })();
+(function() {
+  angular.module('apesterWpApp')
+    .directive('apePlaylistStatus', [function(){
+      return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'playlist-status.html',
+        link: function(scope, element, attrs) {
+          scope.isIncludePlaylist = true;
+
+          var isTinyMceEditorExists = function () {
+            return !!tinymce && !!tinymce.activeEditor;
+          };
+
+          var getArticleContent = function () {
+            return tinymce.activeEditor.getContent();
+          };
+
+          scope.$watch("isOpen", function (newIsOpen) {
+            var articleContent;
+
+            if (!newIsOpen) { return; }
+
+            if (isTinyMceEditorExists()) {
+              articleContent = getArticleContent();
+              scope.isIncludePlaylist = articleContent.indexOf('[apester-exclude-playlist]') === -1;
+            }
+          });
+
+          scope.togglePlaylistStatus = function () {
+            scope.isIncludePlaylist = !scope.isIncludePlaylist;
+            
+            if (!scope.isIncludePlaylist) {
+              insertExcludePlaylistShortCode();
+            } else {
+              removeExpludePlaylistShorcodeFromEditor();
+            }
+          };
+
+          var insertExcludePlaylistShortCode = function () {
+            if (isTinyMceEditorExists()) {
+              tinymce.activeEditor.insertContent('[apester-exclude-playlist]');
+            }
+          };
+
+          var removeExpludePlaylistShorcodeFromEditor = function () {
+            var articleContent;
+
+            if (isTinyMceEditorExists()) {
+              articleContent = getArticleContent();
+              tinymce.activeEditor.setContent(articleContent.replace(/\[apester-exclude-playlist\]/g, ''));
+            }
+          };
+        }
+      }
+    }]);
+
+})();
 (function(jQuery) {
 
   var ngApp;
@@ -1045,9 +1090,6 @@
 
   // insert angular app element for manual bootstrap
   jQuery('body').append('<div id="apesterWpApp"><apester-modal></apester-modal></div>');
-
-  // VERY IMPORTANT: make sure we register '$' as a reference to jQuery for usage within our dependencies
-  window.$ = jQuery;
 
   angular.element(function() {
     return (function(){

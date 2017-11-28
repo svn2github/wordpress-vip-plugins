@@ -1943,6 +1943,10 @@
   font-family: 'LatoLatin', "Almoni", sans-serif;
   color: #5C5C5C;
 }
+#apester-admin label {
+  margin: 0;
+  padding-top: 2px;
+}
 #apester-admin h1 {
   float: left;
 }
@@ -1953,8 +1957,9 @@
   margin-left: 0;
 }
 #apester-admin a,
-#apester-admin p, #apester-admin span, #apester-admin div
-input,
+#apester-admin p, #apester-admin span, #apester-admin div,
+#apester-admin ul,
+#apester-admin input,
 #apester-admin textarea {
   font-family: 'LatoLatin', "Almoni", sans-serif;
   font-weight: 400;
@@ -1962,6 +1967,54 @@ input,
 }
 #apester-admin button {
   font-weight: 300;
+}
+#apester-admin ul.bullet-list {
+  list-style: disc;
+}
+#apester-admin input[type="radio"] {
+  vertical-align: bottom;
+}
+#apester-admin .light {
+  font-weight: 300;
+}
+#apester-admin .bold {
+  font-weight: 500;
+}
+#apester-admin .lora {
+  font-family: 'Lora', 'LatoLatin', 'Almoni', sans-serif;
+}
+#apester-admin .icon-arrow {
+  display: inline-block;
+  transition: .3s ease-in-out;
+}
+#apester-admin .icon-arrow:before {
+  content: '\25BE';
+  font-family: sans-serif;
+  font-style: normal;
+}
+#apester-admin .icon-arrow.rotate-right {
+  transform: rotate(-90deg);
+}
+#apester-admin .nav-tab {
+  position: relative;
+}
+#apester-admin .nav-tab.nav-tab-active {
+  font-weight: 800;
+  color: black;
+}
+#apester-admin .nav-tab.new:after {
+  content: '';
+  display: block;
+  height: 5px;
+  width: 5px;
+  background: #EE2E3D;
+  position: absolute;
+  border-radius: 50%;
+  top: 4px;
+  right: 5px;
+}
+#apester-admin .checkbox-container label {
+  margin-left: 10px;
 }
 #apester-admin .apester-settings-tab-content {
   margin-left: 30px;
@@ -2084,6 +2137,9 @@ input,
 #apester-admin .embed-tab .embed-list li p {
   margin-left: 21px;
 }
+#apester-admin .embed-tab .ape-controls {
+  width: 380px;
+}
 #apester-admin .apester-feedback-tab .apester-right-column {
   margin-left: 111px;
 }
@@ -2145,4 +2201,181 @@ input,
 }
 #apester-admin .ape-msg-sent.success {
   opacity: 1;
+}
+#apester-admin .apester-playlist-tab .ape-controls {
+  width: 400px;
+}
+#apester-admin .apester-playlist-tab .apester-right-column img {
+  width: 230px;
+}
+#apester-admin .apester-playlist-tab .token-label {
+  width: 80%;
+  margin-left: 5px;
+}
+#apester-admin .apester-playlist-tab ul li label {
+  font-weight: normal;
+}
+#apester-admin .apester-playlist-tab .settings-form-header {
+  margin-bottom: 0;
+  margin-top: 50px;
+}
+#apester-admin .apester-playlist-tab .playlist-tab-form h4 {
+  margin-top: 0;
+  font-weight: 400;
+}
+#apester-admin .apester-playlist-tab .playlist-tab-form .no-tokens-msg {
+  width: 90%;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-header {
+  cursor: pointer;
+  user-select: none;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content {
+  overflow: hidden;
+  height: 0;
+  transition: .3s ease-in-out;
+  padding-left: 4px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content.open {
+  height: 390px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .lora {
+  font-style: italic;
+  color: #7e7f7f;
+  font-size: 14px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .apester-right-column {
+  width: 450px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .contextual-container {
+  margin-bottom: 18px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .contextual-container:not(.checked) ~ .fallback-container {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .contextual-container:not(.checked) ~ .fallback-container label {
+  cursor: not-allowed;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container {
+  display: flex;
+  flex-direction: column;
+  padding-left: 26px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags-title {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 18px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags-title i.ic {
+  color: #a8a7a7;
+  font-size: 18px;
+  margin-right: 6px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags-title .tag-texts {
+  line-height: 17px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags-title .tag-texts .title {
+  color: #404040;
+  font-size: 14px;
+  font-weight: 500;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags-title .tag-texts .comment {
+  color: #1c1c1c;
+  font-size: 13px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .add-tag {
+  float: left;
+  position: relative;
+  width: 320px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .add-tag input[type=text] {
+  border: 0;
+  color: #7e7f7f;
+  font-size: 18px;
+  line-height: 45px;
+  padding: 0 15px;
+  width: 100%;
+  font-weight: 300;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .add-tag input[type=text]:focus {
+  border-color: #ede9e9;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .add-tag input[type=text]:not(:focus) ~ a.add-tag-button {
+  cursor: default;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .add-tag i.add-tag-button {
+  color: #a8a7a7;
+  cursor: pointer;
+  font-size: 14px;
+  position: absolute;
+  right: 15px;
+  top: 17px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags {
+  margin-top: 18px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags .tag {
+  background: #b9c0cb;
+  border-radius: 15px;
+  float: left;
+  line-height: 30px;
+  margin-bottom: 5px;
+  margin-right: 5px;
+  padding: 0 30px 0 10px;
+  position: relative;
+  list-style: none;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags .tag span {
+  color: white;
+  font-size: 14px;
+  font-weight: 300;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags .tag span::before {
+  content: "#";
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags .tag i.ape-btn-remove-tag {
+  color: white;
+  cursor: pointer;
+  font-size: 10px;
+  position: absolute;
+  right: 10px;
+  top: 12px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container .tags .tag:hover {
+  background: #7e8ba0;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .tags-container.contextual .tags-title {
+  opacity: 1;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .playlist-position-indicator {
+  float: left;
+  width: 240px;
+  height: 200px;
+  background: url(./../img/playlist_position/bottom@2x.png) no-repeat;
+  background-size: contain;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .playlist-position-checkboxes {
+  float: left;
+  width: 200px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .playlist-position-checkboxes label {
+  margin-bottom: 10px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .playlist-position-checkboxes label .lora {
+  padding-left: 20px;
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .playlist-position-checkboxes.top + .playlist-position-indicator {
+  background-image: url(./../img/playlist_position/top@2x.png);
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .playlist-position-checkboxes.bottom + .playlist-position-indicator {
+  background-image: url(./../img/playlist_position/bottom@2x.png);
+}
+#apester-admin .apester-playlist-tab .advanced-settings-content .playlist-position-checkboxes.middle + .playlist-position-indicator {
+  background-image: url(./../img/playlist_position/middle@2x.png);
+}
+#apester-admin .btn-submit-playlist {
+  width: 300px;
+  margin-top: 50px;
+  background: #1EDD8E;
 }
