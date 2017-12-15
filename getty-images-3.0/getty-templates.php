@@ -217,15 +217,22 @@ else if(gettyImages.user.get('loggedIn') && data.sizesByAgreement) { #>
 				else {
 					note = '';
 				}
-				if(size.name === data.SelectedDownloadSize.name ) {
+				if(size.id === data.SelectedDownloadSize.id ) {
 					attrs = 'selected="selected"';
 				}
 				if(attachment && attachment.get('width') == size.width && attachment.get('height') == size.height) {
 					attrs = attrs + ' data-downloaded="true"';
 					note = <?php echo wp_json_encode( __( "(downloaded)", 'getty-images' ) ); ?>;
 				} #>
-				<option {{ attrs }} value="{{ size.name }}">
-					{{ data.ProductOffering.toUpperCase() }}:
+				<option {{ attrs }} value="{{ size.id }}">
+					<#
+					if (size.agreement_name) {
+					#>	{{ size.agreement_name}}: <#
+					}
+					else {
+					#>	{{ data.ProductOffering.toUpperCase() }}:  <#
+					}
+					#>
 					{{ size.width }} &times; {{ size.height }}
 					<#
 						var size = size.bytes;

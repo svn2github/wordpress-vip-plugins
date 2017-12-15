@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/getty-images-wordpress-plugin/
 Description: Integrate your site with Getty Images
 Author: gettyImages
 Author URI: http://gettyimages.com/
-Version: 3.0.2
+Version: 3.0.5
 */
 
 /*  Copyright 2014  Getty Images
@@ -112,10 +112,10 @@ class Getty_Images {
 	 * @param  string $args     additional arguments
 	 **/
 	function add_caller_oembed( $provider, $url, $args ) {
-		$domain = home_url(); 
+		$domain = home_url();
 		$caller = rawurlencode($domain . '#wp-plugin');
 
-	        // check that this is a getty embed
+        // check that this is a getty embed
 		if ( strpos( $url, 'http://gty.im/' ) === 0 ) {
 			$provider = add_query_arg('caller', $caller, $provider);
 		}
@@ -210,6 +210,7 @@ class Getty_Images {
 		wp_register_script( 'jquery-cookie', plugins_url( '/js/vendor/jquery.cookie.js', __FILE__ ), array( 'jquery' ), '2006', true );
 
 		$isWPcom = self::isWPcom();
+		$current_timestamp = time();
 
 		// Determine if the Ga and GTM Javascript should be loaded
 		$load_tracking = true;
@@ -233,25 +234,25 @@ class Getty_Images {
 		wp_enqueue_script( 'moment-js', plugins_url( '/js/vendor/moment.min.js', __FILE__ ), array(), 1, true );
 
 		wp_enqueue_script( 'spin-js', plugins_url( '/js/vendor/spin.js', __FILE__ ), array(), 1, true );
-		wp_enqueue_script( 'firebase-app-js', plugins_url( '/js/vendor/firebase-app.js', __FILE__ ), array(), 1, true );
-		wp_enqueue_script( 'firebase-auth-js', plugins_url( '/js/vendor/firebase-auth.js', __FILE__ ), array( 'firebase-app-js' ), 1, true );
-		wp_enqueue_script( 'firebase-database-js', plugins_url( '/js/vendor/firebase-database.js', __FILE__ ), array( 'firebase-app-js' ), 1, true );
-		wp_enqueue_script( 'firebase-messaging-js', plugins_url( '/js/vendor/firebase-messaging.js', __FILE__ ), array( 'firebase-app-js' ), 1, true );
+		wp_enqueue_script( 'firebase-app-js', plugins_url( '/js/vendor/firebase-app.js', __FILE__ ), array(), $current_timestamp, true );
+		wp_enqueue_script( 'firebase-auth-js', plugins_url( '/js/vendor/firebase-auth.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
+		wp_enqueue_script( 'firebase-database-js', plugins_url( '/js/vendor/firebase-database.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
+		wp_enqueue_script( 'firebase-messaging-js', plugins_url( '/js/vendor/firebase-messaging.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
 		wp_enqueue_script( 'getty-mosaic', plugins_url( '/js/getty-mosaic.js', __FILE__ ), array(), 1, true );
-		wp_enqueue_script( 'getty-images-filters', plugins_url( '/js/getty-filters-3-0.js', __FILE__ ), array(), 1, true );
-		wp_enqueue_script( 'getty-images-views', plugins_url( '/js/getty-views-3-0.js', __FILE__ ), array( 'getty-images-filters', 'spin-js' ), 1, true );
-		wp_enqueue_script( 'getty-images-firebase', plugins_url( '/js/getty-firebase.js', __FILE__ ), array( 'firebase-app-js' ), 1, true );
+		wp_enqueue_script( 'getty-images-filters', plugins_url( '/js/getty-filters.js', __FILE__ ), array(), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images-views', plugins_url( '/js/getty-views.js', __FILE__ ), array( 'getty-images-filters', 'spin-js' ), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images-firebase', plugins_url( '/js/getty-firebase.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
 
 		// Register specific Omniture version of s_code for VIP or .org
 		if($isWPcom) {
-			wp_register_script( 'getty-omniture-scode', apply_filters( 'getty_images_s_code_js_url', plugins_url( '/js/vendor/s_code_vip.js', __FILE__ ) ), array(), $this->__plugin_get_version(), true );
+			wp_register_script( 'getty-omniture-scode', apply_filters( 'getty_images_s_code_js_url', plugins_url( '/js/vendor/s_code_vip.js', __FILE__ ) ), array(), $current_timestamp, true );
 		} else {
-			wp_register_script( 'getty-omniture-scode', apply_filters( 'getty_images_s_code_js_url', plugins_url( '/js/vendor/s_code_org.js', __FILE__ ) ), array(), $this->__plugin_get_version(), true );
+			wp_register_script( 'getty-omniture-scode', apply_filters( 'getty_images_s_code_js_url', plugins_url( '/js/vendor/s_code_org.js', __FILE__ ) ), array(), $current_timestamp, true );
 		}
 		
 
-		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models-3-0.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $this->__plugin_get_version(), true );
-		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images-3-0.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $this->__plugin_get_version(), true );
+		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $current_timestamp, true );
 
 		wp_enqueue_style( 'getty-base-styles', plugins_url( '/css/getty-base-styles.css', __FILE__ ) );
 		wp_enqueue_style( 'getty-about-text', plugins_url( '/css/getty-about-text.css', __FILE__ ) );
@@ -534,6 +535,43 @@ class Getty_Images {
 		}
 	}
 
+    function getty_download_url( $url, $timeout = 300 ) {
+        //WARNING: The file is not automatically deleted, The script must unlink() the file.
+        if ( ! $url )
+            return new WP_Error('http_no_url', __('Invalid URL Provided.'));
+
+        $url_filename = basename( parse_url( $url, PHP_URL_PATH ) );
+
+        $tmpfname = wp_tempnam( $url_filename );
+        if ( ! $tmpfname )
+            return new WP_Error('http_no_file', __('Could not create Temporary file.'));
+
+        $response = wp_safe_remote_get( $url, array( 'timeout' => $timeout, 'stream' => true, 'filename' => $tmpfname ) );
+
+        preg_match("/filename=([^*]+)/", $response['headers']['content-disposition'], $filename);
+
+        if ( is_wp_error( $response ) ) {
+            unlink( $tmpfname );
+            return $response;
+        }
+
+        if ( 200 != wp_remote_retrieve_response_code( $response ) ){
+            unlink( $tmpfname );
+            return new WP_Error( 'http_404', trim( wp_remote_retrieve_response_message( $response ) ) );
+        }
+
+        $content_md5 = wp_remote_retrieve_header( $response, 'content-md5' );
+        if ( $content_md5 ) {
+            $md5_check = verify_file_md5( $tmpfname, $content_md5 );
+            if ( is_wp_error( $md5_check ) ) {
+                unlink( $tmpfname );
+                return $md5_check;
+            }
+        }
+
+        return array('tmpfname' => $tmpfname, 'fname' =>  $filename[1]);
+    }
+
 	/**
 	 * Download an image from a URL, attach Getty MetaData which will also act
 	 * as a flag that the image came from GettyImages
@@ -566,35 +604,27 @@ class Getty_Images {
 			$this->ajax_error( __( "Invalid image meta", 'getty-images' ) );
 		}
 
+        // Getty Images delivery URLs have the pattern:
+        //
+        // http://delivery.gettyimages.com/../<filename>.<ext>?TONSOFAUTHORIZATIONDATA
+        //
+        // Check that the URL component is correct:
+        if( strpos( $url, 'https://delivery.gettyimages.com/' ) !== 0 ) {
+            $this->ajax_error( "Invalid URL" );
+        }
+
 		// Download the image, but don't necessarily attach it to this post.
-		$tmp = download_url( $url );
+		$tmp = $this->getty_download_url( $url );
 
 		// Wah wah
 		if( is_wp_error( $tmp ) ) {
 			$this->ajax_error( __( "Failed to download image", 'getty-images' ) );
 		}
 
-		// Getty Images delivery URLs have the pattern:
-		//
-		// http://delivery.gettyimages.com/../<filename>.<ext>?TONSOFAUTHORIZATIONDATA
-		//
-		// Check that the URL component is correct:
-		if( strpos( $url, 'https://delivery.gettyimages.com/' ) !== 0 ) {
-			$this->ajax_error( "Invalid URL" );
-		}
-
-		// Figure out filename to use. by using the basename of the first image extension
-		// matched component
-		preg_match( '/[^?]+\.(jpe?g|jpe|gif|png)\b/i', $url, $matches );
-
-		if( empty( $matches ) ) {
-			$this->ajax_error( __( "Invalid filename", 'getty-images' ) );
-		}
-
 		$file_array = array();
 
-		$file_array['name'] = basename( $matches[0] );
-		$file_array['tmp_name'] = $tmp;
+		$file_array['name'] = basename( $tmp['fname'] );
+		$file_array['tmp_name'] = $tmp['tmpfname'];
 
 		$attachment_id = media_handle_sideload( $file_array, 0 );
 
