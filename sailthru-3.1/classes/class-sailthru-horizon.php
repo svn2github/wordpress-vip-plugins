@@ -60,6 +60,14 @@ class Sailthru_Horizon {
 			add_option( 'sailthru_override_wp_mail', 1 );
 		} // end if
 
+		if ( true === get_option( 'sailthru_setup_complete' ) || true === get_option( 'sailthru_api_validated' ) ) {
+			update_option( 'sailthru_api_validated', true );
+			update_option( 'sailthru_setup_complete', true );
+		} else {
+			update_option( 'sailthru_api_validated', false );
+			update_option( 'sailthru_setup_complete', false );
+		}
+
 	} // end activate
 
 	/**
@@ -288,7 +296,11 @@ class Sailthru_Horizon {
 						),
 					);
 
+
 					if ( 'personalize_js_custom' === $options['sailthru_js_type'] ) {
+
+						$params['isCustom'] = true;
+
 						// override defaults
 						if ( 'false' === $options['sailthru_js_auto_track_pageview'] ) {
 							$params['options']['autoTrackPageview'] = (bool) false;
@@ -305,7 +317,7 @@ class Sailthru_Horizon {
 
 					if ( ! is_404() && ! is_preview() && apply_filters( 'sailthru_add_spm_js', true ) ) {
 						wp_enqueue_script( 'personalize_js', '//ak.sail-horizon.com/spm/spm.v1.min.js' );
-						wp_register_script( 'tag', plugin_dir_url( __DIR__ ) . 'js/tag.js' );
+						wp_register_script( 'tag', plugin_dir_url( __DIR__ ) . 'js/tag.js', array('jquery') );
 						wp_localize_script( 'tag', 'tag', $params );
 						wp_enqueue_script( 'tag' );
 					}
@@ -544,18 +556,17 @@ class Sailthru_Horizon {
 
 		$horizon_tags = apply_filters( 'sailthru_horizon_meta_tags', $horizon_tags, $post_object );
 
-		$tag_output = "\n\n<!-- BEGIN Sailthru Horizon Meta Information -->\n";
+		echo "\n\n<!-- BEGIN Sailthru Horizon Meta Information -->\n";
 		foreach ( (array) $horizon_tags as $tag_name => $tag_content ) {
 			if ( empty( $tag_content ) ) {
 				continue; // Don't ever output empty tags
 			}
 			$meta_tag    = sprintf( '<meta name="%s" content="%s" />', esc_attr( $tag_name ), esc_attr( $tag_content ) );
-			$tag_output .= apply_filters( 'sailthru_horizon_meta_tags_output', $meta_tag );
-			$tag_output .= "\n";
+			echo wp_kses( apply_filters( 'sailthru_horizon_meta_tags_output', $meta_tag ), array( 'meta' => array( 'name' => array(), 'content' => array() ) ) );
+			echo  "\n";
 		}
-		$tag_output .= "<!-- END Sailthru Horizon Meta Information -->\n\n";
+		echo "<!-- END Sailthru Horizon Meta Information -->\n\n";
 
-		echo esc_html( $tag_output );
 
 	} // sailthru_horizon_meta_tags
 

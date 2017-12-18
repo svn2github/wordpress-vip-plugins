@@ -1,5 +1,5 @@
 === Sailthru for WordPress ===
-Contributors: nickgundry, automattic, irms, zackify, natebot
+Contributors: nickgundry, sailthru-wp, automattic, irms, zackify, natebot
 Tags: personalization, email,
 Requires at least: 3.6
 Tested up to: 4.9

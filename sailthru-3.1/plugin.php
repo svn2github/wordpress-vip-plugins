@@ -241,7 +241,7 @@ function sailthru_save_post( $post_id, $post, $post_before ) {
 					// Prepare the Content API Params
 					$data['url']               = get_permalink( $post->ID );
 					$data['title']             = $post->post_title;
-					$data['author']            = $post->post_author;
+					$data['author']            = get_the_author_meta( 'display_name', $post->post_author );
 					$data['date']              = $post->post_date;
 					$data['vars']['post_type'] = $post->post_type;
 					$data['spider']            = 1;
@@ -283,7 +283,7 @@ function sailthru_save_post( $post_id, $post, $post_before ) {
 						$data['expire_date'] = esc_attr( $post_expiration );
 					} else {
 						// set the expiry date in the future as you can't unset the value via the API
-						$data['expire_date'] = date('Y-m-d', strtotime('+5 years'));
+						$data['expire_date'] = date( 'Y-m-d', strtotime( '+5 years' ) );
 					}
 
 					// get all the custom fields and add them to the vars

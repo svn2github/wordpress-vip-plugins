@@ -22,15 +22,16 @@ if ( ! isset( $scout['sailthru_scout_is_on'] ) || ! $scout['sailthru_scout_is_on
 ?>
 <?php if ( $use_spm ) : ?>
 	<div class="sailthru-spm-widget">
-		 <div id="<?php echo esc_attr( $this->id ); ?>"></div>
+		 <div id="<?php echo esc_attr( $this->id ); ?>-container"></div>
 		  <script type="text/javascript">
-			jQuery(function() {
-				SPM.addSection('<?php echo esc_js( $section ); ?>', {
-					elementId: '<?php echo esc_js( $this->id ); ?>'
-				});
-				SPM.personalize({
-					timeout: 2000
-			});
+              window.addEventListener('load', function() {
+                  Sailthru.personalize({
+                      sections: [
+                          {
+                              id: "<?php echo esc_js( $section );?>",
+                              selector: "#<?php echo esc_js( $this->id );?>-container",
+                          }]
+                  });
 		 });
 	</script>
 
