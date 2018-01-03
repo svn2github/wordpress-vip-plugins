@@ -794,7 +794,7 @@ final class WPCOM_Liveblog {
 			$use_rest_api = 0;
 
 			if ( self::use_rest_api() ) {
-				$endpoint_url = WPCOM_Liveblog_Rest_Api::build_endpoint_base() . $post->ID . '/' . 'post_state';
+				$endpoint_url = WPCOM_Liveblog_Rest_Api::build_endpoint_base() . $post->ID . '/' . 'post_state/';
 				$use_rest_api = 1;
 			}
 
