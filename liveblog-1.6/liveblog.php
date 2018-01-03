@@ -806,7 +806,7 @@ final class WPCOM_Liveblog {
 				'error_message_template'       => __( 'Error {error-code}: {error-message}', 'liveblog' ),
 				'short_error_message_template' => __( 'Error: {error-message}', 'liveblog' ),
 				'use_rest_api'                 => $use_rest_api,
-				'endpoint_url'                 => $endpoint_url,
+				'endpoint_url'                 => get_site_url( null, $endpoint_url )
 			) );
 		}
 	}
