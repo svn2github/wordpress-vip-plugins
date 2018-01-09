@@ -2,12 +2,12 @@
 /**
  * VIP Helper Functions that are specific to WordPress.com
  *
- * These functions relate to WordPress.com specific plugins, 
+ * These functions relate to WordPress.com specific plugins,
  * filters, and actions that are enabled across all of WordPress.com.
  *
  * To add these functions to your theme add
  * include_once( WP_CONTENT_DIR . '/themes/vip/plugins/vip-helper-wpcom.php' );
- * in the theme's 'functions.php'. This should be wrapped in a 
+ * in the theme's 'functions.php'. This should be wrapped in a
  * if ( function_exists('wpcom_is_vip') ) { // WPCOM specific
  * so you don't load it in your local environment. This will help alert you if
  * have any unconditional dependencies on the WordPress.com environment.
@@ -29,7 +29,7 @@ function vip_allow_title_orphans() {
  *
  * Don't use for new projects, just use WPCOM_RelatedPosts directly, since it has hooks
  * like jetpack_relatedposts_filter_args, jetpack_relatedposts_filter_filters
- * 
+ *
  * @param int $max_num Optional. Maximum number of results you want (default: 5).
  * @param array $additional_stopwords No longer used, we leave the stopwords magic to ES which knows more about word frequencies across articles.
  * @param bool $exclude_own_titles No longer used.
@@ -54,10 +54,10 @@ function wpcom_vip_flaptor_related_posts( $max_num = 5, $additional_stopwords = 
  *
  * Don't use for new projects, just use WPCOM_RelatedPosts directly, since it has hooks
  * like jetpack_relatedposts_filter_args, jetpack_relatedposts_filter_filters
- * 
- * For backwards compatability, this function finds related posts on the current blog 
+ *
+ * For backwards compatability, this function finds related posts on the current blog
  * using Elasticsearch, then converts the results to match the original sphere results format.
- * 
+ *
  * @param int $max_num Optional. Maximum number of results you want (default: 5).
  * @param array $additional_stopwords No longer used.
  * @param bool $exclude_own_titles No longer used.
@@ -205,7 +205,7 @@ function wpcom_vip_disable_enhanced_feeds() {
 
 /**
  * Do not display the images in enhanced feeds.
- * 
+ *
  * Helper function for wpcom_vip_disable_enhanced_feeds().
  *
  * @author nickmomrik
@@ -217,7 +217,7 @@ function vip_remove_enhanced_feed_images() {
 
 /**
  * Remove the tracking bug added to all WordPress.com feeds.
- * 
+ *
  * Helper function for wpcom_vip_disable_enhanced_feeds().
  *
  * @see wpcom_vip_disable_enhanced_feeds()
@@ -229,7 +229,7 @@ function wpcom_vip_remove_feed_tracking_bug() {
 
 /**
  * Override default colors of audio player.
- * 
+ *
  * Colors specified in the shortcode still can override.
  *
  * @author nickmomrik
@@ -243,7 +243,7 @@ function wpcom_vip_audio_player_colors( $colors ) {
 
 /**
  * Prints the title of the most popular blog post
- * 
+ *
  * @author nickmomrik
  * @param int $days Optional. Number of recent days to find the most popular posts from. Minimum of 2.
  */
@@ -344,7 +344,7 @@ function wpcom_vip_get_resized_attachment_url( $attachment_id, $width, $height, 
 		return false;
 	}
 
-	$url = add_query_arg( array( 
+	$url = add_query_arg( array(
 		'w' => intval( $width ),
 		'h' => intval( $height ),
 	), $url );
@@ -360,12 +360,12 @@ function wpcom_vip_get_resized_attachment_url( $attachment_id, $width, $height, 
 }
 /**
  * Helper function for validiting and sanitizing values for crop parametr used in photon URLs
- * 
+ *
  * Returns the value passeed after it was sanitized by intval function while preserving trailing px string
- * 
+ *
  * @param int|string $value. A number without unit (representing percentages) or a numerical string trailing with "px" representing a width/height in pixels
  * @return int|string. Sanitized value which is safe to use in URL
- */ 
+ */
 function wpcom_vip_sanitize_photon_crop_values( $value ) {
 
 	$sanitized_value = intval( $value );
@@ -381,14 +381,14 @@ function wpcom_vip_sanitize_photon_crop_values( $value ) {
 
 /**
  * Gets the data used by the "Top Posts" widget.
- * 
+ *
  * Our Top Posts widget (http://en.support.wordpress.com/widgets/top-posts-widget/) uses a display_top_posts() function to display a list of popular posts.
  * You can use this function in your themes. The function uses data from WordPress.com Stats (http://en.support.wordpress.com/stats/) to generate the list.
  *
  * If you would like more control over the output of display_top_posts(), use the get_top_posts() function.
  *
  * Note: in the results, post_ID = 0 is used to track home page views.
- * 
+ *
  * @param int $number Optional. At least 10 posts are always returned; this parameter controls how many extra you want. Valid values: 1-10 (default is 10).
  * @param int $days Optional. How many days of stats should be used in the calculation; defaults to 2.
  * @return array
@@ -443,7 +443,7 @@ function wpcom_vip_allow_full_size_images_for_real() {
 /**
  * Helper function for wpcom_vip_allow_full_size_images_for_real()
  *
- * @param array $ignore This function doesn't make use of this parameter 
+ * @param array $ignore This function doesn't make use of this parameter
  * @param int $id Attachment post ID
  * @param string $size If "full", function will return the full size image, otherwise it will be downscaled to this size.
  * @return array
@@ -491,7 +491,7 @@ function wpcom_vip_remove_polldaddy_rating() {
 
 /**
  * Removes the <media:content> tags from the RSS2 feed.
- * 
+ *
  * You should really call this when creating a custom feed (best to leave them in your normal feed)
  * For details on creating a custom feed, see http://lobby.vip.wordpress.com/custom-made/altering-feeds/
  */
@@ -527,7 +527,7 @@ function wpcom_vip_enable_opengraph() {
 	add_filter( 'jetpack_enable_open_graph', '__return_true', 99 ); // hook later so we don't run into the WP.com filter which disables open graph tags for VIPs
 
 	// Disable the Facebook plugin's Open Graph tags
-	add_action( 'template_redirect', '_wpcom_vip_disable_fb_plugin_opengraph' ); 
+	add_action( 'template_redirect', '_wpcom_vip_disable_fb_plugin_opengraph' );
 }
 
 /**
@@ -581,18 +581,18 @@ function wpcom_vip_disable_post_flair() {
  * Disables WPCOM Sharing in Posts and Pages.
  *
  * Sharing can be disabled in the dashboard, by removing all buttons from Enabled Services.
- * 
+ *
  * This function is primary for automating sharing when you have numerous sites to administer.
  * It also assists having consistent CSS containers between development and production.
- * 
+ *
  * @link http://en.support.wordpress.com/sharing/ Sharing
  */
 function wpcom_vip_disable_sharing() {
 	// Post Flair sets things up on init so we need to call on that if init hasn't fired yet.
 	_wpcom_vip_call_on_hook_or_execute( function() {
 		remove_filter( 'post_flair', 'sharing_display', 20 );
-		remove_filter( 'the_content', 'sharing_display', 19 ); 
-   		remove_filter( 'the_excerpt', 'sharing_display', 19 ); 
+		remove_filter( 'the_content', 'sharing_display', 19 );
+   		remove_filter( 'the_excerpt', 'sharing_display', 19 );
 
 		wpcom_vip_disable_sharing_resources();
 	}, 'init', 99 );
@@ -616,7 +616,7 @@ function wpcom_vip_disable_sharing_resources() {
  * Enables WPCOM Sharing in Posts and Pages.
  *
  * This feature is on by default, so the function is only useful if you've also used wpcom_vip_disable_sharing().
- * 
+ *
  * @link http://en.support.wordpress.com/sharing/ Sharing
  */
 function wpcom_vip_enable_sharing() {
@@ -637,9 +637,9 @@ function wpcom_vip_enable_sharing_resources() {
 
 /**
  * Disables WP.com Likes for Posts and Custom Post Types
- * 
+ *
  * Sharing can also be disabled from the Dashboard (Settings > Sharing).
- * 
+ *
  * This function is primarily for programmatic disabling of the feature, for example when working with custom post types.
  */
 function wpcom_vip_disable_likes() {
@@ -651,7 +651,7 @@ function wpcom_vip_disable_likes() {
 
 /**
  * Disables WP.com Likes for Posts and Custom Post Types
- * 
+ *
  * This feature is on by default, so the function is only useful if you've also used wpcom_vip_disable_sharing().
  */
 function wpcom_vip_enable_likes() {
@@ -693,7 +693,7 @@ function wpcom_invite_force_matching_email_address() {
  */
 function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
 	global $wpdb;
-	
+
 	// make sure to bypass caching for all get requests
 	if ( class_exists( 'WP_Object_Cache' ) ) {
 		global $wp_object_cache;
@@ -707,7 +707,7 @@ function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
 		}
 		$wp_object_cache = new Fake_WP_Object_Cache();
 	}
-	
+
 	// send all reads to master
 	$srtm_backup = $changed_srtm = false;
 	if ( true <> $wpdb->srtm ) {
@@ -718,24 +718,24 @@ function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
 	}
 	// update the meta cache
 	update_meta_cache( 'post', array( $post_id ) );
-	
+
 	// get the postmeta data
 	$result = get_post_meta( $post_id, $key, $single );
-	
+
 	// put correct object cache back
 	$wp_object_cache = $old_object_cache;
-	
+
 	// send reads back to where they belong to
 	if ( true === $changed_srtm )
 		$wpdb->srtm = $srtm_backup;
-	
+
 	// check the default method
 	$result_chk = get_post_meta( $post_id, $key, $single );
 	// delete the meta cache if results differ to make sure subsequent get_post_meta() calls will refresh from db
 	if ( $result_chk <> $result ) {
 		wp_cache_delete( $post_id, 'post_meta' );
 	}
-	
+
 	return $result;
 }
 
@@ -744,7 +744,7 @@ function wpcom_uncached_get_post_meta( $post_id, $key, $single = false ) {
  *
  * This is not intended for front-end usage. This purpose of this function is to avoid race conditions that could appear while the caches are primed.
  * A good scenario where this could be used is to ensure published posts are not syndicated multiple times by checking if a post with a certain meta value already exists.
- * 
+ *
  * @param string $meta_key Post meta key to query
  * @param string $meta_value Post meta value to check for
  * @param string $post_type Optional; post_type of the post to query. Defaults to 'post'.
@@ -757,17 +757,17 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 
 	if ( empty( $meta_key ) || empty( $meta_value ) || empty( $post_stati ) || !is_array( $post_stati ) || !post_type_exists( $post_type ) )
 		return new WP_Error( 'invalid_arguments', __( "At least one of the arguments of wpcom_uncached_get_post_by_meta is invalid" ) );
-		
+
 	if ( empty( $limit ) || $limit <= 0 || $limit > 10 )
 		return new WP_Error( 'invalid_arguments', __( "Please use a limit between 1 and 10" ) );
-	
+
 	$post_status_string = '';
 	$_post_status_string = array();
-	
+
 	foreach( $post_stati as $post_status )
 		$_post_status_string[] = sprintf( "'%s'", esc_sql( $post_status ) );
 	$post_status_string = implode( ", ", $_post_status_string );
-	
+
 	// send all reads to master
 	$srtm_backup = $changed_srtm = false;
 	if ( true <> $wpdb->srtm && is_callable( $wpdb, 'send_reads_to_masters' ) ) {
@@ -778,9 +778,9 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 
 	// query all posts matching the post_type and meta key/value pair
 	$query = $wpdb->prepare(
-					"SELECT $wpdb->posts.*  FROM $wpdb->posts, $wpdb->postmeta 
-					WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id 
-					AND $wpdb->postmeta.meta_key = %s 
+					"SELECT $wpdb->posts.*  FROM $wpdb->posts, $wpdb->postmeta
+					WHERE $wpdb->posts.ID = $wpdb->postmeta.post_id
+					AND $wpdb->postmeta.meta_key = %s
 					AND $wpdb->postmeta.meta_value = %s
 					AND $wpdb->posts.post_type = %s AND $wpdb->posts.post_status IN ( " . $post_status_string . " ) LIMIT 0, %d", esc_sql( $meta_key ), esc_sql( $meta_value ), esc_sql( $post_type ), (int) $limit
 	);
@@ -790,7 +790,7 @@ function wpcom_uncached_get_post_by_meta( $meta_key, $meta_value, $post_type = '
 	// send reads back to where they belong to
 	if ( true === $changed_srtm )
 		$wpdb->srtm = $srtm_backup;
-		
+
 	return $posts;
 }
 
@@ -826,7 +826,7 @@ function wpcom_vip_allow_more_html_in_comments() {
  * @see wpcom_vip_allow_more_html_in_comments()
  */
 function _wpcom_vip_allow_more_html_in_comments() {
-	remove_filter( 'pre_comment_content', 'wp_filter_kses' ); 
+	remove_filter( 'pre_comment_content', 'wp_filter_kses' );
 	add_filter( 'pre_comment_content', 'wp_filter_post_kses' );
 }
 
@@ -961,8 +961,9 @@ function wpcom_vip_remove_opensearch(){
 }
 
 function wpcom_vip_set_url_scheme( $scheme = 'https' ) {
-	add_filter( 'set_url_scheme', function( $url ) use ( $scheme ) {
-		$domain = parse_url( home_url(), PHP_URL_HOST );
+	$home = home_url();
+	add_filter( 'set_url_scheme', function( $url ) use ( $scheme, $home ) {
+		$domain = parse_url( $home, PHP_URL_HOST );
 		if ( 'https' == $scheme ) {
 			return str_replace( 'http://' . $domain, 'https://' . $domain, $url );
 		} else {
@@ -1044,11 +1045,11 @@ function wpcom_vip_disable_performance_tweaks(){
 
 /**
  * Translate protected embeds to original content for feeds
- */ 
+ */
 function wpcom_vip_protected_embed_to_original( $content ) {
-	
+
 	global $wp_filter;
-	
+
 	//Necessary check for non WordPress.com environments (eg.: the vip-qickstart)
 	if ( true === class_exists( 'Protected_Embeds' ) && method_exists( Protected_Embeds::instance(), 'add_shortcode' ) ) {
 
@@ -1058,7 +1059,7 @@ function wpcom_vip_protected_embed_to_original( $content ) {
 		} else {
 			$the_content_export_filters = $wp_filter['the_content_export'];
 		}
-	
+
 		//remove all the_content_export filters
 		if( isset( $wp_filter['the_content_export']->callbacks ) ) {
 			$wp_filter['the_content_export']->callbacks = array();
@@ -1073,7 +1074,7 @@ function wpcom_vip_protected_embed_to_original( $content ) {
 
 		//restore the_content_export filters to previous state
 		if( isset( $wp_filter['the_content_export']->callbacks ) ) {
-			$wp_filter['the_content_export']->callbacks = $the_content_export_filters;	
+			$wp_filter['the_content_export']->callbacks = $the_content_export_filters;
 		} else {
 			$wp_filter['the_content_export'] = $the_content_export_filters;
 		}
