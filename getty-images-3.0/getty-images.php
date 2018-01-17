@@ -252,7 +252,7 @@ class Getty_Images {
 		
 
 		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models-3-0.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $current_timestamp, true );
-		wp_enqueue_script( 'netty-images', plugins_url( '/js/getty-images-3-0.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images-3-0.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $current_timestamp, true );
 
 		wp_enqueue_style( 'getty-base-styles', plugins_url( '/css/getty-base-styles.css', __FILE__ ) );
 		wp_enqueue_style( 'getty-about-text', plugins_url( '/css/getty-about-text.css', __FILE__ ) );
