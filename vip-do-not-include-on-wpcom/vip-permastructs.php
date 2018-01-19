@@ -312,6 +312,19 @@ function wpcom_vip_set_image_quality( $quality, $strip = false ) {
 		return wpcom_vip_set_image_quality_for_url( $attachment_url, $quality, $strip );
 	});
 
+	/*
+	 * Make sure to apply the image quality on all srcset items. In case the image is of the same
+	 * size as one of the srcset items, the core's code overrides such previously processed image
+	 * and leaves us with a link to the original image w/o image quality settings.
+	 * See https://core.trac.wordpress.org/browser/tags/4.9/src/wp-includes/media.php#L1074
+	 */
+	add_filter( 'wp_calculate_image_srcset', function( $sources ) use ( $quality, $strip ) {
+		return array_map( function( $source ) use ( $quality, $strip ) {	
+			$source['url'] = wpcom_vip_set_image_quality_for_url( $source['url'], $quality, $strip );
+			return $source;
+		}, $sources );
+	}, 10, 1 );
+
 	add_filter( 'the_content', function( $content ) use ( $quality, $strip ) {
 		if ( false !== strpos( $content, 'files.wordpress.com' ) ) {
 			$content = preg_replace_callback( '#https?://\w+\.files\.wordpress\.com[^\s"\'>]+#', function( $matches ) use ( $quality, $strip ) {
