@@ -79,7 +79,7 @@ var counter = {
 		if( left > 0 )
 			$counter.removeClass( 'negative' ).addClass( 'positive' );
 		else
-			$counter.removeClass( 'postive' ).addClass( 'negative' );
+			$counter.removeClass( 'positive' ).addClass( 'negative' );
 
 		return $('<b>').append( $counter ).html();
 	}
