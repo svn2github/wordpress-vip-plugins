@@ -245,6 +245,10 @@ class WPcom_VIP_Plugins_UI {
 		);
 
 		$this->fpp_plugins = array(
+			'amp' => array(
+				'name'          => 'AMP',
+				'description'   => 'An open-source initiative aiming to make the web better for all',
+			),
 			'apester-interactive-content' => array(
 				'name'			=> 'Apester Interactive Content',
 				'description'	=> 'Apester allows you to easily create, embed and share interactive content (polls, trivia, etc.) into your posts and articles.',
@@ -252,14 +256,6 @@ class WPcom_VIP_Plugins_UI {
 			'brightcove-video-connect' => array(
 				'name'			=> 'Brightcove Video Connect',
 				'description'	=> 'Discover How Video Can Move Your Business.',
-			),
-			'chartbeat' => array(
-				'name'			=> 'Chartbeat',
-				'description'	=> 'Get a free trial to see your site\'s real-time data.',
-			),
-			'co-schedule' => array(
-				'name'			=> 'CoSchedule',
-				'description'	=> 'Plan awesome content. Save a bunch of time.',
 			),
 			'facebook-instant-articles' => array(
 				'name'			=> 'Facebook Instant Articles',
@@ -269,85 +265,29 @@ class WPcom_VIP_Plugins_UI {
 				'name'			=> 'Getty Images',
 				'description'	=> 'Search and use Getty Images photos in your posts without ever leaving WordPress.com.',
 			),
-			'graphiq-search' => array(
-				'name'			=> 'Graphiq Search',
-				'description'	=> 'Add relevant, interactive visuals to any WordPress VIP post.',
-			),
 			'inform-video-match' => array(
 				'name'			=> 'Inform Video Match',
 				'description'	=> 'Better than free.',
-			),
-			'janrain-capture' => array(
-				'name'			=> 'Janrain',
-				'description'	=> 'User Registration and Social Integration for WordPress.com VIP.',
 			),
 			'jwplayer' => array(
 				'name'			=> 'JW Player',
 				'description'	=> 'The World’s Most Popular Video Player.',
 			),
-			'livefyre-apps' => array(
-				'name'			=> 'Livefyre',
-				'description'	=> 'Replace comments with live conversations connected to the social web.',
-			),
-			'mediapass' => array(
-				'name'			=> 'MediaPass Subscriptions',
-				'description'	=> 'Monetize your content with recurring subscriptions made easy.',
-			),
-			'postrelease-vip' => array(
-				'name'			=> 'Nativo',
-				'description'	=> 'Unlock a premium revenue stream with native ads.',
-			),
-			'newscred' => array(
-				'name'			=> 'NewsCred',
-				'description'	=> 'Publish fully licensed, full text articles and images from 4,000+ of the world’s best news sources!',
-			),
 			'ooyala' => array(
 				'name'			=> 'Ooyala',
 				'description'	=> 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
 			),
-			'wp-parsely' => array(
-				'name'			=> 'Parsely',
-				'description'	=> 'Start a trial to finally see your audience clearly.',
-			),
-			'playbuzz' => array(
-				'name'			=> 'Playbuzz',
-				'description'	=> 'Embed customized playful content from Playbuzz.com into your WordPress site.',
-			),
-			'publishthis'        => array(
-				'name'			=> 'PublishThis',
-				'description'	=> 'Rapidly discover, curate and publish fresh content on any topic into WordPress.',
-			),
-			'roost'             => array(
-				'name'			=> 'Roost',
-				'description'	=> 'Engage, Then Re-Engage Your Audience via Web Push Notifications!',
+			'piano' => array(
+				'name'          => 'Piano',
+				'description'   => 'Piano is the best way to charge for access to content on your site.',
 			),
 			'sailthru' => array(
 				'name'			=> 'Sailthru for WordPress',
 				'description'	=> 'Sailthru is the leading provider of personalized marketing communications.',
 			),
-			'simple-reach-analytics' => array(
-				'name'        => 'SimpleReach',
-				'description' => 'Content ROI made simple.',
-			),
 			'skyword' => array(
 				'name'			=> 'Skyword',
 				'description'	=> 'Moving Stories. Forward.',
-			),
-			'socialflow' => array(
-				'name'			=> 'SocialFlow',
-				'description'	=> 'Get more readers and traffic from Twitter & Facebook with SocialFlow Optimized Publisher&trade;.',
-			),
-			'storify' => array(
-				'name'			=> 'Storify',
-				'description'	=> 'Easily add social media to every blog post with Storify.',
-			),
-			'thePlatform' => array(
-				'name'			=> 'thePlatform',
-				'description'	=> 'Easily publish and manage your videos in WordPress using thePlatform’s mpx.',
-			),
-			'tinypass' => array(
-				'name'			=> 'Tinypass',
-				'description'	=> 'Simple, powerful tools for subscriptions, paywalls, pay-per-view, and donations.',
 			),
 			'webdam-asset-chooser' => array(
 				'name'			=> 'WebDAM Asset Chooser',
