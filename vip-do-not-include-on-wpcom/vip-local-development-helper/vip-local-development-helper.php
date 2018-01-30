@@ -51,6 +51,11 @@ function wpcom_vip_load_plugin( $plugin = false, $folder = 'plugins', $version =
 		$plugin = $plugin . '-' . $version; // Versioned plugin name
 	}
 
+	//Gutenberg relies on the API being present. This isn't the case in the jobs context.
+	if ( 'gutenberg' === $plugin_slug && defined( 'WPCOM_JOBS' ) && WPCOM_JOBS ) {
+		return;
+	}
+
     // Liveblog is a special flower. We need to check this theme/site can use it
     // Skip if we're loading 1.3, as that's loaded by vip-friends.php
     // $plugin will include a version number by this point if it's above 1.3
