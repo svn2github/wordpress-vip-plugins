@@ -90,6 +90,13 @@ class Add_Meta_Tags {
 			$supported_post_types = array_merge( $supported_post_types, array_keys( $options['custom_post_types'] ) );
 		}
 		if ( in_array( $pagenow, array( 'post.php', 'post-new.php' ) ) && in_array( get_post_type(), $supported_post_types ) ) {
+		    // VIP: #73937-z
+		    wp_register_script( 'add-meta-tags', plugins_url( 'js/add-meta-tags.js', __FILE__ ) );
+		    $desc_value = 140;
+		    $desc_value = apply_filters( 'amt_desc_value', $desc_value );
+		    $amt_values = array( 'desc_value' => absint( $desc_value ) );
+		    wp_localize_script( 'add-meta-tags', 'amt_values', $amt_values );
+
 			wp_enqueue_script( 'add-meta-tags', plugins_url( 'js/add-meta-tags.js', __FILE__ ), array( 'jquery') );
 		}
 	}

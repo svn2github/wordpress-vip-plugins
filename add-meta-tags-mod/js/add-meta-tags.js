@@ -19,7 +19,7 @@ var counter = {
 		}
 
 		if ( $desc.length ) {
-			t.buildCounter( $desc, 140, '<code>meta</code> description' );
+			t.buildCounter( $desc, parseInt( amt_values.desc_value ) , '<code>meta</code> description' );
 
 			$desc.keyup( function() {
 				t.updateDesc();
@@ -64,7 +64,7 @@ var counter = {
 			return;
 
 		var count = $desc.val().length,
-		    limit = $desc.attr('data-limit') || 140;
+		    limit = $desc.attr('data-limit') || parseInt( amt_values.desc_value );
 
 		$desc.siblings( '.mt_counter' ).find( '.count' ).replaceWith( t.updateCounter( count, limit ) );
 		$('#mt_snippet .content').html( jQuery( '<p>' + $desc.val().substring(0, limit) + '</p>' ).text() );
