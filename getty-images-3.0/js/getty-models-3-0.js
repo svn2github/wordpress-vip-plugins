@@ -230,7 +230,13 @@
 							if (sizeProduct && sizeProduct.downloads_remaining) {
 								flatSize.downloads_remaining = sizeProduct.downloads_remaining;
 							}
+
+							if (sizeProduct && sizeProduct.agreement_name) {
+								flatSize.agreement_name = sizeProduct.agreement_name;
+							}
 						}
+
+						flatSize.id = flatSize.product_id + '-' + flatSize.product_type + "-" + flatSize.name;
 
 						flattenSizes.push(flatSize);
 					}
