@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/getty-images-wordpress-plugin/
 Description: Integrate your site with Getty Images
 Author: gettyImages
 Author URI: http://gettyimages.com/
-Version: 3.0.5
+Version: 3.0.6
 */
 
 /*  Copyright 2014  Getty Images
@@ -94,13 +94,13 @@ class Getty_Images {
 		// Add styles for alignment
 		add_action( 'wp_head', array( $this, 'frontend_style' ) );
 
-		//Add Google Tag Manager
+		// Add Google Tag Manager
 		add_action( 'admin_footer', array( $this, 'admin_footer' ));
 	}
 
 	/**
-	* Register shortcodes
-	*/
+	 * Register shortcodes
+	 */
 	function action_init() {
 		wp_oembed_add_provider( 'http://gty.im/*', 'http://embed.gettyimages.com/oembed' );
 	}
@@ -134,11 +134,7 @@ class Getty_Images {
 		// check that this is a getty embed
 		if ( strpos( $url, 'http://gty.im/' ) === 0 ) {
 			if ( isset( $attr['align'] ) && in_array( $attr['align'], array( 'left', 'center', 'right' ), true ) ) {
-				// container div must be displayed as block, rather than inline-block for center align
-				if ( 'center' === $attr['align'] ) {
-					$html = preg_replace( '/^(<div[^>]*)inline-block/', '$1block', $html );
-				}
-				return str_replace( 'class="', 'class="' . esc_attr( 'align' . $attr['align'] ) . ' ', $html );
+				return '<div class="getty ' . esc_attr( 'align' . $attr['align'] ) . '">' . $html . '</div>';
 			}
 		}
 		return $html;
@@ -150,10 +146,23 @@ class Getty_Images {
 	function frontend_style() {
 		?>
 		<style>
+		.getty.aligncenter {
+			text-align: center;
+		}
 		.getty.alignleft {
+			float: none;
+			margin-right: 0;
+		}
+		.getty.alignleft > div {
+			float: left;
 			margin-right: 5px;
 		}
 		.getty.alignright {
+			float: none;
+			margin-left: 0;
+		}
+		.getty.alignright > div {
+			float: right;
 			margin-left: 5px;
 		}
 		</style>
@@ -239,8 +248,8 @@ class Getty_Images {
 		wp_enqueue_script( 'firebase-database-js', plugins_url( '/js/vendor/firebase-database.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
 		wp_enqueue_script( 'firebase-messaging-js', plugins_url( '/js/vendor/firebase-messaging.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
 		wp_enqueue_script( 'getty-mosaic', plugins_url( '/js/getty-mosaic.js', __FILE__ ), array(), 1, true );
-		wp_enqueue_script( 'getty-images-filters', plugins_url( '/js/getty-filters-3-0.js', __FILE__ ), array(), $current_timestamp, true );
-		wp_enqueue_script( 'getty-images-views', plugins_url( '/js/getty-views-3-0.js', __FILE__ ), array( 'getty-images-filters', 'spin-js' ), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images-filters', plugins_url( '/js/getty-filters.js', __FILE__ ), array(), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images-views', plugins_url( '/js/getty-views.js', __FILE__ ), array( 'getty-images-filters', 'spin-js' ), $current_timestamp, true );
 		wp_enqueue_script( 'getty-images-firebase', plugins_url( '/js/getty-firebase.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
 
 		// Register specific Omniture version of s_code for VIP or .org
@@ -251,8 +260,8 @@ class Getty_Images {
 		}
 		
 
-		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models-3-0.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $current_timestamp, true );
-		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images-3-0.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $current_timestamp, true );
 
 		wp_enqueue_style( 'getty-base-styles', plugins_url( '/css/getty-base-styles.css', __FILE__ ) );
 		wp_enqueue_style( 'getty-about-text', plugins_url( '/css/getty-about-text.css', __FILE__ ) );
@@ -315,6 +324,7 @@ class Getty_Images {
 					'downloading' => __( "Downloading...", 'getty-images' ),
 					'remaining' => __( "remaining", 'getty-images' ),
 					'free' => __( "free", 'getty-images' ),
+					'inOverage' => __( "in overage", 'getty-images' ),
 
 					// Results
 					'oneResult' => __( "%d result", 'getty-images' ),
@@ -367,6 +377,13 @@ class Getty_Images {
 						'center' => __( 'Center', 'getty-images' ),
 						'right' => __( 'Right', 'getty-images' ),
 					),
+
+					'productTypes' => __( "Product types", 'getty-images' ),
+					'premiumAccess' => __( "Premium Access", 'getty-images' ),
+					'easyAccess' => __( "Easy-access", 'getty-images' ),
+					'editorialSubscription' => __( "Editorial Subscription", 'getty-images' ),
+					'royaltyfreeSubscription' => __( "Royalty Free Subscription", 'getty-images' ),
+					'imagePack' => __( "Ultra Pack", 'getty-images' ),
 
 					'numberOfPeople' => __( "Number of people", 'getty-images' ),
 					'noPeople' => __( "No people", 'getty-images' ),

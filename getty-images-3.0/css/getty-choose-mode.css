@@ -4,7 +4,7 @@
 .getty-choose-mode {
 	float: left;
 	width: 100%;
-	height: 100%;
+	height: 96%;
 	clear: both;
 }
 	.getty-choose-mode .getty-split-panel {
@@ -103,3 +103,7 @@
 	.getty-choose-mode .getty-user-panel .getty-login-password input {
 		width: 100%;
 	}
+
+.version-number {
+	margin-left: 10px;
+}

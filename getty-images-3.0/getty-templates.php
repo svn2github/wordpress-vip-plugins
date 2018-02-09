@@ -192,7 +192,7 @@ else if(gettyImages.user.get('loggedIn') && data.sizesByAgreement) { #>
 				<# if(_.size(data.sizesByAgreement) > 1) {
 					var selected = data.ProductOffering == agreement ? 'checked="checked"' : '';
 				#>
-					<input type="radio" name="DownloadProductOffering" value="{{ gettyImages.getProductName(agreement) }}" {{ selected }} />
+					<input type="radio" name="DownloadProductOffering" value="{{ agreement }}" {{ selected }} />
 				<# } #>
 					{{ gettyImages.getProductName(agreement) }}
 				</h3>
@@ -209,14 +209,22 @@ else if(gettyImages.user.get('loggedIn') && data.sizesByAgreement) { #>
 			for(var i = 0; i < sizes.length; i++) {
 				var size = sizes[i];
 				var attrs = '';
-				var note;
+				var note = '';
+				var overageText = '';
 
+				if (size.overage && size.overage.overages_reached) {
+					if (size.overage.remaining) {
+						overageText = ' (' + gettyImages.text.inOverage + ')';
+					} else {
+						// Skip this option entirely if there are no remaining overage downloads
+						continue;
+					}
+				}
+				
 				if(size.downloads_remaining) {
-					note = '(' + size.downloads_remaining + ' ' + <?php echo wp_json_encode( __( "remaining", 'getty-images' ) ); ?> + ')';
+					note = '(' + size.downloads_remaining + ' ' + gettyImages.text.remaining + ')';
 				}
-				else {
-					note = '';
-				}
+				
 				if(size.id === data.SelectedDownloadSize.id ) {
 					attrs = 'selected="selected"';
 				}
@@ -227,12 +235,13 @@ else if(gettyImages.user.get('loggedIn') && data.sizesByAgreement) { #>
 				<option {{ attrs }} value="{{ size.id }}">
 					<#
 					if (size.agreement_name) {
-					#>	{{ size.agreement_name}}: <#
+					#>	{{ size.agreement_name}}{{ overageText }}: <#
 					}
 					else {
-					#>	{{ data.ProductOffering.toUpperCase() }}:  <#
+					#>	{{ gettyImages.getProductName(data.ProductOffering) }}{{ overageText }}:  <#
 					}
 					#>
+					
 					{{ size.width }} &times; {{ size.height }}
 					<#
 						var size = size.bytes;
@@ -659,6 +668,10 @@ else if(data.authorizing) { #>
 	<# if(data.mode != 'login') { #>
 	</div>
 	<# } #>
+	</div>
+	<div class="version-number">
+		<?php $plugin_data = get_plugin_data(plugin_dir_path(__FILE__) . '/getty-images.php' );  ?>
+		<?php esc_html_e('v' . $plugin_data['Version']); ?>
 	</div>
 </script>
 
