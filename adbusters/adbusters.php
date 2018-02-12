@@ -3,7 +3,7 @@
 Plugin Name: Adbusters
 Plugin URI: https://github.com/Automattic/Adbusters
 Description: Iframe busters for popular ad networks.
-Version: 1.0.4
+Version: 1.0.5
 Requires at least: 3.7
 License: GPLv3
 Author: Paul Gibbs, Mohammad Jangda, Automattic
@@ -47,7 +47,6 @@ function wpcom_vip_get_ad_busters_array() {
 		'f3-iframeout/f3-iframeout.html',     // F Sharp
 		'flite/fif.html',                     // Flite
 		'gumgum/iframe_buster.html',          // gumgum
-		'interpolls/pub_interpolls.html',     // Interpolls
 		'jpd/jpxdm.html',                     // Jetpack Digital
 		'knorex/knorex_psf.html',             // Knorex
 		'linkstorm/linkstorm_certified.html', // Linkstorm
@@ -56,7 +55,6 @@ function wpcom_vip_get_ad_busters_array() {
 		'pointroll/PointRollAds.htm',         // PointRoll
 		'rubicon/rp-smartfile.html',		  // Rubicon
 		'saymedia/iframebuster.html',         // Say Media
-		'smartadserver/iframeout.html',       // SmartAdserver
 		'xaxis/InfinityIframe.html',          // Xaxis
 	);
 }
