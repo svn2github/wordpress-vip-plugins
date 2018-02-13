@@ -814,6 +814,7 @@ class WP_Push_Syndication_Server {
 	}
 
 	function schedule_push_content( $post_id, $sites ) {
+	    $sites['cron_event'] = true;
 		wp_schedule_single_event(
 			time() - 1,
 			'syn_push_content',
@@ -825,8 +826,13 @@ class WP_Push_Syndication_Server {
 	public function push_content( $sites ) {
 
 		// if another process running on it return
-		if( get_transient( 'syn_syndicate_lock' ) == 'locked' )
+		if( get_transient( 'syn_syndicate_lock' ) == 'locked' ) {
+		    if( isset( $sites['cron_event'] ) ) {
+		        // schedule new event for 5 minutes in future after lock expiration
+			    wp_schedule_single_event( time() + 60*5, 'syn_push_content', array( $sites ) );
+		    }
 			return;
+		}
 
 		// set value as locked, valid for 5 mins
 		set_transient( 'syn_syndicate_lock', 'locked', 60*5 );
