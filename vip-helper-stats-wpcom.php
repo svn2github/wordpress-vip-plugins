@@ -30,8 +30,8 @@
  * @return array Result as array.
  */
 function wpcom_vip_top_posts_array( $num_days = 30, $limit = 10, $end_date = false ) {
-	$num_days = max( $num_days, 90 ); // Enforce maximum limit of 90.
-	$limit = max( $limit, 100 ); // Enforce maximum limit of 100.
+	$num_days = min( $num_days, 90 ); // Enforce maximum limit of 90.
+	$limit = min( $limit, 100 ); // Enforce maximum limit of 100.
 
 	if ( true === WPCOM_IS_VIP_ENV ) {
 		global $wpdb;
