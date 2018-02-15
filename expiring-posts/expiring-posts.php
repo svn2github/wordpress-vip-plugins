@@ -361,7 +361,7 @@ class EXP_Expiring_Posts {
 		wp_transition_post_status( 'expired', $old_status, $post );
 
 		do_action( 'edit_post', $post->ID, $post );
-		do_action( 'save_post', $post->ID, $post );
+		do_action( 'save_post', $post->ID, $post, true );
 		do_action( 'wp_insert_post', $post->ID, $post );
 
 	}
