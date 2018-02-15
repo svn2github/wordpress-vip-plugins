@@ -80,7 +80,7 @@ class MagpieFromSimplePie {
 	} /* MagpieFromSimplePie constructor */
 
 	function MagpieFromSimplePie( $pie ) {
-		self::__construct();
+		self::__construct( $pie );
 	}
 	
 	/**
