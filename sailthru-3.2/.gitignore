@@ -1,0 +1,7 @@
+img/.DS_Store
+.DS_Store
+.svn/*
+*.sublime-project
+*.sublime-workspace
+.vscode/launch.json
+.vscode/settings.json
