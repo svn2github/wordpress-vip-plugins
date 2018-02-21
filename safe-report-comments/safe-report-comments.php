@@ -105,9 +105,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 
 			if ( $this->_auto_init ) 
 				add_filter( 'comment_reply_link', array( $this, 'add_flagging_link' ) );
-			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );
-				
-			add_action( 'template_redirect', array( $this, 'add_test_cookie' ) ); // need to do this at template_redirect because is_feed isn't available yet
+			add_action( 'comment_report_abuse_link', array( $this, 'print_flagging_link' ) );		
 		}
 
 		public function action_enqueue_scripts() {
@@ -122,16 +120,6 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 
 			wp_enqueue_script( $this->_plugin_prefix . '-ajax-request', $this->plugin_url . '/js/ajax.js', array( 'jquery' ) );
 			wp_localize_script( $this->_plugin_prefix . '-ajax-request', 'SafeCommentsAjax', array( 'ajaxurl' => $ajaxurl ) ); // slightly dirty but needed due to possible problems with mapped domains
-		}
-
-		public function add_test_cookie() {
-			//Set a cookie now to see if they are supported by the browser.
-			// Don't add cookie if it's already set; and don't do it for feeds
-			if( ! is_feed() && ! isset( $_COOKIE[ TEST_COOKIE ] ) ) {
-				@setcookie(TEST_COOKIE, 'WP Cookie check', 0, COOKIEPATH, COOKIE_DOMAIN);
-				if ( SITECOOKIEPATH != COOKIEPATH )
-					@setcookie(TEST_COOKIE, 'WP Cookie check', 0, SITECOOKIEPATH, COOKIE_DOMAIN);
-			}
 		}
 
 		/*
@@ -266,7 +254,7 @@ if ( !class_exists( "Safe_Report_Comments" ) ) {
 		 * Check if this comment was flagged by the user before
 		 */
 		public function already_flagged( $comment_id ) {		
-
+			
 			// check if cookies are enabled and use cookie store
 			if( isset( $_COOKIE[ TEST_COOKIE ] ) ) {
 				if ( isset( $_COOKIE[ $this->_storagecookie ] ) ) {

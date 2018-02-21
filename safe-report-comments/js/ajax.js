@@ -1,4 +1,5 @@
 function safe_report_comments_flag_comment( comment_id, nonce, result_id ) {
+	document.cookie = 'wordpress_test_cookie=WP Cookie check; path=/';
 	jQuery.post( 
 		SafeCommentsAjax.ajaxurl,
 		{
