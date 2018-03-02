@@ -85,6 +85,17 @@
 			margin: 2px;
 			padding: 2px;
 		}
+		
+		.getty-download-notes-container, .getty-project-code-container {
+			margin-top: 1.5em;
+			margin-bottom: 1em;
+		}
+		
+		#getty-download-notes {
+			width: 99%;
+			width: calc(100% - 1px);
+		}
+		
 		.getty-download-authorizations .getty-download {
 			position: relative;
 			clear: both;

@@ -273,8 +273,11 @@
 				product_type: this.get('SelectedDownloadSize').product_type,
 				auto_download: false
 			};
+			
+			var downloadNotes = this.get('DownloadNotes');
+			var projectCode = this.get('ProjectCode');
 
-			var payload = {download_details: { download_notes: "", project_code: "" }};
+			var payload = { download_notes: downloadNotes, project_code: projectCode };
 
 			var url = '/v3/downloads/images/' + this.get('id');
 			api.request(url, queryParams, 'POST', payload)
@@ -1015,7 +1018,7 @@
 
 		refreshProducts: function() {
 			var self = this;
-			api.request('/v3/products')
+			api.request('/v3/products?fields=download_requirements')
 				.done(function (result) {
 					var productsWithName = result.products.map(function (product) { product.name = getty.getProductName(product.type); return product; });
 					self.set('products', productsWithName);

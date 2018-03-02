@@ -263,8 +263,38 @@ else if(gettyImages.user.get('loggedIn') && data.sizesByAgreement) { #>
 	</div>
 
 
-	<# if(data.SelectedDownloadSize) { #>
-
+	<# if(data.SelectedDownloadSize) { 
+		var products = gettyImages.user.get('products');
+		var product;
+		
+		for (var i=0; i < products.length; i++) {
+			if (products[i].id == data.SelectedDownloadSize.product_id) {
+				product = products[i];
+				break;
+			}
+		}
+		
+		if (product) {
+			var requirements = product.download_requirements || {};
+			#><div class="getty-download-notes-container">
+				<h3><?php esc_html_e("Add notes", 'getty-images'); ?></h3>
+				<input id="getty-download-notes" name="getty-download-notes" />
+			</div><#
+			if (requirements.is_project_code_required) { #>
+				<div class="getty-project-code-container">
+					<h3><?php esc_html_e("Project codes", 'getty-images'); ?></h3>
+					<select id="getty-project-code" name="getty-project-code">
+						<option selected disabled><?php esc_html_e("Select project code", 'getty-images'); ?></option>
+						<# 
+							for (var i=0; i < requirements.project_codes.length; i++) {
+								var code = requirements.project_codes[i];
+								#><option value="{{code}}">{{code}}</option><#
+							}
+						#>
+					</select>
+				</div>
+			<# }
+		} #>
 	<div id="download-options-container" class="getty-filter">
 		<div><input id="download_option_media_only" name="download-option" value="media-only" type="radio" checked="checked" <# if (data.SelectedDownloadOption === "media-only"){ #> checked <# } #> /><label for="download_option_media_only"><?php esc_html_e( "Download to Media Library only", 'getty-images' ); ?></label></div>
 		<div><input id="download_option_download_as_featured" name="download-option" value="download-as-featured" type="radio" <# if (data.SelectedDownloadOption === "download-as-featured"){ #> checked <# } #>/><label for="download_option_download_as_featured"><?php esc_html_e( "Download and set as featured image", 'getty-images' ); ?></label></div>

@@ -1132,6 +1132,8 @@
 			'change input[name=DownloadProductOffering]': 'updateSelectedProductOffering',
 			'change select[name=DownloadSizeKey]': 'updateSelectedDownloadSize',
 			'change input[name=download-option]': 'updateSelectedDonwloadOption',
+			'change input[name=getty-download-notes]': 'updateDownloadNotes',
+			'change select[name=getty-project-code]': 'updateProjectCode',
 			'click .agree-insert-comp': 'insertComp',
 			'click .download-button': 'download',
 			'click .insert-comp-button': 'insertImage'
@@ -1313,7 +1315,15 @@
 			this.model.set("SelectedDownloadOption", this.downloadOption);
 
 			this.render();
-		}
+		},
+		
+		updateDownloadNotes: function(ev) {
+			this.model.set('DownloadNotes', $(ev.target).val());
+		},
+		
+		updateProjectCode: function(ev) {
+			this.model.set('ProjectCode', $(ev.target).val());
+		},
 	});
 
 	/**
