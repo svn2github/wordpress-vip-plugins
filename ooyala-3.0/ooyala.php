@@ -1311,7 +1311,7 @@ class Ooyala {
 		$image_name = basename( $url );
 
 		// Assume JPEG by default for Ooyala-downloaded thumbnails
-		if( !preg_match( $image_name, '/\.(jpe?g|png|gif)$/i', $image_name ) ) {
+		if( !preg_match( '/\.(jpe?g|png|gif)$/i', $image_name ) ) {
 			$image_name .= '.jpg';
 		}
 
