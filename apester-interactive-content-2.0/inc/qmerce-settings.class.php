@@ -335,30 +335,31 @@ class Qmerce_Settings
         if (isset( $tokens )) {
             $tokens = is_array( $tokens ) ? $tokens : array( $tokens );
             $new_input['auth_token'] = array();
+
+            foreach ( $tokens as $token ) {
+                if ( trim($token) === '' || ! $this->validateToken( $token ) ) {
+                    continue;
+                }
+
+                // we keep the old token list updated in case the plugin will be downgraded in the future
+                $new_input['auth_token'][] = sanitize_text_field( $token );
+
+                // convert '<' OR '>' into thier respective html entities
+                $sanitizedToken = sanitize_text_field( $token );
+
+                // if the token already exists use the existing data of it
+                if (isset($apester_tokens) && array_key_exists($sanitizedToken, $apester_tokens) ) {
+                    $new_input['apester_tokens'][$sanitizedToken] = $manipulatedPlaylistTokens[$sanitizedToken];
+                }
+                // if the token is new - add it to the new list
+                else {
+                    $new_input['apester_tokens'][$sanitizedToken] = array(
+                        'isPlaylistEnabled' => '0'
+                    );
+                }
+            }
         }
 
-        foreach ( $tokens as $token ) {
-            if ( trim($token) === '' || ! $this->validateToken( $token ) ) {
-                continue;
-            }
-
-            // we keep the old token list updated in case the plugin will be downgraded in the future
-            $new_input['auth_token'][] = sanitize_text_field( $token );
-
-            // convert '<' OR '>' into thier respective html entities
-            $sanitizedToken = sanitize_text_field( $token );
-            
-            // if the token already exists use the existing data of it
-            if (isset($apester_tokens) && array_key_exists($sanitizedToken, $apester_tokens) ) {
-                $new_input['apester_tokens'][$sanitizedToken] = $manipulatedPlaylistTokens[$sanitizedToken];
-            }
-            // if the token is new - add it to the new list
-            else {
-                $new_input['apester_tokens'][$sanitizedToken] = array(
-                    'isPlaylistEnabled' => '0'
-                );
-            }
-        }
         return $new_input;
     }
 
