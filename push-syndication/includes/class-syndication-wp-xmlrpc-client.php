@@ -281,7 +281,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 	}
 
 	private function _get_meta_blacklist( $post_id ) {
-		$blacklist = array( '_edit_last', '_edit_lock' /** TODO: add more **/ );
+		$blacklist = array( '_edit_last', '_edit_lock', 'wpcom-post-scheduled-at-time', 'wpcom-scheduled-post-time' /** TODO: add more **/ );
 		$thumbnail_meta_keys = $this->get_thumbnail_meta_keys( $post_id );
 
 		$blacklist = array_merge( $blacklist, $thumbnail_meta_keys );
