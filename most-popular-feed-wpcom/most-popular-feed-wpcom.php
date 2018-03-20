@@ -11,6 +11,11 @@ function mostpopular_feed_query( $args = array() ) {
 		die( 'Call to undefined function stats_get_daily_history().' );
 	}
 
+	// Force $args to be an array to prevent a PHP Warning
+	if ( '' === $args ) {
+		$args = array();
+	}
+
 	global $wpdb, $filtered_post_ids, $mostpopular_duration;
 
 	$args['cachelife']    = 3600;
