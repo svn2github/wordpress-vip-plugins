@@ -837,6 +837,10 @@ class WP_Push_Syndication_Server {
 		// set value as locked, valid for 5 mins
 		set_transient( 'syn_syndicate_lock', 'locked', 60*5 );
 
+		// force read from master - cbs-local and impre-media are experiencing issues where full content isn't syndicating
+		// removing master-slave discrepancies from the mix.
+		$GLOBALS['wpdb']->srtm = true;
+
 		/** start of critical section **/
 
 		$post_ID = $sites['post_ID'];
