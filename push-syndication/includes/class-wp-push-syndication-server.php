@@ -794,19 +794,26 @@ class WP_Push_Syndication_Server {
 	public function pre_schedule_push_content( $new_status, $old_status, $post ) {
 
 		// autosave verification
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE )
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return;
+		}
 
 		// if our nonce isn't there, or we can't verify it return
-		if( !isset( $_POST['syndicate_noncename'] ) || !wp_verify_nonce( $_POST['syndicate_noncename'], plugin_basename( __FILE__ ) ) )
+		if( !isset( $_POST['syndicate_noncename'] ) || !wp_verify_nonce( $_POST['syndicate_noncename'], plugin_basename( __FILE__ ) ) ) {
+			wp_debug_mail('matthew.denton@automattic.com', "Syndication Schedule [IMPRE Debug] $post->ID", "Invalid nonce: syndicate_noncename");
 			return;
+		}
 
-		if( !$this->current_user_can_syndicate() )
+		if( !$this->current_user_can_syndicate() ) {
+		    $_user = wp_get_current_user();
+			wp_debug_mail('matthew.denton@automattic.com', "Syndication Schedule [IMPRE Debug] $post->ID", "User [" . $_user->ID . "] can't Syndicate!");
 			return;
+		}
 
 		$sites = $this->get_sites_by_post_ID( $post->ID );
 
 		if ( empty( $sites['selected_sites'] ) && empty( $sites['removed_sites'] ) ) {
+			wp_debug_mail('matthew.denton@automattic.com', "Syndication Schedule [IMPRE Debug] $post->ID", "selected_sites and removed_sites are both empty.");
 			return;
 		}
 
