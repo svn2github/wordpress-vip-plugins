@@ -800,25 +800,32 @@ class WP_Push_Syndication_Server {
 
 		// if our nonce isn't there, or we can't verify it return
 		if( !isset( $_POST['syndicate_noncename'] ) || !wp_verify_nonce( $_POST['syndicate_noncename'], plugin_basename( __FILE__ ) ) ) {
-			wp_debug_mail('matthew.denton@automattic.com', "Syndication Schedule [IMPRE Debug] $post->ID", "Invalid nonce: syndicate_noncename");
+			$this->impre_schedule_push_content_debug( $post->ID, "Invalid nonce: syndicate_noncename");
 			return;
 		}
 
 		if( !$this->current_user_can_syndicate() ) {
 		    $_user = wp_get_current_user();
-			wp_debug_mail('matthew.denton@automattic.com', "Syndication Schedule [IMPRE Debug] $post->ID", "User [" . $_user->ID . "] can't Syndicate!");
+			$this->impre_schedule_push_content_debug( $post->ID, "User [" . $_user->ID . "] can't Syndicate!");
 			return;
 		}
 
 		$sites = $this->get_sites_by_post_ID( $post->ID );
 
 		if ( empty( $sites['selected_sites'] ) && empty( $sites['removed_sites'] ) ) {
-			wp_debug_mail('matthew.denton@automattic.com', "Syndication Schedule [IMPRE Debug] $post->ID", "selected_sites and removed_sites are both empty.");
+		    $this->impre_schedule_push_content_debug( $post->ID,"selected_sites and removed_sites are both empty.");
 			return;
 		}
 
 		do_action( 'syn_schedule_push_content', $post->ID, $sites );
 	}
+
+	function impre_schedule_push_content_debug( $post_id, $msg ) {
+		// #74081-z : ImpreMedia getting "Invalid Date" Response so checking payload
+		if( in_array( get_current_blog_id(), [ 112884752, 112884469, 112884706, 112884545, 112884611] ) ) {
+			wp_debug_mail('matthew.denton@automattic.com', "Syndication Push [IMPRE Debug ] " . $post_id, $msg);
+		}
+    }
 
 	function schedule_push_content( $post_id, $sites ) {
 	    $sites['cron_event'] = true;
