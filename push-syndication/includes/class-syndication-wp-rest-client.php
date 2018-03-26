@@ -30,6 +30,11 @@ class Syndication_WP_REST_Client implements Syndication_Client {
 
 		$post = (array)get_post( $post_ID );
 
+		// DEBUG #74081
+        $msg = var_export( $post, true );
+		$msg .= "\n--syn_rest_push_filter_new_post--\n";
+		// DEBUG #74081
+
 		// This filter can be used to exclude or alter posts during a content push
 		$post = apply_filters( 'syn_rest_push_filter_new_post', $post, $post_ID );
 		if ( false === $post )
@@ -67,6 +72,18 @@ class Syndication_WP_REST_Client implements Syndication_Client {
 		if( empty( $response->error ) ) {
 			return $response->ID;
 		} else {
+		    // #74081-z : ImpreMedia getting "Invalid Date" Response so checking payload
+		    if( in_array( $this->blog_ID, [ 112884752, 112884469, 112884706, 112884545, 112884611] ) ) {
+			    $msg .= var_export( $post, true );
+			    $msg .= "\n--$body--\n";
+			    $msg .= var_export($body, true);
+
+			    /**
+			     * post_update triggers recursively on updates. We can not use wp_debug_mail as we won't get the full context
+			     * of all hooks that are called which modify the post_name
+			     */
+			    wp_mail('matthew.denton@automattic.com', "Syndication Push [IMPRE Debug $this->blog_ID] " . $post_ID, $msg);
+            }
 			return new WP_Error( 'rest-push-new-fail', $response->message );
 		}
 
