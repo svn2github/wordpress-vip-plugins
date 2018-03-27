@@ -1,0 +1,26 @@
+/* admin icon */
+#icon-sailthru {
+	background-image: url('../img/sailthru-header-icon.png');
+}
+
+
+#sortable tr:hover, .sortable_widget tr:hover {
+    cursor: pointer;
+}
+
+#sortable tr.ui-sortable-helper, .sortable_widget tr.ui-sortable-helper {
+    cursor: move;
+}
+
+.icon-sort{ 
+	display:block;
+
+	background-image: url('../img/icon-sort.png');
+	background-repeat: none;
+	width:16px;
+	height:16px;
+	color: #eee;
+	-webkit-transition: all .1s ease-in-out;
+	transition: all .1s ease-in-out;	
+}
+
