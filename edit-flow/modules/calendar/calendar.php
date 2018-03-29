@@ -1784,7 +1784,7 @@ class EF_Calendar extends EF_Module {
 	 * 
 	 * @uses fix_post_date_on_update_part_two()
 	 */
-	public function fix_post_date_on_update_part_one( $post_ID, $data ) {
+	public function fix_post_date_on_update_part_one( $post_ID, $data = [] ) {
 
 		$post = get_post( $post_ID );
 
