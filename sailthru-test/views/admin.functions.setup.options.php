@@ -525,8 +525,22 @@ function sailthru_setup_handler( $input ) {
 			return $output;
 		}
 	} catch ( Exception $e ) {
-			sailthru_invalidate( false, false );
+			
+			// Catching this exception specifivally during this error and then resetting. 
+			define( 'WP_DEBUG', true );
+			define( 'WP_DEBUG_LOG', true );
+			define( 'WP_DEBUG_DISPLAY', true );
+			write_log( $e );
+
+			// Disable this call as well to reduce chance of throwing another error. 
+			
+			//sailthru_invalidate( false, false );
+			
 			add_settings_error( 'sailthru-notices', 'sailthru-api-secret-fail', __( $e->getMessage() ), 'error' );
+
+			define( 'WP_DEBUG', true );
+			define( 'WP_DEBUG_LOG', true );
+			define( 'WP_DEBUG_DISPLAY', true );
 			return $output;
 	}
 
