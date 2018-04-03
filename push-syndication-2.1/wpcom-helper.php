@@ -11,7 +11,6 @@ add_action( 'syn_after_init_server', function() {
 		$data = new stdClass;
 		$data->post_id = $post_id;
 		$job_id = queue_async_job( $data, 'vip_async_syndication_push_post' );
-
 		xmpp_message( 'batmoo@im.wordpress.com', '[syn_schedule_push_content] job id for pushing post #' . $post_id . ' ('. home_url() .'): ' . $job_id );
 	}, 10, 2 );
 
