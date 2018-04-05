@@ -222,7 +222,7 @@ class WPCOM_Geo_Uniques {
 			vary_cache_on_function( $test );
 		}
 
-		$test_func = function() {
+		$test_func = function() use ( $test ) {
 			$test;
 		};
 		return $test_func();
