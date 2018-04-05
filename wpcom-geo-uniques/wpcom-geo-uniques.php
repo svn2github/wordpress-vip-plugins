@@ -222,7 +222,9 @@ class WPCOM_Geo_Uniques {
 			vary_cache_on_function( $test );
 		}
 
-		$test_func = create_function( '', $test );
+		$test_func = function() {
+			$test;
+		};
 		return $test_func();
 	}
 }
