@@ -1,5 +1,26 @@
 <?php
 
+function validate_api_setup() {
+	
+	if ( isset( $_GET['verify'] ) ) {
+		$v = sanitize_text_field( $_GET['verify'] ) === 'false' ? false : true;
+
+		if (false === $v)  {
+			add_filter('sailthru_api_verification', '__return_true');
+			$validation_disabled = true === apply_filters( 'sailthru_api_verification', false );
+			return $validation_disabled;
+		}
+	}
+
+	if ( has_filter( 'sailthru_api_verification' ) && ! isset( $_GET['verify'] ) ) {
+		$validation_disabled = true === apply_filters( 'sailthru_api_verification', false );
+		return $validation_disabled;
+	}
+
+	return false;
+
+}
+
 /**
  * Setup options
  *
@@ -59,7 +80,8 @@ function sailthru_initialize_setup_options() {
 	);
 
 	$api_validated = get_option( 'sailthru_api_validated' );
-	$validation_disabled = true === apply_filters( 'sailthru_disable_api_verification', true );
+	$validation_disabled = validate_api_setup();
+
 
 	if ( $api_validated || $validation_disabled )  {
 
@@ -76,6 +98,22 @@ function sailthru_initialize_setup_options() {
 				'sailthru_customer_id',
 			)
 		);
+
+		if ( $validation_disabled ) { 
+			add_settings_field(
+				'sailthru_spm_enabled',
+				'Site Personalization Manager',
+				'sailthru_features_spm_callback',
+				'sailthru_setup_options',
+				'sailthru_setup_section',
+				array(
+					'sailthru_setup_options',
+					'features[spm_enabled]',
+					'',
+					'features[spm_enabled]',
+				)
+			);
+		}
 
 		add_settings_section(
 			'sailthru_js_setup_section',   // ID used to identify this section and with which to register options
@@ -256,6 +294,21 @@ function sailthru_horizon_loadtype_callback() {
 	$load_type = isset( $options['sailthru_horizon_load_type'] ) ? $options['sailthru_horizon_load_type'] : '';
 	echo '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[sailthru_horizon_load_type]" value="1"' . checked( 1, esc_attr( $load_type ), false ) . '/>';
 	echo '<small>Use synchronous loading for Horizon</small>';
+
+}
+
+/**
+ * Creates an option to manually enable SPM
+ *
+ */
+
+function sailthru_features_spm_callback() {
+
+		$options = get_option( 'sailthru_settings' );
+		$value   = isset( $options['features']['spm_enabled'] ) ? $options['features']['spm_enabled'] : '';
+
+		echo '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[features][spm_enabled]" value="1"' . checked( 1,esc_attr( $value ), false ) . '/>';
+		echo '<small>Check if SPM is enabled on your Sailthru account</small>';
 
 }
 
@@ -466,25 +519,13 @@ function sailthru_setup_email_template_callback( $args ) {
  * Setting Callbacks
  * ------------------------------------------------------------------------ */
 
-
-function sailthru_save_keys( $settings ) {
-
-	try {
-		update_option( 'sailthru_settings', $settings );
-		update_option( 'sailthru_api_validated', true );
-		update_option( 'sailthru_setup_complete', true );
-		return true; 
-	} catch (Exception $e ) {
-		return false;
-	}
-	
-}
-
-
+/**
+ * Sanitize the text inputs, and don't let the horizon
+ * domain get saved with either http:// https:// or www
+ */
 function sailthru_setup_handler( $input ) {
 
 	$output = array();
-	
 	// api key
 	if ( isset( $input['sailthru_api_key'] ) ) {
 		$output['sailthru_api_key'] = filter_var( $input['sailthru_api_key'], FILTER_SANITIZE_STRING );
@@ -499,20 +540,67 @@ function sailthru_setup_handler( $input ) {
 		$output['sailthru_api_secret'] = false;
 	}
 
-	// Customer Id
+	// api secret
 	if ( isset( $input['sailthru_customer_id'] ) ) {
 		$output['sailthru_customer_id'] = filter_var( $input['sailthru_customer_id'], FILTER_SANITIZE_STRING );
-	} else {
-		$output['sailthru_customer_id'] = false;
-	}
+	} 
 
-
-	// Validate the API Keys
 	if ( ! $output['sailthru_api_key'] || ! $output['sailthru_api_secret'] ) {
 		add_settings_error( 'sailthru-notices', 'sailthru-api-keys-fail', __( 'Add a valid API key and Secret' ), 'error' );
+		return $output;
 	}
 
 
+	$sailthru = new WP_Sailthru_Client( $output['sailthru_api_key'], $output['sailthru_api_secret'] );
+	$validation_disabled = validate_api_setup();
+
+
+	if ( ! $validation_disabled ) {
+
+		try {
+			$settings = $sailthru->apiGet( 'settings' );
+
+			if ( $settings ) {
+				// Get the Customer ID from Sailthru.
+				$output['sailthru_customer_id'] = filter_var( $settings['customer_id'], FILTER_SANITIZE_STRING );
+
+				$st_settings = array(
+					'customer_id' => $settings['customer_id'],
+					'features'    => $settings['features'],
+					'domains'     => $settings['domains'],
+				);
+
+				$st_settings = apply_filters( 'sailthru_settings_api_filter', $st_settings );
+
+				update_option( 'sailthru_settings', $st_settings );
+				update_option( 'sailthru_api_validated', true );
+			} else {
+				sailthru_invalidate( false, false );
+				return $output;
+			}
+		} catch ( Exception $e ) {
+				sailthru_invalidate( false, false );
+				add_settings_error( 'sailthru-notices', 'sailthru-api-secret-fail', __( $e->getMessage() ), 'error' );
+				return $output;
+		}
+	}
+	else {
+		
+		// If the customer is overriding verification store the SPM value in the settings. 
+		if ( isset( $input['features']['spm_enabled'] ) ) {
+			$output['features']['spm_enabled'] = filter_var( $input['features']['spm_enabled'], FILTER_SANITIZE_STRING );
+			$st_settings = array(
+						'customer_id' => $output['features']['spm_enabled'],
+					);
+			update_option( 'sailthru_settings', $st_settings );
+		} 
+
+		// if API verification has been overriden assume the API is good and allow error to surface in template call. 
+		update_option( 'sailthru_api_validated', true );
+	}
+	
+
+	// javascript type
 	if ( isset( $input['sailthru_js_type'] ) ) {
 		$output['sailthru_js_type'] = filter_var( $input['sailthru_js_type'], FILTER_SANITIZE_STRING );
 	} else {
@@ -599,134 +687,8 @@ function sailthru_setup_handler( $input ) {
 		}
 	}
 
-	// check to see if API key verification is disabled
-	$verify_api = true;
-	if ( true === apply_filters( 'sailthru_disable_api_verification', true ) ) {
-		$verify_api = false;
-	}
-
-	if ( $verify_api ) {
-		// get the settings if we don't have verification disabled. 
-		$sailthru = new WP_Sailthru_Client( $output['sailthru_api_key'], $output['sailthru_api_secret'] );
-		
-		try {
-			
-			$settings = $sailthru->apiGet( 'settings' );
-
-			$output['sailthru_customer_id'] = $settings['customer_id'];
-			$output['features'] = $settings['features'];
-			$output['domains'] = $settings['domains'];
-		
- 			if ( sailthru_save_keys( $output ) ) {
-				return $output;
-			}
-
-		} catch ( Exception $e ) {
-			add_settings_error( 'sailthru-notices', 'sailthru-api-secret-fail', __( $e->getMessage() ), 'error' );
-			sailthru_invalidate( false, false );
-			return $output;
-		}
-
-
-	} else {
-		if ( sailthru_save_keys( $output ) ) {
-			return $output;
-		}
-
-	}
-
+	update_option( 'sailthru_setup_complete', true );
+	return $output;
 
 }
-
-
-
-
-
-
-
-// function sailthru_setup_handler( $input ) {
-
-// 	 $output = array();
-// 	// api key
-// 	if ( isset( $input['sailthru_api_key'] ) ) {
-// 		$output['sailthru_api_key'] = filter_var( $input['sailthru_api_key'], FILTER_SANITIZE_STRING );
-// 	} else {
-// 		$output['sailthru_api_key'] = false;
-// 	}
-
-// 	// api secret
-// 	if ( isset( $input['sailthru_api_secret'] ) ) {
-// 		$output['sailthru_api_secret'] = filter_var( $input['sailthru_api_secret'], FILTER_SANITIZE_STRING );
-// 	} else {
-// 		$output['sailthru_api_secret'] = false;
-// 	}
-
-// 	if ( ! $output['sailthru_api_key'] || ! $output['sailthru_api_secret'] ) {
-// 		add_settings_error( 'sailthru-notices', 'sailthru-api-keys-fail', __( 'Add a valid API key and Secret' ), 'error' );
-// 		return $output;
-// 	}
-
-// 	$sailthru = new WP_Sailthru_Client( $output['sailthru_api_key'], $output['sailthru_api_secret'] );
-
-// 	try {
-// 		$settings = $sailthru->apiGet( 'settings' );
-// 	} catch ( Exception $e ) {
-// 		add_settings_error( 'sailthru-notices', 'sailthru-api-secret-fail', __( $e->getMessage() ), 'error' );
-// 		write_log( $e );
-// 		return;
-// 	}
-		
-// 	if ( $settings ) {
-// 			// Get the Customer ID from Sailthru.
-// 			$output['sailthru_customer_id'] = filter_var( $settings['customer_id'], FILTER_SANITIZE_STRING );
-
-// 			$st_settings = array(
-// 				'customer_id' => $settings['customer_id'],
-// 				'features'    => $settings['features'],
-// 				'domains'     => $settings['domains'],
-// 			);
-
-// 			if ( true === apply_filters( 'sailthru_slim_settings', true ) ) {
-				
-// 				if ( array_key_exists ( 'spm_enabled', $settings['features'] ) ) {
-//    					$spm = $settings['features']['spm_enabled'];
-//    				}
-
-// 				unset($st_settings['features']);
-// 				unset($st_settings['domains']);
-// 				$st_settings['features']['spm_enabled'] = $spm;
-// 			}
-
-// 			$st_settings = apply_filters( 'sailthru_settings_api_filter', $st_settings );
-
-// 			update_option( 'sailthru_settings', $st_settings );
-// 			update_option( 'sailthru_api_validated', true );
-// 	} else {
-// 		sailthru_invalidate( false, false );
-// 		return $output;
-// 	}
-// 	// } catch ( Exception $e ) {
-			
-// 	// 		// Catching this exception specifivally during this error and then resetting. 
-// 	// 		define( 'WP_DEBUG', true );
-// 	// 		define( 'WP_DEBUG_LOG', true );
-// 	// 		define( 'WP_DEBUG_DISPLAY', true );
-// 	// 		write_log( $e );
-
-// 	// 		// Disable this call as well to reduce chance of throwing another error. 
-			
-// 	// 		//sailthru_invalidate( false, false );
-			
-// 	// 		add_settings_error( 'sailthru-notices', 'sailthru-api-secret-fail', __( $e->getMessage() ), 'error' );
-
-// 	// 		define( 'WP_DEBUG', true );
-// 	// 		define( 'WP_DEBUG_LOG', true );
-// 	// 		define( 'WP_DEBUG_DISPLAY', true );
-// 	// 		return $output;
-// 	// }
-
-	// javascript type
-
-
-// }
 // end sailthru_setup_handler
