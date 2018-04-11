@@ -1,24 +1,30 @@
 <?php
 
 function validate_api_setup() {
-	
-	if ( isset( $_GET['verify'] ) ) {
-		$v = sanitize_text_field( $_GET['verify'] ) === 'false' ? false : true;
 
+	$validate = true;
+	
+	if ( isset( $_GET['verify'] ) || isset ( $_POST['sailthru_skip_validation']) ) {
+		
+		if ( isset ( $_GET['verify'] ) ) {
+			$v = sanitize_text_field( $_GET['verify'] ) === 'false' ? false : true;
+		}
+
+		if ( isset ( $_POST['sailthru_skip_validation']) ) {
+			$v = sanitize_text_field( $_POST['sailthru_skip_validation'] ) === '1' ? false : true;
+		}
+		
 		if (false === $v)  {
 			add_filter('sailthru_api_verification', '__return_true');
-			$validation_disabled = true === apply_filters( 'sailthru_api_verification', false );
-			return $validation_disabled;
+			$validate = false === apply_filters( 'sailthru_api_verification', true );
 		}
 	}
 
 	if ( has_filter( 'sailthru_api_verification' ) && ! isset( $_GET['verify'] ) ) {
-		$validation_disabled = true === apply_filters( 'sailthru_api_verification', false );
-		return $validation_disabled;
+		$validate = false === apply_filters( 'sailthru_api_verification', true );
 	}
 
-	return false;
-
+	return $validate;
 }
 
 /**
@@ -80,10 +86,10 @@ function sailthru_initialize_setup_options() {
 	);
 
 	$api_validated = get_option( 'sailthru_api_validated' );
-	$validation_disabled = validate_api_setup();
+	$validate_api = validate_api_setup();
 
 
-	if ( $api_validated || $validation_disabled )  {
+	if ( $api_validated || ! $validate_api )  {
 
 		add_settings_field(
 			'sailthru_customer_id',
@@ -99,13 +105,36 @@ function sailthru_initialize_setup_options() {
 			)
 		);
 
-		if ( $validation_disabled ) { 
+		if ( ! $validate_api ) { 
+
+			add_settings_section(
+				'sailthru_support_section',   // ID used to identify this section and with which to register options
+				__( '', 'sailthru-for-wordpress' ),    // Title to be displayed on the administration page
+				'sailthru_support_section_callback',   // Callback used to render the description of the section
+				'sailthru_setup_options'   // Page on which to add this section of options
+			);
+
+			add_settings_field(
+				'sailthru_skip_validation',
+				'Skip API Validation',
+				'sailthru_skip_validation_callback',
+				'sailthru_setup_options',
+				'sailthru_support_section',
+				array(
+					'sailthru_setup_options',
+					'sailthru_skip_validation',
+					'',
+					'sailthru_skip_validation',
+				)
+			);
+
+
 			add_settings_field(
 				'sailthru_spm_enabled',
 				'Site Personalization Manager',
 				'sailthru_features_spm_callback',
 				'sailthru_setup_options',
-				'sailthru_setup_section',
+				'sailthru_support_section',
 				array(
 					'sailthru_setup_options',
 					'features[spm_enabled]',
@@ -309,6 +338,23 @@ function sailthru_features_spm_callback() {
 
 		echo '<input type="checkbox" id="checkbox_example" name="sailthru_setup_options[features][spm_enabled]" value="1"' . checked( 1,esc_attr( $value ), false ) . '/>';
 		echo '<small>Check if SPM is enabled on your Sailthru account</small>';
+}
+
+function sailthru_skip_validation_callback() {
+
+		echo '<input type="checkbox" id="checkbox_example" name="sailthru_skip_validation" value="1" checked/>';
+		echo '<small>Enables setup without API validation</small>';
+}
+
+
+/**
+ * Creates a section for support tools if API validation is problematic.
+ *
+ */
+function sailthru_support_section_callback() {
+
+	echo '<h3 class="sailthru-sub-section">Support Tools</h3>';
+	echo "<p>Enabled for support tools to bypass some settings</p>";
 
 }
 
@@ -515,10 +561,6 @@ function sailthru_setup_email_template_callback( $args ) {
 }
 
 
-/* ------------------------------------------------------------------------ *
- * Setting Callbacks
- * ------------------------------------------------------------------------ */
-
 /**
  * Sanitize the text inputs, and don't let the horizon
  * domain get saved with either http:// https:// or www
@@ -540,10 +582,12 @@ function sailthru_setup_handler( $input ) {
 		$output['sailthru_api_secret'] = false;
 	}
 
-	// api secret
+	// customer Id
 	if ( isset( $input['sailthru_customer_id'] ) ) {
 		$output['sailthru_customer_id'] = filter_var( $input['sailthru_customer_id'], FILTER_SANITIZE_STRING );
-	} 
+	} else {
+		$output['sailthru_customer_id'] = '';
+	}
 
 	if ( ! $output['sailthru_api_key'] || ! $output['sailthru_api_secret'] ) {
 		add_settings_error( 'sailthru-notices', 'sailthru-api-keys-fail', __( 'Add a valid API key and Secret' ), 'error' );
@@ -552,10 +596,28 @@ function sailthru_setup_handler( $input ) {
 
 
 	$sailthru = new WP_Sailthru_Client( $output['sailthru_api_key'], $output['sailthru_api_secret'] );
-	$validation_disabled = validate_api_setup();
+	$validate_api = validate_api_setup();
 
+	if ( ! $validate_api ) {
 
-	if ( ! $validation_disabled ) {
+		// If the customer is overriding verification store the SPM value in the settings. 
+		if ( isset( $input['features']['spm_enabled'] ) ) {
+			
+			$output['features']['spm_enabled'] = filter_var( $input['features']['spm_enabled'], FILTER_SANITIZE_STRING );
+
+			if ( '1' === $output['features']['spm_enabled'] ) {
+				$st_settings['features']['spm_enabled'] = '1';
+			}
+
+			$st_settings['customer_id'] = $output['sailthru_customer_id'];
+			
+			update_option( 'sailthru_settings', $st_settings );
+		} 
+
+		// if API verification has been overriden assume the API is good and allow error to surface in template call. 
+		update_option( 'sailthru_api_validated', true );
+
+	} else {
 
 		try {
 			$settings = $sailthru->apiGet( 'settings' );
@@ -584,21 +646,7 @@ function sailthru_setup_handler( $input ) {
 				return $output;
 		}
 	}
-	else {
-		
-		// If the customer is overriding verification store the SPM value in the settings. 
-		if ( isset( $input['features']['spm_enabled'] ) ) {
-			$output['features']['spm_enabled'] = filter_var( $input['features']['spm_enabled'], FILTER_SANITIZE_STRING );
-			$st_settings = array(
-						'customer_id' => $output['features']['spm_enabled'],
-					);
-			update_option( 'sailthru_settings', $st_settings );
-		} 
 
-		// if API verification has been overriden assume the API is good and allow error to surface in template call. 
-		update_option( 'sailthru_api_validated', true );
-	}
-	
 
 	// javascript type
 	if ( isset( $input['sailthru_js_type'] ) ) {
@@ -671,7 +719,10 @@ function sailthru_setup_handler( $input ) {
 	if ( $api_validated ) {
 
 		// creates an email template if one does not already exist
-		sailthru_create_wordpress_template();
+		// don't try and setup the template if validation is disabled. 
+		if ( $validate_api ) {
+			sailthru_create_wordpress_template();
+		}
 
 		// sitewide email template
 		if ( isset( $input['sailthru_setup_email_template'] ) ) {
