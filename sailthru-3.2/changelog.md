@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.2.1 (2018-04-11)
+Added a filter to allow customers to override API verification in the setup process. The goal of this feature is to mitigate some edge cases where the setup process returns a payload to WordPress VIP creates an error on their platform. Most customers using this plugin are not affected. 
+Fixed issue with signup widget whereby if multiple instances of the signup widget are on the same screen any error message will be displayed on all intances. 
+
 ## v3.2.0 (2018-02-18)
 Fixed bug with rendering of checkboxes on widget subscription.
 Fixed issue with validation of email addresses on subscription widget. 

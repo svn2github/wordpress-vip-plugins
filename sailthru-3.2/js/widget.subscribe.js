@@ -31,7 +31,7 @@
 				function(data) {
 					data = jQuery.parseJSON(data);
 					if( data.success == false ) {
-						$(".sailthru-add-subscriber-errors").html(data.message);
+						$('#'+ form.attr('id') + " .sailthru-add-subscriber-errors").html(data.message);
 					} else {
 						$('#sailthru-modal .sailthru-signup-widget-close').fadeIn();
 						$(form).html('');

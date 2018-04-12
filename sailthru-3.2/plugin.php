@@ -3,7 +3,7 @@
 Plugin Name: Sailthru for WordPress
 Plugin URI: http://sailthru.com/
 Description: Add the power of Sailthru to your WordPress set up.
-Version: 3.2.0
+Version: 3.2.1
 Author: Sailthru
 Author URI: http://sailthru.com
 Author Email: integrations@sailthru.com

@@ -56,7 +56,7 @@ if ( ! empty( $instance['sailthru_list'] ) ) {
 
 			<div class="success" hidden="hidden"><?php echo esc_html( $success ); ?></div>
 
-			<form method="post" action="#" class="sailthru-add-subscriber-form">
+			<form method="post" action="#" class="sailthru-add-subscriber-form" id="<?php echo esc_attr( $widget_id ) ?>">
 
 				<div class="sailthru-add-subscriber-errors"></div>
 
