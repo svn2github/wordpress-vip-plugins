@@ -34,9 +34,6 @@ class StackCommerce_WP {
 		// Add query vars
 		$this->loader->add_filter( 'query_vars', $this, 'add_query_vars', 0 );
 
-		// Register endpoint
-		$this->loader->add_action( 'init', $this, 'add_endpoint' );
-
 		// Register CSS and JS assets
 		$this->loader->add_action( 'admin_enqueue_scripts', $this, 'styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $this, 'scripts' );
@@ -95,19 +92,6 @@ class StackCommerce_WP {
 	}
 
 	/**
-	* Create a rewrite rule for our API
-	*
-	* @since    1.3.0
-	*/
-	public static function add_endpoint() {
-		add_rewrite_rule(
-			'^stackcommerce-connect/v([1])/([\w]*)?',
-			'index.php?sc-api-version=$matches[1]&sc-api-route=$matches[2]',
-			'top'
-		);
-	}
-
-	/**
 	 * Register hook that allow the plugin to receive articles
 	 *
 	 * @since    1.3.0
@@ -124,7 +108,7 @@ class StackCommerce_WP {
 	 * @since    1.0.0
 	 */
 	public function styles() {
-		wp_register_style( 'stackcommerce_wp_admin_style_select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/css/select2.min.css', array(), '', 'all' );
+		wp_register_style( 'stackcommerce_wp_admin_style_select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.css', array(), '', 'all' );
 		wp_register_style( 'stackcommerce_wp_admin_style', plugin_dir_url( dirname( __FILE__ ) ) . 'dist/styles/stackcommerce-wp.css', array(), '1.3.0', 'all' );
 
 		wp_enqueue_style( 'stackcommerce_wp_admin_style_select2' );
@@ -137,7 +121,7 @@ class StackCommerce_WP {
 	* @since    1.0.0
 	*/
 	public function scripts() {
-		wp_register_script( 'stackcommerce_wp_admin_script_select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js', array(), '', 'all' );
+		wp_register_script( 'stackcommerce_wp_admin_script_select2', 'https://cdnjs.cloudflare.com/ajax/libs/select2/3.5.4/select2.min.js', array(), '', 'all' );
 		wp_register_script( 'stackcommerce_wp_admin_script', plugin_dir_url( dirname( __FILE__ ) ) . 'dist/scripts/stackcommerce-wp.min.js', array( 'jquery' ), '1.3.0', 'all' );
 
 		wp_enqueue_script( 'stackcommerce_wp_admin_script_select2' );
@@ -161,7 +145,7 @@ class StackCommerce_WP {
 	 */
 	public function add_settings_action_link( $links ) {
 		$settings = array( '<a href="' . admin_url( 'admin.php?page=stackcommerce_wp_page_general_settings' ) . '" aria-label="' . SCWP_NAME . ' Settings">Settings</a>' );
-		$links = array_merge( $settings, $links );
+		$links    = array_merge( $settings, $links );
 
 		return $links;
 	}

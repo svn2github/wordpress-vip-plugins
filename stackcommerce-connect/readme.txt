@@ -3,7 +3,7 @@ Contributors: stackcommerce
 Tags: stackcommerce,articles,content,publishers,ecommerce
 Requires at least: 4.4
 Tested up to: 4.8
-Stable tag: 1.6.4
+Stable tag: 1.6.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -51,6 +51,17 @@ Top features:
 
 
 == Changelog ==
+
+= 1.6.6 =
+* Fix user permissions verification.
+
+= 1.6.5 =
+* Associate images with the post in the WordPress database.
+* Improve duplicate post detection.
+* Verify user permissions when syndicating a post.
+* Fix bug that causes tags to set incorrectly.
+* Fix WordPress VIP activation error.
+* Fix bug that with custom endpoints on Multisite installations.
 
 = 1.6.4 =
 * Updates for WordPress VIP compatibility.

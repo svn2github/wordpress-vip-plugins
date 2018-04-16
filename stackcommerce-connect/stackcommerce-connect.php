@@ -4,7 +4,7 @@
  * Plugin Name: StackCommerce Connect
  * Plugin URI: https://wordpress.org/plugins/stackcommerce-connect/
  * Description: The Connect plugin by StackCommerce connects your WordPress CMS to the StackCommerce Articles repository.
- * Version: 1.6.4
+ * Version: 1.6.6
  * Author: StackCommerce, Inc
  * Author URI: https://www.stackcommerce.com
  */
@@ -14,12 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	die( 'Access denied.' );
 }
 
-define( 'SCWP_NAME',                 'StackCommerce Connect' );
+define( 'SCWP_NAME', 'StackCommerce Connect' );
 define( 'SCWP_REQUIRED_PHP_VERSION', '5.3.5' );
-define( 'SCWP_REQUIRED_WP_VERSION',  '4.4' );
+define( 'SCWP_REQUIRED_WP_VERSION', '4.4' );
 define( 'SCWP_API_VERSION', '1' );
-define( 'SCWP_PLUGIN_VERSION', '1.6.4' );
-define( 'SCWP_CMS_API_ENDPOINT',  'https://hive.stackcommerce.net' );
+define( 'SCWP_PLUGIN_VERSION', '1.6.6' );
+define( 'SCWP_CMS_API_ENDPOINT', 'https://hive.stackcommerce.net' );
 
 /**
  * Checks if the system requirements are met
@@ -90,7 +90,7 @@ if ( scwp_requirements_met() ) {
 	function scwp_register_maintenance_hooks() {
 		$stackcommerce_wp_maintenance = new StackCommerce_WP_Maintenance();
 
-		$stackcommerce_wp_maintenance->activation();
+		register_activation_hook( __FILE__, array( $stackcommerce_wp_maintenance, 'activation' ) );
 		register_deactivation_hook( __FILE__, array( $stackcommerce_wp_maintenance, 'deactivate' ) );
 	}
 	scwp_register_maintenance_hooks();

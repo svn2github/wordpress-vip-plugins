@@ -7,15 +7,19 @@ jQuery(document).ready(function() {
     sc_connect.updateForm();
 
     jQuery('#stackcommerce_wp_categories').select2({
-      tags: true,
+      tags: [],
       tokenSeparators: [','],
-      minimumInputLength: 3
+      minimumInputLength: 3,
+      containerCssClass: 'stackcommerce-wp-select2-container',
+      dropdownCssClass: 'stackcommerce-wp-select2-dropdown'
     });
 
     jQuery('#stackcommerce_wp_tags').select2({
-      tags: true,
+      tags: [],
       tokenSeparators: [','],
-      minimumInputLength: 3
+      minimumInputLength: 3,
+      containerCssClass: 'stackcommerce-wp-select2-container',
+      dropdownCssClass: 'stackcommerce-wp-select2-dropdown'
     });
 
     let $submit_button = document.querySelector('#stackcommerce-wp-form-submit');

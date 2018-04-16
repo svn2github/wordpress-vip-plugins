@@ -24,6 +24,8 @@ class StackCommerce_WP_Maintenance {
 		if ( 'plugins.php' === $pagenow && 'connected' !== $connection_status ) {
 			add_action( 'admin_notices', array( $this, 'notice' ) );
 		}
+
+		$this->add_endpoint();
 	}
 
 	/**
@@ -35,6 +37,8 @@ class StackCommerce_WP_Maintenance {
 		if ( current_user_can( 'activate_plugins' ) ) {
 			self::notify();
 			self::disconnect();
+
+			flush_rewrite_rules();
 		} else {
 			return;
 		}
@@ -47,6 +51,21 @@ class StackCommerce_WP_Maintenance {
 	 */
 	protected function setup() {
 		add_action( 'admin_notices', array( $this, 'activate_notice' ) );
+	}
+
+	/**
+	* Create a rewrite rule for our API
+	*
+	* @since    1.6.5
+	*/
+	protected function add_endpoint() {
+		add_rewrite_rule(
+			'^stackcommerce-connect/v([1])/([\w]*)?',
+			'index.php?sc-api-version=$matches[1]&sc-api-route=$matches[2]',
+			'top'
+		);
+
+		flush_rewrite_rules();
 	}
 
 	/**
@@ -64,14 +83,14 @@ class StackCommerce_WP_Maintenance {
 	 * @since    1.3.0
 	 */
 	protected function notify() {
-		$account_id = get_option( 'stackcommerce_wp_account_id' );
-		$secret = get_option( 'stackcommerce_wp_secret' );
+		$account_id   = get_option( 'stackcommerce_wp_account_id' );
+		$secret       = get_option( 'stackcommerce_wp_secret' );
 		$api_endpoint = SCWP_CMS_API_ENDPOINT . '/api/wordpress/?id=' . $account_id . '&secret=' . $secret;
 
 		$data = wp_json_encode( array(
 			'data' => [
-				'type' => 'partner_wordpress_settings',
-				'id'   => $account_id,
+				'type'       => 'partner_wordpress_settings',
+				'id'         => $account_id,
 				'attributes' => [
 					'installed' => false,
 				],
@@ -79,12 +98,12 @@ class StackCommerce_WP_Maintenance {
 		) );
 
 		wp_remote_post( $api_endpoint, array(
-			'method' => 'PUT',
+			'method'  => 'PUT',
 			'timeout' => 15,
 			'headers' => array(
 				'Content-Type' => 'application/json; charset=utf-8',
 			),
-			'body' => $data,
+			'body'    => $data,
 		) );
 	}
 

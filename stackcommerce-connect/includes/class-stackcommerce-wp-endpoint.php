@@ -12,6 +12,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class StackCommerce_WP_Endpoint {
 
+	const DISCONNECTED_STATUS = 'disconnected';
+
 	/**
 	 * Receive API requests
 	 *
@@ -22,14 +24,28 @@ class StackCommerce_WP_Endpoint {
 
 		if ( isset( $wp->query_vars['sc-api-version'] ) && isset( $wp->query_vars['sc-api-route'] ) ) {
 			$sc_api_version = $wp->query_vars['sc-api-version'];
-			$sc_api_route = $wp->query_vars['sc-api-route'];
+			$sc_api_route   = $wp->query_vars['sc-api-route'];
 
 			// @codingStandardsIgnoreLine
 			$sc_fields = json_decode( file_get_contents( 'php://input' ), true );
-			$sc_hash = isset( $_SERVER['HTTP_X_HASH'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HASH'] ) ) : ''; // WPCS: input var okay.
+			$sc_hash   = isset( $_SERVER['HTTP_X_HASH'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_X_HASH'] ) ) : ''; // WPCS: input var okay.
 		}
 
 		if ( isset( $sc_api_version ) && isset( $sc_api_route ) && isset( $sc_fields ) ) {
+			$secret            = get_option( 'stackcommerce_wp_secret' );
+			$connection_status = get_option( 'stackcommerce_wp_connection_status' );
+
+			if ( self::DISCONNECTED_STATUS === $connection_status ||
+				( ! $secret && ! empty( $secret ) )
+			) {
+				return $this->response( 'This installation needs to be connected in order to receive content.',
+					array(
+						'code'        => 'stackcommerce_wp_disconnected_status',
+						'status_code' => 400,
+					)
+				);
+			}
+
 			switch ( $sc_api_route ) {
 				// @codingStandardsIgnoreStart
 				case 'posts':
@@ -72,7 +88,7 @@ class StackCommerce_WP_Endpoint {
 			}
 
 			$request['post_content'] = $decoded_content;
-			$secret = hash_hmac( 'sha256', $decoded_content, get_option( 'stackcommerce_wp_secret' ) );
+			$secret                  = hash_hmac( 'sha256', $decoded_content, get_option( 'stackcommerce_wp_secret' ) );
 		} else {
 			$secret = hash_hmac( 'sha256', $request['post_content'], get_option( 'stackcommerce_wp_secret' ) );
 		}

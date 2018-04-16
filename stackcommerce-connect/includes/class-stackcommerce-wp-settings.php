@@ -116,23 +116,23 @@ class StackCommerce_WP_Settings extends StackCommerce_WP_Module {
 				'supplemental' => '',
 			),
 			array(
-				'uid'     => 'stackcommerce_wp_connection_status',
-				'label'   => 'Connection Status',
-				'section' => 'stackcommerce_wp_section_two',
-				'type'    => 'hidden',
+				'uid'          => 'stackcommerce_wp_connection_status',
+				'label'        => 'Connection Status',
+				'section'      => 'stackcommerce_wp_section_two',
+				'type'         => 'hidden',
 				'default'      => '',
 				'placeholder'  => '',
 				'helper'       => '',
 				'supplemental' => '',
 			),
 			array(
-				'uid'     => 'stackcommerce_wp_content_integration',
-				'label'   => 'Content Integration',
-				'section' => 'stackcommerce_wp_section_three',
-				'type'    => 'radio',
-				'options' => array(
+				'uid'          => 'stackcommerce_wp_content_integration',
+				'label'        => 'Content Integration',
+				'section'      => 'stackcommerce_wp_section_three',
+				'type'         => 'radio',
+				'options'      => array(
 					'false' => 'Off',
-					'true' => 'On',
+					'true'  => 'On',
 				),
 				'default'      => array( 'false' ),
 				'placeholder'  => '',
@@ -140,22 +140,22 @@ class StackCommerce_WP_Settings extends StackCommerce_WP_Module {
 				'supplemental' => '',
 			),
 			array(
-				'uid'     => 'stackcommerce_wp_author',
-				'label'   => 'Author',
-				'section' => 'stackcommerce_wp_section_four',
-				'type'    => 'select',
-				'options' => $this->get_authors(),
+				'uid'          => 'stackcommerce_wp_author',
+				'label'        => 'Author',
+				'section'      => 'stackcommerce_wp_section_four',
+				'type'         => 'select',
+				'options'      => $this->get_authors(),
 				'default'      => array(),
 				'placeholder'  => '',
 				'helper'       => '',
 				'supplemental' => '',
 			),
 			array(
-				'uid'     => 'stackcommerce_wp_post_status',
-				'label'   => 'Post Status',
-				'section' => 'stackcommerce_wp_section_four',
-				'type'    => 'select',
-				'options' => array(
+				'uid'          => 'stackcommerce_wp_post_status',
+				'label'        => 'Post Status',
+				'section'      => 'stackcommerce_wp_section_four',
+				'type'         => 'select',
+				'options'      => array(
 					'2' => 'Schedule',
 					'0' => 'Draft',
 					'1' => 'Pending',
@@ -166,36 +166,34 @@ class StackCommerce_WP_Settings extends StackCommerce_WP_Module {
 				'supplemental' => 'This will be the status of the post when we send it. The schedule option allows us to identify the date and time the post will go live. The draft and pending options will require you to manually schedule the posts.',
 			),
 			array(
-				'uid'     => 'stackcommerce_wp_categories',
-				'label'   => 'Categories',
-				'section' => 'stackcommerce_wp_section_four',
-				'type'    => 'multiselect',
-				'options' => $this->arrange_taxonomies( get_option( 'stackcommerce_wp_categories' ) ),
-				'default'      => array(),
+				'uid'          => 'stackcommerce_wp_categories',
+				'label'        => 'Categories',
+				'section'      => 'stackcommerce_wp_section_four',
+				'type'         => 'text',
+				'default'      => '',
 				'placeholder'  => '',
 				'helper'       => '',
 				'supplemental' => 'Categories entered in this field will be sent with <b>all</b> posts. Only enter categories you want to be applied on everything.<br />e.g. StackCommerce, Sponsored, Partners',
 			),
 			array(
-				'uid'     => 'stackcommerce_wp_tags',
-				'label'   => 'Tags',
-				'section' => 'stackcommerce_wp_section_four',
-				'type'    => 'multiselect',
-				'options' => $this->arrange_taxonomies( get_option( 'stackcommerce_wp_tags' ) ),
-				'default'      => array(),
+				'uid'          => 'stackcommerce_wp_tags',
+				'label'        => 'Tags',
+				'section'      => 'stackcommerce_wp_section_four',
+				'type'         => 'text',
+				'default'      => '',
 				'placeholder'  => '',
 				'helper'       => '',
 				'supplemental' => 'Tags entered in this field will be sent with <b>all</b> posts. Only enter tags you want to be applied on everything.<br />e.g. stackcommerce, sponsored',
 			),
 			array(
-				'uid'     => 'stackcommerce_wp_featured_image',
-				'label'   => 'Featured Image Settings',
-				'section' => 'stackcommerce_wp_section_four',
-				'type'    => 'select',
-				'options' => array(
-					'featured_image_only' => 'Set Featured Image',
+				'uid'          => 'stackcommerce_wp_featured_image',
+				'label'        => 'Featured Image Settings',
+				'section'      => 'stackcommerce_wp_section_four',
+				'type'         => 'select',
+				'options'      => array(
+					'featured_image_only'      => 'Set Featured Image',
 					'featured_image_plus_body' => 'Set Featured Image, plus include this image in article body',
-					'no_featured_image' => 'Do not set a Featured Image',
+					'no_featured_image'        => 'Do not set a Featured Image',
 				),
 				'default'      => array(),
 				'placeholder'  => '',
@@ -224,11 +222,11 @@ class StackCommerce_WP_Settings extends StackCommerce_WP_Module {
 		switch ( $arguments['id'] ) {
 			// @codingStandardsIgnoreStart
 			case 'stackcommerce_wp_section_two':
-				echo '<p>The Account ID and Secret Key will be provided during initial setup. This allows you to securely connect to our system. The connection status below will indicate when a successful connection is made. These values should not change after a successful connection.</p>';
+				echo '<p class="supplemental">The Account ID and Secret Key will be provided during initial setup. This allows you to securely connect to our system. The connection status below will indicate when a successful connection is made. These values should not change after a successful connection.</p>';
 			break;
 			case 'stackcommerce_wp_section_three':
 				echo '<h2>Content Settings</h2>';
-				echo '<p>' . esc_attr( SCWP_NAME ) . ' allows posts to be scheduled directly in your WordPress CMS when you utilize our Brand Studio content service. Articles can be syndicated in draft, pending, or scheduled status. Turn ON content integration below if you are currently using this service.</p>';
+				echo '<p class="supplemental">' . esc_attr( SCWP_NAME ) . ' allows posts to be scheduled directly in your WordPress CMS when you utilize our Brand Studio content service. Articles can be syndicated in draft, pending, or scheduled status. Turn ON content integration below if you are currently using this service.</p>';
 			break;
 			// @codingStandardsIgnoreEnd
 		}
@@ -250,6 +248,15 @@ class StackCommerce_WP_Settings extends StackCommerce_WP_Module {
 			// @codingStandardsIgnoreStart
 			case 'text':
 			case 'password':
+
+				/**
+				 * Convert old tags and categories format (Array) to new format (String)
+				 */
+
+				if ( is_array( $value ) ) {
+					$value = implode( ',', $value );
+				}
+
 				printf( '<input name="%1$s" id="%1$s" type="%2$s" placeholder="%3$s" autocomplete="off" value="%4$s" />', esc_attr( $arguments['uid'] ), esc_attr( $arguments['type'] ), esc_attr( $arguments['placeholder'] ), esc_attr( $value ) );
 
 			break;
@@ -311,7 +318,7 @@ class StackCommerce_WP_Settings extends StackCommerce_WP_Module {
 			// @codingStandardsIgnoreEnd
 		}
 
-		$helper = $arguments['helper'];
+		$helper       = $arguments['helper'];
 		$supplemental = $arguments['supplemental'];
 
 		if ( $helper ) {

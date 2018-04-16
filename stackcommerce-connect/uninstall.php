@@ -14,14 +14,14 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit();
 }
 
-$account_id = get_option( 'stackcommerce_wp_account_id' );
-$secret = get_option( 'stackcommerce_wp_secret' );
+$account_id   = get_option( 'stackcommerce_wp_account_id' );
+$secret       = get_option( 'stackcommerce_wp_secret' );
 $api_endpoint = SCWP_CMS_API_ENDPOINT . '/api/wordpress/?id=' . $account_id . '&secret=' . $secret;
 
 $data = wp_json_encode( array(
 	'data' => [
-		'type' => 'partner_wordpress_settings',
-		'id'   => $account_id,
+		'type'       => 'partner_wordpress_settings',
+		'id'         => $account_id,
 		'attributes' => [
 			'installed' => false,
 		],
@@ -29,12 +29,12 @@ $data = wp_json_encode( array(
 ) );
 
 wp_remote_post( $api_endpoint, array(
-	'method' => 'PUT',
+	'method'  => 'PUT',
 	'timeout' => 15,
 	'headers' => array(
 		'Content-Type' => 'application/json; charset=utf-8',
 	),
-	'body' => $data,
+	'body'    => $data,
 ) );
 
 $__options = array(

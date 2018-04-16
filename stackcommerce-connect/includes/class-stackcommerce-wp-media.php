@@ -46,7 +46,7 @@ class StackCommerce_WP_Media {
 
 		// Check parsed URL.
 		if ( ! $parsed_url || ! is_array( $parsed_url ) ) {
-			$data = sprintf( 'Invalid URL %s', $image_url );
+			$data       = sprintf( 'Invalid URL %s', $image_url );
 			$error_args = array(
 				'code'        => 'stackcommerce_wp_invalid_image_url',
 				'status_code' => 400,
@@ -73,7 +73,7 @@ class StackCommerce_WP_Media {
 		}
 
 		if ( is_wp_error( $response ) ) {
-			$data = sprintf( 'Error getting remote image %s.', $image_url ) . ' ' . sprintf( 'Error: %s', $response->get_error_message() );
+			$data       = sprintf( 'Error getting remote image %s.', $image_url ) . ' ' . sprintf( 'Error: %s', $response->get_error_message() );
 			$error_args = array(
 				'code'        => 'stackcommerce_wp_invalid_remote_image_url',
 				'status_code' => 400,
@@ -84,7 +84,7 @@ class StackCommerce_WP_Media {
 			$stackcommerce_wp_endpoint->response( $data, $error_args );
 			array_push( $errors, $error );
 		} elseif ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			$data = sprintf( 'Error getting remote image %s', $image_url );
+			$data       = sprintf( 'Error getting remote image %s', $image_url );
 			$error_args = array(
 				'code'        => 'stackcommerce_wp_invalid_remote_image_url',
 				'status_code' => 400,
@@ -115,7 +115,7 @@ class StackCommerce_WP_Media {
 			$wp_filetype = wp_check_filetype( $file_name, $this->allowed_image_mime_types() );
 
 			if ( ! $wp_filetype['type'] ) {
-				$data = sprintf( 'Invalid image type: %s', $image_url );
+				$data       = sprintf( 'Invalid image type: %s', $image_url );
 				$error_args = array(
 					'code'        => 'stackcommerce_wp_invalid_image_type',
 					'status_code' => 400,
@@ -132,7 +132,7 @@ class StackCommerce_WP_Media {
 		$upload = wp_upload_bits( $file_name, null, wp_remote_retrieve_body( $response ) );
 
 		if ( $upload['error'] ) {
-			$data = $upload['error'];
+			$data       = $upload['error'];
 			$error_args = array(
 				'code'        => 'stackcommerce_wp_image_upload_error',
 				'status_code' => 400,
@@ -151,7 +151,7 @@ class StackCommerce_WP_Media {
 			@unlink( $upload['file'] );
 			unset( $upload );
 
-			$data = sprintf( 'Zero size file downloaded: %s', $image_url );
+			$data       = sprintf( 'Zero size file downloaded: %s', $image_url );
 			$error_args = array(
 				'code'        => 'stackcommerce_wp_image_upload_file_error',
 				'status_code' => 400,
@@ -181,9 +181,9 @@ class StackCommerce_WP_Media {
 	public function set_uploaded_image_as_attachment( $upload, $id = 0 ) {
 		$stackcommerce_wp_article = new StackCommerce_WP_Article();
 
-		$info    = wp_check_filetype( $upload['file'] );
-		$title   = '';
-		$content = '';
+		$info        = wp_check_filetype( $upload['file'] );
+		$title       = '';
+		$content     = '';
 		$post_author = $stackcommerce_wp_article->get_admin_fields( 'post_author' );
 
 		if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
@@ -234,21 +234,21 @@ class StackCommerce_WP_Media {
 	 *
 	 * @since    1.0.0
 	 */
-	public function strip_image( $post ) {
-		$post['post_content'] = preg_replace( '/<img.*?src="([^">]*\/([^">]*?))".*?>/', '', $post['post_content'], 1 );
+	public function strip_image( $post_content ) {
+		$post_content = preg_replace( '/<img.*?src="([^">]*\/([^">]*?))".*?>/', '', $post_content, 1 );
 
-		return $post;
+		return $post_content;
 	}
 
 	/**
 	 * Get and save all images on article's body
 	 *
-	 * @since    1.0.5
+	 * @since    1.6.5
 	 */
 	public function process_body_images( $post_content ) {
-		$regex = '/<img.*?src="([^">]*\/([^">]*?))".*?>/';
-		$images_regex = preg_match_all( $regex, $post_content, $matches );
-		$images_found = $matches[1];
+		$regex           = '/<img.*?src="([^">]*\/([^">]*?))".*?>/';
+		$images_regex    = preg_match_all( $regex, $post_content, $matches );
+		$images_found    = $matches[1];
 		$uploaded_images = [];
 
 		if ( count( $images_found ) > 0 ) {
@@ -259,20 +259,55 @@ class StackCommerce_WP_Media {
 				if ( $upload_image['url'] && ! $upload_image['error'] ) {
 					$this->set_uploaded_image_as_attachment( $upload_image );
 
-					array_push( $uploaded_images, array(
-						'original' => $image,
-						'upload' => $upload_image['url'],
-					));
+					if ( function_exists( 'wpcom_vip_attachment_url_to_postid' ) ) {
+						array_push( $uploaded_images, array(
+							'attachment_id' => wpcom_vip_attachment_url_to_postid( $upload_image['url'] ),
+							'original'      => $image,
+							'upload'        => $upload_image['url'],
+						));
+					} else {
+						array_push( $uploaded_images, array(
+							// @codingStandardsIgnoreLine
+							'attachment_id' => attachment_url_to_postid( $upload_image['url'] ),
+							'original'      => $image,
+							'upload'        => $upload_image['url'],
+						));
+					}
 				}
 			}
 		}
 
-		$replaced_post_content = $post_content;
+		$processed_post_content = $post_content;
+		$attachment_ids         = [];
 
 		foreach ( $uploaded_images as $uploaded_image ) {
-			$replaced_post_content = str_replace( $uploaded_image['original'], $uploaded_image['upload'], $replaced_post_content );
+			$processed_post_content = str_replace( $uploaded_image['original'], $uploaded_image['upload'], $processed_post_content );
+
+			array_push( $attachment_ids, $uploaded_image['attachment_id'] );
 		}
 
-		return $replaced_post_content;
+		$new_content = array(
+			'attachment_ids' => $attachment_ids,
+			'post_content'   => $processed_post_content,
+		);
+
+		return $new_content;
+	}
+
+	/**
+	 * Set post parent for each attachment
+	 *
+	 * @since    1.6.5
+	 */
+
+	public function set_image_parent( $attachment_id = 0, $post_id = 0 ) {
+		if ( 'attachment' !== get_post_type( $attachment_id ) || 0 === $attachment_id || 0 === $post_id ) {
+			return false;
+		}
+
+		wp_update_post( array(
+			'ID'          => $attachment_id,
+			'post_parent' => $post_id,
+		), true );
 	}
 }
