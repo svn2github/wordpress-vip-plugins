@@ -12,7 +12,7 @@ class Syndication_WP_REST_Client implements Syndication_Client {
 	private $useragent;
 	private $timeout;
 
-	function __construct( $site_ID, $port = 80, $timeout = 45 ) {
+	function __construct( $site_ID, $port = 80, $timeout = 60 ) {
 
 		$this->access_token = push_syndicate_decrypt( get_post_meta( $site_ID, 'syn_site_token', true) );
 		$this->blog_ID	  = get_post_meta( $site_ID, 'syn_site_id', true);
