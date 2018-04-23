@@ -25,7 +25,8 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 		$this->password = push_syndicate_decrypt( get_post_meta( $site_ID, 'syn_site_password', true) );
 		$this->site_ID  = $site_ID;
 
-		parent::__construct( $server );
+		// Update timeout to 25 seconds per #76314-z
+		parent::__construct( $server, false, false, 25 );
 
 		if ( true === apply_filters( 'syn_xmlrpc_push_send_thumbnail', true, $site_ID, $this ) ) {
 			add_action( 'syn_xmlrpc_push_new_post_success', array( $this, 'post_push_send_thumbnail' ), 10, 6 );
