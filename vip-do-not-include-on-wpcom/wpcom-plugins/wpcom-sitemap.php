@@ -215,7 +215,9 @@ function wpcom_print_sitemap() {
 			$url             = array( 'loc'=> esc_url( get_permalink( $post->ID ) ) );
 
 			// Mobile node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=34648
-			$url['mobile:mobile']   = '';
+			if ( apply_filters( 'sitemap_remove_mobile_mobile_node', true ) ) {
+				$url['mobile:mobile'] = '';
+			}
 
 			// Image node specified in http://support.google.com/webmasters/bin/answer.py?hl=en&answer=178636
 			// These attachments were produced with batch SQL earlier in the script
