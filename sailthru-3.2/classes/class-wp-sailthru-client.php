@@ -118,7 +118,7 @@ class WP_Sailthru_Client extends Sailthru_Client {
 			$debug_params['request'] = $url_with_params;
 
 			if ( defined( 'WPCOM_IS_VIP_ENV' ) && true === WPCOM_IS_VIP_ENV ) {
-				$reply = vip_safe_wp_remote_get( $url, $data );
+				$reply = vip_safe_wp_remote_get( $url, $data, 3, 3 );
 			} else {
 				$reply = wp_remote_get( $url, $data );
 			}
