@@ -1,0 +1,12 @@
+{
+    "name": "skyword/skyword-wordpress-plugin",
+    "description": "Skyword WordPress Plugin",
+    "keywords": ["plugin"],
+    "type": "wordpress-plugin",
+    "homepage": "https://bitbucket.org/skyword/skyword-wordpress-plugin",
+    "license": "GPL-2",
+    "require": {
+        "php": ">=5.5",
+        "composer/installers": "v1.2.0"
+    }
+}
