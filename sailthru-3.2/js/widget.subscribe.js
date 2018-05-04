@@ -26,7 +26,7 @@
 			var user_input = $(this).serialize();
 			var form = $(this);
 			$.post(
-				ajaxurl,
+				sailthru_vars.ajaxurl,
 				user_input,
 				function(data) {
 					data = jQuery.parseJSON(data);

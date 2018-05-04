@@ -319,7 +319,7 @@ class Sailthru_Horizon {
 						wp_enqueue_script( 'personalize_js', '//ak.sail-horizon.com/spm/spm.v1.min.js' );
 						wp_register_script( 'tag', plugin_dir_url( __DIR__ ) . 'js/tag.js', array('jquery') );
 						wp_localize_script( 'tag', 'tag', $params );
-						wp_enqueue_script( 'tag' );
+						wp_enqueue_script( 'tag' , '', [], false, $this->js_in_footer());
 					}
 				}
 			} else {
@@ -362,7 +362,7 @@ class Sailthru_Horizon {
 					wp_enqueue_script( 'horizon_js', '//ak.sail-horizon.com/horizon/v1.js' );
 					wp_register_script( 'tag', plugin_dir_url( __DIR__ ) . 'js/horizon.js' );
 					wp_localize_script( 'tag', 'tag', $params );
-					wp_enqueue_script( 'tag' );
+					wp_enqueue_script( 'tag' , '', [], false, $this->js_in_footer());
 				}
 				// Horizon parameters.
 			}
@@ -370,6 +370,10 @@ class Sailthru_Horizon {
 
 	} // end register_plugin_scripts
 
+
+	function js_in_footer() {
+		return true === apply_filters( 'sailthru_scripts_in_footer', false );
+	}
 
 
 	/*--------------------------------------------*
@@ -598,7 +602,7 @@ class Sailthru_Horizon {
 			'sailthru-post-data',
 			__( 'Sailthru Post Data', 'sailthru' ),
 			array( $this, 'post_metabox_display' ),
-			'post',
+			['post', 'page'],
 			'side',
 			'high'
 		);

@@ -238,7 +238,7 @@ class Sailthru_Subscribe_Widget extends WP_Widget {
 	 */
 	public function add_ajax_library() {
 		echo '<script type="text/javascript">';
-		echo 'var ajaxurl = "' . esc_js( home_url( 'wp-admin/admin-ajax.php' ) ) . '"';
+		echo 'var sailthru_vars = ' . wp_json_encode( [ 'ajaxurl' => admin_url( 'admin-ajax.php' ) ]);
 		echo '</script>';
 	} // end add_ajax_library
 
@@ -537,9 +537,13 @@ class Sailthru_Subscribe_Widget extends WP_Widget {
 // Register activation hook
 register_activation_hook( __FILE__, array( 'Sailthru_Subscribe', 'activate' ) );
 
-// Register a new widget with WordPress
-add_action( 'widgets_init', create_function( '', 'register_widget("Sailthru_Subscribe_Widget");' ) );
-
+/**
+ * Register Sailthru Subscribe Widget
+ */
+function sailthru_register_subscribe_widget() {
+	register_widget( 'Sailthru_Subscribe_Widget' );
+}
+add_action( 'widgets_init', 'sailthru_register_subscribe_widget' );
 
 function sailthru_widget_shortcode( $atts ) {
 

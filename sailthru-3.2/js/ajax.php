@@ -99,7 +99,7 @@ switch( $_POST['sailthru_action'] )
 			$api_key = $sailthru['sailthru_api_key'];
 			$api_secret = $sailthru['sailthru_api_secret'];
 
-			$client = new Sailthru_Client( $api_key, $api_secret );
+			$client = new WP_Sailthru_Client( $api_key, $api_secret );
 			$res = $client->saveUser($email, $options);
 
 

@@ -267,7 +267,7 @@ class Sailthru_Scout_Widget extends WP_Widget {
 			)
 		);
 		$title      = esc_attr( $instance['title'] );
-		$section_id = esc_attr( $instance['sailthru_spm_section'] );
+		$active_section_id = esc_attr( $instance['sailthru_spm_section'] );
 
 		// Display the admin form.
 		include SAILTHRU_PLUGIN_PATH . 'views/widget.scout.admin.php';
@@ -275,7 +275,13 @@ class Sailthru_Scout_Widget extends WP_Widget {
 	} // End form.
 } // End class.
 
-add_action( 'widgets_init', create_function( '', 'register_widget( "Sailthru_Scout_Widget" );' ) );
+/**
+ * Register Sailthru Scout Widget
+ */
+function sailthru_register_scout_widget() {
+	register_widget( 'Sailthru_Scout_Widget' );
+}
+add_action( 'widgets_init', 'sailthru_register_scout_widget' );
 
 /**
  * Template tag for manual placement of Scout

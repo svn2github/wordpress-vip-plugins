@@ -1,8 +1,16 @@
 # Changelog
 
+
 ## v3.2.1 (2018-04-11)
 Added a filter to allow customers to override API verification in the setup process. The goal of this feature is to mitigate some edge cases where the setup process returns a payload to WordPress VIP creates an error on their platform. Most customers using this plugin are not affected. 
-Fixed issue with signup widget whereby if multiple instances of the signup widget are on the same screen any error message will be displayed on all intances. 
+Changed ajaxurl used in widget to be namespaced to prevent collision.
+Fixed issue whereby any error on a signup widget would render on all signup widgets on the page.
+Added a filter to allow the localized js to be loaded in wp_footer()
+Removed php 7.2 unsupported code. (Thanks srtfisher)
+Added support for Page in Sailthru meta box. 
+Extended timeout for VIP API calls to 3 seconds. 
+Squished a few more bugs. 
+
 
 ## v3.2.0 (2018-02-18)
 Fixed bug with rendering of checkboxes on widget subscription.
