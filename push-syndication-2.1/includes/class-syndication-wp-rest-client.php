@@ -59,14 +59,45 @@ class Syndication_WP_REST_Client implements Syndication_Client {
 		) );
 
 		if ( is_wp_error( $response ) ) {
+
+		    /** ImpreMedia Temp Debug */
+			$site = home_url();
+			$msg = "Syndication new_post (is_wp_error) : $post_ID";
+			$msg .= "\n-- post --\n";
+			$msg .= var_export($post, true);
+			$msg .= "\n-- body --\n";
+			$msg .= var_export($body, true);
+			$msg .= "\n-- response -\n";
+			$msg .= var_export($response, true);
+			$msg .= "\n---\n";
+			wp_mail('matthew.denton@automattic.com', "Syndication [IMPRE Debug $site] " . $post_ID, $msg);
+			/** END Debug */
+
 			return $response;
 		}
 
+		$raw_response = $response;
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if( empty( $response->error ) ) {
 			return $response->ID;
 		} else {
+
+			/** ImpreMedia Temp Debug */
+			$site = home_url();
+			$msg = "Syndication new_post (rest-push-new-fail) : $post_ID";
+			$msg .= "\n-- post --\n";
+			$msg .= var_export($post, true);
+			$msg .= "\n-- body --\n";
+			$msg .= var_export($body, true);
+			$msg .= "\n-- raw_response -\n";
+			$msg .= var_export($raw_response, true);
+			$msg .= "\n-- response -\n";
+			$msg .= var_export($response, true);
+			$msg .= "\n---\n";
+			wp_mail('matthew.denton@automattic.com', "Syndication [IMPRE Debug $site] " . $post_ID, $msg);
+			/** END Debug */
+
 			return new WP_Error( 'rest-push-new-fail', $response->message );
 		}
 
@@ -105,14 +136,45 @@ class Syndication_WP_REST_Client implements Syndication_Client {
 		) );
 
 		if ( is_wp_error( $response ) ) {
+
+			/** ImpreMedia Temp Debug */
+			$site = home_url();
+			$msg = "Syndication edit_post (is_wp_error) : $post_ID";
+			$msg .= "\n-- post --\n";
+			$msg .= var_export($post, true);
+			$msg .= "\n-- body --\n";
+			$msg .= var_export($body, true);
+			$msg .= "\n-- response -\n";
+			$msg .= var_export($response, true);
+			$msg .= "\n---\n";
+			wp_mail('matthew.denton@automattic.com', "Syndication [IMPRE Debug $site] " . $post_ID, $msg);
+			/** END Debug */
+
 			return $response;
 		}
 
+		$raw_response = $response;
 		$response = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if( empty( $response->error ) ) {
 			return $post_ID;
 		} else {
+
+			/** ImpreMedia Temp Debug */
+			$site = home_url();
+			$msg = "Syndication new_post (rest-push-new-fail) : $post_ID";
+			$msg .= "\n-- post --\n";
+			$msg .= var_export($post, true);
+			$msg .= "\n-- body --\n";
+			$msg .= var_export($body, true);
+			$msg .= "\n-- raw_response -\n";
+			$msg .= var_export($raw_response, true);
+			$msg .= "\n-- response -\n";
+			$msg .= var_export($response, true);
+			$msg .= "\n---\n";
+			wp_mail('matthew.denton@automattic.com', "Syndication [IMPRE Debug $site] " . $post_ID, $msg);
+			/** END Debug */
+
 			return new WP_Error( 'rest-push-edit-fail', $response->message );
 		}
 
