@@ -291,14 +291,9 @@ class Sailthru_Subscribe_Widget extends WP_Widget {
 
 	function return_response( $response ) {
 
-		if ( ! empty( $_SERVER['HTTP_X_REQUESTED_WITH'] ) && 'xmlhttprequest' === strtolower( $_SERVER['HTTP_X_REQUESTED_WITH'] ) ) {
-			echo wp_json_encode( $response );
-			exit();
-		} else {
-			echo wp_kses_post( $response['message'] );
-			exit();
-		}
-
+		header('Content-Type: application/json');
+		echo  wp_json_encode( $response );
+		exit();
 	}
 
 	function add_subscriber() {
@@ -307,7 +302,7 @@ class Sailthru_Subscribe_Widget extends WP_Widget {
 
 			$result = array(
 				'success' => false,
-				'message' => 'This form does not appear to have been posted from your website and has not been submitted.',
+				'message' => 'This form could not be validated, please refresh the page and try again. ',
 			);
 			$this->return_response( $result );
 		}
@@ -523,7 +518,7 @@ class Sailthru_Subscribe_Widget extends WP_Widget {
 
 			// format response.
 			$result['success'] = false;
-			$result['message'] = 'Sorry, somethign went wrong and we could not subscribe you.';
+			$result['message'] = 'Sorry, something went wrong and we could not subscribe you.';
 			$this->return_response( $result );
 		}
 
@@ -577,7 +572,7 @@ function sailthru_widget_shortcode( $atts ) {
 	if ( ! empty( $atts['modal'] ) ) {
 
 		if ( 'true' === $atts['modal'] ) {
-			$before_widget = '<div id="mask"></div><a id="show_shortcode" href="#">' . esc_html( $atts['text'] ) . '</a><div id="sailthru-modal"><div class="sailthru_shortcode_hidden">';
+			$before_widget = '<div id="mask"></div><a class="show_shortcode" href="#">' . esc_html( $atts['text'] ) . '</a><div id="sailthru-modal"><div class="sailthru_shortcode_hidden">';
 			$after_widget  = '</div></div>';
 		} else {
 			$before_widget = '<div class="sailthru_shortcode">';
