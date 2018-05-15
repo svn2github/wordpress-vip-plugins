@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="-506 620 48 38" enable-background="new -506 620 48 38" xml:space="preserve">
+	 <defs>
+         <style>
+
+           #path-1 {
+             fill: #f22c3b;
+           }
+         </style>
+       </defs>
+<path id="path-1" d="M-458,620L-458,620c-5.6,0-10.1,2.4-13.6,6.2h0c-2.3,2.3-2.5,3.7-6,3.7c-3,0-2.6-1-4.8-2.7v0.1
+	c-2.5-1.9-5.5-3-8.9-3c-8.1,0-14.7,6.6-14.7,14.6c0,8.1,6.6,14.6,14.7,14.6c3.3,0,6.4-1.1,8.9-3v0c2.2-1.7,1.8-2.7,4.8-2.7
+	c3.7,0,3.9,1.5,6.2,4c3.5,3.7,7.8,6,13.3,6l0,0V620z"/>
+</svg>
