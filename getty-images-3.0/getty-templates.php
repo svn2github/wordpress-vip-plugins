@@ -95,6 +95,16 @@
 </script>
 
 <script type="text/html" id="tmpl-getty-attachments-browser">
+<div class="getty-session-expired-popup" style="display: none">
+	<div class="getty-popup-background"></div>
+	<div class="getty-popup-window">
+	
+	<span class="text">Your previous login has expired, please log in again.</span>
+	<div>
+		<input type="button" class="button-primary download-button go-to-login-button" value="Go to Login Page"></input>
+	</div>
+	</div>
+</div>
 <div class="getty-refine"></div>
 <div class="getty-browser-container">
 	<table class="getty-browser-flex-container">
@@ -536,9 +546,11 @@ else if(data.authorizing) { #>
 		<# } else { #>
 			<select class="size" name="size" data-setting="size" data-user-setting="getty_imgsize">
 			<# _.each(data.model.sizes, function(size, value) {
-				var selected = data.model.size == size ? 'selected="selected"' : '';
-				#>
-				<option value="{{ value }}" {{ selected }}>{{ size.label }} &ndash; {{ parseInt(size.width) }} &times; {{ parseInt(size.height) }}</option>
+				if (size.label && size.width && size.height && size.width > 0  && size.height > 0) {
+					var selected = data.model.size == size ? 'selected="selected"' : '';
+					#>
+					<option value="{{ value }}" {{ selected }}>{{ size.label }} &ndash; {{ parseInt(size.width) }} &times; {{ parseInt(size.height) }}</option>
+				<# } #>
 			<# }); #>
 			</select>
 		<# } #>

@@ -23,6 +23,15 @@
 			if (endpoint[0] != '/') console.error('Invalid API call: ', endpoint);
 
 			var url = this.baseUrl + endpoint;
+			var language = window.navigator.userLanguage || window.navigator.language;
+
+			// If the browser's language is not in the list of the API supported languages, default it to en-US
+			if (language !== 'nl' && language !== 'en-GB' && language !== 'en-US' && language !== 'fr'
+				&& language !== 'de' && language !== 'it' && language !== 'ja' && language !== 'pt-BR'
+				&& language !== 'pt-PT' && language !== 'es' && language !== 'sv' ) 
+				{
+					language = 'en-US';
+				}
 
 			var data = params;
 			if(method === 'POST') {
@@ -46,7 +55,7 @@
 
 			defer
 				.done(function() {
-					var headers = { 'Api-Key': apiKey };
+					var headers = { 'Api-Key': apiKey, 'Accept-Language': language };
 					if (session) headers['Authorization'] = 'Bearer ' + session.token;
 
 					$.ajax(url, {
@@ -57,7 +66,13 @@
 						headers: headers,
 						processData: processData
 					})
-						.fail(result.reject)
+						.fail(function(data) {
+							if(data.status === 401) {
+								// The session expired and we need to show a blocking popup to force the user to log in again.
+								$(".getty-session-expired-popup").show();
+							}
+							result.reject(data);
+						})
 						.done(function(data) {
 							result.resolve(data);
 						});

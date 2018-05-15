@@ -1,3 +1,36 @@
+.getty-session-expired-popup {
+	text-align: center;
+}
+
+.getty-session-expired-popup .getty-popup-background {
+    position: absolute;
+    background-color: black;
+	width: 100%;
+	height: 100%;
+    z-index: 99;
+    opacity: .7;
+}
+
+.getty-session-expired-popup .getty-popup-window {
+	background-color: white;
+    width: 45%;
+    height: 200px;
+    position: absolute;
+    z-index: 100;
+    top: 110px;
+    left: 24%;
+    padding-top: 90px;
+}
+
+.getty-session-expired-popup .getty-popup-window .text {
+    margin-top: 90px;
+    font-size: 15px;
+}
+
+.getty-session-expired-popup .getty-popup-window .go-to-login-button {
+	margin-top: 30px;
+}
+
 /* Unsupported Browser messaging */
 .getty-unsupported-browser-message {
 	padding: 2em;

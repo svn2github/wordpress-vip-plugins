@@ -97,7 +97,8 @@
 			'change .getty-filter-asset-type input': 'modeFlag',
 			'click .getty-keyword': 'searchKeyword',
 			'click .mosaic-icon': 'setMosaicViewMode',
-			'click .grid-icon': 'setGridViewMode'
+			'click .grid-icon': 'setGridViewMode',
+			'click .go-to-login-button': 'changeModeToLoginPage'
 		},
 
 		initialize: function() {
@@ -733,7 +734,12 @@
 		updateHaveMore: function(model, collection) {
 			this.$el.toggleClass('have-more', this.haveMore());
 			this.$el.toggleClass('no-more', !this.haveMore());
-		}
+		},
+
+		changeModeToLoginPage: function() {
+			getty.user.logout();
+			getty.user.settings.set('mode', 'login');
+		},
 	});
 
 	/**
