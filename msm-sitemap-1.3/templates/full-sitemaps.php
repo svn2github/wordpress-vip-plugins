@@ -1,5 +1,5 @@
 <?php
-/*
+
 if ( ! Metro_Sitemap::is_blog_public() ) {
 	wp_die(
 		__( 'Sorry, this site is not public so sitemaps are not available.', 'msm-sitemap' ),
@@ -7,7 +7,7 @@ if ( ! Metro_Sitemap::is_blog_public() ) {
 		array ( 'response' => 404 )
 	);
 }
-*/
+
 $req_year = get_query_var( 'sitemap-year' );
 if ( empty( $req_year ) ) {
 	$req_year = ( isset( $_GET['yyyy'] ) ) ? intval( $_GET['yyyy'] ) : false;

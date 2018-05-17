@@ -819,7 +819,3 @@ class Metro_Sitemap {
 }
 
 add_action( 'after_setup_theme', array( 'Metro_Sitemap', 'setup' ) );
-
-
-$sitemap_args = array( 'date_query' => array( array( 'before' => sprintf( '%s 00:00:00', "2018-03-20" ), 'after' => sprintf( '%s 00:00:00', "2018-03-20" ), 'inclusive' => true, ), ), 'orderby' => 'ID', 'order' => 'ASC', 'posts_per_page' => 10, 'fields' => 'ids', 'post_type' => 'msm_sitemap', 'no_found_rows' => true, 'update_term_cache' => false, 'suppress_filters' => false  );
-

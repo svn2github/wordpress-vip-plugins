@@ -1274,11 +1274,11 @@ class WP_Push_Syndication_Server {
 				continue;
 
 			$transport_type = get_post_meta( $site_id, 'syn_transport_type', true );
-			$client	= Syndication_Client_Factory::get_client( $transport_type, $site_id );
-			if( null === $client ) {
+			try {
+				$client	= Syndication_Client_Factory::get_client( $transport_type, $site_id );
+			} catch ( Exception $e ) {
 				continue;
 			}
-
 			$posts          = apply_filters( 'syn_pre_pull_posts', $client->get_posts(), $site, $client );
 
 			$post_types_processed = array();
