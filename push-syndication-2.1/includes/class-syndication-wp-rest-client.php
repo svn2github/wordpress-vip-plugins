@@ -162,7 +162,7 @@ class Syndication_WP_REST_Client implements Syndication_Client {
 
 			/** ImpreMedia Temp Debug */
 			$site = home_url();
-			$msg = "Syndication new_post (rest-push-new-fail) : $post_ID";
+			$msg = "Syndication new_post (rest-push-edit-fail) : $post_ID";
 			$msg .= "\n-- post --\n";
 			$msg .= var_export($post, true);
 			$msg .= "\n-- body --\n";

@@ -1253,7 +1253,7 @@ class WP_Push_Syndication_Server {
 		do_action( 'syn_before_pull_content' );
 
 		add_filter( 'http_headers_useragent', array( $this, 'syndication_user_agent' ) );
-	
+
 		if ( empty( $sites ) )
 			$sites = $this->pull_get_selected_sites();
 
@@ -1325,7 +1325,7 @@ class WP_Push_Syndication_Server {
 					}
 				}
 			}
-			
+
 			foreach ( $post_types_processed as $post_type ) {
 				add_post_type_support( $post_type, 'revisions' );
 			}
