@@ -938,6 +938,22 @@ function wpcom_vip_disable_hovercards() {
 }
 
 /**
+ * Allow VIP themes to disable WordPress.com native Blavatar implementation.
+ */
+function wpcom_vip_disable_blavatar_icons() {
+	// Restore and extended wp_favicon_request call which is otherwise disabled on WPCOM in favour
+	// of Blavatar favicon implementation.
+	if ( '/favicon.ico' == $_SERVER['REQUEST_URI'] || '/favicon.ico/' == $_SERVER['REQUEST_URI'] ) {
+		header('Content-Type: image/vnd.microsoft.icon');
+		exit;
+	}
+
+	remove_action( 'init', 'dynamic_favicon' );
+	remove_action( 'wp_head', 'blavatar_add_meta' );
+	remove_action( 'admin_head', 'blavatar_add_meta' );
+}
+
+/**
  * Allow VIP themes to disable global terms on WordPress.com.
  */
 function wpcom_vip_disable_global_terms() {
