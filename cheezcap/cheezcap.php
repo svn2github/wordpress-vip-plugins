@@ -1,4 +1,12 @@
 <?php
+/*
+Plugin Name: CheezCap - Cheezburger Custom Administration Panel
+Description: Cheezburger Custom Administration Panel
+License: GNU General Public License, version 2 (GPL), http://www.gnu.org/licenses/gpl-2.0.html
+Author: Kyall Barrows, Toby McKes, Stefan Rusek, Scott Porad
+Author URI: http://github.com/cheezburger/cheezcap
+*/
+
 /**
  * CheezCap - Cheezburger Custom Administration Panel
  * (c) 2008 - 2011 Cheezburger Network (Pet Holdings, Inc.)
