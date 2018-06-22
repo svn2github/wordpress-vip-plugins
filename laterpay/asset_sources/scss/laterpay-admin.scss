@@ -1,0 +1,38 @@
+// Loaded in WordPress admin section
+
+@charset "UTF-8";
+
+@import 'objects/_variables';
+@import 'objects/_vector_icons';
+
+
+// display the LaterPay logo from the LaterPay icon font in the admin menu
+#adminmenu div.wp-menu-image.dashicons-laterpay-logo:before { // WordPress selector
+    content: 'b' !important;
+    font-family: laterpay-wordpress-icons !important;
+    font-size: 33px !important;
+    font-weight: 400 !important;
+    line-height: 0.6 !important;
+    left: -5px !important;
+    position: relative !important;
+}
+
+// add red color icon for
+.lp_region_notice[data-icon]:before {
+    color: red;
+}
+
+// remove dfn color
+dfn.lp_region_notice {
+    color: #444;
+}
+
+// style custom columns in posts table
+.column-post_price { // WordPress selector
+    text-align: right;
+    width: 75px;
+
+    span {
+        color: $text--lighter;
+    }
+}

@@ -1,0 +1,26 @@
+[
+    {
+        "name": "laterpay/laterpay-client-php",
+        "version": "dev-develop",
+        "version_normalized": "dev-develop",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/laterpay/laterpay-client-php.git",
+            "reference": "c08d6a31bcbb7f3a649364aeafa69ab7e6c2701c"
+        },
+        "time": "2018-06-20T17:58:56+00:00",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "LaterPay_": "",
+                "Crypt_": "",
+                "Math_": ""
+            }
+        },
+        "license": [
+            "MIT"
+        ],
+        "description": "LaterPay PHP Client"
+    }
+]

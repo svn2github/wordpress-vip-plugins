@@ -1,0 +1,19 @@
+$startInterval: 0%;
+$endInterval: 100%;
+$start: left top;
+$end: left bottom;
+
+@mixin linear-gradient($startColor, $startInterval, $endColor, $endInterval, $start, $end) {
+    $mozStart: top;
+    @if (start == left top) {
+        background: $startColor;
+        background: -moz-linear-gradient($mozStart, $startColor $startInterval, $endColor $endInterval);
+        background: -webkit-gradient(linear, $start, $end, color-stop($startInterval, $startColor), color-stop($endInterval, $endColor))
+    }
+}
+
+// opacity
+@mixin opacity($arguments) {
+    opacity: $arguments;
+    filter: unquote('progid:DXImageTransform.Microsoft.Alpha(Opacity=' + round($arguments * 100) + ')');
+}

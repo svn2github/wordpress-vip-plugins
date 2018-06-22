@@ -1,0 +1,58 @@
+// load LaterPay icon font ---------------------------------------------------------------------------------------------
+@font-face {
+    font-family: laterpay-wordpress-icons;
+    font-style: normal;
+    font-weight: normal;
+    src: url('../fonts/laterpay-wordpress-icons_v099.eot');
+    src: url('../fonts/laterpay-wordpress-icons_v099.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/laterpay-wordpress-icons_v099.woff') format('woff'),
+        url('../fonts/laterpay-wordpress-icons_v099.ttf') format('truetype'),
+        url('../fonts/laterpay-wordpress-icons_v099.svg#laterpay-wordpress-icons') format('svg');
+}
+
+
+// render vector icons from icon font ----------------------------------------------------------------------------------
+// inject vector icon in pseudo element when 'data-icon' attribute is applied to an element
+[data-icon]:before,
+.lp_vectorIcon {
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-font-smoothing: antialiased;
+    content: attr(data-icon);
+    font-family: laterpay-wordpress-icons !important;
+    font-style: normal !important;
+    font-variant: normal !important;
+    font-weight: normal !important;
+    line-height: 1;
+    padding-right: 0.25em;
+    position: relative;
+    speak: none;
+    text-transform: none !important;
+    top: 0.1em;
+}
+
+
+// character mapping ---------------------------------------------------------------------------------------------------
+// LaterPay logo icons
+// 'a' - LaterPay logo icon with 'LaterPay' lettering
+// 'b' - LaterPay logo icon only
+//
+// edit icons
+// 'c' - add
+// 'd' - edit
+// 'e' - cancel
+// 'f' - save
+// 'g' - delete
+// 'p' - reset
+//
+// API-related icons
+// 'i' - merchant-id
+// 'j' - api-key
+// 'h' - test-mode
+// 'k' - live-mode
+//
+// 'l' - 'hide' icon (used in statistics pane)
+//
+// debugger icons
+// 'm' - info
+// 'n' - warning
+// 'o' - error

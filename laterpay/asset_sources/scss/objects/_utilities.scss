@@ -1,0 +1,341 @@
+// borders -------------------------------------------------------------------------------------------------------------
+.lp_border--0 {
+    border: 0 none;
+}
+
+.lp_border {
+    border: 1px solid $border;
+}
+
+.lp_border-radius {
+    border-radius: $border-radius;
+}
+
+.lp_rounded--right {
+    border-radius: 0 $border-radius $border-radius 0;
+}
+
+.lp_rounded--topright {
+    border-radius: 0 $border-radius 0 0;
+}
+
+.lp_embossed {
+    box-shadow: 1px 1px 0 $border--lightest;
+}
+
+
+// display -------------------------------------------------------------------------------------------------------------
+.lp_block {
+    display: block;
+}
+
+.lp_inline {
+    display: inline;
+}
+
+.lp_inline-block {
+    display: inline-block;
+}
+
+.lp_hidden {
+    display: none !important;
+}
+
+
+// fonts ---------------------------------------------------------------------------------------------------------------
+.lp_fs {
+    font-size: $fs;
+}
+
+.lp_bold {
+    font-weight: bold;
+}
+
+
+// floating ------------------------------------------------------------------------------------------------------------
+.lp_left {
+    float: left;
+}
+
+.lp_right {
+    float: right;
+}
+
+/*
+ * Clearfix for modern browsers
+ * 1. The space content is one way to avoid an Opera bug when the 'contenteditable' attribute is included
+ *    anywhere else in the document.
+ *    Otherwise it causes space to appear at the top and bottom of elements that receive the 'clearfix' class.
+ * 2. The use of 'table' rather than 'block' is only necessary if using ':before' to contain the top-margins
+ *    of child elements.
+ */
+%clearfix:before,
+%clearfix:after {
+    content: ' ' !important; /* 1 */
+    display: table !important; /* 2 */
+}
+%clearfix:after {
+    clear: both !important;
+}
+
+// helper class for clearfix
+.lp_clearfix {
+    @extend %clearfix;
+}
+
+// mixin for clearfix
+@mixin clearfix() {
+    @extend %clearfix;
+}
+
+
+// margins -------------------------------------------------------------------------------------------------------------
+.lp_m0 {
+    margin: 0;
+}
+
+.lp_m {
+    margin: $fs;
+}
+
+
+// combinations
+.lp_m-0 {
+    margin: $fs 0;
+}
+
+.lp_m-0-0 {
+    margin: $fs 0 0;
+}
+
+.lp_m--0-center {
+    margin: 0 auto;
+}
+
+.lp_m-center {
+    margin: $fs auto;
+}
+
+
+// top margins
+.lp_mt0 {
+    margin-top: 0;
+}
+
+.lp_mt-- {
+    margin-top: $fs--025;
+}
+
+.lp_mt- {
+    margin-top: $fs--05;
+}
+
+.lp_mt {
+    margin-top: $fs;
+}
+
+.lp_mt\+ {
+    margin-top: $fs--2;
+}
+
+.lp_mt\+\+ {
+    margin-top: $fs--3;
+}
+
+
+// right margins
+.lp_mr-- {
+    margin-right: $fs--025;
+}
+
+.lp_mr- {
+    margin-right: $fs--05;
+}
+
+.lp_mr {
+    margin-right: $fs;
+}
+
+.lp_mr\+ {
+    margin-right: $fs--2;
+}
+
+
+// bottom margins
+.lp_mb0 {
+    margin-bottom: 0;
+}
+
+.lp_mb-- {
+    margin-bottom: $fs--025;
+}
+
+.lp_mb- {
+    margin-bottom: $fs--05;
+}
+
+.lp_mb {
+    margin-bottom: $fs;
+}
+
+.lp_mb\+ {
+    margin-bottom: $fs--2;
+}
+
+.lp_mb\+\+ {
+    margin-bottom: $fs--3;
+}
+
+
+// left margins
+.lp_ml- {
+    margin-left: $fs--05;
+}
+
+.lp_ml {
+    margin-left: $fs;
+}
+
+.lp_ml\+ {
+    margin-left: $fs--2;
+}
+
+
+// paddings ------------------------------------------------------------------------------------------------------------
+.lp_pd {
+    padding: $fs;
+}
+
+.lp_pd- {
+    padding: $fs--05;
+}
+
+
+// combinations
+.lp_pd--0-05 {
+    padding: 0 $fs--05;
+}
+
+.lp_pd--05-1 {
+    padding: $fs--05 $fs;
+}
+
+
+// top paddings
+.lp_pdt0 {
+    padding-top: 0;
+}
+
+.lp_pdt- {
+    padding-top: $fs--05;
+}
+
+
+// right paddings
+.lp_pdr {
+    padding-right: $fs;
+}
+
+
+// left paddings
+.lp_pdl0 {
+    padding-left: 0;
+}
+
+
+// position ------------------------------------------------------------------------------------------------------------
+.lp_absolute {
+    position: absolute;
+}
+
+.lp_relative {
+    position: relative;
+}
+
+.lp_top--0 {
+    top: 0;
+}
+
+.lp_right--0 {
+    right: 0;
+}
+
+.lp_bottom--0 {
+    bottom: 0;
+}
+
+.lp_left--0 {
+    left: 0;
+}
+
+
+// text-align ----------------------------------------------------------------------------------------------------------
+.lp_text-align--center {
+    text-align: center;
+}
+
+.lp_text-align--right {
+    text-align: right;
+}
+
+
+// widths --------------------------------------------------------------------------------------------------------------
+.lp_1 {
+    width: 100%;
+}
+
+.lp_4\/5 {
+    width: 80%;
+}
+
+.lp_3\/4 {
+    width: 75%;
+}
+
+.lp_2\/3 {
+    width: 66.6666%;
+}
+
+.lp_1\/2 {
+    width: 50%;
+}
+
+.lp_2\/5 {
+    width: 40%;
+}
+
+.lp_3\/8 {
+    width: 37.5%;
+}
+
+.lp_1\/3 {
+    width: 33.3333%;
+}
+
+.lp_1\/4 {
+    width: 25%;
+}
+
+.lp_1\/5 {
+    width: 20%;
+}
+
+.lp_1\/6 {
+    width: 16.6666%;
+}
+
+.lp_3\/16 {
+    width: 18.75%;
+}
+
+.lp_7\/16 {
+    width: 43.75%;
+}
+
+.lp_9\/20 {
+    width: 45%;
+}
+
+.lp_11\/20 {
+    width: 55%;
+}

@@ -1,0 +1,66 @@
+// LaterPay dialogs iframe
+
+.laterpay-overlay {
+    @include opacity(0.89);
+    background: darken($text, 33%) !important;
+    height: 100% !important;
+    left: 0 !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: $zindex--topmost-1 !important;
+}
+
+.laterpay-iframe {
+    height: 100% !important;
+    left: 0 !important;
+    padding-top: $fs--2 !important;
+    position: fixed !important;
+    top: 0 !important;
+    width: 100% !important;
+    z-index: $zindex--topmost-2 !important;
+
+    iframe {
+        border: 0 none;
+    }
+}
+
+.laterpay-dialog-close-button {
+    color: $text !important;
+    padding: $fs $fs $fs $fs--2 !important;
+    position: absolute !important;
+    right: 0 !important;
+    text-decoration: none !important;
+    top: 0 !important;
+
+    &:hover {
+        color: darken($text--lighter, 7%) !important;
+        text-decoration: none !important;
+    }
+
+    &[data-icon] {
+
+        &:before {
+            background: $text !important;
+            border-radius: 50% !important;
+            color: darken($text, 33%) !important;
+            margin-right: ($fs * 0.4) !important;
+            padding: ($fs * 0.1) !important;
+            position: relative !important;
+            top: ($fs * 0.15) !important;
+        }
+
+        &:hover:before {
+            background: darken($text--lighter, 7%);
+        }
+    }
+}
+
+
+// Responsiveness ------------------------------------------------------------------------------------------------------
+@media (max-width:567px) {
+
+    .laterpay-iframe .laterpay-dialog-close-button {
+        padding: ($fs * 0.2) $fs--05 $fs $fs--2 !important;
+    }
+}

@@ -1,0 +1,13 @@
+// similar, but not yet fully identical to inuit css's layout object
+
+.lp_layout {
+    @extend %clearfix;
+
+    box-sizing: border-box;
+}
+
+.lp_layout__item {
+    box-sizing: border-box;
+    display: inline-block;
+    vertical-align: top;
+}

@@ -1,0 +1,38 @@
+// headings --------------------------------------------------------------------------------------------------------
+h2,
+h3 {
+    font-weight: normal;
+    margin: $fs 0;
+}
+
+%default-h2 {
+    font-size: $fs--125;
+}
+
+h3 {
+    font-size: $fs;
+    margin: 0;
+}
+
+// links -----------------------------------------------------------------------------------------------------------
+a {
+    text-decoration: none;
+
+    // remove dotted outline and box shadows from links
+    &:active,
+    &:focus,
+    &:visited {
+        box-shadow: none;
+        outline: 0 none;
+    }
+}
+
+
+%hint-text {
+    color: $text--lighter;
+    font-style: italic;
+}
+
+dfn {
+    @extend %hint-text;
+}
