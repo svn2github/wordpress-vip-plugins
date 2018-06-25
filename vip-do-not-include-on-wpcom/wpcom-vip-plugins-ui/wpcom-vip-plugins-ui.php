@@ -273,6 +273,10 @@ class WPcom_VIP_Plugins_UI {
 				'name'			=> 'JW Player',
 				'description'	=> 'The World’s Most Popular Video Player.',
 			),
+			'laterpay' => array(
+                                'name'                  => 'LaterPay',
+                                'description'   => 'Convert casual users into paying customers.',
+                        ),
 			'ooyala' => array(
 				'name'			=> 'Ooyala',
 				'description'	=> 'Upload, Search and Publish High Quality Video Across All Screens powered by Ooyala.',
