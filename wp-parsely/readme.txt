@@ -2,7 +2,7 @@
 Contributors: parsely_mike
 Tags: analytics, post, page
 Requires at least: 4.0
-Tested up to: 4.5
+Tested up to: 4.9
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -21,6 +21,7 @@ Join industry leaders -- like Mashable, Slate, News Corp, and Conde Nast -- who 
 
 * Get started with Parse.ly right away: the plug-in automatically inserts the required parsely-page tag and JavaScript on all your published pages and posts.
 * Allows you to specify the JavaScript implementation to use: standard, DOM free or asynchronous.
+* If you've purchased access to the Parse.ly API, add a widget to your site with story recommendations personalized to individual users.
 
 Feedback, suggestions, questions or concerns? E-mail us at [support@parsely.com](mailto:support@parsely.com) we always want to hear from you.
 
@@ -36,6 +37,8 @@ Feedback, suggestions, questions or concerns? E-mail us at [support@parsely.com]
 1. Set your Site ID, which is your own site domain name (e.g., `mysite.com`)
 1. Save your changes and enjoy your data!
 
+**NOTE:** This plugin does not currently support dynamic tracking (the tracking of multiple pageviews on a single page). Some common use-cases for dynamic tracking are slideshows or articles loaded via AJAX calls in single-page applications -- situations in which new content is loaded without a full page refresh. Tracking these events requires manually implementing additional JavaScript above the standard Parse.ly include (http://www.parsely.com/help/integration/basic/) that the plugin injects into your page source. Please consult the Parse.ly documentation on dynamic tracking (https://www.parsely.com/help/integration/dynamic/) for instructions on implementing dynamic tracking, or contact Parse.ly support for additional assistance.
+
 Feedback, suggestions, questions or concerns? E-mail us at [support@parsely.com](mailto:support@parsely.com) we always want to hear from you.
 
 == Frequently Asked Questions ==
@@ -48,14 +51,48 @@ Your Site ID is your own site domain name (e.g., `mysite.com`).
 
 Dash code will only be placed on pages and posts which have been published in WordPress to ensure we don't track traffic generated while you're still writing a post/page.
 
+= How can I edit the values passed to the JSON-LD metadata? =
+
+You can use the 'after_set_parsely_page' filter which sends 3 arguments: the array of metadata, the post object, and the parselyOptions array:
+
+        $parselyPage = apply_filters('after_set_parsely_page', $parselyPage, $post, $parselyOptions);
+
+This filter can go anywhere in your codebase, provided it always gets loaded. We recommend putting it in your header file, so that it gets loaded with wp_head.
+
+= Is the plugin Google AMP / Facebook Instant ready? =
+
+It is! We are hooked into Automattic's official plugins for AMP and Facebook Instant. AMP support is enabled automatically if the Automattic AMP plugin is installed, and for Facebook Instant you just have to enable "Parsely Analytics" in the "Advanced Settings" menu of the Facebook Instant Articles plugin.
+
+= Automattic official plugins:
+
+https://wordpress.org/plugins/amp/
+https://wordpress.org/plugins/fb-instant-articles/
+
 == Screenshots ==
 
 1. The main settings screen of the wp-parsely plugin
 2. The standard JavaScript include being inserted before </body>
-3. A sample `parsely-page` meta tag for a home page
-4. A sample `parsely-page` meta tag for an article or post
+3. A sample `JSON-LD` meta tag for a home page
+4. A sample `JSON-LD` meta tag for an article or post
 
 == Changelog ==
+
+= 1.12 =
+* Adds ability to use repeated meta tags instead of ld+json tags for metadata
+* Code cleanup to conform to WordPress VIP standards
+* Minor bugfixes
+
+= 1.11 =
+* Adds ability to use Parsely API with widget
+* Adds ability to track or not track custom page and post types
+* Adds ability to disable Javascript tracking
+* <inor bugfixes
+
+= 1.10 =
+* Adds ability to filter final JSON-LD output
+* Adds the ability to include custom taxonomies in tags
+* Adds AMP / Facebook Instant integration with official AMP / FBIA plugins from Automattic
+* Fixes bug related to HTTPS canonicals
 
 = 1.9 =
 * Adds ability to assign custom taxonomies as section
