@@ -75,11 +75,11 @@ class Flag_Comments {
 		$flagged_count = $this->get_flagged_comment_count();
 		add_options_page( $this->__('Flag Comments'), $this->__('Flag Comments'), 'edit_posts', 'flag-comments', array(&$this, 'menu'));
 		$flagged_manage = add_submenu_page( 'edit-comments.php', sprintf($this->__('Flagged Comments (%d)'), $flagged_count), sprintf($this->__('Flagged Comments (%d)'), $flagged_count), 'edit_posts', 'flagged-comments', array(&$this, 'manage'));
-		add_action('load-' . $flagged_manage, create_function('','
+		add_action('load-' . $flagged_manage, function() {
 			wp_enqueue_script("admin-comments");
 			wp_enqueue_script("admin-forms");
-			wp_enqueue_script("wp-ajax");'
-		));
+			wp_enqueue_script("wp-ajax");
+		} );
 	}
 
 	function admin_head() {
