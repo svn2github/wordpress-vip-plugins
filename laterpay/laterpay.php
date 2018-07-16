@@ -241,6 +241,15 @@ function laterpay_check_is_vip() {
 }
 
 /**
+ * Check if env is vip go.
+ *
+ * @return bool
+ */
+function laterpay_is_vip_go() {
+	return ( laterpay_check_is_vip() && ( ! laterpay_check_is_vip_classic() ) );
+}
+
+/**
  * Checks whether the migration is completed or not.
  *
  * @return bool

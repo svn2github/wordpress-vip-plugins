@@ -639,7 +639,13 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
         );
 
         $this->assign( 'laterpay', $view_args );
-        $this->render( 'frontend/partials/post/teaser', null, true );
+
+	    if ( $event->is_echo_enabled() ) {
+			$this->render( 'frontend/partials/post/teaser', null, true );
+		} else {
+			$html = LaterPay_Helper_View::remove_extra_spaces( $this->get_text_view( 'frontend/partials/post/teaser' ) );
+			$event->set_result( $html );
+	    }
     }
 
     /**

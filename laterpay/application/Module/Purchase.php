@@ -456,6 +456,9 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
                             time() + 30,
                             '/'
                         );
+	                    if ( laterpay_is_vip_go() ) {
+		                    setcookie( 'vip-go-cb', '1', time() + 30, '/' );
+		                }
                     } else {
                         // update gift code statistics
                         LaterPay_Helper_Voucher::update_voucher_statistic( $pass_id, $voucher, true );
