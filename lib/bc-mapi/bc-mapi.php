@@ -1339,7 +1339,13 @@ class BCMAPI
 
 			if(!isset($response_object->result))
 			{
-				throw new BCMAPIApiError($this, self::ERROR_API_ERROR, $response_object);
+				/**
+				 * VIP: Send error message instead of throwing this error:
+				 * `throw new BCMAPIApiError($this, self::ERROR_API_ERROR, $response_object);`
+				 */
+				if ( isset( $response->error ) ) {
+					$response_object->result = sprintf( '%s: %s (%s)', $response->error->name, $response->error->message, $response->error->code );
+				}
 			}
 			
 			return $response_object;
