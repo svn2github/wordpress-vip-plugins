@@ -6,7 +6,6 @@
 
 class ES_WP_Query extends ES_WP_Query_Wrapper {
 	protected function query_es( $es_args ) {
-		echo '<pre>' . print_r( $es_args, true ) . '</pre>';
 		if ( function_exists( 'es_api_search_index' ) ) {
 			$es_args['name'] = es_api_get_index_name_by_blog_id( $es_args['blog_id'] );
 			if ( is_wp_error( $es_args['name'] ) )
@@ -16,8 +15,6 @@ class ES_WP_Query extends ES_WP_Query_Wrapper {
 	}
 
 	protected function set_posts( $q, $es_response ) {
-
-		echo '<pre>' . print_r( $es_response, true ) . '</pre>';
 		$this->posts = array();
 		if ( ! is_wp_error( $es_response ) && isset( $es_response['results']['hits'] ) ) {
 			switch ( $q['fields'] ) {
