@@ -86,6 +86,20 @@ class Admin_Apple_Post_Sync {
 			return;
 		}
 
+		/**
+		 * Ability to override the autopublishing of posts on a per-post level.
+		 *
+		 * @param bool    $should_autopublish Flag if the post should autopublish.
+		 * @param int     $post_id Post ID.
+		 * @param WP_Post $post Post object.
+		 */
+		$should_autopublish = (bool) apply_filters( 'apple_news_should_post_autopublish', true, $id, $post );
+
+		// Bail if the filter returns false.
+		if ( ! $should_autopublish ) {
+			return;
+		}
+
 		// Proceed with the push.
 		$action = new Apple_Actions\Index\Push( $this->settings, $id );
 		try {
