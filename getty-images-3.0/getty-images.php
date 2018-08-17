@@ -5,7 +5,7 @@ Plugin URI: http://www.oomphinc.com/work/getty-images-wordpress-plugin/
 Description: Integrate your site with Getty Images
 Author: gettyImages
 Author URI: http://gettyimages.com/
-Version: 3.0.8
+Version: 3.0.9
 */
 
 /*  Copyright 2014  Getty Images
@@ -251,16 +251,7 @@ class Getty_Images {
 		wp_enqueue_script( 'getty-images-filters', plugins_url( '/js/getty-filters.js', __FILE__ ), array(), $current_timestamp, true );
 		wp_enqueue_script( 'getty-images-views', plugins_url( '/js/getty-views.js', __FILE__ ), array( 'getty-images-filters', 'spin-js' ), $current_timestamp, true );
 		wp_enqueue_script( 'getty-images-firebase', plugins_url( '/js/getty-firebase.js', __FILE__ ), array( 'firebase-app-js' ), $current_timestamp, true );
-
-		// Register specific Omniture version of s_code for VIP or .org
-		if($isWPcom) {
-			wp_register_script( 'getty-omniture-scode', apply_filters( 'getty_images_s_code_js_url', plugins_url( '/js/vendor/s_code_vip.js', __FILE__ ) ), array(), $current_timestamp, true );
-		} else {
-			wp_register_script( 'getty-omniture-scode', apply_filters( 'getty_images_s_code_js_url', plugins_url( '/js/vendor/s_code_org.js', __FILE__ ) ), array(), $current_timestamp, true );
-		}
-		
-
-		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models.js', __FILE__ ), array( 'jquery-cookie', 'getty-omniture-scode' ), $current_timestamp, true );
+		wp_enqueue_script( 'getty-images-models', plugins_url( '/js/getty-models.js', __FILE__ ), array( 'jquery-cookie'), $current_timestamp, true );
 		wp_enqueue_script( 'getty-images', plugins_url( '/js/getty-images.js', __FILE__ ), array( 'getty-images-views', 'getty-images-models' ), $current_timestamp, true );
 
 		wp_enqueue_style( 'getty-base-styles', plugins_url( '/css/getty-base-styles.css', __FILE__ ) );
@@ -620,15 +611,6 @@ class Getty_Images {
 		if( !is_array( $_POST['meta'] ) || !isset( $_POST['meta']['id'] ) ) {
 			$this->ajax_error( __( "Invalid image meta", 'getty-images' ) );
 		}
-
-        // Getty Images delivery URLs have the pattern:
-        //
-        // http://delivery.gettyimages.com/../<filename>.<ext>?TONSOFAUTHORIZATIONDATA
-        //
-        // Check that the URL component is correct:
-        if( strpos( $url, 'https://delivery.gettyimages.com/' ) !== 0 ) {
-            $this->ajax_error( "Invalid URL" );
-        }
 
 		// Download the image, but don't necessarily attach it to this post.
 		$tmp = $this->getty_download_url( $url );

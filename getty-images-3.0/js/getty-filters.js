@@ -227,13 +227,6 @@
 			// Save filter to persist with user
 			getty.user.settings.set(this.prop, this.model.get(this.prop));
 
-			//Track filter changed
-			var s = window.getty_s;
-			s.events = 'event8';
-			s.pev2 = 'SearchFilter';
-			s.eVar5 = this.prop;
-			getty.tl(true, 'o', s.pev2);
-
 			//Trigger refinementChanged event if specified.
 			this.model.trigger('refinementChanged', this.model.get(this.prop));
 		},

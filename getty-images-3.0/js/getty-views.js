@@ -354,8 +354,7 @@
 		// Create single attachment detail view for sidebar
 		createSingle: function() {
 			var sidebar = this.sidebar,
-				single = this.options.selection.single(),
-				s = window.getty_s;
+				single = this.options.selection.single();
 
 			var attachment = single.id ? media.model.GettyAttachments.all.get(single.id) : false;
 
@@ -377,13 +376,6 @@
 				});
 
 				sidebar.set('details',  details);
-
-				if(s) {
-					s.events = 'event3';
-					s.prop1 = s.eVar1 = s.prop2 = s.eVar2 = '';
-					s.prop3 = s.eVar3 = single.id;
-					getty.tl();
-				}
 			}
 		},
 
@@ -1160,8 +1152,6 @@
 
 			this.downloadOption = downloadOption;
 
-			window.getty_s.eVar4 = downloadOption;
-
 			if (downloadOption === "media-only"){
 				this.options.gettyBrowser.download();
 			}
@@ -1186,7 +1176,6 @@
 		insertImage: function(url) {
 			var self = this,
 				image = this.collection.single(),
-				s = window.getty_s,
 				$licenseDialog = $("#getty-comp-license-dialog");
 
 			getty.tracking.asset.id = image.get('id');
@@ -1222,30 +1211,11 @@
 				});
 			}
 			else {
-				if(this.controller.state().get('mode') === 'embed' && s && image) {
-					s.events = 'event5';
-					s.prop1 = s.eVar1 = s.prop2 = s.eVar2 = '';
-					s.prop3 = s.eVar3 = image.get('id');
-					s.pev2 = 'ADPDownload';
-					getty.tl(true, 'o', s.pev2);
-				}
-
 				this.insert(url);
 			}
 		},
 
 		insertComp: function() {
-			var image = this.controller.state().get('selection').single(),
-				s = window.getty_s;
-
-			if(s && image) {
-				s.events = 'event4';
-				s.prop1 = s.eVar1 = s.prop2 = s.eVar2 = '';
-				s.eVar3 = image.get('id');
-				s.pev2 = 'ADPDownload';
-				getty.tl(true, 'o', s.pev2);
-			}
-
 			this.insert();
 		},
 
@@ -1526,10 +1496,6 @@
 
 		save: function() {
 			var checked = this.$el.find('.getty-welcome-opt-in input').prop('checked');
-
-			if ( ! checked ) {
-				delete window.getty_s;
-			}
 			getty.user.settings.set('omniture-opt-in', checked);
 		},
 
@@ -1606,11 +1572,6 @@
 		chooseEmbeddedMode: function() {
 			getty.user.settings.set('mode', 'embed');
 			getty.user.unset('loggedIn');
-
-			var s = window.getty_s;
-			s.events = 'event7';
-			s.pev2 = 'AccessEmbedImage';
-			getty.tl(true, 'o', s.pev2);
 		},
 
 		chooseLoginMode: function() {
@@ -1618,10 +1579,6 @@
 			if(!getty.user.get('loggedIn')) {
 				this.openLoginWindow();
 			}
-			var s = window.getty_s;
-			s.events = 'event1';
-			s.pev2 = 'GettyCustomerLogin';
-			getty.tl(true, 'o', s.pev2);
 		},
 
 		openLoginWindow: function() {

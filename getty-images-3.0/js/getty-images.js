@@ -14,30 +14,6 @@
 	getty.user = new media.model.GettyUser();
 	getty.user.restore();
 
-	// Omniture tracking
-	getty.t = function() {
-		var s = window.getty_s;
-		if(getty.user.settings.get('omniture-opt-in') && s && s.t) {
-			if (getty.tracking.user.userId) {
-				s.eVar1 = getty.tracking.user.userId;
-			}
-			s.channel = s.server = s.referrer = s.pageURL;
-			s.t();
-			s.eVar3 = s.eVar4 = s.eVar5 = '';
-		}
-	};
-	getty.tl = function(isLink,type,linkName) {
-		var s = window.getty_s;
-		if(getty.user.settings.get('omniture-opt-in') && s && s.tl) {
-			if (getty.tracking.user.userId) {
-				s.eVar1 = getty.tracking.user.userId;
-			}
-			s.channel = s.server = s.referrer = s.pageURL;
-			s.tl(isLink,type,linkName);
-			s.eVar3 = s.eVar4 = s.eVar5 = '';
-		}
-	};
-
 	getty.getProductName = function(productType) {
 		switch (productType) {
 			case 'imagepack':
@@ -113,8 +89,6 @@
 			}
 
 			this.turnBindings('on');
-
-			getty.t();
 
 			this.setMode();
 		},

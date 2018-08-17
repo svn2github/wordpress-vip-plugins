@@ -359,19 +359,10 @@
 
 		// Image downloaded! Yay!
 		downloaded: function(response, setAsFeaturedImage) {
-			var s = window.getty_s;
 			this.set('attachment', new media.model.Attachment(response));
 
 			// Refresh Download counts for products
 			getty.user.refreshProducts();
-
-			if(s) {
-				s.events = 'event6';
-				s.prop1 = s.eVar1 = s.prop2 = s.eVar2 = '';
-				s.prop3 = s.eVar3 = this.get('id');
-				s.pev2 = 'ADPDownload';
-				getty.tl(true, 'o', s.pev2);
-			}
 		},
 
 		// Get WordPress image details
@@ -542,8 +533,7 @@
 
 		// Perform a search with queued search properties
 		search: function() {
-			var searchTerm = this.propsQueue.get('search'),
-				s = window.getty_s;
+			var searchTerm = this.propsQueue.get('search');
 
 			if(typeof searchTerm != 'string' || !searchTerm.match(/[^\s]/)){
 				return;
@@ -574,14 +564,6 @@
 				this.mirror(query);
 
 				getty.tracking.search.search_term = this.props.get('search');
-
-				if(s) {
-					s.events = 'event2';
-					s.prop1 = s.eVar1 = s.prop3 = s.eVar3 = '';
-					s.eVar2 = this.props.get('search');
-					s.pev2 = 'Search';
-					getty.tl(true, 'o', s.pev2);
-				}
 			}
 
 			// Force reset of attributes for cached queries
@@ -947,8 +929,6 @@
 		},
 
 		tokenLogin: function(token, isTrackingEnabled) {
-			var s = window.getty_s;
-
 			this.settings.set("omniture-opt-in", isTrackingEnabled);
 
 			try {
@@ -972,14 +952,6 @@
 
 					getty.tracking.user.username = self.get('username');
 					getty.tracking.user.userId = tokenDetail.userId;
-
-					if(s) {
-						s.events = 'event1';
-						s.prop2 = s.eVar2 = s.prop3 = s.eVar3 = '';
-						s.prop1 = s.eVar1 = getty.tracking.user.userId;
-						s.pev2 = 'Login';
-						getty.tl(true, 'o', s.pev2);
-					}
 				})
 				.fail(function(result) {
 					self.set('loggedIn', false);
