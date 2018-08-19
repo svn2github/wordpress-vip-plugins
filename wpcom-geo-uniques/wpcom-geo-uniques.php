@@ -160,7 +160,11 @@ class WPCOM_Geo_Uniques {
 		}
 
 		$test  = sprintf( 'if ( empty( %s ) ) { return "%s"; }', $global_var, esc_js( self::get_default_location() ) );
-		$test .= sprintf( ' elseif %s', implode( ' elseif ', $checks ) );
+
+		if ( ! empty( $checks ) ) {
+			$test .= sprintf( ' elseif %s', implode( ' elseif ', $checks ) );
+		}
+
 		$test .= sprintf( ' else { return "%s"; }', esc_js( self::get_default_location() ) );
 
 		$user_location = static::run_vary_cache_on_function( $test );
