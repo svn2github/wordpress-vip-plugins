@@ -85,7 +85,9 @@ class JWPlayer_api {
 
 		$response = null;
 		if ( 'wpvip' == $this->_library ) {
-			$response = vip_safe_wp_remote_get( $url, '', 3, 3 );
+			$response = wp_remote_get( $url, array(
+				'timeout' => 5
+			) );
 		} else {
 			$response = wp_remote_get( $url, array(
 				'timeout' => 15
