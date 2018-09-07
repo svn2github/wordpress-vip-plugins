@@ -13,7 +13,7 @@ add_action( 'syn_after_init_server', function() {
 		 * Wait for shutdown before queuing the post syndication.
 		 * A lot of things may happen after `transition_post_status` which is where `syn_schedule_push_content` is triggered from.
 		 */
-		add_action( 'shutdown', function () use ( $post_id, $sites ) {
+		add_action( 'shutdown', function () use ( $post_id ) {
 
 			$data          = new stdClass;
 			$data->post_id = $post_id;
