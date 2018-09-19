@@ -507,11 +507,13 @@ class Add_Meta_Tags {
 		$cmpvalues = $this->amt_clean_array( $cmpvalues );
 		$my_metatags = "";
 
-		// nothing allowed so just return
-		if ( empty( $cmpvalues ) )
-			return;
-
 		if ( is_singular() ) {
+
+			// nothing allowed so just return
+			if ( empty( $cmpvalues ) ) {
+				return;
+			}
+
 			/*
 			Add META tags to Single Page View or Page
 			*/
