@@ -564,7 +564,7 @@ class WPcom_VIP_Plugins_UI {
 			}
 
 			foreach ( wpcom_vip_get_loaded_plugins() as $active_plugin ) {
-				if ( 0 === strpos( $active_plugin, 'plugins/' . $plugin ) ) {
+				if ( 0 === strpos( $active_plugin, 'plugins/' . $plugin ) && array_key_exists($plugin, $this->fpp_plugins ) ) {
 					return 'manual';
 				}
 			}
