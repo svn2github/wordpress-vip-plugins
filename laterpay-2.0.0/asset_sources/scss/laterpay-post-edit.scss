@@ -1,0 +1,18 @@
+// Loaded on add / edit post pages
+
+@charset "UTF-8";
+
+@import 'objects/_variables';
+@import 'objects/_polyfills';
+@import 'objects/_utilities';
+@import 'objects/_layout';
+@import 'objects/_tags';
+@import 'objects/_badge';
+@import 'objects/_forms';
+@import 'objects/_vector_icons';
+@import 'objects/_tooltips';
+@import 'objects/_button_group';
+
+@import 'components/_dynamic_pricing';
+
+@import 'pages/_post_edit';

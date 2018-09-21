@@ -1,0 +1,217 @@
+// dynamic pricing widget for defining a price curve using a D3 widget
+
+
+// common properties ---------------------------------------------------------------------------------------------------
+.lp_dynamic-pricing text {
+    user-select: none;
+}
+
+
+// container -----------------------------------------------------------------------------------------------------------
+.lp_dynamic-pricing {
+    height: 225px;
+    width: 254px;
+}
+
+
+// graph area ----------------------------------------------------------------------------------------------------------
+.lp_dynamic-pricing__graph-background {
+    fill: $background;
+}
+
+
+// axes ----------------------------------------------------------------------------------------------------------------
+// .domain is the axis line and should therefore better be called .lp_dynamic-pricing__axis-line,
+// but I have no idea, how to assign it that class name
+.lp_dynamic-pricing__axis .domain {
+    stroke: $text--lighter;
+    stroke-dasharray: none;
+    stroke-width: 1.5px;
+}
+
+.lp_dynamic-pricing__axis-arrowhead {
+    fill: $text--lighter;
+}
+
+.lp_dynamic-pricing__grid-line {
+    stroke: $text--lighter;
+    stroke-width: 0.1px;
+}
+
+.lp_dynamic-pricing__grid-line-label {
+    display: none;
+}
+
+// price curve ---------------------------------------------------------------------------------------------------------
+.lp_dynamic-pricing__price-curve {
+    fill: none;
+    stroke: darken($text, 20%);
+    stroke-linecap: round;
+    stroke-width: 2.5px;
+}
+
+.lp_dynamic-pricing__price-curve-point {
+    fill: darken($text, 20%);
+    stroke: $background;
+    stroke-width: 2px;
+
+    &.lp_is-hidden {
+        display: none;
+    }
+}
+
+
+// graph markers -------------------------------------------------------------------------------------------------------
+/*
+ * 1. hide vertical lines for maximum x-axis value, because it just has to be inserted as a technical workaround
+ */
+.lp_dynamic-pricing__x-axis-marker {
+    stroke: $text;
+    stroke-dasharray: 5;
+    stroke-width: 1px;
+
+    &.lp_is-hidden {
+        display: none; /* 1 */
+    }
+}
+
+.lp_dynamic-pricing__current-price-marker {
+    stroke: $laterpay-brand;
+    stroke-width: 0.5px;
+}
+
+.lp_dynamic-pricing__current-price-label {
+    fill: $laterpay-brand;
+    font-size: 9px;
+}
+
+.lp_dynamic-pricing__default-price-marker {
+    stroke: $text--lighter;
+    stroke-width: 1px;
+}
+
+.lp_dynamic-pricing__default-price-label-background {
+    fill: $background;
+}
+
+.lp_dynamic-pricing__default-price-label {
+    fill: $text--lighter;
+    font-size: 9px;
+}
+
+
+// handles for editing the price curve ---------------------------------------------------------------------------------
+.lp_dynamic-pricing__start-price-handle,
+.lp_dynamic-pricing__start-price-handle-triangle,
+.lp_dynamic-pricing__end-price-handle,
+.lp_dynamic-pricing__end-price-handle-triangle,
+.lp_dynamic-pricing__price-change-days-handle,
+.lp_dynamic-pricing__price-change-days-handle-triangle {
+    fill: $clickable;
+}
+
+.lp_dynamic-pricing__start-price-input-wrapper,
+.lp_dynamic-pricing__end-price-input-wrapper {
+    position: relative;
+    z-index: $zindex--elevated-1;
+}
+
+
+/*
+ * 1. show vertical resize cursor over price handles
+ */
+.lp_dynamic-pricing__start-price-handle,
+.lp_dynamic-pricing__start-price-value,
+.lp_dynamic-pricing__start-price-currency,
+.lp_dynamic-pricing__end-price-handle,
+.lp_dynamic-pricing__end-price-value,
+.lp_dynamic-pricing__end-price-currency {
+    cursor: row-resize; /* 1 */
+}
+
+.lp_dynamic-pricing__handle-text {
+    fill: #fff;
+}
+
+.lp_dynamic-pricing__start-price-value,
+.lp_dynamic-pricing__end-price-value,
+.lp_dynamic-pricing__price-change-days-value {
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.lp_dynamic-pricing__handle-unit {
+    font-size: 9px;
+    font-weight: normal;
+}
+
+.lp_dynamic-pricing__start-price-value,
+.lp_dynamic-pricing__end-price-value {
+    font-size: $fs--07;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/*
+ * !important is used to make sure our input renders as intended, regardless of crappy theme or browser styles
+ *
+ * 1. Make sure the input renders on top of the price curve points
+ */
+.lp_dynamic-pricing__start-price-input,
+.lp_dynamic-pricing__end-price-input {
+    background: #fff !important;
+    border: 2px solid $clickable !important;
+    border-radius: $border-radius !important;
+    box-shadow: none !important;
+    display: none;
+    font-size: 12px !important;
+    height: 29px !important;
+    margin: 0 !important;
+    padding: 4px !important;
+    width: 100% !important;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: $zindex--overlayed-1 !important; /* 1 */
+
+    &:focus {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+        border-color: $clickable !important;
+    }
+}
+
+/**
+ * 1. Adjust position of inputs. No idea, why those specific numbers are required!
+ */
+.lp_dynamic-pricing__start-price-input {
+    left: 39px; /* 1 */
+    top: 37px; /* 1 */
+}
+.lp_dynamic-pricing__end-price-input {
+    right: -39px; /* 1 */
+    top: 36px; /* 1 */
+}
+
+/*
+ * 1. show horizontal resize cursor over price change days handles
+ */
+.lp_dynamic-pricing__price-change-days-handle,
+.lp_dynamic-pricing__price-change-days-handle-triangle,
+.lp_dynamic-pricing__price-change-days-value,
+.lp_dynamic-pricing__price-change-days-unit {
+    cursor: col-resize; /* 1 */
+}
+
+
+/*
+ * 1. hide handle for maximum x-axis value, because it just has to be inserted as a technical workaround
+ */
+.lp_dynamic-pricing__price-change-days-handle,
+.lp_dynamic-pricing__price-change-days-handle-triangle,
+.lp_dynamic-pricing__price-change-days-value,
+.lp_dynamic-pricing__handle-unit {
+    &.lp_is-hidden {
+        display: none; /* 1 */
+    }
+}

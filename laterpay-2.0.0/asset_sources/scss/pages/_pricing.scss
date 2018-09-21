@@ -1,0 +1,168 @@
+// 'Pricing' tab in plugin backend
+
+// global / category default prices ------------------------------------------------------------------------------------
+.lp_table--form {
+    margin: 0;
+
+    th,
+    td {
+        text-align: left;
+        vertical-align: middle;
+    }
+
+    th {
+        color: $text--lighter;
+        font-weight: normal;
+        padding-left: 0;
+    }
+
+    td {
+        padding-right: 0;
+    }
+
+    thead th {
+        color: $text;
+        font-size: $fs--125;
+        padding: $fs--05 0 $fs;
+    }
+
+    tfoot td {
+        padding-top: $fs;
+        padding-bottom: 0;
+    }
+
+    td.lp_revenu_td_width {
+        width: 55%;
+    }
+}
+
+.lp_price-section {
+    .lp_badge {
+        margin-left: $fs--025;
+        padding: 2px $fs--025;
+    }
+}
+
+
+// category default prices ---------------------------------------------------------------------------------------------
+.lp_category-price-form {
+
+    .select2-container,
+    .select2-drop,
+    .select2-search,
+    .select2-search input {
+        width: round($fs * 12.75);
+    }
+}
+
+
+// time passes ---------------------------------------------------------------------------------------------------------
+.lp_time-passes__item,
+.lp_subscriptions__item {
+    @extend %lp_greybox;
+
+    margin: 0 auto $fs;
+    padding-bottom: $fs--05;
+    position: relative;
+    width: round($fs * 27.5);
+
+    .lp_time-pass__id-wrapper,
+    .lp_subscription__id-wrapper {
+        background: $background--darker;
+        border-radius: 4px 0 0 4px;
+        left: - round($fs * 3.5);
+        line-height: 1.2;
+        padding: $fs--05 $fs--025;
+        position: absolute;
+        text-align: center;
+        width: $fs--3;
+    }
+
+    .lp_time-pass__id,
+    .lp_subscription__id {
+        display: block;
+        font-size: $fs--2;
+    }
+
+    .lp_time-pass {
+        margin-right: 0;
+        margin-bottom: 0;
+    }
+}
+
+.lp_time-pass-editor,
+.lp_subscription-editor {
+    display: inline-block;
+    vertical-align: top;
+
+    .lp_time-pass-editor__column,
+    .lp_subscription-editor__column {
+        margin-top: $fs;
+
+        td {
+            padding: $fs--07 0 0;
+            vertical-align: middle;
+        }
+
+        .lp_rowspan-label {
+            padding-top: $fs--05;
+            padding-right: $fs--05;
+            vertical-align: top;
+        }
+    }
+
+    .lp_timePass_description-input,
+    .lp_subscription_description-input {
+        height: round($fs * 4.75);
+    }
+
+    .lp_toggle__label-pass {
+        width: round($fs * 3.5);
+
+        .lp_toggle__input:checked ~ .lp_toggle__text {
+            background: darken($background, 16%);
+        }
+    }
+}
+
+.lp_price-panel {
+    position: relative;
+
+    &__buttons {
+        position: absolute;
+        top: 0;
+        right: 0;
+    }
+}
+
+// voucher editor
+.lp_voucher {
+    margin-top: $fs--05;
+    margin-bottom: $fs--025;
+}
+
+.lp_vouchers .lp_voucher {
+    float: left;
+}
+
+table {
+
+    td {
+        padding: $fs--05;
+        vertical-align: top;
+    }
+
+    pre {
+        margin: 0;
+    }
+}
+
+.lp_show_revenue_info {
+    padding: $fs--04;
+    color: #757575;
+    font-size: 12px;
+
+    a {
+        text-decoration: underline;
+    }
+}

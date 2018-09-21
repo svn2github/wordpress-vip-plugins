@@ -1,0 +1,13 @@
+.lp_greybox,
+%lp_greybox {
+    background: $background--darker;
+    border-radius: $border-radius;
+    padding: $fs;
+}
+
+.lp_greybox--outline {
+    @extend %lp_greybox;
+
+    background: transparent;
+    border: 2px solid $background--darker;
+}

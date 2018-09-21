@@ -1,0 +1,174 @@
+.lp_button-group {
+    background: $background--darker;
+    border: 2px solid $border;
+    border-radius: $border-radius;
+
+    .lp_button-group__button {
+        box-shadow: inset 1px 0 0 $border, inset 0 1px 0 hsla(0, 0%, 100%, 0.55);
+        color: $clickable;
+        display: inline-block;
+        line-height: 1.25;
+        margin: 0;
+        padding: 0.5em $fs--05;
+        text-align: center;
+        box-sizing: border-box;
+
+        input[type=radio] {
+            display: none;
+        }
+
+        &:hover {
+            background-color: $clickable--highlight;
+            color: $text--inverse;
+        }
+
+        &:first-child {
+            border-radius: $border-radius 0 0 $border-radius;
+            box-shadow: inset 1px 1px 0 hsla(0, 0%, 100%, 0.55);
+        }
+
+        &:last-child {
+            border-radius: 0 $border-radius $border-radius 0;
+            box-shadow: inset 1px 0 0 $border, inset -1px 1px 0 hsla(0, 0%, 100%, 0.55);
+        }
+
+        &.lp_is-disabled,
+        &.lp_is-disabled:hover {
+            background: transparent;
+            color: $text--lighter;
+            cursor: default;
+        }
+
+        &.lp_is-selected,
+        &.lp_is-selected:hover {
+            background: $laterpay-brand;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,.34);
+            color: $text--inverse;
+            cursor: default;
+        }
+    }
+}
+
+.lp_button-group__hint {
+    color: $text--lighter;
+    margin: $fs;
+    max-width: ($fs * 32);
+
+    p {
+        margin: 0 0 $fs--05;
+    }
+
+    table {
+        margin: 0;
+    }
+
+    td,
+    th {
+        padding: 0;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    th {
+        font-weight: bold;
+        padding-right: $fs--05;
+    }
+
+    code {
+        background: none;
+        margin: 0;
+        padding: 0;
+    }
+}
+
+.lp_button-group--large {
+    border-radius: ($border-radius * 2);
+    box-shadow: 1px 1px 0 $background--lightest;
+    display: inline-block;
+    white-space: nowrap;
+
+    .lp_button-group__button {
+        border: 1px solid $border;
+        color: $clickable;
+        display: inline-block;
+        font-weight: bold;
+        line-height: 1.25;
+        padding: $fs;
+        position: relative;
+        text-align: center;
+
+        input[type=radio] {
+            display: none;
+        }
+
+        &:hover {
+            border-color: $clickable--highlight;
+            color: $clickable--highlight;
+            z-index: $zindex--elevated-1;
+        }
+
+        &:not(:last-child) {
+            margin-right: -1px;
+        }
+
+        &:first-child {
+            border-radius: ($border-radius * 2) 0 0 ($border-radius * 2);
+        }
+
+        &:last-child {
+            border-radius: 0 ($border-radius * 2) ($border-radius * 2) 0;
+        }
+
+        &.lp_is-selected,
+        &.lp_is-selected:hover {
+            background: $background--darker;
+            border-color: $border;
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.2);
+            color: $text--lighter;
+            cursor: default;
+            z-index: $zindex;
+        }
+
+        &:hover .lp_button-group__button-image,
+        &.lp_is-selected .lp_button-group__button-image,
+        &.lp_is-selected:hover .lp_button-group__button-image {
+            filter: grayscale(0);
+        }
+    }
+
+    .lp_button-group__button-image {
+        background-repeat: no-repeat;
+        background-size: 100%;
+        filter: grayscale(100%);
+        height: round($fs * 10.5);
+        margin: 0 0 $fs;
+        width: ($fs * 15);
+    }
+
+}
+
+.lp_button--default {
+    background: $clickable;
+    border-radius: $border-radius * 2;
+    color: $text--inverse;
+    display: inline-block;
+    height: $fs--2;
+    line-height: $fs--2;
+    padding: 0 $fs--175;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background: $clickable--highlight;
+        color: $text--inverse;
+    }
+}
+
+.lp_button--link {
+    color: $clickable;
+    &:hover,
+    &:focus,
+    &:active {
+        color: $clickable--highlight;
+    }
+}

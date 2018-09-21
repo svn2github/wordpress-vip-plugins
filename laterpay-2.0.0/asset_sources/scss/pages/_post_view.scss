@@ -1,0 +1,352 @@
+// view post page in WordPress frontend
+
+// overlay for the LaterPay purchase dialogs ---------------------------------------------------------------------------
+.lp_closebtn {
+    padding: 5px;
+    position: fixed;
+    right: 0;
+    top: 0;
+
+    a {
+        color: $text--inverse;
+        padding: $fs--075;
+        text-decoration: none;
+    }
+}
+
+.lp_status {
+    border: 0 none;
+    height: 25px;
+    width: 100%;
+}
+
+
+// content preview mode 2: teaser + excerpt from actual content, covered by overlay ------------------------------------
+.lp_paid-content {
+    bottom: $fs !important;
+    margin-bottom: (5 * $fs) !important;
+    min-height: 500px !important;
+    position: relative !important;
+    top: 0 !important;
+
+
+    // hide purchase button, if it is covered by our paid content overlay
+    .lp_purchase-button--shortcode {
+        display: none !important;
+    }
+
+
+    // obfuscate excerpt of full post content by making it look blurred
+    .lp_full-content {
+        color: transparent !important;
+        padding: $fs--025 !important;
+        text-shadow: 0 0 4px darken($text, 33%) !important;
+        filter: blur(3px) !important;
+    }
+
+    .lp_overlay-text {
+        background-color: hsla(0, 0%, 100%, 0.89) !important;
+        height: 100% !important;
+        left: 0  !important;
+        position: absolute !important;
+        top: 0 !important;
+        width: 100% !important;
+
+
+        // modal window-like box describing the benefits of LaterPay
+        .lp_benefits {
+            background-clip: padding-box !important;
+            background: darken($background, 5%) !important;
+            background: radial-gradient(ellipse at center, $text--inverse 34%, $background--darker 89%) !important;
+            border-radius: 5px !important;
+            box-shadow: 1px 1px 4px hsla(0, 0%, 0%, 0.55) !important;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+            font-size: $fs !important;
+            font-style: normal !important;
+            font-weight: normal !important;
+            line-height: 1.3 !important;
+            margin: $fs auto !important;
+            max-width: ($fs * 34) !important;
+            padding: 0 !important;
+            position: relative !important;
+
+            .lp_benefits__header {
+                background: lighten($text, 5%);
+                border-radius: 5px 5px 0 0 !important;
+                left: 0 !important;
+                padding: 1.5em 0 !important;
+                position: relative !important;
+                right: 0 !important;
+                top: 0 !important;
+            }
+
+            .lp_benefits__title {
+                color: $text--inverse !important;
+                font-size: $fs--2 !important;
+                font-weight: normal !important;
+                line-height: 1.05 !important;
+                margin: 0 !important;
+                overflow: hidden !important;
+                text-align: center !important;
+
+                /**
+                 * LaterPay logo
+                 * 1. Use px values instead of em, because some browsers (e.g. IE10) don't render correct sizes
+                 */
+                span {
+                    color: $text--inverse !important;
+                    display: block !important;
+                    font-size: 200px !important;
+                    height: $fs--3 !important;
+                    line-height: 0 !important;
+                    left: $fs--2 !important; /* 1 */
+                    position: relative !important;
+                    text-align: center !important;
+                    top: -($fs * 7) !important; /* 1 */
+                }
+            }
+
+            .lp_benefits__list {
+                list-style: none !important;
+                margin: $fs--05 $fs 0 !important;
+                padding: 0 !important;
+            }
+
+            .lp_benefits__list-item {
+                background: url('../img/laterpay-icon-buy.svg') 6px 0 / 60px no-repeat !important;
+                list-style: none !important;
+                margin: 0 !important;
+                padding: 0 0 0 80px !important;
+
+                &.lp_benefit--buy-now {
+                    background-image: url('../img/laterpay-icon-buy.svg') !important;
+                }
+
+                &.lp_benefit--use-immediately {
+                    background-image: url('../img/laterpay-icon-read.svg') !important;
+                }
+
+                &.lp_benefit--pay-later {
+                    background-image: url('../img/laterpay-icon-pay.svg') !important;
+                }
+            }
+
+            .lp_benefit__title {
+                color: lighten($text, 5%) !important;
+                font-size: $fs--125 !important;
+                font-style: normal !important;
+                font-weight: bold !important;
+                line-height: 1.3 !important;
+                margin: $fs--125 0 0.1em !important;
+            }
+
+            .lp_benefit__text {
+                color: lighten($text, 20%) !important;
+                line-height: 1.3 !important;
+                margin: 0 !important;
+            }
+
+            // embedded SVG icons
+            .lp_teaser-overlay-icons {
+                fill: $laterpay-brand--darker !important;
+            }
+
+            .lp_benefits__action {
+                text-align: center !important;
+                .lp_button {
+                    font-size: $fs--15 !important;
+                }
+            }
+
+            .lp_purchase-button,
+            .lp_button {
+                display: inline-block !important;
+                float: none !important;
+                margin-top: $fs--2 !important;
+                margin-bottom: $fs !important;
+            }
+
+            .lp_button {
+                padding: 0.25em 0.5em !important;
+            }
+
+            .lp_bought_notification {
+                display: inline-block;
+                float: none !important;
+                margin: 0 0 20px;
+            }
+
+            .lp_powered-by {
+                color: darken($text--lighter, 6%) !important;
+                left: 50% !important;
+                margin: -$fs 0 0 ($fs * -7) !important;
+                position: absolute !important;
+
+                // LaterPay logo (rendered in pseudo element from icon font)
+                span {
+                    margin-right: -1.1em !important;
+
+                    &:before {
+                        color: darken($text--lighter, 6%) !important;
+                        font-size: ($fs * 6) !important;
+                        line-height: 0 !important;
+                        padding-left: 0.08em !important;
+                        position: relative !important;
+                        top: 0.38em !important;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+// shortcodes for linked premium files in free to read posts -----------------------------------------------------------
+.lp_premium-file-box {
+    background: $background--darker url('../img/premium-text.png') 50% 50% no-repeat;
+    background-size: cover !important;
+    border-radius: $border-radius !important;
+    box-shadow: 1px 1px 2px hsla(0, 0%, 0%, 0.34) !important;
+    height: 300px !important;
+    margin: 0 $fs $fs--2 $fs !important;
+    padding: $fs--05 $fs--05 0 0!important;
+    position: relative !important;
+    width: 300px !important;
+
+    .lp_button,
+    .lp_purchase-button,
+    .lp_purchase-button.lp_purchase-button--shortcode {
+        font-size: $fs--15 !important;
+        margin: 0 !important;
+        position: relative !important;
+        padding: 4px 7px 4px 34px!important;
+
+        &:before {
+            font-size: round($fs * 2.5) !important;
+            left: -2px !important;
+            top: 10px !important;
+        }
+    }
+    .lp_purchase-button-wrapper {
+        margin: 0px 0 28px !important;
+    }
+    .lp_button {
+        padding-right: $fs--05 !important;
+        padding-left: $fs--05 !important;
+        text-decoration: none !important;
+    }
+}
+
+.lp_is-text {
+    background-image: url('../img/premium-text.png');
+}
+
+.lp_is-audio {
+    background-image: url('../img/premium-audio.png');
+}
+
+.lp_is-video {
+    background-image: url('../img/premium-video.png');
+}
+
+.lp_is-gallery {
+    background-image: url('../img/premium-gallery.png');
+}
+
+.lp_is-file {
+    background-image: url('../img/premium-download.png');
+}
+
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    // serve retina images for hires displays
+    .lp_is-text {
+        background-image: url('../img/premium-text_2x.png');
+    }
+
+    .lp_is-audio {
+        background-image: url('../img/premium-audio_2x.png');
+    }
+
+    .lp_is-video {
+        background-image: url('../img/premium-video_2x.png');
+    }
+
+    .lp_is-gallery {
+        background-image: url('../img/premium-gallery_2x.png');
+    }
+
+    .lp_is-file {
+        background-image: url('../img/premium-download_2x.png');
+    }
+}
+
+.lp_premium-file-box__details {
+    background-color: hsla(0, 0%, 90%, 0.89) !important;
+    border-radius: 0 0 2px 2px !important;
+    bottom: 0 !important;
+    box-sizing: border-box !important;
+    color: lighten($text, 20%) !important;
+    font-size: $fs !important;
+    font-style: normal !important;
+    line-height: 1.2 !important;
+    padding: 10px !important;
+    position: absolute !important;
+    width: 100% !important;
+
+    .lp_premium-file-box__title {
+        color: $text !important;
+        font-size: $fs !important;
+        font-weight: bold !important;
+        margin: 0 !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+    }
+
+    .lp_premium-file-box__text {
+        margin: 0.375em 0 0 !important;
+        max-height: 3.6em !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+}
+
+.lp_premium-file-box__wrapper .lp_premium-file-box {
+    float: left !important;
+}
+
+
+// error messages displayed instead of broken shortcodes
+.lp_shortcode-error {
+    background-color: hsl(0, 73%, 64%) !important;
+    border-radius: $border-radius !important;
+    color: $text--inverse !important;
+    margin: $fs $fs--2 !important;
+    padding: $fs--05 $fs !important;
+}
+
+// Responsiveness ------------------------------------------------------------------------------------------------------
+@media (max-width:567px) {
+    .lp_overlay-text .lp_benefits {
+
+        .lp_benefits__title {
+            font-size: 24px !important;
+        }
+
+        ul {
+            margin: 0 $fs--05 !important;
+        }
+
+        li br {
+            display: none !important;
+        }
+
+        .lp_purchase-button {
+            margin-left: $fs--2 !important;
+        }
+    }
+
+    .lp_paid-content {
+        min-height: 580px !important;
+    }
+}

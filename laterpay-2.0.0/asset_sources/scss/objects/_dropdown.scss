@@ -1,0 +1,66 @@
+/**
+ * Dropdown object
+ */
+
+.lp_dropdown {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+
+    /* upward-pointing arrow */
+    .lp_triangle {
+        @include triangle(13px, top, $background--lightest);
+        left: -13px;
+        top: 3px;
+
+
+        /* border for upward-pointing arrow */
+        &.lp_triangle--outer-triangle {
+            @include triangle(14px, top, $border);
+            left: 50%;
+            margin-left: -14px;
+            top: -15px;
+        }
+    }
+}
+
+.lp_dropdown__current-item {
+    color: $clickable;
+}
+
+.lp_dropdown__list {
+    background: $background--lightest;
+    border: 2px solid $border;
+    border-radius: $border-radius;
+    display: none;
+    left: 50%;
+    margin-left: -3em;
+    padding: $fs--05;
+    position: absolute;
+    top: (3 * $fs);
+    width: 6em;
+    z-index: $zindex--overlayed-1;
+}
+
+// Reveal dropdown_list on hover or when state class 'is-expanded' is added
+.lp_dropdown:hover .lp_dropdown__list,
+.lp_dropdown.lp_is-expanded .lp_dropdown__list {
+    display: block;
+}
+
+.lp_dropdown__item {
+    display: block;
+    line-height: 1;
+    padding: $fs--05;
+    white-space: nowrap;
+
+    // Highlight the selected item and remove all styling that makes it look as if you could interact with it
+    &.lp_is-selected {
+        color: $text--lighter;
+
+        &:hover {
+            color: $text--lighter;
+            cursor: default;
+        }
+    }
+}

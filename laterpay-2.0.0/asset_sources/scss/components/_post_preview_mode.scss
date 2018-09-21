@@ -1,0 +1,130 @@
+// post preview mode pane
+
+// statistics pane header with LaterPay vector logo --------------------------------------------------------------------
+.lp_post-preview-mode,
+.lp_post-preview-mode__title {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.lp_post-preview-mode {
+    background: $background--darker;
+    border-radius: 0 0 0 $border-radius;
+    box-shadow: -1px 1px 6px hsla(0, 0%, 0%, 0.34);
+    color: $text;
+    font-size: $fs;
+    line-height: 1.5;
+    position: fixed;
+    right: -5px;
+    top: ($fs * 8);
+    transition: 0.25s ease-in-out;
+    width: ($fs * 25);
+    z-index: $zindex--overlayed-1;
+
+    // remove dotted outline and box shadows from .lp_post-preview-mode__visibility-toggle link
+    .lp_post-preview-mode__visibility-toggle,
+    &:focus,
+    &:active,
+    &:visited {
+        box-shadow: none;
+        outline: 0 none;
+    }
+
+    &.lp_is-hidden {
+        right: -($fs * 26); // move off the canvas (width of pane + 1 width unit)
+    }
+}
+
+.lp_post-preview-mode__title {
+    font-size: $fs--125;
+    font-style: normal;
+    font-weight: normal;
+    line-height: 1;
+    margin: $fs--05 0 $fs ($fs * 9);
+
+    /**
+     * LaterPay logo
+     * 1. Use px values instead of em, because some browsers (e.g. IE10) don't render correct sizes
+     */
+    &:before {
+        display: block;
+        font-size: round($fs * 7.5);
+        height: 0;
+        left: -($fs * 8); /* 1 */
+        line-height: 0;
+        position: relative;
+        top: 8px; /* 1 */
+    }
+}
+
+
+// preview pane visibility toggle -----------------------------------------------------------------------------------
+.lp_post-preview-mode__visibility-toggle {
+    background: $background--darker;
+    border-radius: $border-radius 0 0 $border-radius;
+    color: $clickable;
+    height: $fs--3;
+    left: 0;
+    position: absolute;
+    text-align: center;
+    text-decoration: none;
+    top: 0;
+    transition: 0.25s ease-in-out;
+    width: $fs--3;
+    @include opacity(0);
+
+    &:before {
+        font-size: $fs--15;
+        line-height: $fs--3;
+        padding-left: $fs--025;
+        position: relative;
+        transition: 0.1s ease-in-out;
+    }
+
+    &:hover {
+        @include opacity(1);
+        color: $clickable--highlight;
+    }
+
+    // reveal toggle when the preview pane is hovered
+    .lp_post-preview-mode:hover & {
+        left: -$fs--3;
+        @include opacity(1);
+
+        &:before {
+            transition: 0.25s ease-in-out 0.1s;
+        }
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
+
+    // hidden statistics pane
+    .lp_post-preview-mode.lp_is-hidden & {
+        box-shadow: -1px 1px 6px hsla(0, 0%, 0%, 0.34);
+        left: -($fs * 4);
+        text-align: left;
+        width: ($fs * 4);
+        @include opacity(1);
+
+        /*
+         * Show LaterPay logo instead of toggle icon in hidden state
+         *
+         * 1. Ugly alignment fix for an ill-balanced logo
+         */
+        &:before {
+            content: 'b';
+            font-size: $fs--3;
+            line-height: $fs--3;
+            padding-left: 1px; /* 1 */
+            top: 1px; /* 1 */
+        }
+    }
+}
+
+// footer with toggle for previewing post as visitor or as admin -------------------------------------------------------
+.lp_post-preview-mode .lp_post-preview-mode__plugin-preview-mode {
+    background-color: hsl(47, 100%, 50%);
+    border-radius: 0 0 0 $border-radius;
+    padding: $fs $fs--075 $fs--075;
+}

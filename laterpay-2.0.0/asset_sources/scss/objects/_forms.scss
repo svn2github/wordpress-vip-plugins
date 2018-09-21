@@ -1,0 +1,300 @@
+// basic input styling -------------------------------------------------------------------------------------------------
+input[type=number].lp_input,
+input[type=text].lp_input,
+textarea.lp_input,
+select.lp_input,
+%input {
+    background: $background--lightest;
+    border-radius: 4px;
+    border: 2px solid $border;
+    box-shadow: none;
+    height: calc(2em + 4px); // normalize input height, especially selects in Chrome
+    line-height: 1;
+    margin: 0;
+    padding: 0.5em;
+
+    &:focus {
+        border-color: $clickable--highlight;
+        box-shadow: none;
+    }
+
+    &:hover,
+    &:active {
+        border-color: $clickable--highlight;
+        box-shadow: none;
+    }
+
+    &:disabled {
+        border-color: transparent;
+        cursor: not-allowed;
+    }
+}
+
+input[type=number].lp_input,
+input[type=text].lp_input,
+textarea.lp_input,
+%input {
+    &:focus {
+        -moz-appearance: none;
+        -webkit-appearance: none;
+    }
+}
+
+textarea.lp_input {
+    height: auto;
+    resize: vertical;
+}
+
+select.lp_input {
+    padding: 0.25em;
+    position: relative;
+}
+
+
+// special inputs ------------------------------------------------------------------------------------------------------
+// number inputs
+input[type=text].lp_number-input {
+    padding: 0.25em 0.35em;
+    text-align: right;
+    width: 4em;
+}
+
+input[type=text].lp_input__title {
+    width: 80%;
+}
+
+// iconized inputs
+.lp_iconized-input {
+    color: $border;
+    font-size: 2em;
+    margin: 0.04em 0 0 0.35em;
+    position: absolute;
+}
+
+// select2 selects (vendor component)
+.select2-container {
+    width: 100%;
+
+    .select2-choice {
+        border-color: $border;
+        border-radius: 4px;
+        border-width: 2px;
+    }
+
+    &.select2-container-active .select2-choice {
+        border-color: $clickable--highlight;
+        box-shadow: none;
+        color: $text--lighter;
+    }
+}
+
+.select2-dropdown-open .select2-choice {
+    border-bottom-color: transparent;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.select2-drop {
+
+    &.select2-drop-active {
+        border-color: $clickable--highlight;
+        border-width: 0 2px 2px;
+    }
+
+    .select2-search {
+        padding-left: 0;
+        padding-right: 0;
+
+        input {
+            background: $background--darker;
+            border: 0 none;
+            box-shadow: none;
+
+            &:focus {
+                border-color: $clickable--highlight;
+            }
+        }
+    }
+
+    .select2-results {
+        margin: 0;
+        padding: 0;
+
+        li {
+            margin-bottom: 0;
+
+            // apply border-radius to last element to ensure it does not overlap its container's border;
+            // radius reduced to compensate for line width of container
+            &:last-child {
+                border-bottom-left-radius: 2px;
+                border-bottom-right-radius: 2px;
+            }
+        }
+
+        li:hover,
+        .select2-highlighted {
+            background: $background--highlight;
+            color: $text;
+        }
+    }
+
+    .select2-result-label {
+        padding: $fs--05;
+    }
+}
+
+
+// HTML5 placeholders --------------------------------------------------------------------------------------------------
+.lp_input::-webkit-input-placeholder,
+.lp_input::-moz-placeholder,
+.lp_input:-ms-input-placeholder {
+    color: $text--lighter;
+    line-height: 1;
+}
+
+
+// responsive placeholders ---------------------------------------------------------------------------------------------
+input[type=text][required] + label[placeholder] {
+    display: block;
+    line-height: 1;
+    margin-bottom: 1em;
+    margin-top: calc(-3em - 2px);
+    pointer-events: none;
+
+    &:before {
+        @include linear-gradient(hsla(0, 0%, 100%, 0), 46%, hsla(0, 0%, 100%, 1), 47%, $start, $end);
+        background-repeat: no-repeat;
+        color: $text--lighter;
+        content: attr(placeholder);
+        display: inline-block;
+        margin: 1.4em 0 0 3em;
+        padding: 0 3px;
+        transition: 0.3s ease-in-out;
+        white-space: nowrap;
+    }
+}
+
+input[type=text][required] {
+
+    &:focus + label[placeholder]:before,
+    &:valid + label[placeholder]:before {
+        transform: translate(-2px, -1.15em) scale(0.9, 0.9);
+        transition-duration: 0.2s;
+    }
+
+    &:focus + label[placeholder]:before {
+        color: $clickable--highlight;
+    }
+
+    &:invalid + label[placeholder][alt]:before {
+        content: attr(alt);
+    }
+}
+
+.lp_iconized-input + input[type=text][required] + label[placeholder]:before {
+    margin: 1.4em 0 0 calc(3em - 1px);
+}
+
+
+// edit links ----------------------------------------------------------------------------------------------------------
+.lp_edit-link {
+    margin-left: $fs;
+    padding: $fs--05 0;
+
+    &--bold {
+        background: darken($background--darker, 2%);
+        padding: $fs;
+        font-size: $fs--15;
+        float: right;
+
+        &:hover {
+            background: $clickable--highlight;
+            color: $text--inverse;
+        }
+
+        &[data-icon]:before {
+            padding-right: 0;
+            top: 0;
+        }
+    }
+}
+
+// add link ------------------------------------------------------------------------------------------------------------
+.lp_add-link {
+    display: block;
+    margin-left: 0;
+}
+
+/*
+ * 1. Pull up the button to better align with the text
+ * 2. Compensate for additional height of button
+ */
+.lp_heading-button {
+    margin-top: -5px !important; /* 1 */
+    margin-bottom: -($fs--05) !important; /* 2 */
+    margin-left: $fs--05 !important;
+
+    // align icon with button text
+    &:before {
+        padding-right: 0.5em !important;
+        top: 0.15em !important;
+    }
+}
+
+
+// revenue model badges ------------------------------------------------------------------------------------------------
+.lp_badge--revenue-model {
+    color: $clickable;
+    width: $fs--6;
+    text-transform: capitalize;
+
+    input[type=radio] {
+        display: none;
+    }
+
+    &:hover {
+        background: $clickable--highlight;
+        color: $text--inverse;
+    }
+
+    &.lp_is-disabled {
+        visibility: hidden;
+    }
+
+    &.lp_is-selected {
+        background: $laterpay-brand;
+        color: $text--inverse;
+
+        &:hover {
+            background: $laterpay-brand;
+            cursor: default;
+        }
+    }
+}
+
+
+// fieldsets -----------------------------------------------------------------------------------------------------------
+.lp_fieldset,
+%fieldset {
+    border: 1px solid $border;
+    border-radius: $border-radius;
+    box-shadow: 1px 1px 0 $border--lightest;
+    margin: $fs $fs $fs 0;
+    padding: $fs--05 $fs $fs;
+}
+
+.lp_legend,
+%legend {
+    font-size: $fs;
+    font-weight: bold;
+    margin-left: -($fs--05);
+    padding: 0 $fs--05;
+}
+
+.lp_form-group-separator {
+    border-top: 1px solid $border;
+    border-right: 0 none;
+    border-bottom: 1px solid $border--lightest;
+    border-left: 0 none;
+    margin: $fs 0 $fs--3;
+}

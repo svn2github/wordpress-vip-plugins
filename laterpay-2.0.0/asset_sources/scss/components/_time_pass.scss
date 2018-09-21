@@ -1,0 +1,581 @@
+// time passes
+.lp_time-pass {
+    color: $text; /* make sure, the text is not white by default */
+    display: inline-block;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: $fs !important;
+    font-weight: normal !important;
+    margin-bottom: $fs;
+    margin-right: $fs;
+}
+
+.lp_time-pass,
+.lp_time-pass__front,
+.lp_time-pass__back {
+    height: 154px;
+    width: 308px;
+}
+
+/**
+ * Time pass preview, rendered like a real-world ticket
+ *
+ * 1. Allow child elements (e.g. the purchase button) to be positioned at the bottom of the pass
+ * 2. Avoid padding to be added to height and width
+ */
+.lp_time-pass__front,
+.lp_time-pass__back {
+    box-sizing: border-box; /* 2 */
+    position: absolute; /* 1 */
+}
+
+.lp_time-pass__front {
+    background: url('../img/time-pass-background.png') 0 0 / 100% no-repeat;
+    padding: $fs (4 * $fs) $fs $fs;
+}
+
+.lp_time-pass__back {
+    background: url('../img/time-pass-background-flip.png') 0 0 / 100% no-repeat;
+    display: none;
+    padding: $fs $fs $fs (4 * $fs);
+}
+
+.lp_time-pass.lp_is-flipped {
+
+    .lp_time-pass__front {
+        display: none;
+    }
+
+    .lp_time-pass__back {
+        display: block;
+        // anti wp overtaging fix
+        p:empty {
+            margin: 0 !important;
+        }
+    }
+}
+
+
+// time pass frontside -------------------------------------------------------------------------------------------------
+/**
+ * Time pass title, usually something descriptive like "24h News Pass"
+ *
+ * 1. Restrict title to one line
+ * 2. Cut off excess text, if supported by browser, with an ellipsis
+ */
+.lp_time-pass__title {
+    color: $text;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: $fs--15 !important;
+    line-height: 1.3 !important;
+    margin: 0 0 $fs--05 !important;
+    overflow: hidden; /* 2 */
+    text-overflow: ellipsis; /* 2 */
+    white-space: nowrap; /* 1 */
+}
+
+
+/**
+ * Time pass description
+ *
+ * 1. Normalize appearance
+ * 2. Restrict description to three lines
+ */
+.lp_time-pass__description {
+    color: $text--lighter;
+    font-size: $fs !important; /* 1 */
+    height: 3.9em !important; /* 2 */
+    line-height: 1.3 !important; /* 1 */
+    margin: 0 !important; /* 1 */
+    overflow: hidden; /* 2 */
+}
+
+
+/**
+ * Wrapper for purchase button and terms link
+ *
+ * 1. Take up full available width, i.e. 100% - padding of .lp_timePass
+ */
+.lp_time-pass__actions {
+    bottom: 1em;
+    position: absolute;
+    width: 80%; /* 1 - fallback for browsers that don't support calc */
+    width: calc(100% - 4em); /* 1 */
+
+    .lp_purchase-button {
+        display: inline-block !important;
+        float: none !important;
+        vertical-align: middle !important;
+    }
+
+    .lp_time-pass__terms {
+        border: none !important;
+        color: $clickable !important;
+        display: inline-block;
+        padding: $fs--05 $fs;
+        text-decoration: none;
+        vertical-align: middle;
+
+        &:hover {
+            color: $clickable--highlight !important;
+        }
+    }
+}
+
+
+// time pass flipside --------------------------------------------------------------------------------------------------
+.lp_time-pass__back .lp_time-pass__conditions {
+    border: none !important;
+    border-collapse: collapse !important;
+    font-size: $fs;
+    line-height: 1.3;
+    margin: 0 !important;
+
+    .lp_time-pass__condition-title,
+    .lp_time-pass__condition-value {
+        border: 0 none !important;
+        padding: 0 0 $fs--025 0 !important;
+        vertical-align: top !important;
+        line-height: 1.3 !important;
+        font-size: $fs !important;
+        text-transform: none;
+    }
+
+    .lp_time-pass__condition-title {
+        color: $text--lighter !important;
+        font-weight: normal !important;
+        padding-right: $fs !important;
+        text-align: left !important;
+    }
+
+    .lp_time-pass__condition-value {
+        text-align: left !important;
+    }
+}
+
+.lp_time-pass-widget .lp_time-pass__conditions {
+    margin-top: -25px !important;
+}
+
+.lp_time-pass__front-side-link {
+    background: $clickable;
+    border: none !important;
+    border-radius: 999em; // creates a pill shape
+    color: $text--inverse !important;
+    left: -($fs--15);
+    line-height: 1.3 !important;
+    padding: $fs--05 $fs;
+    position: absolute;
+    text-decoration: none !important;
+    top: $fs;
+    transition: all 0.25s;
+
+    &:hover {
+        background: $clickable--highlight;
+        color: $text--inverse;
+        left: -($fs--2);
+    }
+}
+
+// some straight-up WordPress weirdo shit:
+// WordPress inserts a <br> tag before the table which breaks the layout.
+// I haven't found a better way than hiding it with CSS :-(
+.lp_time-pass__front-side-link + br {
+    display: none !important;
+}
+
+
+// time pass gift cards ------------------------------------------------------------------------------------------------
+.lp_gift-card {
+    background: $background--lightest url('../img/gift-card-background.png') 0 0/100% no-repeat !important;
+    box-sizing: border-box !important;
+    color: $text--lighter !important;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: $fs !important;
+    font-weight: normal !important;
+    height: 252px !important;
+    line-height: 1.5 !important;
+    margin: $fs !important;
+    padding: $fs--15 $fs--15 $fs--15 ($fs * 12) !important;
+    width: 480px !important;
+
+    /**
+     * 1. Cut off too long texts
+     */
+    .lp_gift-card__title {
+        color: #d82b17 !important;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+        font-size: $fs--15 !important;
+        font-style: normal !important;
+        margin: $fs--05 0 $fs !important;
+        overflow: hidden !important; /* 1 */
+        text-overflow: ellipsis !important; /* 1 */
+        white-space: nowrap !important; /* 1 */
+    }
+
+    /**
+     * 1. Cut off too long texts
+     */
+    .lp_gift-card__description {
+        margin: 0 0 $fs !important;
+        max-height: $fs--3 !important; /* 1 */
+        overflow: hidden !important; /* 1 */
+        text-overflow: ellipsis !important; /* 1 */
+    }
+
+    .lp_gift-card___conditions {
+        border-collapse: collapse !important;
+        font-size: $fs--075 !important;
+        margin: 0 0 $fs !important;
+        width: auto !important;
+
+        &,
+        .lp_gift-card___conditions-title,
+        .lp_gift-card___conditions-value {
+            border: 0 none !important;
+            color: $text--lighter !important;
+            font-weight: normal !important;
+            letter-spacing: normal !important;
+            line-height: 1.5 !important;
+        }
+
+        .lp_gift-card___conditions-title {
+            font-weight: normal !important;
+            padding: 0 $fs--05 $fs--025 0 !important;
+            text-transform: none !important;
+        }
+
+        .lp_gift-card___conditions-value {
+            padding: 0 0 $fs--025 !important;
+        }
+    }
+
+    .lp_purchase-button {
+        float: left !important;
+    }
+
+    .lp_voucher__code {
+        margin: 0 $fs--025;
+        padding: 0 $fs--05;
+    }
+}
+
+.lp_gift-card__buy-another {
+    margin-left: $fs * 12;
+    padding: $fs;
+}
+
+
+// voucher codes -------------------------------------------------------------------------------------------------------
+/* the six-character voucher code */
+.lp_voucher__code {
+    background: $background--lightest;
+    border: 2px solid orange;
+    color: orange;
+    display: inline-block;
+    font-family: monospace;
+    font-size: $fs--15;
+    margin-right: $fs--05;
+    padding: $fs--05;
+}
+
+/* price and number of times redeemed */
+.lp_voucher__code-infos {
+    display: inline-block;
+}
+
+.lp_vouchers .lp_voucher__code-infos {
+    vertical-align: top;
+}
+
+
+// time pass widget rendered inside of posts ---------------------------------------------------------------------------
+/**
+ * time pass widget
+ */
+.lp_time-pass-widget {
+    margin-bottom: $fs--05 !important;
+    margin-right: $fs--05 !important;
+
+    .lp_time-pass,
+    .lp_time-pass__front,
+    .lp_time-pass__back {
+        height: 112px !important;
+        width: 224px !important;
+    }
+
+    .lp_time-pass {
+        display: block !important;
+        margin: $fs !important;
+
+        &:last-child {
+            margin-bottom: 0 !important;
+        }
+    }
+
+    .lp_time-pass__front {
+        background: url(../img/time-pass-background-small.png) 0 0 / 100% no-repeat !important;
+        padding: $fs--05 (6 * $fs--05) $fs--05 $fs--05 !important;
+    }
+
+    .lp_time-pass__back {
+        background: url(../img/time-pass-background-flip-small.png) 0 0 / 100% no-repeat !important;
+        padding: $fs--05 $fs--05 $fs--05 (6 * $fs--05) !important;
+    }
+
+    .lp_time-pass__title {
+        font-size: $fs !important;
+        margin-left: 3px !important;
+        margin-top: 3px !important;
+        margin-bottom: 3px !important;
+        margin-right: 0 !important;
+        padding: 0 !important;
+    }
+
+    .lp_time-pass__description {
+        font-size: $fs--075 !important;
+        height: 2.9em !important;
+        margin-left: $fs--025 !important;
+    }
+
+    .lp_time-pass__actions {
+        bottom: 0.8em !important;
+        width: 80% !important; /* 1 - fallback for browsers that don't support calc */
+        width: calc(100% - 2em) !important; /* 1 */
+        margin-left: 3px !important;
+
+        .lp_purchase-button {
+            font-size: $fs--15 !important;
+
+            &:before {
+                font-size: 36px !important;
+                left: -1px !important;
+                top: 10px !important;
+            }
+        }
+
+        .lp_time-pass__terms {
+            padding: $fs--025 $fs--05 !important;
+            box-shadow: none!important;
+        }
+    }
+
+    .lp_time-pass__conditions {
+        margin: 0 !important;
+
+        .lp_time-pass__condition-title,
+        .lp_time-pass__condition-value {
+            font-size: $fs--075 !important;
+            padding-bottom: 2px !important;
+        }
+
+        .lp_time-pass__condition-title {
+            padding-right: $fs--05 !important;
+        }
+    }
+
+    .lp_time-pass__front-side-link {
+        font-size: $fs--075 !important;
+        padding: $fs--025 $fs--05 !important;
+    }
+}
+
+.lp_time-pass__introductory-text,
+.lp_time-pass__call-to-action-text {
+    margin: 0 0 $fs !important;
+}
+
+
+/**
+ * voucher code section
+ *
+ * 1. By default, only a hint text is visible
+ * 2. The input is transparent and overlayed over the hint text
+ * 3. When the input is focused, it is rendered like an input, the hint text is hidden, and the button is shown
+ * 4. Make sure the input is wide enough for the six character voucher code
+ * 5. Prevent the input to be wider than the time pass and look weird
+ * 6. Give a reasonable height to the wrapper to allow positioning the elements with top, bottom, left, right
+ */
+.lp_voucher__feedback-message {
+    background: $background--highlight !important;
+    border-radius: $border-radius !important;
+    color: $text !important;
+    cursor: pointer !important;
+    line-height: 1.3 !important;
+    padding: $fs $fs--05 !important;
+    text-align: center !important;
+
+    ~ * {
+        display: none !important;
+    }
+}
+
+
+// redeem gift code widget ---------------------------------------------------------------------------------------------
+.lp_redeem-code__wrapper,
+.lp_redeem-code__value {
+    height: round(3.75 * $fs) !important; /* 6 - TODO: this is a magic number that should not be required */
+    position: relative !important;
+    width: 300px !important;
+}
+
+// add a background to the wrapper so that the transparent input works on both light and dark themes
+.lp_redeem-code__wrapper {
+    background: $background--lightest;
+    border-radius: 6px;
+    margin: 1em 0;
+}
+
+.lp_redeem-code__feedback-message {
+    background: $background--highlight !important;
+    border-radius: $border-radius !important;
+    color: $text !important;
+    cursor: pointer !important;
+    line-height: 1.3 !important;
+    padding: $fs $fs--05 !important;
+    text-align: center !important;
+
+    ~ * {
+        display: none !important;
+    }
+}
+
+/**
+ * input for gift code
+ */
+.lp_redeem-code__value {
+    background: transparent !important;
+    border: 2px solid $border !important;
+    border-radius: 5px !important;
+    box-sizing: border-box;
+    box-shadow: none !important; /* 1 */
+    bottom: 0 !important;
+    color: $text !important;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: $fs--15 !important;
+    height: 53px!important;
+    outline: none !important;
+    padding: $fs $fs $fs--075 3.5em !important;
+    position: absolute !important;
+    top: 0 !important;
+    width: 300px!important;
+    z-index: $zindex--elevated-1 !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        -moz-appearance: none !important;
+        -webkit-appearance: none !important;
+        border-color: $clickable--highlight !important;
+    }
+}
+
+.lp_redeem-code__input-hint {
+    color: $text--lighter !important;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: $fs--15 !important;
+    left: $fs--15 !important;
+    line-height: 1.5 !important;
+    margin: 0 !important;
+    position: absolute !important;
+    top: $fs--075 !important;
+}
+
+.lp_redeem-code__button {
+    background: $clickable !important;
+    border: 0 none !important;
+    bottom: $fs--05 !important;
+    display: inline-block;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: $fs--125 !important;
+    padding: $fs--05 $fs !important;
+    position: absolute !important;
+    right: $fs--05 !important;
+    text-decoration: none !important;
+    top: $fs--05 !important;
+    z-index: $zindex--elevated-2 !important;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background: $clickable--highlight !important;
+        text-decoration: none !important;
+    }
+}
+
+// define line-height to minimize influence of theme styles
+.lp_redeem-code__value,
+.lp_redeem-code__button {
+    line-height: 1.5 !important;
+}
+
+/**
+ * input for voucher code
+ *
+ * 1. Remove ugly browser default styles
+ */
+.lp_redeem-code__value.lp_is-hidden {
+    /* 1 */
+    background: transparent !important;
+    border: 2px solid transparent !important;
+    color: transparent !important;
+
+    &:hover {
+        border-color: transparent !important;
+
+        ~ .lp_redeem-code__hint {
+            color: $clickable--highlight !important;
+        }
+    }
+
+    &:focus {
+        background: transparent !important;
+        border: 2px solid $clickable--highlight !important; /* 3 */
+        color: $text !important; /* 3 */
+
+        /* hide / show siblings, when the voucher input is focused */
+        ~ .lp_redeem-code__hint {
+            visibility: hidden !important; /* 3 */
+        }
+
+        ~ .lp_redeem-code__input-hint {
+            display: block !important; /* 3 */
+        }
+
+        ~ .lp_redeem-code__button {
+            display: block !important; /* 3 */
+        }
+
+        ~ .lp_redeem-code__value {
+            background: transparent !important;
+            display: inline-block !important; /* 3 */
+
+            &:hover,
+            &:focus,
+            &:active {
+                background: $clickable--highlight !important;
+                text-decoration: none !important;
+            }
+        }
+    }
+
+    ~ .lp_redeem-code__input-hint {
+        display: none !important;
+    }
+
+    /**
+     * button for redeeming voucher code
+     */
+    ~ .lp_redeem-code__button {
+        display: none !important;
+    }
+}
+
+.lp_redeem-code__hint {
+    color: $clickable !important;
+    display: block !important; /* 1 */
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+    font-size: $fs--125 !important;
+    margin: 0 !important;
+    text-decoration: none !important;
+    visibility: visible !important; /* 1 */
+}

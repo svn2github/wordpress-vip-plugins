@@ -1,0 +1,16 @@
+/**
+ * Box off e.g. a label to make it stand out, but be displayed inline.
+ *
+ */
+
+.lp_badge {
+    background: darken($background, 13%);
+    border-radius: $border-radius;
+    color: $text--inverse;
+    display: inline-block;
+    font-size: $fs--085;
+    min-width: $fs--075;
+    padding: 2px 0;
+    text-align: center;
+    text-transform: uppercase;
+}
