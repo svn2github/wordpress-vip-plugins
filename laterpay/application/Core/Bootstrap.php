@@ -143,6 +143,9 @@ class LaterPay_Core_Bootstrap
         $controller = self::get_controller( 'Admin_Pricing' );
         laterpay_event_dispatcher()->add_subscriber( $controller );
 
+        $controller = self::get_controller( 'Admin_Notice' );
+        laterpay_event_dispatcher()->add_subscriber( $controller );
+
         $controller = self::get_controller( 'Admin_Appearance' );
         laterpay_event_dispatcher()->add_subscriber( $controller );
 

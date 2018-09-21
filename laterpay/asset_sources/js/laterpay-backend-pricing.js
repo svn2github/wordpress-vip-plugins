@@ -209,10 +209,10 @@
             });
 
             // validate price and revenue model when entering a price
-            // (function is only triggered 800ms after the keyup)
+            // (function is only triggered 1500ms after the keyup)
             $o.body.on('keyup', $o.priceInput, debounce(function() {
                     validatePrice($(this).parents('form'));
-                }, 800)
+                }, 1500)
             );
 
             // enabled revenue models events -----------------------------------------------------------------------
@@ -339,7 +339,7 @@
             .on('keyup', $o.timepass.fields.price, debounce(function() {
                     validatePrice($(this).parents('form'), false, $(this));
                     updateEntityPreview('timepass', $(this).parents($o.timepass.wrapper), $(this));
-                }, 800)
+                }, 1500)
             );
 
             // cancel
@@ -374,7 +374,7 @@
             $o.timepass.editor
             .on('keyup', $o.voucherPriceInput, debounce(function() {
                     validatePrice($(this).parents('form'), true, $(this));
-                }, 800)
+                }, 1500)
             );
 
             // generate voucher code
@@ -445,7 +445,7 @@
             .on('keyup', $o.subscription.fields.price, debounce(function() {
                     validatePrice($(this).parents('form'), true, $(this), true);
                     updateEntityPreview('subscription', $(this).parents($o.subscription.wrapper), $(this));
-                }, 1000)
+                }, 1500)
             );
 
             // cancel
@@ -545,6 +545,11 @@
                 // enable Pay-per-Use
                 $payPerUse.removeProp('disabled')
                     .parent('label').removeClass($o.disabled);
+
+                // Add info tooltip when disabled.
+                $singleSale.parent('label').attr( 'data-tooltip', lpVars.i18n.payNowToolTip );
+                $singleSale.parent('label').addClass( 'lp_tooltip' );
+                $payPerUse.parent('label').removeClass( 'lp_tooltip' );
             } else {
                 // disable Pay-per-Use
                 $payPerUse.prop('disabled', 'disabled')
@@ -556,6 +561,11 @@
                 // (prices > 149.99 Euro are fixed by validatePrice already)
                 $singleSale.removeProp('disabled')
                     .parent('label').removeClass($o.disabled);
+
+                // Add info tooltip when disabled.
+                $payPerUse.parent('label').attr( 'data-tooltip', lpVars.i18n.payLaterToolTip );
+                $payPerUse.parent('label').addClass( 'lp_tooltip' );
+                $singleSale.parent('label').removeClass( 'lp_tooltip' );
             } else {
                 // disable Single Sale
                 $singleSale.prop('disabled', 'disabled')
@@ -1161,11 +1171,11 @@
                                     if ($($entity.wrapper + ':visible').length === 0) {
                                         $($o.emptyState, $entity.editor).velocity('fadeIn', { duration: 400 });
 
-                                        // switch the purchase mode button back to also allow individual purchases
-                                        if ($o.purchaseModeInput.prop('checked')) {
-                                            $o.purchaseModeInput
-                                            .prop('checked', false)
-                                            .change();
+                                        // set toggle according to current purchase mode value.
+                                        if ( '1' === r.purchase_mode_value ) {
+                                            $o.purchaseModeInput.prop('checked', true );
+                                        } else {
+                                            $o.purchaseModeInput.prop('checked', false );
                                         }
                                     }
                                 } else {

@@ -219,3 +219,58 @@
     display: block;
     margin: $fs 0;
 }
+
+
+// plugin mode indicator -----------------------------------------------------------------------------------------------
+.lp_plugin-mode-indicator {
+    position: relative;
+    //right: $fs * 7; // leave sufficient space for contextual help link
+    top: $fs--25 - $fs--015;
+
+    // LaterPay logo (rendered in pseudo element from icon font)
+    &:before {
+        float: left;
+        font-size: $fs--3;
+        //left: -2.75rem;
+        line-height: 0;
+        position: relative;
+        top: $fs--2;
+    }
+
+    .lp_plugin-mode-indicator__title {
+        color: $clickable;
+        font-size: $fs !important;
+        margin: $fs 0 $fs--05 !important;
+        position: relative;
+        left: $fs--2;
+        top: -$fs--3;
+    }
+
+    &:active,
+    &:focus,
+    &:hover {
+
+        &:before,
+        .lp_plugin-mode-indicator__title,
+        i {
+            color: $clickable--highlight;
+        }
+    }
+
+    i {
+        color: $clickable;
+        font-style: normal;
+    }
+
+    .lp_plugin-mode-indicator__text {
+        color: $text--lighter;
+        position: relative;
+        left: $fs--2;
+        top: -$fs--4;
+    }
+}
+
+// add red color icon for
+.account_setup_warning[data-icon]:before {
+    color: red;
+}

@@ -234,7 +234,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </form>
             </div>
             <div class="lp_layout__item lp_1" id="lp_js_timePasses" <?php if ( $laterpay['teaser_mode'] === '2' ) echo 'style="display:none;"'; ?>>
-                <h2><?php esc_html_e( 'Display of LaterPay Time Passes', 'laterpay' ); ?></h2>
+                <h2><?php esc_html_e( 'Display of LaterPay Subscriptions & Time Passes', 'laterpay' ); ?></h2>
                 <form method="post" class="lp_js_showHintOnTrue lp_mb++">
                     <input type="hidden" name="form"    value="time_passes_position">
                     <input type="hidden" name="action"  value="laterpay_appearance">

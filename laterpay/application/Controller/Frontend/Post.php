@@ -21,7 +21,6 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
             'laterpay_posts' => array(
                 array( 'laterpay_on_plugin_is_working', 200 ),
                 array( 'prefetch_post_access', 10 ),
-                array( 'hide_paid_posts', 999 ),
             ),
             'laterpay_attachment_image_attributes' => array(
                 array( 'laterpay_on_plugin_is_working', 200 ),
@@ -331,6 +330,30 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
 
         $access_result = LaterPay_Helper_Request::laterpay_api_get_access( $post_ids );
 
+        // Handle case 2, case 1 and 0 is handled by LaterPay_Helper_Request::laterpay_api_get_access().
+        // Case 2 hides premium posts.
+
+        if ( ! LaterPay_Helper_Request::isLpApiAvailability() ) {
+            // Update result to hide all paid posts as API is down.
+            $behavior = (int) get_option( 'laterpay_api_fallback_behavior', 0 );
+            if ( 2 === $behavior ) {
+                $result = array();
+                foreach ( $posts as $post ) {
+                    $paid = LaterPay_Helper_Pricing::get_post_price( $post->ID ) !== floatval( 0 );
+                    if ( ! $paid ) {
+                        $result[] = $post;
+                    } else {
+                        $key = array_search( $post->ID, $post_ids, true );
+                        if ( $key ) {
+                            unset( $post_ids[ $key ] );
+                        }
+                    }
+                }
+
+                $event->set_result( $result );
+            }
+        }
+
         if ( empty( $access_result ) || ! array_key_exists( 'articles', $access_result ) ) {
             return;
         }
@@ -378,6 +401,9 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
 
         $content = $event->get_result();
 
+        // Get the value of purchase type ( individual / timepass )
+        $only_timepass = (bool) get_option( 'laterpay_only_time_pass_purchases_allowed' );
+
         if ( $event->has_argument( 'post' ) ) {
             $post = $event->get_argument( 'post' );
         } else {
@@ -403,6 +429,23 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
         // switch to 'admin' mode and load the correct content, if user can read post statistics
         if ($user_has_unlimited_access && ! $preview_post_as_visitor ) {
             $access = true;
+        }
+
+        // Check if no individual post type is allowed.
+        if ( $only_timepass ) {
+
+            // Getting list of timepass by post id.
+            $time_passes_list = LaterPay_Helper_TimePass::get_time_passes_list_by_post_id( $post->ID, null, true );
+
+            // Getting list of subscription by post id.
+            $subscriptions_list = LaterPay_Helper_Subscription::get_subscriptions_list_by_post_id( $post->ID, null, true );
+
+            // Check if no timepass/subscription exists.
+            if ( ( 0 === count( $time_passes_list ) ) && ( 0 === count( $subscriptions_list ) ) ) {
+
+                // Give access to post.
+                $access = true;
+            }
         }
 
         // set necessary arguments
@@ -569,43 +612,6 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
     }
 
     /**
-     * Hide paid posts from access in the loop.
-     *
-     * In archives or by using the WP_Query-Class, we can prefetch the access
-     * for all posts in a single request instead of requesting every single post.
-     *
-     * @wp-hook the_posts
-     *
-     * @param LaterPay_Core_Event $event
-     *
-     */
-    public function hide_paid_posts( LaterPay_Core_Event $event ) {
-        if (true === LaterPay_Helper_Request::isLpApiAvailability())
-        {
-            return;
-        }
-
-        $posts    = (array) $event->get_result();
-        $behavior = (int) get_option( 'laterpay_api_fallback_behavior', 0 );
-
-        if (2 === $behavior) {
-            $result = array();
-            $count = 0;
-
-            foreach ( $posts as $post ) {
-                $paid = LaterPay_Helper_Pricing::get_post_price( $post->ID ) !== 0;
-                if ( ! $paid ) {
-                    $result[] = $post;
-                } else {
-                    $count++;
-                }
-            }
-
-            $event->set_result( $result );
-        }
-    }
-
-    /**
      * @param LaterPay_Core_Event $event
      */
     public function generate_post_teaser( LaterPay_Core_Event $event ) {
@@ -640,12 +646,12 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
 
         $this->assign( 'laterpay', $view_args );
 
-	    if ( $event->is_echo_enabled() ) {
-			$this->render( 'frontend/partials/post/teaser', null, true );
-		} else {
-			$html = LaterPay_Helper_View::remove_extra_spaces( $this->get_text_view( 'frontend/partials/post/teaser' ) );
-			$event->set_result( $html );
-	    }
+        if ( $event->is_echo_enabled() ) {
+            $this->render( 'frontend/partials/post/teaser', null, true );
+        } else {
+            $html = LaterPay_Helper_View::remove_extra_spaces( $this->get_text_view( 'frontend/partials/post/teaser' ) );
+            $event->set_result( $html );
+        }
     }
 
     /**

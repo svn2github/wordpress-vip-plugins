@@ -365,10 +365,11 @@ class LaterPay_Model_TimePassWP {
      * @param array|null $term_ids array of category ids
      * @param bool       $exclude  categories to be excluded from the list
      * @param bool       $ignore_deleted ignore deleted time passes
+     * @param bool       $include_all include all time passes
      *
      * @return array $time_passes list of time passes
      */
-    public function get_time_passes_by_category_ids( $term_ids = null, $exclude = null, $ignore_deleted = false ) {
+    public function get_time_passes_by_category_ids( $term_ids = null, $exclude = false, $ignore_deleted = false, $include_all = false ) {
 
         // Remove hooks to avoid loop.
         LaterPay_Hooks::get_instance()->remove_wp_query_hooks();
@@ -380,12 +381,6 @@ class LaterPay_Model_TimePassWP {
             'no_found_rows'  => true,
         );
 
-        if ( $ignore_deleted ) {
-            $query_args['post_status'] = 'publish';
-        } else {
-            $query_args['post_status'] = array( 'publish', 'draft' );
-        }
-
         $meta_query = array(
             'relation' => 'OR',
             array(
@@ -394,24 +389,32 @@ class LaterPay_Model_TimePassWP {
             ),
         );
 
-        if ( $exclude ) {
+        $access_to_except = array(
+            'key'     => '_lp_access_to_except',
+            'value'   => $term_ids,
+            'compare' => 'NOT IN',
+        );
 
-            $meta_query[] =array(
-                array(
-                    'key'     => '_lp_access_to_except',
-                    'value'   => $term_ids,
-                    'compare' => 'NOT IN',
-                ),
-            );
+        $access_to_include = array(
+            'key'     => '_lp_access_to_include',
+            'value'   => $term_ids,
+            'compare' => 'IN',
+        );
+
+        if ( $include_all ) {
+            array_push( $meta_query, $access_to_except, $access_to_include );
         } else {
+            if ( $exclude ) {
+                $meta_query[] = $access_to_except;
+            } else {
+                $meta_query[] = $access_to_include;
+            }
+        }
 
-            $meta_query[] = array(
-                array(
-                    'key'     => '_lp_access_to_include',
-                    'value'   => $term_ids,
-                    'compare' => 'IN',
-                ),
-            );
+        if ( $ignore_deleted ) {
+            $query_args['post_status'] = 'publish';
+        } else {
+            $query_args['post_status'] = array( 'publish', 'draft' );
         }
 
         // Meta query used to get all passes with different cases

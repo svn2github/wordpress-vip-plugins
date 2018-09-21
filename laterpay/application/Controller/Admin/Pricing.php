@@ -90,6 +90,8 @@ class LaterPay_Controller_Admin_Pricing extends LaterPay_Controller_Admin_Base
             'confirmDeleteSubscription' => __( 'Do you really want to discontinue this subscription? If you delete it, it will continue to renew for users who have an active subscription until the user cancels it. Existing subscribers will still have access to the content in their subscription. New users won\'t be able to buy the subscription anymore. Do you want to delete this subscription?', 'laterpay' ),
             'voucherText'               => __( 'reduces the price to', 'laterpay' ),
             'timesRedeemed'             => __( 'times redeemed.', 'laterpay' ),
+            'payLaterToolTip'           => esc_html__( 'Pay Later allows users to gain access now by committing to pay once their invoice reaches $5 or 5€; it is available for posts with pricing between 0.05 and 5.00', 'laterpay' ),
+            'payNowToolTip'             => esc_html__( 'Pay Now requires users pay for purchased content immediately; available for posts with pricing above $1.99 or 1.49€', 'laterpay' ),
         );
 
         // pass localized strings and variables to script
@@ -309,15 +311,11 @@ class LaterPay_Controller_Admin_Pricing extends LaterPay_Controller_Admin_Base
         update_option( 'laterpay_global_price', $delocalized_global_price );
         update_option( 'laterpay_global_price_revenue_model', $global_price_revenue_model );
 
-        if ( ! get_option( 'laterpay_global_price' ) ) {
-            $message = __( 'All posts are free by default now.', 'laterpay' );
-        } else {
-            $message = sprintf(
-                __( 'The global default price for all posts is %s %s now.', 'laterpay' ),
-                $localized_global_price,
-                $this->config->get( 'currency.code' )
-            );
-        }
+        $message = sprintf(
+            esc_html__( 'The global default price for all posts is %s %s now.', 'laterpay' ),
+            $localized_global_price,
+            $this->config->get( 'currency.code' )
+        );
 
         $event->set_result(
             array(
@@ -592,10 +590,16 @@ class LaterPay_Controller_Admin_Pricing extends LaterPay_Controller_Admin_Base
             // remove vouchers
             LaterPay_Helper_Voucher::delete_voucher_code( $time_pass_id );
 
+            if ( ! LaterPay_Helper_TimePass::get_time_passes_count( true ) && ! LaterPay_Helper_Subscription::get_subscriptions_count( true ) ) {
+
+                update_option( 'laterpay_only_time_pass_purchases_allowed', 0 );
+            }
+
             $event->set_result(
                 array(
-                    'success' => true,
-                    'message' => __( 'Time pass deleted.', 'laterpay' ),
+                    'success'             => true,
+                    'purchase_mode_value' => get_option( 'laterpay_only_time_pass_purchases_allowed' ),
+                    'message'             => esc_html__( 'Time pass deleted.', 'laterpay' ),
                 )
             );
         } else {
@@ -687,10 +691,16 @@ class LaterPay_Controller_Admin_Pricing extends LaterPay_Controller_Admin_Base
             // remove subscription
             $subscription_model->delete_subscription_by_id( $sub_id );
 
+            if ( ! LaterPay_Helper_TimePass::get_time_passes_count( true ) && ! LaterPay_Helper_Subscription::get_subscriptions_count( true ) ) {
+
+                update_option( 'laterpay_only_time_pass_purchases_allowed', 0 );
+            }
+
             $event->set_result(
                 array(
-                    'success' => true,
-                    'message' => __( 'Subscription deleted.', 'laterpay' ),
+                    'success'             => true,
+                    'purchase_mode_value' => get_option( 'laterpay_only_time_pass_purchases_allowed' ),
+                    'message'             => esc_html__( 'Subscription deleted.', 'laterpay' ),
                 )
             );
         } else {
@@ -792,16 +802,16 @@ class LaterPay_Controller_Admin_Pricing extends LaterPay_Controller_Admin_Base
         $time_pass_purchase_mode = filter_input( INPUT_POST, 'only_time_pass_purchase_mode', FILTER_SANITIZE_STRING );
 
         if ( null !== $time_pass_purchase_mode ) {
-            $only_time_pass = 1; // allow time pass purchases only
+            $only_time_pass = 1; // allow time pass purchases or subscription only
         } else {
-            $only_time_pass = 0; // allow individual and time pass purchases
+            $only_time_pass = 0; // allow individual, time pass and subscription purchases
         }
 
-        if ( 1 === $only_time_pass && ! LaterPay_Helper_TimePass::get_time_passes_count( true ) ) {
+        if ( 1 === $only_time_pass && ! LaterPay_Helper_TimePass::get_time_passes_count( true ) && ! LaterPay_Helper_Subscription::get_subscriptions_count( true ) ) {
             $event->set_result(
                 array(
                     'success' => false,
-                    'message' => __( 'You have to create a time pass, before you can disable individual purchases.', 'laterpay' ),
+                    'message' => esc_html__( 'You have to create a time pass or subscription, before you can disable individual purchases.', 'laterpay' ),
                 )
             );
             return;

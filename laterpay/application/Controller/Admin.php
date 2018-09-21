@@ -64,7 +64,11 @@ class LaterPay_Controller_Admin extends LaterPay_Controller_Base
      * @return void
      */
     public function add_to_admin_panel() {
-        $plugin_page = LaterPay_Helper_View::$pluginPage;
+        if( get_option( 'laterpay_plugin_is_in_live_mode' ) ) {
+            $plugin_page = LaterPay_Helper_View::$pluginPage;
+        } else {
+            $plugin_page = 'laterpay-account-tab';
+        }
         add_menu_page(
             __( 'LaterPay Plugin Settings', 'laterpay' ),
             'LaterPay',
@@ -197,14 +201,7 @@ class LaterPay_Controller_Admin extends LaterPay_Controller_Base
             $tab = filter_input(INPUT_GET, 'tab', FILTER_SANITIZE_STRING );
         }
 
-        // return default tab, if no specific tab is requested
-        if ( empty( $tab ) ) {
-            $tab = 'pricing';
-        }
-
         switch ( $tab ) {
-            default:
-            // render pricing tab
             case 'pricing':
                 $pricing_controller = new LaterPay_Controller_Admin_Pricing( $this->config );
                 $pricing_controller->render_page();
@@ -695,6 +692,10 @@ class LaterPay_Controller_Admin extends LaterPay_Controller_Base
             'title' => __( 'Account', 'laterpay' ),
             'cap'   => 'activate_plugins',
         );
+
+        if ( ! get_option( 'laterpay_plugin_is_in_live_mode' ) ) {
+            $menu = array_reverse( $menu );
+        }
 
         $event->set_result( $menu );
     }

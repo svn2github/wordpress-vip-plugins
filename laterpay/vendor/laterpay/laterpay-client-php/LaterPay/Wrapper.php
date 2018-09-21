@@ -74,4 +74,19 @@ class LaterPay_Wrapper
 
         return $response;
     }
+
+    /**
+     * Get User Agent For Client API Request.
+     *
+     * @return string
+     */
+    public static function get_user_agent() {
+        if ( function_exists( 'get_option' ) ) {
+            $plugin_version = get_option( 'laterpay_plugin_version' );
+            $header_message = sprintf( 'LaterPay WP Plugin - v%s', $plugin_version );
+        } else {
+            $header_message = 'LaterPay Client - PHP - v0.3';
+        }
+        return $header_message;
+    }
 }

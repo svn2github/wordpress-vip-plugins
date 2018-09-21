@@ -348,7 +348,8 @@
                             $o.categoriesList.empty().append(categoriesList);
 
                             if (data.prices.length) {
-                                $o.categoryPriceButton.removeClass($o.disabled).removeClass($o.selected);
+                                $o.categoryPriceButton.removeClass($o.disabled).removeClass($o.selected)
+                                    .removeClass( 'lp_tooltip' );
                                 // update cached selector
                                 $o.categories = $('#lp_js_priceTypeDetailsCategoryDefaultPrice li');
                                 switchPricingType($o.categoryPriceSelector);
@@ -356,7 +357,7 @@
                             } else {
                                 // disable the 'use category default price' button,
                                 // if no categories with an attached default price are applied to the current post
-                                $o.categoryPriceButton.addClass($o.disabled);
+                                $o.categoryPriceButton.addClass($o.disabled).addClass( 'lp_tooltip' );
                                 $o.globalPriceButton.removeClass($o.disabled);
 
                                 // hide details sections

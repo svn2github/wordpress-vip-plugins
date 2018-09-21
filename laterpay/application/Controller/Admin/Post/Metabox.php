@@ -332,6 +332,10 @@ class LaterPay_Controller_Admin_Post_Metabox extends LaterPay_Controller_Base
             $post_revenue_model = $global_default_price_revenue_model;
         }
 
+        // Get Data of all Categories.
+        $category_price_model              = LaterPay_Model_CategoryPriceWP::get_instance();
+        $empty_all_category_default_prices = ( empty( $category_price_model->get_categories_with_defined_price() ) ? true : false );
+
         // get currency settings for current region
         $currency_settings = LaterPay_Helper_Config::get_currency_config();
 
@@ -344,6 +348,7 @@ class LaterPay_Controller_Admin_Post_Metabox extends LaterPay_Controller_Base
             'price'                                => $price,
             'currency'                             => $currency_settings,
             'category_prices'                      => $category_price_data,
+            'no_category_price_set'                => $empty_all_category_default_prices,
             'post_default_category'                => (int) $post_default_category,
             'global_default_price'                 => $global_default_price,
             'global_default_price_revenue_model'   => $global_default_price_revenue_model,
@@ -491,7 +496,9 @@ class LaterPay_Controller_Admin_Post_Metabox extends LaterPay_Controller_Base
                 $cache_data['price'] = $LaterPay_Category_Model->get_price_by_category_id( (int) $meta_value['category_id'] );
 
             } else {
-                $cache_data['price'] = $meta_value['price'];
+                if ( isset( $meta_value['price'] ) ) {
+                    $cache_data['price'] = $meta_value['price'];
+                }
             }
 
             wp_cache_set( $cache_key, $cache_data, 'laterpay' );

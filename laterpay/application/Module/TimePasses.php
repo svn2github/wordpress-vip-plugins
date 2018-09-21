@@ -294,11 +294,21 @@ class LaterPay_Module_TimePasses extends LaterPay_Core_View implements LaterPay_
         }
         $content = $event->get_result();
 
-        $only_time_passes_allowed = get_option( 'laterpay_only_time_pass_purchases_allowed' );
+        // Getting list of timepass by post id.
+        $time_passes_list = LaterPay_Helper_TimePass::get_time_passes_list_by_post_id( $post->ID, null, true );
 
-        if ( $only_time_passes_allowed ) {
-            $content .= esc_html__( 'Buy a time pass to read the full content.', 'laterpay' );
+        // Getting list of subscription by post id.
+        $subscriptions_list = LaterPay_Helper_Subscription::get_subscriptions_list_by_post_id( $post->ID, null, true );
+
+        // Show message only if any timepass or subscription exists
+        if ( 0 !== count( $time_passes_list ) && 0 !== count( $subscriptions_list ) ) {
+            $content .= esc_html__( 'Buy a time pass or subscription to read the full content.', 'laterpay' );
+        } elseif ( 0 !== count( $time_passes_list ) && 0 === count( $subscriptions_list ) ) {
+            $content .= esc_html__('Buy a time pass to read the full content.', 'laterpay');
+        } elseif ( 0 === count( $time_passes_list ) && 0 !== count( $subscriptions_list ) ) {
+            $content .= esc_html__('Buy a subscription to read the full content.', 'laterpay');
         }
+
         $time_pass_event = new LaterPay_Core_Event();
         $time_pass_event->set_echo( false );
         laterpay_event_dispatcher()->dispatch( 'laterpay_time_passes', $time_pass_event );
@@ -361,10 +371,30 @@ class LaterPay_Module_TimePasses extends LaterPay_Core_View implements LaterPay_
      * @return void
      */
     public function on_explanatory_overlay_content( LaterPay_Core_Event $event ) {
+
+        if ( $event->has_argument( 'post' ) ) {
+            $post = $event->get_argument( 'post' );
+        } else {
+            $post = get_post();
+        }
+
+        if ( $post === null ) {
+            return;
+        }
+
+        // check, if the current post price is not 0
+        $price = LaterPay_Helper_Pricing::get_post_price( $post->ID, true );
+
         $only_time_passes_allowed = get_option( 'laterpay_only_time_pass_purchases_allowed' );
 
+        // Getting list of timepass by post id.
+        $time_passes_list = LaterPay_Helper_TimePass::get_time_passes_list_by_post_id( $post->ID, null, true );
+
+        // Getting list of subscription by post id.
+        $subscriptions_list = LaterPay_Helper_Subscription::get_subscriptions_list_by_post_id( $post->ID, null, true );
+
         // determine overlay title to show
-        if ( $only_time_passes_allowed ) {
+        if ( ( floatval( 0.00 ) === floatval( $price ) || $only_time_passes_allowed ) && ( 0 !== count( $time_passes_list ) && 0 === count( $subscriptions_list ) ) ) {
             $overlay_title = __( 'Read Now', 'laterpay' );
             $overlay_benefits = array(
                 array(
@@ -383,8 +413,44 @@ class LaterPay_Module_TimePasses extends LaterPay_Core_View implements LaterPay_
                 'benefits'   => $overlay_benefits,
                 'action_html_escaped'     => $this->get_text_view( 'frontend/partials/widget/time-passes-link' ),
             );
+
+            $event->set_result( $overlay_content );
+
+        } else if ( ( floatval( 0.00 ) === floatval( $price ) || $only_time_passes_allowed ) && ( 0 === count( $time_passes_list ) && 0 !== count( $subscriptions_list ) ) ) {
+            $overlay_title = esc_html__( 'Read Now', 'laterpay' );
+            $overlay_benefits = array(
+                array(
+                    'title' => esc_html__( 'Buy Subscription', 'laterpay' ),
+                    'text'  => esc_html__( 'Buy a subscription and pay with a payment method you trust.', 'laterpay' ),
+                    'class' => 'lp_benefit--buy-now',
+                ),
+            );
+            $overlay_content = array(
+                'title'      => $overlay_title,
+                'benefits'   => $overlay_benefits,
+                'action_html_escaped'     => $this->get_text_view( 'frontend/partials/widget/subscriptions-link' ),
+            );
+
+            $event->set_result( $overlay_content );
+
+        } else if ( ( floatval( 0.00 ) === floatval( $price ) || $only_time_passes_allowed ) && ( 0 !== count( $time_passes_list ) && 0 !== count( $subscriptions_list ) ) ) {
+            $overlay_title = esc_html__( 'Read Now', 'laterpay' );
+            $overlay_benefits = array(
+                array(
+                    'title' => esc_html__( 'Buy a Time Pass or Subscription', 'laterpay' ),
+                    'text'  => esc_html__( 'Buy a timepass or subscription and pay with a payment method you trust.', 'laterpay' ),
+                    'class' => 'lp_benefit--buy-now',
+                ),
+            );
+            $overlay_content = array(
+                'title'      => $overlay_title,
+                'benefits'   => $overlay_benefits,
+                'action_html_escaped'     => $this->get_text_view( 'frontend/partials/widget/timepass-subscription-link' ),
+            );
+
             $event->set_result( $overlay_content );
         }
+
     }
 
     /**

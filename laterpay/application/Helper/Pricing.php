@@ -41,7 +41,15 @@ class LaterPay_Helper_Pricing
         // check, if the current post price is not 0
         $price = LaterPay_Helper_Pricing::get_post_price( $post_id, true );
 
-        if ( floatval( 0.00 ) === floatval( $price ) || ! in_array( get_post_type( $post_id ), (array) get_option( 'laterpay_enabled_post_types' ), true ) ) {
+        $only_time_passes_allowed = get_option( 'laterpay_only_time_pass_purchases_allowed' );
+
+        // Getting list of timepass by post id.
+        $time_passes_list = LaterPay_Helper_TimePass::get_time_passes_list_by_post_id( $post_id, null, true );
+
+        // Getting list of subscription by post id.
+        $subscriptions_list = LaterPay_Helper_Subscription::get_subscriptions_list_by_post_id( $post_id, null, true );
+
+        if ( ( ( floatval( 0.00 ) === floatval( $price ) || $only_time_passes_allowed )&& ( ( 0 === count( $time_passes_list ) ) && ( 0 === count( $subscriptions_list ) ) ) ) || ! in_array( get_post_type( $post_id ), (array) get_option( 'laterpay_enabled_post_types' ), true ) ) {
             // returns null for this case
             return null;
         }
@@ -489,6 +497,7 @@ class LaterPay_Helper_Pricing
                 break;
 
             case LaterPay_Helper_Pricing::TYPE_GLOBAL_DEFAULT_PRICE:
+            default:
                 $revenue_model = get_option( 'laterpay_global_price_revenue_model' );
                 break;
         }

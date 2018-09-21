@@ -111,19 +111,30 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         <div class="lp_js_revenueModel lp_button-group">
                                             <label class="lp_js_revenueModelLabel lp_button-group__button lp_1/2
                                                 <?php if ( $laterpay['global_default_price_revenue_model'] === 'ppu' || ! $laterpay['global_default_price_revenue_model'] ) { echo 'lp_is-selected'; } ?>
-                                                <?php if ( $laterpay['global_default_price'] > $laterpay['currency']['ppu_max'] ) { echo 'lp_is-disabled'; } ?>">
-                                                <input type="radio" name="laterpay_global_price_revenue_model" class="lp_js_revenueModelInput" value="ppu" <?php if ( $laterpay['global_default_price_revenue_model'] === 'ppu' || ( ! $laterpay['global_default_price_revenue_model'] && $laterpay['global_default_price'] < $laterpay['currency']['ppu_max'] ) ) { echo ' checked'; } ?>><?php esc_html_e( 'Pay&nbsp;Later', 'laterpay' ); ?>
+                                                <?php if ( $laterpay['global_default_price'] > $laterpay['currency']['ppu_max'] ) { echo 'lp_is-disabled lp_tooltip'; } ?>" <?php if ( $laterpay['global_default_price'] > $laterpay['currency']['ppu_max'] ) { printf( '%1$s="%2$s"', 'data-tooltip',  esc_html__( 'Pay Later allows users to gain access now by committing to pay once their invoice reaches $5 or 5€; it is available for posts with pricing between 0.05 and 5.00', 'laterpay' ) ); } ?>>
+                                                <input type="radio" name="laterpay_global_price_revenue_model" class="lp_js_revenueModelInput" value="ppu" <?php if ( $laterpay['global_default_price_revenue_model'] === 'ppu' || ( ! $laterpay['global_default_price_revenue_model'] && $laterpay['global_default_price'] < $laterpay['currency']['ppu_max'] ) ) { echo ' checked'; } ?>><?php esc_html_e( 'Pay Later', 'laterpay' ); ?>
                                             </label><!--
                                             --><label class="lp_js_revenueModelLabel lp_button-group__button lp_1/2
                                                 <?php if ( $laterpay['global_default_price_revenue_model'] === 'sis' ) { echo 'lp_is-selected'; } ?>
-                                                <?php if ( $laterpay['global_default_price'] < $laterpay['currency']['sis_min'] ) { echo 'lp_is-disabled'; } ?>">
+                                                <?php if ( $laterpay['global_default_price'] < $laterpay['currency']['sis_min'] ) { echo 'lp_is-disabled lp_tooltip'; } ?>" <?php if ( $laterpay['global_default_price'] < $laterpay['currency']['sis_min'] ) { printf( '%1$s="%2$s"', 'data-tooltip',  esc_html__( 'Pay Now requires users pay for purchased content immediately; available for posts with pricing above $1.99 or 1.49€', 'laterpay' ) ); } ?>>
                                                 <input type="radio" name="laterpay_global_price_revenue_model" class="lp_js_revenueModelInput" value="sis" <?php if ( $laterpay['global_default_price_revenue_model'] === 'sis' ) { echo ' checked'; } ?>><?php esc_html_e( 'Pay Now', 'laterpay' ); ?>
                                             </label>
                                         </div>
                                     </td>
+                                    <td rowspan="2" class="lp_revenu_td_width">
+                                        <div class="lp_show_revenue_info">
+                                            <?php
+                                            printf(
+                                                '<b>%1$s</b>%2$s <a href="%3$s">%4$s</a>',
+                                                esc_html__( 'TIP:', 'laterpay' ),
+                                                esc_html__( ' "Pay Later" is LaterPay\'s patented revenue model which allows your customers to purchase content with a single click, dramatically reducing their barriers to entry. Once they have purchased $5 or 5€ worth of content, they will be asked to settle their invoice.', 'laterpay' ),
+                                                esc_url( 'https://support.laterpay.net/hc/en-us/articles/201251457-What-is-LaterPay-' ),
+                                                esc_html__( ' Click here to learn more.', 'laterpay' )
+                                            );
+                                            ?>
+                                        </div>
+                                    </td>
                                 </tr>
-                            </tbody>
-                            <tfoot>
                                 <tr>
                                     <td>&nbsp;</td>
                                     <td>
@@ -131,7 +142,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                                         <a href="#" id="lp_js_cancelEditingGlobalDefaultPrice" class="lp_inline-block lp_pd--05-1"><?php esc_html_e( 'Cancel', 'laterpay' ); ?></a>
                                     </td>
                                 </tr>
-                            </tfoot>
+                            </tbody>
                         </table>
                     </div>
                 </form>
@@ -246,6 +257,16 @@ if ( ! defined( 'ABSPATH' ) ) {
                         <h2>
                             <?php esc_html_e( 'Set prices by category', 'laterpay' ); ?>
                         </h2>
+                        <p>
+                            <?php
+                            /* translators: %1$s info text, %2$s link to wordpress categories codex page, %3$s link text*/
+                            printf( '%1$s<br/><a href="%2$s" target="_blank">%3$s</a>',
+                                esc_html__( 'Not familiar with WordPress categories?', 'laterpay' ),
+                                esc_url( 'https://codex.wordpress.org/Posts_Categories_Screen' ),
+                                esc_html__( 'Click here to learn more.', 'laterpay' )
+                            );
+                            ?>
+                        </p>
                         <p>
                             <?php
                             /* translators: %1$s info text1, %2$s info text2*/
@@ -715,9 +736,6 @@ if ( ! defined( 'ABSPATH' ) ) {
                     </p>
                     <p>
                         <?php esc_html_e( 'Click the "Create" button to add a Subscription.', 'laterpay' ); ?>
-                    </p>
-                    <p>
-                        <span style="color: red;" data-icon="n"></span><?php esc_html_e( 'Important: if your LaterPay merchant account has been created before June 2017, please contact sales@laterpay.net to check, if subscriptions are enabled for your account.', 'laterpay' ); ?>
                     </p>
                 </div>
             </div>

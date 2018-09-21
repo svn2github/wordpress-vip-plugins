@@ -11,6 +11,32 @@ if ( ! defined( 'ABSPATH' ) ) {
     lpVars.limits = <?php echo wp_json_encode( $laterpay['price_ranges'] ); ?>;
 </script>
 <div class="lp_clearfix">
+    <?php if ( ! get_option( 'laterpay_plugin_is_in_live_mode' ) ) : ?>
+    <div class="lp_tooltip" data-tooltip="<?php echo esc_attr( __( 'Click here to finish your account set up', 'laterpay' ) ); ?>">
+            <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'laterpay-account-tab' ), admin_url( 'admin.php' ) ) ); ?>"
+               class="lp_plugin-mode-indicator"
+               data-icon="h">
+                <h2 class="lp_plugin-mode-indicator__title"><?php esc_html_e( 'Test mode', 'laterpay' ); ?></h2>
+                <span class="lp_plugin-mode-indicator__text">
+                    <?php
+                    /* translators: %1$s info text1, %2$s info text2*/
+                    printf( '%1$s<i> %2$s</i>', esc_html__( 'Earn money in', 'laterpay' ), esc_html__( 'live mode', 'laterpay' ) );
+                    ?>
+                </span>
+            </a>
+    </div>
+    <?php endif; ?>
+    <?php if( ! get_option( 'laterpay_is_in_visible_test_mode' ) ): ?>
+    <p class="account_setup_warning" data-icon="n">
+        <?php
+        printf( '%1s <a href="%2$s">%3$s</a> %4$s',
+            esc_html__( 'Your LaterPay Plugin is currently invisible to viewers. Click', 'laterpay' ),
+            esc_url( add_query_arg( array( 'page' => 'laterpay-account-tab' ), admin_url( 'admin.php' ) ) ),
+            esc_html__( 'here', 'laterpay' ),
+            esc_html__( 'to toggle visibility.', 'laterpay' ) );
+        ?>
+    </p>
+    <?php endif; ?>
     <div class="lp_layout lp_mt+ lp_mb+">
         <div id="lp_js_postPriceRevenueModel" class="lp_layout__item lp_3/8">
             <label class="lp_badge lp_badge--revenue-model lp_tooltip
@@ -20,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php else : ?>
                         <?php if ( $laterpay['post_revenue_model'] !== 'ppu' || $laterpay['price'] > $laterpay['currency']['ppu_max'] ) { echo 'lp_is-disabled'; } ?>
                     <?php endif; ?>"
-                    data-tooltip="<?php echo esc_attr( __( 'Pay Later: users pay purchased content later', 'laterpay' ) ); ?>">
+                    data-tooltip="<?php echo esc_attr( __( 'Pay Later allows users to gain access now by committing to pay once their invoice reaches $5 or 5€; it is available for posts with pricing between 0.05 and 5.00', 'laterpay' ) ); ?>">
                 <input type="radio"
                     name="post_revenue_model"
                     value="ppu"
@@ -33,7 +59,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                     <?php else : ?>
                         <?php if ( $laterpay['post_revenue_model'] !== 'sis' ) { echo 'lp_is-disabled'; } ?>
                     <?php endif; ?>"
-                    data-tooltip="<?php echo esc_attr( __( 'Pay Now: users pay purchased content immediately', 'laterpay' ) ); ?>">
+                    data-tooltip="<?php echo esc_attr( __( 'Pay Now requires users pay for purchased content immediately; available for posts with pricing above $1.99 or 1.49€', 'laterpay' ) ); ?>">
                 <input type="radio"
                     name="post_revenue_model"
                     value="sis"
@@ -65,7 +91,8 @@ if ( ! defined( 'ABSPATH' ) ) {
                 id="lp_js_useIndividualPrice"
                 class="lp_js_priceTypeButton lp_price-type__link"><?php esc_html_e( 'Individual Price', 'laterpay' ); ?></a>
         </li>
-        <li class="lp_price-type__item <?php if ( $laterpay['post_price_type'] === LaterPay_Helper_Pricing::TYPE_CATEGORY_DEFAULT_PRICE ) { echo 'lp_is-selected'; } ?><?php if ( empty( $laterpay['category_prices'] ) ) { echo ' lp_is-disabled'; } ?>">
+        <li class="lp_price-type__item <?php if ( $laterpay['post_price_type'] === LaterPay_Helper_Pricing::TYPE_CATEGORY_DEFAULT_PRICE ) { echo 'lp_is-selected'; } ?><?php if ( empty( $laterpay['category_prices'] ) ) { echo ' lp_is-disabled lp_tooltip'; } ?>"
+            <?php if ( $laterpay['no_category_price_set'] ) { printf( '%1$s="%2$s"', 'data-tooltip',  esc_html__( 'It looks like you have not set up a Category Default Price. Go to the LaterPay > Pricing page to set up Category Default Prices.', 'laterpay' ) ); } elseif ( empty( $laterpay['category_prices'] ) ) { printf( '%1$s="%2$s"', 'data-tooltip',  esc_html__( 'Please select a category from the "Categories" panel below to enable Category Default Pricing.', 'laterpay' ) ); } ?>>
             <a href="#"
                 id="lp_js_useCategoryDefaultPrice"
                 class="lp_js_priceTypeButton lp_price-type__link"><?php esc_html_e( 'Category Default Price', 'laterpay' ); ?></a>

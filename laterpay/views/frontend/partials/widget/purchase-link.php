@@ -39,6 +39,8 @@ if ( isset( $laterpay['link_text'] ) ) {
     $link_text = $laterpay['link_text'];
     $link_text = str_replace( array('{price}', '{currency}'), array( LaterPay_Helper_View::format_number( $laterpay['price'] ), $laterpay['currency'] ), $link_text );
 }
-?>
+if ( floatval( 0.00 ) !== floatval( $laterpay['price'] ) ) :
+    ?>
 
 <a <?php laterpay_whitelisted_attributes( $args, $whitelisted_attr ); ?>><?php echo wp_kses_post( $link_text ); // phpcs:ignore ?></a>
+<?php endif; ?>

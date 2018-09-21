@@ -307,7 +307,7 @@ class LaterPay_Helper_TimePass
             }
 
             // get list of time passes that cover this post
-            $time_passes = $model->get_time_passes_by_category_ids( $post_category_ids );
+            $time_passes = $model->get_time_passes_by_category_ids( $post_category_ids, false, false, true );
         } else {
             $time_passes = $model->get_time_passes_by_category_ids();
         }
@@ -351,7 +351,7 @@ class LaterPay_Helper_TimePass
                 if ( $excluded_categories ) {
                     foreach ( $excluded_categories as $excluded_category_id ) {
                         // search for excluded category in covered categories
-                        $has_covered_category = array_search( $excluded_category_id, $covered_categories );
+                        $has_covered_category = array_search( $excluded_category_id, $covered_categories['included'], true );
                         if ( $has_covered_category !== false ) {
                             return array();
                         } else {

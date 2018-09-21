@@ -112,6 +112,52 @@ delete_option( 'laterpay_region' );
 delete_option( 'laterpay_plugin_version' );
 delete_option( 'laterpay_pro_merchant' );
 
+// Delete laterpay migrated option.
+delete_option( 'laterpay_data_migrated_to_cpt' );
+
+// Get all terms having meta key _lp_price.
+$args  = [
+    'hide_empty' => false, // also retrieve terms which are not used yet
+    'meta_query' => [ // WPCS: slow query ok.
+        [
+            'key'       => '_lp_price',
+            'compare'   => '='
+        ]
+    ]
+];
+$terms = get_terms( 'category', $args );
+
+if ( ! empty( $terms ) ) {
+
+    // Delete all termmeta added by LaterPay.
+    foreach ( $terms as $term ) {
+
+        delete_term_meta( $term->term_id, '_lp_price' );
+        delete_term_meta( $term->term_id, '_lp_revenue_model' );
+    }
+
+}
+
+// Get all timepasses and subscriptions.
+$args = [
+     'post_type'      => [ 'lp_passes', 'lp_subscription' ],
+     'posts_per_page' => 300,
+     'no_found_rows'  => true,
+     'post_status'    => [ 'publish', 'draft' ],
+];
+
+$query = new WP_Query ( $args );
+
+while ( $query->have_posts () ) {
+
+    // Get Post Data and delete it.
+    $query->the_post ();
+    $id = get_the_ID ();
+    wp_delete_post ($id, true);
+}
+
+wp_reset_postdata ();
+
 // register LaterPay autoloader
 $dir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
 

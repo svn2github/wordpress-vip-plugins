@@ -36,3 +36,21 @@ dfn.lp_region_notice {
         color: $text--lighter;
     }
 }
+
+// sytle for wpengine notice button
+.lp_wpengn_nbtn {
+    background: #1a766d;
+    border: none;
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    cursor: pointer;
+    display: block;
+    width: 60px;
+    text-align: center;
+    margin-top: 7px;
+}
+
+.lp_wpengn_nbtn:link,.lp_wpengn_nbtn:hover,.lp_wpengn_nbtn:hover {
+  color:#fff;
+}

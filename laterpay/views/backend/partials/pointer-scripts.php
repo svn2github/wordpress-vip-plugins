@@ -24,7 +24,7 @@ if ( $admin_menu_pointer ) :
                 },
                 close: function() {
                     jQuery.post( ajaxurl, {
-                        pointer: '<?php esc_html( LaterPay_Controller_Admin::ADMIN_MENU_POINTER ); ?>',
+                        pointer: '<?php echo esc_html( LaterPay_Controller_Admin::ADMIN_MENU_POINTER ); ?>',
                         action: 'dismiss-wp-pointer'
                     });
                 }
@@ -58,7 +58,7 @@ if ( $post_price_box_pointer ) :
                 },
                 close: function() {
                     jQuery.post( ajaxurl, {
-                        pointer: '<?php esc_html( LaterPay_Controller_Admin::POST_PRICE_BOX_POINTER ); ?>',
+                        pointer: '<?php echo esc_html( LaterPay_Controller_Admin::POST_PRICE_BOX_POINTER ); ?>',
                         action: 'dismiss-wp-pointer'
                     });
                 }
@@ -87,7 +87,7 @@ if ( $post_teaser_content_pointer ) :
                 },
                 close: function() {
                     jQuery.post( ajaxurl, {
-                        pointer: '<?php esc_html( LaterPay_Controller_Admin::POST_TEASER_CONTENT_POINTER ); ?>',
+                        pointer: '<?php echo esc_html( LaterPay_Controller_Admin::POST_TEASER_CONTENT_POINTER ); ?>',
                         action: 'dismiss-wp-pointer'
                     });
                 }

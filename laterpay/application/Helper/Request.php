@@ -153,7 +153,10 @@ class LaterPay_Helper_Request {
 
             $result = $client->get_access($article_ids, $product_key);
 
-            self::$lp_api_availability = true;
+            // Possible value of status is ok or error in case of wrong params which means api is working.
+            if ( is_array( $result ) && array_key_exists( 'status', $result ) ) {
+                self::$lp_api_availability = true;
+            }
 
         } catch (Exception $exception) {
 

@@ -277,7 +277,7 @@ class LaterPay_Helper_Subscription
             }
 
             // get list of subscriptions that cover this post
-            $subscriptions = $model->get_subscriptions_by_category_ids( $post_category_ids );
+            $subscriptions = $model->get_subscriptions_by_category_ids( $post_category_ids, false, false, true );
         } else {
             $subscriptions = $model->get_subscriptions_by_category_ids();
         }
@@ -288,7 +288,7 @@ class LaterPay_Helper_Subscription
             // check, if user has access to the current post with subscription
             $has_access = false;
             foreach ( $subscriptions as $subscription ) {
-                if ( in_array( absint( $subscription['pass_id'] ), $subscriptions_with_access, true ) ) {
+                if ( in_array( absint( $subscription['id'] ), $subscriptions_with_access, true ) ) {
                     $has_access = true;
                     break;
                 }
@@ -321,7 +321,7 @@ class LaterPay_Helper_Subscription
                 if ( $excluded_categories ) {
                     foreach ( $excluded_categories as $excluded_category_id ) {
                         // search for excluded category in covered categories
-                        $has_covered_category = array_search( $excluded_category_id, $covered_categories );
+                        $has_covered_category = array_search( $excluded_category_id, $covered_categories['included'], true );
                         if ( $has_covered_category !== false ) {
                             return array();
                         } else {
@@ -401,11 +401,14 @@ class LaterPay_Helper_Subscription
     /**
      * Get count of existing subscriptions.
      *
+     * @param bool $ignore_deleted ignore count of deleted pass.
+     *
      * @return int count of subscriptions
      */
-    public static function get_subscriptions_count() {
+    public static function get_subscriptions_count( $ignore_deleted = false ) {
         $model = LaterPay_Model_SubscriptionWP::get_instance();
-        return $model->get_subscriptions_count();
+
+        return $model->get_subscriptions_count( $ignore_deleted );
     }
 
 }

@@ -153,6 +153,9 @@
 
             .lp_benefits__action {
                 text-align: center !important;
+                .lp_button {
+                    font-size: $fs--15 !important;
+                }
             }
 
             .lp_purchase-button,

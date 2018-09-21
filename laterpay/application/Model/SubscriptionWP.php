@@ -278,10 +278,11 @@ class LaterPay_Model_SubscriptionWP {
      * @param null $term_ids array of category ids
      * @param bool $exclude  categories to be excluded from the list
      * @param bool $ignore_deleted ignore deleted subscriptions
+     * @param bool $include_all include all subscriptions
      *
      * @return array $subscriptions list of subscriptions
      */
-    public function get_subscriptions_by_category_ids( $term_ids = null, $exclude = null, $ignore_deleted = false ) {
+    public function get_subscriptions_by_category_ids( $term_ids = null, $exclude = false, $ignore_deleted = false, $include_all = false ) {
 
         LaterPay_Hooks::get_instance()->remove_wp_query_hooks();
 
@@ -292,10 +293,6 @@ class LaterPay_Model_SubscriptionWP {
             'no_found_rows'  => true,
         ];
 
-        if ( $ignore_deleted ) {
-            $query_args['post_status'] = 'publish';
-        }
-
         $meta_query = array(
             'relation' => 'OR',
             array(
@@ -304,24 +301,30 @@ class LaterPay_Model_SubscriptionWP {
             ),
         );
 
-        if ( $exclude ) {
+        $access_to_except = array(
+            'key'     => '_lp_access_to_except',
+            'value'   => $term_ids,
+            'compare' => 'NOT IN',
+        );
 
-            $meta_query[] =array(
-                array(
-                    'key'     => '_lp_access_to_except',
-                    'value'   => $term_ids,
-                    'compare' => 'NOT IN',
-                ),
-            );
+        $access_to_include = array(
+            'key'     => '_lp_access_to_include',
+            'value'   => $term_ids,
+            'compare' => 'IN',
+        );
+
+        if ( $include_all ) {
+            array_push( $meta_query, $access_to_except, $access_to_include );
         } else {
+            if ( $exclude ) {
+                $meta_query[] = $access_to_except;
+            } else {
+                $meta_query[] = $access_to_include;
+            }
+        }
 
-            $meta_query[] = array(
-                array(
-                    'key'     => '_lp_access_to_include',
-                    'value'   => $term_ids,
-                    'compare' => 'IN',
-                ),
-            );
+        if ( $ignore_deleted ) {
+            $query_args['post_status'] = 'publish';
         }
 
         // Meta query used to get all subscriptions with different cases

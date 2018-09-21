@@ -167,9 +167,34 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
         $content_ids = LaterPay_Helper_Post::get_content_ids( $post->ID );
         $revenue_model = LaterPay_Helper_Pricing::get_post_revenue_model( $post->ID );
 
+        $only_timepass = (bool) get_option( 'laterpay_only_time_pass_purchases_allowed' );
+
+        // If Individual purchase is turned off then select revenue model of timepass or subscription.
+        if ( $only_timepass ) {
+
+            $content_data = (array) $overlay_content_event->get_result();
+
+            // Check if timepass(es) exist.
+            if ( ! empty( $content_data['timepasses'] ) ) {
+
+                // If timepass(es) available, then select revenue model of first timepass.
+                $revenue_model = $content_data['timepasses'][0]['revenue'];
+
+            } else {
+
+                // If timepass(es) not available, then select revenue model of subscription.
+                $revenue_model = 'sub';
+
+            }
+
+        }
+
         switch ($revenue_model) {
             case 'sis':
                 $submit_text = __('Buy Now', 'laterpay');
+                break;
+            case 'sub':
+                $submit_text = __('Subscribe Now', 'laterpay');
                 break;
             case 'ppu':
             default:
@@ -456,9 +481,9 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
                             time() + 30,
                             '/'
                         );
-	                    if ( laterpay_is_vip_go() ) {
-		                    setcookie( 'vip-go-cb', '1', time() + 30, '/' );
-		                }
+                        if ( laterpay_is_vip_go() ) {
+                            setcookie( 'vip-go-cb', '1', time() + 30, '/' );
+                        }
                     } else {
                         // update gift code statistics
                         LaterPay_Helper_Voucher::update_voucher_statistic( $pass_id, $voucher, true );

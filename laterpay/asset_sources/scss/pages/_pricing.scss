@@ -30,6 +30,10 @@
         padding-top: $fs;
         padding-bottom: 0;
     }
+
+    td.lp_revenu_td_width {
+        width: 55%;
+    }
 }
 
 .lp_price-section {
@@ -150,5 +154,15 @@ table {
 
     pre {
         margin: 0;
+    }
+}
+
+.lp_show_revenue_info {
+    padding: $fs--04;
+    color: #757575;
+    font-size: 12px;
+
+    a {
+        text-decoration: underline;
     }
 }

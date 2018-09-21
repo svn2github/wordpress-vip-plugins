@@ -4,8 +4,8 @@ Contributors: laterpay, dominik-rodler, mihail-turalenka, avahura, ahryb
 Donate link: https://laterpay.net
 Tags: laterpay, accept micropayments, accept payments, access control, billing, buy now pay later, content monetization, creditcard, debitcard, free to read, laterpay for wordpress, laterpay payment, laterpay plugin, micropayments, monetize, paid content, pay button, pay per use, payments, paywall, PPU, sell digital content, sell digital goods, single sale, wordpress laterpay
 Requires at least: 4.6
-Tested up to: 4.9.6
-Stable tag: 0.10.0
+Tested up to: 4.9.8
+Stable tag: 2.0.0
 Author URI: https://laterpay.net
 Plugin URI: https://github.com/laterpay/laterpay-wordpress-plugin
 License: MIT
@@ -185,6 +185,30 @@ Please see the "Test and Live Mode" section.
 6. The plugin provides a variety of advanced settings to customize the LaterPay plugin and adjust it to your needs.
 
 == Changelog ==
+= 2.0.0 ( September 12, 2018 ) =
+* Add Intro section in LaterPay Account tab to improve on-boarding.
+* Add notice to inform if account setup is incomplete and/or plugin is invisible to users.
+* Improve Category Pricing UX.
+* Add section to inform about Revenue Model in Global Default Price section.
+* Minor Bug Fixes
+
+= 0.12.2 (August 24, 2018): Bugfix Release (v1.0 RC33) =
+* Add FAQ section in account tab, to inform users about known issues.
+* Fix issue with edit screen pointers.
+* Fix issue with global default price revenue model.
+
+= 0.12.0 (August 13, 2018): Bugfix Release (v1.0 RC32) =
+* Fix issue with post purchase display.
+* Fix translation issues.
+* Add notice on WPEngine environment to bypass page cache.
+* Update token cookie name to avoid conflicts.
+* Remove Subscription Notice for pre June 2017 merchants.
+
+= 0.11.0 (July 26, 2018): Bugfix Release (v1.0 RC31) =
+* Fix teaser content display issue.
+* Fix VIP-GO cache issue
+* Fix timepass-subscription display issue.
+
 = 0.10.0 (June 21, 2018): Bugfix Release (v1.0 RC30) =
 * Set Minimum PHP version to 5.6
 * Set Minimum WordPress version to 4.6
@@ -619,8 +643,8 @@ KNOWN BUGS:
 
 == Upgrade notice ==
 
-= 0.9.14 ( April 7, 2016 ): Bugfix Release (v1.0 RC7) =
-Fixed various bugs with laterpay functional.
+= 2.0.0 ( September 12, 2018 ) =
+Improved UX and Fixed bugs with LaterPay functionality.
 
 == Arbitrary section ==
 
