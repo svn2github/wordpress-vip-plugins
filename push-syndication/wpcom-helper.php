@@ -24,22 +24,21 @@ add_action( 'syn_post_push_new_post', 'wpcom_vip_push_syndication_debug', 10, 6 
 add_action( 'syn_post_push_edit_post', 'wpcom_vip_push_syndication_debug', 10, 6 );
 
 function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_type, $client, $info ) {
-	if ( ! is_wp_error( $result ) ) {
-		return;
-	}
 
 	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'vip-client-cbs-local' ) ) {
-		$debug_output = 'Syndication Fail Alert:' . PHP_EOL . PHP_EOL;
-	
-		$debug_output .= 'Result: ' . var_export( $result, true ) . PHP_EOL . PHP_EOL;
-		$debug_output .= 'Post Id: ' . var_export( $post_id, true ) . PHP_EOL . PHP_EOL;
-		$debug_output .= 'Blog Id: ' . var_export( get_current_blog_id(), true ) . PHP_EOL . PHP_EOL;
-		$debug_output .= 'Site: ' . var_export( $site, true ) . PHP_EOL . PHP_EOL;
-		$debug_output .= 'Transport Type: ' . var_export( $transport_type, true ) . PHP_EOL . PHP_EOL;
-		$debug_output .= 'Client: ' . var_export( $client, true ) . PHP_EOL . PHP_EOL;
-		$debug_output .= 'Info: ' . var_export( $info, true ) . PHP_EOL . PHP_EOL;
-	
-		a8c_irc( '#vip-cbs-local', $debug_output, 'cbssynbot' );
+		$info = [
+			'result'         => $result,
+			'post_id'        => $post_id,
+			'site'           => $site,
+			'transport_type' => $transport_type,
+			'client'         => $client,
+			'info'           => $info,
+			'timestamp_gmt'      => current_time( 'Y-m-d H:i:s', true ),
+			'timestamp_local'      => current_time( 'Y-m-d H:i:s', false ),
+		];
+		
+		a8c_irc( '#vip-cbs-local', is_wp_error( $result ) ? a8c_irc_color( 'SYNDICATION FAIL:', 'red', 'black' ) : a8c_irc_color( 'SYNDICATION SUCCESS:', 'white', 'black' ), 'cbssynbot' );
+		a8c_irc( '#vip-cbs-local', wp_json_encode( $info ), 'cbssynbot' );
 	}
 }
 
