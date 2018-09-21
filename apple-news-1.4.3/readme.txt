@@ -1,0 +1,296 @@
+=== Publish To Apple News ===
+Contributors: potatomaster, kevinfodness, alleyinteractive, beezwaxbuzz, gosukiwi, pilaf, jaygonzales, brianschick
+Donate link: https://wordpress.org
+Tags: publish, apple, news, iOS
+Requires at least: 4.0
+Tested up to: 4.9.8
+Requires PHP: 5.6
+Stable tag: 1.4.3
+License: GPLv3 or later
+License URI: https://www.gnu.org/licenses/gpl.html
+
+Enable your WordPress blog content to be published to your Apple News channel.
+
+== Description ==
+
+The Publish to Apple News plugin enables your WordPress blog content to be published to your Apple News channel.
+
+**Features include:**
+
+* Convert your WordPress content into Apple News format automatically.
+* Create a custom design for your Apple News content with no programming knowledge required.
+* Automatically or manually publish posts from WordPress to Apple News.
+* Control individual posts with options to publish, update, or delete.
+* Publish individual posts or in bulk.
+* Handles image galleries and popular embeds like YouTube and Vimeo that are supported by Apple News.
+* Automatically adjust advertisement settings.
+
+To enable content from your WordPress blog to be published to your Apple News channel, you must obtain and enter Apple News API credentials from Apple.
+
+Please see the [Apple Developer](https://developer.apple.com/) and [Apple News Publisher documentation](https://developer.apple.com/news-publisher/) and terms on Apple's website for complete information.
+
+== Installation ==
+
+Please visit our [wiki](https://github.com/alleyinteractive/apple-news/wiki) for detailed [installation instructions](https://github.com/alleyinteractive/apple-news/wiki/Installation) as well as [configuration](https://github.com/alleyinteractive/apple-news/wiki/Configuration) and [usage instructions](https://github.com/alleyinteractive/apple-news/wiki/Usage), [troubleshooting information](https://github.com/alleyinteractive/apple-news/wiki/Usage#troubleshooting) and a full list of [action and filter hooks](https://github.com/alleyinteractive/apple-news/wiki/action-and-filter-hooks).
+
+== Frequently Asked Questions ==
+
+Please visit our [wiki](https://github.com/alleyinteractive/apple-news/wiki) for detailed [installation instructions](https://github.com/alleyinteractive/apple-news/wiki/Installation) as well as [configuration](https://github.com/alleyinteractive/apple-news/wiki/Configuration) and [usage instructions](https://github.com/alleyinteractive/apple-news/wiki/Usage), [troubleshooting information](https://github.com/alleyinteractive/apple-news/wiki/Usage#troubleshooting) and a full list of [action and filter hooks](https://github.com/alleyinteractive/apple-news/wiki/action-and-filter-hooks).
+
+== Screenshots ==
+
+1. Manage all of your posts in Apple News from your WordPress dashboard
+2. Create a custom theme for your Apple News posts with no programming knowledge required
+3. Publish posts in bulk
+4. Manage posts in Apple News right from the post edit screen
+
+== Changelog ==
+
+= 1.4.3 =
+* Bugfix: Decodes HTML entities in URLs before performing remote file exists check for embedded media. Props to @kasparsd for the fix.
+
+= 1.4.2 =
+* Bugfix: Issues with making updates via the quick edit interface and on unsupported post types are now fixed, as the publish action bails out early if the nonce is not set, which occurs when the metabox does not load. Props to @danielbachhuber and @srtfisher for the fixes.
+* Added 'apple_news_should_post_autopublish' filter to override automatic publish settings on a per-article basis. Props to @srtfisher for the update.
+
+= 1.4.1 =
+* Bugfix: Post types that were not registered with Publish to Apple News were failing the nonce check on publish/update because the metabox was not present. Refined the save_post hook to register only for post types with Publish to Apple News support to avoid this situation.
+
+= 1.4.0 =
+* Set HTML to the default output format (instead of Markdown) for new installs. HTML format is now recommended for all installs. Support for Markdown may be removed in a future version. Individual components now have a filter to toggle HTML support on or off for each component.
+* Added support for HTML format to Heading and Quote components.
+* Added support for tables (requires HTML support to be turned on) with new table styles defined in example themes, and intelligent defaults applied to existing themes based on comparable settings.
+* Made Cover Art feature opt-in for new installs to avoid creating a plethora of additional image crops which may not be necessary. Sets the setting to enabled for existing installations during upgrade, since there is not a good way to know whether a user has utilized this feature without running a very expensive postmeta query.
+* Added a "Refresh Sections" button on the Sections page to clear the cached settings list.
+* Set the default publish and delete capabilities to the corresponding post publish and delete capabilities for the post type being edited, rather than requiring "manage_options," which is typically an administrator-only capability. This allows users with the ability to publish posts to also publish those posts to Apple News.
+* Removed overzealous check for invalid Unicode sequences. Over the past several releases, enhancements have been made to better identify and fix problems with content that would cause issues upon pushing to Apple News. Therefore, the check for invalid Unicode character sequences is now not providing much value, and is inhibiting valid content (including emoji) from being pushed to Apple News.
+* Added a function (apple_news_is_exporting) for determining whether an export is happening, which can be used in themes and plugins to change behavior if a hook is being executed in the context of an Apple News request.
+* Added context to the message that is displayed when a post push is skipped explaining why it was skipped.
+* Added a framework for saving dismissed state of persistent admin notices (such as those that appear after an upgrade) so that the close button causes the notice to not appear again for that user.
+* Set the language code from blog settings for document properties (thanks @ffffelix).
+* Added support for the isHidden property (thanks @jonesmatthew).
+* Added support for Jetpack Tiled Galleries.
+* Swapped deprecated wpcom_vip_* functions for core versions.
+* Added expand/collapse functionality to the theme editor to reduce scrolling between where settings are set and the preview area.
+* Brought entire codebase up to WordPress coding standards, which is now being verified through PHP CodeSniffer on each pull request.
+* Updated Travis configuration for more robust testing.
+* Bumped minimum required version to PHP 5.6 due to incompatibility with certain tools (e.g., Composer) required for running builds and tests.
+* Security: Added nonce verification to all remaining form data processing sections.
+* Bugfix: Added a handler for WordPress.com/OpenGraph Facebook embeds so that they properly render as Facebook components instead of a blockquote.
+* Bugfix: Addressed an issue with sanitization that did not properly strip out script tags that contain CDATA with a greater than symbol.
+* Bugfix: Empty meta_component_order settings can now be saved properly on the theme edit screen.
+* Bugfix: No longer assumes that any embed that isn't YouTube is actually Vimeo. Performs a strict check for Vimeo embed signatures and drops the embed if it does not match known providers.
+* Bugfix: Re-added erroneously removed apple_news_fonts_list hook.
+* Bugfix: Fixed an error where the list of sections was occasionally being encoded as an object instead of an array.
+* Bugfix: Fixed the undefined message warning if an article was deleted from iCloud, thereby breaking the linkage between the plugin and the Apple News API, to explain why the link was broken.
+* Bugfix: Fixed undefined index and undefined variable notices in a few places.
+* Bugfix: Fixed an assignment bug in class-admin-apple-post-sync.php (thanks @lgladdy and @dhanendran).
+* Bugfix: Prevented empty text nodes from being added in a variety of ways, which was causing errors on publish in some cases, and unwanted extra space in articles in others.
+* Bugfix: Prevented Apple News API timeouts from causing the entire WordPress install to hang by only using long remote request timeouts when making a POST request to the Apple News API.
+* Bugfix: Fixed improper handling of several different types of links, such as empty URLs, malformed URLs, root-relative URLs, and anchor links.
+* Bugfix: Properly decoded ampersands and other HTML-encoded entities when using Markdown format.
+* Bugfix: Removed style tags and their contents where they appear inline.
+
+= 1.3.0 =
+* Moved JSON customizations to themes so that JSON can be customized on a per-theme basis.
+* Enabled access to postmeta in custom JSON so that values from postmeta fields can be inserted into customized JSON.
+* Removed all formatting settings from the settings option in favor of storing them in themes. This is a potentially breaking change if you are using custom code that relies on formatting settings stored in the settings option.
+* Removed the option for JSON customization in favor of moving those settings to themes. This is a potentially breaking change if you are accessing the custom JSON option directly.
+* Deprecated access of formatting settings using the Settings object.
+* Added a new Theme object to handle all formatting settings.
+* Bugfix: Fixed a bug where themes were not being automatically switched via section mappings.
+* Bugfix: HTML in titles is now supported.
+
+= 1.2.7 =
+* Fixed a bug where HTML tags were being stripped before being sent to the API.
+* Fixed a bug where older theme files couldn't be imported if new formatting settings were added.
+
+= 1.2.6 =
+* WP Standards: Ensured all instances of in_array use the strict parameter
+* WP Standards: Replaced all remaining instances of == with ===
+* WP Standards: Replaced all remaining instances of != with !==
+* WP Standards: Ensured all calls to wp_die with translated strings were escaped
+* WP Standards: Added escaping in a few additional places
+* WP Standards: Replaced all remaining instances of json_encode with wp_json_encode
+* Bugfix: Root-relative URLs for images, audio, and video are now supported
+* Bugfix: Images, audio, and video with blank or invalid URLs are no longer included, avoiding an error with the API
+* Bugfix: Image blocks with multiple src attributes (e.g., when using a lazyload plugin with a raw &lt;img&gt; tag in the &lt;noscript&gt; block) are now intelligently probed
+
+= 1.2.5 =
+* Bugfix: Fixed version of PHPUnit at 5.7.* for PHP 7.* and 4.8.* for PHP 5.* in the Travis configuration to fix a bug with incompatibility with PHPUnit 6
+* Bugfix: Set the base URL for the Apple News API to https://news-api.apple.com everywhere for better adherence to official guidance in the API docs (props to ffffelix for providing the initial PR)
+* Bugfix: Made the administrator email on the settings screen no longer required if debug mode is set to "no"
+* Bugfix: Converted the error that occurs when a list of sections cannot be retrieved from the API to a non-fatal to fix a problem where the content of the editor would appear white-on-white
+* Bugfix: Resolved an error that occurs on some systems during plugin activation on the Add New screen due to a duplicated root plugin file in the WordPress.org version of the plugin
+
+= 1.2.4 =
+* Added an interface for customizing of component JSON
+* Added support for making certain components inactive
+* Added hanging punctuation option for pull quotes
+* Added additional styling options for drop caps
+* Added support for nested images in lists
+* Added support for Instagram oEmbeds
+* Updated the interface and workflow for customizing cover art
+
+= 1.2.3 =
+* Allowed mapping themes to Apple News sections
+* Added support for videos in feed
+* Added support for maturity rating
+* Added support for cover art
+* Added support for the Facebook component
+* Added support for captions in galleries
+* Bugfix for invalid JSON errors caused by non-breaking spaces and other Unicode separators
+
+= 1.2.2 =
+* Created Apple News themes and moved all formatting settings to themes
+* Added support for sponsored content (isSponsored)
+* Added ability to map categories to Apple News sections
+* Split block and pull quote styling
+* Allowed for removing the borders on blockquotes and pull quotes
+* Added post ID to the apple_news_api_post_meta and apple_news_post_args filters
+* Fixed handling of relative URLs and anchors in the post body
+* Provided a method to reset posts stuck in pending status
+* Added a delete confirmation dialog
+* Added a separate setting for automatically deleting from Apple News when deleted in WordPress
+* Fixed captions so that they're always aligned properly with the corresponding photo
+* Added separate settings for image caption style
+
+= 1.2.1 =
+* Added an experimental setting to enable HTML format on body elements.
+* Added settings for monospaced fonts, which applies to &lt;pre&gt;, &lt;code&gt;, and &lt;samp&gt; elements in body components when HTML formatting is enabled.
+* Added additional text formatting options, including tracking (letter-spacing) and line height.
+* Split text formatting options for headings to allow full customization per heading level.
+* Modified logic for image alignment so that centered and non-aligned images now appear centered instead of right-aligned.
+* Added an option for full-bleed images that will cause all centered and non-aligned images to display edge-to-edge.
+* Added logic to intelligently split body elements around anchor targets to allow for more opportunities for ad insertion.
+* Modified column span logic on left and right orientation to align the right side of the text with the right side of right-aligned images.
+* Fixed a bug caused by hardcoded column spans on center orientation.
+* Fixed a PHP warning about accessing a static class method using arrow syntax.
+* Added unit test coverage for new functionality.
+* Refactored several core files to conform to WordPress standards and PHP best practices.
+
+= 1.2.0 =
+* Added a live preview of the font being selected (macOS only).
+* Added a live preview of formatting settings (font preview in macOS only).
+* Switched to the native WordPress color picker for greater browser compatibility.
+* Added a framework for JSON validation and validation for unicode character sequences that are symptomatic of display issues that have been witnessed, though not reproduced, in Apple News.
+* Broke out Action_Exception into its own class file for cleanliness.
+* Added direct support links to every error message.
+* Added better formatting of multiple error messages.
+* Added unit tests for the Apple_News and Admin_Apple_Notice classes.
+* Added new unit tests for Push.
+
+= 1.1.9 =
+* Updated the logic for bundling images for the Apple News API's new, stricter MIME parsing logic.
+
+= 1.1.8 =
+* Fixed a bug with the Apple News meta box not saving values when "Automatically publish to Apple News" was set to "Yes".
+
+= 1.1.7 =
+* Fixed a bug with posts created via cron skipping post status validation (thanks, agk4444 and smerriman!).
+
+= 1.1.6 =
+* Fixed a bug with automatically publishing scheduled posts (thanks, smerriman!).
+* Apple News meta box is now displayed by default on posts.
+* Displaying the Apple News meta box even on draft posts to allow saving settings before publish.
+* Updated minimum PHP version to 5.3.6 due to usage of DOMDocument::saveHTML.
+* Fixed invalid formatting for plugin author name and plugin URI.
+* isPreview=false is no longer sent passively to the API. Only isPreview=true is sent when explicitly specified.
+* Fixed an issue where author names with hashtags were breaking the byline format.
+* Added image settings, bundled images (if applicable) and JSON to the debug email.
+* Checking for blank body nodes early enough to remove and log them as component errors.
+* Retrieving and displaying more descriptive error messages from the API response.
+
+= 1.1.5 =
+* Updated logic for creating a unique ID for anchored components to avoid occasional conflicts due to lack of entropy.
+* Fixed issue with lack of container for components when cover isn't the first component causing text to scroll awkwardly over the image with the parallax effect.
+* Added the ability to set the body background color.
+* Fixed issue with empty but valid JSON components causing an "Undefined index" error in Apple News validation.
+* Fixed issue with an invalid API response or unreachable endpoint causing the post edit screen to break when trying to load the Apple News meta box.
+
+= 1.1.4 =
+* Released updates to the default settings for the Apple News template
+* Added customizable settings for pull quote border color, style and width
+* Refactored logic to obtain size of bundled images for wider web host compatibility
+
+= 1.1.3 =
+* Fixed issue with the Apple News plugin not respecting the site's timezone offset
+
+= 1.1.2 =
+* Added support for remote images
+* Fixed error on loading the Apple News list view before channel details are entered
+
+= 1.1.1 =
+* Fixed issue with publishing to sections
+
+= 1.1 =
+* Added composer support (thanks ryanmarkel!)
+* Removed unnecessary ob_start() on every page load
+* Fixed issue with manual publish button on post edit screen
+* Fixed issue with bottom bulk actions menu on Apple News list table
+* Added ability to publish to any section
+* Added ability to publish preview articles
+
+= 1.0.8 =
+* Added support for date metadata (https://developer.apple.com/library/ios/documentation/General/Conceptual/Apple_News_Format_Ref/Metadata.html#//apple_ref/doc/uid/TP40015408-CH3-SW1)
+* Fixed issue with shortcodes appearing in excerpt metadata
+* Added the ability to alter a component's style property via a filter
+* Refactored plugin settings to save as a single option value
+* Settings are now only deleted on uninstall and not deactivation
+* Removed unit tests that were making remote calls to the API
+* Added improved support for known YouTube and Vimeo embed formats
+
+= 1.0.7 =
+* Addressed issue with component order settings field for users with PHP strict mode enabled.
+
+= 1.0.6 =
+* Updated the plugin from 0.10 to 1.1 Apple News format.
+* Added alert options when unsupported embeds are found in the post content while publishing.
+* Added better handling for MIME_PART_INVALID_SIZE errors.
+* Added the ability to reorder the title, cover and byline components.
+* Updated ads to use new features available in the 1.1 Apple News format.
+* Minor settings page updates.
+* Resolved some PHP warnings on the dashboard.
+* Updated all unit tests and improved test coverage.
+
+= 1.0.5 =
+* Fixed a performance issue caused by introduction of live post status, added 60 second cache and removed from email debugging.
+
+= 1.0.4 =
+* Added canonicalURL to metadata (thanks @dashaluna)
+* Added automatic excerpt to metadata following normal WordPress logic if a manual one is not present
+* Removed unnecessary redirect logic and allowed Apple News notices to display on any screen, updated vague error messages for clarity
+* Added plugin information to generator metadata
+* Added new field for adjusting byline format
+* Added the ability to set the field size and required attributes on the Apple News settings page
+* Fix matching of Instagram URL, so component is generated correctly (thanks @dashaluna)
+* Added logic to extract the thumbnail/cover from the body content when not explicitly set via the featured image
+* Added display of current Apple News publish state to admin screens
+* Added set_layout as a separate method for consistency in the Twitter component (thanks @dashaluna)
+* Use register_full_width_layout instead of register_layout for byline and cover for consistency (thanks @dashaluna)
+* Matching dashes and extra query parameters in YouTube URLs (thanks @smerriman)
+
+= 1.0.3 =
+* Added multiple checks for publish status throughout built-in publishing scenarios. Still allowing non-published posts to be pushed at the API level to not prevent custom scenarios. Fixed issue with auto publishing not respecting post type settings.
+
+= 1.0.2 =
+* Improvements to asynchronous publishing to ensure posts cannot get stuck in pending status and to return all error messages that may occur.
+
+= 1.0.1 =
+* Bug fixes for removing HTML comments, fixing video embed URL regular expressions and fixing auto sync and auto update logic.
+
+= 1.0.0 =
+* Major production release. Introduces asynchronous publishing for handling large posts, developer tools, new filters and bug fixes.
+
+= 0.9.0 =
+* Initial release. Includes changes for latest WP Plugin API compatibility and Apple News Publisher API.
+
+== Upgrade Notice ==
+
+= 0.9.0 =
+Initial release. Recommended for production.
+
+
+== Developers ==
+
+Please visit us on [github](https://github.com/alleyinteractive/apple-news) to [submit issues](https://github.com/alleyinteractive/apple-news/issues), [pull requests](https://github.com/alleyinteractive/apple-news/pulls) or [read our wiki page about contributing](https://github.com/alleyinteractive/apple-news/wiki/contributing).
