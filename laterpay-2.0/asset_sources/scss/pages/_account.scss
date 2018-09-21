@@ -1,0 +1,36 @@
+// LaterPay Accordion Components.
+
+details.lp-faq {
+	border: 1px solid #aaa;
+	border-radius: 4px;
+	padding: 5px 5px 5px;
+	margin-bottom: 5px;
+
+	&[open] {
+		padding: 5px;
+	}
+
+	&[open] summary {
+		border-bottom: 1px solid #aaa;
+		margin-bottom: 5px;
+	}
+
+}
+
+
+.lp-details-summary {
+
+	p.lp-text {
+		font-size: 13px;
+		font-weight: bold;
+	}
+
+	ol.lp-list {
+
+		li {
+			font-weight: bold;
+			font-size: 13px;
+		}
+	}
+
+}

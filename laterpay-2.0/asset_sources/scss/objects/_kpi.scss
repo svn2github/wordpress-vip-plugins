@@ -1,0 +1,57 @@
+/**
+ * Display large KPI (key performance indicator).
+ *
+ */
+
+.lp_kpi__row {
+    @extend %clearfix;
+
+    background: $background;
+    border-radius: $border-radius;
+    display: inline-block;
+}
+
+.lp_kpi {
+    font-size: $fs--05;
+
+    > div {
+        color: $text--lighter;
+        float: right;
+        margin: $fs--05;
+        text-align: right;
+    }
+
+    &:last-child > div {
+        border: 0;
+    }
+
+    big {
+        color: $text;
+        display: block;
+        font-size: $fs--15;
+        line-height: 0.8;
+        padding: $fs--025 0;
+
+        small {
+            padding-left: $fs--025;
+            padding-left: 0.5ch;
+        }
+    }
+
+    small,
+    big small {
+        color: $text--lighter;
+        font-size: $fs--075;
+        white-space: nowrap;
+    }
+
+    p {
+        margin: 0;
+    }
+}
+
+.lp_unit {
+    color: $text--lighter;
+    padding-left: $fs--025;
+    padding-left: 0.5ch;
+}
