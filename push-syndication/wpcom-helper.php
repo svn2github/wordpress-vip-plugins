@@ -31,7 +31,6 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 			'post_id'        => $post_id,
 			'site'           => $site,
 			'transport_type' => $transport_type,
-			'client'         => $client,
 			'info'           => $info,
 			'timestamp_gmt'      => current_time( 'Y-m-d H:i:s', true ),
 			'timestamp_local'      => current_time( 'Y-m-d H:i:s', false ),
