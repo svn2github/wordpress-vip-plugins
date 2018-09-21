@@ -39,8 +39,13 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 		
 		$bname = 'CBS Syn Watcher';
 		
-		$result =  is_wp_error( $result ) ? 'SYNDICATION FAIL: ' : 'SYNDICATION SUCCESS:';
-		a8c_slack('#vip-client-cbs-local',  $result . json_encode( $info ), $bname );
+		$result = is_wp_error( $result ) ? 'SYNDICATION FAIL: ' : 'SYNDICATION SUCCESS:';
+		$msg = wp_json_encode( $info, JSON_PRETTY_PRINT ) . "\nJSON status: " . json_last_error_msg() . "\n" . var_export( $info, true );
+		
+		a8c_slack( '#vip-client-cbs-logs',  $result . $msg, $bname );
+		if ( function_exists( 'wp_debug_mail' ) ) {
+			wp_debug_mail( 'rinat+wpcomdebug@automattic.com', $result, $msg, [], 60 );
+		}
 	}
 }
 
