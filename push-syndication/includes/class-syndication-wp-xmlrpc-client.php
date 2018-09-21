@@ -433,17 +433,26 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 		return true;
 
 	}
-
+	
 	public function get_post( $ext_ID )
 	{
 		// TODO: Implement get_post() method.
 	}
-
+	
 	public function get_posts( $args = array() )
 	{
 		// TODO: Implement get_posts() method.
 	}
-
+	
+	/**
+	 * Call this before doing debug of the instance to avoid accidental disclosure
+	 *
+	 * @return void
+	 */
+	function null_creds() {
+		$this->username = null;
+		$this->password = null;	
+	}
 }
 
 class Syndication_WP_XMLRPC_Client_Extensions {
@@ -561,19 +570,7 @@ class Syndication_WP_XMLRPC_Client_Extensions {
 			return new IXR_Error( 403, __( 'Could not remove post thumbnail.' ) );
 
 		return true;
-
 	}
-	
-	/**
-	 * Call this before doing debug of the instance to avoid accidental disclosure
-	 *
-	 * @return void
-	 */
-	function null_creds() {
-		$this->username = null;
-		$this->password = null;	
-	}
-
 }
 
 Syndication_WP_XMLRPC_Client_Extensions::init();
