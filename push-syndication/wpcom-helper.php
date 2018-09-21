@@ -20,8 +20,8 @@ add_action( 'syn_after_init_server', function() {
 } );
 
 // Failure notifications
-add_action( 'syn_post_push_new_post', 'wpcom_vip_push_syndication_debug', 10, 6 );
-add_action( 'syn_post_push_edit_post', 'wpcom_vip_push_syndication_debug', 10, 6 );
+add_action( 'syn_post_push_new_post', 'wpcom_vip_push_syndication_debug', 999, 6 );
+add_action( 'syn_post_push_edit_post', 'wpcom_vip_push_syndication_debug', 999, 6 );
 
 function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_type, $client, $info ) {
 
@@ -35,11 +35,17 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 			'timestamp_gmt'      => current_time( 'Y-m-d H:i:s', true ),
 			'timestamp_local'      => current_time( 'Y-m-d H:i:s', false ),
 		];
-		
+
+		// Prevent credentials disclosure
+		if ( is_callable( [ $client, 'null_creds' ] ) ) {
+			$client->null_creds();
+			$info['client'] = $client;
+		}
+
 		$bname = 'CBS Syn Watcher';
 		
 		$result = is_wp_error( $result ) ? 'SYNDICATION FAIL: ' : 'SYNDICATION SUCCESS:';
-		$msg = wp_json_encode( $info, JSON_PRETTY_PRINT ) . "\nJSON status: " . json_last_error_msg() . "\n" . var_export( $info, true );
+		$msg = var_export( $info, true );
 		
 		a8c_slack( '#vip-client-cbs-logs',  $result . $msg, $bname );
 		if ( function_exists( 'wp_debug_mail' ) ) {

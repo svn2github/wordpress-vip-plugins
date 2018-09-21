@@ -563,6 +563,16 @@ class Syndication_WP_XMLRPC_Client_Extensions {
 		return true;
 
 	}
+	
+	/**
+	 * Call this before doing debug of the instance to avoid accidental disclosure
+	 *
+	 * @return void
+	 */
+	function null_creds() {
+		$this->username = null;
+		$this->password = null;	
+	}
 
 }
 
