@@ -39,8 +39,8 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 		
 		$bname = 'CBS Syn Watcher';
 		
-		a8c_slack('#vip-client-cbs-local', is_wp_error( $result ) ? 'SYNDICATION FAIL: ' : 'SYNDICATION SUCCESS: ', $bname );
-		a8c_slack('#vip-client-cbs-local',  wp_json_encode( $info ), $bname );
+		$result =  is_wp_error( $result ) ? 'SYNDICATION FAIL: ' : 'SYNDICATION SUCCESS:';
+		a8c_slack('#vip-client-cbs-local',  $result . json_encode( $info ), $bname );
 	}
 }
 
