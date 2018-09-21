@@ -37,8 +37,10 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 			'timestamp_local'      => current_time( 'Y-m-d H:i:s', false ),
 		];
 		
-		a8c_irc( '#vip-cbs-local', is_wp_error( $result ) ? a8c_irc_color( 'SYNDICATION FAIL:', 'red', 'black' ) : a8c_irc_color( 'SYNDICATION SUCCESS:', 'white', 'black' ), 'cbssynbot' );
-		a8c_irc( '#vip-cbs-local', wp_json_encode( $info ), 'cbssynbot' );
+		$bname = 'CBS Syn Watcher';
+		
+		a8c_slack('#vip-client-cbs-local', is_wp_error( $result ) ? 'SYNDICATION FAIL: ' : 'SYNDICATION SUCCESS: ', $bname );
+		a8c_slack('#vip-client-cbs-local',  wp_json_encode( $info ), $bname );
 	}
 }
 
