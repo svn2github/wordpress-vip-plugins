@@ -853,7 +853,7 @@ class WP_Push_Syndication_Server {
 		// Debugging #70579-z
 		$debug_start_timestamp = current_time( 'timestamp' );
 		$debug_start_message = 'Post ID: ' . $sites['post_ID'];
-		$debug_start_message .= ' || Start Time: ' .  $debug_start_timestamp;
+		$debug_start_message .= ' || ' .  $debug_start_timestamp;
 		wpcom_vip_debug( 'vip-syndication-debug', [ 'Lock' => $debug_start_message ] );
 
 		// set value as locked, valid for 5 mins
@@ -932,9 +932,9 @@ class WP_Push_Syndication_Server {
 
 		/** end of critical section **/
 		$debug_end_timestamp = current_time( 'timestamp' );
+		$debug_total_time = (int) $debug_end_timestamp - (int) $debug_start_timestamp;
 		$debug_stop_message = 'Post ID: ' . $sites['post_ID'];
-		$debug_stop_message .= ' || End Time: ' .  $debug_end_timestamp;
-		$debug_stop_message .= ' || Total Time: ' .  $debug_end_timestamp - $debug_start_timestamp;
+		$debug_stop_message .= " || {$debug_end_timestamp} ({$debug_total_time}s)";
 		wpcom_vip_debug( 'vip-syndication-debug', [ 'Unlock' => $debug_stop_message ] );
 
 		// release the lock.
