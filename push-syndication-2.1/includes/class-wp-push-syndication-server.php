@@ -850,6 +850,9 @@ class WP_Push_Syndication_Server {
 			return;
 		}
 
+		// Debugging #70579-z
+		wpcom_vip_debug( 'vip-syndication-debug', [ 'Lock' => $sites['post_ID'] ] );
+
 		// set value as locked, valid for 5 mins
 		set_transient( 'syn_syndicate_lock_' . $sites['post_ID'], 'locked', 60*5 );
 
@@ -925,6 +928,8 @@ class WP_Push_Syndication_Server {
 
 
 		/** end of critical section **/
+
+		wpcom_vip_debug( 'vip-syndication-debug', [ 'Unlock' => $sites['post_ID'] ] );
 
 		// release the lock.
 		delete_transient( 'syn_syndicate_lock_' . $sites['post_ID'] );
