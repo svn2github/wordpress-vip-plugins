@@ -174,6 +174,7 @@ class WPcom_VIP_Plugins_UI {
 			'livefyre', // use livefyre3 instead
 			'search-excerpt', // out-of-date and not widely used
 			'the-attached-image', // Badness - was missing ton of escaping, not using the settings api
+			'watermark-image-uploads', // broken, can't save options, breaks transparent png uploads.
 			'wordtwit-1.3-mod', // use publicize
 			'wpcom-related-posts', // Now part of JP / WP.com
 			'livefyre-apps', 'livefyre3', // http://wp.me/poqVs-eiD
