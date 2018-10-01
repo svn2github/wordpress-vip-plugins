@@ -11,12 +11,9 @@ add_action( 'syn_after_init_server', function() {
 		$data = new stdClass;
 		$data->post_id = $post_id;
 		$job_id = queue_async_job( $data, 'vip_async_syndication_push_post' );
-
-		xmpp_message( 'batmoo@im.wordpress.com', '[syn_schedule_push_content] job id for pushing post #' . $post_id . ' ('. home_url() .'): ' . $job_id );
 	}, 10, 2 );
 
 	// TODO: override schedule_delete_content and schedule_pull_content
-
 } );
 
 // Failure notifications
@@ -24,8 +21,7 @@ add_action( 'syn_post_push_new_post', 'wpcom_vip_push_syndication_debug', 999, 6
 add_action( 'syn_post_push_edit_post', 'wpcom_vip_push_syndication_debug', 999, 6 );
 
 function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_type, $client, $info ) {
-
-	if ( function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'vip-client-cbs-local' ) ) {
+	if ( is_wp_error( $result ) && function_exists( 'has_blog_sticker' ) && has_blog_sticker( 'vip-client-cbs-local' ) ) {
 		$info = [
 			'result'         => $result,
 			'post_id'        => $post_id,
@@ -44,7 +40,7 @@ function wpcom_vip_push_syndication_debug( $result, $post_id, $site, $transport_
 
 		$bname = 'CBS Syn Watcher';
 		
-		$result = is_wp_error( $result ) ? 'SYNDICATION FAIL: ' : 'SYNDICATION SUCCESS:';
+		$result = 'SYNDICATION FAIL: ';
 		$msg = var_export( $info, true );
 		
 		a8c_slack( '#vip-client-cbs-logs',  $result . $msg, $bname );
