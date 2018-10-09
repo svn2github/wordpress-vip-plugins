@@ -402,16 +402,16 @@ function chartbeat_amp_add_analytics( $analytics ) {
 	    'attributes' => array(),
 	    'config_data' => array(
 	        'vars' => array(
-	            'uid' => wp_json_encode( $cb_configs["uid"] ),
-	            'domain' => wp_json_encode( $cb_configs["domain"] ),
+	            'uid' => $cb_configs["uid"],
+	            'domain' => $cb_configs["domain"],
 	        )
 	    ),
 	  );
 
 	  $enable_newsbeat = get_option('chartbeat_enable_newsbeat');
 		if ($enable_newsbeat) { 
-			$analytics['chartbeat']['config_data']['vars']['authors'] = wp_json_encode( $cb_configs['author'] );
-			$analytics['chartbeat']['config_data']['vars']['sections'] = wp_json_encode( $cb_configs['sections'] );
+			$analytics['chartbeat']['config_data']['vars']['authors'] = $cb_configs['author'];
+			$analytics['chartbeat']['config_data']['vars']['sections'] = $cb_configs['sections'];
 		}
 	}
 	return $analytics;
