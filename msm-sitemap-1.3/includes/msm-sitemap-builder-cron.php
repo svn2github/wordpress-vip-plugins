@@ -336,9 +336,9 @@ class MSM_Sitemap_Builder_Cron {
 		$months_being_processed = get_option( 'msm_months_to_process' );
 		$years_being_processed = get_option( 'msm_years_to_process' );
 
-		$total_days = count( $days_being_processed );
-		$total_months = count( $months_being_processed );
-		$total_years = count( $years_being_processed );
+		$total_days = ( is_array( $days_being_processed ) ? count( $days_being_processed ) : 0 );
+		$total_months = ( is_array( $months_being_processed ) ? count( $months_being_processed ) : 0 );
+		$total_years = ( is_array( $years_being_processed ) ? count( $years_being_processed ) : 0 );
 
 		if ( $total_days && $day > 1 ) {
 			// Day has finished
