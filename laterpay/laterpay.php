@@ -56,6 +56,7 @@ function laterpay_activate() {
     laterpay_before_start();
     $config     = laterpay_get_plugin_config();
     $laterpay   = new LaterPay_Core_Bootstrap( $config );
+    error_log( 'activating laterpay: ' . wp_debug_backtrace_summary()  . "{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" );
 
     laterpay_event_dispatcher()->dispatch( 'laterpay_activate_before' );
     $laterpay->activate();
