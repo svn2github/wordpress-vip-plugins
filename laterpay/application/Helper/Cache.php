@@ -18,9 +18,6 @@ class LaterPay_Helper_Cache
     public static function reset_opcode_cache() {
         $reset = false;
 
-        if ( function_exists( 'opcache_reset' ) ) {
-            $reset = opcache_reset();
-        }
         if ( function_exists( 'apc_clear_cache' ) ) {
             $reset = apc_clear_cache();
         }
