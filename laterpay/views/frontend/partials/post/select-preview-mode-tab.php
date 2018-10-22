@@ -5,6 +5,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 ?>
 
+<?php if ( true === $laterpay['diplay_preview_pane'] ) : ?>
 <div id="lp_js_previewModeContainer" class="lp_post-preview-mode <?php if ( true === $laterpay['hide_preview_mode_pane'] ) { echo ' lp_is-hidden'; } ?>">
     <form id="lp_js_previewModeVisibilityForm" method="post">
     <input type="hidden" name="action" value="laterpay_preview_mode_visibility">
@@ -37,3 +38,4 @@ if ( ! defined( 'ABSPATH' ) ) {
         <strong><?php esc_html_e( 'Visitor', 'laterpay' ); ?></strong>
     </div>
 </div>
+<?php endif; ?>

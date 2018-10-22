@@ -273,17 +273,31 @@
                             if (r.success) {
                                 if (!is_gift) {
                                     var has_matches = false,
-                                        passId;
-                                    $($o.timePass).each(function() {
-                                        // check for each shown time pass, if the request returned updated data for it
-                                        passId = $(this).data('pass-id');
-                                        if (passId === r.pass_id) {
+                                        passId,subId;
 
-                                            has_matches = true;
+                                    if ( 'time_pass' === r.type ) {
+                                        $($o.timePass).each(function() {
+                                            // Check for each shown time pass,
+                                            // if the request returned updated data for it.
+                                            passId = $(this).data('pass-id');
+                                            if (passId === r.pass_id) {
+                                                has_matches = true;
+                                                return false;
+                                            }
+                                        });
+                                    }
 
-                                            return false;
-                                        }
-                                    });
+                                    if ( 'subscription' === r.type ) {
+                                        $($o.subscription).each(function() {
+                                            // Check for each shown subscription,
+                                            // if the request returned updated data for it.
+                                            subId = $(this).data('sub-id');
+                                            if (subId === r.sub_id) {
+                                                has_matches = true;
+                                                return false;
+                                            }
+                                        });
+                                    }
 
                                     if (has_matches) {
                                         // voucher is valid for at least one displayed time pass ->
@@ -431,20 +445,23 @@
             },
 
             loadPreviewModeContainer = function() {
-                $.get(
-                    lpVars.ajaxUrl,
-                    {
-                        action  : 'laterpay_preview_mode_render',
-                        post_id : lpVars.post_id
-                    },
-                    function(data) {
-                        if (data) {
-                            $o.previewModePlaceholder.before(data).remove();
-                            recachePreviewModeContainer();
-                            bindPreviewModeEvents();
-                        }
-                    }
-                );
+                $.ajax( {
+                  url       : lpVars.ajaxUrl,
+                  method    : 'GET',
+                  data      :{
+                    action  : 'laterpay_preview_mode_render',
+                    post_id : lpVars.post_id
+                  },
+                  xhrFields : {
+                    withCredentials : true
+                  }
+                } ).done( function ( data ) {
+                  if (data) {
+                    $o.previewModePlaceholder.before(data).remove();
+                    recachePreviewModeContainer();
+                    bindPreviewModeEvents();
+                  }
+                } );
             },
 
             togglePreviewMode = function() {
@@ -455,13 +472,16 @@
                 }
 
                 // save the state and reload the page in the new preview mode
-                $.post(
-                    lpVars.ajaxUrl,
-                    $o.previewModeForm.serializeArray(),
-                    function() {
-                        window.location.reload();
-                    }
-                );
+                $.ajax( {
+                  url       : lpVars.ajaxUrl,
+                  method    : 'POST',
+                  data      : $o.previewModeForm.serializeArray(),
+                  xhrFields : {
+                    withCredentials : true
+                  }
+                } ).done( function () {
+                  window.location.reload();
+                } );
             },
 
             togglePreviewModeVisibility = function() {
@@ -472,10 +492,14 @@
                 $o.previewModeContainer.toggleClass($o.hidden);
 
                 // save the state
-                $.post(
-                    lpVars.ajaxUrl,
-                    $o.previewModeVisibilityForm.serializeArray()
-                );
+                $.ajax( {
+                  url       : lpVars.ajaxUrl,
+                  method    : 'POST',
+                  data      : $o.previewModeVisibilityForm.serializeArray(),
+                  xhrFields : {
+                    withCredentials : true
+                  }
+                } );
             },
 
             handlePurchaseInTestMode = function(trigger) {

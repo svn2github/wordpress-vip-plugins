@@ -244,6 +244,11 @@ class LaterPay_Helper_Subscription
             'title'      => $subscription['title'],
         );
 
+        if ( isset( $data['voucher'] ) ) {
+            $pass_title      = sprintf( '%1$s (%2$s %3$s)', $subscription['title'], 'Voucher Code ', $data['voucher'] );
+            $params['title'] = $pass_title;
+        }
+
         // Subscription purchase
         return $client->get_subscription_url( $params );
     }

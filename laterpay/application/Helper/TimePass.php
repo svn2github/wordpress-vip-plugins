@@ -489,6 +489,11 @@ class LaterPay_Helper_TimePass
             'require_login' => (int) get_option( 'laterpay_require_login', 0 ),
         );
 
+        if ( isset( $data['voucher'] ) ) {
+            $pass_title      = sprintf( '%1$s (%2$s %3$s)', $time_pass['title'], 'Voucher Code ', $data['voucher'] );
+            $params['title'] = $pass_title;
+        }
+
         if ( $revenue_model === 'sis' ) {
             // Single Sale purchase
             return $client->get_buy_url( $params );

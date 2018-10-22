@@ -183,6 +183,7 @@ class LaterPay_Controller_Frontend_PreviewMode extends LaterPay_Controller_Base
         $post = get_post( $post_id );
         // assign variables
         $view_args = array(
+            'diplay_preview_pane'       => LaterPay_Helper_User::display_preview_pane(),
             'hide_preview_mode_pane'    => LaterPay_Helper_User::preview_mode_pane_is_hidden(),
             'preview_post_as_visitor'   => (bool) LaterPay_Helper_User::preview_post_as_visitor( $post ),
         );

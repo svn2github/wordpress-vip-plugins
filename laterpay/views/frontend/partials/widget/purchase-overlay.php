@@ -92,7 +92,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                             $sp_index                = 0;
                             ?>
                             <?php foreach ( $overlay_data['subscriptions'] as $subscription ) : ?>
-                                <div class="lp_purchase-overlay-option <?php if ( $individual_subscription ): ?> lp_purchase-overlay-option-single<?php endif; ?>" data-revenue="<?php echo esc_attr( $subscription['revenue'] );?>">
+                                <div class="lp_purchase-overlay-option <?php if ( $individual_subscription ): ?> lp_purchase-overlay-option-single<?php endif; ?> lp_js_subscription" data-sub-id="<?php echo esc_attr( $subscription['id'] ); ?>" data-revenue="<?php echo esc_attr( $subscription['revenue'] );?>">
                                     <div class="lp_purchase-overlay-option__button">
                                         <input id="lp_purchaseOverlayOptionInput<?php echo esc_attr( $input_id ); ?>" type="radio"
                                                class="lp_purchase-overlay-option__input" value="<?php echo esc_url( $subscription['url'] ); ?>" name="lp_purchase-overlay-option" <?php if ( $individual_subscription || ( 0 === $sp_index && $only_subscription ) ): ?> checked <?php endif; ?>>

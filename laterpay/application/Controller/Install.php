@@ -376,7 +376,7 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
     public function change_teaser_mode()
     {
         $current_version = get_option( 'laterpay_plugin_version' );
-        if ( version_compare( $current_version, '1.0.0', '<' ) ) {
+        if ( version_compare( $current_version, '0.10.0', '>' ) ) {
             return;
         }
 
@@ -420,13 +420,13 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
         add_option( 'laterpay_global_price',                            $this->config->get( 'currency.default_price' ) );
         add_option( 'laterpay_global_price_revenue_model',              'ppu' );
         add_option( 'laterpay_voucher_codes',                           '' );
+        add_option( 'laterpay_subscription_voucher_codes',              '' );
         add_option( 'laterpay_gift_codes',                              '' );
         add_option( 'laterpay_voucher_statistic',                       '' );
         add_option( 'laterpay_gift_statistic',                          '' );
         add_option( 'laterpay_gift_codes_usages',                       '' );
         add_option( 'laterpay_purchase_button_positioned_manually',     '' );
         add_option( 'laterpay_time_passes_positioned_manually',         '' );
-        add_option( 'laterpay_only_time_pass_purchases_allowed',        0 );
         add_option( 'laterpay_is_in_visible_test_mode',                 0 );
 
         // advanced settings
@@ -441,7 +441,6 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
         add_option( 'laterpay_maximum_redemptions_per_gift_code',       1 );
         add_option( 'laterpay_api_fallback_behavior',                   0 );
         add_option( 'laterpay_api_enabled_on_homepage',                 1 );
-        add_option( 'laterpay_only_time_pass_purchases_allowed',        0 );
 
         // keep the plugin version up to date
         update_option( 'laterpay_plugin_version', $this->config->get( 'version' ) );
@@ -478,6 +477,7 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
             $maybe_perform_updates->maybe_remove_ppul();
         }
         $this->change_teaser_mode();
+        $this->update_default_pricing_behaviour();
 
     }
 
@@ -491,5 +491,32 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
         // update capabilities
         $laterpay_capabilities = new LaterPay_Core_Capability();
         $laterpay_capabilities->update_roles( (array) $roles );
+    }
+
+    /**
+     * Update Default Pricing Behaviour to Provide Backwards Compatibility
+     *
+     * @since 2.1.0
+     */
+    public function update_default_pricing_behaviour() {
+        $current_version = get_option( 'laterpay_plugin_version' );
+        if ( version_compare( $current_version, '2.0.0', '<' ) ) {
+            return;
+        }
+
+        if ( false === get_option( 'laterpay_post_price_behaviour' ) ) {
+            $only_timepass        = (bool) get_option( 'laterpay_only_time_pass_purchases_allowed' );
+            $current_global_price = ( float) get_option( 'laterpay_global_price' );
+
+            if ( true === $only_timepass ) {
+                update_option( 'laterpay_post_price_behaviour', 1 );
+            } else if ( floatval( 0.00 ) === $current_global_price ) {
+                update_option( 'laterpay_post_price_behaviour', 0 );
+            } else {
+                update_option( 'laterpay_post_price_behaviour', 2 );
+            }
+
+            delete_option( 'laterpay_only_time_pass_purchases_allowed' );
+        }
     }
 }

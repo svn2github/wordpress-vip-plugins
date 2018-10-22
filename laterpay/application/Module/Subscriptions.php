@@ -125,6 +125,7 @@ class LaterPay_Module_Subscriptions extends LaterPay_Core_View implements LaterP
         // loop through subscriptions
         foreach ($subscriptions as $subscription) {
             $data['subscriptions'][] = array(
+                'id'          => $subscription['id'],
                 'title'       => $subscription['title'],
                 'description' => $subscription['description'],
                 'price'       => LaterPay_Helper_View::format_number( $subscription['price'] ),

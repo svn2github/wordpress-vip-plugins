@@ -35,6 +35,11 @@ class LaterPay_Helper_Voucher
     const VOUCHER_CODES_OPTION = 'laterpay_voucher_codes';
 
     /**
+     * @const string Name of option to update for subscription voucher.
+     */
+    const SUBSCRIPTION_VOUCHER_CODES_OPTION = 'laterpay_subscription_voucher_codes';
+
+    /**
      * @const string Name of statistic option to update if voucher is NOT a gift.
      */
     const VOUCHER_STAT_OPTION  = 'laterpay_voucher_statistic';
@@ -60,17 +65,17 @@ class LaterPay_Helper_Voucher
     }
 
     /**
-     * Save vouchers for current pass.
+     * Save vouchers for current time pass.
      *
-     * @param int   $pass_id
-     * @param array $data
-     * @param bool  $is_gift
+     * @param int   $pass_id Time Pass Id.
+     * @param array $data    Time Pass Voucher Data.
+     * @param bool  $is_gift Is Voucher a Gift.
      *
      * @return void
      */
-    public static function save_pass_vouchers( $pass_id, $data, $is_gift = false ) {
-        $vouchers     = self::get_all_vouchers( $is_gift );
-        $option_name  = $is_gift ? self::GIFT_CODES_OPTION : self::VOUCHER_CODES_OPTION;
+    public static function save_time_pass_vouchers( $pass_id, $data, $is_gift = false ) {
+        $vouchers    = self::get_all_time_pass_vouchers( $is_gift );
+        $option_name = $is_gift ? self::GIFT_CODES_OPTION : self::VOUCHER_CODES_OPTION;
 
         if ( ! $data ) {
             unset( $vouchers[ $pass_id ] );
@@ -85,15 +90,37 @@ class LaterPay_Helper_Voucher
     }
 
     /**
+     * Save vouchers for current subscription.
+     *
+     * @param int   $sub_id Subscription Id.
+     * @param array $data   Subscription Voucher Data.
+     *
+     * @return void
+     */
+    public static function save_subscription_vouchers( $sub_id, $data ) {
+        $vouchers    = self::get_all_subscription_vouchers();
+        $option_name = self::SUBSCRIPTION_VOUCHER_CODES_OPTION;
+
+        if ( ! $data ) {
+            unset( $vouchers[ $sub_id ] );
+        } else if ( is_array( $data ) ) {
+            $vouchers[ $sub_id ] = $data;
+        }
+
+        // save new voucher data
+        update_option( $option_name, $vouchers );
+    }
+
+    /**
      * Get voucher codes of current time pass.
      *
-     * @param int  $pass_id
-     * @param bool $is_gift
+     * @param int  $pass_id Time Pass Id.
+     * @param bool $is_gift Is Voucher a Gift.
      *
      * @return array
      */
     public static function get_time_pass_vouchers( $pass_id, $is_gift = false ) {
-        $vouchers = self::get_all_vouchers( $is_gift );
+        $vouchers = self::get_all_time_pass_vouchers( $is_gift );
         if ( ! isset( $vouchers[ $pass_id ] ) ) {
             return array();
         }
@@ -102,14 +129,31 @@ class LaterPay_Helper_Voucher
     }
 
     /**
-     * Get all vouchers.
+     * Get voucher codes of subscription.
      *
-     * @param bool $is_gift
+     * @param int $sub_id Subscription Id.
+     *
+     * @return array
+     */
+    public static function get_subscription_vouchers( $sub_id ) {
+        $vouchers = self::get_all_subscription_vouchers();
+        if ( ! isset( $vouchers[ $sub_id ] ) ) {
+            return array();
+        }
+
+        return $vouchers[ $sub_id ];
+    }
+
+    /**
+     * Get all time pass vouchers.
+     *
+     * @param bool $is_gift Is Voucher a Gift.
      *
      * @return array of vouchers
      */
-    public static function get_all_vouchers( $is_gift = false ) {
+    public static function get_all_time_pass_vouchers( $is_gift = false ) {
         $option_name = $is_gift ? self::GIFT_CODES_OPTION : self::VOUCHER_CODES_OPTION;
+
         $vouchers    = get_option( $option_name );
         if ( ! $vouchers || ! is_array( $vouchers ) ) {
             update_option( $option_name, '' );
@@ -127,15 +171,39 @@ class LaterPay_Helper_Voucher
     }
 
     /**
-     * Delete voucher code.
+     * Get all subscription vouchers.
      *
-     * @param int       $pass_id
-     * @param string    $code
-     * @param bool      $is_gift
+     * @return array of vouchers
+     */
+    public static function get_all_subscription_vouchers() {
+        $option_name = self::SUBSCRIPTION_VOUCHER_CODES_OPTION;
+
+        $vouchers = get_option( $option_name );
+        if ( ! $vouchers || ! is_array( $vouchers ) ) {
+            update_option( $option_name, '' );
+            $vouchers = array();
+        }
+
+        // format prices
+        foreach ( $vouchers as $subscription_id => $subscription_voucher ) {
+            foreach ( $subscription_voucher as $code => $data ) {
+                $vouchers[ $subscription_id ][ $code ]['price'] = LaterPay_Helper_View::format_number( $data['price'] );
+            }
+        }
+
+        return $vouchers;
+    }
+
+    /**
+     * Delete time pass voucher code.
+     *
+     * @param int    $pass_id Time Pass Id.
+     * @param string $code    Time Pass Voucher Data.
+     * @param bool   $is_gift Is Voucher a Gift.
      *
      * @return void
      */
-    public static function delete_voucher_code( $pass_id, $code = null, $is_gift = false ) {
+    public static function delete_time_pass_voucher_code( $pass_id, $code = null, $is_gift = false ) {
         $pass_vouchers = self::get_time_pass_vouchers( $pass_id, $is_gift );
         if ( $pass_vouchers && is_array( $pass_vouchers ) ) {
             if ( $code ) {
@@ -145,7 +213,28 @@ class LaterPay_Helper_Voucher
             }
         }
 
-        self::save_pass_vouchers( $pass_id, $pass_vouchers, $is_gift );
+        self::save_time_pass_vouchers( $pass_id, $pass_vouchers, $is_gift );
+    }
+
+    /**
+     * Delete subscription voucher code.
+     *
+     * @param int    $sub_id Subscription Id.
+     * @param string $code   Subscription Voucher Data.
+     *
+     * @return void
+     */
+    public static function delete_subscription_voucher_code( $sub_id, $code = null ) {
+        $sub_vouchers = self::get_subscription_vouchers( $sub_id );
+        if ( $sub_vouchers && is_array( $sub_vouchers ) ) {
+            if ( $code ) {
+                unset( $sub_vouchers[ $code ] );
+            } else {
+                $sub_vouchers = array();
+            }
+        }
+
+        self::save_subscription_vouchers( $sub_id, $sub_vouchers );
     }
 
     /**
@@ -157,22 +246,33 @@ class LaterPay_Helper_Voucher
      * @return mixed $voucher_data
      */
     public static function check_voucher_code( $code, $is_gift = false ) {
-        $vouchers = self::get_all_vouchers( $is_gift );
+        $all_passes              = [];
+        $time_pass_vouchers      = self::get_all_time_pass_vouchers( $is_gift );
+        $all_passes['time_pass'] = $time_pass_vouchers;
 
-        // search code
-        foreach ( $vouchers as $pass_id => $pass_vouchers ) {
-            foreach ( $pass_vouchers as $voucher_code => $voucher_data ) {
-                if ( $code === $voucher_code ) {
-                    $data = array(
-                        'pass_id' => $pass_id,
-                        'code'    => $voucher_code,
-                        'price'   => number_format( LaterPay_Helper_View::normalize( $voucher_data['price'] ), 2 ),
-                        'title'   => $voucher_data['title'],
-                    );
+        if ( ! $is_gift ) {
+            $subscription_vouchers      = self::get_all_subscription_vouchers();
+            $all_passes['subscription'] = $subscription_vouchers;
+        }
 
-                    return $data;
+        foreach ( $all_passes as $key => $vouchers ){
+            // search code
+            foreach ( $vouchers as $pass_id => $pass_vouchers ) {
+                foreach ( $pass_vouchers as $voucher_code => $voucher_data ) {
+                    if ( $code === $voucher_code ) {
+                        $data = array(
+                            'pass_id' => $pass_id,
+                            'code'    => $voucher_code,
+                            'price'   => number_format( LaterPay_Helper_View::normalize( $voucher_data['price'] ), 2 ),
+                            'title'   => $voucher_data['title'],
+                            'type'    => $key,
+                        );
+
+                        return $data;
+                    }
                 }
             }
+
         }
 
         return null;
@@ -201,6 +301,28 @@ class LaterPay_Helper_Voucher
         return $has_vouchers;
     }
 
+    /**
+     * Check if given subscriptions have vouchers.
+     *
+     * @param array $subscriptions Array of subscriptions.
+     *
+     * @return bool $has_vouchers
+     */
+    public static function subscriptions_have_vouchers( $subscriptions ) {
+        $has_vouchers = false;
+
+        if ( $subscriptions && is_array( $subscriptions ) ) {
+            foreach ( $subscriptions as $subscription ) {
+                if ( self::get_subscription_vouchers( $subscription['id'] ) ) {
+                    $has_vouchers = true;
+                    break;
+                }
+            }
+        }
+
+        return $has_vouchers;
+    }
+
 
     /**
      * Actualize voucher statistic.
@@ -210,7 +332,7 @@ class LaterPay_Helper_Voucher
      * @return void
      */
     public static function actualize_voucher_statistic( $is_gift = false ) {
-        $vouchers    = self::get_all_vouchers( $is_gift );
+        $vouchers    = self::get_time_pass_vouchers( $is_gift );
         $statistic   = self::get_all_vouchers_statistic( $is_gift );
         $result      = $statistic;
         $option_name = $is_gift ? self::GIFT_STAT_OPTION : self::VOUCHER_STAT_OPTION;

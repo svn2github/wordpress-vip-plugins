@@ -146,7 +146,7 @@ class LaterPay_Form_Subscription extends LaterPay_Form_Abstract
                     'cmp' => array(
                         array(
                             'lte' => $currency['sis_max'],
-                            'gte' => $currency['ppu_min'],
+                            'gte' => $currency['sis_min'],
                         ),
                         array(
                             'eq' => 0.00,
@@ -188,6 +188,37 @@ class LaterPay_Form_Subscription extends LaterPay_Form_Abstract
                     'to_string',
                     'unslash',
                 )
+            )
+        );
+
+        // Add validators for voucher.
+        $this->set_field(
+            'voucher_code',
+            array(
+                'validators' => array(
+                    'is_array',
+                ),
+                'can_be_null' => true,
+            )
+        );
+
+        $this->set_field(
+            'voucher_price',
+            array(
+                'validators' => array(
+                    'is_array',
+                ),
+                'can_be_null' => true,
+            )
+        );
+
+        $this->set_field(
+            'voucher_title',
+            array(
+                'validators' => array(
+                    'is_array',
+                ),
+                'can_be_null' => true,
             )
         );
     }

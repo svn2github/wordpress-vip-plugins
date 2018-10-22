@@ -128,5 +128,14 @@ class LaterPay_Form_GlobalPrice extends LaterPay_Form_Abstract
                 ),
             )
         );
+
+        $this->set_field(
+            'lp_post_price_behaviour',
+            array(
+                'filters' => array(
+                    'to_int'
+                ),
+            )
+        );
     }
 }

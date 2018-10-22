@@ -307,4 +307,18 @@ class LaterPay_Helper_User
         return $result;
     }
 
+    /**
+     * Check if user has the capability to view preview pane.
+     *
+     * @return bool
+     */
+    public static function display_preview_pane() {
+
+        if ( current_user_can( 'manage_options' ) ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }

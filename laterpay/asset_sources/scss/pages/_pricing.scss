@@ -34,6 +34,45 @@
     td.lp_revenu_td_width {
         width: 55%;
     }
+
+    label.lp_js_postPriceLabel {
+        color: #a2a2a2;
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 30px;
+    }
+    input[type=radio].lp_js_postPriceDisplayOption {
+        margin-right: 15px;
+        border: 2px  solid #9a9a9a;
+
+        &:checked:before {
+            content: "";
+            display: block;
+            position: relative;
+            top: -3px;
+            left: -3px;
+            width: 10px;
+            height: 10px;
+            background: #3ca096;
+        }
+    }
+
+    span.lp_js_postPriceSpan {
+        font-size: 20px;
+        position: relative;
+        top: 5px;
+    }
+
+    p.lp_tooltip_p {
+        position: absolute;
+        z-index: 999;
+        margin-top: -3px;
+
+        &:after, &:before {
+            left: 11%;
+            bottom: 55%;
+        }
+    }
 }
 
 .lp_price-section {
@@ -143,6 +182,19 @@
 
 .lp_vouchers .lp_voucher {
     float: left;
+}
+
+.lp_js_voucher_msg {
+
+    display: none;
+    font-size: $fs;
+    padding: 5px 0 5px 0;
+    text-align: justify;
+    color : #ff1744;
+
+   &[data-icon]:before {
+    color: #ff1744;
+    }
 }
 
 table {
