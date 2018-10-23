@@ -197,7 +197,6 @@ class WPCOM_elasticsearch {
 			'orderby'        => $query->get( 'orderby' ),
 			'order'          => $query->get( 'order' ),
 		);
-		error_log( 'pre facet check' );
 		// Look for query variables that match registered and supported facets
 		foreach ( $this->facets as $label => $facet ) {
 			switch ( $facet['type'] ) {
@@ -238,12 +237,9 @@ class WPCOM_elasticsearch {
 					if ( $post_types_via_user ) {
 						foreach ( (array) $post_types_via_user as $post_type_via_user ) {
 							$post_type_object = get_post_type_object( $post_type_via_user );
-							error_log( print_r( $post_type_object, true ) );
 							if ( ! $post_type_object || $post_type_object->exclude_from_search ) {
-								error_log( 'is excluded' );
 								continue;
 							}
-							error_log( 'is not excluded');
 							$post_types[] = $post_type_via_user;
 						}
 					}
