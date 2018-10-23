@@ -305,6 +305,7 @@ class WPCOM_elasticsearch {
 		$post_status = [ 'publish' ];
 		$post_status = apply_filters( 'wpcom_elasticsearch_post_status', $post_status );
 
+		$es_query_args['filter']['and'][] = array( 'terms' => array( 'post_status' => $post_status ) );
 		$es_query_args['fields'] = array(
 			'post_id',
 			'blog_id',
