@@ -206,6 +206,8 @@
             lp_js_globalPriceOptionZero             : $('#lp_js_globalPriceOptionZero'),
             lp_js_globalPriceOptionOne              : $('#lp_js_globalPriceOptionOne'),
             lp_js_globalPriceOptionTwo              : $('#lp_js_globalPriceOptionTwo'),
+            categoryButtonContainer                 : $('div.lp_js_categoryButtonContainer'),
+            categoryPanelWarning                    : $('div.lp_js_categoryPanelWarning')
         },
 
         bindEvents = function() {
@@ -270,7 +272,14 @@
             // save
             $o.body
             .on('click', $o.saveCategoryDefaultPrice, function() {
-                var $form = $(this).parents($o.categoryDefaultPriceForm);
+                var $form                  = $(this).parents($o.categoryDefaultPriceForm);
+                var currentGlobalBehaviour = $o.lp_current_post_price_val.val();
+
+                if ( '1' === currentGlobalBehaviour ) {
+                  exitEditModeCategoryDefaultPrice($form);
+                  return;
+                }
+
                 saveCategoryDefaultPrice($form);
             });
 
@@ -761,41 +770,73 @@
                             .data('revenue', r.revenue_model);
 
                         if ( 2 === r.post_price_behaviour ) {
+                          // Change current selected radio and behaviour.
                           $o.lp_current_post_price_val.val('2');
                           $o.lp_set_inidvidual_price.attr( 'checked', 'checked' );
                           $o.lp_disable_individual_purchase.removeProp( 'checked' );
                           $o.lp_make_post_free.removeProp( 'checked' );
+
+                          // Update price and revenue section.
                           $o.lp_global_price_section.show();
                           $o.lp_global_revenue_section.show();
                           $o.lp_js_form_buttons_section.css( 'float', 'none' );
                           $o.lp_js_globalPriceOptionTwo.show();
                           $o.editGlobalDefaultPrice.css( 'padding', '14px' );
+
+                          // Update minimized section global pricing.
                           $o.lp_js_globalPriceOptionOne.hide();
                           $o.lp_js_globalPriceOptionZero.hide();
+
+                          // Update category panel.
+                          $o.addCategory.removeAttr( 'disabled' );
+                          $o.categoryButtonContainer.removeClass('lp_tooltip');
+                          $o.categoryPanelWarning.hide();
                         } else if ( 1 === r.post_price_behaviour ) {
+                          // Change current selected radio and behaviour.
                           $o.lp_current_post_price_val.val('1');
                           $o.lp_disable_individual_purchase.attr( 'checked', 'checked' );
                           $o.lp_set_inidvidual_price.removeProp( 'checked' );
                           $o.lp_make_post_free.removeProp( 'checked' );
+
+                          // Update price and revenue section.
                           $o.lp_global_price_section.hide();
                           $o.lp_global_revenue_section.hide();
                           $o.lp_js_form_buttons_section.css( 'float', 'right' );
                           $o.lp_js_globalPriceOptionOne.show();
                           $o.editGlobalDefaultPrice.css( 'padding', '21px' );
+
+                          // Update minimized section global pricing.
                           $o.lp_js_globalPriceOptionTwo.hide();
                           $o.lp_js_globalPriceOptionZero.hide();
+
+                          // Update category panel.
+                          $o.addCategory.attr( 'disabled', 'disabled' );
+                          $o.categoryButtonContainer.addClass('lp_tooltip');
+                          if ( $($o.categoryDefaultPriceForm + ':visible').length > 0 ) {
+                            $o.categoryPanelWarning.show();
+                          }
                         } else if ( 0 === r.post_price_behaviour ) {
+                          // Change current selected radio and behaviour.
                           $o.lp_current_post_price_val.val('0');
                           $o.lp_make_post_free.attr( 'checked', 'checked' );
                           $o.lp_set_inidvidual_price.removeProp( 'checked' );
                           $o.lp_disable_individual_purchase.removeProp( 'checked' );
+
+                          // Update price and revenue section.
                           $o.lp_global_price_section.hide();
                           $o.lp_global_revenue_section.hide();
                           $o.lp_js_form_buttons_section.css( 'float', 'right' );
                           $o.lp_js_globalPriceOptionZero.show();
                           $o.editGlobalDefaultPrice.css( 'padding', '21px' );
+
+                          // Update minimized section global pricing.
                           $o.lp_js_globalPriceOptionTwo.hide();
                           $o.lp_js_globalPriceOptionOne.hide();
+
+                          // Update category panel.
+                          $o.addCategory.removeAttr( 'disabled' );
+                          $o.categoryButtonContainer.removeClass('lp_tooltip');
+                          $o.categoryPanelWarning.hide();
                         }
                     }
                     $o.navigation.showMessage(r);
@@ -806,6 +847,13 @@
         },
 
         addCategoryDefaultPrice = function() {
+
+            var currentGlobalBehaviour = $o.lp_current_post_price_val.val();
+
+            if ( '1' === currentGlobalBehaviour ) {
+              return;
+            }
+
             $o.addCategory.velocity('fadeOut', { duration: 250 });
 
             // hide empty state hint, if it is visible
@@ -941,6 +989,7 @@
                                 if ($($o.categoryDefaultPriceForm + ':visible').length === 0) {
                                     $($o.emptyState, $o.categoryDefaultPrices)
                                     .velocity('fadeIn', { duration: 400 });
+                                    $($o.categoryPanelWarning).hide();
                                 }
                             }
                         });

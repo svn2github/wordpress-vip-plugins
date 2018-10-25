@@ -478,6 +478,7 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
         }
         $this->change_teaser_mode();
         $this->update_default_pricing_behaviour();
+        $this->init_ga_options();
 
     }
 
@@ -510,13 +511,75 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
 
             if ( true === $only_timepass ) {
                 update_option( 'laterpay_post_price_behaviour', 1 );
-            } else if ( floatval( 0.00 ) === $current_global_price ) {
+            } elseif ( floatval( 0.00 ) === $current_global_price ) {
                 update_option( 'laterpay_post_price_behaviour', 0 );
             } else {
                 update_option( 'laterpay_post_price_behaviour', 2 );
             }
 
             delete_option( 'laterpay_only_time_pass_purchases_allowed' );
+        }
+    }
+
+    /**
+     * Init ga options.
+     * Add options needed for sending Google Analytics Events.
+     *
+     * @since 2.2.0
+     *
+     * @return void
+     */
+    public function init_ga_options() {
+        $current_version = get_option( 'laterpay_plugin_version' );
+        if ( version_compare( $current_version, '2.1.0', '<' ) ) {
+            return;
+        }
+
+
+        $lp_personal_data = [];
+        $lp_tracking_data = [];
+
+        if ( false === get_option( 'laterpay_user_tracking_data' ) ) {
+
+            $lp_personal_data['laterpay_ga_personal_enabled_status'] = 0;
+            $lp_personal_data['laterpay_ga_personal_ua_id']          = '';
+
+            /**
+             *  If user has Google Analytics for WordPress by MonsterInsights Plugin installed and configured correctly,
+             *  we will try to detect the UA-ID in that and add it to User's Google Analytics Settings.
+             *  Plugin URL : https://wordpress.org/plugins/google-analytics-for-wordpress/
+             */
+            if ( is_multisite() ) {
+                $monster_insights_network_profile = get_site_option( 'monsterinsights_network_profile', array() );
+                $monster_ua_id                    = ( ! empty( $monster_insights_network_profile['ua'] ) ? $monster_insights_network_profile['ua'] : '' );
+            } else {
+                $monster_insights_profile = get_option( 'monsterinsights_site_profile', array() );
+                $monster_ua_id            = ( ! empty( $monster_insights_profile['viewname'] ) ? $monster_insights_profile['viewname'] : '' );
+            }
+
+            if ( ! empty( $monster_ua_id ) ) {
+                $lp_personal_data['auto_detected']              = 1;
+                $lp_personal_data['laterpay_ga_personal_ua_id'] = $monster_ua_id;
+            }
+
+            // Add Personal Google Analytics Data.
+            update_option( 'laterpay_user_tracking_data', $lp_personal_data );
+        }
+
+        if ( false === get_option( 'laterpay_tracking_data' ) ) {
+            $lp_is_plugin_live = LaterPay_Helper_View::is_plugin_in_live_mode();
+
+            // Add LaterPay UA-ID according to status.
+            if ( $lp_is_plugin_live ) {
+                $lp_tracking_data['laterpay_ga_ua_id'] = $this->config->get( 'tracking_ua_id.live' );
+            } else {
+                $lp_tracking_data['laterpay_ga_ua_id'] = $this->config->get( 'tracking_ua_id.sandbox' );
+            }
+
+            $lp_tracking_data['laterpay_ga_enabled_status'] = 1;
+
+            // Add LaterPay Google Analytics Data.
+            update_option( 'laterpay_tracking_data', $lp_tracking_data );
         }
     }
 }

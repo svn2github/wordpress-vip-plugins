@@ -413,7 +413,7 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
         $content = $event->get_result();
 
         // Get the value of purchase type.
-        $post_price_behaviour = (int) get_option( 'laterpay_post_price_behaviour' );
+        $post_price_behaviour = LaterPay_Helper_Pricing::get_post_price_behaviour();
 
         if ( $event->has_argument( 'post' ) ) {
             $post = $event->get_argument( 'post' );
@@ -442,14 +442,10 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
             $access = true;
         }
 
-        // Global Price Value.
-        $global_default_price = get_option( 'laterpay_global_price' );
-
-        $post_price_type_one            = ( 1 === $post_price_behaviour );
-        $post_price_type_two_price_zero = ( 2 === $post_price_behaviour && floatval( 0.00 ) === (float) $global_default_price );
+        $post_price_type_one = ( 1 === $post_price_behaviour );
 
         // Check if no individual post type is allowed.
-        if ( $post_price_type_one || $post_price_type_two_price_zero ) {
+        if ( $post_price_type_one || LaterPay_Helper_Pricing::is_post_price_type_two_price_zero() ) {
 
             // Getting list of timepass by post id.
             $time_passes_list = LaterPay_Helper_TimePass::get_time_passes_list_by_post_id( $post->ID, null, true );
@@ -465,19 +461,13 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
             }
         } elseif ( 0 === $post_price_behaviour ) {
 
-            // @todo: Refactor Code.
             $post_price      = LaterPay_Helper_Pricing::get_post_price( $post->ID );
             $post_price_type = LaterPay_Helper_Pricing::get_post_price_type( $post->ID );
             $is_price_zero   = floatval( 0.00 ) === floatval(  $post_price );
 
-            $is_global_price_type     = LaterPay_Helper_Pricing::TYPE_GLOBAL_DEFAULT_PRICE === $post_price_type;
-            $is_individual_price_type = LaterPay_Helper_Pricing::TYPE_INDIVIDUAL_PRICE === $post_price_type;
-            $is_dynamic_price_type    = LaterPay_Helper_Pricing::TYPE_INDIVIDUAL_DYNAMIC_PRICE === $post_price_type;
-            $is_category_price_type   = LaterPay_Helper_Pricing::TYPE_CATEGORY_DEFAULT_PRICE === $post_price_type;
+            $is_global_price_type = LaterPay_Helper_Pricing::is_price_type_global( $post_price_type );
 
-            $is_price_zero_and_type_not_global = ( $is_price_zero &&
-                                                   ( $is_category_price_type || $is_dynamic_price_type ||
-                                                     $is_individual_price_type ) );
+            $is_price_zero_and_type_not_global = ( $is_price_zero && LaterPay_Helper_Pricing::is_price_type_not_global( $post_price_type ) );
 
             if ( ( empty( $post_price_type ) || $is_global_price_type ) || $is_price_zero_and_type_not_global ) {
                 $access = true;
@@ -613,6 +603,35 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
      */
     public function add_frontend_scripts() {
 
+        // Get current status of Google Analytics Settings.
+        $lp_tracking_data      = get_option( 'laterpay_tracking_data' );
+        $lp_user_tracking_data = get_option( 'laterpay_user_tracking_data' );
+        $site_name             = get_bloginfo( 'name' );
+
+        // Check if LaterPay Tracking Setting is Enabled.
+        $is_enabled_lp_tracking = ( ! empty( $lp_tracking_data['laterpay_ga_enabled_status'] ) &&
+                                         1 === intval( $lp_tracking_data['laterpay_ga_enabled_status'] ) );
+
+        // Check if Personal Tracking Setting is Enabled.
+        $is_enabled_lp_user_tracking = ( ! empty( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) &&
+                                         1 === intval( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) );
+
+        // Add LaterPay Tracking Id if enabled. We will be using config value, not the one stored in option,
+        // to make sure correct tracking id is, available for GA.
+        if ( $is_enabled_lp_tracking && ! empty( $lp_tracking_data['laterpay_ga_ua_id'] ) ) {
+            $lp_is_plugin_live = LaterPay_Helper_View::is_plugin_in_live_mode();
+            if ( $lp_is_plugin_live ) {
+                $lp_config_id = $this->config->get( 'tracking_ua_id.live' );
+            } else {
+                $lp_config_id = $this->config->get( 'tracking_ua_id.sandbox' );
+            }
+        }
+
+        // Add user tracking id if enabled.
+        if ( $is_enabled_lp_user_tracking && ! empty( $lp_user_tracking_data['laterpay_ga_personal_ua_id'] ) ) {
+            $lp_user_tracking_id = $lp_user_tracking_data['laterpay_ga_personal_ua_id'];
+        }
+
         wp_register_script(
             'laterpay-post-view',
             $this->config->get( 'js_url' ) . 'laterpay-post-view.js',
@@ -641,6 +660,13 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
                     )
                 ),
                 'default_currency'      => $this->config->get( 'currency.code' ),
+                'gaData'                => array(
+                    'postTitle'           => ( ! empty( $post ) ? esc_html( $post->post_title ) : '' ),
+                    'postPermalink'       => ( ! empty( $post ) ? esc_url( get_permalink( $post->ID ) ) : '' ),
+                    'blogName'            => ( ! empty( $site_name ) ? esc_html( $site_name ) : '' ),
+                    'lp_tracking_id'      => ( ! empty( $lp_config_id ) ? esc_html( $lp_config_id ) : '' ),
+                    'lp_user_tracking_id' => ( ! empty( $lp_user_tracking_id ) ? esc_html( $lp_user_tracking_id ) : '' ),
+                ),
             )
         );
 

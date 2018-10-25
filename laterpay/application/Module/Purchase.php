@@ -168,15 +168,11 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
         $revenue_model = LaterPay_Helper_Pricing::get_post_revenue_model( $post->ID );
 
         // Get the value of purchase type.
-        $post_price_behaviour = (int) get_option( 'laterpay_post_price_behaviour' );
-        // Global Price Value.
-        $global_default_price = get_option( 'laterpay_global_price' );
-
-        $post_price_type_one            = ( 1 === $post_price_behaviour );
-        $post_price_type_two_price_zero = ( 2 === $post_price_behaviour && floatval( 0.00 ) === (float) $global_default_price );
+        $post_price_behaviour = LaterPay_Helper_Pricing::get_post_price_behaviour();
+        $post_price_type_one  = ( 1 === $post_price_behaviour );
 
         // If Individual purchase is turned off then select revenue model of timepass or subscription.
-        if ( $post_price_type_one || $post_price_type_two_price_zero ) {
+        if ( $post_price_type_one || LaterPay_Helper_Pricing::is_post_price_type_two_price_zero() ) {
 
             $content_data = (array) $overlay_content_event->get_result();
 
@@ -355,14 +351,10 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
         $post = $event->get_argument( 'post' );
 
         // Get the value of purchase type.
-        $post_price_behaviour = (int) get_option( 'laterpay_post_price_behaviour' );
-        // Global Price Value.
-        $global_default_price = get_option( 'laterpay_global_price' );
+        $post_price_behaviour = LaterPay_Helper_Pricing::get_post_price_behaviour();
+        $post_price_type_one  = ( 1 === $post_price_behaviour );
 
-        $post_price_type_one            = ( 1 === $post_price_behaviour );
-        $post_price_type_two_price_zero = ( 2 === $post_price_behaviour && floatval( 0.00 ) === (float) $global_default_price );
-
-        if ( $post_price_type_one || $post_price_type_two_price_zero ) {
+        if ( $post_price_type_one || LaterPay_Helper_Pricing::is_post_price_type_two_price_zero() ) {
             return;
         }
 
@@ -451,6 +443,15 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
         // return, if the request was not a redirect after a purchase
         if ( ! isset( $buy ) ) {
             return;
+        }
+
+        if ( LaterPay_Helper_Appearance::is_any_ga_tracking_enabled() ) {
+            // Add cookie when the user is redirected back after a purchase.
+            try {
+                setcookie( 'lp_ga_purchased', 1, time() + 30, '/' );
+            } catch ( Exception $e ) {
+                unset( $e );
+            }
         }
 
         $client_options  = LaterPay_Helper_Config::get_php_client_options();

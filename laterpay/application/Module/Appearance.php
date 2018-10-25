@@ -174,6 +174,10 @@ class LaterPay_Module_Appearance extends LaterPay_Core_View implements LaterPay_
             $content = '<div id="lp_js_postContentPlaceholder">' . $content . '</div>';
         }
 
+        if ( LaterPay_Helper_Appearance::is_any_ga_tracking_enabled() ) {
+            $content .= '<input type="hidden" id="lp_ga_tracking" value="1" >';
+        }
+
         $event->set_result( $content );
     }
 

@@ -219,6 +219,12 @@ html body .lp_purchase-overlay {
         color: $laterpay-brand--darker;
       }
     }
+
+    div.lp_js_notificationButtons {
+      a {
+		  float: none;
+      }
+    }
   }
 
   .lp_purchase-overlay-payments-list {

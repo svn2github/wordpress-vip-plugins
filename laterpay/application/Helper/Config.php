@@ -53,6 +53,10 @@ class LaterPay_Helper_Config {
                     'mastercard',
                     'paypal'
                 )
+            ),
+            'tracking_ua_id' => array(
+                'live'    => 'UA-50448165-3',
+                'sandbox' => 'UA-50448165-4'
             )
         ),
         'us' => array(
@@ -98,6 +102,10 @@ class LaterPay_Helper_Config {
                     'americanexpress',
                     'discovercard'
                 )
+            ),
+            'tracking_ua_id' => array(
+                'live'    => 'UA-50448165-9',
+                'sandbox' => 'UA-50448165-10'
             )
         )
     );

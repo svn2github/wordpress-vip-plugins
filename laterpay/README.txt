@@ -5,7 +5,7 @@ Donate link: https://laterpay.net
 Tags: laterpay, accept micropayments, accept payments, access control, billing, buy now pay later, content monetization, creditcard, debitcard, free to read, laterpay for wordpress, laterpay payment, laterpay plugin, micropayments, monetize, paid content, pay button, pay per use, payments, paywall, PPU, sell digital content, sell digital goods, single sale, wordpress laterpay
 Requires at least: 4.6
 Tested up to: 4.9.8
-Stable tag: 2.1.0
+Stable tag: 2.2.1
 Author URI: https://laterpay.net
 Plugin URI: https://github.com/laterpay/laterpay-wordpress-plugin
 License: MIT
@@ -185,6 +185,19 @@ Please see the "Test and Live Mode" section.
 6. The plugin provides a variety of advanced settings to customize the LaterPay plugin and adjust it to your needs.
 
 == Changelog ==
+= 2.2.1 ( October 25, 2018 ) Hotfix Release =
+Fix warnings on Install/Update due to GA settings.
+
+= 2.2.0 ( October 25, 2018 ) =
+* Integrate Google Analytics to send data to the user and LaterPay GA account.
+* Fix issues with Gutenberg Compatibility.
+* Fix issue with plugin invisible warning message in LIVE mode.
+* Restore [laterpay_premium_download] shortcode .
+* Enable all default editor configuration in teaser metabox.
+* Update Post Edit page according to Global Default Pricing.
+* Update Post List page according to Global Default Pricing.
+* Update Category Default Prices panel according to Global Default Pricing.
+
 = 2.1.0 ( October 11, 2018 ) =
 * Add Voucher to Subscriptions.
 * Add Voucher information to identify purchase made using Voucher Code.
@@ -192,14 +205,14 @@ Please see the "Test and Live Mode" section.
 * Fix issue with Voucher price exceeding time pass price.
 * Remove redeem count display.
 * Update Post Preview Widget permission only to be displayed to Admin User.
-* Minor Bug Fixes
+* Minor Bug Fixes.
 
 = 2.0.0 ( September 12, 2018 ) =
 * Add Intro section in LaterPay Account tab to improve on-boarding.
 * Add notice to inform if account setup is incomplete and/or plugin is invisible to users.
 * Improve Category Pricing UX.
 * Add section to inform about Revenue Model in Global Default Price section.
-* Minor Bug Fixes
+* Minor Bug Fixes.
 
 = 0.12.2 (August 24, 2018): Bugfix Release (v1.0 RC33) =
 * Add FAQ section in account tab, to inform users about known issues.
@@ -652,8 +665,8 @@ KNOWN BUGS:
 
 == Upgrade notice ==
 
-= 2.1.0 ( September 12, 2018 ) =
-Voucher Improvements, Backward Compatibility and Fixed Bugs with LaterPay functionality.
+= 2.2.1 ( October 25, 2018 ) =
+Fix warnings on Install/Update due to GA settings.
 
 == Arbitrary section ==
 

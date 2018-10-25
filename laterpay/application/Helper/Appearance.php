@@ -114,4 +114,33 @@ class LaterPay_Helper_Appearance
 
         wp_add_inline_style( $handle, $custom_css );
     }
+
+    /**
+     * Check if any GA tracking is enabled.
+     *
+     * @return bool
+     */
+    public static function is_any_ga_tracking_enabled() {
+
+        // Get current status of Google Analytics Settings.
+        $lp_tracking_data      = get_option( 'laterpay_tracking_data' );
+        $lp_user_tracking_data = get_option( 'laterpay_user_tracking_data' );
+
+        // Check if LaterPay Tracking Setting is Enabled.
+        $is_enabled_lp_tracking = ( ! empty( $lp_tracking_data['laterpay_ga_enabled_status'] ) &&
+                                    1 === intval( $lp_tracking_data['laterpay_ga_enabled_status'] ) );
+
+        // Check if Personal Tracking Setting is Enabled.
+        $is_enabled_lp_user_tracking = ( ! empty( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) &&
+                                         1 === intval( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) );
+
+        $is_any_tracking_enabled = ( $is_enabled_lp_tracking || $is_enabled_lp_user_tracking );
+
+        if ( $is_any_tracking_enabled ) {
+            return true;
+        }
+
+        return false;
+
+    }
 }

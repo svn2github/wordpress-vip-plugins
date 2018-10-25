@@ -266,8 +266,9 @@ class LaterPay_Helper_Post
         if ( $teaser ) {
             $new_meta_value = $teaser;
         } else {
+            $post_content = ( function_exists( 'do_blocks' ) ) ? do_blocks( $post->post_content ) : $post->post_content;
             $new_meta_value = LaterPay_Helper_String::truncate(
-                preg_replace( '/\s+/', ' ', strip_shortcodes( $post->post_content ) ),
+                preg_replace( '/\s+/', ' ', strip_shortcodes( $post_content ) ),
                 get_option( 'laterpay_teaser_content_word_count' ),
                 array(
                     'html'  => true,

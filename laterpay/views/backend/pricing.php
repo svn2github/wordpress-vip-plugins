@@ -29,6 +29,8 @@ if ( ! defined( 'ABSPATH' ) ) {
         // laterpay[pricing_obj] is instance of LaterPay_Controller_Admin_Pricing
         $laterpay['pricing_obj']->get_menu();
         $selected_option = ( int ) get_option( 'laterpay_post_price_behaviour', 2 );
+        $hasCategories   = ( count( $laterpay['categories_with_defined_price'] ) > 0 );
+        $isGlobalTypeOne = ( 1 === $selected_option );
         ?>
     </div>
 
@@ -178,10 +180,24 @@ if ( ! defined( 'ABSPATH' ) ) {
          --><div class="lp_price-section lp_layout__item lp_1/2 lp_pdr">
                 <h2>
                     <?php esc_html_e( 'Category Default Prices', 'laterpay' ); ?>
-                    <a href="#" id="lp_js_addCategoryDefaultPrice" class="button button-primary lp_heading-button" data-icon="c">
-                        <?php esc_html_e( 'Create', 'laterpay' ); ?>
-                    </a>
+                    <div class="lp_js_categoryButtonContainer <?php echo ( 1 === $selected_option ) ? 'lp_tooltip' : ''; ?>" data-tooltip="<?php echo esc_attr__( 'To allow articles to be purchased individually, adjust your Global Default Price.', 'laterpay' ); ?>">
+                        <a href="#" id="lp_js_addCategoryDefaultPrice" class="button button-primary lp_heading-button" <?php echo ( 1 === $selected_option ) ? 'disabled=disabled' : ''; ?> data-icon="c">
+                            <?php esc_html_e( 'Create', 'laterpay' ); ?>
+                        </a>
+                    </div>
                 </h2>
+
+                <div class="lp_js_categoryPanelWarning" style="display:<?php echo ( true === $hasCategories && true === $isGlobalTypeOne ) ? 'block' : 'none'; ?>">
+                    <p data-icon="n">
+                        <?php
+                        printf(
+                            '%1$s <br/> %2$s',
+                            esc_html__( 'Only Time Passes & Subscriptions will be displayed in the purchase dialog.', 'laterpay' ),
+                            esc_html__( 'To allow articles to be purchased individually, adjust your Global Default Price.', 'laterpay' )
+                        );
+                        ?>
+                    </p>
+                </div>
 
                 <div id="lp_js_categoryDefaultPriceList">
                     <?php foreach ( $laterpay['categories_with_defined_price'] as $category ) : ?>

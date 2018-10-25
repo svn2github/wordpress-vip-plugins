@@ -60,3 +60,22 @@ ul.post_types {
     -webkit-flex-flow: column wrap;
     flex-flow: column wrap;
 }
+
+.regular-text.lp_ga-input {
+    margin-left: (2 * $fs);
+    border: 1px solid;
+    width: (12 * $fs);
+}
+
+.form-table span.lp_ga_span {
+    margin-left: $fs;
+    font-size: $fs;
+    color: #ff1744;
+    text-align: justify;
+}
+
+button.lp_js_ga_cancel {
+    margin-left: $fs !important;
+    text-decoration: underline;
+    color: #0073aa;
+}

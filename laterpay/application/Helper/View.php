@@ -302,4 +302,13 @@ class LaterPay_Helper_View
             wp_add_inline_style( $handle, $custom_css );
         }
     }
+
+    /**
+     * Return current plugin mode ( LIVE or TEST ).
+     *
+     * @return bool
+     */
+    public static function is_plugin_in_live_mode() {
+        return (bool) get_option( 'laterpay_plugin_is_in_live_mode' );
+    }
 }

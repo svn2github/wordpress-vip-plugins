@@ -327,7 +327,8 @@ class LaterPay_Controller_Admin_Account extends LaterPay_Controller_Admin_Base {
             throw new LaterPay_Core_Exception_FormValidation( get_class( $region_form ), $region_form->get_errors() );
         }
 
-        $result = update_option( 'laterpay_region', $region_form->get_field_value( 'laterpay_region' ) );
+        $region = $region_form->get_field_value( 'laterpay_region' );
+        $result = update_option( 'laterpay_region', $region );
 
         if ( ! $result ) {
             $event->set_result(
@@ -338,6 +339,21 @@ class LaterPay_Controller_Admin_Account extends LaterPay_Controller_Admin_Base {
             );
             return;
         }
+
+        // Update LaterPay Google Analytics Tracking Value According to current region.
+        $regional_settings = LaterPay_Helper_Config::get_regional_settings();
+        $lp_is_plugin_live = LaterPay_Helper_View::is_plugin_in_live_mode();
+
+        if ( $lp_is_plugin_live ) {
+            $lp_config_id = $regional_settings['tracking_ua_id.live'];
+        } else {
+            $lp_config_id = $regional_settings['tracking_ua_id.sandbox'];
+        }
+
+        $lp_tracking                      = get_option( 'laterpay_tracking_data', array() );
+        $lp_tracking['laterpay_ga_ua_id'] = $lp_config_id;
+
+        update_option( 'laterpay_tracking_data', $lp_tracking );
 
         $event->set_result(
             array(

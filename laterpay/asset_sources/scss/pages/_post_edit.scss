@@ -274,3 +274,25 @@
 .account_setup_warning[data-icon]:before {
     color: red;
 }
+
+div.lp_postMetaBox {
+    padding: 5px;
+
+    div.lp_js_postEditGlobalBehaviour {
+        p.lp_postEditTypeZero {
+            font-size: $fs--2;
+            margin: 10px 0 5px 0;
+            line-height: 1;
+            font-weight: 800;
+        }
+
+        p.lp_postEditTypeOne {
+            font-weight: bold;
+        }
+
+        span {
+            color: #ababab;
+        }
+    }
+
+}

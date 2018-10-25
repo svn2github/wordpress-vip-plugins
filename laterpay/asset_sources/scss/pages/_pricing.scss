@@ -82,6 +82,26 @@
     }
 }
 
+div.lp_js_categoryButtonContainer {
+
+	display: inline-block;
+	position: absolute;
+	z-index: 999;
+
+	&:hover {
+		&:after, &:before {
+			bottom: 115%;
+		}
+	}
+
+}
+
+div.lp_js_categoryPanelWarning {
+
+	p {
+		color: #ff1744;
+	}
+}
 
 // category default prices ---------------------------------------------------------------------------------------------
 .lp_category-price-form {

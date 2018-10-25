@@ -136,7 +136,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                         </div>
                         <div class="lp_purchase-overlay__notification">
                             <div class="lp_js_notificationButtons">
-                                <a href="<?php echo esc_url( $overlay['identify_url'] ); ?>"><?php echo esc_html( $overlay['notification_text'] ); ?></a> | <a href="#" class="lp_js_redeemVoucher"><?php esc_html_e( 'Redeem voucher', 'laterpay' ); ?></a>
+                                <a class="lp_bought_notification" href="<?php echo esc_url( $overlay['identify_url'] ); ?>"><?php echo esc_html( $overlay['notification_text'] ); ?></a> | <a href="#" class="lp_js_redeemVoucher"><?php esc_html_e( 'Redeem voucher', 'laterpay' ); ?></a>
                             </div>
                             <div class="lp_js_notificationCancel lp_hidden">
                                 <a href="#" class="lp_js_voucherCancel"><?php esc_html_e( 'Cancel', 'laterpay' ); ?></a>

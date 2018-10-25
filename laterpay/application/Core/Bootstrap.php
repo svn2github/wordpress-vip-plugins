@@ -116,6 +116,7 @@ class LaterPay_Core_Bootstrap
     private function register_shortcodes() {
         $shortcode_controller = self::get_controller( 'Frontend_Shortcode' );
         // add 'free to read' shortcodes
+        LaterPay_Hooks::add_wp_shortcode( 'laterpay_premium_download', 'laterpay_shortcode_premium_download' );
         LaterPay_Hooks::add_wp_shortcode( 'laterpay_box_wrapper', 'laterpay_shortcode_box_wrapper' );
         LaterPay_Hooks::add_wp_shortcode( 'laterpay', 'laterpay_shortcode_laterpay' );
         LaterPay_Hooks::add_wp_shortcode( 'laterpay_time_passes', 'laterpay_shortcode_time_passes' );

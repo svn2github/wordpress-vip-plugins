@@ -42,7 +42,7 @@ class LaterPay_Helper_Pricing
         $price = LaterPay_Helper_Pricing::get_post_price( $post_id, true );
 
         // Get current post price behaviour.
-        $post_price_behaviour = (int) get_option( 'laterpay_post_price_behaviour' );
+        $post_price_behaviour = self::get_post_price_behaviour();
 
         // Getting list of timepass by post id.
         $time_passes_list = LaterPay_Helper_TimePass::get_time_passes_list_by_post_id( $post_id, null, true );
@@ -50,35 +50,30 @@ class LaterPay_Helper_Pricing
         // Getting list of subscription by post id.
         $subscriptions_list = LaterPay_Helper_Subscription::get_subscriptions_list_by_post_id( $post_id, null, true );
 
-        // Global Price Value.
-        $global_default_price = get_option( 'laterpay_global_price' );
-
         $is_price_zero                        = floatval( 0.00 ) === floatval( $price );
         $post_price_type_one                  = ( 1 === $post_price_behaviour );
-        $post_price_type_two_price_zero       = ( 2 === $post_price_behaviour && floatval( 0.00 ) === (float) $global_default_price );
         $is_time_pass_subscription_count_zero = ( ( 0 === count( $time_passes_list ) ) && ( 0 === count( $subscriptions_list ) ) );
         $is_post_type_not_supported           = ( ! in_array( get_post_type( $post_id ), (array) get_option( 'laterpay_enabled_post_types' ), true ) );
 
         // If 'Make article free unless price is set on post page' is selected only show time pass or subscription
         // if the individual post price greater than 0.
         if ( 0 === $post_price_behaviour ) {
-            // @todo: Refactor Code.
             $post_price_type = LaterPay_Helper_Pricing::get_post_price_type( $post_id );
 
-            $is_global_price_type     = LaterPay_Helper_Pricing::TYPE_GLOBAL_DEFAULT_PRICE === $post_price_type;
-            $is_individual_price_type = LaterPay_Helper_Pricing::TYPE_INDIVIDUAL_PRICE === $post_price_type;
-            $is_dynamic_price_type    = LaterPay_Helper_Pricing::TYPE_INDIVIDUAL_DYNAMIC_PRICE === $post_price_type;
-            $is_category_price_type   = LaterPay_Helper_Pricing::TYPE_CATEGORY_DEFAULT_PRICE === $post_price_type;
+            $is_global_price_type = LaterPay_Helper_Pricing::is_price_type_global( $post_price_type );
 
-            $is_price_zero_and_type_not_global = ( $is_price_zero &&
-                                                   ( $is_category_price_type || $is_dynamic_price_type ||
-                                                     $is_individual_price_type ) );
+            $is_price_zero_and_type_not_global = ( $is_price_zero && LaterPay_Helper_Pricing::is_price_type_not_global( $post_price_type ) );
 
             if ( ( empty( $post_price_type ) || $is_global_price_type ) || ( $is_price_zero_and_type_not_global ) ) {
                 return null;
             }
-        } else if ( $post_price_type_one || 2 === $post_price_behaviour ) {
-            if ( ( ( $is_price_zero || $post_price_type_one || $post_price_type_two_price_zero ) &&
+        } elseif ( $post_price_type_one ) {
+            if ( $is_time_pass_subscription_count_zero || $is_post_type_not_supported ) {
+                // returns null for this case
+                return null;
+            }
+        } elseif ( 2 === $post_price_behaviour ) {
+            if ( ( ( $is_price_zero || self::is_post_price_type_two_price_zero() ) &&
                    $is_time_pass_subscription_count_zero ) || $is_post_type_not_supported ) {
                 // returns null for this case
                 return null;
@@ -906,5 +901,92 @@ class LaterPay_Helper_Pricing
         }
 
         return __( 'Pay Later', 'laterpay' );
+    }
+
+    /**
+     * Get current value of post price behaviour.
+     *
+     * @return int
+     */
+    public static function get_post_price_behaviour() {
+        return (int) get_option( 'laterpay_post_price_behaviour' );
+    }
+
+    /**
+     * Get current value of post price behaviour.
+     *
+     * @param string $post_price_type Post Price Type.
+     *
+     * @return int
+     */
+    public static function is_price_type_global( $post_price_type ) {
+        return LaterPay_Helper_Pricing::TYPE_GLOBAL_DEFAULT_PRICE === $post_price_type;
+    }
+
+    /**
+     * Check if post price type is individual.
+     *
+     * @param string $post_price_type Post Price Type.
+     *
+     * @return int
+     */
+    public static function is_price_type_individual( $post_price_type ) {
+        return LaterPay_Helper_Pricing::TYPE_INDIVIDUAL_PRICE === $post_price_type;
+    }
+
+    /**
+     * Check if post price type is dynamic.
+     *
+     * @param string $post_price_type Post Price Type.
+     *
+     * @return int
+     */
+    public static function is_price_type_dynamic( $post_price_type ) {
+        return LaterPay_Helper_Pricing::TYPE_INDIVIDUAL_DYNAMIC_PRICE === $post_price_type;
+    }
+
+    /**
+     * Check if post price type is category.
+     *
+     * @param string $post_price_type Post Price Type.
+     *
+     * @return int
+     */
+    public static function is_price_type_category( $post_price_type ) {
+        return LaterPay_Helper_Pricing::TYPE_CATEGORY_DEFAULT_PRICE === $post_price_type;
+    }
+
+    /**
+     * Check if post price type is category.
+     *
+     * @param string $post_price_type Post Price Type.
+     *
+     * @return bool
+     */
+    public static function is_price_type_not_global( $post_price_type ) {
+        if ( self::is_price_type_category( $post_price_type ) ||
+             self::is_price_type_dynamic( $post_price_type ) ||
+             self::is_price_type_individual( $post_price_type )
+            ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * If Post Price Type Two and Price Zero.
+     *
+     * @return bool
+     */
+    public static function is_post_price_type_two_price_zero() {
+        // Global Price Value.
+        $global_default_price = get_option( 'laterpay_global_price' );
+
+        if ( 2 === self::get_post_price_behaviour() && floatval( 0.00 ) === (float) $global_default_price ) {
+            return true;
+        }
+
+        return false;
     }
 }
