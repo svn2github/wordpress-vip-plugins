@@ -548,10 +548,11 @@ function wpcom_vip_get_meta_desc() {
  * @param int $number Optional. Amount of random posts to get. Default 1.
  * @param string $post_type Optional. Specify the post_type to use when randomizing posts. Default 'post'.
  * @param bool $return_ids Optional. To just get the IDs, set this to true, otherwise post objects are returned (the default).
+ *  * @param int $category_id Optional. Limit to a specific category
  * @return array
  */
-function vip_get_random_posts( $number = 1, $post_type = 'post', $return_ids = false ) {
-	$query = new WP_Query( array( 'posts_per_page' => 100, 'fields' => 'ids', 'post_type' => $post_type, 'no_found_rows' => true, 'post_status' => 'publish', 'ignore_sticky_posts' => true ) );
+function vip_get_random_posts( $number = 1, $post_type = 'post', $return_ids = false, $category_id = 0  ) {
+	$query = new WP_Query( array( 'posts_per_page' => 100, 'fields' => 'ids', 'post_type' => $post_type, 'no_found_rows' => true, 'post_status' => 'publish', 'ignore_sticky_posts' => true, 'category__in' => $category_id ) );
 
 	$post_ids = $query->posts;
 	shuffle( $post_ids );
