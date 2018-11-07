@@ -710,17 +710,17 @@ function wpcom_vip_load_wp_rest_api() {
 
 	add_action( 'rest_api_init', 'register_initial_settings',  10 );
 	add_action( 'rest_api_init', 'create_initial_rest_routes', 99 );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-posts-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-attachments-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-post-types-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-post-statuses-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-revisions-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-taxonomies-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-terms-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-users-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-comments-controller.php' );
-	require( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-settings-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-posts-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-attachments-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-post-types-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-post-statuses-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-revisions-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-taxonomies-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-terms-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-users-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-comments-controller.php' );
+	require_once( ABSPATH . WPINC . '/rest-api/endpoints/class-wp-rest-settings-controller.php' );
 
 	global $wpcom_json_api_production_versions;
 	if ( isset( $wpcom_json_api_production_versions ) || defined( 'WPCOM_OEMBED_CACHE_GROUP' ) || defined( 'WPCOM_JOBS' ) ) {
