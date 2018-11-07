@@ -703,8 +703,7 @@ if ( ! function_exists( 'get_blog_lang_code' ) ) {
  * Loads the built-in WP REST API endpoints in WordPress.com VIP context.
  */
 function wpcom_vip_load_wp_rest_api() {
-	if ( class_exists( 'WP_REST_Controller' ) ) {
-		// It looks like this has already been done.
+	if( defined( "WPCOM_VIP_WP_REST_API_LOADED" ) && true === WPCOM_VIP_WP_REST_API_LOADED ) {
 		return;
 	}
 
