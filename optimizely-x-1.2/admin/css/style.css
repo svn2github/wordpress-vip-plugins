@@ -1,0 +1,134 @@
+/**
+ * Optimizely admin stylesheet
+ *
+ * Styles for Optimizely controls present in wp-admin.
+ */
+
+/**
+ * 1.0 General Styles
+ *
+ * Reusable styles for Optimizely controls in various locations.
+ */
+
+.optimizely-error-message {
+	color: #f00;
+}
+
+.optimizely-loading {
+	text-align: center;
+}
+
+/**
+ * 2.0 Config Page Styles
+ *
+ * Styles specific to the configuration page.
+ */
+
+.optimizely-admin .code {
+	width: 100%;
+}
+
+#optimizely-x-url-targeting {
+	width: 50%;
+}
+
+/**
+ * 3.0 Metabox Styles
+ *
+ * Styles specific to the Optimizely metabox on the post edit screen.
+ */
+
+.optimizely-variation {
+	margin-bottom: .5em;
+}
+
+.optimizely-variation input {
+	width: 100%;
+}
+
+#optimizely-not-created {
+	margin-top: 1em;
+}
+
+/**
+ * 4.0 Results Table
+ *
+ * Styles specific to the Optimizely Results page
+ */
+.optimizely-results .actions {
+  margin-bottom: 10px;
+}
+
+.optimizely-results .tablenav .actions.experiment-actions select {
+  max-width: 400px;
+}
+
+.optimizely-results .experiment-actions h3 {
+  float: left;
+  margin: 6px 6px 0 0;
+}
+
+.optimizely-results .optimizely-actions .button {
+  float: left;
+  margin: 3px 8px 0 0;
+}
+
+.optimizely-results .column-launch {
+  text-align: center;
+}
+
+.optimizely-results .column-launch a.button {
+  height: 20px;
+}
+
+.optimizely-results .column-launch .button.ajax {
+  height: 20px;
+  padding: 0;
+}
+
+.optimizely-results .column-launch .button.ajax .spinner {
+  background-size: 16px 16px;
+  margin: 1px 6px 0 10px;
+}
+
+.optimizely-results .optimizely-actions a.button:before, .column-launch a.button:before {
+  font: normal 18px/1 'dashicons';
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.optimizely-results .optimizely-actions a.start:before {
+  content: "\f522";
+}
+
+.optimizely-results .optimizely-actions a.pause:before {
+  content: "\f523";
+}
+
+.optimizely-results .optimizely-actions a.edit:before {
+  content: "\f464";
+}
+
+.optimizely-results .optimizely-actions a.metrics:before {
+  content: "\f185";
+}
+
+.optimizely-results .optimizely-actions a.archive:before {
+  content: "\f480";
+}
+
+.optimizely-results .column-launch a.launch:before {
+  content: "\f529";
+  font: normal 16px/1 'dashicons';
+  margin: 0;
+  position: relative;
+  top: -5px;
+}
+
+.optimizely-results .optimizely_page_optimizely-results tfoot {
+  display: none;
+}
+
+.optimizely-results .navigation a {
+  margin-right: 8px;
+}
