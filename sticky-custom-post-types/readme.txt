@@ -1,9 +1,9 @@
 === Sticky Custom Post Types ===
-Contributors: superann
+Contributors: superann, espellcaste
 Donate link: http://superann.com/donate/?id=WP+Sticky+Custom+Post+Types+plugin
 Tags: custom post types, sticky
 Requires at least: 3.0
-Tested up to: 3.2.1
+Tested up to: 4.9
 Stable tag: trunk
 
 Enables support for sticky custom post types.
@@ -31,6 +31,11 @@ None.
 None.
 
 == Changelog ==
+
+= 1.3 =
+* Plugin updated to account for code best practices.
+* Added sticky class when a custom post type is sticky.
+* Added internationalization.
 
 = 1.2.2 =
 * Added custom post types to paged blog home.
