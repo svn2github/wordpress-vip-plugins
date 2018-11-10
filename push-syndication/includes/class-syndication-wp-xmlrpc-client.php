@@ -42,7 +42,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 
 	function post_push_send_thumbnail( $remote_post_id, $post_id ) {
 
-		$thumbnail_meta_keys = $this->get_thumbnail_meta_keys( $post_id ); 
+		$thumbnail_meta_keys = $this->get_thumbnail_meta_keys( $post_id );
 
 		foreach ( $thumbnail_meta_keys as $thumbnail_meta ) {
 			$thumbnail_id = get_post_meta( $post_id, $thumbnail_meta, true );
@@ -66,7 +66,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 						$thumbnail_meta
 					);
 
-					unset( $syndicated_thumbnails_by_site[ $this->site_ID ] ); 
+					unset( $syndicated_thumbnails_by_site[ $this->site_ID ] );
 					update_post_meta( $post_id, $syn_local_meta_key, $syndicated_thumbnails_by_site );
 
 				}
@@ -82,7 +82,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 			//has to be this way since mw_newMediaObject doesn't allow to pass description and caption along
 			$thumbnail_post_data = get_post( $thumbnail_id );
 			$thumbnail_alt_text = get_post_meta( $thumbnail_id, '_wp_attachment_image_alt', true );
-			
+
 			$result = $this->query(
 				'syndication.addThumbnail',
 				'1',
@@ -105,7 +105,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 	public static function get_client_data() {
 		return array( 'id' => 'WP_XMLRPC', 'modes' => array( 'push' ), 'name' => 'WordPress XMLRPC' );
 	}
-	
+
 	public function new_post( $post_ID ) {
 
 		$post = (array)get_post( $post_ID );
@@ -114,7 +114,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 		$post = apply_filters( 'syn_xmlrpc_push_filter_new_post', $post, $post_ID );
 		if ( false === $post )
 			return true;
-		
+
 		// rearranging arguments
 		$args = array();
 		$args['post_title']	 = $post['post_title'];
@@ -171,7 +171,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 		// Delete existing metadata to avoid duplicates
 		$args['custom_fields'] = array();
 		foreach ( $remote_post['custom_fields'] as $custom_field ) {
-			$args['custom_fields'][] = array( 
+			$args['custom_fields'][] = array(
 				'id' => $custom_field['id'],
 				'meta_key_lookup' => $custom_field['key'],
 			);
@@ -201,7 +201,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 				}
 			}
 		}
-		
+
 		// rearranging arguments
 		$args['post_title']	 = $post['post_title'];
 		$args['post_content']   = $post['post_content'];
@@ -414,7 +414,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 
 		<?php
 
-		do_action( 'syn_after_site_form', $site ); 
+		do_action( 'syn_after_site_form', $site );
 	}
 
 	public static function save_settings( $site_ID ) {
@@ -433,17 +433,17 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 		return true;
 
 	}
-	
+
 	public function get_post( $ext_ID )
 	{
 		// TODO: Implement get_post() method.
 	}
-	
+
 	public function get_posts( $args = array() )
 	{
 		// TODO: Implement get_posts() method.
 	}
-	
+
 	/**
 	 * Call this before doing debug of the instance to avoid accidental disclosure
 	 *
@@ -451,7 +451,7 @@ class Syndication_WP_XMLRPC_Client extends WP_HTTP_IXR_Client implements Syndica
 	 */
 	function null_creds() {
 		$this->username = null;
-		$this->password = null;	
+		$this->password = null;
 	}
 }
 
@@ -520,7 +520,16 @@ class Syndication_WP_XMLRPC_Client_Extensions {
 
 		if ( ! $thumbnail_set )
 			return new IXR_Error( 403, __( 'Could not attach post thumbnail.' ) );
-		
+
+		/**
+		 * Action to help trigger extra logic once the thumbnail has been set
+		 *
+		 * @param int $post_ID of the post where thumbnail is being added to
+		 * @param int $thumbnail_id attachment ID
+		 * @param int $thumbnail_set Post meta ID (_thumbnail_id)
+		 */
+		do_action( 'syn_xmlrpc_push_add_thumbnail_success', $post_ID, $thumbnail_id, $thumbnail_set );
+
 		$args = array(
 			$blog_id,
 			$username,
@@ -532,12 +541,14 @@ class Syndication_WP_XMLRPC_Client_Extensions {
 				'post_excerpt' => $thumbnail_post_data['post_excerpt'],
 			),
 		);
+
 		//update caption and description of the image
 		$result = $wp_xmlrpc_server->wp_editPost( $args );
 		if ( $result !== true ) {
 			//failed to update atatchment post details
 			//handle it th way you want it (log it, message it)
 		}
+
 		//update alt text of the image
 		update_post_meta($thumbnail_id, '_wp_attachment_image_alt', $thumbnail_alt_text);
 
