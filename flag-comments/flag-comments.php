@@ -674,10 +674,13 @@ class Flag_Comments {
 	function record_ip_flagging($ip = '', $comment_id = 0) {
 		// Create the IP address term if it doesn't exist, otherwise returns existing
 		$result = wp_insert_term($ip, 'comment_flag_ip');
-		// should overwrite the $term_id and $term_taxonomy_id with the correct values
-		extract($result, EXTR_OVERWRITE);
-		$term_id = (int) $term_id;
-	
+
+		if ( is_wp_error( $result ) ) {
+			$term_id = (int) $result->error_data['term_exists'];
+		} else {
+			$term_id = (int) $result-term_id;
+		}
+
 		// add timestamp object as child of the IP address
 		$time_term = wp_insert_term(time(), 'comment_flag_time', array('parent' => $term_id));
 		$time_term_id = ( empty( $time_term ) || empty( $time_term['term_id'] ) ) ? 0 : $time_term['term_id'];
@@ -718,4 +721,3 @@ class Flag_Comments {
 
 $flag_comments_plugin = new Flag_Comments();
 
-?>
