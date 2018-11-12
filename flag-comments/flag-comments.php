@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Flag Comments	
+Plugin Name: Flag Comments
 Plugin URI: http://watershedstudio.com/portfolio/software-development/flag-comments/
 Description: Flag comments for moderator action.
 Author: Watershed Studio, LLC
@@ -41,7 +41,7 @@ class Flag_Comments {
 		$flag_comments_flagged_markup = get_option('flag_comments_flagged_markup');
 		$this->flag_comments_flag_markup = ( empty( $flag_comments_flag_markup ) ) ? '<a href="%1$s" onclick="return false;">' . $this->__('Flag this comment') . '</a>' : $flag_comments_flag_markup;
 		$this->flag_comments_flagged_markup = ( empty( $flag_comments_flagged_markup ) ) ? $this->__('Comment already flagged')  : $flag_comments_flagged_markup;
-		$this->flag_comments_throttle_count = ( 1 > (int) get_option('flag_comments_throttle_count') ) ? 5 : (int) get_option('flag_comments_throttle_count'); 
+		$this->flag_comments_throttle_count = ( 1 > (int) get_option('flag_comments_throttle_count') ) ? 5 : (int) get_option('flag_comments_throttle_count');
 		$this->flag_comments_throttle_minutes = ( 1 > (int) get_option('flag_comments_throttle_minutes') ) ? 1 : (int) get_option('flag_comments_throttle_minutes');
 		$this->nonce_key = substr(md5(get_bloginfo('siteurl')), -12, 10);
 
@@ -127,7 +127,7 @@ class Flag_Comments {
 		foreach( (array) $delete_terms as $term_id ) {
 			wp_delete_term( $term_id, 'comment_flag_time');
 		}
-		
+
 	}
 		function delete_old_flags_filter($w = '') {
 			return " $w AND t.name < $this->flag_comment_timestamp";
@@ -155,7 +155,7 @@ class Flag_Comments {
 		endif;
 		// sets the user's flag status, even if the comment not really flagged (for user feedback)
 		$this->set_user_flag_status( $comment_id, $user->ID );
-		
+
 		// delete old flags
 		add_action('shutdown', array(&$this, 'delete_old_flags'));
 	}
@@ -165,8 +165,8 @@ class Flag_Comments {
 		return (int) $wpdb->get_var($wpdb->prepare("SELECT comment_karma FROM $wpdb->comments WHERE comment_ID = %d LIMIT 1", $comment_id));
 	}
 
-	/* 
-	 * The link for flagging comments 
+	/*
+	 * The link for flagging comments
 	 */
 	function flag_comment_link($comment_id = 0) {
 		$comment_id = ( empty( $comment_id ) ) ? get_comment_ID() : $comment_id;
@@ -179,7 +179,7 @@ class Flag_Comments {
 		// check that the user can vote
 		if ( ! empty( $this->flag_cap ) && ! current_user_can($this->flag_cap) ) {
 			return false;
-		} 
+		}
 		$already = $this->get_user_flag_status($comment_id, $user->ID);
 		// if already flagged
 		if ( ! empty( $already ) ) {
@@ -205,15 +205,15 @@ class Flag_Comments {
 				var aE = function( o, t, f ) {
 					if (o.addEventListener)
 						o.addEventListener(t, f, false);
-					else if (o.attachEvent) 
+					else if (o.attachEvent)
 						o.attachEvent('on' + t, f);
-				}		
+				}
 
 				var confirmSubmit = function() {
 					if ( confirm('<?php $this->_e('Are you sure that you want to flag this comment?') ?>') ) {
 						return true;
 					}
-					else 
+					else
 						return false;
 				}
 
@@ -251,7 +251,7 @@ class Flag_Comments {
 		register_taxonomy( 'comment_flag_ip', 'comment', array('hierarchical' => true, 'rewrite' => false, 'query_var' => false) );
 		// the child flagging times
 		register_taxonomy( 'comment_flag_time', 'comment', array('hierarchical' => false, 'update_count_callback' => array(&$this, 'update_ip_flag_count'), 'rewrite' => false, 'query_var' => false) );
-		
+
 		// the approved comments (cannot be re-flagged)
 		register_taxonomy( 'comment_flag_approved', 'comment', array('hierarchical' => false, 'rewrite' => false, 'query_var' => false) );
 
@@ -285,7 +285,7 @@ class Flag_Comments {
 			$post_link = get_the_title($comment->comment_post_ID);
 			$edit_link = get_comment_author();
 		}
-		
+
 		$author_url = get_comment_author_url();
 		if ( 'http://' == $author_url )
 			$author_url = '';
@@ -305,15 +305,15 @@ class Flag_Comments {
 			'page' => 'flagged-comments',
 		);
 		$base_url = get_option('siteurl') . '/wp-admin/comment.php';
-		$delete_url 	= add_query_arg( array_merge($url_args, 
-			array('action' => 'deletecomment', '_wpnonce' => wp_create_nonce( "delete-comment_$comment->comment_ID" )) ), $base_url); 
-		$approve_url 	= add_query_arg( array_merge($url_args, 
-			array('action' => 'approvecomment', '_wpnonce' => wp_create_nonce( "approve-comment_$comment->comment_ID" )) ), $base_url); 
-		$unapprove_url 	= add_query_arg( array_merge($url_args, 
-			array('action' => 'unapprovecomment', '_wpnonce' => wp_create_nonce( "unapprove-comment_$comment->comment_ID" )) ), $base_url); 
+		$delete_url 	= add_query_arg( array_merge($url_args,
+			array('action' => 'deletecomment', '_wpnonce' => wp_create_nonce( "delete-comment_$comment->comment_ID" )) ), $base_url);
+		$approve_url 	= add_query_arg( array_merge($url_args,
+			array('action' => 'approvecomment', '_wpnonce' => wp_create_nonce( "approve-comment_$comment->comment_ID" )) ), $base_url);
+		$unapprove_url 	= add_query_arg( array_merge($url_args,
+			array('action' => 'unapprovecomment', '_wpnonce' => wp_create_nonce( "unapprove-comment_$comment->comment_ID" )) ), $base_url);
 		$spam_url 	=  add_query_arg('dt', 'spam', $delete_url);
-		$unflag_url 	= add_query_arg( array_merge($url_args, 
-			array('action' => 'unflagcomment', '_wpnonce' => wp_create_nonce( "unflag-comment_$comment->comment_ID" )) ), get_option('siteurl') . '/wp-admin/edit-comments.php'); 
+		$unflag_url 	= add_query_arg( array_merge($url_args,
+			array('action' => 'unflagcomment', '_wpnonce' => wp_create_nonce( "unflag-comment_$comment->comment_ID" )) ), get_option('siteurl') . '/wp-admin/edit-comments.php');
 		?>
 		<tr id="comment-<?php echo $comment->comment_ID; ?>" class='unapproved'>
 			<?php if ( $checkbox ) : ?>
@@ -331,7 +331,7 @@ class Flag_Comments {
 						<?php comment_author_email_link() ?> |
 					<?php endif; ?>
 					<a href="edit-comments.php?s=<?php comment_author_IP() ?>&amp;mode=detail"><?php comment_author_IP() ?></a>
-				<?php endif; //current_user_can?>    
+				<?php endif; //current_user_can?>
 			</p>
 			<?php comment_text(); ?>
 			<p><?php printf($this->__('From %1$s, %2$s'), $post_link, $ptime) ?></p>
@@ -415,7 +415,7 @@ class Flag_Comments {
 		</table>
 
 		</form>
-		<?php 
+		<?php
 		endif; // if $comments
 
 	}
@@ -423,7 +423,7 @@ class Flag_Comments {
 	function menu() {
 		$msg = '';
 		if ( isset( $_POST['flag-comments-settings'] ) ) {
-			check_admin_referer('flag_comments-settings' .  $_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);	
+			check_admin_referer('flag_comments-settings' .  $_SERVER['REMOTE_ADDR'] . $_SERVER['HTTP_USER_AGENT']);
 			if ( update_option('flag_comments_threshold', (int) $_POST['flag-comments-threshold']) ) {
 				$msg .= '<p>' . $this->__('Threshold saved.') . '</p>';
 			}
@@ -507,7 +507,7 @@ class Flag_Comments {
 		$wpdb->query($query);
 		// recount comment total
 		$comment_data = get_comment($comment_id);
-		
+
 		wp_update_comment_count($comment_data->comment_post_ID);
 		// email admin about comment
 		$this->notify($comment_id);
@@ -515,10 +515,10 @@ class Flag_Comments {
 
 	function moderated_comment($comment_id = 0, $comment_status = 0) {
 		global $wpdb;
-		if ( empty( $comment_id ) ) 
+		if ( empty( $comment_id ) )
 			return false;
 		if ( 'approve' == $comment_status ) {
-			$wpdb->query(sprintf("DELETE FROM $wpdb->usermeta WHERE meta_key = '%sflaggedcomment%d'", $wpdb->prefix, $comment_id)); 
+			$wpdb->query(sprintf("DELETE FROM $wpdb->usermeta WHERE meta_key = '%sflaggedcomment%d'", $wpdb->prefix, $comment_id));
 			$wpdb->query(sprintf("UPDATE $wpdb->comments SET comment_karma = '0' WHERE comment_ID = '%d'", $comment_id));
 
 			// delete flag records
@@ -530,7 +530,7 @@ class Flag_Comments {
 				wp_delete_term( $term_id, 'comment_flag_time');
 			}
 			$parent_ips = array_unique($parent_ips);
-			
+
 			// see if there are any child flags remainig for the parents' ip addresses
 			foreach( (array) $parent_ips as $parent_term_id ) {
 				$child_flags = get_terms('comment_flag_time', array('child_of' => $parent_term_id));
@@ -610,7 +610,7 @@ class Flag_Comments {
 		}
 		if ( $flagged )
 			return true;
-		else 
+		else
 			return false;
 	}
 
@@ -633,10 +633,10 @@ class Flag_Comments {
 		if ( $cookiepath != $sitecookiepath ) {
 			setcookie($wpdb->prefix . 'flaggedcomment' . $comment_id, 1, $expire, $sitecookiepath, COOKIE_DOMAIN);
 		}
-		
+
 
 		if ( ! empty( $user_id ) ) {
-		// if a logged-in user 
+		// if a logged-in user
 			update_user_option( $user_id, 'flaggedcomment' . $comment_id, 1);
 		}
 
@@ -678,7 +678,7 @@ class Flag_Comments {
 		if ( is_wp_error( $result ) ) {
 			$term_id = (int) $result->error_data['term_exists'];
 		} else {
-			$term_id = (int) $result-term_id;
+			$term_id = (int) $result->term_id;
 		}
 
 		// add timestamp object as child of the IP address
@@ -713,11 +713,10 @@ class Flag_Comments {
 			$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $wpdb->term_relationships WHERE term_taxonomy_id = %d", $term) );
 			$wpdb->update( $wpdb->term_taxonomy, compact( 'count' ), array( 'term_taxonomy_id' => $term ) );
 
-			// 
+			//
 		}
 
 	}
 }
 
 $flag_comments_plugin = new Flag_Comments();
-
