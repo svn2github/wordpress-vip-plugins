@@ -573,6 +573,7 @@ class Add_Meta_Tags {
 			Google News Meta
 			Custom post field "mt-seo-google-news-meta" adds additional meta tags
 			*/
+			$mt_seo_google_news_meta = apply_filters( 'amt_meta_keywords_news', $mt_seo_google_news_meta );
 			if ( !empty($mt_seo_google_news_meta) && true == $cmpvalues['mt_seo_google_news_meta'] ) {
 				/*
 				If there is a custom field, use it
@@ -617,6 +618,8 @@ class Add_Meta_Tags {
 									$mt_seo_keywords = str_replace("%tags%", $this->amt_get_post_tags(), $mt_seo_keywords);
 								}
 						}
+
+						$mt_seo_keywords = apply_filters( 'amt_meta_keywords', $mt_seo_keywords );
 						$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( strtolower($mt_seo_keywords) ) . "\" />";
 					} elseif ( is_single() ) {
 						/*
@@ -626,8 +629,8 @@ class Add_Meta_Tags {
 						*/
 						$post_keywords = strtolower( $this->amt_get_keywords_from_post_cats() );
 						$post_tags = strtolower( $this->amt_get_post_tags() );
-
-						$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( $post_keywords .', '. $post_tags ) .'" />';
+						$mt_seo_keywords = apply_filters( 'amt_meta_keywords', $post_keywords .', '. $post_tags );
+						$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( $mt_seo_keywords ) .'" />';
 					}
 				}
 			}
@@ -639,8 +642,8 @@ class Add_Meta_Tags {
 			/*
 			Description and Keywords from the options override default behaviour
 			*/
-			$site_description = $options["site_description"];
-			$site_keywords = $options["site_keywords"];
+			$site_description = apply_filters( "amt_meta_description", $options["site_description"]);
+			$site_keywords = apply_filters( "amt_meta_keywords", $options["site_keywords"]);
 
 			/*
 			Description
@@ -649,7 +652,8 @@ class Add_Meta_Tags {
 				/*
 				If $site_description is empty, then use the blog description from the options
 				*/
-				$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $this->amt_clean_desc(get_bloginfo('description')) ) . "\" />";
+				$site_description = apply_filters( "amt_meta_description", $this->amt_clean_desc(get_bloginfo('description')));
+				$my_metatags .= "\n<meta name=\"description\" content=\"" . esc_attr( $site_description ) . "\" />";
 			} else {
 				/*
 				If $site_description has been set, then use it in the description meta-tag
@@ -663,7 +667,8 @@ class Add_Meta_Tags {
 				/*
 				If $site_keywords is empty, then all the blog's categories are added as keywords
 				*/
-				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( $this->amt_get_all_categories() ) . "\" />";
+				$site_keywords = apply_filters( 'amt_meta_keywords', $this->amt_get_all_categories() );
+				$my_metatags .= "\n<meta name=\"keywords\" content=\"" . esc_attr( $site_keywords ) . "\" />";
 			} else {
 				/*
 				If $site_keywords has been set, then these keywords are used.
@@ -677,7 +682,7 @@ class Add_Meta_Tags {
 			Writes a description META tag only if a description for the current term has been set.
 			*/
 
-			$cur_cat_desc = term_description();
+			$cur_cat_desc = apply_filters( "amt_meta_description", term_description());
 			if ( $cur_cat_desc ) {
 				$my_metatags .= '<meta name="description" content="' . esc_attr( $this->amt_clean_desc($cur_cat_desc) ) . '" />';
 			}
@@ -685,7 +690,7 @@ class Add_Meta_Tags {
 			/*
 			Write a keyword metatag if there is a term name (always)
 			*/
-			$cur_cat_name = single_term_title( '', false );
+			$cur_cat_name = apply_filters( "amt_meta_keywords", single_term_title( '', false ));
 			if ( $cur_cat_name ) {
 				$my_metatags .= '<meta name="keywords" content="' . esc_attr( strtolower($cur_cat_name) ) . '" />';
 			}
