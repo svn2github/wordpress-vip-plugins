@@ -114,7 +114,7 @@ if ( ! class_exists( 'Sticky_Custom_Post_Types' ) ) {
 		 * @return void
 		 */
 		public function sticky_description() {
-			echo '<p>' . __( 'Enable support for sticky custom post types.', 'sticky-custom-post-types' ) . '</p>'; // WPCS: XSS ok.
+			echo '<p>' . esc_html__( 'Enable support for sticky custom post types.', 'sticky-custom-post-types' ) . '</p>'; // WPCS: XSS ok.
 		}
 
 		/**
@@ -129,7 +129,7 @@ if ( ! class_exists( 'Sticky_Custom_Post_Types' ) ) {
 			], 'names' );
 
 			if ( empty( $post_types ) ) {
-				echo '<p>' . __( 'No public custom post types found.', 'sticky-custom-post-types' ) . '</p>'; // WPCS: XSS ok.
+				echo '<p>' . esc_html__( 'No public custom post types found.', 'sticky-custom-post-types' ) . '</p>'; // WPCS: XSS ok.
 			}
 
 			$checked_post_types = $this->get_sticky_post_types();
@@ -195,7 +195,7 @@ if ( ! class_exists( 'Sticky_Custom_Post_Types' ) ) {
 			// Add the meta box.
 			add_meta_box(
 				'super_sticky_meta',
-				__( 'Sticky', 'ione3' ),
+				__( 'Sticky', 'sticky-custom-post-types' ),
 				[ $this, 'sticky_meta' ],
 				$post_types,
 				'side',
@@ -218,7 +218,7 @@ if ( ! class_exists( 'Sticky_Custom_Post_Types' ) ) {
 				<?php checked( is_sticky( get_the_ID() ) ); ?>
 			/>
 			<label for="super-sticky" class="selectit">
-				<?php esc_html_e( 'Stick this to the front page', 'ione3' ); ?>
+				<?php esc_html_e( 'Stick this to the front page', 'sticky-custom-post-types' ); ?>
 			</label>
 			<?php
 		}
