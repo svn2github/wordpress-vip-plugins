@@ -132,6 +132,9 @@ if ( ! class_exists( 'Sticky_Custom_Post_Types' ) ) {
 				echo '<p>' . esc_html__( 'No public custom post types found.', 'sticky-custom-post-types' ) . '</p>'; // WPCS: XSS ok.
 			}
 
+			// Filter the post types supported.
+			$post_types = apply_filters( 'sticky_supported_custom_post_types', $post_types );
+
 			$checked_post_types = $this->get_sticky_post_types();
 			foreach ( $post_types as $post_type ) { ?>
 				<div>
