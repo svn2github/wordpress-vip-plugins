@@ -1,11 +1,11 @@
 <?php
 /*
   Sub Plugin Name: LiveChat
-  Plugin URI: http://www.livefyre.com/
+  Plugin URI: https://www.livefyre.com/
   Description: Implements LiveChat for WordPress
   Version: 0.1
   Author: Livefyre, Inc.
-  Author URI: http://www.livefyre.com/
+  Author URI: https://www.livefyre.com/
  */
 
 //Disallow direct access to this file

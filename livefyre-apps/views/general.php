@@ -78,11 +78,11 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <p class="enterprise-only"><i>Hooking in Identity is documented <a href="http://answers.livefyre.com/developers/identity-integration/livefyre-identity/ ">here.</a></i></p>
+                            <p class="enterprise-only"><i>Hooking in Identity is documented <a href="https://answers.livefyre.com/developers/identity-integration/livefyre-identity/ ">here.</a></i></p>
                             <?php if(get_option('livefyre_apps-package_type') === 'community'): ?>
                             <div class="lfapps-community-signup">
                                 <p><?php esc_html_e('New to Livefyre or forgotten your Site ID/Key?', 'lfapps'); ?><br/>
-                                    <a href="http://livefyre.com/installation/logout/?site_url=<?php echo urlencode(home_url())?>&domain=rooms.livefyre.com&version=4&type=wordpress&lfversion=apps&postback_hook=<?php urlencode(home_url())?>&transport=http" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
+                                    <a href="https://livefyre.com/installation/logout/?site_url=<?php echo urlencode(home_url())?>&domain=rooms.livefyre.com&version=4&type=wordpress&lfversion=apps&postback_hook=<?php urlencode(home_url())?>&transport=http" target="_blank"><?php esc_html_e('Click here', 'lfapps'); ?></a> and we can help!</p>
                             </div>
                             <div class="clear"></div>
                             <?php endif; ?>
@@ -120,7 +120,7 @@
                                         <label for='lfapps_comments_enable'>
                                             <span><?php esc_html_e('Comments™', 'lfapps'); ?></span>
                                         </label>
-                                        <p><a target="_blank" href="http://web.livefyre.com/comments/">Click here</a> for more information.</p>
+                                        <p><a target="_blank" href="https://web.livefyre.com/comments/">Click here</a> for more information.</p>
                                     </div>
                                 </div>
                                 <div class='lfapps-appmgt-box'>
@@ -135,7 +135,7 @@
                                         <label for='lfapps_sidenotes_enable'>
                                             <span><?php esc_html_e('Sidenotes™', 'lfapps'); ?></span>
                                         </label>
-                                        <p><a target="_blank" href="http://web.livefyre.com/streamhub/#liveSidenotes">Click here</a> for more information.</p>
+                                        <p><a target="_blank" href="https://web.livefyre.com/streamhub/#liveSidenotes">Click here</a> for more information.</p>
                                     </div>
                                 </div>
                                 <div class='lfapps-appmgt-box enterprise-only'>
@@ -150,7 +150,7 @@
                                         <label for='lfapps_blog_enable'>
                                             <span><?php esc_html_e('Live Blog™', 'lfapps'); ?></span>
                                         </label>
-                                        <p><a target="_blank" href="http://web.livefyre.com/streamhub/#liveBlog">Click here</a> for more information.</p>
+                                        <p><a target="_blank" href="https://web.livefyre.com/streamhub/#liveBlog">Click here</a> for more information.</p>
                                     </div>
                                 </div>
                                 <div class='lfapps-appmgt-box enterprise-only'>
@@ -165,7 +165,7 @@
                                         <label for='lfapps_chat_enable'>
                                             <span><?php esc_html_e('Chat™', 'lfapps'); ?></span>
                                         </label>
-                                        <p><a target="_blank" href="http://web.livefyre.com/streamhub/#liveChat">Click here</a> for more information.</p>
+                                        <p><a target="_blank" href="https://web.livefyre.com/streamhub/#liveChat">Click here</a> for more information.</p>
                                     </div>
                                 </div>
                                 <div class='lfapps-appmgt-box enterprise-only'>
@@ -180,7 +180,7 @@
                                         <label for='lfapps_designer_enable'>
                                             <span><?php esc_html_e('Visualization Apps', 'lfapps'); ?></span>
                                         </label>
-                                        <p><a target="_blank" href="http://web.livefyre.com/visualization-apps/">Click here</a> for more information.</p>
+                                        <p><a target="_blank" href="https://web.livefyre.com/visualization-apps/">Click here</a> for more information.</p>
                                     </div>
                                 </div>
                             </div>
@@ -227,9 +227,9 @@
                         $network_stub = $network_stub[0];
                     ?>
                     <div class='inside'>
-                        <a href= <?php echo ($package_type === 'community' || $network === 'livefyre.com') ? "http://livefyre.com/admin" : "https://" . $network_stub . ".admin.fyre.co/v3/content" ?> target="_blank">Livefyre Admin</a>
+                        <a href= <?php echo ($package_type === 'community' || $network === 'livefyre.com') ? "https://livefyre.com/admin" : "https://" . $network_stub . ".admin.fyre.co/v3/content" ?> target="_blank">Livefyre Admin</a>
                         <br/>
-                        <a href="http://support.livefyre.com" target="_blank">Livefyre Support</a>
+                        <a href="https://support.livefyre.com" target="_blank">Livefyre Support</a>
                     </div>
                 </div>
             </div>

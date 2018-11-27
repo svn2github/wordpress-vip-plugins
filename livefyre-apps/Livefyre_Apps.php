@@ -270,7 +270,7 @@ if ( ! class_exists( 'Livefyre_Apps' ) ) {
          * @return array list of versions
          */
         public static function get_available_package_versions($package) {
-            $url = 'http://cdn.livefyre.com/packages.json';
+            $url = 'https://cdn.livefyre.com/packages.json';
             $versions = array();
             
             $http = new LFAPPS_Http_Extension;

@@ -42,7 +42,7 @@
                             <tr>
                                 <th align="left" scope="row">
                                     <?php esc_html_e('Selectors', 'lfapps-sidenotes'); ?><br/>
-                                    <span class="info"><?php esc_html_e('(The selectors option is used to specify which content can be Sidenoted. More information can be found ', 'lfapps-sidenotes'); ?> <a href="http://answers.livefyre.com/developers/app-integrations/sidenotes/#Selectors" target="_blank">here</a>)</span>
+                                    <span class="info"><?php esc_html_e('(The selectors option is used to specify which content can be Sidenoted. More information can be found ', 'lfapps-sidenotes'); ?> <a href="https://answers.livefyre.com/developers/app-integrations/sidenotes/#Selectors" target="_blank">here</a>)</span>
                                 </th>
                             </tr>
                             <tr>
@@ -83,9 +83,9 @@
                                          var livefyreSidenotesConfig = { iconVisibility: \"hover\"; }
                                          </script>"); ?>                                            
                                     </blockquote>
-                                    <p><a target="_blank" href="http://answers.livefyre.com/developers/app-integrations/sidenotes/">Click here</a> for a full explanation of Livefyre Sidenotes options.</p>
+                                    <p><a target="_blank" href="https://answers.livefyre.com/developers/app-integrations/sidenotes/">Click here</a> for a full explanation of Livefyre Sidenotes options.</p>
                                     <strong>Sidenotes Customizations:</strong>
-                                    <p>Additional customizations are possible through applying WordPress filters. Information on how to implement these are <a target="_blank" href="http://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
+                                    <p>Additional customizations are possible through applying WordPress filters. Information on how to implement these are <a target="_blank" href="https://answers.livefyre.com/developers/cms-plugins/wordpress/">found here</a>.</p>
                                 </td>
                             </tr>
                             <?php endif; ?>                            

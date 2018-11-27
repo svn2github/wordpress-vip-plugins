@@ -1,11 +1,11 @@
 <?php
 /*
 Sub Plugin Name: Livefyre Designer Apps
-Plugin URI: http://www.livefyre.com/
+Plugin URI: https://www.livefyre.com/
 Description: Implements Designer embeds
 Version: 1.3
 Author: Livefyre, Inc.
-Author URI: http://www.livefyre.com/
+Author URI: https://www.livefyre.com/
  */
 
 //Disallow direct access to this file

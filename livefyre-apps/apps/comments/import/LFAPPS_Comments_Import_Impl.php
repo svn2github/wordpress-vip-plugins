@@ -269,7 +269,7 @@ class LFAPPS_Comments_Import_Impl implements LFAPPS_Comments_Import {
 
     function wrap_xml(&$articles) {
 
-        return '<?xml version="1.0" encoding="UTF-8"?><site xmlns="http://livefyre.com/protocol" type="wordpress">' . $articles . '</site>';
+        return '<?xml version="1.0" encoding="UTF-8"?><site xmlns="https://livefyre.com/protocol" type="wordpress">' . $articles . '</site>';
     }
 
     function detect_default_comment() {

@@ -32,12 +32,12 @@ class LFAPPS_Comments_Core {
         $uses_default_tld = (strpos(LFAPPS_COMMENTS_DEFAULT_TLD, 'livefyre.com') === 0);
         
         $this->top_domain = ( $profile_domain == LFAPPS_COMMENTS_DEFAULT_PROFILE_DOMAIN ? LFAPPS_COMMENTS_DEFAULT_TLD : $profile_domain );
-        $this->http_url = ( $uses_default_tld ? "http://www." . LFAPPS_COMMENTS_DEFAULT_TLD : "http://" . LFAPPS_COMMENTS_DEFAULT_TLD );
-        $this->api_url = "http://api.$this->top_domain";
-        self::$quill_url = "http://quill.$this->top_domain";
-        $this->admin_url = "http://admin.$this->top_domain";
-        $this->assets_url = "http://zor." . LFAPPS_COMMENTS_DEFAULT_TLD;
-        $this->bootstrap_url = "http://bootstrap.$this->top_domain";
+        $this->http_url = ( $uses_default_tld ? "https://www." . LFAPPS_COMMENTS_DEFAULT_TLD : "https://" . LFAPPS_COMMENTS_DEFAULT_TLD );
+        $this->api_url = "https://api.$this->top_domain";
+        self::$quill_url = "https://quill.$this->top_domain";
+        $this->admin_url = "https://admin.$this->top_domain";
+        $this->assets_url = "https://zor." . LFAPPS_COMMENTS_DEFAULT_TLD;
+        $this->bootstrap_url = "https://bootstrap.$this->top_domain";
         
         // for non-production environments, we use a dev url and prefix the path with env name
         $bootstrap_domain = 'bootstrap-json-dev.s3.amazonaws.com';
@@ -54,7 +54,7 @@ class LFAPPS_Comments_Core {
             $site_id = get_option('livefyre_apps-livefyre_site_id', false );
         }
 
-        self::$bootstrap_url_v3 = "http://$bootstrap_domain/$environment$profile_domain/$site_id";
+        self::$bootstrap_url_v3 = "https://$bootstrap_domain/$environment$profile_domain/$site_id";
         
         $this->home_url = $this->ext->home_url();
         $this->plugin_version = LFAPPS_COMMENTS_PLUGIN_VERSION;

@@ -36,9 +36,9 @@
                     <div class="handlediv" title="Click to toggle"><br></div>
                     <h3 class="hndle"><span><?php esc_html_e('Links', 'lfapps'); ?></span></h3>
                     <div class='inside'>
-                        <a href="http://livefyre.com/admin" target="_blank">Livefyre Admin</a>
+                        <a href="https://livefyre.com/admin" target="_blank">Livefyre Admin</a>
                         <br/>
-                        <a href="http://support.livefyre.com" target="_blank">Livefyre Support</a>
+                        <a href="https://support.livefyre.com" target="_blank">Livefyre Support</a>
                     </div>
                 </div>
             </div>

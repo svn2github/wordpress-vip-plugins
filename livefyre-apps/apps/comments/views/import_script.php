@@ -41,7 +41,7 @@ function checkStatusLF(){
                     message = "Maybe it's time for a candy bar.";
                 }
                 else if(secondsPassed >= 1800 && secondsPassed < 2700) {
-                    message = 'In the meantime, check out our Facebook page at <a href="http://www.facebook.com/livefyre">facebook.com/livefyre</a>';
+                    message = 'In the meantime, check out our Facebook page at <a href="https://www.facebook.com/livefyre">facebook.com/livefyre</a>';
                 }
                 else if(secondsPassed >= 2700 && secondsPassed < 3600) {
                     message = "Boy, you have one popular website...";

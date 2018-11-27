@@ -2,7 +2,7 @@
 require_once(LFAPPS__PLUGIN_PATH . "/libs/php/LFAPPS_JWT.php");
 
 $network_name = get_option('livefyre_apps-livefyre_domain_name', 'livefyre.com');
-$delegate_auth_url = 'http://admin.' . $network_name;
+$delegate_auth_url = 'https://admin.' . $network_name;
 $site_id = get_option('livefyre_apps-livefyre_site_id');
 $article_id = get_the_ID();
 $site_key = get_option('livefyre_apps-livefyre_site_key');

@@ -1,6 +1,6 @@
 ﻿=== Livefyre Apps ===
 Contributors: Livefyre
-Donate link: http://livefyre.com/
+Donate link: https://livefyre.com/
 Tags: comments, widget, plugin, community, social, profile,
 moderation, engagement, twitter, facebook, conversation
 Requires at least: 3.9
@@ -63,9 +63,9 @@ Livefyre Sidenotes inspires focused conversations by allowing users to engage di
 
 == Frequently Asked Questions ==
 
-For Enterprise, check out [Livefyre Docs](http://docs.livefyre.com)
+For Enterprise, check out [Livefyre Docs](https://docs.livefyre.com)
 
-For Community, visit the [Livefyre FAQ](http://support.livefyre.com) or e-mail us at
+For Community, visit the [Livefyre FAQ](https://support.livefyre.com) or e-mail us at
 support@livefyre.com.
 
 == Screenshots ==
@@ -88,13 +88,13 @@ support@livefyre.com.
 * Patch issue with collections not updating when changed in Livefyre Settings
 = 1.2 =
 * Added version pinning to each app. Now select which versions of the app you would like to run. Adds flexibility in upgrades.
-* Added JS events to each app. Check http://answers.livefyre.com/developers/reference/javascript-events/ for more details on which events and http://answers.livefyre.com/developers/cms-plugins/wordpress/ for implementation details.
+* Added JS events to each app. Check https://answers.livefyre.com/developers/reference/javascript-events/ for more details on which events and https://answers.livefyre.com/developers/cms-plugins/wordpress/ for implementation details.
 * Checks for valid PHP compatibility to alleviate version problems.
 * Fixed error reporting for http requests.
 * Fixed issue with Enterprise installation steps.
 * Fixed comment count issues when using custom article_id filter.
 = 1.3 =
-* Added Visualization Apps to the plugin. http://web.livefyre.com/visualization-apps/
+* Added Visualization Apps to the plugin. https://web.livefyre.com/visualization-apps/
 * Code clean up
 
 == Upgrade Notice ==

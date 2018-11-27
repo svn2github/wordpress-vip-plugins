@@ -1,11 +1,11 @@
 <?php
 /*
 Sub Plugin Name: LiveBlog
-Plugin URI: http://www.livefyre.com/
+Plugin URI: https://www.livefyre.com/
 Description: Implements LiveBlog
 Version: 0.1
 Author: Livefyre, Inc.
-Author URI: http://www.livefyre.com/
+Author URI: https://www.livefyre.com/
  */
 
 //Disallow direct access to this file

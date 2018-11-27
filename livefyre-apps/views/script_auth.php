@@ -6,7 +6,7 @@
         var load_livefyre_auth = function() {
             if(!livefyre_auth_loaded) {
                 Livefyre.require(['auth'], function(auth) {
-                    auth.delegate(auth.createDelegate('http://livefyre.com'));
+                    auth.delegate(auth.createDelegate('https://livefyre.com'));
                 });
             }
             livefyre_auth_loaded = true;

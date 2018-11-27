@@ -12,7 +12,7 @@ class Domain {
 		} else {
 			$ssl = $core->getNetwork()->isSsl();
 		}
-		return $ssl ? sprintf("https://%s.quill.fyre.co", $core->getNetworkName()) : sprintf("http://quill.%s.fyre.co", $core->getNetworkName());
+		return $ssl ? sprintf("https://%s.quill.fyre.co", $core->getNetworkName()) : sprintf("https://quill.%s.fyre.co", $core->getNetworkName());
 	}
 
 	public static function bootstrap($core) {
@@ -21,6 +21,6 @@ class Domain {
 		} else {
 			$ssl = $core->getNetwork()->isSsl();
 		}
-		return $ssl ? "https://bootstrap.livefyre.com" : sprintf("http://bootstrap.%s.fyre.co", $core->getNetworkName());
+		return $ssl ? "https://bootstrap.livefyre.com" : sprintf("https://bootstrap.%s.fyre.co", $core->getNetworkName());
 	}
 }
