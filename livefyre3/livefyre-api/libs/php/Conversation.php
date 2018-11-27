@@ -5,17 +5,17 @@ class Livefyre_Conversation {
     private $id;
     private $article;
     private $delegates;
-    
+
     public function __construct( $conv_id = null, $article = null ) {
         $this->id = $conv_id;
         $this->article = $article;
         $this->delegates = array();
     }
-    
+
     public function add_js_delegate( $delegate_name, $code ) {
         $this->delegates[ $delegate_name ] = $code;
     }
-    
+
     public function render_js_delegates( ) {
         $str_out = '';
         if ( $this->delegates ) {
@@ -82,7 +82,7 @@ class Livefyre_Conversation {
                 ' . ($jquery_ready ? '});' : '') . '
             </script>';
     }
-    
+
     public function collection_meta() {
         $article = $this->article;
         $site = $article->get_site();
@@ -90,14 +90,14 @@ class Livefyre_Conversation {
         $collectionMeta = array("title" => $article->get_title(),
                 "url" => $article->get_url(),
                 "tags" => $article->get_tags());
-        
+
         $checksum = md5(json_encode($collectionMeta));
         $collectionMeta["checksum"] = $checksum;
         $collectionMeta["articleId"] = $article->get_id();
         $jwtString = JWT::encode($collectionMeta, $site->get_key());
         return array('collectionMeta' => $jwtString, 'checksum' => $checksum);
     }
-    
+
     public function to_initjs_v3( $el = false, $config = null ) {
         // We have to build this string of JS in a weird way because we conditionally include
         // direct JS references, which isn't possible with json_encode
@@ -144,11 +144,11 @@ class Livefyre_Conversation {
             $fyre_config = '{"network": "' . $network_name . '"' . $delegate_str . '}';
         }
         return '<script type="text/javascript">' .
-                'var lf_config = ' . json_encode( array($js_config) ) . ';' . 
+                'var lf_config = ' . json_encode( array($js_config) ) . ';' .
                 'var conv = fyre.conv.load(' . $fyre_config . ', lf_config' . $onload . ');' .
                 '</script>';
     }
-    
+
     public function to_html( ) {
         assert('$this->article != null /* Article is necessary to get HTML */');
         $site_id = $this->article->get_site()->get_id();
@@ -157,7 +157,7 @@ class Livefyre_Conversation {
         $domain = $site->get_domain();
         $dhost = $domain->get_host();
         $article_id_b64 = urlencode(base64_encode($article_id));
-        $url = "http://bootstrap.$dhost/api/v1.1/public/bootstrap/html/$site_id/$article_id_b64.html";
+        $url = "https://bootstrap.$dhost/api/v1.1/public/bootstrap/html/$site_id/$article_id_b64.html";
         $result = $domain->http->request($url, array('method' => 'GET'));
         if (is_array( $result ) && isset($result['response']) && $result['response']['code'] == 200) {
             return $result['body'];

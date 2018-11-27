@@ -4,7 +4,7 @@ Livefyre Realtime Comments Core Module
 
 This library is shared between all Livefyre plugins.
 
-Author: Livefyre, Inc. 
+Author: Livefyre, Inc.
 Author URI: http://livefyre.com/
 */
 define( 'LF_DEFAULT_PROFILE_DOMAIN', 'livefyre.com' );
@@ -21,18 +21,18 @@ global $livefyre;
 
 class Livefyre_core {
 
-    function __construct() { 
+    function __construct() {
 
         $this->add_extension();
         $this->require_php_api();
         $this->define_globals();
         $this->require_subclasses();
-        
+
     }
-    
+
     function define_globals() {
-    
-        $this->options = array( 
+
+        $this->options = array(
             'livefyre_site_id', // - name ( id ) of the livefyre record associated with this blog
             'livefyre_site_key' // - shared key used to sign requests to/from livefyre
         );
@@ -46,19 +46,19 @@ class Livefyre_core {
         $uses_default_tld = ( $tld === LF_DEFAULT_TLD );
         $this->lf_domain_object = new Livefyre_Domain( $profile_domain, $client_key, null, $dopts );
         $site_id = $this->ext->get_option( 'livefyre_site_id' );
-        $this->site = $this->lf_domain_object->site( 
-            $site_id, 
+        $this->site = $this->lf_domain_object->site(
+            $site_id,
             trim( $this->ext->get_option( 'livefyre_site_key' ) )
         );
         $this->debug_mode = false;
         $this->top_domain = ( $profile_domain == LF_DEFAULT_PROFILE_DOMAIN ? $tld : $profile_domain );
-        $this->http_url = "http://" . $tld;
-        $this->api_url = "http://api.$this->top_domain";
-        $this->quill_url = "http://quill.$this->top_domain";
-        $this->admin_url = "http://admin.$this->top_domain";
-        $this->assets_url = "http://zor." . $tld;
-        $this->bootstrap_url = "http://bootstrap.$this->top_domain";
-        
+        $this->http_url = "https://" . $tld;
+        $this->api_url = "https://api.$this->top_domain";
+        $this->quill_url = "https://quill.$this->top_domain";
+        $this->admin_url = "https://admin.$this->top_domain";
+        $this->assets_url = "https://zor." . $tld;
+        $this->bootstrap_url = "https://bootstrap.$this->top_domain";
+
         // for non-production environments, we use a dev url and prefix the path with env name
         $bootstrap_domain = 'bootstrap-json-dev.s3.amazonaws.com';
         $environment = $dopts['livefyre_tld'] . '/';
@@ -67,13 +67,13 @@ class Livefyre_core {
             $environment = '';
         }
 
-        $this->bootstrap_url_v3 = "http://$bootstrap_domain/$environment$profile_domain/$site_id";
-        
+        $this->bootstrap_url_v3 = "https://$bootstrap_domain/$environment$profile_domain/$site_id";
+
         $this->home_url = $this->ext->home_url();
         $this->plugin_version = LF_PLUGIN_VERSION;
 
     }
-    
+
     function require_php_api() {
 
         require_once(dirname(__FILE__) . "/livefyre-api/libs/php/Livefyre.php");
@@ -125,9 +125,9 @@ class Livefyre_Health_Check {
             echo "site's server thinks the time is: " . gmdate( 'd/m/Y H:i:s', time() );
             $notset = '[NOT SET]';
 			$whitelist = array( 'livefyre_activation_pending', 'livefyre_activity_id', 'livefyre_commentseq', 'livefyre_domain_name', 'livefyre_site_id' );
-            foreach ( $this->lf_core->options as $optname ) {		
-				// This is to be considered a non-secure function. 
-				// Any non-public options must be ommitted. 
+            foreach ( $this->lf_core->options as $optname ) {
+				// This is to be considered a non-secure function.
+				// Any non-public options must be ommitted.
 				if ( isset( $whitelist[ $optname ] ) ) {
 					echo "\n\nlivefyre option: $optname";
 					$optval = $this->ext->get_option( $optname, $notset );
@@ -142,7 +142,7 @@ class Livefyre_Health_Check {
 class Livefyre_Activation {
 
     function __construct( $lf_core ) {
-    
+
         $this->lf_core = $lf_core;
         $this->ext = $lf_core->ext;
         $this->ext->setup_activation( $this );
@@ -156,25 +156,25 @@ class Livefyre_Activation {
     }
 
     function activate() {
-    
+
         if ( !$this->ext->get_option( 'livefyre_domain_name', false ) ) {
             // Initialize default profile domain i.e. livefyre.com
             $this->ext->update_option( 'livefyre_domain_name', LF_DEFAULT_PROFILE_DOMAIN );
         }
         $this->reset_caches();
-    
+
     }
 
     function reset_caches() {
-    
+
         $this->ext->reset_caches();
-        
+
     }
 
 }
 
 class Livefyre_Sync {
-    
+
     function __construct( $lf_core ) {
 
         $this->lf_core = $lf_core;
@@ -184,7 +184,7 @@ class Livefyre_Sync {
     }
 
     function do_sync() {
-    
+
         /*
             Fetch comments from the livefyre server, providing last activity id we have.
             Schedule the next sync if we got >50 or the server says "more-data".
@@ -246,19 +246,19 @@ class Livefyre_Sync {
                 $inserts_remaining--;
                 $comment_date  = (int) $json->created;
                 $comment_date = get_date_from_gmt( date( 'Y-m-d H:i:s', $comment_date ) );
-                $data = array( 
+                $data = array(
                     'lf_activity_id'  =>  $json->activity_id,
                     'lf_action_type'  => $json->activity_type,
                     'comment_post_ID'  => $json->article_identifier,
                     'comment_author'  => $json->author,
                     'comment_author_email'  => $json->author_email,
                     'comment_author_url'  => $json->author_url,
-                    'comment_type'  => '', 
+                    'comment_type'  => '',
                     'lf_comment_parent'  => $json->lf_parent_comment_id,
                     'lf_comment_id'  => $json->lf_comment_id,
                     'user_id'  => null,
                     'comment_author_IP'  => $json->author_ip,
-                    'comment_agent'  => 'Livefyre, Inc .  Comments Agent', 
+                    'comment_agent'  => 'Livefyre, Inc .  Comments Agent',
                     'comment_date'  => $comment_date,
                     'lf_state'  => $json->state
                 );
@@ -280,7 +280,7 @@ class Livefyre_Sync {
         }
         $this->schedule_sync( $timeout );
         return $result;
-    
+
     }
 
     function schedule_sync( $timeout ) {
@@ -288,9 +288,9 @@ class Livefyre_Sync {
         $this->ext->schedule_sync( $timeout );
 
     }
-    
+
     function comment_update() {
-        
+
         if (isset($_GET['lf_wp_comment_postback_request']) && $_GET['lf_wp_comment_postback_request']=='1') {
             $result = $this->do_sync();
             // Instruct the backend to use the site sync postback mechanism for future updates.
@@ -298,7 +298,7 @@ class Livefyre_Sync {
             echo json_encode( $result );
             exit;
         }
-    
+
     }
 
     function post_param( $name, $plain_to_html = false, $default = null ) {
@@ -312,14 +312,14 @@ class Livefyre_Sync {
         return $out;
 
     }
-    
+
     function site_rest_url() {
 
         return $this->lf_core->http_url . '/site/' . $this->ext->get_option( 'livefyre_site_id' );
 
     }
 
-    function livefyre_report_error( $message ) { 
+    function livefyre_report_error( $message ) {
 
         $args = array( 'data' => array( 'message' => $message, 'method' => 'POST' ) );
         $this->lf_core->lf_domain_object->http->request( $this->site_rest_url() . '/error', $args );
@@ -333,17 +333,17 @@ class Livefyre_Sync {
             if ( $app_comment_parent == null ) {
                 //something is wrong.  might want to log this, essentially flattening because parent is not mapped
             }
-        } else { 
+        } else {
             $app_comment_parent = null;
         }
         $app_comment_id = $this->ext->get_app_comment_id( $data[ 'lf_comment_id' ] );
         $at = $data[ 'lf_action_type' ];
         $data[ 'comment_approved' ] = ( ( isset( $data[ 'lf_state' ] ) && $data[ 'lf_state' ] == 'active' ) ? 1 : 0 );
         $data[ 'comment_parent' ] = $app_comment_parent;
-        $action_types = array( 
-            'comment-add', 
-            'comment-moderate:mod-approve', 
-            'comment-moderate:mod-hide', 
+        $action_types = array(
+            'comment-add',
+            'comment-moderate:mod-approve',
+            'comment-moderate:mod-hide',
             'comment-update'
         );
         if ( $app_comment_id > '' && in_array( $at, $action_types ) ) {
@@ -384,6 +384,5 @@ class Livefyre_Sync {
         $this->ext->activity_log( $app_comment_id, $data[ 'lf_comment_id' ], $data[ 'lf_activity_id' ] );
         return true;
     }
-    
-}
 
+}
