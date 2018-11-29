@@ -1,0 +1,109 @@
+/**
+ * Choose mode
+ */
+.getty-choose-mode {
+	float: left;
+	width: 100%;
+	height: 96%;
+	clear: both;
+}
+	.getty-choose-mode .getty-split-panel {
+		width: 50%;
+		float: left;
+		height: 100%;
+	}
+		.getty-split-panel .getty-panel {
+		 border: 2em solid #fff;
+		}
+		.getty-choose-mode .getty-panel {
+			padding: 1em;
+			height: 100%;
+			box-sizing: border-box;
+			position: relative;
+		}
+		.getty-panel .getty-panel-content {
+			max-width: 350px;
+			position: relative;
+			top: 50%;
+			left: 50%;
+			-webkit-transform: translate(-50%, -50%);
+			-ms-transform: translate(-50%, -50%);
+			transform: translate(-50%, -50%);
+			z-index: 1;
+		}
+			.getty-panel .getty-panel-content p {
+				font-size: 14px;
+			}
+
+			.getty-panel .getty-panel-content .legal-text {
+				margin-top: 65px;
+			}
+
+			.getty-panel .getty-panel-content .legal-text p {
+				font-size: 0.9em;
+			}
+
+			.getty-panel .getty-panel-content .legal-text label {
+				font-size: 0.9em;
+			}
+
+			.getty-panel .getty-panel-content .legal-text .embed-tacking-opt-in-checkbox-container {
+				margin-top: 10px;
+				margin-bottom: 10px;
+			}
+
+			.getty-panel h1 {
+				line-height: 1.15em;
+				margin-top: 0;
+			}
+			.getty-panel .getty-icon {
+				position: absolute;
+
+				left: 50%;
+				top: 50%;
+				background-repeat: no-repeat;
+				background-size: contain;
+				width: 80%;
+				height: 0;
+				padding-top: 80%;
+
+				-webkit-transform: translate(-50%, -50%);
+				-ms-transform: translate(-50%, -50%);
+				transform: translate(-50%, -50%);
+
+				-webkit-filter: drop-shadow( -1px 1px 5px #f8f8f8 );
+				filter: drop-shadow( -1px 1px 5px #f8f8f8 );
+
+				z-index: 0;
+
+			}
+			.getty-panel:hover .getty-icon {
+				color: #ffffff;
+			}
+
+
+	.getty-choose-mode .getty-user-panel {
+		display: block;
+		background-color: transparent;
+		position: static;
+		width: auto;
+	}
+		.getty-split-panel .getty-panel:hover {
+			background-color: #f8f8f8;
+			cursor: pointer;
+		}
+	.getty-choose-mode .getty-user-panel .getty-user-chevron {
+		display: none;
+	}
+	.getty-choose-mode .getty-user-panel .getty-login-username,
+	.getty-choose-mode .getty-user-panel .getty-login-password {
+		text-align: left;
+	}
+	.getty-choose-mode .getty-user-panel .getty-login-username input,
+	.getty-choose-mode .getty-user-panel .getty-login-password input {
+		width: 100%;
+	}
+
+.version-number {
+	margin-left: 10px;
+}

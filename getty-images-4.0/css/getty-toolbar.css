@@ -1,0 +1,54 @@
+/*
+ * Frame toolbar (Bottom toolbar)
+ */
+.getty-toolbar {
+	overflow: visible;
+}
+	.getty-toolbar .getty-comp-license-container {
+		position: absolute;
+		bottom: 100%;
+		right: 1em;
+		background: #fff;
+		width: 90%;
+		border: 1px solid #ddd;
+		padding: 0 1em 3.5em;
+		box-shadow: 1px 10px 14px #bbb;
+		box-shadow: 1px 10px 14px rgba(0,0,0,.3);
+	}
+		.getty-comp-license-container .getty-comp-please-read {
+			font-style: italic;
+			color: #666;
+		}
+		.getty-comp-license-container .getty-comp-license-frame {
+			border-bottom: 1px solid #ddd;
+			border-top: 1px solid #ddd;
+			height: 300px;
+			overflow: auto;
+		}
+		.getty-comp-license-container .getty-comp-buttons {
+			position: absolute;
+			bottom: .5em;
+			right: 0;
+		}
+			.getty-comp-buttons .button-primary,
+			.getty-comp-buttons a {
+				margin-right: 1em;
+			}
+
+			.getty-comp-buttons .insert-comp-button {
+				cursor: pointer;
+			}
+
+		.getty-comp-license-container .getty-comp-license-chevron {
+			position: absolute;
+			right: 2em;
+			bottom: -14px;
+			width: 0;
+			border-top: 15px solid #fff;
+			border-right: 15px solid transparent;
+			border-left: 15px solid transparent;
+		}
+
+		#getty-comp-license-dialog {
+			display: none;
+		}

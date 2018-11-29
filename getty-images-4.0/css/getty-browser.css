@@ -1,0 +1,424 @@
+.getty-session-expired-popup {
+	text-align: center;
+}
+
+.getty-session-expired-popup .getty-popup-background {
+    position: absolute;
+    background-color: black;
+	width: 100%;
+	height: 100%;
+    z-index: 99;
+    opacity: .7;
+}
+
+.getty-session-expired-popup .getty-popup-window {
+	background-color: white;
+    width: 45%;
+    height: 200px;
+    position: absolute;
+    z-index: 100;
+    top: 110px;
+    left: 24%;
+    padding-top: 90px;
+}
+
+.getty-session-expired-popup .getty-popup-window .text {
+    margin-top: 90px;
+    font-size: 15px;
+}
+
+.getty-session-expired-popup .getty-popup-window .go-to-login-button {
+	margin-top: 30px;
+}
+
+/* Unsupported Browser messaging */
+.getty-unsupported-browser-message {
+	padding: 2em;
+}
+
+/* Getty Browser - Main container and search results */
+.media-frame .getty-attachments-browser {
+	padding-right: 400px;
+	width: auto;
+}
+	.getty-attachments-browser .getty-search-toolbar {
+		position: absolute;
+		width: 100%
+	}
+		.getty-toolbar .media-selection {
+			right: 200px;
+		}
+		.getty-toolbar .selection .attachment-preview {
+			padding-bottom: 0;
+		}
+		.getty-toolbar .selection-view .attachments {
+			position: absolute;
+		}
+
+
+	.getty-browser-container {
+		height: 100%;
+	}
+	.getty-attachments-browser .getty-browser-flex-container {
+		border-collapse: collapse;
+		border: 0;
+		height: 100%;
+		width: 100%;
+		position: relative;
+		z-index: 0;
+	}
+	.getty-search-spinner {
+		display: none;
+	}
+	.no-more.search-loading  .getty-search-spinner {
+		position: absolute;
+		display: block;
+		left: 0;
+		top: 5px;
+		z-index: 10;
+		width: 100%;
+		height: 100%;
+		background: #fff;
+		background: rgba(255,255,255,.8);
+	}
+	.getty-attachments-browser .getty-browser {
+		position: absolute;
+		top: 160px;
+		bottom: 6px;
+		width: 100%;
+	}
+	.getty-attachments-browser .getty-results {
+		position: relative;
+		left: 0;
+		top: 5px;
+		right: 0;
+		bottom: 0;
+		height: 100%;
+		transition: left 0.4s;
+	}
+		.getty-results .selected.attachment:not(.details) {
+			-webkit-box-shadow: none;
+			box-shadow: none;
+		}
+		.getty-results .attachments {
+			position: relative;
+			height: 100%;
+			top: 0;
+			left: 0;
+			padding: 0px;
+		}
+
+		.getty-results .attachments .attachment {
+
+		}
+
+		.getty-results .attachments::-webkit-scrollbar {
+			-webkit-appearance: none;
+			width: 7px;
+		}
+			.getty-results .attachments::-webkit-scrollbar-thumb {
+				border-radius: 4px;
+				background-color: rgba(0,0,0,.5);
+				-webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+			}
+
+		.getty-results .getty-images-more {
+			display: none;
+		}
+			.have-more .getty-images-more {
+				display: block;
+				position: relative;
+			}
+			
+			.getty-images-more .attachment-preview {
+				position: relative;
+				background-color: #eee;
+				height: 310px;
+			}
+				.getty-images-more .attachment-preview:before {
+					content: none;
+				}
+				.getty-images-more .getty-more-text-container {
+					line-height: 1.3;
+					position: relative;
+					z-index: 2;
+					font-size: 14px;
+					color: black;
+					margin-bottom: 15px;
+				}
+				.getty-images-more .getty-more-spinner {
+					position: absolute;
+					left: 0;
+					top: 0;
+					width: 100%;
+					height: 100%;
+					z-index: 1;
+				}
+				.getty-images-more .getty-load-more-container {
+					color: black;
+					background-color: #eeeeee;
+					border: #cccccc 1px solid;
+					font-size: 16px;
+					margin: auto;
+					height: 52px;
+					line-height: 52px;
+					width: 240px;
+				}
+
+
+
+/* Individual attachments - Each image result of the SRP */
+	.getty-results .attachment {
+		width: auto !important;
+		padding: 3px;
+	}
+
+
+
+.getty-attachment {
+	overflow: hidden;
+	background-color: white !important;
+	box-shadow: none !important;
+	width: 26em;
+}
+	.getty-attachment .thumbnail {
+		width: 100%;
+		height: 0 !important;
+		padding-bottom: 100%;
+		
+	}
+		.getty-attachment .thumbnail .centered {
+			height: 50% !important;
+		}
+		.getty-attachment .thumbnail .centered img {
+			max-height: 100%;
+			max-width: 100%;
+			border: none !important;
+		}
+	.getty-attachment .image-details .image-collection {
+		width: 300px;
+		display: block;
+		color: #888;
+	}
+	.getty-attachment .image-id {
+		font-weight: bold;
+	}
+	.getty-attachment .image-details {
+		position: absolute;
+		width: 100%;
+		top: 0;
+		padding-top: 50%;
+		width: 99%;
+	}
+	.media-selection .getty-attachment .thumbnail {
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+	}
+	.media-selection .attachments, .media-selection .getty-attachment {
+		overflow: visible;
+	}
+	.media-selection .attachment {
+		margin-right: 7px;
+	}
+	.media-selection .getty-attachment .image-details {
+		display: none;
+	}
+	.getty-images-more .attachment-preview {
+		display: block;
+	}
+	.getty-more-text-container {
+		padding-top: 35%;
+		width: 100%;
+	}
+
+.getty-images-toolbar {
+	height: 80px;
+}
+
+.getty-images-toolbar .search-results-total {
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: none;
+	padding-right: 1em;
+}
+	.have-searched .getty-images-toolbar .search-results-total {
+		display: block;
+	}
+
+/* Top-level search form */
+.getty-browser-container .getty-browser-flex-container .getty-images-toolbar .media-toolbar-primary {
+		float: none;
+		position: relative;
+		padding-top: 50px;
+		overflow: hidden;
+		width: auto;
+		max-width: none;
+}
+	.getty-images-toolbar .getty-search-input-container {
+		position: absolute;
+		top: 0;
+		left: 5px;
+		right: 95px;
+	}
+		.getty-search-input-container .search {
+			height: 30px;
+			font-size: 120% !important;
+			width: 100%;
+			max-width: none !important;
+		}
+
+	.getty-images-toolbar .media-toolbar-primary .media-button-searchButton {
+		position: absolute;
+		right: 67px;
+		top: 0;
+		width: 30px;
+		padding: 0;
+		text-align: center;
+		border: 1px solid #ddd;
+		border-radius: 0;
+		background-color: #3cdc58;
+		color: white;
+		text-shadow: none;
+		box-shadow: none;
+	}
+
+		.getty-images-toolbar .media-toolbar-primary .media-button-searchButton:active {
+			-webkit-transform: none;
+			-ms-transform: none;
+			transform: none;
+		 }
+
+		.getty-images-toolbar .media-toolbar-primary .media-button-searchButton:after {
+			font-family: GettyIcons;
+			font-style: normal;
+			vertical-align: middle;
+			font-size: 32px;
+			line-height: 31px;
+			margin-left: -2px;
+			content: '"';
+		}
+
+
+	/* "Secondary" toolbar shows as gray bar */
+	.getty-browser-container .getty-browser-flex-container .getty-images-toolbar .media-toolbar-secondary {
+		float: none;
+		position: relative;
+		background-color: #f0f0f0;
+		border-top: 1px solid #d8d8d8;
+		border-bottom: 1px solid #d8d8d8;
+		width: 100%;
+		padding: 0px 5px;
+		margin-left: -5px;
+		height: 24px;
+		line-height: 24px;
+		margin-bottom: -1px;
+		max-width: none;
+	}
+
+.getty-filter { float: left; margin: .5em; }
+	.getty-filter em {
+		display: block;
+		font-weight: bold;
+		font-size: 12px;
+		font-style: normal;
+		
+	}
+	.getty-filter input {
+		margin-right: .5em;
+	}
+	.getty-filter label {		
+		margin-right: 1em;	
+		margin-top: 5px;	
+		
+	}
+
+	.getty-sidebar-filter {
+		width: 100%;
+	}
+
+	.getty-sidebar-filter label {
+		display: block;
+		clear: both;
+		font-size: 13px;
+		color: #cccccc;
+	}
+
+	.getty-sidebar-filter em {
+		font-size: 14px;
+		margin-top: 12px;
+		color: #cccccc;
+		cursor: pointer;
+	}
+
+	.getty-sidebar-filter .separator {
+		height: 0;
+		padding: 0;
+		border-top: 1px solid #545454;
+		margin-top: 18px;
+    	margin-bottom: -4px;
+	}
+
+.getty-filter-tag-container {
+	min-height: 22px;
+}
+	.getty-filter-tag {
+		margin: 4px 0;
+		display: inline-block;
+	}
+		.getty-filter-tag label {
+			font-size: 14px;
+			padding: 5px;
+			margin: 0 4px;
+			background-color: #f0f0f0;
+			border-radius: 4px;
+		}
+		.getty-filter-tag label:after {
+			content: 'X';
+			font-weight: bold;
+			margin-left: 5px;
+		}
+
+/* Hide filters that don't make sense. "Image Type" for, 'Editorial',
+ * "Editorial Sort Order" for 'Creative', "Creative Sort Order" for 'Editorial',
+ * etc. */
+.search-editorial .getty-filter-image-type {
+	display: none;
+}
+.search-creative .getty-filter-editorial-sort-order {
+	display: none;
+}
+.search-editorial .getty-filter-creative-sort-order {
+	display: none;
+}
+
+/**
+ * Tiny bit of responsiveness
+ */
+@media only screen and (max-width: 1000px) {
+	.getty-results {
+		font-size: .8em;
+		line-height: 1.25em;
+	}
+}
+@media only screen and (max-width: 900px) {
+	.getty-search-toolbar .media-selection .attachments {
+		display: block;
+	}
+	.media-frame .getty-attachments-browser {
+		padding-right: 192px;
+	}
+}
+
+/**
+ * IcoMoon icon fonts
+ */
+
+.icon-image {
+	background-image: url(../images/image.svg);
+}
+.icon-unlocked {
+	background-image: url(../images/unlocked.svg);
+}

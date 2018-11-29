@@ -1,0 +1,122 @@
+/* Sidebar */
+.getty-sidebar-container {
+	background: white;
+	border-left: 1px solid #dfdfdf;
+	position: absolute;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	width: 400px;
+}
+	.getty-sidebar {
+		padding: 0 16px;
+		max-height: 100%;
+		overflow: auto;
+	}
+	.getty-sidebar h3 {
+		text-transform: none;
+		font-size: 13px;
+		margin-top: 0px;
+	}
+	.getty-sidebar .separator {
+		height: 0;
+		padding: 0;
+		border-top: 1px solid #ddd;
+		margin-bottom: 14px;
+    	margin-top: 12px;
+	}
+
+
+	.getty-sidebar .media-sidebar {
+		padding: 0;
+		position: static;
+		background: transparent;
+		border: none;
+		width: 100%;
+	}
+	.getty-sidebar-details {
+		padding: 0 10px;
+		height: 100%;
+	}
+	.getty-sidebar .attachment-display-settings {
+		float: none;
+	}
+
+/* Image details panel (sidebar) - ADP */
+.getty-attachments-browser .getty-image-details {
+}
+	.getty-image-details .thumbnail img,
+	.getty-image-details .thumbnail {
+		max-width: 100%;
+		height: auto;
+		max-height: 300px;
+		float: none;
+		clear: both;
+		display: block;
+		margin: 0 auto .5em;
+	}
+		.getty-image-details-list {
+			line-height: 1.5em;
+		}
+			.getty-image-details-list .getty-title {
+				font-size: 1.5em;
+				margin-bottom: 5px;
+				margin-top: 20px;
+			}
+		
+			.getty-image-details-list .getty-keywords .getty-keyword {
+				display: inline-block;
+			}
+		.getty-image-sizes {
+			position: relative;
+			clear: both;
+			line-height: 1.75em;
+			margin-bottom: .25em;
+		}
+			.getty-image-sizes dd,
+			.getty-image-sizes ul {
+				margin: 0; padding: 0;
+			}
+			.getty-image-sizes li {
+				display: inline;
+				padding: .2em;
+			}
+		.getty-download-with {
+			margin: 2px;
+			padding: 2px;
+		}
+		
+		.getty-download-notes-container, .getty-project-code-container {
+			margin-top: 1.5em;
+			margin-bottom: 1em;
+		}
+		
+		#getty-download-notes {
+			width: 99%;
+			width: calc(100% - 1px);
+		}
+		
+		.getty-download-authorizations .getty-download {
+			position: relative;
+			clear: both;
+			margin: .5em auto .25em;
+			min-height: 24px;
+		}
+			.getty-download .getty-download-spinner {
+				position: absolute;
+				top: 0;
+				right: 0;
+				bottom: 0;
+				width: 40px;
+			}
+		.getty-embed-attachment-details {
+			border-bottom: 1px solid #ddd;
+			padding-bottom: 11px;
+		}
+
+
+.getty-attachments-browser .getty-image-details .details-accordion-header .accordion-title, 
+.getty-attachments-browser .getty-image-details .keywords-accordion-header .accordion-title,
+.getty-attachments-browser .getty-image-details .license-info-accordion-header .accordion-title{
+	color: #4cb7ff
+}

@@ -1,0 +1,163 @@
+.getty-landing-container {
+    overflow: auto;
+    position: absolute;
+    top: 163px;
+    bottom: 6px;
+    width: 100%;
+}
+
+/* Tab selectors */
+.getty-landing .landing-tabs {
+    margin: 10px 6px;
+    height: 52px;
+}
+.getty-landing .landing-tabs .landing-tab {
+    float: left;
+    width: 33.1%;
+    height: 52px;
+    line-height: 52px;
+    background-color: #333333;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+    cursor: pointer;
+    border-right: 1px white solid;
+}
+
+.getty-landing .landing-tabs .creative-tab {
+    background-color: #000000;
+}
+
+
+/* Tab content */
+.getty-landing .landing-content {
+    
+}
+
+.getty-landing .landing-tab-content {
+    display: none;
+    width: 100%;
+}
+
+.getty-landing .creative-tab-content {
+    display: inline-block;
+}
+
+    .getty-landing .creative-tab-content .grid-item {
+        display: inherit;
+        cursor: pointer;
+        width: 24%;
+        height: 250px;
+        overflow: hidden;
+        margin-left: 0.7%;
+        margin-bottom: 0.5%;
+    }
+
+    .getty-landing .creative-tab-content .grid-item .display-title {
+        color: white;
+        width: 100%;
+        position: relative;
+        bottom: 140px;
+        background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.4));
+        height: 50%; 
+        z-index: 10;
+    }
+
+    .getty-landing .creative-tab-content .grid-item .display-title p {
+        font-size: 1.4em;
+        margin-left: 10px;
+        position: relative;
+        top: 96px;
+    }
+
+    .getty-landing .creative-tab-content .grid-item .image-container {
+        height: 250px;
+        overflow: hidden;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position-x: center;
+    }
+
+.getty-landing .featured-tab-content {
+    display: inline-block;
+}
+
+    .getty-landing .featured-tab-content .grid-item {
+        display: inherit;
+        cursor: pointer;
+        width: 24%;
+        height: 250px;
+        overflow: hidden;
+        margin-left: 0.7%;
+        margin-bottom: 0.5%;
+    }
+
+    .getty-landing .featured-tab-content .grid-item .display-title {
+        color: white;
+        width: 100%;
+        position: relative;
+        bottom: 140px;
+        background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.4));
+        height: 50%; 
+        z-index: 10;
+    }
+
+    .getty-landing .featured-tab-content .grid-item .display-title p {
+        font-size: 1.4em;
+        margin-left: 10px;
+        position: relative;
+        top: 96px;
+    }
+
+    .getty-landing .featured-tab-content .grid-item .image-container {
+        height: 250px;
+        overflow: hidden;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position-x: center;
+    }
+
+.getty-landing .events-tab-content .items {
+    display: inline-block;
+}
+
+    .getty-landing .events-tab-content .items .grid-item {
+        display: inherit;
+        cursor: pointer;
+        width: 24%;
+        height: 250px;
+        overflow: hidden;
+        margin-left: 0.7%;
+        margin-bottom: 0.5%;
+    }
+
+    .getty-landing .events-tab-content .items .grid-item .display-title {
+        color: white;
+        width: 100%;
+        position: relative;
+        bottom: 140px;
+        background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.4));
+        height: 50%; 
+        z-index: 10;
+    }
+
+    .getty-landing .events-tab-content .items .grid-item .display-title p {
+        font-size: 1.4em;
+        margin-left: 10px;
+        position: relative;
+        top: 96px;
+    }
+
+    .getty-landing .events-tab-content .items .grid-item .image-container {
+        height: 250px;
+        overflow: hidden;
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position-x: center;
+    }
+
+    .getty-landing .events-tab-content .events-dropdowns-container {
+        margin-bottom: 8px;
+        margin-left: 8px;
+    }
