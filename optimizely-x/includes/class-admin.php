@@ -37,11 +37,11 @@ JAVASCRIPT;
 var utils = window['optimizely'].get('utils');
 utils.waitForElement( '.post-\$POST_ID h1' ).then( function () {
     var element = document.querySelector( '.post-\$POST_ID h1' );
-    element.innerHTML = '\$NEW_TITLE';
+    element.innerText = '\$NEW_TITLE';
 } );
 utils.waitForElement( '.post-\$POST_ID h3 a' ).then( function () {
     var element = document.querySelector( '.post-\$POST_ID h3 a' );
-    element.innerHTML = '\$NEW_TITLE';
+    element.innerText = '\$NEW_TITLE';
 } );
 JAVASCRIPT;
 
