@@ -287,14 +287,15 @@ class WPCOM_elasticsearch {
 			);
 		}
 
-		// Facets
-		if ( ! empty( $this->facets ) ) {
-			$es_wp_query_args['aggregations'] = $this->facets;
-		}
 
 		// You can use this filter to modify the search query parameters, such as controlling the post_type.
 		// These arguments are in the format for wpcom_search_api_wp_to_es_args(), i.e. WP-style.
 		$es_wp_query_args = apply_filters( 'wpcom_elasticsearch_wp_query_args', $es_wp_query_args, $query );
+
+		// Facets
+		if ( ! empty( $this->facets ) ) {
+			$es_wp_query_args['aggregations'] = $this->facets;
+		}
 
 		// Convert the WP-style args into ES args
 		$es_query_args = wpcom_search_api_wp_to_es_args( $es_wp_query_args );
@@ -340,7 +341,7 @@ class WPCOM_elasticsearch {
 
 		// This filter is harder to use if you're unfamiliar with ES but it allows complete control over the query
 		$es_query_args = apply_filters( 'wpcom_elasticsearch_query_args', $es_query_args, $query );
-
+		unset( $es_query_args['facets'] );
 		$es_query_args['name'] = es_api_get_index_name_by_blog_id( $es_query_args['blog_id'] );
 		if ( is_wp_error( $es_query_args['name'] ) ) {
 			$this->search_result = $es_query_args['name'];
