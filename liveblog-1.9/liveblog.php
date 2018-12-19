@@ -4,7 +4,7 @@
  * Plugin Name: Liveblog
  * Plugin URI: http://wordpress.org/extend/plugins/liveblog/
  * Description: Empowers website owners to provide rich and engaging live event coverage to a large, distributed audience.
- * Version:     1.9.1
+ * Version:     1.9.4
  * Author:      WordPress.com VIP, Big Bite Creative and contributors
  * Author URI: https://github.com/Automattic/liveblog/graphs/contributors
  * Text Domain: liveblog
@@ -26,7 +26,7 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 	final class WPCOM_Liveblog {
 
 		/** Constants *************************************************************/
-		const VERSION                 = '1.9.1';
+		const VERSION                 = '1.9.4';
 		const REWRITES_VERSION        = 1;
 		const MIN_WP_VERSION          = '4.4';
 		const MIN_WP_REST_API_VERSION = '4.4';
@@ -47,12 +47,14 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 		const RESPONSE_CACHE_MAX_AGE          = DAY_IN_SECONDS; // `Cache-Control: max-age` value for cacheable JSON responses
 		const USE_REST_API                    = true; // Use the REST API if current version is at least MIN_WP_REST_API_VERSION. Allows for easy disabling/enabling
 		const DEFAULT_IMAGE_SIZE              = 'full'; // The default image size to use when inserting media frm the media library.
+		const AUTHOR_LIST_DEBOUNCE_TIME       = 500; // This is the time ms to debounce the async author list.
 
 		/** Variables *************************************************************/
 
 		public static $post_id                = null;
 		private static $entry_query           = null;
 		private static $do_not_cache_response = false;
+		private static $cache_control_max_age = null;
 		private static $custom_template_path  = null;
 
 		public static $is_rest_api_call        = false;
@@ -428,9 +430,11 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 			$latest_timestamp = null;
 			$entries_for_json = array();
 
-			// Do not cache if it's too soon
-			if ( $end_timestamp > time() ) {
-				self::$do_not_cache_response = true;
+			$now = time();
+
+			// If end timestamp is in future, set a cache TTL until it's not
+			if ( $end_timestamp > $now ) {
+				self::$cache_control_max_age = $end_timestamp - $now;
 			}
 
 			if ( empty( self::$entry_query ) ) {
@@ -1002,8 +1006,10 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 				return;
 			}
 
-			wp_enqueue_style( self::KEY, plugins_url( 'assets/app.css', __FILE__ ), array(), self::VERSION );
-			wp_enqueue_style( self::KEY . '_theme', plugins_url( 'assets/theme.css', __FILE__ ), array(), self::VERSION );
+			wp_enqueue_style( self::KEY, plugins_url( 'assets/app.css', __FILE__ ) );
+			wp_enqueue_style( self::KEY . '_theme', plugins_url( 'assets/theme.css', __FILE__ ) );
+
+			// Load Client Scripts
 			wp_enqueue_script( self::KEY, plugins_url( 'assets/app.js', __FILE__ ), array(), self::VERSION, true );
 
 			if ( self::is_liveblog_editable() ) {
@@ -1019,6 +1025,7 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 					'liveblog_settings',
 					array(
 						'permalink'                    => get_permalink(),
+						'plugin_dir'                   => plugin_dir_url( __FILE__ ),
 						'post_id'                      => get_the_ID(),
 						'state'                        => self::get_liveblog_state(),
 						'is_liveblog_editable'         => self::is_liveblog_editable(),
@@ -1068,6 +1075,15 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 						'class_term_prefix'            => __( 'term-', 'liveblog' ),
 						'class_alert'                  => __( 'type-alert', 'liveblog' ),
 						'class_key'                    => __( 'type-key', 'liveblog' ),
+
+						/**
+						 * Filters the Author list debounce time, defaults to 500ms.
+						 *
+						 * @since 1.9.2
+						 *
+						 * @param int $time Author list debounce time.
+						 */
+						'author_list_debounce_time'    => apply_filters( 'liveblog_author_list_debounce_time', self::AUTHOR_LIST_DEBOUNCE_TIME ),
 					)
 				)
 			);
@@ -1667,6 +1683,9 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 		public static function prevent_caching_if_needed() {
 			if ( self::$do_not_cache_response ) {
 				nocache_headers();
+			} else if ( self::$cache_control_max_age ) {
+				header( 'Cache-control: max-age=' . self::$cache_control_max_age );
+				header( 'Expires: ' . gmdate( 'D, d M Y H:i:s \G\M\T', time() + self::$cache_control_max_age ) );
 			}
 		}
 
@@ -1850,7 +1869,7 @@ if ( ! class_exists( 'WPCOM_Liveblog' ) ) :
 				return;
 			}
 
-			$metadata = self::get_liveblog_metadata( array(), get_the_ID() );
+			$metadata = self::get_liveblog_metadata( array(), get_post() );
 			if ( empty( $metadata ) ) {
 				return;
 			}
