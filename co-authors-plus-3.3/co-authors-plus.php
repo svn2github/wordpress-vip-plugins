@@ -703,7 +703,14 @@ class CoAuthors_Plus {
 				}
 				$terms_implode = rtrim( $terms_implode, ' OR' );
 
-				$id = is_author() ? get_queried_object_id() : '\d+';
+				$id = is_author() && $query->is_main_query() ? get_queried_object_id() : '\d+';
+
+				// If we have an ID but it's not a "real" ID that means that this isn't the first time the filter has fired and the object_id has already been replaced by a previous run of this filter. We therefore need to replace the 0
+				// This happens when wp_query::get_posts() is run multiple times.
+				// If previous condition resulted in this being a string there's no point wasting a db query looking for a user.
+				if ( $id !== '\d+' && false === get_user_by( 'id', $id ) ) {
+					$id = '\d+';
+				}
 
 				// When WordPress generates query as 'post_author IN (id)'.
 				if ( false !== strpos( $where, "{$wpdb->posts}.post_author IN " ) ) {
