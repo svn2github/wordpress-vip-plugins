@@ -1,0 +1,15 @@
+{
+  "name": "safe-redirect-manager",
+  "description": "Easily and safely manage HTTP redirects.",
+  "dependencies": {
+    "node-wp-i18n": "^1.0.4"
+  },
+  "author": "10up",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/10up/safe-redirect-manager"
+  },
+  "scripts": {
+    "makepot": "wpi18n makepot"
+  }
+}
