@@ -111,6 +111,23 @@ class Request {
 		// Perform the request.
 		$response = wp_safe_remote_post( esc_url_raw( $url ), $args );
 
+		// Debug responses for metro.co.uk - Ticket #87300-z / @mikeyarce
+		if ( 43227714 === get_current_blog_id() ) {
+			require_once ABSPATH . 'wp-content/lib/log2logstash/log2logstash.php';
+
+			$log_response = json_encode( $response['response']);
+
+			a8c_irc( '#vip-notifications', sprintf( 'Post ID: %d Response: %s', $post_id, $log_response ), 'metro-apple-news-response' );
+			
+			log2logstash( 
+				array(
+				  'feature' => 'metro-news-applenews-debug', 
+				  'message' => 'response: ' . json_encode($response),
+				  'post_id' => $post_id,
+				) 
+			  );
+		}
+
 		// Build a debug version of the MIME content for the debug email.
 		$debug_mime_request = $this->mime_builder->get_debug_content( $args );
 
