@@ -105,6 +105,14 @@ class LaterPay_Model_CategoryPriceWP
             $category->category_id    = $term->term_id;
             $category->category_price = get_term_meta( $term->term_id, '_lp_price', true );
             $category->revenue_model  = get_term_meta( $term->term_id, '_lp_revenue_model', true );
+            $category->identifier     = get_term_meta( $term->term_id, '_lp_identifier', true );
+
+            // If identifier is empty add identifier to term meta for backward compatibility.
+            if ( empty( $category->identifier ) ) {
+                update_term_meta( $term->term_id, '_lp_identifier', $term->term_id );
+                $category->identifier = $term->term_id;
+            }
+
             $result[$key]             = $category;
         }
 
@@ -260,7 +268,7 @@ class LaterPay_Model_CategoryPriceWP
      *
      * @return int|false number of rows affected / selected or false on error
      */
-    public function set_category_price( $id_category, $price = 0, $revenue_model = 'ppu', $id = 0 ) {
+    public function set_category_price( $id_category, $price = 0, $revenue_model = 'ppu', $id = 0, $identifier = '' ) {
 
         // if category is changed then remove old category it.
         if ( ! empty( $id ) && intval( $id_category ) !== intval( $id ) ) {
@@ -270,6 +278,10 @@ class LaterPay_Model_CategoryPriceWP
 
         $laterpay_price         = update_term_meta( $id_category, '_lp_price', $price );
         $laterpay_revenue_model = update_term_meta( $id_category, '_lp_revenue_model', $revenue_model );
+
+        if ( ! empty( $identifier ) ) {
+            update_term_meta( $id_category, '_lp_identifier', $identifier );
+        }
 
         if ( $laterpay_price && $laterpay_revenue_model ) {
             $success = true;
@@ -355,8 +367,9 @@ class LaterPay_Model_CategoryPriceWP
 
         $laterpay_price         = delete_term_meta( $term_id, '_lp_price' );
         $laterpay_revenue_model = delete_term_meta( $term_id, '_lp_revenue_model' );
+        $laterpay_identifier    = delete_term_meta( $term_id, '_lp_identifier' );
 
-        if ( $laterpay_price && $laterpay_revenue_model ) {
+        if ( $laterpay_price && $laterpay_revenue_model && $laterpay_identifier ) {
             $success = true;
         } else {
             $success = false;
@@ -389,10 +402,11 @@ class LaterPay_Model_CategoryPriceWP
         $error_on_delete = false;
         foreach ( $categories->terms as $category ) {
 
-            $category_price = delete_term_meta( $category->term_id, '_lp_price' );
-            $category_model = delete_term_meta( $category->term_id, '_lp_revenue_model' );
+            $category_price      = delete_term_meta( $category->term_id, '_lp_price' );
+            $category_model      = delete_term_meta( $category->term_id, '_lp_revenue_model' );
+            $category_identifier = delete_term_meta( $category->term_id, '_lp_identifier' );
 
-            if ( ! $category_price || ! $category_model ) {
+            if ( ! $category_price || ! $category_model || ! $category_identifier ) {
                 $error_on_delete = true;
             }
         }

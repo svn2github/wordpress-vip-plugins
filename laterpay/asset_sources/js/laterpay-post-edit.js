@@ -1,4 +1,4 @@
-/*globals wp*/
+/* globals wp,lpGlobal */
 
 (function($) {$(function() {
 
@@ -19,6 +19,7 @@
                 categoryPriceSelector   : '#lp_js_useCategoryDefaultPrice',
                 categoryPriceButton     : $('#lp_js_useCategoryDefaultPrice').parent(),
                 globalPriceButton       : $('#lp_js_useGlobalDefaultPrice').parent(),
+                postEditTypeZero        : $('#lp_postEditTypeZero'),
                 priceEditSection        : $('#lp_js_priceEditSection'),
 
                 // details sections for chosen pricing type
@@ -110,20 +111,41 @@
                 // Hide Pricing Section If Post Price Behaviour is Free and Global Default Price is selected.
                 $o.globalPriceButton.on( 'click', 'a', function (e) {
                     e.preventDefault();
+
+                    if ( $o.globalPriceButton.hasClass('lp_is-disabled') ) {
+                        return;
+                    }
+
                     if ( '0' === lpVars.postPriceBehaviour ) {
                         $o.priceEditSection.hide();
+                        $o.postEditTypeZero.show();
                     }
                 });
 
                 // Display Price Editing Section if hidden.
                 $o.individualPriceButton.on( 'click', 'a', function (e) {
                     e.preventDefault();
+
+                    if ( $o.individualPriceButton.hasClass('lp_is-disabled') ) {
+                        return;
+                    }
+
                     $o.priceEditSection.show();
+
+                    if ( '0' === lpVars.postPriceBehaviour ) {
+                        $o.postEditTypeZero.hide();
+                    }
+
                 });
 
                 // Display Price Editing Section if hidden.
                 $($o.categoryPriceSelector).on( 'click', function (e) {
                     e.preventDefault();
+
+                    if ( $($o.categoryPriceSelector).parent().hasClass('lp_is-disabled') ) {
+                        return;
+                    }
+
                     $o.priceEditSection.show();
                 });
 
@@ -427,12 +449,19 @@
                                 // update cached selector
                                 $o.categories = $('#lp_js_priceTypeDetailsCategoryDefaultPrice li');
                                 switchPricingType($o.categoryPriceSelector);
-                                $o.globalPriceButton.addClass($o.disabled);
+                                $o.globalPriceButton.addClass($o.disabled).addClass( 'lp_tooltip' )
+                                    .attr( 'data-tooltip', lpVars.i18nGlobalDisabled );
                             } else {
                                 // disable the 'use category default price' button,
                                 // if no categories with an attached default price are applied to the current post
-                                $o.categoryPriceButton.addClass($o.disabled).addClass( 'lp_tooltip' );
-                                $o.globalPriceButton.removeClass($o.disabled);
+                                $o.categoryPriceButton.addClass($o.disabled).addClass( 'lp_tooltip' )
+                                    .attr( 'data-tooltip', lpVars.i18nCategoryPriceSelect );
+
+                                if ( data.no_category_price_set === true ) {
+                                    $o.categoryPriceButton.attr( 'data-tooltip', lpVars.i18nCategoryPriceNotSetup );
+                                }
+
+                                $o.globalPriceButton.removeClass($o.disabled).removeClass( 'lp_tooltip' );
 
                                 // hide details sections
                                 $o.detailsSections.velocity('fadeOut', { duration: 250 });
@@ -606,8 +635,41 @@
             },
 
             saveDynamicPricingData = function() {
+
+                // Get Data to be sent to GA.
+                var selectedType = jQuery('#lp_js_priceTypeButtonGroup li.lp_is-selected').text().trim();
+                var lpPrice = validatePrice($o.priceInput.val()) * 100;
+                var eventAction = 'Pricing for Post';
+                var eventCategory = 'LP WP Post';
+                var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ' + lpVars.postId + ' | ';
+
+                var categoryLabel = [];
+
+                // Check editor type to get selected categories in post.
+                if ( ! wp.data ) {
+                    var selectedCategories = $('#categorychecklist :checkbox:checked');
+
+                    // Loop through selected categories and store in an array.
+                    $.each( selectedCategories, function( i ) {
+                        categoryLabel.push($('#'+selectedCategories[i].id).parent().text().trim());
+                    } );
+                } else {
+                    var selectedCategoriesGB =
+                        $('div.editor-post-taxonomies__hierarchical-terms-list :checkbox:checked');
+
+                    // Loop through checked categories and store label text in an array.
+                    $.each( selectedCategoriesGB, function( i ) {
+                        categoryLabel.push($(selectedCategoriesGB[i]).next( 'label' ).text().trim());
+                    } );
+
+                }
+
+                // Send GA event with category details.
+                lpGlobal.sendLPGAEvent( 'Post Published', eventCategory, commonLabel + categoryLabel.join(',') );
+
                 // don't try to save dynamic pricing data, if pricing type is not dynamic but static
                 if (!$o.dynamicPricingToggle.hasClass($o.dynamicPricingApplied)) {
+                    lpGlobal.sendLPGAEvent( eventAction, eventCategory, commonLabel + selectedType, lpPrice );
                     return;
                 }
 
@@ -619,6 +681,13 @@
                     $('input[name=change_start_price_after_days]').val(data[1].x);
                     $('input[name=transitional_period_end_after_days]').val(data[2].x);
                     $('input[name=reach_end_price_after_days]').val(data[3].x);
+
+                    // Send GA event with dynamic price data.
+                    lpGlobal.sendLPGAEvent( eventAction, eventCategory, commonLabel + selectedType,
+                        Math.round( data[3].y * 100 ) );
+                    lpGlobal.sendLPGAEvent( eventAction, eventCategory, commonLabel + 'Dynamic Price',
+                        Math.round( data[0].y * 100 ) );
+
                 } else if (window.dynamicPricingWidget.get_data().length === 3) {
                     $('input[name=start_price]').val(data[0].y);
                     $('input[name=end_price]').val(data[2].y);

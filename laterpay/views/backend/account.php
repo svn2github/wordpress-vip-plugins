@@ -13,7 +13,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
     <div class="lp_navigation">
-        <a  href="<?php echo esc_url( add_query_arg( array( 'page' => $laterpay['admin_menu']['account']['url'] ), admin_url( 'admin.php' ) ) ); ?>"
+        <a  href="<?php echo esc_url( add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( array( 'page' => $laterpay['admin_menu']['account']['url'] ) ), admin_url( 'admin.php' ) ) ); ?>"
             id="lp_js_pluginModeIndicator"
             class="lp_plugin-mode-indicator"
             <?php if ( $laterpay['plugin_is_in_live_mode'] ) : ?>style="display:none;"<?php endif; ?>

@@ -31,7 +31,7 @@ class LaterPay_Helper_View
             'page' => $page['url'],
         );
         $href = admin_url( 'admin.php' );
-        $href = add_query_arg( $query_args, $href );
+        $href = add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( $query_args ), $href );
 
         $data = '';
         if ( isset( $page['data'] ) ) {

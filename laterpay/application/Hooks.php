@@ -60,7 +60,7 @@ class LaterPay_Hooks {
      * Registers WordPress hooks to trigger internal plugin events.
      */
     public function init() {
-        add_filter( 'the_content',                      array( $this, self::$wp_filter_prefix . 'laterpay_post_content' ), 1 );
+        add_filter( 'the_content',                      array( $this, self::$wp_filter_prefix . 'laterpay_post_content' ) );
         add_filter( 'get_post_metadata',                array( $this, self::$wp_filter_prefix . 'laterpay_post_metadata' ), 10, 4 );
         add_filter( 'the_posts',                        array( $this, self::$wp_filter_prefix . 'laterpay_posts' ) );
 

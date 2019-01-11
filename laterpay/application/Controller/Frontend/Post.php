@@ -355,7 +355,7 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
                         $result[] = $post;
                     } else {
                         $key = array_search( $post->ID, $post_ids, true );
-                        if ( $key ) {
+                        if ( false !== $key ) {
                             unset( $post_ids[ $key ] );
                         }
                     }
@@ -500,7 +500,10 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
         // generate overlay content
         $number_of_words = LaterPay_Helper_String::determine_number_of_words( $content );
         $overlay_content = LaterPay_Helper_String::truncate(  $content, $number_of_words , array( 'html' => true, 'words' => true ) );
-        $event->set_argument( 'overlay_content', $overlay_content );
+
+        $scrambled = LaterPay_Helper_String::get_scrambled_text( $overlay_content );
+
+        $event->set_argument( 'overlay_content', $scrambled );
 
         // set teaser argument
         $event->set_argument( 'teaser', $teaser_content );
@@ -603,43 +606,26 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
      */
     public function add_frontend_scripts() {
 
-        // Get current status of Google Analytics Settings.
-        $lp_tracking_data      = get_option( 'laterpay_tracking_data' );
-        $lp_user_tracking_data = get_option( 'laterpay_user_tracking_data' );
-        $site_name             = get_bloginfo( 'name' );
+        $post      = get_post();
+        $site_name = get_bloginfo( 'name' );
 
-        // Check if LaterPay Tracking Setting is Enabled.
-        $is_enabled_lp_tracking = ( ! empty( $lp_tracking_data['laterpay_ga_enabled_status'] ) &&
-                                         1 === intval( $lp_tracking_data['laterpay_ga_enabled_status'] ) );
+        // Get data for GA.
+        $data_for_localize = [
+            'postTitle'     => ( ! empty( $post ) ? esc_html( $post->post_title ) : '' ),
+            'postPermalink' => ( ! empty( $post ) ? esc_url( get_permalink( $post->ID ) ) : '' ),
+            'blogName'      => ( ! empty( $site_name ) ? esc_html( $site_name ) : '' ),
+        ];
 
-        // Check if Personal Tracking Setting is Enabled.
-        $is_enabled_lp_user_tracking = ( ! empty( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) &&
-                                         1 === intval( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) );
-
-        // Add LaterPay Tracking Id if enabled. We will be using config value, not the one stored in option,
-        // to make sure correct tracking id is, available for GA.
-        if ( $is_enabled_lp_tracking && ! empty( $lp_tracking_data['laterpay_ga_ua_id'] ) ) {
-            $lp_is_plugin_live = LaterPay_Helper_View::is_plugin_in_live_mode();
-            if ( $lp_is_plugin_live ) {
-                $lp_config_id = $this->config->get( 'tracking_ua_id.live' );
-            } else {
-                $lp_config_id = $this->config->get( 'tracking_ua_id.sandbox' );
-            }
-        }
-
-        // Add user tracking id if enabled.
-        if ( $is_enabled_lp_user_tracking && ! empty( $lp_user_tracking_data['laterpay_ga_personal_ua_id'] ) ) {
-            $lp_user_tracking_id = $lp_user_tracking_data['laterpay_ga_personal_ua_id'];
-        }
+        LaterPay_Controller_Admin::register_common_scripts( 'front_post', $data_for_localize );
 
         wp_register_script(
             'laterpay-post-view',
             $this->config->get( 'js_url' ) . 'laterpay-post-view.js',
-            array( 'jquery' ),
+            array( 'jquery', 'laterpay-common' ),
             $this->config->get( 'version' ),
             true
         );
-        $post = get_post();
+
         wp_localize_script(
             'laterpay-post-view',
             'lpVars',
@@ -664,8 +650,6 @@ class LaterPay_Controller_Frontend_Post extends LaterPay_Controller_Base
                     'postTitle'           => ( ! empty( $post ) ? esc_html( $post->post_title ) : '' ),
                     'postPermalink'       => ( ! empty( $post ) ? esc_url( get_permalink( $post->ID ) ) : '' ),
                     'blogName'            => ( ! empty( $site_name ) ? esc_html( $site_name ) : '' ),
-                    'lp_tracking_id'      => ( ! empty( $lp_config_id ) ? esc_html( $lp_config_id ) : '' ),
-                    'lp_user_tracking_id' => ( ! empty( $lp_user_tracking_id ) ? esc_html( $lp_user_tracking_id ) : '' ),
                 ),
             )
         );

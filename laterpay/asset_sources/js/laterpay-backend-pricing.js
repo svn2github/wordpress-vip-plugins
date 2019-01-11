@@ -1,3 +1,4 @@
+/* global lpGlobal */
 (function($) {$(function() {
     // encapsulate all LaterPay Javascript in function laterPayBackendPricing
     function laterPayBackendPricing() {
@@ -44,6 +45,12 @@
             selectCategory                          : '.lp_js_selectCategory',
             categoryDefaultPriceInput               : '.lp_js_categoryDefaultPriceInput',
             categoryId                              : '.lp_js_categoryDefaultPriceCategoryId',
+            categoryName                            : '.lp_js_categoryDefaultPriceCategorName',
+
+            // global enabled post types.
+            globalEnabledPostTypesForm              : $('#lp_js_globalEnabledPostTypesForm'),
+            saveEnabledPostTypes                    : $('#lp_js_saveEnabledPostTypes'),
+            cancelEditingEnabledPostTypes           : $('#lp_js_cancelEditingEnabledPostTypes'),
 
             // time passes
             timepass                                : {
@@ -553,6 +560,17 @@
               $o.lp_js_form_buttons_section.css( 'float', 'none' );
               return true;
             });
+
+            // enabled post type change events.
+            // save.
+            $o.saveEnabledPostTypes.on('mousedown', function() {
+                saveEnabledPostTypes();
+            }).click(function(e) {e.preventDefault();});
+
+            // cancel.
+            $o.cancelEditingEnabledPostTypes.on('mousedown', function() {
+                $o.globalEnabledPostTypesForm.trigger( 'reset' );
+            }).click(function(e) {e.preventDefault();});
         },
 
         /**
@@ -759,6 +777,11 @@
             var validatedPrice = validatePrice($o.globalDefaultPriceForm);
             $o.globalDefaultPriceInput.val(validatedPrice);
 
+            var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ';
+            var finalLabel,finalGAValue = '';
+            var eveCategory = 'LP WP Pricing';
+            var eveAction = 'Save Global Default Price';
+
             $.post(
                 ajaxurl,
                 $o.globalDefaultPriceForm.serializeArray(),
@@ -770,6 +793,13 @@
                             .data('revenue', r.revenue_model);
 
                         if ( 2 === r.post_price_behaviour ) {
+
+                          finalLabel   = commonLabel + 'Individual Article | ' + r.revenue_model_label;
+                          finalGAValue = Math.ceil( r.price * 100 );
+
+                          // Send GA event for change.
+                          lpGlobal.sendLPGAEvent( eveAction, eveCategory, finalLabel, finalGAValue );
+
                           // Change current selected radio and behaviour.
                           $o.lp_current_post_price_val.val('2');
                           $o.lp_set_inidvidual_price.attr( 'checked', 'checked' );
@@ -792,6 +822,13 @@
                           $o.categoryButtonContainer.removeClass('lp_tooltip');
                           $o.categoryPanelWarning.hide();
                         } else if ( 1 === r.post_price_behaviour ) {
+
+                          finalLabel   = commonLabel + 'Cannot Purchase Individually |';
+                          finalGAValue = 0;
+
+                          // Send GA event for change.
+                          lpGlobal.sendLPGAEvent( eveAction, eveCategory, finalLabel, finalGAValue );
+
                           // Change current selected radio and behaviour.
                           $o.lp_current_post_price_val.val('1');
                           $o.lp_disable_individual_purchase.attr( 'checked', 'checked' );
@@ -816,6 +853,13 @@
                             $o.categoryPanelWarning.show();
                           }
                         } else if ( 0 === r.post_price_behaviour ) {
+
+                         finalLabel   = commonLabel + 'Free |';
+                         finalGAValue = 0;
+
+                         // Send GA event for change.
+                         lpGlobal.sendLPGAEvent( eveAction, eveCategory, finalLabel, finalGAValue );
+
                           // Change current selected radio and behaviour.
                           $o.lp_current_post_price_val.val('0');
                           $o.lp_make_post_free.attr( 'checked', 'checked' );
@@ -893,7 +937,8 @@
                 $form,
                 $o.selectCategory,
                 'laterpay_get_categories_with_price',
-                formatSelect2Selection
+                formatSelect2Selection,
+                'category'
             );
         },
 
@@ -907,6 +952,22 @@
                 $form.serializeArray(),
                 function(r) {
                     if (r.success) {
+
+                        var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ';
+                        var finalLabel,finalGAValue = '';
+
+                        var eveCategory = 'LP WP Pricing';
+                        var eveAction = 'Edit Category Default';
+                        finalLabel = commonLabel + r.category + ' | ' + r.revenue_model_label;
+                        finalGAValue = Math.ceil( r.price * 100 );
+
+                        if ( '' === $($o.categoryId, $form).val() ) {
+                            eveAction = 'Create Category Default';
+                        }
+
+                        // Send GA event for category create/edit.
+                        lpGlobal.sendLPGAEvent( eveAction, eveCategory, finalLabel, finalGAValue );
+
                         // update displayed price information
                         $($o.categoryDefaultPriceDisplay, $form).text(r.localized_price).data('price', r.price);
                         $($o.revenueModelLabelDisplay, $form)
@@ -915,6 +976,7 @@
                         $($o.categoryDefaultPriceInput, $form).val(r.price);
                         $($o.categoryTitle, $form).text(r.category);
                         $($o.categoryId, $form).val(r.category_id);
+                        $($o.categoryName, $form).val(r.category);
 
                         // mark the form as saved
                         $form.removeClass($o.unsaved);
@@ -971,8 +1033,21 @@
         },
 
         deleteCategoryDefaultPrice = function($form) {
-            validatePrice($form, false, $('input[name=price]', $form));
+            var categoryPrice = validatePrice($form, false, $('input[name=price]', $form));
             $('input[name=form]', $form).val('price_category_form_delete');
+
+            var categoryName    = $('input[name=category]', $form).val();
+            var categoryRevenue = $form.find( 'span.lp_js_revenueModelLabelDisplay' ).text().trim();
+
+            var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ';
+            var finalLabel,finalGAValue = '';
+
+            var eveCategory = 'LP WP Pricing';
+            finalLabel = commonLabel + categoryName + ' | ' + categoryRevenue;
+            finalGAValue = Math.ceil( categoryPrice * 100 );
+
+            // Send GA event for category delete.
+            lpGlobal.sendLPGAEvent( 'Delete Category Default', eveCategory, finalLabel, finalGAValue );
 
             $.post(
                 ajaxurl,
@@ -1024,7 +1099,25 @@
             return data.text;
         },
 
-        renderCategorySelect = function($form, selector, form, format_func) {
+        renderCategorySelect = function($form, selector, form, format_func, type) {
+
+            var preSelectedCategoryData = '';
+            if ( 'timepass' === type || 'subscription' === type ) {
+                var $entity = $o.timepass;
+
+                if ('subscription' === type ) {
+                    $entity = $o.subscription;
+                }
+
+                preSelectedCategoryData = $($entity.fields.categoryId, $form).val();
+
+                $($entity.fields.scopeCategory, $form).val(preSelectedCategoryData);
+
+                $(selector,$form).on('change', function(e) { $($entity.fields.categoryId, $form).val( e.val ); });
+            } else {
+                preSelectedCategoryData = $(selector, $form).val();
+            }
+
             $(selector, $form).select2({
                 allowClear      : true,
                 ajax            : {
@@ -1053,29 +1146,36 @@
                                     type: 'POST'
                                 },
                 initSelection   : function(element, callback) {
-                                    var id = $(element).val();
-                                    if (id !== '') {
-                                        var data = {text: id};
-                                        callback(data);
-                                    } else {
-                                        $.post(
-                                            ajaxurl,
-                                            {
-                                                form    : form,
-                                                term    : '',
-                                                action  : 'laterpay_pricing'
-                                            },
-                                            function(data) {
-                                                if (data && data[0] !== undefined) {
-                                                    var term = data[0];
-                                                    callback({id: term.term_id, text: term.name});
-                                                }
-                                            }
-                                        );
-                                    }
+                        if ( '0' !== preSelectedCategoryData ) {
+                            $.post(
+                                ajaxurl,
+                                {
+                                    form    : form,
+                                    terms   : preSelectedCategoryData,
+                                    term    : '',
+                                    action  : 'laterpay_pricing'
                                 },
+                                function(data) {
+                                    if (data !== undefined) {
+
+                                        var selectedCategories = [];
+
+                                        $.each(data.categories, function(index) {
+                                            var term = data.categories[ index ];
+                                            selectedCategories.push({
+                                                id     : term.term_id,
+                                                text   : term.name
+                                            });
+                                        });
+                                        callback(selectedCategories);
+                                    }
+                                }
+                            );
+                        }
+                    },
                 formatResult    : function(data) {return data.text;},
                 formatSelection : format_func,
+                multiple        : true,
                 escapeMarkup    : function(m) {return m;}
             });
         },
@@ -1199,7 +1299,8 @@
                 $wrapper,
                 $entity.fields.scopeCategory,
                 'laterpay_get_categories',
-                formatSelect2ForEntity
+                formatSelect2ForEntity,
+                type
             );
 
             // show category select, if required
@@ -1316,6 +1417,56 @@
                 $($entity.form, $wrapper).serializeArray(),
                 function(r) {
                     if (r.success) {
+
+                        var gaPeriod = [ 'Hour', 'Day', 'Week', 'Month', 'Year' ];
+
+                        // Initialize variables.
+                        var currentId = $wrapper.find($entity.preview.wrapper).data($entity.data.id);
+                        var entityType = 'Time Pass';
+                        var revenueType = 'Pay Later';
+
+                        var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ';
+                        var finalLabel,finalGAValue, gaDuration, gaCategory, gaVoucherCount = '';
+
+                        // Change Revenue Label.
+                        if ( 'sis' === r.revenueModel ) {
+                            revenueType = 'Pay Now';
+                        }
+
+                        // Change Revenue Label and entity type for subscription.
+                        if ( 'subscription' === type ) {
+                            entityType  = 'Subscription';
+                            revenueType = 'Pay Now';
+                        }
+
+                        // Finalize Event Action.
+                        var eveCategory = 'LP WP Pricing';
+                        var eveAction = 'Create ' + entityType;
+
+                        // Update Event Action if entity is being edited.
+                        if ( 0 !== currentId ) {
+                            eveAction = 'Edit ' + entityType;
+                        }
+
+                        // Changes according to Entity Access to.
+                        if ( 0 === r.data.access_to ) {
+                            gaCategory = 'All';
+                        } else if ( 1 === r.data.access_to ) {
+                            gaCategory = 'Content except ' + r.data.category_name;
+                        } else if ( 2 === r.data.access_to ) {
+                            gaCategory = 'Content in ' + r.data.category_name;
+                        }
+
+                        gaDuration     = r.data.duration + ' ' + gaPeriod[r.data.period];
+                        gaVoucherCount = Object.keys(r.vouchers).length;
+
+                        finalGAValue = Math.ceil( r.data.price * 100 );
+                        finalLabel   = commonLabel + gaDuration + ' | ' + revenueType +
+                            ' | ' + gaCategory + ' | ' + gaVoucherCount;
+
+                        // Send GA event for entity create/edit.
+                        lpGlobal.sendLPGAEvent( eveAction, eveCategory, finalLabel, finalGAValue );
+
                         // form has been saved
                         var id = r.data[$entity.data.fields.id];
 
@@ -1370,6 +1521,55 @@
 
         deleteEntity = function(type, $wrapper) {
             var $entity = $o[type];
+
+            var currentData = $entity.data.list[$wrapper.data($entity.data.id)];
+
+            var gaPeriod = [ 'Hour', 'Day', 'Week', 'Month', 'Year' ];
+
+            // Initialize variables.
+            var entityType = 'Time Pass';
+            var revenueType = 'Pay Later';
+
+            var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ';
+            var finalLabel,finalGAValue, gaDuration, gaCategory, gaVoucherCount = '';
+
+            // Change Revenue Label.
+            if ( 'sis' === currentData.revenueModel ) {
+                revenueType = 'Pay Now';
+            }
+
+            // Change Revenue Label and entity type for subscription.
+            if ( 'subscription' === type ) {
+                entityType  = 'Subscription';
+                revenueType = 'Pay Now';
+            }
+
+            // Finalize Event Action.
+            var eveCategory = 'LP WP Pricing';
+            var eveAction = 'Delete ' + entityType;
+
+
+            // Changes according to Entity Access to.
+            if ( 0 === parseInt( currentData.access_to ) ) {
+                gaCategory = 'All';
+            } else if ( 1 === parseInt( currentData.access_to ) ) {
+                gaCategory = 'Content except ' + currentData.category_name;
+            } else if ( 2 === parseInt( currentData.access_to ) ) {
+                gaCategory = 'Content in ' + currentData.category_name;
+            }
+
+            gaDuration = currentData.duration + ' ' + gaPeriod[currentData.period];
+
+            var voucherList = $entity.data.vouchers[$wrapper.data($entity.data.id)];
+
+            gaVoucherCount = ( typeof voucherList === 'undefined' ) ? 0 : Object.keys(voucherList).length;
+
+            finalGAValue = Math.ceil( currentData.price * 100 );
+            finalLabel   = commonLabel + gaDuration + ' | ' + revenueType +
+                ' | ' + gaCategory + ' | ' + gaVoucherCount;
+
+            // Send GA event for entity delete.
+            lpGlobal.sendLPGAEvent( eveAction, eveCategory, finalLabel, finalGAValue );
 
             // require confirmation
             if (confirm($entity.data.deleteConfirm)) {
@@ -1621,6 +1821,32 @@
                     $(this).remove();
                 }
             });
+        },
+
+        saveEnabledPostTypes = function() {
+
+            var lp_post_types = $('ul.post_types :checkbox:checked');
+            var contentLabel = [];
+
+            // Loop through selected categories and store in an array.
+            $.each( lp_post_types, function( i ) {
+                contentLabel.push($(lp_post_types[i]).next().text().trim());
+            } );
+
+            var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ';
+
+            contentLabel  = commonLabel + contentLabel.join(',');
+
+            $.post(
+                ajaxurl,
+                $o.globalEnabledPostTypesForm.serializeArray(),
+                function(r) {
+                    $o.navigation.showMessage(r);
+                },
+                'json'
+            );
+
+            lpGlobal.sendLPGAEvent( 'LaterPay Content', 'LP WP Pricing', contentLabel );
         },
 
         // throttle the execution of a function by a given delay

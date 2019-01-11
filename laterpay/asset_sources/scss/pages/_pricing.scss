@@ -238,3 +238,38 @@ table {
         text-decoration: underline;
     }
 }
+
+.lp_enabled_post_types {
+
+    padding-right: $fs;
+
+    .lp_enabled_post_types_inner_div {
+
+        background: $background--darker;
+        border-radius: $border-radius;
+        padding: $fs;
+        margin-bottom: ($fs * 2);
+
+        p {
+            margin: 0;
+            padding-left: 9px;
+            font-size: $fs;
+            font-weight: 500;
+        }
+
+        table {
+
+            ul.post_types {
+                padding-left: 10px;
+                display: block;
+                margin-bottom: 0;
+
+                li {
+                    margin-right: ($fs * 3);
+                    margin-bottom: $fs;
+                    display: inline-block;
+                }
+            }
+        }
+    }
+}

@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
                 </section>
                 <section class="lp_purchase-overlay__body">
                     <div class="lp_purchase-overlay__settings">
-                        <?php if ( isset( $overlay_data['article'] ) && floatval( 0.00 ) !== floatval( $overlay_data['article']['price'] ) ) : ?>
+                        <?php if ( isset( $overlay_data['article'] ) && floatval( 0.00 ) !== floatval( $overlay_data['article']['actual_price'] ) ) : ?>
                         <div class="lp_purchase-overlay-option<?php if ( empty( $overlay_data['subscriptions']) && empty( $overlay_data['timepasses'] )):?> lp_purchase-overlay-option-single<?php endif;?>"
                              data-revenue="<?php echo esc_attr( $overlay_data['article']['revenue'] );?>">
                             <div class="lp_purchase-overlay-option__button">

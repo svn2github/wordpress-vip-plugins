@@ -1,3 +1,4 @@
+/* global lpGlobal*/
 (function($) {$(function() {
 
     // encapsulate all LaterPay Javascript in function laterPayBackendAccount
@@ -199,6 +200,18 @@
                     )
                     .done(function() {
                         $o.requestSent = false;
+
+                        if ( 'laterpay_plugin_mode' === form_id ) {
+                            var pluginStatus   = $o.pluginModeToggle.prop('checked') ? 'Live' : 'Test';
+                            var sbMerchantId   = $('#lp_js_sandboxMerchantId').val();
+                            var liveMerchantId = $('#lp_js_liveMerchantId').val();
+
+                            var commonLabel = sbMerchantId + ' | ' + liveMerchantId + ' | ' +
+                                lpVars.gaData.site_url + ' | ';
+                            var eveCategory = 'LP WP Account';
+                            var eveAction = 'Account Status Change';
+                            lpGlobal.sendLPGAEvent( eveAction, eveCategory, commonLabel + pluginStatus );
+                        }
                     });
                 }
             },

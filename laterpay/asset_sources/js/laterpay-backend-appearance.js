@@ -1,3 +1,4 @@
+/* globals lpGlobal */
 (function($) {$(function() {
 
     // encapsulate all LaterPay Javascript in function laterPayBackendAppearance
@@ -113,7 +114,9 @@
 
                 $('input[name=form]', $form).val('paid_content_preview');
 
-                switch($('input:checked', $form).val())
+                var selectedLayout = $('input:checked', $form).val();
+
+                switch(selectedLayout)
                 {
                     case '0':
                     case '1':
@@ -139,6 +142,11 @@
                         break;
                 }
 
+                var appearanceLayouts = [ 'Purchase Link', 'Explanatory Overlay', 'Purchase Overlay'];
+                var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | ';
+                lpGlobal.sendLPGAEvent( 'Overall Appearance', 'LP WP Appearance', commonLabel +
+                    appearanceLayouts[parseInt(selectedLayout)] );
+
                 saveData($form);
             },
 
@@ -149,13 +157,17 @@
                 $($o.buttonGroupButtons, $form).removeClass($o.selected);
                 $trigger.parent($o.buttonGroupButtons).addClass($o.selected);
 
+                var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | Purchase Button';
+
                 switch($('input:checked', $form).val())
                 {
                     case '0':
                         $form.find($o.buttonGroupHint).fadeOut();
+                        lpGlobal.sendLPGAEvent( 'Standard Position', 'LP WP Appearance', commonLabel );
                         break;
                     case '1':
                         $form.find($o.buttonGroupHint).fadeIn();
+                        lpGlobal.sendLPGAEvent( 'Custom Position', 'LP WP Appearance', commonLabel );
                         break;
                     default:
                         break;
@@ -171,13 +183,17 @@
                 $($o.buttonGroupButtons, $form).removeClass($o.selected);
                 $trigger.parent($o.buttonGroupButtons).addClass($o.selected);
 
+                var commonLabel = lpVars.gaData.sandbox_merchant_id + ' | Subscriptions & Time Passes';
+
                 switch($('input:checked', $form).val())
                 {
                     case '0':
                         $form.find($o.buttonGroupHint).fadeOut();
+                        lpGlobal.sendLPGAEvent( 'Standard Position', 'LP WP Appearance', commonLabel );
                         break;
                     case '1':
                         $form.find($o.buttonGroupHint).fadeIn();
+                        lpGlobal.sendLPGAEvent( 'Custom Position', 'LP WP Appearance', commonLabel );
                         break;
                     default:
                         break;

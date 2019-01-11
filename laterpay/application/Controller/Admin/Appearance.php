@@ -41,11 +41,16 @@ class LaterPay_Controller_Admin_Appearance extends LaterPay_Controller_Admin_Bas
     public function load_assets() {
         parent::load_assets();
 
+        // Get data for GA.
+        $merchant_key = LaterPay_Controller_Admin::get_merchant_id_for_ga();
+
+        LaterPay_Controller_Admin::register_common_scripts( 'appearance' );
+
         // load page-specific JS
         wp_register_script(
             'laterpay-backend-appearance',
             $this->config->js_url . '/laterpay-backend-appearance.js',
-            array( 'jquery' ),
+            array( 'jquery', 'laterpay-common' ),
             $this->config->version,
             true
         );
@@ -62,6 +67,9 @@ class LaterPay_Controller_Admin_Appearance extends LaterPay_Controller_Admin_Bas
                     )
                 ),
                 'l10n_print_after' => 'lpVars.overlaySettings = JSON.parse(lpVars.overlaySettings)',
+                'gaData'           => array(
+                    'sandbox_merchant_id' => ( ! empty( $merchant_key ) ) ? $merchant_key : '',
+                ),
             )
         );
     }
@@ -78,7 +86,7 @@ class LaterPay_Controller_Admin_Appearance extends LaterPay_Controller_Admin_Bas
             'plugin_is_in_live_mode'              => $this->config->get( 'is_in_live_mode' ),
             'teaser_mode'                         => get_option( 'laterpay_teaser_mode', '2' ),
             'appearance_obj'                      => $this,
-            'admin_menu'                          => add_query_arg( array( 'page' => $menu['account']['url'] ), admin_url( 'admin.php' ) ),
+            'admin_menu'                          => add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( array( 'page' => $menu['account']['url'] ) ), admin_url( 'admin.php' ) ),
             'purchase_button_positioned_manually' => get_option( 'laterpay_purchase_button_positioned_manually' ),
             'time_passes_positioned_manually'     => get_option( 'laterpay_time_passes_positioned_manually' ),
             'overlay'                             => LaterPay_Helper_Appearance::get_current_options(),

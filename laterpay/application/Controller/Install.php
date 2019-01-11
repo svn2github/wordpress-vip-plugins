@@ -85,6 +85,22 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
             $notices[] = sprintf( $template, 'Wordpress', $required_wp_version, 'Wordpress', $installed_wp_version );
         }
 
+        if ( ! laterpay_check_is_vip() && ! laterpay_is_migration_complete() ) {
+
+            $notices[] = '';
+
+            printf(
+                '<div class="notice notice-error is-dismissible"> <p>%s</p> <p>%s</p> <p>%s</p> <p>%s <a href="%s" target="_blank">%s</a> %s</p></div>',
+                esc_html__( 'WARNING! Your LaterPay plugin has been disabled.', 'laterpay' ),
+                esc_html__( 'LaterPay has updated their plugin to remove dependencies on custom tables. You must migrate your data before you can re-activate your plugin.', 'laterpay' ),
+                esc_html__( 'To complete this process, please Rollback your plugin to v.2.3.0 and click the header to migrate your data. Once this is complete you will be free to successfully update and re-activate your plugin.', 'laterpay' ),
+                esc_html__( 'If you do not have a preferred Rollback method, we recommend', 'laterpay' ),
+                'https://wordpress.org/plugins/wp-rollback/',
+                'WP Rollback',
+                esc_html__( 'Please contact support@laterpay.net if you have any questions or concerns.', 'laterpay' )
+            );
+        }
+
         // deactivate plugin, if requirements are not fulfilled
         if ( count( $notices ) > 0 ) {
             // suppress 'Plugin activated' notice
@@ -445,9 +461,6 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
         // keep the plugin version up to date
         update_option( 'laterpay_plugin_version', $this->config->get( 'version' ) );
 
-        // clear opcode cache
-        LaterPay_Helper_Cache::reset_opcode_cache();
-
         // update capabilities
         $laterpay_capabilities = new LaterPay_Core_Capability();
         $laterpay_capabilities->populate_roles();
@@ -479,6 +492,8 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
         $this->change_teaser_mode();
         $this->update_default_pricing_behaviour();
         $this->init_ga_options();
+        $this->remove_laterpay_pro_merchant_option();
+        $this->remove_custom_table_support();
 
     }
 
@@ -581,5 +596,52 @@ class LaterPay_Controller_Install extends LaterPay_Controller_Base
             // Add LaterPay Google Analytics Data.
             update_option( 'laterpay_tracking_data', $lp_tracking_data );
         }
+    }
+
+    /**
+     * Clean up LaterPay Pro Merchant option.
+     *
+     * @since 2.3.0
+     */
+    public function remove_laterpay_pro_merchant_option() {
+        $current_version = get_option( 'laterpay_plugin_version' );
+
+        if ( version_compare( $current_version, '2.2.2', '<' ) ) {
+            return;
+        }
+
+        // Delete option for all versions above 2.2.2.
+        delete_option('laterpay_pro_merchant' );
+    }
+
+    /**
+     * Remove custom table support.
+     *
+     * @since 2.3.0
+     */
+    public function remove_custom_table_support() {
+        $current_version = get_option( 'laterpay_plugin_version' );
+
+        if ( laterpay_check_is_vip() || version_compare( $current_version, '0.10.0', '<' ) ) {
+            return;
+        }
+
+        global $wpdb;
+
+        $table       = $wpdb->prefix . 'laterpay_terms_price';
+        $table_terms = $wpdb->get_results( 'SHOW TABLES LIKE \'' . $table . '\';' );
+
+        if ( $table_terms && laterpay_is_migration_complete() ) {
+
+            $timepass_table     = $wpdb->prefix . 'laterpay_passes';
+            $subscription_table = $wpdb->prefix . 'laterpay_subscriptions';
+            $term_table         = $wpdb->prefix . 'laterpay_terms_price';
+
+            $wpdb->query( 'DROP TABLE IF EXISTS ' . $timepass_table . ';' );
+            $wpdb->query( 'DROP TABLE IF EXISTS ' . $subscription_table . ';' );
+            $wpdb->query( 'DROP TABLE IF EXISTS ' . $term_table . ';' );
+
+        }
+
     }
 }

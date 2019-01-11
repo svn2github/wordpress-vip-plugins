@@ -699,4 +699,115 @@ class LaterPay_Controller_Admin extends LaterPay_Controller_Base
 
         $event->set_result( $menu );
     }
+
+    /**
+     * Register a common script if not already registered to be used at multiple places.
+     *
+     * @param $page              string Current Page Name.
+     * @param $data_for_localize array  Array of data to be localized.
+     */
+    public static function register_common_scripts( $page, $data_for_localize = [] ) {
+
+        if ( false === wp_script_is( 'laterpay-common', 'registered' ) ) {
+            $config = laterpay_get_plugin_config();
+
+            wp_register_script(
+                'laterpay-common',
+                $config->get( 'js_url' ) . 'laterpay-common.js',
+                array(),
+                $config->get( 'version' ),
+                true
+            );
+        }
+
+        $lp_config_id        = self::get_tracking_id();
+        $lp_user_tracking_id = self::get_tracking_id( 'user' );
+        $merchant_key        = self::get_merchant_id_for_ga();
+
+        $ga_data = [
+            'current_page'        => esc_js( $page ),
+            'sandbox_merchant_id' => ( ! empty( $merchant_key ) ) ? esc_js( $merchant_key ) : '',
+            'lp_tracking_id'      => ( ! empty( $lp_config_id ) ) ? esc_html( $lp_config_id ) : '',
+            'lp_user_tracking_id' => ( ! empty( $lp_user_tracking_id ) ) ? esc_html( $lp_user_tracking_id ) : '',
+        ];
+
+        if ( 'pricing' === $page ) {
+            $ga_data['live_merchant_id'] = get_option( 'laterpay_live_merchant_id' );
+            $ga_data['sb_merchant_id']   = get_option( 'laterpay_sandbox_merchant_id' );
+        }
+
+        $final_data = array_merge( $ga_data,$data_for_localize );
+
+        wp_localize_script(
+            'laterpay-common',
+            'lpCommonVar',
+            $final_data
+        );
+    }
+
+    /**
+     * Get Tracking Id of specified type.
+     *
+     * @param string $type Type whose tracking id to get.
+     *
+     * @return string
+     */
+    public static function get_tracking_id( $type = '' ) {
+
+        $config = laterpay_get_plugin_config();
+
+        if ( 'user' === $type ) {
+            $lp_user_tracking_data = get_option( 'laterpay_user_tracking_data' );
+
+            // Check if Personal Tracking Setting is Enabled.
+            $is_enabled_lp_user_tracking = ( ! empty( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) &&
+                                             1 === intval( $lp_user_tracking_data['laterpay_ga_personal_enabled_status'] ) );
+
+            // Add user tracking id if enabled.
+            if ( $is_enabled_lp_user_tracking && ! empty( $lp_user_tracking_data['laterpay_ga_personal_ua_id'] ) ) {
+                return $lp_user_tracking_data['laterpay_ga_personal_ua_id'];
+            }
+
+        } else {
+
+            // Get current status of Google Analytics Settings.
+            $lp_tracking_data      = get_option( 'laterpay_tracking_data' );
+
+            // Check if LaterPay Tracking Setting is Enabled.
+            $is_enabled_lp_tracking = ( ! empty( $lp_tracking_data['laterpay_ga_enabled_status'] ) &&
+                                        1 === intval( $lp_tracking_data['laterpay_ga_enabled_status'] ) );
+
+            // Add LaterPay Tracking Id if enabled. We will be using config value, not the one stored in option,
+            // to make sure correct tracking id is, available for GA.
+            if ( $is_enabled_lp_tracking && ! empty( $lp_tracking_data['laterpay_ga_ua_id'] ) ) {
+                $lp_is_plugin_live = LaterPay_Helper_View::is_plugin_in_live_mode();
+                if ( $lp_is_plugin_live ) {
+                    return $config->get( 'tracking_ua_id.live' );
+                } else {
+                    return $config->get( 'tracking_ua_id.sandbox' );
+                }
+            }
+
+        }
+
+        return '';
+    }
+
+    /**
+     * Get merchant id based on plugin status.
+     *
+     * @return string
+     */
+    public static function get_merchant_id_for_ga() {
+
+        $sb_merch_key   = get_option( 'laterpay_sandbox_merchant_id' );
+        $live_merch_key = get_option( 'laterpay_live_merchant_id' );
+
+        if ( LaterPay_Helper_View::is_plugin_in_live_mode() ) {
+            return $live_merch_key;
+        }
+
+        return $sb_merch_key;
+    }
+
 }

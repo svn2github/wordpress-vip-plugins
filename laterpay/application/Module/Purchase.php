@@ -359,10 +359,11 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
         }
 
         $data['article'] = array(
-            'title'     => $post->post_title,
-            'price'     => LaterPay_Helper_View::format_number( LaterPay_Helper_Pricing::get_post_price( $post->ID ) ),
-            'revenue'   => LaterPay_Helper_Pricing::get_post_revenue_model( $post->ID ),
-            'url'       => LaterPay_Helper_Post::get_laterpay_purchase_link( $post->ID ),
+            'title'        => $post->post_title,
+            'price'        => LaterPay_Helper_View::format_number( LaterPay_Helper_Pricing::get_post_price( $post->ID ) ),
+            'actual_price' => LaterPay_Helper_Pricing::get_post_price( $post->ID ),
+            'revenue'      => LaterPay_Helper_Pricing::get_post_revenue_model( $post->ID ),
+            'url'          => LaterPay_Helper_Post::get_laterpay_purchase_link( $post->ID ),
         );
 
         $event->set_result( $data );
@@ -538,8 +539,30 @@ class LaterPay_Module_Purchase extends LaterPay_Core_View implements LaterPay_Co
 
             $redirect_url = get_permalink( $request->get_param( 'post_id' ) );
 
+            // Redirect back to Shortcode page if it was a Shortcode purchase.
+            if ( ! empty( $params['parent_pid'] ) ) {
+                $redirect_url = get_permalink( $request->get_param( 'parent_pid' ) );
+                unset( $params['parent_pid'], $params['action'], $params['attachment_id'] );
+            }
+
+            // If permalink contains query string then build back url accordingly.
+            $parsed_redirect_url = wp_parse_url( $redirect_url );
+
+            if ( ! empty( $parsed_redirect_url['query'] ) ) {
+
+                parse_str( $parsed_redirect_url['query'], $parsed_url_params );
+
+                $url_args = wp_parse_args( $parsed_url_params );
+
+                foreach( $url_args as $key => $value ) {
+                    if ( isset( $params[$key] ) ) {
+                        unset( $params[$key] );
+                    }
+                }
+            }
+
             if ( ! empty( $params ) ) {
-                $redirect_url .= '?' . build_query( $params );
+                $redirect_url = add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( $params ), $redirect_url );
             }
 
             nocache_headers();

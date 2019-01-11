@@ -27,14 +27,21 @@ class LaterPay_Controller_Admin_Account extends LaterPay_Controller_Admin_Base {
     public function load_assets() {
         parent::load_assets();
 
+        // Get data for GA.
+        $merchant_key = LaterPay_Controller_Admin::get_merchant_id_for_ga();
+        $site_url     = get_site_url();
+
+        LaterPay_Controller_Admin::register_common_scripts( 'account' );
+
         // load page-specific JS
         wp_register_script(
             'laterpay-backend-account',
             $this->config->js_url . 'laterpay-backend-account.js',
-            array( 'jquery' ),
+            array( 'jquery', 'laterpay-common' ),
             $this->config->version,
             true
         );
+
         wp_enqueue_script( 'laterpay-backend-account' );
 
         // pass localized strings and variables to script
@@ -45,6 +52,10 @@ class LaterPay_Controller_Admin_Account extends LaterPay_Controller_Admin_Base {
                 'i18nApiKeyInvalid'     => __( 'The API key you entered is not a valid LaterPay API key!', 'laterpay' ),
                 'i18nMerchantIdInvalid' => __( 'The Merchant ID you entered is not a valid LaterPay Merchant ID!', 'laterpay' ),
                 'i18nPreventUnload'     => __( 'LaterPay does not work properly with invalid API credentials.', 'laterpay' ),
+                'gaData'                => array(
+                    'sandbox_merchant_id' => ( ! empty( $merchant_key ) ) ? esc_js( $merchant_key ) : '',
+                    'site_url'            => ( ! empty( $site_url ) ) ? esc_url( $site_url ): '',
+                ),
             )
         );
     }

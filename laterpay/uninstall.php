@@ -111,8 +111,6 @@ delete_option( 'laterpay_hover_color' );
 delete_option( 'laterpay_require_login' );
 delete_option( 'laterpay_region' );
 delete_option( 'laterpay_plugin_version' );
-delete_option( 'laterpay_pro_merchant' );
-
 
 // Delete Post Price Display Behaviour Option.
 delete_option( 'laterpay_post_price_behaviour' );

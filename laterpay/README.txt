@@ -2,10 +2,10 @@
 
 Contributors: laterpay, dominik-rodler, mihail-turalenka, avahura, ahryb
 Donate link: https://laterpay.net
-Tags: laterpay, accept micropayments, accept payments, access control, billing, buy now pay later, content monetization, creditcard, debitcard, free to read, laterpay for wordpress, laterpay payment, laterpay plugin, micropayments, monetize, paid content, pay button, pay per use, payments, paywall, PPU, sell digital content, sell digital goods, single sale, wordpress laterpay
+Tags: laterpay, accept micropayments, accept payments, access control, billing, buy now pay later, content monetization, creditcard, debitcard, free to read, laterpay for wordpress, laterpay payment, laterpay plugin, micropayments, monetize, paid content, pay button, pay per use, payments, paywall, PPU, sell digital content, sell digital goods, single sale, wordpress laterpay, Payments, Content Monetization, Paywall, Paid Content, Publisher, Blogger
 Requires at least: 4.6
-Tested up to: 4.9.8
-Stable tag: 2.2.1
+Tested up to: 5.0.2
+Stable tag: 2.4.1
 Author URI: https://laterpay.net
 Plugin URI: https://github.com/laterpay/laterpay-wordpress-plugin
 License: MIT
@@ -185,8 +185,34 @@ Please see the "Test and Live Mode" section.
 6. The plugin provides a variety of advanced settings to customize the LaterPay plugin and adjust it to your needs.
 
 == Changelog ==
+= 2.4.1 ( January 11, 2019 ) =
+* Fix issue with multiple categories in exclude feature for TimePass and Subscription.
+* Fix issue with missing categories data in Post Publish GA event.
+
+= 2.4.0 ( January 10, 2019 ) =
+* Add support for multiple categories to be included or excluded.
+* Add GA events to capture Merchant Usage Data.
+* Remove support for custom tables and disable upgrade if not migrated.
+* Fix issue with post status in post edit screen.
+* Update code to handle duplicate queries.
+* Update plugin initialization hook to support plugin loading from theme.
+
+= 2.3.0 ( November 30, 2018 ) =
+* Move "LaterPay Enabled Post Types" settings from "Settings > LaterPay" to "LaterPay > Pricing".
+* Fix issue with LaterPay Fallback behaviour.
+* Scramble blurred content in "Teaser + Purchase Overlay".
+* Update Time Passes Description.
+* Update Migration Notice and Script ( Migration will migrate old data and Remove custom tables ).
+* Remove support for LaterPay Pro Merchant.
+
+= 2.2.2 ( November 15, 2018 ) =
+* Fix issue with purchase verification on Plain permalink structure.
+* Fix issue with shortcode purchase.
+* Update Teaser Content Metabox text.
+* Remove cache reset on plugin Install / Update.
+
 = 2.2.1 ( October 25, 2018 ) Hotfix Release =
-Fix warnings on Install/Update due to GA settings.
+* Fix warnings on Install/Update due to GA settings.
 
 = 2.2.0 ( October 25, 2018 ) =
 * Integrate Google Analytics to send data to the user and LaterPay GA account.
@@ -665,8 +691,8 @@ KNOWN BUGS:
 
 == Upgrade notice ==
 
-= 2.2.1 ( October 25, 2018 ) =
-Fix warnings on Install/Update due to GA settings.
+= 2.4.1 ( January 11, 2019 ) =
+Updated plugin initialization hook, Added support for multiple categories, Added GA events to capture Merchant usage data, Fixed Duplicate query issues and minor updates with LaterPay functionality.
 
 == Arbitrary section ==
 

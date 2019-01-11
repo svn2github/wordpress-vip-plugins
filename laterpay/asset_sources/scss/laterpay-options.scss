@@ -53,14 +53,6 @@ p.submit {
     margin-right: $fs;
 }
 
-ul.post_types {
-    max-height: 200px;
-    display: -webkit-flex;
-    display: flex;
-    -webkit-flex-flow: column wrap;
-    flex-flow: column wrap;
-}
-
 .regular-text.lp_ga-input {
     margin-left: (2 * $fs);
     border: 1px solid;

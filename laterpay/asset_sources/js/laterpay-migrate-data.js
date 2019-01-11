@@ -3,10 +3,28 @@
 (function ( $ ) {
 	$( function () {
 
-		var startMigrationButton = jQuery( '#lp_js_startDataMigration' );
-		var migrationNoticeBox = jQuery( '#lp_migration_notice' );
+		var startMigrationButton  = jQuery( '#lp_js_startDataMigration' );
+		var startDataMigrationTwo = jQuery( '#lp_js_startDataMigrationTwo' );
+		var migrationNoticeBox    = jQuery( '#lp_migration_notice' );
 
 		startMigrationButton.on( 'click', function () {
+
+			migrationNoticeBox.removeClass( 'notice-error' ).addClass( 'notice-info' );
+
+			migrationNoticeBox.html( '' ).append( lp_i18n.MigratingData );
+			$( '<img />' )
+				.attr( 'id', 'migration-loader' )
+				.attr( 'src', '/wp-admin/images/loading.gif' )
+				.appendTo( migrationNoticeBox );
+			$( '<br />' ).appendTo( migrationNoticeBox );
+			$( '<br />' ).appendTo( migrationNoticeBox );
+			migrationNoticeBox.append( lp_i18n.MigratingSubscriptions );
+
+			migrateIfNeeded( 'subscription', 0 );
+
+		} );
+
+		startDataMigrationTwo.on( 'click', function () {
 
 			migrationNoticeBox.removeClass( 'notice-error' ).addClass( 'notice-info' );
 
@@ -71,17 +89,25 @@
 			        $( '<br />' ).appendTo( migrationNoticeBox );
 			        migrationNoticeBox.append( lp_i18n.MigrationCompleted );
 
-			        $( '<button/>' ).attr( 'type', 'button' )
-				        .addClass( 'notice-dismiss' )
-				        .appendTo( migrationNoticeBox );
-			        $( '#migration-loader' ).remove();
-			        migrationNoticeBox.removeClass( 'notice-info' ).addClass( 'notice-success' );
+					if ( response.cleanup === true ) {
 
-			        $( '.notice-dismiss' ).click( function () {
-				        migrationNoticeBox.remove();
-			        } );
-                }
-	        } );
+						$( '<br />' ).appendTo( migrationNoticeBox );
+						migrationNoticeBox.append( lp_i18n.RemovedCustomTables );
+						$( '<span />' ).addClass( 'dashicons dashicons-yes' ).appendTo( migrationNoticeBox );
+
+						$( '<button/>' ).attr( 'type', 'button' )
+							.addClass( 'notice-dismiss' )
+							.appendTo( migrationNoticeBox );
+
+						$( '#migration-loader' ).remove();
+						migrationNoticeBox.removeClass( 'notice-info' ).addClass( 'notice-success' );
+
+						$( '.notice-dismiss' ).click( function () {
+							migrationNoticeBox.remove();
+						} );
+					}
+				}
+			} );
         }
     } );
 })( jQuery );

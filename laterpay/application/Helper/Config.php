@@ -35,14 +35,6 @@ class LaterPay_Helper_Config {
                         'sis_min'         => 1.49,
                         'sis_only_limit'  => 5.01,
                         'sis_max'         => 149.99
-                    ),
-                    'pro' => array(
-                        'ppu_min'         => 0.05,
-                        'ppu_only_limit'  => 49.98,
-                        'ppu_max'         => 250.00,
-                        'sis_min'         => 49.99,
-                        'sis_only_limit'  => 250.01,
-                        'sis_max'         => 1000.00
                     )
                 )
             ),
@@ -77,14 +69,6 @@ class LaterPay_Helper_Config {
                 'default_price'           => 0.29,
                 'limits' => array(
                     'default' => array(
-                        'ppu_min'         => 0.05,
-                        'ppu_only_limit'  => 1.98,
-                        'ppu_max'         => 5.00,
-                        'sis_min'         => 1.99,
-                        'sis_only_limit'  => 5.01,
-                        'sis_max'         => 149.99,
-                    ),
-                    'pro' => array(
                         'ppu_min'         => 0.05,
                         'ppu_only_limit'  => 1.98,
                         'ppu_max'         => 5.00,
@@ -169,12 +153,11 @@ class LaterPay_Helper_Config {
      * @return array
      */
     public static function get_currency_config() {
-        $config = laterpay_get_plugin_config();
+        $config         = laterpay_get_plugin_config();
         $limits_section = 'currency.limits';
-        $plan = get_option( 'laterpay_pro_merchant', 0 ) ? 'pro' : 'default';
 
         // get limits
-        $currency_limits  = $config->get_section( $limits_section . '.' . $plan );
+        $currency_limits  = $config->get_section( $limits_section . '.' . 'default' );
         $currency_general = array(
             'code'          => $config->get( 'currency.code' ),
             'dynamic_start' => $config->get( 'currency.dynamic_start' ),

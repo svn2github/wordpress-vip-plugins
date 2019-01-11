@@ -43,7 +43,7 @@ if ( $laterpay['post_price_type'] === LaterPay_Helper_Pricing::TYPE_GLOBAL_DEFAU
 }
 
 if ( ! empty( $laterpay['category_prices'] ) ) {
-    $global_disabled_class = ' lp_is-disabled';
+    $global_disabled_class = ' lp_is-disabled lp_tooltip';
 }
 
 $is_in_live_mode        = (bool) get_option( 'laterpay_plugin_is_in_live_mode' );
@@ -52,7 +52,7 @@ $is_visible_to_visitors = (bool) get_option( 'laterpay_is_in_visible_test_mode' 
 <div class="lp_clearfix lp_postMetaBox">
     <?php if ( ! $is_in_live_mode ) : ?>
     <div class="lp_tooltip" data-tooltip="<?php echo esc_attr( __( 'Click here to finish your account set up', 'laterpay' ) ); ?>">
-            <a href="<?php echo esc_url( add_query_arg( array( 'page' => 'laterpay-account-tab' ), admin_url( 'admin.php' ) ) ); ?>"
+            <a href="<?php echo esc_url( add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( array( 'page' => 'laterpay-account-tab' ) ), admin_url( 'admin.php' ) ) ); ?>"
                class="lp_plugin-mode-indicator"
                data-icon="h">
                 <h2 class="lp_plugin-mode-indicator__title"><?php esc_html_e( 'Test mode', 'laterpay' ); ?></h2>
@@ -70,7 +70,7 @@ $is_visible_to_visitors = (bool) get_option( 'laterpay_is_in_visible_test_mode' 
         <?php
         printf( '%1s <a href="%2$s">%3$s</a> %4$s',
             esc_html__( 'Your LaterPay Plugin is currently invisible to viewers. Click', 'laterpay' ),
-            esc_url( add_query_arg( array( 'page' => 'laterpay-account-tab' ), admin_url( 'admin.php' ) ) ),
+            esc_url( add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( array( 'page' => 'laterpay-account-tab' ) ), admin_url( 'admin.php' ) ) ),
             esc_html__( 'here', 'laterpay' ),
             esc_html__( 'to toggle visibility.', 'laterpay' ) );
         ?>
@@ -80,12 +80,18 @@ $is_visible_to_visitors = (bool) get_option( 'laterpay_is_in_visible_test_mode' 
         <?php
         if ( 0 === $post_price_behaviour ) {
             ?>
-            <p class="lp_postEditTypeZero"><?php esc_html_e( 'FREE', 'laterpay' ); ?></p>
-            <span class="lp_postEditTypeZero">
-                <?php
+            <div id="lp_postEditTypeZero"
+                <?php if ( $laterpay['post_price_type'] !== LaterPay_Helper_Pricing::TYPE_GLOBAL_DEFAULT_PRICE ) : ?>
+                    <?php echo ' style="display:none;"'; ?>
+                <?php endif; ?>
+            >
+                <p class="lp_postEditTypeZero"><?php esc_html_e( 'FREE', 'laterpay' ); ?></p>
+                <span class="lp_postEditTypeZero">
+                    <?php
                     esc_html_e( 'All articles are free by default; Time Passes & Subscriptions will only be displayed if an Individual Article Price greater than 0.00 is manually set by selecting “Individual Price” below.', 'laterpay' );
-                ?>
-            </span>
+                    ?>
+                </span>
+            </div>
             <?php
         } elseif ( 1 === $post_price_behaviour ) {
             ?>
@@ -96,7 +102,7 @@ $is_visible_to_visitors = (bool) get_option( 'laterpay_is_in_visible_test_mode' 
                         '%1$s <br/><br/> %2$s<a href="%3$s">%4$s</a>',
                         esc_html__( 'Only Time Passes & Subscriptions will be displayed in the purchase dialog.', 'laterpay' ),
                         esc_html__( 'If you would like to allow articles to be purchased individually,', 'laterpay' ),
-                        esc_url( add_query_arg( array( 'page' => 'laterpay-pricing-tab' ), admin_url( 'admin.php' ) ) ),
+                        esc_url( add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( array( 'page' => 'laterpay-pricing-tab' ) ), admin_url( 'admin.php' ) ) ),
                         esc_html__( 'click here to adjust your Global Default Price.', 'laterpay' )
                     );
                 ?>
@@ -166,7 +172,7 @@ $is_visible_to_visitors = (bool) get_option( 'laterpay_is_in_visible_test_mode' 
                 id="lp_js_useCategoryDefaultPrice"
                 class="lp_js_priceTypeButton lp_price-type__link"><?php esc_html_e( 'Category Default Price', 'laterpay' ); ?></a>
         </li>
-        <li class="lp_price-type__item <?php echo esc_attr( $global_selected_class . ' ' . $global_disabled_class ); ?>">
+        <li class="lp_price-type__item lp_price-type__global <?php echo esc_attr( $global_selected_class . ' ' . $global_disabled_class ); ?>" <?php if ( ! empty( $global_disabled_class ) ) { printf( '%1$s="%2$s"', 'data-tooltip',  esc_html__( 'Global Default Pricing is not available to Posts which have a Category Default Price.', 'laterpay' ) ); } ?>>
             <a href="#"
                 id="lp_js_useGlobalDefaultPrice"
                 class="lp_js_priceTypeButton lp_price-type__link"

@@ -15,6 +15,15 @@ class LaterPay_Model_SubscriptionWP {
     private static $_instance;
 
     /**
+     * Store hash of query and data for duplicate queries.
+     *
+     * @var array Internal Cache for Duplicate Queries.
+     *
+     * @access private
+     */
+    private static $term_data_store = [];
+
+    /**
      * Constructor for class LaterPay_Model_SubscriptionWP,
      * Kept private as class is singleton.
      */
@@ -127,19 +136,9 @@ class LaterPay_Model_SubscriptionWP {
         unset( $data['id'] );
 
         $access_data = intval( $data['access_to'] );
+        $categories  = explode( ',', $data['access_category'] );
 
         if ( empty( $id ) ) {
-
-            $access_key   = '_lp_access_to_all';
-            $access_value = $data['access_to'];
-
-            if ( 1 === $access_data ) {
-                $access_key   = '_lp_access_to_except';
-                $access_value = $data['access_category'];
-            } elseif ( 2 === $access_data ) {
-                $access_key   = '_lp_access_to_include';
-                $access_value = $data['access_category'];
-            }
 
             if ( isset( $counter_id ) ) {
                 $subscription_counter = $counter_id;
@@ -149,7 +148,7 @@ class LaterPay_Model_SubscriptionWP {
                 update_option( 'lp_sub_count', $subscription_counter );
             }
 
-            wp_insert_post( [
+            $subscription_post_id = wp_insert_post( [
                 'post_content' => $data['description'],
                 'post_title'   => $data['title'],
                 'post_status'  => 'publish',   // is_deleted
@@ -157,13 +156,30 @@ class LaterPay_Model_SubscriptionWP {
                 'meta_input'   => [
                     '_lp_duration'  => $data['duration'],
                     '_lp_period'    => $data['period'],
-                    $access_key     => $access_value,
                     '_lp_price'     => $data['price'],
                     '_lp_id'        => $subscription_counter,
                 ],
             ] );
 
-            $data['id']    = $subscription_counter;
+            if ( 0 === $access_data ) {
+                $access_key   = '_lp_access_to_all';
+                $access_value = $data['access_to'];
+                update_post_meta( $subscription_post_id, $access_key, $access_value );
+            } elseif ( 1 === $access_data ) {
+                foreach ( $categories as $category_id ) {
+                    if ( 0 !== absint( $category_id ) ) {
+                        add_post_meta( $subscription_post_id, '_lp_access_to_except', $category_id );
+                    }
+                }
+            } else {
+                foreach ( $categories as $category_id ) {
+                    if ( 0 !== absint( $category_id ) ) {
+                        add_post_meta( $subscription_post_id, '_lp_access_to_include', $category_id );
+                    }
+                }
+            }
+
+            $data['id'] = $subscription_counter;
 
         } else {
 
@@ -204,13 +220,26 @@ class LaterPay_Model_SubscriptionWP {
 
                     delete_post_meta( $id, '_lp_access_to_all' );
                     delete_post_meta( $id, '_lp_access_to_include' );
-                    update_post_meta( $id, '_lp_access_to_except', $data['access_category'] );
+                    delete_post_meta( $id, '_lp_access_to_except' );
+
+                    foreach ( $categories as $category_id ) {
+                        if ( 0 !== absint( $category_id ) ) {
+                            add_post_meta( $id, '_lp_access_to_except', $category_id );
+                        }
+                    }
+
 
                 } else {
 
                     delete_post_meta( $id, '_lp_access_to_except' );
                     delete_post_meta( $id, '_lp_access_to_all' );
-                    update_post_meta( $id, '_lp_access_to_include', $data['access_category'] );
+                    delete_post_meta( $id, '_lp_access_to_include' );
+
+                    foreach ( $categories as $category_id ) {
+                        if ( 0 !== absint( $category_id ) ) {
+                            add_post_meta( $id, '_lp_access_to_include', $category_id );
+                        }
+                    }
 
                 }
 
@@ -333,13 +362,42 @@ class LaterPay_Model_SubscriptionWP {
         // Case 3: Subscriptions include specified category
         $query_args['meta_query'] = $meta_query; // phpcs:ignore
 
-        $get_subscriptions_in_category_query = new WP_Query( $query_args );
+        // Create a hash from the query args.
+        $args_hash = md5( wp_json_encode( $query_args ) );
 
-        $posts         = $get_subscriptions_in_category_query->get_posts();
-        $subscriptions = [];
+        // Check if data already exists for requested query args.
+        if ( isset( self::$term_data_store[$args_hash] ) ) {
 
-        foreach ( $posts as $key => $post ) {
-            $subscriptions[ $key ] = $this->transform_post_to_subscription( $post );
+            // Get data from internal cache for already requested query.
+            $subscriptions = self::$term_data_store[$args_hash];
+
+        } else {
+
+            // Initialize WP_Query without args.
+            $get_subscriptions_in_category_query = new WP_Query();
+
+            // Get posts for requested args.
+            $posts         = $get_subscriptions_in_category_query->query( $query_args );
+            $subscriptions = [];
+
+            foreach ( $posts as $key => $post ) {
+                $subscriptions[ $key ] = $this->transform_post_to_subscription( $post );
+            }
+
+            // Unset subscription data if it contains excluded categories.
+            foreach ( $subscriptions as $key => $subscription ) {
+                if ( 1 === $subscription['access_to'] ) {
+                    $found_categories = array_intersect( $term_ids, $subscription['access_category'] );
+
+                    if ( ! empty( $found_categories ) ) {
+                        unset( $subscriptions[$key] );
+                    }
+                }
+            }
+
+            // Store formatted data, in case same query is fired again.
+            self::$term_data_store[$args_hash] = $subscriptions;
+
         }
 
         LaterPay_Hooks::get_instance()->add_wp_query_hooks();
@@ -455,15 +513,15 @@ class LaterPay_Model_SubscriptionWP {
         $post_meta_new['access_to']       = 0;
         $post_meta_new['access_category'] = 0;
 
-        if ( ! empty( $post_meta['_lp_access_to_include'][0] ) ) {
+        if ( ! empty( $post_meta['_lp_access_to_include'] ) ) {
 
             $post_meta_new['access_to']       = 2;
-            $post_meta_new['access_category'] = $post_meta['_lp_access_to_include'][0];
+            $post_meta_new['access_category'] = $post_meta['_lp_access_to_include'];
 
-        } elseif ( ! empty( $post_meta['_lp_access_to_except'][0] ) ) {
+        } elseif ( ! empty( $post_meta['_lp_access_to_except'] ) ) {
 
             $post_meta_new['access_to']       = 1;
-            $post_meta_new['access_category'] = $post_meta['_lp_access_to_except'][0];
+            $post_meta_new['access_category'] = $post_meta['_lp_access_to_except'];
 
         }
 

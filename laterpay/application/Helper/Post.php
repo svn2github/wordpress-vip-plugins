@@ -68,7 +68,7 @@ class LaterPay_Helper_Post
         // @Todo: Fix cookie usage for WP VIP.
         $token_name = filter_input( INPUT_COOKIE, $token_name, FILTER_SANITIZE_STRING );
 
-        if ( apply_filters( 'laterpay_access_check_enabled', true ) && isset( $token_name ) ) {
+        if ( ( apply_filters( 'laterpay_access_check_enabled', true ) && isset( $token_name ) ) || ( ! LaterPay_Helper_Request::isLpApiAvailability() ) ) {
 
             // check, if parent post has access with time passes
             $parent_post = $is_attachment ? $main_post_id : $post->ID;
@@ -196,13 +196,18 @@ class LaterPay_Helper_Post
             $url_params['download_attached'] = $post->ID;
         }
 
-	    $request_uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
+        $request_uri = isset( $_SERVER['REQUEST_URI'] ) ? filter_var( $_SERVER['REQUEST_URI'], FILTER_SANITIZE_URL ) : ''; // phpcs:ignore
         $parsed_link = explode( '?', $request_uri );
-        $back_url    = get_permalink( $post->ID ) . '?' . build_query( $url_params );
 
-        // if params exists in uri
+        // Get Post Permalink.
+        $post_permalink = get_permalink( $post->ID );
+
+        // Build URL.
+        $back_url = add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( $url_params ), $post_permalink );
+
+        // if params exists in uri.
         if ( ! empty( $parsed_link[1] ) ) {
-            $back_url .= '&' . $parsed_link[1];
+            $back_url = self::get_back_url_extra_params( $parsed_link[1], $back_url, $url_params );
         }
 
         // parameters for LaterPay purchase form
@@ -359,5 +364,42 @@ class LaterPay_Helper_Post
         }
 
         return $post;
+    }
+
+    /**
+     * @param string $parsed_link Part of URL containing query params.
+     * @param string $back_url    URL built by adding custom params to permalink.
+     * @param array  $url_params  Custom params.
+     *
+     * @return string
+     */
+    public static function get_back_url_extra_params( $parsed_link, $back_url, $url_params ) {
+
+        // If parsed link has extra params process them accordingly.
+        parse_str( $parsed_link, $extra_params );
+
+        // Get query args in the already built url.
+        $parsed_url = wp_parse_url( $back_url );
+
+        // Initialize array just to be safe.
+        $parsed_url_params = [];
+
+        if ( ! empty( $parsed_url['query'] ) ) {
+            parse_str( $parsed_url['query'], $parsed_url_params );
+        }
+
+        foreach ( $extra_params as $key => $value ) {
+            //unset unused variable.
+            unset( $value );
+
+            // Don't add array / existing params to url building array.
+            if ( is_array( $extra_params[$key] ) || isset( $url_params[$key] ) || isset( $parsed_url_params[$key] ) ) {
+                unset( $extra_params[$key] );
+            }
+        }
+
+        // Build back URL according to new params and return.
+        return add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( $extra_params ), $back_url );
+
     }
 }

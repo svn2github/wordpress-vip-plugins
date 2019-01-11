@@ -296,3 +296,15 @@ div.lp_postMetaBox {
     }
 
 }
+
+li.lp_price-type__global {
+
+    &:after {
+        margin-left: -47px;
+    }
+    &:hover:before,
+    &:hover:after {
+        left: 25%;
+    }
+
+}

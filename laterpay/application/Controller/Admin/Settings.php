@@ -35,6 +35,11 @@ class LaterPay_Controller_Admin_Settings extends LaterPay_Controller_Base
     {
         parent::load_assets();
 
+        // Get data for GA.
+        $merchant_key = LaterPay_Controller_Admin::get_merchant_id_for_ga();
+
+        LaterPay_Controller_Admin::register_common_scripts( 'settings' );
+
         // register and enqueue stylesheet
         wp_register_style(
             'laterpay-options',
@@ -51,25 +56,31 @@ class LaterPay_Controller_Admin_Settings extends LaterPay_Controller_Base
         wp_register_script(
             'laterpay-backend-options',
             $this->config->js_url . '/laterpay-backend-options.js',
-            array( 'jquery' ),
+            array( 'jquery', 'laterpay-common' ),
             $this->config->version,
             true
         );
         wp_enqueue_script( 'laterpay-backend-options' );
+
+        $custom_role_names = array_keys( get_option( 'laterpay_unlimited_access', [] ) );
 
         // Localize string to be used in script.
         wp_localize_script(
             'laterpay-backend-options',
             'lpVars',
             array(
-                'modal' => array(
+                'modal'  => array(
                     'id'    => 'lp_ga_modal_id',
                     'title' => esc_html__( 'Disable Tracking', 'laterpay' )
                 ),
-                'i18n'  => array(
+                'i18n'   => array(
                     'alertEmptyCode' => esc_html__( 'Please enter UA-ID to enable Personal Analytics!', 'laterpay' ),
                     'invalidCode'    => esc_html__( 'Please enter valid UA-ID code!', 'laterpay' ),
-                )
+                ),
+                'gaData' => array(
+                    'custom_roles'        => $custom_role_names,
+                    'sandbox_merchant_id' => ( ! empty( $merchant_key ) ) ? $merchant_key : '',
+                ),
             )
         );
     }
@@ -117,14 +128,12 @@ class LaterPay_Controller_Admin_Settings extends LaterPay_Controller_Base
         $this->add_colors_settings();
         $this->add_ga_tracking_settings();
         $this->add_caching_settings();
-        $this->add_enabled_post_types_settings();
         $this->add_revenue_settings();
         $this->add_gift_codes_settings();
         $this->add_teaser_content_settings();
         $this->add_preview_excerpt_settings();
         $this->add_unlimited_access_settings();
         $this->add_laterpay_api_settings();
-        $this->add_laterpay_pro_merchant();
     }
 
     public function add_colors_settings() {
@@ -225,42 +234,6 @@ class LaterPay_Controller_Admin_Settings extends LaterPay_Controller_Base
         esc_html_e( 'When someone visits
            the page, it makes an Ajax request to determine, if the visitor has already bought the post
            and replaces the teaser with the full content, if required.', 'laterpay' );
-        echo '</p>';
-    }
-
-    /**
-     * Add activated post types section and fields.
-     *
-     * @return void
-     */
-    public function add_enabled_post_types_settings() {
-        add_settings_section(
-            'laterpay_post_types',
-            __( 'LaterPay-enabled Post Types', 'laterpay' ),
-            array( $this, 'get_enabled_post_types_section_description' ),
-            'laterpay'
-        );
-
-        add_settings_field(
-            'laterpay_enabled_post_types',
-            __( 'Enabled Post Types', 'laterpay' ),
-            array( $this, 'get_enabled_post_types_markup' ),
-            'laterpay',
-            'laterpay_post_types'
-        );
-
-        register_setting( 'laterpay', 'laterpay_enabled_post_types' );
-    }
-
-    /**
-     * Render the hint text for the enabled post types section.
-     *
-     * @return void
-     */
-    public function get_enabled_post_types_section_description() {
-        echo '<p>';
-        esc_html_e( 'Please choose, which standard and custom post types should be sellable with LaterPay.',
-            'laterpay' );
         echo '</p>';
     }
 
@@ -658,7 +631,6 @@ class LaterPay_Controller_Admin_Settings extends LaterPay_Controller_Base
 
             // add onclick support
             if ( isset( $field['onclick'] ) && $field['onclick'] ) {
-                // already using esc_js in add_laterpay_pro_merchant()
                 echo ' onclick="' . esc_attr( $field['onclick'] ) . '"';
             }
 
@@ -848,42 +820,6 @@ class LaterPay_Controller_Admin_Settings extends LaterPay_Controller_Base
     }
 
     /**
-     * Render the inputs for the enabled post types section.
-     *
-     * @return void
-     */
-    public function get_enabled_post_types_markup() {
-        $hidden_post_types = array(
-            'nav_menu_item',
-            'revision',
-            'custom_css',
-            'customize_changeset',
-            'lp_passes',
-            'lp_subscription',
-            'oembed_cache',
-        );
-
-        $all_post_types     = get_post_types( array( ), 'objects' );
-        $enabled_post_types = get_option( 'laterpay_enabled_post_types' );
-
-        echo '<ul class="post_types">';
-        foreach ( $all_post_types as $slug => $post_type ) {
-            if (in_array($slug, $hidden_post_types, true)) {
-                continue;
-            }
-            echo '<li><label title="' . esc_attr( $post_type->labels->name ) . '">';
-            echo '<input type="checkbox" name="laterpay_enabled_post_types[]" value="' . esc_attr( $slug ) . '" ';
-            if ( is_array( $enabled_post_types ) && in_array( $slug, $enabled_post_types, true ) ) {
-                echo 'checked';
-            }
-            echo '>';
-            echo '<span>' . esc_html( $post_type->labels->name ) . '</span>';
-            echo '</label></li>';
-        }
-        echo '</ul>';
-    }
-
-    /**
      * Add LaterPay API settings section and fields.
      *
      * @return void
@@ -966,50 +902,6 @@ class LaterPay_Controller_Admin_Settings extends LaterPay_Controller_Base
                 'description'   => __( 'Premium content is hidden from users. Direct access would be blocked.', 'laterpay' ),
             ),
         );
-    }
-
-    /**
-     * Add LaterPay Pro merchant settings
-     *
-     * @return void
-     */
-    public function add_laterpay_pro_merchant() {
-        add_settings_section(
-            'laterpay_pro_merchant',
-            __( 'LaterPay Pro Merchant', 'laterpay' ),
-            array( $this, 'get_laterpay_pro_merchant_description' ),
-            'laterpay'
-        );
-
-        $confirm_message = __( 'Only choose this option, if you have a LaterPay Pro merchant account. Otherwise, selling content with LaterPay might not work anymore.If you have questions about LaterPay Pro, please contact sales@laterpay.net. Are you sure that you want to choose this option?', 'laterpay' );
-
-        add_settings_field(
-            'laterpay_pro_merchant',
-            __( 'LaterPay Pro Merchant', 'laterpay' ),
-            array( $this, 'get_input_field_markup' ),
-            'laterpay',
-            'laterpay_pro_merchant',
-            array(
-                'name'    => 'laterpay_pro_merchant',
-                'value'   => 1,
-                'type'    => 'checkbox',
-                'label'   => __( 'I have a LaterPay Pro merchant account.', 'laterpay' ),
-                'onclick' => "if (this.checked) return confirm('" . esc_js( "{$confirm_message}" ) . "'); else return true;"
-            )
-        );
-
-        register_setting( 'laterpay', 'laterpay_pro_merchant' );
-    }
-
-    /**
-     * Render the hint text for the LaterPay Pro Merchant section.
-     *
-     * @return void
-     */
-    public function get_laterpay_pro_merchant_description() {
-        echo '<p>';
-        esc_html_e( 'Please choose, if you have a LaterPay Pro merchant account.', 'laterpay' );
-        echo '</p>';
     }
 
     /**

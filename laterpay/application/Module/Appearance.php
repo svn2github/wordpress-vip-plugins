@@ -121,8 +121,27 @@ class LaterPay_Module_Appearance extends LaterPay_Core_View implements LaterPay_
             include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
         }
 
+        // Initialize for checking plugins status on wp.com VIP
+        $plugin_active_on_classic = false;
+
+        // Check whether we are on VIP Classic env.
+        $is_classic = laterpay_check_is_vip_classic();
+
+        // If we are on classic update status for the plugin.
+        if ( $is_classic ) {
+
+            // VIP loaded plugin names.
+            global $vip_loaded_plugins;
+
+            // Check if laterpay exists in the VIP loaded plugins.
+            if ( in_array( 'plugins/laterpay', $vip_loaded_plugins, true ) ) {
+                $plugin_active_on_classic = true;
+            }
+
+        }
+
         // continue, if plugin is active
-        if ( ! is_plugin_active( laterpay_get_plugin_config()->get( 'plugin_base_name' ) ) ) {
+        if ( ( ! is_plugin_active( laterpay_get_plugin_config()->get( 'plugin_base_name' ) ) && ! $is_classic ) || ( $is_classic && ! $plugin_active_on_classic ) ) {
             $event->stop_propagation();
         }
     }

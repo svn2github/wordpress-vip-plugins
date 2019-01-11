@@ -20,20 +20,8 @@ function LaterPayClientAutoload( $class ) {
     }
 }
 
-if ( version_compare( PHP_VERSION, '5.1.2', '>=' ) ) {
-    // SPL autoloading was introduced in PHP 5.1.2
-    if ( version_compare( PHP_VERSION, '5.3.0', '>=' ) ) {
-        spl_autoload_register( 'LaterPayClientAutoload', true, true );
-    } else {
-        spl_autoload_register( 'LaterPayClientAutoload' );
-    }
-} else {
-    /**
-     * Fall back to traditional autoload for old PHP versions.
-     *
-     * @param string $classname name of the class to load
-     */
-    function __autoload( $classname ) {
-        LaterPayClientAutoload( $classname );
-    }
+try {
+    spl_autoload_register( 'LaterPayClientAutoload', true, true );
+} catch ( Exception $e ) {
+    unset( $e );
 }

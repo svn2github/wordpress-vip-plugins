@@ -6,9 +6,9 @@
         "source": {
             "type": "git",
             "url": "https://github.com/laterpay/laterpay-client-php.git",
-            "reference": "aa6d40239dbccbc77ba8ee6587725dcb34954d4e"
+            "reference": "23812dedd98c708d20c7eee394d5e8f2808606de"
         },
-        "time": "2018-09-10T14:41:08+00:00",
+        "time": "2018-11-29T13:39:37+00:00",
         "type": "library",
         "installation-source": "source",
         "autoload": {

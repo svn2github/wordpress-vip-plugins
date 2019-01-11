@@ -11,33 +11,6 @@ class LaterPay_Helper_Cache
 {
 
     /**
-     * Reset cache, if it exists.
-     *
-     * @return bool|void
-     */
-    public static function reset_opcode_cache() {
-
-        if ( laterpay_check_is_vip() || laterpay_check_is_vip_classic() ) {
-            return;
-        }
-
-        $reset = false;
-
-        if ( function_exists( 'opcache_reset' ) ) {
-            $reset = opcache_reset();
-        }
-        if ( function_exists( 'apc_clear_cache' ) ) {
-            $reset = apc_clear_cache();
-        }
-        if ( function_exists( 'eaccelerator_clean' ) ) {
-            $reset = eaccelerator_clean();
-        }
-
-        return $reset;
-    }
-
-
-    /**
      * Check, if a known page caching plugin is active.
      *
      * @return bool

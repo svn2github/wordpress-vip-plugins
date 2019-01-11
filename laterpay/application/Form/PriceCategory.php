@@ -49,11 +49,18 @@ class LaterPay_Form_PriceCategory extends LaterPay_Form_Abstract
         $this->set_field(
             'category_id',
             array(
-                'validators' => array(
-                    'is_int',
-                ),
                 'filters' => array(
-                    'to_int',
+                    'to_string',
+                ),
+                'can_be_null' => true,
+            )
+        );
+
+        $this->set_field(
+            'category_name',
+            array(
+                'filters' => array(
+                    'to_string',
                 ),
                 'can_be_null' => true,
             )
@@ -119,13 +126,9 @@ class LaterPay_Form_PriceCategory extends LaterPay_Form_Abstract
         $this->set_field(
             'category',
             array(
-                'validators'    => array(
-                    'is_string',
-                ),
                 'filters' => array(
                     'to_string',
-                    'text',
-                ),
+                )
             )
         );
 

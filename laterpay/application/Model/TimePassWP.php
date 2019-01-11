@@ -23,6 +23,15 @@ class LaterPay_Model_TimePassWP {
     public static $timepass_post_type = 'lp_passes';
 
     /**
+     * Store hash of query and data for duplicate queries.
+     *
+     * @var array Internal Cache for Duplicate Queries.
+     *
+     * @access private
+     */
+    private static $term_data_store = [];
+
+    /**
      * Blank constructor to avoid creation of new instances.
      *
      * LaterPay_Model_TimePassWP constructor.
@@ -164,15 +173,15 @@ class LaterPay_Model_TimePassWP {
                 $row['access_to']       = $post_meta['_lp_access_to_all'][0];
                 $row['access_category'] = 0;
 
-            } elseif ( isset( $post_meta['_lp_access_to_include'][0] ) ) {
+            } elseif ( isset( $post_meta['_lp_access_to_include'] ) ) {
 
                 $row['access_to']       = 2;
-                $row['access_category'] = $post_meta['_lp_access_to_include'][0];
+                $row['access_category'] = $post_meta['_lp_access_to_include'];
 
-            } elseif ( isset( $post_meta['_lp_access_to_except'][0] ) ) {
+            } elseif ( isset( $post_meta['_lp_access_to_except'] ) ) {
 
                 $row['access_to']       = 1;
-                $row['access_category'] = $post_meta['_lp_access_to_except'][0];
+                $row['access_category'] = $post_meta['_lp_access_to_except'];
 
             }
 
@@ -267,6 +276,7 @@ class LaterPay_Model_TimePassWP {
         if ( ! empty( $data['tp_id'] ) ) {
 
             $access_data = intval( $data['access_to'] );
+            $categories  = explode( ',', $data['access_category'] );
 
             if ( 0 === $access_data ) {
 
@@ -278,13 +288,25 @@ class LaterPay_Model_TimePassWP {
 
                 delete_post_meta( $data['tp_id'], '_lp_access_to_all' );
                 delete_post_meta( $data['tp_id'], '_lp_access_to_include' );
-                update_post_meta( $data['tp_id'], '_lp_access_to_except', $data['access_category'] );
+                delete_post_meta( $data['tp_id'], '_lp_access_to_except' );
+
+                foreach ( $categories as $category_id ) {
+                    if ( 0 !== absint( $category_id ) ) {
+                        add_post_meta( $data['tp_id'], '_lp_access_to_except', $category_id );
+                    }
+                }
 
             } else {
 
                 delete_post_meta( $data['tp_id'], '_lp_access_to_except' );
                 delete_post_meta( $data['tp_id'], '_lp_access_to_all' );
-                update_post_meta( $data['tp_id'], '_lp_access_to_include', $data['access_category'] );
+                delete_post_meta( $data['tp_id'], '_lp_access_to_include' );
+
+                foreach ( $categories as $category_id ) {
+                    if ( 0 !== absint( $category_id ) ) {
+                        add_post_meta( $data['tp_id'], '_lp_access_to_include', $category_id );
+                    }
+                }
 
             }
 
@@ -423,9 +445,40 @@ class LaterPay_Model_TimePassWP {
         // Case 3: Passes include specified category
         $query_args['meta_query'] = $meta_query; // phpcs:ignore
 
-        $query = new WP_Query( $query_args );
+        // Create a hash from the query args.
+        $args_hash = md5( wp_json_encode( $query_args ) );
 
-        $timepasses = $this->get_formatted_results( $query->get_posts() );
+        // Check if data already exists for requested query args.
+        if ( isset( self::$term_data_store[$args_hash] ) ) {
+
+            // Get data from internal cache for already requested query.
+            $timepasses = self::$term_data_store[$args_hash];
+
+        } else {
+
+            // Initialize WP_Query without args.
+            $query = new WP_Query();
+
+            // Get posts for requested args.
+            $posts = $query->query( $query_args );
+
+            // Get formatted data and store it, in case same query is fired again.
+            $timepasses = $this->get_formatted_results( $posts );
+
+            // Unset time pass data if it contains excluded categories.
+            foreach ( $timepasses as $key => $timepass ) {
+                if ( 1 === $timepass['access_to'] ) {
+                    $found_categories = array_intersect( $term_ids, $timepass['access_category'] );
+
+                    if ( ! empty( $found_categories ) ) {
+                        unset( $timepasses[$key] );
+                    }
+                }
+            }
+
+            self::$term_data_store[$args_hash] = $timepasses;
+
+        }
 
         // Add removed hooks.
         LaterPay_Hooks::get_instance()->add_wp_query_hooks();

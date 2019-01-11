@@ -190,7 +190,7 @@ class LaterPay_Controller_Frontend_Shortcode extends LaterPay_Controller_Base
                 default:
                     $content_type = 'text';
             }
-        } else if ( in_array( $a['content_type'], $content_types, true ) ) {
+        } elseif ( in_array( $a['content_type'], $content_types, true ) ) {
             $content_type = $a['content_type'];
         } else {
             $content_type = 'text';
@@ -252,11 +252,11 @@ class LaterPay_Controller_Frontend_Shortcode extends LaterPay_Controller_Base
             throw new LaterPay_Core_Exception_InvalidIncomingData( 'types' );
         }
 
-        if ( ! isset( $_GET['post_id'] ) ) { // phpcs:ignore
-            throw new LaterPay_Core_Exception_InvalidIncomingData( 'post_id' );
+        if ( ! isset( $_GET['parent_pid'] ) ) { // phpcs:ignore
+            throw new LaterPay_Core_Exception_InvalidIncomingData( 'parent_pid' );
         }
 
-        $current_post_id = absint( $_GET['post_id'] ); // phpcs:ignore
+        $current_post_id = absint( $_GET['parent_pid'] ); // phpcs:ignore
         if ( ! get_post( $current_post_id ) ) {
             throw new LaterPay_Core_Exception_PostNotFound( $current_post_id );
         }

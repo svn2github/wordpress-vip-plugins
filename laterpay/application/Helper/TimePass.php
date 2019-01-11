@@ -441,11 +441,14 @@ class LaterPay_Helper_TimePass
             $data = array();
         }
 
+        // Get Post Permalink.
+        $post_permalink = get_permalink();
+
         $config         = laterpay_get_plugin_config();
         $currency       = $config->get( 'currency.code' );
         $price          = isset( $data['price'] ) ? $data['price'] : $time_pass['price'];
         $revenue_model  = LaterPay_Helper_Pricing::ensure_valid_revenue_model( $time_pass['revenue_model'], $price );
-        $back_url       = isset( $data['link'] ) ? $data['link'] : get_permalink();
+        $back_url       = isset( $data['link'] ) ? $data['link'] : $post_permalink;
 
         $client_options = LaterPay_Helper_Config::get_php_client_options();
         $client = new LaterPay_Client(
@@ -466,11 +469,13 @@ class LaterPay_Helper_TimePass
             if( isset( $_SERVER['REQUEST_URI'] ) ) { // phpcs:ignore
                 $parsed_link = explode( '?', esc_url( $_SERVER['REQUEST_URI'] ) ); // phpcs:ignore
             }
-            $back_url    = $back_url . '?' . build_query( $url_params );
+
+            // Build URL.
+            $back_url = add_query_arg( LaterPay_Helper_Request::laterpay_encode_url_params( $url_params ), $post_permalink );
 
             // if params exists in uri
             if ( ! empty( $parsed_link[1] ) ) {
-                $back_url .= '&' . $parsed_link[1];
+                $back_url = LaterPay_Helper_Post::get_back_url_extra_params( $parsed_link[1], $back_url, $url_params );
             }
         }
 

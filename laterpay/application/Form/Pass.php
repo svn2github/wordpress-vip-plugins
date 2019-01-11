@@ -128,12 +128,8 @@ class LaterPay_Form_Pass extends LaterPay_Form_Abstract
         $this->set_field(
             'access_category',
             array(
-                'validators' => array(
-                    'is_int',
-                ),
                 'filters' => array(
-                    'to_int',
-                    'unslash',
+                    'to_string',
                 )
             )
         );
