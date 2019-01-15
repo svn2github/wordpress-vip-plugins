@@ -7,15 +7,15 @@
  */
 
 // Set some default pagination values
-$paged = 1;
-$per_page = 3;
-$total_pages = 0;
+$opt_paged           = 1;
+$opt_per_page        = 3;
+$total_pages         = 0;
 $current_experiments = [];
 
 // If the user is paging, verify the nonce and override the default page number
 if ( isset( $_GET['paged'] ) ) { // Input var okay.
 	if ( isset( $_GET['_wpnonce'] ) && wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'bulk-optimizely_page_optimizely-results' ) ) { // Input var okay.
-		$paged = absint( wp_unslash( $_GET['paged'] ) ); // Input var okay.
+		$opt_paged = absint( wp_unslash( $_GET['paged'] ) ); // Input var okay.
 	}
 }
 
@@ -24,9 +24,9 @@ $active_experiments = Optimizely_X\Results::instance()->get_active_experiments()
 // Based on the pagination settings, initialize a subset
 // of the active experiments for the current page.
 if ( ! empty( $active_experiments ) ) {
-	$total_pages = ceil( count( $active_experiments ) / $per_page );
-	$start_index = ( $paged * $per_page ) - $per_page;
-	$current_experiments = array_slice( $active_experiments, $start_index, $per_page );
+	$total_pages = ceil( count( $active_experiments ) / $opt_per_page );
+	$start_index = ( $opt_paged * $opt_per_page ) - $opt_per_page;
+	$current_experiments = array_slice( $active_experiments, $start_index, $opt_per_page );
 }
 
 ?>
@@ -36,7 +36,7 @@ if ( ! empty( $active_experiments ) ) {
 	<div class="optimizely-results">
 		<form method="GET">
 		<input type="hidden" name="page" value="optimizely-results" />
-		<input type="hidden" name="paged" value="<?php echo esc_attr( $paged ); ?>" />
+		<input type="hidden" name="paged" value="<?php echo esc_attr( $opt_paged ); ?>" />
 		<?php
 		if ( ! empty( $current_experiments ) ) {
 			foreach ( $current_experiments as $experiment ) :
@@ -75,22 +75,22 @@ if ( ! empty( $active_experiments ) ) {
 		<div class="navigation">
 			<?php
 			// If there are previous pages, render a Previous button
-			if ( 1 < $paged ) {
+			if ( 1 < $opt_paged ) {
 				$url = sprintf(
 					'%sadmin.php?page=optimizely-results&_wpnonce=%s&paged=%d',
 					get_admin_url(),
 					wp_create_nonce( 'bulk-optimizely_page_optimizely-results' ),
-					$paged - 1
+					$opt_paged - 1
 				);
 				echo '<a href="' . esc_url( $url ) . '" class="button">' . esc_html__( 'Previous', 'optimizely-x' ) . '</a>';
 			}
 			// If there are next pages, render a Next button
-			if ( $total_pages > $paged ) {
+			if ( $total_pages > $opt_paged ) {
 				$url = sprintf(
 					'%sadmin.php?page=optimizely-results&_wpnonce=%s&paged=%d',
 					get_admin_url(),
 					wp_create_nonce( 'bulk-optimizely_page_optimizely-results' ),
-					$paged + 1
+					$opt_paged + 1
 				);
 				echo '<a href="' . esc_url( $url ) . '" class="button">' . esc_html__( 'Next', 'optimizely-x' ) . '</a>';
 			}

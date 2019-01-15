@@ -10,7 +10,7 @@ global $post;
 
 // Get experiment ID (if any) and current status (if any) for this post.
 $experiment_id = get_post_meta( $post->ID, 'optimizely_experiment_id', true );
-$status = get_post_meta( $post->ID, 'optimizely_experiment_status', true );
+$exp_status    = get_post_meta( $post->ID, 'optimizely_experiment_status', true );
 
 // Negotiate the number of variations for this post.
 $num_variations = absint( get_option( 'optimizely_x_num_variations' ) );
@@ -23,7 +23,7 @@ if ( empty( $post_num_variations ) ) {
 
 <div id="optimizely-experiment-container"
 	data-optimizely-entity-id="<?php if ( ! empty( $post->ID ) ) { echo absint( $post->ID ); } ?>"
-	data-optimizely-experiment-status="<?php if ( ! empty( $status ) ) { echo esc_attr( $status ); } ?>"
+	data-optimizely-experiment-status="<?php if ( ! empty( $exp_status ) ) { echo esc_attr( $exp_status ); } ?>"
 >
 	<div class="optimizely-loading hidden">
 		<p><?php esc_html_e( 'Loading your experiment ...', 'optimizely-x' ); ?></p>
@@ -64,20 +64,22 @@ if ( empty( $post_num_variations ) ) {
 		<div id="optimizely-created">
 			<p>
 				<?php esc_html_e( 'Status', 'optimizely-x' ); ?>:
-				<strong id="optimizely-experiment-status-text"><?php echo esc_html( $status ); ?></strong>
+				<strong id="optimizely-experiment-status-text"><?php echo esc_html( $exp_status ); ?></strong>
 			</p>
 			<p>
 				<?php esc_html_e( 'Experiment ID', 'optimizely-x' ); ?>:
 				<strong id="optimizely-experiment-id"><?php echo esc_html( $experiment_id ); ?></strong>
 			</p>
-			<p>
-				<a class="button button-secondary optimizely-toggle-running optimizely-toggle-running-start <?php if ( 'running' === $status ) : ?>hidden<?php endif; ?>">
-					<?php esc_html_e( 'Start Experiment', 'optimizely-x' ); ?>
-				</a>
-				<a class="button button-secondary optimizely-toggle-running optimizely-toggle-running-pause <?php if ( 'running' !== $status ) : ?>hidden<?php endif; ?>">
-					<?php esc_html_e( 'Pause Experiment', 'optimizely-x' ); ?>
-				</a>
-			</p>
+			<?php if ( 'archived' !== $exp_status ) : ?>
+				<p>
+					<a class="button button-secondary optimizely-toggle-running optimizely-toggle-running-start <?php if ( 'running' === $exp_status ) : ?>hidden<?php endif; ?>">
+						<?php esc_html_e( 'Start Experiment', 'optimizely-x' ); ?>
+					</a>
+					<a class="button button-secondary optimizely-toggle-running optimizely-toggle-running-pause <?php if ( 'running' !== $exp_status ) : ?>hidden<?php endif; ?>">
+						<?php esc_html_e( 'Pause Experiment', 'optimizely-x' ); ?>
+					</a>
+				</p>
+			<?php endif; ?>
 			<p>
 				<a class="button button-secondary optimizely-view-link"
 					href="<?php echo esc_url( get_post_meta( $post->ID, 'optimizely_editor_link', true ) ); ?>"

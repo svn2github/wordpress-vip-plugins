@@ -126,15 +126,17 @@ JAVASCRIPT;
 			return;
 		}
 
-		// Add the meta box.
-		add_meta_box(
-			'optimizely-headlines',
-			esc_html__( 'A/B Test Headlines', 'optimizely-x' ),
-			array( $this, 'metabox_headlines_render' ),
-			get_post_type(),
-			'side',
-			'high'
-		);
+		if ( current_user_can( Filters::admin_capability() ) ) {
+			// Add the meta box.
+			add_meta_box(
+				'optimizely-headlines',
+				esc_html__( 'A/B Test Headlines', 'optimizely-x' ),
+				array( $this, 'metabox_headlines_render' ),
+				get_post_type(),
+				'side',
+				'high'
+			);
+		}
 	}
 
 	/**
@@ -521,7 +523,7 @@ JAVASCRIPT;
 		}
 
 		// Handle unpublished state.
-		if ( 'publish' !== $post->post_status ) {
+		if ( 'auto-draft' === $post->post_status ) {
 			Partials::load( 'admin', 'metabox/unpublished' );
 
 			return;
@@ -641,6 +643,9 @@ JAVASCRIPT;
 		add_action( 'admin_menu', array( $this, 'add_menu_page' ) );
 		add_action( 'admin_notices', array( $this, 'admin_notices' ) );
 		add_action( 'plugins_loaded', array( $this, 'upgrade_check' ) );
+
+		// Hook in action to change post title when experiment is launched.
+		add_action( 'optimizely_launch_experiment', array( $this, 'change_post_title' ), 10, 2 );
 	}
 
 	/**
@@ -719,5 +724,16 @@ JAVASCRIPT;
 			}
 		}
 
+	}
+
+	/**
+	 * Update the post title with the winning headline variation.
+	 *
+	 * @param $post \WP_Post Post Title.
+	 * @param $variation_text string Winning headline.
+	 */
+	public function change_post_title( $post, $variation_text ) {
+		$post->post_title = $variation_text;
+		wp_update_post( $post );
 	}
 }

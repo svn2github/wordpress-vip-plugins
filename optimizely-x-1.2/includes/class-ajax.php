@@ -45,6 +45,12 @@ abstract class AJAX {
 	 */
 	protected function maybe_send_error_response( $response ) {
 
+		// Handle WP_Errors.
+		if ( is_wp_error( $response ) ) {
+			wp_send_json_error( $response );
+		}
+
+		// Handle other errors.
 		// If the operation was successful, don't send an error.
 		if ( ! empty( $response['status'] ) && 'SUCCESS' === $response['status'] ) {
 			return;
@@ -57,5 +63,27 @@ abstract class AJAX {
 
 		// Send the error data in the response.
 		wp_send_json_error( sanitize_text_field( $response['error'] ) );
+	}
+
+	/**
+	 * Log API request and response to post meta.
+	 * Purpose is debugging response errors and providing diagnostic data to Optimizely.
+	 *
+	 * @param int $post_id Post ID to save the meta to.
+	 * @param string $method The HTTP method.
+	 * @param string $operation The operation URL endpoint.
+	 * @param array $data Data included in the request.
+	 * @param WP_Error|array $response Response from the API request method.
+	 *                                 Either an error, object, or array.
+	 */
+	protected function log_request( $post_id, $method, $operation, $data, $response ) {
+		$log_meta_key = '_optimizely_request_log';
+		add_post_meta( $post_id, $log_meta_key, array(
+			'method' => $method,
+			'operation' => $operation,
+			'data' => $data,
+			'response' => (array) $response,
+			'time' => date( 'M j, Y, g:i a T', current_time( 'timestamp' ) ),
+		) );
 	}
 }

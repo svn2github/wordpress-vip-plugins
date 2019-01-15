@@ -44,7 +44,6 @@
 				$button.toggle();
 
 				// Send the AJAX request to change the experiment status.
-				// TODO: Error handling and messaging
 				$.ajax( {
 					url: ajaxurl,
 					data: {
@@ -55,6 +54,11 @@
 					},
 					method: 'POST'
 				} ).done( function ( response ) {
+					// Handle error state.
+					if ( ! response.success ) {
+						OptimizelyResults.displayError( experimentId, response );
+						return;
+					}
 					// Toggle the new button to reflect the new status
 					$( '.' + experimentId + ' .optimizely-actions .' + newStatus ).toggle();
 					$( '.' + experimentId + ' .button.ajax' ).remove();
@@ -83,7 +87,6 @@
 				$button.toggle();
 
 				// Send the AJAX request to archive the experiment
-				// TODO: Error handling and messaging
 				$.ajax( {
 					url: ajaxurl,
 					data: {
@@ -93,6 +96,11 @@
 					},
 					method: 'POST'
 				} ).done( function ( response ) {
+					// Handle error state.
+					if ( ! response.success ) {
+						OptimizelyResults.displayError( experimentId, response );
+						return;
+					}
 					$( '.experiment-wrapper.' + experimentId ).remove();
 					OptimizelyResults.adminNotice(
 						'Experiment ID: ' + experimentId + ' was successfully archived.',
@@ -115,7 +123,6 @@
 				$('.' + experimentId + ' .button.launch').toggle();
 
 				// Send the AJAX request to launch the variation and archive the experiment
-				// TODO: Error handling and messaging
 				$.ajax( {
 					url: ajaxurl,
 					data: {
@@ -126,6 +133,11 @@
 					},
 					method: 'POST'
 				} ).done( function ( response ) {
+					// Handle error state.
+					if ( ! response.success ) {
+						OptimizelyResults.displayError( experimentId, response );
+						return;
+					}
 					$( '.experiment-wrapper.' + experimentId ).remove();
 					OptimizelyResults.adminNotice(
 						'The variation "' + variationText + '" was successfully launched.',
@@ -144,6 +156,27 @@
 				$content.text(message);
 				$notice.append($content);
 				$('.optimizely-admin h1').after( $notice );
+			},
+
+			/**
+			 * Helper method to insert an error admin notice on the page.
+			 *
+			 * @param experimentId
+			 * @param response
+			 */
+			displayError( experimentId, response ) {
+				var errorMsg = '';
+				if ( response.data[0]['message'] ) {
+						errorMsg = response.data[0]['message'];
+				} else if ( response.data.length ) {
+					errorMsg = response.data;
+				} else {
+					errorMsg = 'Unspecified Error';
+				}
+				OptimizelyResults.adminNotice(
+					'Error for Experiment ID ' + experimentId + ' : ' + errorMsg,
+					'error'
+				);
 			}
 
 		};

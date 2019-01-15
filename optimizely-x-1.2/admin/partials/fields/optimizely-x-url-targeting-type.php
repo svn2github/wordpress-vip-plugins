@@ -27,8 +27,8 @@ $url_types = array(
 		id="optimizely-x-url-targeting-type"
 		name="optimizely_x_url_targeting_type"
 	>
-		<?php foreach ( $url_types as $type => $label ) : ?>
-			<option value="<?php echo esc_attr( $type ); ?>" <?php selected( $type, $url_targeting_type ); ?>>
+		<?php foreach ( $url_types as $url_type => $label ) : ?>
+			<option value="<?php echo esc_attr( $url_type ); ?>" <?php selected( $url_type, $url_targeting_type ); ?>>
 				<?php echo esc_html( $label ); ?>
 			</option>
 		<?php endforeach; ?>

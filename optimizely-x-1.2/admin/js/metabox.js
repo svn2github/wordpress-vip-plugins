@@ -36,7 +36,13 @@
 
 					// Handle error state.
 					if ( ! response.success ) {
-						OptimizelyMetabox.showError( optimizely_metabox_strings.status_error );
+						if ( response.data[0]['message'] ) {
+							OptimizelyMetabox.showError( response.data[0]['message'] );
+						} else if ( response.data.length ) {
+							OptimizelyMetabox.showError( response.data );
+						} else {
+							OptimizelyMetabox.showError( optimizely_metabox_strings.status_error );
+						}
 						return;
 					}
 
@@ -119,7 +125,13 @@
 
 					// Handle error state.
 					if ( ! response.success ) {
-						OptimizelyMetabox.showError( optimizely_metabox_strings.experiment_error );
+						if ( response.data[0]['message'] ) {
+							OptimizelyMetabox.showError( response.data[0]['message'] );
+						} else if ( response.data.length ) {
+							OptimizelyMetabox.showError( response.data );
+						} else {
+							OptimizelyMetabox.showError( optimizely_metabox_strings.experiment_error );
+						}
 						$( '.optimizely-new-experiment' ).removeClass( 'hidden' );
 						return;
 					}

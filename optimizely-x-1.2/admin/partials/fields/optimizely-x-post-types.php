@@ -7,7 +7,7 @@
  */
 
 // Get list of supported post types and selected post types.
-$post_types = Optimizely_X\Admin::supported_post_types();
+$opt_post_types      = Optimizely_X\Admin::supported_post_types();
 $selected_post_types = get_option( 'optimizely_x_post_types' );
 if ( empty( $selected_post_types ) || ! is_array( $selected_post_types ) ) {
 	$selected_post_types = array( 'post' );
@@ -19,7 +19,7 @@ if ( empty( $selected_post_types ) || ! is_array( $selected_post_types ) ) {
 	<legend class="screen-reader-text">
 		<span><?php esc_html_e( 'Post Types', 'optimizely-x' ); ?></span>
 	</legend>
-	<?php foreach ( $post_types as $post_type ) : ?>
+	<?php foreach ( $opt_post_types as $post_type ) : ?>
 		<div>
 			<label for="optimizely-x-post-types-<?php echo esc_attr( $post_type->name ); ?>">
 				<input class="optimizely-requires-authentication"

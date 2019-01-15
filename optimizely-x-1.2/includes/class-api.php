@@ -224,8 +224,21 @@ class API {
 		if ( $extended_timeout ) {
 			$timeout = 60;
 		} else {
-			$timeout = 5;
+			$timeout = 3;
 		}
+
+		/**
+		 * Filter allows extending the timeout.
+		 *
+		 * @since 1.2.3
+		 *
+		 * @param int $timeout Timeout in seconds.
+		 * @param string $method HTTP method.
+		 * @param string $operation API endpoint.
+		 * @param array $data Request data.
+		 * @param bool $extended_timeout Whether the timeout has been extended.
+		 */
+		$timeout = (int) apply_filters( 'optimizely_remote_request_timeout', $timeout, $method, $operation, $data, $extended_timeout );
 
 		// If the provided operation is a partial path, convert to a full URL.
 		if ( 0 !== strpos( $operation, self::BASE_URL ) ) {
@@ -303,36 +316,52 @@ class API {
 				);
 		} // End switch().
 
-		// Build result object.
-		$result = array(
-			'body' => wp_remote_retrieve_body( $response ),
-			'code' => absint( wp_remote_retrieve_response_code( $response ) ),
-			'error' => array(),
-			'headers' => wp_remote_retrieve_headers( $response ),
-			'json' => json_decode( wp_remote_retrieve_body( $response ), true ),
-		);
+		// If this is an error, return that.
+		// Timeout errors will be caught here.
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		} else {
+			// Build result object.
+			$result = array(
+				'body' => wp_remote_retrieve_body( $response ),
+				'code' => absint( wp_remote_retrieve_response_code( $response ) ),
+				'error' => array(),
+				'headers' => wp_remote_retrieve_headers( $response ),
+				'json' => json_decode( wp_remote_retrieve_body( $response ), true ),
+			);
 
-		// Handle rate limiting.
-		if ( 429 === $result['code'] ) {
-			$wait_time = wp_remote_retrieve_header( $response, 'X-RATELIMIT-RESET' );
-			usleep( $wait_time );
+			// Handle rate limiting.
+			if ( 429 === $result['code'] ) {
+				$wait_time = wp_remote_retrieve_header( $response, 'X-RATELIMIT-RESET' );
+				usleep( (int) $wait_time );
 
-			return $this->request( $method, $url, $data );
+				return $this->request( $method, $url, $data );
+			}
+
+			// Check for errors.
+			if ( empty( $response )
+				|| ! is_array( $response )
+				|| is_wp_error( $response )
+				|| $result['code'] < 200
+				|| $result['code'] > 204
+			) {
+				$result['status'] = 'ERROR';
+
+				// Provide a message for the caller to handle. @see maybe_send_error_response
+				if ( ! empty( $result['code'] ) ) {
+					$result['error'] = sprintf(
+						'HTTP Response Code %d for %s: %s',
+						esc_html( $result['code'] ),
+						esc_html( $method ),
+						esc_html( $url )
+					);
+				}
+			} else {
+				// Add success status to response.
+				$result['status'] = 'SUCCESS';
+			}
+
+			return $result;
 		}
-
-		// Check for errors.
-		if ( empty( $response )
-			|| ! is_array( $response )
-			|| is_wp_error( $response )
-			|| $result['code'] < 200
-			|| $result['code'] > 204
-		) {
-			$result['status'] = 'ERROR';
-		}
-
-		// Add success status to response.
-		$result['status'] = 'SUCCESS';
-
-		return $result;
 	}
 }

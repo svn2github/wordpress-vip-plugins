@@ -54,19 +54,11 @@ class AJAX_Results extends AJAX {
 		$experiment_id = absint( wp_unslash( $_POST['experimentId'] ) ); // Input var okay.
 		$status = sanitize_text_field( wp_unslash( $_POST['status'] ) ); // Input var okay.
 
-		// Ensure we have a post ID before proceeding.
-		$query_args = [
-			'meta_key' => 'optimizely_experiment_id', // Potentialy slow query
-			'meta_value' => $experiment_id, // Potentialy slow query
-		];
+		$post = $this->get_post_for_experiment( $experiment_id );
 
-		$experiment_query = new \WP_Query( $query_args );
-
-		if ( ! $experiment_query->found_posts ) {
-			wp_send_json_error( __( 'Missing a post attached to this experiment.', 'optimizely-x' ) );
+		if ( empty( $post ) ) {
+			wp_send_json_error( __( 'Unable to update experiment status. Missing a post attached to this experiment.', 'optimizely-x' ) );
 		}
-
-		$post_id = $experiment_query->posts[0]->ID;
 
 		// Build API request URL.
 		$operation = '/experiments/' . $experiment_id . '?action=' . $status;
@@ -89,7 +81,7 @@ class AJAX_Results extends AJAX {
 
 		// Update the status in postmeta.
 		update_post_meta(
-			$post_id,
+			$post->ID,
 			'optimizely_experiment_status',
 			sanitize_text_field( $response['json']['status'] )
 		);
@@ -136,19 +128,11 @@ class AJAX_Results extends AJAX {
 		$experiment_id = absint( wp_unslash( $_POST['experimentId'] ) ); // Input var okay.
 		$project_id = absint( get_option( 'optimizely_x_project_id' ) );
 
-		// Ensure we have a post ID before proceeding.
-		$query_args = [
-			'meta_key' => 'optimizely_experiment_id', // Potential slow query
-			'meta_value' => $experiment_id, // Potential slow query
-		];
+		$post = $this->get_post_for_experiment( $experiment_id );
 
-		$experiment_query = new \WP_Query( $query_args );
-
-		if ( ! $experiment_query->found_posts ) {
-			wp_send_json_error( __( 'Missing a post attached to this experiment.', 'optimizely-x' ) );
+		if ( empty( $post ) ) {
+			wp_send_json_error( __( 'Unable to archive experiment. Missing a post attached to this experiment.', 'optimizely-x' ) );
 		}
-
-		$post_id = $experiment_query->posts[0]->ID;
 
 		// Build API request URL.
 		$operation = '/experiments/' . $experiment_id;
@@ -170,7 +154,7 @@ class AJAX_Results extends AJAX {
 
 		// Update the status in postmeta.
 		update_post_meta(
-			$post_id,
+			$post->ID,
 			'optimizely_experiment_status',
 			'archived'
 		);
@@ -205,39 +189,31 @@ class AJAX_Results extends AJAX {
 			) );
 		}
 
-		// Check for error condition.
-		if ( empty( $_POST['experimentId'] ) || empty( $_POST['variationText'] ) ) { // Input var okay.
+		// Sanitize postdata before proceeding.
+		$experiment_id = isset( $_POST['experimentId'] ) ? absint( wp_unslash( $_POST['experimentId'] ) ) : 0;
+		$variation_text = isset( $_POST['variationText'] ) ? sanitize_text_field( wp_unslash( $_POST['variationText'] ) ) : '';
+
+		if ( empty( $experiment_id ) || empty( $variation_text ) ) {
 			wp_send_json_error( __(
 				'Missing experimentId or variationText value.',
 				'optimizely-x'
 			) );
 		}
 
-		// Sanitize postdata before proceeding.
-		$experiment_id = absint( wp_unslash( $_POST['experimentId'] ) ); // Input var okay.
-		$variation_text = sanitize_text_field( wp_unslash( $_POST['variationText'] ) ); // Input var okay.
+		$post = $this->get_post_for_experiment( $experiment_id );
 
-		// Ensure we have a post ID before proceeding.
-		$query_args = [
-			'meta_key' => 'optimizely_experiment_id', // Potential slow query
-			'meta_value' => $experiment_id, // Potential slow query
-		];
-
-		$experiment_query = new \WP_Query( $query_args );
-
-		if ( ! $experiment_query->found_posts ) {
-			wp_send_json_error( __( 'Missing a post attached to this experiment.', 'optimizely-x' ) );
+		if ( empty( $post ) ) {
+			wp_send_json_error( __( 'Unable to launch experiment. Missing a post attached to this experiment.', 'optimizely-x' ) );
 		}
 
-		// Update the post title with the launched title
-		$experiment_query->posts[0]->post_title = $variation_text;
-		$updated = wp_update_post( $experiment_query->posts[0] );
-
-		if ( ! $updated ) {
-			wp_send_json_error( __( 'There was a problem updating the post with the new title.', 'optimizely-x' ) );
-		}
-
-		$post_id = $experiment_query->posts[0]->ID;
+		/**
+		 * Action fires when an Optimizely headline experiment is launched.
+		 *
+		 * @param \WP_Post $post Post object.
+		 * @param string $variation_text Winning headline variation.
+		 * @param int $experiment_id Experiment ID.
+		 */
+		do_action( 'optimizely_launch_experiment', $post, $variation_text, $experiment_id );
 
 		// Build API request URL.
 		$operation = '/experiments/' . $experiment_id;
@@ -248,6 +224,7 @@ class AJAX_Results extends AJAX {
 		$response = $this->api->delete( $operation );
 
 		// Clear the transient for the entire experiment list
+		$project_id = absint( get_option( 'optimizely_x_project_id' ) );
 		$this->api->delete_endpoint_transient( '/experiments', [
 			'project_id' => $project_id,
 		] );
@@ -259,7 +236,7 @@ class AJAX_Results extends AJAX {
 
 		// Update the status in postmeta.
 		update_post_meta(
-			$post_id,
+			$post->ID,
 			'optimizely_experiment_status',
 			'archived'
 		);
@@ -292,6 +269,46 @@ class AJAX_Results extends AJAX {
 			'wp_ajax_optimizely_x_launch_variation',
 			array( $this, 'launch_variation' )
 		);
+	}
+
+	/**
+	 * Get the Post for an Experiment ID.
+	 *
+	 * @param $experiment_id int Experiment ID.
+	 * @return \WP_Post|false Post object or false if not found.
+	 */
+	protected function get_post_for_experiment( $experiment_id ) {
+
+		$meta_key = '_optimizely_id_' . (int) $experiment_id;
+		$query    = new \WP_Query( [
+			'meta_query' => [
+				[
+					'key' => $meta_key,
+					'compare' => 'EXISTS',
+				],
+			],
+			'post_type' => 'any',
+			'no_found_rows' => true,
+			'posts_per_page' => 1,
+		] );
+
+		if ( ! $query->post_count ) {
+			// Try backwards compatible query for experiments launched
+			// prior to plugin version 1.2.3
+			$query = new \WP_Query( [
+				'meta_key' => 'optimizely_experiment_id', // Potentialy slow query
+				'meta_value' => $experiment_id, // Potentialy slow query
+				'post_type' => 'any',
+				'no_found_rows' => true,
+				'posts_per_page' => 1,
+			] );
+		}
+
+		if ( ! $query->post_count ) {
+			return false;
+		}
+
+		return $query->posts[0];
 	}
 
 }

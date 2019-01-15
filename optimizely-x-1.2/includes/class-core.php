@@ -24,7 +24,7 @@ class Core {
 	 * @since 1.0.0
 	 * @var string
 	 */
-	const VERSION = '1.2.0';
+	const VERSION = '1.2.3';
 
 	/**
 	 * Initialize the objects that control the plugin's functionality.
